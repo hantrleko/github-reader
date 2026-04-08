@@ -302,27 +302,67 @@ function generateBacktestData(values: Record<string, number>) {
   // Kupiec POF test
   const T = nDays;
   const x = exceptions;
-  const p = 1 - confidence; // expected exception rate
-  const pHat = x / T; // observed exception rate
+  const p = 1 - confidence;
+  const pHat = x / T;
 
   let kupiecLR = 0;
   if (x > 0 && x < T) {
-    kupiecLR = 2 * (
-      x * Math.log(pHat / p) + (T - x) * Math.log((1 - pHat) / (1 - p))
-    );
+    kupiecLR = 2 * (x * Math.log(pHat / p) + (T - x) * Math.log((1 - pHat) / (1 - p)));
   } else if (x === 0) {
-    kupiecLR = 2 * T * Math.log((1 - 0) / (1 - p)); // simplified
+    kupiecLR = 2 * T * Math.log(1 / (1 - p));
   } else {
     kupiecLR = 2 * T * Math.log(1 / p);
   }
   kupiecLR = Math.max(0, kupiecLR);
-
   const kupiecPValue = 1 - chi2Cdf1(kupiecLR);
   const kupiecReject = kupiecPValue < 0.05;
 
-  // Basel traffic light zones (for 250 days at given confidence)
-  // Green: exceptions <= expected * ~1.5 (roughly 0-4 at 99%)
-  // Yellow: 5-9, Red: 10+
+  // Christoffersen Independence Test
+  // Count transitions: n00, n01, n10, n11
+  let n00 = 0, n01 = 0, n10 = 0, n11 = 0;
+  for (let i = 1; i < nDays; i++) {
+    const prev = timeline[i - 1].exception ? 1 : 0;
+    const curr = timeline[i].exception ? 1 : 0;
+    if (prev === 0 && curr === 0) n00++;
+    else if (prev === 0 && curr === 1) n01++;
+    else if (prev === 1 && curr === 0) n10++;
+    else n11++;
+  }
+
+  // π₀₁ = P(exception | no exception yesterday)
+  // π₁₁ = P(exception | exception yesterday)
+  // π = P(exception) unconditional
+  const pi01 = (n00 + n01) > 0 ? n01 / (n00 + n01) : 0;
+  const pi11 = (n10 + n11) > 0 ? n11 / (n10 + n11) : 0;
+  const piHat = (n01 + n11) / (T - 1);
+
+  // LR_ind = 2 * [log L(π₀₁, π₁₁) - log L(π̂)]
+  let lnL1 = 0; // unrestricted
+  if (n00 > 0) lnL1 += n00 * Math.log(1 - pi01);
+  if (n01 > 0) lnL1 += n01 * Math.log(pi01);
+  if (n10 > 0) lnL1 += n10 * Math.log(1 - pi11);
+  if (n11 > 0) lnL1 += n11 * Math.log(pi11);
+
+  let lnL0 = 0; // restricted (independent)
+  const totalPairs = n00 + n01 + n10 + n11;
+  const nExc = n01 + n11;
+  const nNoExc = n00 + n10;
+  if (nNoExc > 0) lnL0 += nNoExc * Math.log(1 - piHat);
+  if (nExc > 0) lnL0 += nExc * Math.log(piHat);
+
+  let indLR = 2 * (lnL1 - lnL0);
+  indLR = Math.max(0, isFinite(indLR) ? indLR : 0);
+  const indPValue = 1 - chi2Cdf1(indLR);
+  const indReject = indPValue < 0.05;
+
+  // Conditional Coverage (CC) = Kupiec + Independence, LR_cc ~ χ²(2)
+  const ccLR = kupiecLR + indLR;
+  // χ²(2) CDF: 1 - e^(-x/2)
+  const chi2Cdf2 = (xv: number) => xv <= 0 ? 0 : 1 - Math.exp(-xv / 2);
+  const ccPValue = 1 - chi2Cdf2(ccLR);
+  const ccReject = ccPValue < 0.05;
+
+  // Basel traffic light
   const expectedExceptions = T * (1 - confidence);
   let trafficLight: "green" | "yellow" | "red";
   if (x <= Math.ceil(expectedExceptions + 1.5 * Math.sqrt(expectedExceptions * confidence))) {
@@ -332,8 +372,6 @@ function generateBacktestData(values: Record<string, number>) {
   } else {
     trafficLight = "red";
   }
-
-  // For 99% confidence specifically, use Basel standard thresholds
   if (Math.abs(confidence - 0.99) < 0.001) {
     if (x <= 4) trafficLight = "green";
     else if (x <= 9) trafficLight = "yellow";
@@ -345,9 +383,11 @@ function generateBacktestData(values: Record<string, number>) {
     exceptions,
     expectedExceptions,
     dailyVaR,
-    kupiecLR,
-    kupiecPValue,
-    kupiecReject,
+    kupiecLR, kupiecPValue, kupiecReject,
+    indLR, indPValue, indReject,
+    pi01, pi11,
+    ccLR, ccPValue, ccReject,
+    n00, n01, n10, n11,
     trafficLight,
     nDays,
   };
@@ -880,26 +920,95 @@ const CalculatorSection = () => {
                   </p>
                 </div>
 
-                {/* Kupiec Test */}
+                {/* Kupiec POF Test */}
                 <div className={`rounded-xl border p-5 text-center ${
-                  backtestData.kupiecReject
-                    ? "border-red-400/20 bg-red-400/[0.03]"
-                    : "border-emerald-400/20 bg-emerald-400/[0.03]"
+                  backtestData.kupiecReject ? "border-red-400/20 bg-red-400/[0.03]" : "border-emerald-400/20 bg-emerald-400/[0.03]"
                 }`}>
                   <p className="text-xs font-mono text-muted-foreground mb-2 uppercase tracking-wider">
                     Kupiec POF 检验
                   </p>
+                  <p className="text-xs font-mono text-muted-foreground mb-1">H₀: p = p̂（覆盖率正确）</p>
                   <p className="text-lg font-mono font-bold text-foreground">
-                    LR = {backtestData.kupiecLR.toFixed(3)}
+                    LR<sub>uc</sub> = {backtestData.kupiecLR.toFixed(3)}
                   </p>
-                  <p className="text-sm font-mono text-muted-foreground mt-1">
-                    p-value = {backtestData.kupiecPValue.toFixed(4)}
+                  <p className="text-sm font-mono text-muted-foreground">
+                    p = {backtestData.kupiecPValue.toFixed(4)} · χ²(1)
                   </p>
-                  <p className={`text-xs font-mono mt-2 font-bold ${
-                    backtestData.kupiecReject ? "text-red-400" : "text-emerald-400"
-                  }`}>
-                    {backtestData.kupiecReject ? "拒绝 H₀ · 模型不准确" : "不拒绝 H₀ · 模型可接受"}
+                  <p className={`text-xs font-mono mt-1 font-bold ${backtestData.kupiecReject ? "text-red-400" : "text-emerald-400"}`}>
+                    {backtestData.kupiecReject ? "拒绝 · 覆盖率不准确" : "通过 · 覆盖率可接受"}
                   </p>
+                </div>
+              </div>
+
+              {/* Christoffersen Tests Row */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                {/* Independence Test */}
+                <div className={`rounded-xl border p-5 text-center ${
+                  backtestData.indReject ? "border-red-400/20 bg-red-400/[0.03]" : "border-emerald-400/20 bg-emerald-400/[0.03]"
+                }`}>
+                  <p className="text-xs font-mono text-muted-foreground mb-2 uppercase tracking-wider">
+                    独立性检验 (LR<sub>ind</sub>)
+                  </p>
+                  <p className="text-xs font-mono text-muted-foreground mb-1">H₀: 突破间相互独立</p>
+                  <p className="text-lg font-mono font-bold text-foreground">
+                    LR<sub>ind</sub> = {backtestData.indLR.toFixed(3)}
+                  </p>
+                  <p className="text-sm font-mono text-muted-foreground">
+                    p = {backtestData.indPValue.toFixed(4)} · χ²(1)
+                  </p>
+                  <p className={`text-xs font-mono mt-1 font-bold ${backtestData.indReject ? "text-red-400" : "text-emerald-400"}`}>
+                    {backtestData.indReject ? "拒绝 · 存在聚集效应" : "通过 · 突破独立"}
+                  </p>
+                </div>
+
+                {/* Conditional Coverage Test */}
+                <div className={`rounded-xl border p-5 text-center ${
+                  backtestData.ccReject ? "border-red-400/20 bg-red-400/[0.03]" : "border-emerald-400/20 bg-emerald-400/[0.03]"
+                }`}>
+                  <p className="text-xs font-mono text-muted-foreground mb-2 uppercase tracking-wider">
+                    条件覆盖检验 (LR<sub>cc</sub>)
+                  </p>
+                  <p className="text-xs font-mono text-muted-foreground mb-1">LR<sub>cc</sub> = LR<sub>uc</sub> + LR<sub>ind</sub></p>
+                  <p className="text-lg font-mono font-bold text-foreground">
+                    LR<sub>cc</sub> = {backtestData.ccLR.toFixed(3)}
+                  </p>
+                  <p className="text-sm font-mono text-muted-foreground">
+                    p = {backtestData.ccPValue.toFixed(4)} · χ²(2)
+                  </p>
+                  <p className={`text-xs font-mono mt-1 font-bold ${backtestData.ccReject ? "text-red-400" : "text-emerald-400"}`}>
+                    {backtestData.ccReject ? "拒绝 · 模型综合不合格" : "通过 · 模型综合合格"}
+                  </p>
+                </div>
+
+                {/* Transition Matrix */}
+                <div className="rounded-xl border border-border bg-secondary/30 p-5">
+                  <p className="text-xs font-mono text-muted-foreground mb-3 uppercase tracking-wider text-center">
+                    转移矩阵
+                  </p>
+                  <table className="w-full text-center font-mono text-sm">
+                    <thead>
+                      <tr>
+                        <th className="text-[10px] text-muted-foreground p-1"></th>
+                        <th className="text-[10px] text-muted-foreground p-1">→ 正常</th>
+                        <th className="text-[10px] text-muted-foreground p-1">→ 突破</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td className="text-[10px] text-muted-foreground p-1">正常 →</td>
+                        <td className="text-foreground p-1 font-bold">{backtestData.n00}</td>
+                        <td className="text-gold p-1 font-bold">{backtestData.n01}</td>
+                      </tr>
+                      <tr>
+                        <td className="text-[10px] text-muted-foreground p-1">突破 →</td>
+                        <td className="text-foreground p-1 font-bold">{backtestData.n10}</td>
+                        <td className="text-red-400 p-1 font-bold">{backtestData.n11}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                  <div className="mt-2 text-[10px] font-mono text-muted-foreground text-center space-y-0.5">
+                    <p>π₀₁ = {backtestData.pi01.toFixed(4)} · π₁₁ = {backtestData.pi11.toFixed(4)}</p>
+                  </div>
                 </div>
               </div>
 
