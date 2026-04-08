@@ -1169,47 +1169,208 @@ export const topicsData: TopicData[] = [
     icon: Layers,
     title: "风险管理",
     subtitle: "Risk Management",
-    desc: "VaR、CVaR、信用风险模型、压力测试方法论",
-    tags: ["VaR", "CVaR", "Stress"],
+    desc: "市场风险度量、信用风险建模、操作风险、流动性风险与 Basel 监管框架",
+    tags: ["VaR", "CVaR", "信用风险", "操作风险", "Basel"],
     heroDesc:
-      "风险管理量化和控制金融风险，VaR 和 CVaR 是市场风险度量的核心指标，Basel 协议为银行风控提供了监管框架。",
+      "风险管理量化和控制金融风险，涵盖市场风险、信用风险、操作风险和流动性风险。Basel 协议为全球银行风控提供了监管框架。本模块从市场风险度量出发，覆盖风险管理的完整知识体系。",
     knowledgePoints: [
+      // ── 一、市场风险度量 ──
       {
-        title: "在险价值 (VaR)",
+        title: "在险价值 (VaR) 三大方法",
         content:
-          "在给定置信水平和持有期下，投资组合可能遭受的最大损失。三种计算方法：参数法（方差-协方差法）、历史模拟法、蒙特卡洛模拟法。",
-        formula: "P(L > VaRα) = 1 − α",
+          "VaR 是在给定置信水平和持有期下，组合可能遭受的最大损失。参数法（方差-协方差法）假设正态分布，计算快但忽略厚尾；历史模拟法无分布假设但依赖历史窗口选择；蒙特卡洛法最灵活但计算量最大。",
+        formula: "P(L > VaR_α) = 1 − α",
         formulaExplain:
-          "正态假设下 VaR = μ − zα × σ。如 95% VaR 表示 95% 的概率损失不超过该值。",
+          "99% VaR 含义：未来 1 天/10 天内，损失超过 VaR 的概率仅 1%。",
         derivation: [
-          "1. 参数法：假设收益正态分布，VaR = |μ − z₀.₉₅σ| × Portfolio Value",
-          "2. 历史模拟法：将历史收益率排序，取第 (1−α) 分位数",
-          "3. 蒙特卡洛法：模拟大量组合收益路径，取分位数",
+          "1. 参数法：VaR = |μ − z_α · σ| × W，组合方差 σ²ₚ = w'Σw",
+          "2. 历史模拟：将过去 250/500 天收益排序，取第 (1−α) 分位数",
+          "3. 蒙特卡洛：模拟风险因子联合分布 → 重新定价 → 取分位数",
+          "4. 持有期调整：VaR_T = VaR_1 × √T（i.i.d. 假设下）",
+          "5. 置信水平转换：VaR_99% ≈ VaR_95% × z₀.₉₉/z₀.₉₅ ≈ 1.41 × VaR_95%",
         ],
       },
       {
-        title: "条件在险价值 (CVaR / ES)",
+        title: "条件在险价值 (CVaR / Expected Shortfall)",
         content:
-          "VaR 的改进指标，衡量损失超过 VaR 时的期望损失。CVaR 是一致性风险度量（coherent risk measure），满足次可加性。",
-        formula: "CVaRα = E[L | L > VaRα]",
+          "CVaR 度量超过 VaR 阈值后的平均损失，是一致性风险度量（满足次可加性、正齐次性、平移不变性、单调性）。Basel III FRTB 要求用 97.5% ES 替代 99% VaR 作为市场风险资本计量标准。",
+        formula: "ES_α = E[L | L > VaR_α] = (1/(1−α)) ∫_α^1 VaR_u du",
         formulaExplain:
-          "正态假设下 CVaR = μ + σ × φ(zα) / (1−α)，其中 φ 为标准正态密度函数。",
+          "正态分布下 ES_α = μ + σ · φ(z_α)/(1−α)。ES 对尾部风险更敏感，惩罚极端损失。",
+        derivation: [
+          "1. VaR 不满足次可加性：VaR(A+B) 可能 > VaR(A) + VaR(B)",
+          "2. Artzner et al. (1999) 提出一致性风险度量四公理",
+          "3. ES 满足所有四条公理，是 VaR 的凸化改进",
+          "4. Rockafellar-Uryasev (2000)：ES 可通过线性规划优化",
+          "5. 历史模拟 ES = 超过 VaR 的所有损失的算术平均",
+        ],
       },
       {
-        title: "信用风险模型",
+        title: "VaR 回测检验 (Backtesting)",
         content:
-          "Merton (1974) 结构化模型将公司股权视为以公司资产为标的的看涨期权。KMV 模型据此估算违约概率 (PD)。",
-        formula: "PD = N(−DD),  DD = (ln(V/D) + (μ − σ²/2)T) / (σ√T)",
+          "回测检验 VaR 模型的准确性：统计实际损失超过 VaR 的次数（违例次数）是否符合预期。Kupiec POF 检验测试违例比例，Christoffersen 条件覆盖检验还检查违例是否独立（不应聚集）。",
+        formula: "Kupiec LR_POF = 2ln[(p̂^x(1−p̂)^{T−x}) / (α^x(1−α)^{T−x})] ~ χ²(1)",
         formulaExplain:
-          "DD = 违约距离，V = 资产价值，D = 债务面值，σ = 资产波动率。",
+          "p̂ = x/T 为实际违例比例，α = 1 − 置信水平为预期违例比例。Basel 用交通灯法（绿/黄/红区）。",
       },
       {
-        title: "压力测试",
+        title: "风险因子映射与 Delta-Gamma 近似",
         content:
-          "评估极端但可能的情景对组合价值的影响。包括历史情景法（如 2008 金融危机）和假设情景法（利率骤升 300bp）。Basel III 要求系统重要性银行定期进行压力测试。",
-        formula: "ΔP = Σ (∂P/∂fⱼ) × Δfⱼ + ½ Σ (∂²P/∂fⱼ²) × (Δfⱼ)²",
+          "大型组合包含数千种工具，风险因子映射将其简化为对少数核心因子（利率关键期限、汇率、股指、价差）的敞口。Delta-Gamma 近似用二阶 Taylor 展开快速估计组合价值变化。",
+        formula: "ΔP ≈ δ'Δf + ½Δf'ΓΔf",
         formulaExplain:
-          "二阶 Taylor 展开近似组合价值变动，fⱼ 为风险因子（利率、汇率、股指等）。",
+          "δ 为 Delta 向量（一阶敏感度），Γ 为 Gamma 矩阵（二阶敏感度），Δf 为风险因子变化。",
+        derivation: [
+          "1. 完全重估：对每个情景重新定价所有工具（精确但慢）",
+          "2. Delta 近似（线性）：ΔP ≈ δ'Δf，组合 VaR = √(δ'Σδ) × z_α",
+          "3. Delta-Gamma：加入二阶项，捕捉非线性（期权 Gamma 效应）",
+          "4. Cornish-Fisher 展开修正非正态分布的分位数",
+          "5. 在 Delta-Gamma-Normal 框架下 VaR 无解析解，需特征函数反变换或 MC",
+        ],
+      },
+      // ── 二、信用风险 ──
+      {
+        title: "Merton 结构化违约模型",
+        content:
+          "Merton (1974) 将公司股权视为以公司资产为标的的欧式看涨期权（执行价 = 债务面值）。当资产价值低于债务时违约。违约概率由违约距离 (DD) 决定。KMV/Moody's EDF 模型是其商业应用。",
+        formula: "E = V·N(d₁) − D·e^{−rT}·N(d₂)；DD = [ln(V/D) + (μ − σ²_V/2)T] / (σ_V√T)",
+        formulaExplain:
+          "E 为股权价值，V 为资产价值，D 为债务面值。PD = N(−DD)。需从 E 和 σ_E 联立方程解出 V 和 σ_V。",
+        derivation: [
+          "1. 资产动态：dV = μVdt + σ_VVdW",
+          "2. 到期时：股权 = max(V_T − D, 0)（看涨期权 payoff）",
+          "3. BS 框架下：E = V·N(d₁) − De^{−rT}N(d₂)",
+          "4. 由 Itô 引理：σ_E = (V/E)·N(d₁)·σ_V",
+          "5. 联立 E 的市场价格和上述两个方程，数值求解 V 和 σ_V",
+        ],
+      },
+      {
+        title: "简约化信用模型",
+        content:
+          "与结构化模型不同，简约化模型（Jarrow-Turnbull, Duffie-Singleton）不建模资产价值，而是直接假设违约强度 λ(t) 为外生随机过程。违约是泊松过程的首次跳跃。更灵活，便于校准到 CDS 市场价格。",
+        formula: "Q(τ > t) = exp(−∫₀ᵗ λ(s)ds)；可违约债券 P̃ = E^Q[e^{−∫(r+λ·LGD)ds}]",
+        formulaExplain:
+          "λ(t) 为违约强度/风险率。λΔt ≈ 在 [t, t+Δt] 内违约的条件概率。LGD = 违约损失率。",
+      },
+      {
+        title: "信用评级迁移与 CreditMetrics",
+        content:
+          "J.P. Morgan CreditMetrics 框架用评级迁移矩阵描述信用质量变化的概率。组合信用 VaR 通过模拟各债务人的评级迁移和相关违约来计算。资产相关性通过多因子模型引入。",
+        formula: "P(AAA→BB) = 迁移矩阵中 (AAA, BB) 元素；信用损失 = Σ LGD_i × 1_{违约i}",
+        formulaExplain:
+          "迁移矩阵的行和为 1。每行最大元素在对角线上（评级不变概率最高）。",
+      },
+      {
+        title: "组合信用风险：Vasicek 单因子模型",
+        content:
+          "Basel IRB 方法的理论基础。假设每个借款人的资产收益受一个系统因子和一个特质因子驱动。给定系统因子后违约相互独立，大数定律给出条件违约率的解析分布。",
+        formula: "Xᵢ = √ρ·Z + √(1−ρ)·εᵢ；违约 ⟺ Xᵢ < N⁻¹(PD)",
+        formulaExplain:
+          "Z 为系统因子，εᵢ 为特质因子，ρ 为资产相关系数。Basel IRB 公式据此推导资本要求。",
+        derivation: [
+          "1. 条件违约概率：PD(Z) = N[(N⁻¹(PD) − √ρ·Z) / √(1−ρ)]",
+          "2. 给定 Z，大组合的损失率 ≈ LGD × PD(Z)（大数定律）",
+          "3. 99.9% 分位数对应 Z = N⁻¹(0.001) = −3.09",
+          "4. Basel IRB 资本 = LGD × N[(N⁻¹(PD) + √ρ·N⁻¹(0.999)) / √(1−ρ)] − PD × LGD",
+          "5. 期限调整和公司规模调整作为修正项加入",
+        ],
+      },
+      // ── 三、操作风险与流动性风险 ──
+      {
+        title: "操作风险度量方法",
+        content:
+          "操作风险源于内部流程、人员、系统或外部事件的失败。Basel II 提出三种方法：基本指标法（BIA）、标准法（TSA）和高级计量法（AMA）。AMA 通常采用损失分布法（LDA），分别建模损失频率和损失严重度。",
+        formula: "ORC_LDA = VaR_α(Σᵢ₌₁ᴺ Xᵢ)，N ~ Poisson(λ)，Xᵢ ~ Severity",
+        formulaExplain:
+          "N 为损失事件次数（频率），Xᵢ 为单次损失金额（严重度）。通过 MC 模拟复合分布的分位数。",
+        derivation: [
+          "1. 频率分布：Poisson 或负二项分布，参数由历史事件计数估计",
+          "2. 严重度分布：对数正态、Weibull 或广义帕累托 (GPD) 分布",
+          "3. 复合分布：S = X₁ + X₂ + ⋯ + X_N 无解析形式",
+          "4. MC 模拟：先抽 N，再抽 N 个 Xᵢ，求和得一次模拟的年度损失",
+          "5. 重复 10⁵~10⁶ 次，取 99.9% 分位数作为操作风险资本",
+        ],
+      },
+      {
+        title: "极值理论 (EVT) 与厚尾建模",
+        content:
+          "金融损失分布通常具有厚尾特征，传统正态假设严重低估极端损失概率。POT（超阈值）方法用广义帕累托分布 (GPD) 建模超过高阈值的损失，是操作风险和市场风险尾部建模的标准工具。",
+        formula: "GPD: F̄_u(y) = (1 + ξy/β)^{−1/ξ}，y = x − u > 0",
+        formulaExplain:
+          "u 为阈值，ξ 为形状参数（ξ > 0 为厚尾/Fréchet 型），β 为尺度参数。ξ 越大尾部越重。",
+      },
+      {
+        title: "流动性风险",
+        content:
+          "市场流动性风险指无法以合理价格及时平仓的风险；融资流动性风险指无法以合理成本获得资金的风险。流动性调整 VaR (LVaR) 在传统 VaR 基础上加入买卖价差和市场冲击成本。2008 危机凸显了流动性螺旋的系统性危害。",
+        formula: "LVaR = VaR + ½ × W × (μ_spread + z_α · σ_spread)",
+        formulaExplain:
+          "W 为头寸规模。买卖价差分解为正常价差和压力下的价差扩大。市场冲击还需考虑头寸对价格的永久和临时影响。",
+      },
+      // ── 四、压力测试与情景分析 ──
+      {
+        title: "压力测试方法论",
+        content:
+          "压力测试评估极端但合理情景对组合价值的影响。历史情景法重现过去危机（如 2008 全球金融危机、2020 COVID）；假设情景法构造特定冲击组合。逆向压力测试从不可接受的损失出发，反推可能导致该损失的情景。",
+        formula: "ΔP = Σⱼ (∂P/∂fⱼ)Δfⱼ + ½ Σⱼ (∂²P/∂f²ⱼ)(Δfⱼ)² + 交叉项",
+        formulaExplain:
+          "完全重估法更精确但计算量大。敏感度法用 Taylor 展开快速近似，适合日常压力测试。",
+      },
+      {
+        title: "风险聚合与 Copula",
+        content:
+          "不同风险类型（市场、信用、操作）的联合分布难以用传统方法刻画。Copula 将边际分布与依赖结构分离，Gaussian Copula 被广泛用于 CDO 定价（但 2008 危机暴露其对尾部依赖的低估）。",
+        formula: "F(x₁,...,xₙ) = C(F₁(x₁),...,Fₙ(xₙ))（Sklar 定理）",
+        formulaExplain:
+          "C 为 Copula 函数。Gaussian Copula 用相关矩阵参数化；t-Copula 更好捕捉尾部共同极端事件。",
+      },
+      // ── 五、Basel 监管框架 ──
+      {
+        title: "Basel 资本协议演进",
+        content:
+          "Basel I (1988) 引入 8% 最低资本充足率；Basel II (2004) 建立三支柱框架（最低资本、监管审查、市场纪律）；Basel III (2010) 提高资本质量要求（CET1）、引入杠杆率和流动性指标（LCR/NSFR）；Basel III Final (2017) 限制内部模型的资本节省（output floor）。",
+        formula: "CAR = (Tier1 + Tier2) / RWA ≥ 8%；CET1 Ratio = CET1 / RWA ≥ 4.5%",
+        formulaExplain:
+          "RWA = 风险加权资产。加上资本保留缓冲 (2.5%) 和逆周期缓冲 (0-2.5%)，CET1 实际要求 ≥ 7-9.5%。",
+      },
+      {
+        title: "FRTB：市场风险资本新框架",
+        content:
+          "基本面交易账簿审查 (FRTB) 是 Basel III 对市场风险资本计量的重大改革。标准法 (SA) 基于敏感度法（Delta/Vega/Curvature）；内部模型法 (IMA) 用 97.5% ES 替代 99% VaR，引入流动性期限分层和违约风险资本附加 (DRC)。",
+        formula: "IMA Capital = max(ES_t-1, mc × ES_avg) + DRC + SES",
+        formulaExplain:
+          "mc 为乘数因子（≥1.5），ES_avg 为 60 天滚动平均 ES。DRC 覆盖交易账簿中的违约和评级迁移风险。",
+      },
+      {
+        title: "xVA 框架：衍生品估值调整",
+        content:
+          "2008 危机后，衍生品定价从无信用风险的 mid-price 演变为包含多种估值调整的框架：CVA（信用估值调整）、DVA（自身信用）、FVA（融资成本）、MVA（保证金成本）、KVA（资本成本）。",
+        formula: "CVA = LGD × ∫₀ᵀ EE(t) × dPD(t) × DF(t)",
+        formulaExplain:
+          "EE(t) 为预期正暴露（Expected Positive Exposure），PD(t) 为交对手违约概率。CVA 本质是一个信用保护期权的价格。",
+        derivation: [
+          "1. 计算每个时间点的预期暴露 EE(t)（需 MC 模拟衍生品未来价值）",
+          "2. 从 CDS 市场 bootstrap 交对手违约概率 PD(t)",
+          "3. CVA ≈ LGD × Σᵢ EE(tᵢ) × [PD(tᵢ) − PD(tᵢ₋₁)] × DF(tᵢ)",
+          "4. DVA 对称计算：自身违约时对手方的预期暴露",
+          "5. FVA 涉及融资价差与预期暴露的积分，依赖银行自身融资曲线",
+        ],
+      },
+      {
+        title: "模型风险管理",
+        content:
+          "模型风险是因模型不完善或误用导致决策失误的风险。SR 11-7 (Fed) 要求建立独立的模型验证、持续监控和治理框架。主要验证内容包括：概念稳健性、数据质量、实施正确性、结果分析和回测。",
+        formula: "模型储备 = Σ (P_model − P_benchmark) × 置信度调整",
+        formulaExplain:
+          "模型储备弥补模型不确定性。典型做法：使用备选模型定价，取差值的保守端。",
+      },
+      {
+        title: "经济资本与 RAROC",
+        content:
+          "经济资本 (EC) 是银行内部评估的、覆盖非预期损失所需的资本，通常取 99.95-99.97% 置信水平。RAROC 将风险调整后的收益与经济资本挂钩，是业务线绩效评估和资本配置的核心指标。",
+        formula: "RAROC = (收入 − 预期损失 − 资金成本 − 运营成本) / 经济资本",
+        formulaExplain:
+          "RAROC > 股权成本 (hurdle rate) 的业务创造价值。经济资本 = UL = VaR_99.97% − EL。",
       },
     ],
   },
