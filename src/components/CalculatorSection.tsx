@@ -64,18 +64,65 @@ function normInv(p: number): number {
   return t - (c0 + c1 * t + c2 * t * t) / (1 + d1 * t + d2 * t * t + d3 * t * t * t);
 }
 
+function bsD1(s: number, k: number, r: number, sigma: number, t: number) {
+  if (t <= 0 || sigma <= 0) return 0;
+  return (Math.log(s / k) + (r + (sigma * sigma) / 2) * t) / (sigma * Math.sqrt(t));
+}
+
 function bsCall(s: number, k: number, r: number, sigma: number, t: number) {
   if (t <= 0 || sigma <= 0) return Math.max(s - k * Math.exp(-r * t), 0);
-  const d1 = (Math.log(s / k) + (r + (sigma * sigma) / 2) * t) / (sigma * Math.sqrt(t));
+  const d1 = bsD1(s, k, r, sigma, t);
   const d2 = d1 - sigma * Math.sqrt(t);
   return s * normCdf(d1) - k * Math.exp(-r * t) * normCdf(d2);
 }
 
 function bsPut(s: number, k: number, r: number, sigma: number, t: number) {
   if (t <= 0 || sigma <= 0) return Math.max(k * Math.exp(-r * t) - s, 0);
-  const d1 = (Math.log(s / k) + (r + (sigma * sigma) / 2) * t) / (sigma * Math.sqrt(t));
+  const d1 = bsD1(s, k, r, sigma, t);
   const d2 = d1 - sigma * Math.sqrt(t);
   return k * Math.exp(-r * t) * normCdf(-d2) - s * normCdf(-d1);
+}
+
+// Greeks calculations
+function bsGreeks(s: number, k: number, r: number, sigma: number, t: number) {
+  if (t <= 0 || sigma <= 0) return { callDelta: s > k ? 1 : 0, putDelta: s > k ? 0 : -1, gamma: 0, callTheta: 0, putTheta: 0, vega: 0, callRho: 0, putRho: 0 };
+  const d1 = bsD1(s, k, r, sigma, t);
+  const d2 = d1 - sigma * Math.sqrt(t);
+  const nd1 = normPdf(d1);
+
+  const callDelta = normCdf(d1);
+  const putDelta = callDelta - 1;
+  const gamma = nd1 / (s * sigma * Math.sqrt(t));
+  const callTheta = (-(s * nd1 * sigma) / (2 * Math.sqrt(t)) - r * k * Math.exp(-r * t) * normCdf(d2)) / 365;
+  const putTheta = (-(s * nd1 * sigma) / (2 * Math.sqrt(t)) + r * k * Math.exp(-r * t) * normCdf(-d2)) / 365;
+  const vega = s * nd1 * Math.sqrt(t) / 100; // per 1% move
+  const callRho = k * t * Math.exp(-r * t) * normCdf(d2) / 100;
+  const putRho = -k * t * Math.exp(-r * t) * normCdf(-d2) / 100;
+
+  return { callDelta, putDelta, gamma, callTheta, putTheta, vega, callRho, putRho };
+}
+
+function generateGreeksData(values: Record<string, number>) {
+  const k = values.k, r = values.r / 100, sigma = values.sigma / 100, t = values.t;
+  const sMin = Math.max(1, k * 0.5);
+  const sMax = k * 1.5;
+  const steps = 80;
+  const data: { s: number; callDelta: number; putDelta: number; gamma: number; callTheta: number; putTheta: number; vega: number }[] = [];
+
+  for (let i = 0; i <= steps; i++) {
+    const s = sMin + (sMax - sMin) * i / steps;
+    const g = bsGreeks(s, k, r, sigma, t);
+    data.push({
+      s: parseFloat(s.toFixed(1)),
+      callDelta: parseFloat(g.callDelta.toFixed(4)),
+      putDelta: parseFloat(g.putDelta.toFixed(4)),
+      gamma: parseFloat(g.gamma.toFixed(6)),
+      callTheta: parseFloat(g.callTheta.toFixed(4)),
+      putTheta: parseFloat(g.putTheta.toFixed(4)),
+      vega: parseFloat(g.vega.toFixed(4)),
+    });
+  }
+  return data;
 }
 
 const bsParams: ParamConfig[] = [
