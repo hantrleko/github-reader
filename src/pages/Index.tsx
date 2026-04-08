@@ -6,6 +6,7 @@ import EfficientFrontier from "@/components/EfficientFrontier";
 import BondCalculator from "@/components/BondCalculator";
 import RateModelSimulator from "@/components/RateModelSimulator";
 import ImpliedVolTool from "@/components/ImpliedVolTool";
+import MCOptionPricer from "@/components/MCOptionPricer";
 import LearningPath from "@/components/LearningPath";
 
 const Index = () => {
