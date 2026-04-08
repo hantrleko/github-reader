@@ -64,18 +64,65 @@ function normInv(p: number): number {
   return t - (c0 + c1 * t + c2 * t * t) / (1 + d1 * t + d2 * t * t + d3 * t * t * t);
 }
 
+function bsD1(s: number, k: number, r: number, sigma: number, t: number) {
+  if (t <= 0 || sigma <= 0) return 0;
+  return (Math.log(s / k) + (r + (sigma * sigma) / 2) * t) / (sigma * Math.sqrt(t));
+}
+
 function bsCall(s: number, k: number, r: number, sigma: number, t: number) {
   if (t <= 0 || sigma <= 0) return Math.max(s - k * Math.exp(-r * t), 0);
-  const d1 = (Math.log(s / k) + (r + (sigma * sigma) / 2) * t) / (sigma * Math.sqrt(t));
+  const d1 = bsD1(s, k, r, sigma, t);
   const d2 = d1 - sigma * Math.sqrt(t);
   return s * normCdf(d1) - k * Math.exp(-r * t) * normCdf(d2);
 }
 
 function bsPut(s: number, k: number, r: number, sigma: number, t: number) {
   if (t <= 0 || sigma <= 0) return Math.max(k * Math.exp(-r * t) - s, 0);
-  const d1 = (Math.log(s / k) + (r + (sigma * sigma) / 2) * t) / (sigma * Math.sqrt(t));
+  const d1 = bsD1(s, k, r, sigma, t);
   const d2 = d1 - sigma * Math.sqrt(t);
   return k * Math.exp(-r * t) * normCdf(-d2) - s * normCdf(-d1);
+}
+
+// Greeks calculations
+function bsGreeks(s: number, k: number, r: number, sigma: number, t: number) {
+  if (t <= 0 || sigma <= 0) return { callDelta: s > k ? 1 : 0, putDelta: s > k ? 0 : -1, gamma: 0, callTheta: 0, putTheta: 0, vega: 0, callRho: 0, putRho: 0 };
+  const d1 = bsD1(s, k, r, sigma, t);
+  const d2 = d1 - sigma * Math.sqrt(t);
+  const nd1 = normPdf(d1);
+
+  const callDelta = normCdf(d1);
+  const putDelta = callDelta - 1;
+  const gamma = nd1 / (s * sigma * Math.sqrt(t));
+  const callTheta = (-(s * nd1 * sigma) / (2 * Math.sqrt(t)) - r * k * Math.exp(-r * t) * normCdf(d2)) / 365;
+  const putTheta = (-(s * nd1 * sigma) / (2 * Math.sqrt(t)) + r * k * Math.exp(-r * t) * normCdf(-d2)) / 365;
+  const vega = s * nd1 * Math.sqrt(t) / 100; // per 1% move
+  const callRho = k * t * Math.exp(-r * t) * normCdf(d2) / 100;
+  const putRho = -k * t * Math.exp(-r * t) * normCdf(-d2) / 100;
+
+  return { callDelta, putDelta, gamma, callTheta, putTheta, vega, callRho, putRho };
+}
+
+function generateGreeksData(values: Record<string, number>) {
+  const k = values.k, r = values.r / 100, sigma = values.sigma / 100, t = values.t;
+  const sMin = Math.max(1, k * 0.5);
+  const sMax = k * 1.5;
+  const steps = 80;
+  const data: { s: number; callDelta: number; putDelta: number; gamma: number; callTheta: number; putTheta: number; vega: number }[] = [];
+
+  for (let i = 0; i <= steps; i++) {
+    const s = sMin + (sMax - sMin) * i / steps;
+    const g = bsGreeks(s, k, r, sigma, t);
+    data.push({
+      s: parseFloat(s.toFixed(1)),
+      callDelta: parseFloat(g.callDelta.toFixed(4)),
+      putDelta: parseFloat(g.putDelta.toFixed(4)),
+      gamma: parseFloat(g.gamma.toFixed(6)),
+      callTheta: parseFloat(g.callTheta.toFixed(4)),
+      putTheta: parseFloat(g.putTheta.toFixed(4)),
+      vega: parseFloat(g.vega.toFixed(4)),
+    });
+  }
+  return data;
 }
 
 const bsParams: ParamConfig[] = [
@@ -114,6 +161,7 @@ const CHART_TEAL = "hsl(180, 50%, 40%)";
 const CHART_RED = "hsl(0, 70%, 55%)";
 const CHART_GRID = "hsl(220, 12%, 18%)";
 const CHART_TEXT = "hsl(220, 10%, 50%)";
+const CHART_BLUE = "hsl(220, 70%, 55%)";
 
 // Seeded pseudo-random for reproducibility
 function mulberry32(seed: number) {
@@ -495,6 +543,17 @@ const CalculatorSection = () => {
     [active, values, effectiveSweep, params]
   );
 
+  // Greeks data for BS
+  const greeksData = useMemo(() => {
+    if (active !== "bs") return null;
+    return generateGreeksData(values);
+  }, [active, values]);
+
+  const currentGreeks = useMemo(() => {
+    if (active !== "bs") return null;
+    return bsGreeks(values.s, values.k, values.r / 100, values.sigma / 100, values.t);
+  }, [active, values]);
+
   // VaR-specific data
   const mcData = useMemo(() => {
     if (active !== "var") return null;
@@ -734,7 +793,106 @@ const CalculatorSection = () => {
             </div>
           </div>
 
-          {/* VaR: Three Methods Comparison */}
+          {/* Greeks Charts - BS only */}
+          {active === "bs" && greeksData && currentGreeks && (
+            <div className="mb-8">
+              <p className="text-xs font-mono text-muted-foreground uppercase tracking-wider mb-4">
+                Greeks 敏感性分析
+              </p>
+
+              {/* Current Greeks values */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+                {[
+                  { label: "Delta (Call)", value: currentGreeks.callDelta.toFixed(4), sub: `Put: ${currentGreeks.putDelta.toFixed(4)}`, color: "text-gold", border: "border-gold/20", bg: "bg-gold/[0.03]" },
+                  { label: "Gamma", value: currentGreeks.gamma.toFixed(6), sub: "∂²C/∂S²", color: "text-teal-400", border: "border-teal-400/20", bg: "bg-teal-400/[0.03]" },
+                  { label: "Theta (Call)", value: currentGreeks.callTheta.toFixed(4), sub: `Put: ${currentGreeks.putTheta.toFixed(4)}`, color: "text-red-400", border: "border-red-400/20", bg: "bg-red-400/[0.03]" },
+                  { label: "Vega", value: currentGreeks.vega.toFixed(4), sub: "per 1% σ", color: "text-blue-400", border: "border-blue-400/20", bg: "bg-blue-400/[0.03]" },
+                ].map((g) => (
+                  <div key={g.label} className={`rounded-xl border ${g.border} ${g.bg} p-4 text-center`}>
+                    <p className={`text-[10px] font-mono ${g.color} mb-1 uppercase tracking-wider`}>{g.label}</p>
+                    <p className="text-lg font-mono font-bold text-foreground">{g.value}</p>
+                    <p className="text-[10px] font-mono text-muted-foreground">{g.sub}</p>
+                  </div>
+                ))}
+              </div>
+
+              {/* 2x2 Greeks charts */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Delta */}
+                <div className="rounded-xl bg-secondary/30 border border-border p-4">
+                  <p className="text-[11px] font-mono text-gold mb-2">Delta (Δ) — ∂C/∂S</p>
+                  <ResponsiveContainer width="100%" height={180}>
+                    <LineChart data={greeksData} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
+                      <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID} />
+                      <XAxis dataKey="s" stroke={CHART_TEXT} tick={{ fontSize: 9, fontFamily: "var(--font-mono)" }} />
+                      <YAxis stroke={CHART_TEXT} tick={{ fontSize: 9, fontFamily: "var(--font-mono)" }} width={45} />
+                      <Tooltip contentStyle={{ backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 11, fontFamily: "var(--font-mono)" }} />
+                      <ReferenceLine x={values.s} stroke={CHART_GOLD} strokeDasharray="4 4" strokeOpacity={0.4} />
+                      <ReferenceLine x={values.k} stroke={CHART_TEXT} strokeDasharray="2 4" strokeOpacity={0.3} />
+                      <Line type="monotone" dataKey="callDelta" name="Call Δ" stroke={CHART_GOLD} strokeWidth={2} dot={false} />
+                      <Line type="monotone" dataKey="putDelta" name="Put Δ" stroke={CHART_TEAL} strokeWidth={2} dot={false} />
+                      <Legend wrapperStyle={{ fontSize: 10, fontFamily: "var(--font-mono)" }} />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
+
+                {/* Gamma */}
+                <div className="rounded-xl bg-secondary/30 border border-border p-4">
+                  <p className="text-[11px] font-mono text-teal-400 mb-2">Gamma (Γ) — ∂²C/∂S²</p>
+                  <ResponsiveContainer width="100%" height={180}>
+                    <AreaChart data={greeksData} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
+                      <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID} />
+                      <XAxis dataKey="s" stroke={CHART_TEXT} tick={{ fontSize: 9, fontFamily: "var(--font-mono)" }} />
+                      <YAxis stroke={CHART_TEXT} tick={{ fontSize: 9, fontFamily: "var(--font-mono)" }} width={45} />
+                      <Tooltip contentStyle={{ backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 11, fontFamily: "var(--font-mono)" }} />
+                      <ReferenceLine x={values.s} stroke={CHART_GOLD} strokeDasharray="4 4" strokeOpacity={0.4} />
+                      <ReferenceLine x={values.k} stroke={CHART_TEXT} strokeDasharray="2 4" strokeOpacity={0.3} />
+                      <Area type="monotone" dataKey="gamma" name="Γ" stroke={CHART_TEAL} fill={CHART_TEAL} fillOpacity={0.15} strokeWidth={2} dot={false} />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                </div>
+
+                {/* Theta */}
+                <div className="rounded-xl bg-secondary/30 border border-border p-4">
+                  <p className="text-[11px] font-mono text-red-400 mb-2">Theta (Θ) — ∂C/∂t（每日）</p>
+                  <ResponsiveContainer width="100%" height={180}>
+                    <LineChart data={greeksData} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
+                      <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID} />
+                      <XAxis dataKey="s" stroke={CHART_TEXT} tick={{ fontSize: 9, fontFamily: "var(--font-mono)" }} />
+                      <YAxis stroke={CHART_TEXT} tick={{ fontSize: 9, fontFamily: "var(--font-mono)" }} width={45} />
+                      <Tooltip contentStyle={{ backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 11, fontFamily: "var(--font-mono)" }} />
+                      <ReferenceLine x={values.s} stroke={CHART_GOLD} strokeDasharray="4 4" strokeOpacity={0.4} />
+                      <ReferenceLine x={values.k} stroke={CHART_TEXT} strokeDasharray="2 4" strokeOpacity={0.3} />
+                      <ReferenceLine y={0} stroke={CHART_TEXT} strokeOpacity={0.2} />
+                      <Line type="monotone" dataKey="callTheta" name="Call Θ" stroke={CHART_RED} strokeWidth={2} dot={false} />
+                      <Line type="monotone" dataKey="putTheta" name="Put Θ" stroke="hsl(30, 80%, 50%)" strokeWidth={2} dot={false} />
+                      <Legend wrapperStyle={{ fontSize: 10, fontFamily: "var(--font-mono)" }} />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
+
+                {/* Vega */}
+                <div className="rounded-xl bg-secondary/30 border border-border p-4">
+                  <p className="text-[11px] font-mono text-blue-400 mb-2">Vega (ν) — ∂C/∂σ（per 1%）</p>
+                  <ResponsiveContainer width="100%" height={180}>
+                    <AreaChart data={greeksData} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
+                      <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID} />
+                      <XAxis dataKey="s" stroke={CHART_TEXT} tick={{ fontSize: 9, fontFamily: "var(--font-mono)" }} />
+                      <YAxis stroke={CHART_TEXT} tick={{ fontSize: 9, fontFamily: "var(--font-mono)" }} width={45} />
+                      <Tooltip contentStyle={{ backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 11, fontFamily: "var(--font-mono)" }} />
+                      <ReferenceLine x={values.s} stroke={CHART_GOLD} strokeDasharray="4 4" strokeOpacity={0.4} />
+                      <ReferenceLine x={values.k} stroke={CHART_TEXT} strokeDasharray="2 4" strokeOpacity={0.3} />
+                      <Area type="monotone" dataKey="vega" name="Vega" stroke={CHART_BLUE} fill={CHART_BLUE} fillOpacity={0.15} strokeWidth={2} dot={false} />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+              <p className="text-[10px] text-muted-foreground font-mono mt-2 text-center">
+                金色虚线 = 当前 S₀ · 灰色虚线 = 行权价 K · 拖动滑块实时更新
+              </p>
+            </div>
+          )}
+
           {active === "var" && mcData && histData && (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
               {(() => {
