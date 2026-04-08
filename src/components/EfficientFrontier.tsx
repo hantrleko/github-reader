@@ -509,10 +509,85 @@ const EfficientFrontier = () => {
                 </ResponsiveContainer>
               </div>
               <p className="text-[10px] text-muted-foreground font-mono mt-2 text-center">
-                Rᶠ = 2% · 金线 = 有效前沿 · 菱形 = GMV · 星形 = 切线组合 · 虚线 = CML
+                Rᶠ = 2% · 点击金色前沿上的点查看权重分配 · 菱形 = GMV · 星形 = 切线组合 · 虚线 = CML
               </p>
             </div>
           </div>
+
+          {/* Weight Pie Chart */}
+          {pieData && selectedIdx !== null && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mb-8 rounded-xl border border-gold/20 bg-gold/[0.03] p-6"
+            >
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <p className="text-xs font-mono text-gold uppercase tracking-wider mb-1">
+                    组合权重分配
+                  </p>
+                  <p className="text-sm font-mono text-muted-foreground">
+                    目标收益 μ = {frontier[selectedIdx]?.ret?.toFixed(2)}% · 波动率 σ = {frontier[selectedIdx]?.vol?.toFixed(2)}%
+                  </p>
+                </div>
+                <button
+                  onClick={() => setSelectedIdx(null)}
+                  className="text-xs font-mono px-3 py-1.5 rounded-lg border border-border text-muted-foreground hover:text-foreground hover:border-gold/40 transition-all"
+                >
+                  关闭
+                </button>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+                <ResponsiveContainer width="100%" height={220}>
+                  <PieChart>
+                    <Pie
+                      data={pieData.filter(d => d.absValue > 0.01)}
+                      dataKey="absValue"
+                      nameKey="name"
+                      cx="50%"
+                      cy="50%"
+                      outerRadius={85}
+                      innerRadius={40}
+                      strokeWidth={1}
+                      stroke="hsl(var(--border))"
+                      label={({ name, value }) => `${name}`}
+                    >
+                      {pieData.filter(d => d.absValue > 0.01).map((_, i) => (
+                        <Cell key={i} fill={ASSET_COLORS[i % ASSET_COLORS.length]} />
+                      ))}
+                    </Pie>
+                    <Tooltip
+                      formatter={(val: number, name: string, props: any) => {
+                        const original = pieData.find(d => d.name === name);
+                        return [`${original?.value?.toFixed(2)}%`, name];
+                      }}
+                      contentStyle={{
+                        backgroundColor: "hsl(var(--card))",
+                        border: "1px solid hsl(var(--border))",
+                        borderRadius: 8,
+                        fontSize: 12,
+                        fontFamily: "var(--font-mono)",
+                      }}
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
+                <div className="space-y-2">
+                  {pieData.map((d, i) => (
+                    <div key={i} className="flex items-center gap-3 py-1.5 px-3 rounded-lg bg-secondary/30">
+                      <div
+                        className="w-3 h-3 rounded-full shrink-0"
+                        style={{ backgroundColor: ASSET_COLORS[i % ASSET_COLORS.length] }}
+                      />
+                      <span className="text-sm font-mono text-foreground flex-1">{d.name}</span>
+                      <span className={`text-sm font-mono font-bold ${d.value < 0 ? 'text-red-400' : 'text-gold'}`}>
+                        {d.value > 0 ? '+' : ''}{d.value.toFixed(2)}%
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </motion.div>
+          )}
 
           {/* Summary stats */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
