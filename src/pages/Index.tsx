@@ -1,6 +1,7 @@
 import HeroSection from "@/components/HeroSection";
 import TopicCards from "@/components/TopicCards";
 import ModelShowcase from "@/components/ModelShowcase";
+import CalculatorSection from "@/components/CalculatorSection";
 import LearningPath from "@/components/LearningPath";
 
 const Index = () => {
