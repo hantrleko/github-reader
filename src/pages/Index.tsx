@@ -17,6 +17,7 @@ const Index = () => {
       <ModelShowcase />
       <CalculatorSection />
       <ImpliedVolTool />
+      <MCOptionPricer />
       <EfficientFrontier />
       <BondCalculator />
       <RateModelSimulator />
