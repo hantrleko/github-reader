@@ -5,6 +5,7 @@ import {
   PieChart,
   GitBranch,
   Layers,
+  Landmark,
 } from "lucide-react";
 
 export interface KnowledgePoint {
