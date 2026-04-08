@@ -437,7 +437,7 @@ const RateModelSimulator = () => {
                 </ResponsiveContainer>
               </div>
               <p className="text-[10px] text-muted-foreground font-mono mt-2 text-center">
-                P(0,T) = A(T)e^{−B(T)r₀} → y(T) = −ln P/T · 长端收趋于 θ − σ²/(2κ²)
+                {"P(0,T) = A(T)e^{-B(T)r₀} → y(T) = -ln P/T · 长端收趋于 θ − σ²/(2κ²)"}
               </p>
             </div>
           )}
