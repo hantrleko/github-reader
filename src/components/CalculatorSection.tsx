@@ -656,6 +656,7 @@ const CalculatorSection = () => {
             {/* Params */}
             <div className="space-y-5">
               <p className="text-xs font-mono text-muted-foreground uppercase tracking-wider mb-2">参数设置</p>
+              <PresetButtons presets={presets[active]} />
               {params.map((p) => (
                 <div key={p.key}>
                   <div className="flex justify-between items-baseline mb-2">
