@@ -226,25 +226,22 @@ function generateHistSimData(values: Record<string, number>) {
   const sigma = values.dailySigma / 100;
   const T = values.holdingDays;
   const W = values.portfolio;
-  const nDays = 500; // 2 years of daily data
+  const nDays = 500;
   const rand = mulberry32(123);
 
-  // Generate synthetic daily returns
   const dailyReturns: number[] = [];
   for (let i = 0; i < nDays; i++) {
-    // Use t-distribution-like returns (fatter tails) for realism
     const z = boxMuller(rand);
-    dailyReturns.push(mu + sigma * z * (1 + 0.1 * Math.abs(z))); // slight fat tail
+    dailyReturns.push(mu + sigma * z * (1 + 0.1 * Math.abs(z)));
   }
 
-  // Rolling T-day returns
   const holdingReturns: number[] = [];
   for (let i = 0; i <= nDays - T; i++) {
     let cum = 0;
     for (let d = 0; d < T; d++) {
       cum += dailyReturns[i + d];
     }
-    holdingReturns.push(-cum * W); // positive = loss
+    holdingReturns.push(-cum * W);
   }
   holdingReturns.sort((a, b) => a - b);
 
@@ -260,6 +257,99 @@ function generateHistSimData(values: Record<string, number>) {
   const histES = esCount > 0 ? esSum / esCount : histVaR;
 
   return { histVaR, histES, nObs: holdingReturns.length };
+}
+
+// Chi-squared CDF approximation (1 degree of freedom) for Kupiec test
+function chi2Cdf1(x: number): number {
+  if (x <= 0) return 0;
+  return 2 * normCdf(Math.sqrt(x)) - 1;
+}
+
+// Backtesting: generate daily P&L series & compare against VaR
+function generateBacktestData(values: Record<string, number>) {
+  const mu = values.mu / 100;
+  const sigma = values.dailySigma / 100;
+  const W = values.portfolio;
+  const confidence = values.confidence / 100;
+  const z = normInv(confidence);
+  const nDays = 250; // 1 trading year
+  const rand = mulberry32(777);
+
+  // Daily parametric VaR (1-day holding)
+  const dailyVaR = W * Math.abs(mu - z * sigma);
+
+  const timeline: { day: number; pnl: number; var: number; exception: boolean }[] = [];
+  let exceptions = 0;
+
+  for (let i = 0; i < nDays; i++) {
+    const zr = boxMuller(rand);
+    // Add occasional fat-tail shocks for realism
+    const shock = Math.random() < 0.03 ? 1.8 : 1.0;
+    const dailyReturn = mu + sigma * zr * shock;
+    const pnl = dailyReturn * W; // positive = gain, negative = loss
+    const loss = -pnl;
+    const isException = loss > dailyVaR;
+    if (isException) exceptions++;
+    timeline.push({
+      day: i + 1,
+      pnl: parseFloat(pnl.toFixed(2)),
+      var: parseFloat((-dailyVaR).toFixed(2)), // show as negative line
+      exception: isException,
+    });
+  }
+
+  // Kupiec POF test
+  const T = nDays;
+  const x = exceptions;
+  const p = 1 - confidence; // expected exception rate
+  const pHat = x / T; // observed exception rate
+
+  let kupiecLR = 0;
+  if (x > 0 && x < T) {
+    kupiecLR = 2 * (
+      x * Math.log(pHat / p) + (T - x) * Math.log((1 - pHat) / (1 - p))
+    );
+  } else if (x === 0) {
+    kupiecLR = 2 * T * Math.log((1 - 0) / (1 - p)); // simplified
+  } else {
+    kupiecLR = 2 * T * Math.log(1 / p);
+  }
+  kupiecLR = Math.max(0, kupiecLR);
+
+  const kupiecPValue = 1 - chi2Cdf1(kupiecLR);
+  const kupiecReject = kupiecPValue < 0.05;
+
+  // Basel traffic light zones (for 250 days at given confidence)
+  // Green: exceptions <= expected * ~1.5 (roughly 0-4 at 99%)
+  // Yellow: 5-9, Red: 10+
+  const expectedExceptions = T * (1 - confidence);
+  let trafficLight: "green" | "yellow" | "red";
+  if (x <= Math.ceil(expectedExceptions + 1.5 * Math.sqrt(expectedExceptions * confidence))) {
+    trafficLight = "green";
+  } else if (x <= Math.ceil(expectedExceptions + 3 * Math.sqrt(expectedExceptions * confidence))) {
+    trafficLight = "yellow";
+  } else {
+    trafficLight = "red";
+  }
+
+  // For 99% confidence specifically, use Basel standard thresholds
+  if (Math.abs(confidence - 0.99) < 0.001) {
+    if (x <= 4) trafficLight = "green";
+    else if (x <= 9) trafficLight = "yellow";
+    else trafficLight = "red";
+  }
+
+  return {
+    timeline,
+    exceptions,
+    expectedExceptions,
+    dailyVaR,
+    kupiecLR,
+    kupiecPValue,
+    kupiecReject,
+    trafficLight,
+    nDays,
+  };
 }
 
 const CustomTooltip = ({ active: isActive, payload, label, unit }: any) => {
