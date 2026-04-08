@@ -153,7 +153,7 @@ export const topicsData: TopicData[] = [
       {
         title: "消费 CAPM (CCAPM)",
         content:
-          "Breeden (1979) 和 Lucas (1978) 从消费者最优化出发推导。在均衡中，资产的风险溢价由其收益与总消费增长的协方差决定。CCAPM 将资产定价与宏观经济直接联系，但面临"股权溢价之谜"的实证挑战。",
+          "Breeden (1979) 和 Lucas (1978) 从消费者最优化出发推导。在均衡中，资产的风险溢价由其收益与总消费增长的协方差决定。CCAPM 将资产定价与宏观经济直接联系，但面临「股权溢价之谜」的实证挑战。",
         formula: "E(Rᵢ) − Rᶠ = γ · Cov(Rᵢ, Δc)",
         formulaExplain:
           "γ 为相对风险厌恶系数，Δc 为消费增长率。βᶜ = Cov(Rᵢ,Δc)/Var(Δc) 为消费 Beta。",
