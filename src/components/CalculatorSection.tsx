@@ -10,6 +10,11 @@ import {
   ResponsiveContainer,
   Legend,
   ReferenceLine,
+  BarChart,
+  Bar,
+  Cell,
+  AreaChart,
+  Area,
 } from "recharts";
 
 interface ParamConfig {
@@ -43,6 +48,21 @@ function normCdf(x: number): number {
   return 0.5 * (1.0 + erf(x / Math.SQRT2));
 }
 
+function normPdf(x: number): number {
+  return Math.exp(-0.5 * x * x) / Math.sqrt(2 * Math.PI);
+}
+
+function normInv(p: number): number {
+  // Rational approximation for the inverse normal CDF
+  if (p <= 0) return -Infinity;
+  if (p >= 1) return Infinity;
+  if (p < 0.5) return -normInv(1 - p);
+  const t = Math.sqrt(-2 * Math.log(1 - p));
+  const c0 = 2.515517, c1 = 0.802853, c2 = 0.010328;
+  const d1 = 1.432788, d2 = 0.189269, d3 = 0.001308;
+  return t - (c0 + c1 * t + c2 * t * t) / (1 + d1 * t + d2 * t * t + d3 * t * t * t);
+}
+
 function bsCall(s: number, k: number, r: number, sigma: number, t: number) {
   if (t <= 0 || sigma <= 0) return Math.max(s - k * Math.exp(-r * t), 0);
   const d1 = (Math.log(s / k) + (r + (sigma * sigma) / 2) * t) / (sigma * Math.sqrt(t));
@@ -71,18 +91,44 @@ const sharpeParams: ParamConfig[] = [
   { key: "sigmap", label: "组合标准差 σₚ", shortLabel: "σₚ", unit: "%", min: 0.1, max: 60, step: 0.1, defaultValue: 15 },
 ];
 
-type CalcId = "capm" | "bs" | "sharpe";
+const varParams: ParamConfig[] = [
+  { key: "portfolio", label: "组合价值 W", shortLabel: "W", unit: "万", min: 100, max: 10000, step: 100, defaultValue: 1000 },
+  { key: "mu", label: "日均收益率 μ", shortLabel: "μ", unit: "%", min: -1, max: 1, step: 0.01, defaultValue: 0.04 },
+  { key: "dailySigma", label: "日波动率 σ", shortLabel: "σ", unit: "%", min: 0.1, max: 10, step: 0.1, defaultValue: 1.5 },
+  { key: "confidence", label: "置信水平", shortLabel: "α", unit: "%", min: 90, max: 99.9, step: 0.1, defaultValue: 99 },
+  { key: "holdingDays", label: "持有期", shortLabel: "T", unit: "天", min: 1, max: 30, step: 1, defaultValue: 10 },
+];
+
+type CalcId = "capm" | "bs" | "sharpe" | "var";
 
 const calculators: { id: CalcId; name: string; formula: string }[] = [
   { id: "capm", name: "CAPM", formula: "E(Rᵢ) = Rᶠ + βᵢ[E(Rₘ) − Rᶠ]" },
   { id: "bs", name: "Black-Scholes", formula: "C = S₀N(d₁) − Ke⁻ʳᵀN(d₂)" },
   { id: "sharpe", name: "Sharpe Ratio", formula: "SR = (Rₚ − Rᶠ) / σₚ" },
+  { id: "var", name: "VaR / ES", formula: "VaR_α = W × |μ − z_α · σ| × √T" },
 ];
 
 const CHART_GOLD = "hsl(43, 80%, 55%)";
 const CHART_TEAL = "hsl(180, 50%, 40%)";
+const CHART_RED = "hsl(0, 70%, 55%)";
 const CHART_GRID = "hsl(220, 12%, 18%)";
 const CHART_TEXT = "hsl(220, 10%, 50%)";
+
+// Seeded pseudo-random for reproducibility
+function mulberry32(seed: number) {
+  return function () {
+    let t = (seed += 0x6d2b79f5);
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+function boxMuller(rand: () => number): number {
+  const u1 = rand();
+  const u2 = rand();
+  return Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2);
+}
 
 function generateSensitivityData(
   active: CalcId,
@@ -106,12 +152,114 @@ function generateSensitivityData(
       const r = v.r / 100, sigma = v.sigma / 100;
       point.call = bsCall(v.s, v.k, r, sigma, v.t);
       point.put = bsPut(v.s, v.k, r, sigma, v.t);
-    } else {
+    } else if (active === "sharpe") {
       point.result = (v.rp - v.rf) / v.sigmap;
+    } else if (active === "var") {
+      const mu = v.mu / 100;
+      const sigma = v.dailySigma / 100;
+      const T = v.holdingDays;
+      const z = normInv(v.confidence / 100);
+      const varPct = Math.abs(mu * T - z * sigma * Math.sqrt(T));
+      point.var = v.portfolio * varPct;
+      const esPct = Math.abs(mu * T - sigma * Math.sqrt(T) * normPdf(z) / (1 - v.confidence / 100));
+      point.es = v.portfolio * esPct;
     }
     data.push(point);
   }
   return data;
+}
+
+// Generate Monte Carlo loss distribution for VaR visualization
+function generateMCDistribution(values: Record<string, number>) {
+  const mu = values.mu / 100;
+  const sigma = values.dailySigma / 100;
+  const T = values.holdingDays;
+  const W = values.portfolio;
+  const nSim = 10000;
+  const rand = mulberry32(42);
+
+  const losses: number[] = [];
+  for (let i = 0; i < nSim; i++) {
+    let cumReturn = 0;
+    for (let d = 0; d < T; d++) {
+      cumReturn += mu + sigma * boxMuller(rand);
+    }
+    losses.push(-cumReturn * W); // positive = loss
+  }
+  losses.sort((a, b) => a - b);
+
+  // Build histogram
+  const nBins = 50;
+  const minL = losses[0];
+  const maxL = losses[losses.length - 1];
+  const binWidth = (maxL - minL) / nBins;
+  const bins: { x: number; count: number; isVaR: boolean }[] = [];
+
+  const confidence = values.confidence / 100;
+  const varIdx = Math.floor(nSim * confidence);
+  const mcVaR = losses[varIdx];
+  // ES = average of losses beyond VaR
+  let esSum = 0, esCount = 0;
+  for (let i = varIdx; i < nSim; i++) {
+    esSum += losses[i];
+    esCount++;
+  }
+  const mcES = esCount > 0 ? esSum / esCount : mcVaR;
+
+  for (let i = 0; i < nBins; i++) {
+    const lo = minL + i * binWidth;
+    const hi = lo + binWidth;
+    const mid = (lo + hi) / 2;
+    let count = 0;
+    for (const l of losses) {
+      if (l >= lo && l < hi) count++;
+    }
+    bins.push({ x: parseFloat(mid.toFixed(2)), count, isVaR: mid >= mcVaR });
+  }
+
+  return { bins, mcVaR, mcES };
+}
+
+// Generate historical simulation data (synthetic daily returns)
+function generateHistSimData(values: Record<string, number>) {
+  const mu = values.mu / 100;
+  const sigma = values.dailySigma / 100;
+  const T = values.holdingDays;
+  const W = values.portfolio;
+  const nDays = 500; // 2 years of daily data
+  const rand = mulberry32(123);
+
+  // Generate synthetic daily returns
+  const dailyReturns: number[] = [];
+  for (let i = 0; i < nDays; i++) {
+    // Use t-distribution-like returns (fatter tails) for realism
+    const z = boxMuller(rand);
+    dailyReturns.push(mu + sigma * z * (1 + 0.1 * Math.abs(z))); // slight fat tail
+  }
+
+  // Rolling T-day returns
+  const holdingReturns: number[] = [];
+  for (let i = 0; i <= nDays - T; i++) {
+    let cum = 0;
+    for (let d = 0; d < T; d++) {
+      cum += dailyReturns[i + d];
+    }
+    holdingReturns.push(-cum * W); // positive = loss
+  }
+  holdingReturns.sort((a, b) => a - b);
+
+  const confidence = values.confidence / 100;
+  const varIdx = Math.floor(holdingReturns.length * confidence);
+  const histVaR = holdingReturns[Math.min(varIdx, holdingReturns.length - 1)];
+
+  let esSum = 0, esCount = 0;
+  for (let i = varIdx; i < holdingReturns.length; i++) {
+    esSum += holdingReturns[i];
+    esCount++;
+  }
+  const histES = esCount > 0 ? esSum / esCount : histVaR;
+
+  return { histVaR, histES, nObs: holdingReturns.length };
 }
 
 const CustomTooltip = ({ active: isActive, payload, label, unit }: any) => {
@@ -130,18 +278,32 @@ const CustomTooltip = ({ active: isActive, payload, label, unit }: any) => {
   );
 };
 
+const VaRTooltip = ({ active: isActive, payload, label }: any) => {
+  if (!isActive || !payload?.length) return null;
+  return (
+    <div className="rounded-lg bg-card border border-border px-3 py-2 shadow-lg">
+      <p className="text-xs font-mono text-muted-foreground mb-1">
+        损失: {label} 万
+      </p>
+      <p className="text-sm font-mono text-foreground">
+        频次: {payload[0]?.value}
+      </p>
+    </div>
+  );
+};
+
 const CalculatorSection = () => {
   const [active, setActive] = useState<CalcId>("capm");
   const [values, setValues] = useState<Record<string, number>>(() => {
     const init: Record<string, number> = {};
-    [...capmParams, ...bsParams, ...sharpeParams].forEach((p) => {
+    [...capmParams, ...bsParams, ...sharpeParams, ...varParams].forEach((p) => {
       init[p.key] = p.defaultValue;
     });
     return init;
   });
 
   const params =
-    active === "capm" ? capmParams : active === "bs" ? bsParams : sharpeParams;
+    active === "capm" ? capmParams : active === "bs" ? bsParams : active === "sharpe" ? sharpeParams : varParams;
 
   const [sweepKey, setSweepKey] = useState<string>(params[0].key);
   const currentSweepValid = params.some((p) => p.key === sweepKey);
@@ -171,11 +333,29 @@ const CalculatorSection = () => {
         detail: `d₁ = ${d1.toFixed(4)},  d₂ = ${d2.toFixed(4)}`,
       };
     }
-    const sr = (values.rp - values.rf) / values.sigmap;
+    if (active === "sharpe") {
+      const sr = (values.rp - values.rf) / values.sigmap;
+      return {
+        label: "夏普比率",
+        value: sr.toFixed(4),
+        detail: `超额收益 = ${(values.rp - values.rf).toFixed(2)}%`,
+      };
+    }
+    // VaR
+    const mu = values.mu / 100;
+    const sigma = values.dailySigma / 100;
+    const T = values.holdingDays;
+    const W = values.portfolio;
+    const z = normInv(values.confidence / 100);
+
+    // Parametric
+    const paramVaR = W * Math.abs(mu * T - z * sigma * Math.sqrt(T));
+    const paramES = W * Math.abs(mu * T - sigma * Math.sqrt(T) * normPdf(z) / (1 - values.confidence / 100));
+
     return {
-      label: "夏普比率",
-      value: sr.toFixed(4),
-      detail: `超额收益 = ${(values.rp - values.rf).toFixed(2)}%`,
+      label: `${values.confidence}% VaR（参数法）`,
+      value: `${paramVaR.toFixed(2)} 万`,
+      detail: `ES = ${paramES.toFixed(2)} 万 · 持有期 ${T} 天 · 组合 ${W} 万`,
     };
   }, [active, values]);
 
@@ -183,6 +363,17 @@ const CalculatorSection = () => {
     () => generateSensitivityData(active, values, effectiveSweep, params),
     [active, values, effectiveSweep, params]
   );
+
+  // VaR-specific data
+  const mcData = useMemo(() => {
+    if (active !== "var") return null;
+    return generateMCDistribution(values);
+  }, [active, values]);
+
+  const histData = useMemo(() => {
+    if (active !== "var") return null;
+    return generateHistSimData(values);
+  }, [active, values]);
 
   const sweepParam = params.find((p) => p.key === effectiveSweep)!;
 
@@ -211,7 +402,7 @@ const CalculatorSection = () => {
               key={c.id}
               onClick={() => {
                 setActive(c.id);
-                const p = c.id === "capm" ? capmParams : c.id === "bs" ? bsParams : sharpeParams;
+                const p = c.id === "capm" ? capmParams : c.id === "bs" ? bsParams : c.id === "sharpe" ? sharpeParams : varParams;
                 setSweepKey(p[0].key);
               }}
               className={`px-5 py-2.5 rounded-lg text-sm font-mono transition-all duration-300 ${
@@ -272,8 +463,221 @@ const CalculatorSection = () => {
 
             {/* Chart */}
             <div>
+              {active !== "var" ? (
+                <>
+                  <div className="flex items-center justify-between mb-3">
+                    <p className="text-xs font-mono text-muted-foreground uppercase tracking-wider">敏感性分析</p>
+                    <div className="flex gap-1.5">
+                      {params.map((p) => (
+                        <button
+                          key={p.key}
+                          onClick={() => setSweepKey(p.key)}
+                          className={`px-2.5 py-1 text-[11px] font-mono rounded-md transition-all ${
+                            effectiveSweep === p.key
+                              ? "bg-gold/20 text-gold border border-gold/30"
+                              : "bg-secondary text-muted-foreground hover:text-secondary-foreground"
+                          }`}
+                        >
+                          {p.shortLabel}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="rounded-xl bg-secondary/30 border border-border p-4">
+                    <ResponsiveContainer width="100%" height={280}>
+                      <LineChart data={chartData} margin={{ top: 5, right: 10, left: 5, bottom: 5 }}>
+                        <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID} />
+                        <XAxis
+                          dataKey="x"
+                          stroke={CHART_TEXT}
+                          tick={{ fontSize: 10, fontFamily: "var(--font-mono)" }}
+                          label={{
+                            value: `${sweepParam.shortLabel}${sweepParam.unit ? ` (${sweepParam.unit})` : ""}`,
+                            position: "insideBottom",
+                            offset: -2,
+                            style: { fontSize: 11, fill: CHART_TEXT, fontFamily: "var(--font-mono)" },
+                          }}
+                        />
+                        <YAxis
+                          stroke={CHART_TEXT}
+                          tick={{ fontSize: 10, fontFamily: "var(--font-mono)" }}
+                          width={50}
+                        />
+                        <Tooltip content={<CustomTooltip unit={sweepParam.unit} />} />
+                        <ReferenceLine
+                          x={parseFloat(values[effectiveSweep].toFixed(4))}
+                          stroke={CHART_GOLD}
+                          strokeDasharray="4 4"
+                          strokeOpacity={0.5}
+                        />
+                        {active === "bs" ? (
+                          <>
+                            <Line type="monotone" dataKey="call" name="Call" stroke={CHART_GOLD} strokeWidth={2} dot={false} activeDot={{ r: 4, fill: CHART_GOLD }} />
+                            <Line type="monotone" dataKey="put" name="Put" stroke={CHART_TEAL} strokeWidth={2} dot={false} activeDot={{ r: 4, fill: CHART_TEAL }} />
+                            <Legend wrapperStyle={{ fontSize: 11, fontFamily: "var(--font-mono)" }} />
+                          </>
+                        ) : (
+                          <Line type="monotone" dataKey="result" name={active === "capm" ? "E(Rᵢ) %" : "Sharpe Ratio"} stroke={CHART_GOLD} strokeWidth={2} dot={false} activeDot={{ r: 4, fill: CHART_GOLD }} />
+                        )}
+                      </LineChart>
+                    </ResponsiveContainer>
+                  </div>
+                  <p className="text-[10px] text-muted-foreground font-mono mt-2 text-center">
+                    虚线标注当前参数值 · 拖动滑块实时更新
+                  </p>
+                </>
+              ) : (
+                /* VaR: Monte Carlo Loss Distribution Histogram */
+                <>
+                  <p className="text-xs font-mono text-muted-foreground uppercase tracking-wider mb-3">
+                    蒙特卡洛损失分布（10,000 次模拟）
+                  </p>
+                  <div className="rounded-xl bg-secondary/30 border border-border p-4">
+                    {mcData && (
+                      <ResponsiveContainer width="100%" height={280}>
+                        <BarChart data={mcData.bins} margin={{ top: 5, right: 10, left: 5, bottom: 5 }}>
+                          <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID} />
+                          <XAxis
+                            dataKey="x"
+                            stroke={CHART_TEXT}
+                            tick={{ fontSize: 9, fontFamily: "var(--font-mono)" }}
+                            label={{
+                              value: "损失 (万)",
+                              position: "insideBottom",
+                              offset: -2,
+                              style: { fontSize: 11, fill: CHART_TEXT, fontFamily: "var(--font-mono)" },
+                            }}
+                          />
+                          <YAxis
+                            stroke={CHART_TEXT}
+                            tick={{ fontSize: 10, fontFamily: "var(--font-mono)" }}
+                            width={40}
+                          />
+                          <Tooltip content={<VaRTooltip />} />
+                          <ReferenceLine
+                            x={parseFloat(mcData.mcVaR.toFixed(2))}
+                            stroke={CHART_RED}
+                            strokeWidth={2}
+                            strokeDasharray="4 4"
+                            label={{
+                              value: "VaR",
+                              position: "top",
+                              style: { fontSize: 10, fill: CHART_RED, fontFamily: "var(--font-mono)", fontWeight: 600 },
+                            }}
+                          />
+                          <ReferenceLine
+                            x={parseFloat(mcData.mcES.toFixed(2))}
+                            stroke={CHART_GOLD}
+                            strokeWidth={2}
+                            strokeDasharray="4 4"
+                            label={{
+                              value: "ES",
+                              position: "top",
+                              style: { fontSize: 10, fill: CHART_GOLD, fontFamily: "var(--font-mono)", fontWeight: 600 },
+                            }}
+                          />
+                          <Bar dataKey="count" name="频次">
+                            {mcData.bins.map((entry, index) => (
+                              <Cell
+                                key={`cell-${index}`}
+                                fill={entry.isVaR ? CHART_RED : CHART_TEAL}
+                                fillOpacity={entry.isVaR ? 0.8 : 0.5}
+                              />
+                            ))}
+                          </Bar>
+                        </BarChart>
+                      </ResponsiveContainer>
+                    )}
+                  </div>
+                  <p className="text-[10px] text-muted-foreground font-mono mt-2 text-center">
+                    红色区域为超过 VaR 的尾部损失 · 红线 = VaR · 金线 = ES
+                  </p>
+                </>
+              )}
+            </div>
+          </div>
+
+          {/* VaR: Three Methods Comparison */}
+          {active === "var" && mcData && histData && (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+              {(() => {
+                const mu = values.mu / 100;
+                const sigma = values.dailySigma / 100;
+                const T = values.holdingDays;
+                const W = values.portfolio;
+                const z = normInv(values.confidence / 100);
+                const paramVaR = W * Math.abs(mu * T - z * sigma * Math.sqrt(T));
+                const paramES = W * Math.abs(mu * T - sigma * Math.sqrt(T) * normPdf(z) / (1 - values.confidence / 100));
+
+                const methods = [
+                  {
+                    name: "参数法",
+                    desc: "假设正态分布",
+                    var: paramVaR,
+                    es: paramES,
+                    color: "text-gold",
+                    borderColor: "border-gold/20",
+                    bgColor: "bg-gold/[0.03]",
+                  },
+                  {
+                    name: "历史模拟法",
+                    desc: `${histData.nObs} 个滚动窗口`,
+                    var: histData.histVaR,
+                    es: histData.histES,
+                    color: "text-teal-400",
+                    borderColor: "border-teal-400/20",
+                    bgColor: "bg-teal-400/[0.03]",
+                  },
+                  {
+                    name: "蒙特卡洛法",
+                    desc: "10,000 次模拟",
+                    var: mcData.mcVaR,
+                    es: mcData.mcES,
+                    color: "text-red-400",
+                    borderColor: "border-red-400/20",
+                    bgColor: "bg-red-400/[0.03]",
+                  },
+                ];
+
+                return methods.map((m) => (
+                  <div
+                    key={m.name}
+                    className={`rounded-xl border ${m.borderColor} ${m.bgColor} p-5`}
+                  >
+                    <p className={`text-xs font-mono ${m.color} mb-1 uppercase tracking-wider`}>
+                      {m.name}
+                    </p>
+                    <p className="text-[10px] text-muted-foreground font-mono mb-3">
+                      {m.desc}
+                    </p>
+                    <div className="space-y-2">
+                      <div>
+                        <p className="text-[10px] text-muted-foreground font-mono">VaR</p>
+                        <p className="text-xl font-mono font-bold text-foreground">
+                          {m.var.toFixed(2)} <span className="text-sm text-muted-foreground">万</span>
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-[10px] text-muted-foreground font-mono">ES (CVaR)</p>
+                        <p className="text-lg font-mono font-semibold text-foreground">
+                          {m.es.toFixed(2)} <span className="text-sm text-muted-foreground">万</span>
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                ));
+              })()}
+            </div>
+          )}
+
+          {/* Sensitivity chart for VaR */}
+          {active === "var" && (
+            <div className="mb-8">
               <div className="flex items-center justify-between mb-3">
-                <p className="text-xs font-mono text-muted-foreground uppercase tracking-wider">敏感性分析</p>
+                <p className="text-xs font-mono text-muted-foreground uppercase tracking-wider">
+                  VaR / ES 敏感性分析
+                </p>
                 <div className="flex gap-1.5">
                   {params.map((p) => (
                     <button
@@ -290,10 +694,9 @@ const CalculatorSection = () => {
                   ))}
                 </div>
               </div>
-
               <div className="rounded-xl bg-secondary/30 border border-border p-4">
-                <ResponsiveContainer width="100%" height={280}>
-                  <LineChart data={chartData} margin={{ top: 5, right: 10, left: 5, bottom: 5 }}>
+                <ResponsiveContainer width="100%" height={220}>
+                  <AreaChart data={chartData} margin={{ top: 5, right: 10, left: 5, bottom: 5 }}>
                     <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID} />
                     <XAxis
                       dataKey="x"
@@ -309,7 +712,7 @@ const CalculatorSection = () => {
                     <YAxis
                       stroke={CHART_TEXT}
                       tick={{ fontSize: 10, fontFamily: "var(--font-mono)" }}
-                      width={50}
+                      width={55}
                     />
                     <Tooltip content={<CustomTooltip unit={sweepParam.unit} />} />
                     <ReferenceLine
@@ -318,62 +721,29 @@ const CalculatorSection = () => {
                       strokeDasharray="4 4"
                       strokeOpacity={0.5}
                     />
-                    {active === "bs" ? (
-                      <>
-                        <Line
-                          type="monotone"
-                          dataKey="call"
-                          name="Call"
-                          stroke={CHART_GOLD}
-                          strokeWidth={2}
-                          dot={false}
-                          activeDot={{ r: 4, fill: CHART_GOLD }}
-                        />
-                        <Line
-                          type="monotone"
-                          dataKey="put"
-                          name="Put"
-                          stroke={CHART_TEAL}
-                          strokeWidth={2}
-                          dot={false}
-                          activeDot={{ r: 4, fill: CHART_TEAL }}
-                        />
-                        <Legend
-                          wrapperStyle={{ fontSize: 11, fontFamily: "var(--font-mono)" }}
-                        />
-                      </>
-                    ) : (
-                      <Line
-                        type="monotone"
-                        dataKey="result"
-                        name={active === "capm" ? "E(Rᵢ) %" : "Sharpe Ratio"}
-                        stroke={CHART_GOLD}
-                        strokeWidth={2}
-                        dot={false}
-                        activeDot={{ r: 4, fill: CHART_GOLD }}
-                      />
-                    )}
-                  </LineChart>
+                    <Area type="monotone" dataKey="es" name="ES (万)" stroke={CHART_RED} fill={CHART_RED} fillOpacity={0.1} strokeWidth={2} dot={false} />
+                    <Area type="monotone" dataKey="var" name="VaR (万)" stroke={CHART_GOLD} fill={CHART_GOLD} fillOpacity={0.15} strokeWidth={2} dot={false} />
+                    <Legend wrapperStyle={{ fontSize: 11, fontFamily: "var(--font-mono)" }} />
+                  </AreaChart>
                 </ResponsiveContainer>
               </div>
-              <p className="text-[10px] text-muted-foreground font-mono mt-2 text-center">
-                虚线标注当前参数值 · 拖动滑块实时更新
+            </div>
+          )}
+
+          {/* Result (non-VaR) */}
+          {active !== "var" && (
+            <div className="rounded-xl border border-gold/20 bg-gold/[0.03] p-6 text-center">
+              <p className="text-xs font-mono text-gold mb-2 uppercase tracking-wider">
+                {result.label}
+              </p>
+              <p className="text-3xl md:text-4xl font-mono font-bold text-foreground mb-2">
+                {result.value}
+              </p>
+              <p className="text-sm text-muted-foreground font-mono">
+                {result.detail}
               </p>
             </div>
-          </div>
-
-          {/* Result */}
-          <div className="rounded-xl border border-gold/20 bg-gold/[0.03] p-6 text-center">
-            <p className="text-xs font-mono text-gold mb-2 uppercase tracking-wider">
-              {result.label}
-            </p>
-            <p className="text-3xl md:text-4xl font-mono font-bold text-foreground mb-2">
-              {result.value}
-            </p>
-            <p className="text-sm text-muted-foreground font-mono">
-              {result.detail}
-            </p>
-          </div>
+          )}
         </motion.div>
       </div>
     </section>
