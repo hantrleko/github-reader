@@ -449,12 +449,27 @@ const EfficientFrontier = () => {
                       />
                     )}
 
-                    {/* Efficient Frontier */}
+                    {/* Efficient Frontier - clickable dots */}
                     <Scatter
                       name="有效前沿"
-                      data={frontier}
+                      data={frontier.map((p, i) => ({ ...p, idx: i }))}
                       line={{ stroke: CHART_GOLD, strokeWidth: 2.5 }}
-                      shape={() => <></>}
+                      shape={(props: any) => {
+                        const { cx, cy, payload } = props;
+                        const isSelected = selectedIdx === payload?.idx;
+                        return (
+                          <circle
+                            cx={cx}
+                            cy={cy}
+                            r={isSelected ? 6 : 3}
+                            fill={isSelected ? CHART_GOLD : "transparent"}
+                            stroke={CHART_GOLD}
+                            strokeWidth={isSelected ? 2 : 0}
+                            style={{ cursor: "pointer" }}
+                            onClick={() => setSelectedIdx(payload?.idx ?? null)}
+                          />
+                        );
+                      }}
                       legendType="line"
                     />
 
