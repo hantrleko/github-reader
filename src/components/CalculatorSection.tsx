@@ -792,7 +792,106 @@ const CalculatorSection = () => {
             </div>
           </div>
 
-          {/* VaR: Three Methods Comparison */}
+          {/* Greeks Charts - BS only */}
+          {active === "bs" && greeksData && currentGreeks && (
+            <div className="mb-8">
+              <p className="text-xs font-mono text-muted-foreground uppercase tracking-wider mb-4">
+                Greeks 敏感性分析
+              </p>
+
+              {/* Current Greeks values */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+                {[
+                  { label: "Delta (Call)", value: currentGreeks.callDelta.toFixed(4), sub: `Put: ${currentGreeks.putDelta.toFixed(4)}`, color: "text-gold", border: "border-gold/20", bg: "bg-gold/[0.03]" },
+                  { label: "Gamma", value: currentGreeks.gamma.toFixed(6), sub: "∂²C/∂S²", color: "text-teal-400", border: "border-teal-400/20", bg: "bg-teal-400/[0.03]" },
+                  { label: "Theta (Call)", value: currentGreeks.callTheta.toFixed(4), sub: `Put: ${currentGreeks.putTheta.toFixed(4)}`, color: "text-red-400", border: "border-red-400/20", bg: "bg-red-400/[0.03]" },
+                  { label: "Vega", value: currentGreeks.vega.toFixed(4), sub: "per 1% σ", color: "text-blue-400", border: "border-blue-400/20", bg: "bg-blue-400/[0.03]" },
+                ].map((g) => (
+                  <div key={g.label} className={`rounded-xl border ${g.border} ${g.bg} p-4 text-center`}>
+                    <p className={`text-[10px] font-mono ${g.color} mb-1 uppercase tracking-wider`}>{g.label}</p>
+                    <p className="text-lg font-mono font-bold text-foreground">{g.value}</p>
+                    <p className="text-[10px] font-mono text-muted-foreground">{g.sub}</p>
+                  </div>
+                ))}
+              </div>
+
+              {/* 2x2 Greeks charts */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Delta */}
+                <div className="rounded-xl bg-secondary/30 border border-border p-4">
+                  <p className="text-[11px] font-mono text-gold mb-2">Delta (Δ) — ∂C/∂S</p>
+                  <ResponsiveContainer width="100%" height={180}>
+                    <LineChart data={greeksData} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
+                      <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID} />
+                      <XAxis dataKey="s" stroke={CHART_TEXT} tick={{ fontSize: 9, fontFamily: "var(--font-mono)" }} />
+                      <YAxis stroke={CHART_TEXT} tick={{ fontSize: 9, fontFamily: "var(--font-mono)" }} width={45} />
+                      <Tooltip contentStyle={{ backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 11, fontFamily: "var(--font-mono)" }} />
+                      <ReferenceLine x={values.s} stroke={CHART_GOLD} strokeDasharray="4 4" strokeOpacity={0.4} />
+                      <ReferenceLine x={values.k} stroke={CHART_TEXT} strokeDasharray="2 4" strokeOpacity={0.3} />
+                      <Line type="monotone" dataKey="callDelta" name="Call Δ" stroke={CHART_GOLD} strokeWidth={2} dot={false} />
+                      <Line type="monotone" dataKey="putDelta" name="Put Δ" stroke={CHART_TEAL} strokeWidth={2} dot={false} />
+                      <Legend wrapperStyle={{ fontSize: 10, fontFamily: "var(--font-mono)" }} />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
+
+                {/* Gamma */}
+                <div className="rounded-xl bg-secondary/30 border border-border p-4">
+                  <p className="text-[11px] font-mono text-teal-400 mb-2">Gamma (Γ) — ∂²C/∂S²</p>
+                  <ResponsiveContainer width="100%" height={180}>
+                    <AreaChart data={greeksData} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
+                      <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID} />
+                      <XAxis dataKey="s" stroke={CHART_TEXT} tick={{ fontSize: 9, fontFamily: "var(--font-mono)" }} />
+                      <YAxis stroke={CHART_TEXT} tick={{ fontSize: 9, fontFamily: "var(--font-mono)" }} width={45} />
+                      <Tooltip contentStyle={{ backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 11, fontFamily: "var(--font-mono)" }} />
+                      <ReferenceLine x={values.s} stroke={CHART_GOLD} strokeDasharray="4 4" strokeOpacity={0.4} />
+                      <ReferenceLine x={values.k} stroke={CHART_TEXT} strokeDasharray="2 4" strokeOpacity={0.3} />
+                      <Area type="monotone" dataKey="gamma" name="Γ" stroke={CHART_TEAL} fill={CHART_TEAL} fillOpacity={0.15} strokeWidth={2} dot={false} />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                </div>
+
+                {/* Theta */}
+                <div className="rounded-xl bg-secondary/30 border border-border p-4">
+                  <p className="text-[11px] font-mono text-red-400 mb-2">Theta (Θ) — ∂C/∂t（每日）</p>
+                  <ResponsiveContainer width="100%" height={180}>
+                    <LineChart data={greeksData} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
+                      <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID} />
+                      <XAxis dataKey="s" stroke={CHART_TEXT} tick={{ fontSize: 9, fontFamily: "var(--font-mono)" }} />
+                      <YAxis stroke={CHART_TEXT} tick={{ fontSize: 9, fontFamily: "var(--font-mono)" }} width={45} />
+                      <Tooltip contentStyle={{ backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 11, fontFamily: "var(--font-mono)" }} />
+                      <ReferenceLine x={values.s} stroke={CHART_GOLD} strokeDasharray="4 4" strokeOpacity={0.4} />
+                      <ReferenceLine x={values.k} stroke={CHART_TEXT} strokeDasharray="2 4" strokeOpacity={0.3} />
+                      <ReferenceLine y={0} stroke={CHART_TEXT} strokeOpacity={0.2} />
+                      <Line type="monotone" dataKey="callTheta" name="Call Θ" stroke={CHART_RED} strokeWidth={2} dot={false} />
+                      <Line type="monotone" dataKey="putTheta" name="Put Θ" stroke="hsl(30, 80%, 50%)" strokeWidth={2} dot={false} />
+                      <Legend wrapperStyle={{ fontSize: 10, fontFamily: "var(--font-mono)" }} />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
+
+                {/* Vega */}
+                <div className="rounded-xl bg-secondary/30 border border-border p-4">
+                  <p className="text-[11px] font-mono text-blue-400 mb-2">Vega (ν) — ∂C/∂σ（per 1%）</p>
+                  <ResponsiveContainer width="100%" height={180}>
+                    <AreaChart data={greeksData} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
+                      <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID} />
+                      <XAxis dataKey="s" stroke={CHART_TEXT} tick={{ fontSize: 9, fontFamily: "var(--font-mono)" }} />
+                      <YAxis stroke={CHART_TEXT} tick={{ fontSize: 9, fontFamily: "var(--font-mono)" }} width={45} />
+                      <Tooltip contentStyle={{ backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 11, fontFamily: "var(--font-mono)" }} />
+                      <ReferenceLine x={values.s} stroke={CHART_GOLD} strokeDasharray="4 4" strokeOpacity={0.4} />
+                      <ReferenceLine x={values.k} stroke={CHART_TEXT} strokeDasharray="2 4" strokeOpacity={0.3} />
+                      <Area type="monotone" dataKey="vega" name="Vega" stroke={CHART_BLUE} fill={CHART_BLUE} fillOpacity={0.15} strokeWidth={2} dot={false} />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+              <p className="text-[10px] text-muted-foreground font-mono mt-2 text-center">
+                金色虚线 = 当前 S₀ · 灰色虚线 = 行权价 K · 拖动滑块实时更新
+              </p>
+            </div>
+          )}
+
           {active === "var" && mcData && histData && (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
               {(() => {
