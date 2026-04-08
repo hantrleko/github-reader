@@ -3,6 +3,7 @@ import TopicCards from "@/components/TopicCards";
 import ModelShowcase from "@/components/ModelShowcase";
 import CalculatorSection from "@/components/CalculatorSection";
 import EfficientFrontier from "@/components/EfficientFrontier";
+import BondCalculator from "@/components/BondCalculator";
 import LearningPath from "@/components/LearningPath";
 
 const Index = () => {
@@ -13,6 +14,7 @@ const Index = () => {
       <ModelShowcase />
       <CalculatorSection />
       <EfficientFrontier />
+      <BondCalculator />
       <LearningPath />
 
       {/* Footer */}
