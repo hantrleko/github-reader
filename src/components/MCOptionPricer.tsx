@@ -320,6 +320,12 @@ const MCOptionPricer = () => {
             {/* Parameters */}
             <div className="space-y-3">
               <p className="text-xs font-mono text-muted-foreground uppercase tracking-wider mb-2">参数设置</p>
+              <PresetButtons presets={[
+                { name: "欧式标准", description: "Hull教材: S=K=100, σ=20%", apply: () => { setOptionType("european"); setPutCall("call"); setS0(100); setK(100); setR(5); setSigma(20); setT(1); setNPaths(10000); } },
+                { name: "亚式均价", description: "S=100, K=100, σ=25%", apply: () => { setOptionType("asian"); setPutCall("call"); setS0(100); setK(100); setR(5); setSigma(25); setT(1); setNPaths(10000); } },
+                { name: "上敲出障碍", description: "S=100, K=100, H=120", apply: () => { setOptionType("barrier"); setPutCall("call"); setS0(100); setK(100); setR(5); setSigma(20); setT(1); setBarrierType("up-out"); setBarrierLevel(120); setNPaths(10000); } },
+                { name: "下敲入看跌", description: "S=100, K=100, H=85", apply: () => { setOptionType("barrier"); setPutCall("put"); setS0(100); setK(100); setR(5); setSigma(20); setT(1); setBarrierType("down-in"); setBarrierLevel(85); setNPaths(10000); } },
+              ]} />
 
               {/* Put/Call */}
               <div className="flex gap-2 mb-2">

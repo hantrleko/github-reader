@@ -225,6 +225,11 @@ const ImpliedVolTool = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-10">
             <div className="space-y-4">
               <p className="text-xs font-mono text-muted-foreground uppercase tracking-wider mb-2">隐含波动率反算</p>
+              <PresetButtons presets={[
+                { name: "ATM标准", description: "S=K=100, T=1, 市场价10.45", apply: () => { setOptType("call"); setMktPrice(10.45); setIvS(100); setIvK(100); setIvR(5); setIvT(1); setBaseVol(20); setSkew(-0.1); setSmile(0.05); } },
+                { name: "OTM看跌", description: "S=100, K=90, Put", apply: () => { setOptType("put"); setMktPrice(3.2); setIvS(100); setIvK(90); setIvR(5); setIvT(0.5); } },
+                { name: "强微笑", description: "高smile系数, 股指风格", apply: () => { setBaseVol(18); setSkew(-0.15); setSmile(0.12); } },
+              ]} />
 
               {/* Option type toggle */}
               <div>

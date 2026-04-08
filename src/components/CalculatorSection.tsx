@@ -492,6 +492,32 @@ const CalculatorSection = () => {
   const setVal = (key: string, v: number) =>
     setValues((prev) => ({ ...prev, [key]: v }));
 
+  const setMulti = (pairs: Record<string, number>) =>
+    setValues((prev) => ({ ...prev, ...pairs }));
+
+  const presets: Record<CalcId, Preset[]> = {
+    capm: [
+      { name: "教科书标准", description: "Rf=3%, β=1.2, Rm=10%", apply: () => setMulti({ rf: 3, beta: 1.2, rm: 10 }) },
+      { name: "高Beta科技股", description: "Rf=2%, β=1.8, Rm=12%", apply: () => setMulti({ rf: 2, beta: 1.8, rm: 12 }) },
+      { name: "防御性公用事业", description: "Rf=3%, β=0.5, Rm=8%", apply: () => setMulti({ rf: 3, beta: 0.5, rm: 8 }) },
+    ],
+    bs: [
+      { name: "Hull 教材", description: "S=K=100, σ=20%, T=1", apply: () => setMulti({ s: 100, k: 100, r: 5, sigma: 20, t: 1 }) },
+      { name: "深度虚值", description: "S=100, K=130, σ=25%", apply: () => setMulti({ s: 100, k: 130, r: 5, sigma: 25, t: 0.5 }) },
+      { name: "短期高波动", description: "S=K=100, σ=50%, T=0.25", apply: () => setMulti({ s: 100, k: 100, r: 3, sigma: 50, t: 0.25 }) },
+    ],
+    sharpe: [
+      { name: "标普500历史", description: "Rp=10%, Rf=3%, σ=15%", apply: () => setMulti({ rp: 10, rf: 3, sigmap: 15 }) },
+      { name: "优秀对冲基金", description: "Rp=8%, Rf=2%, σ=6%", apply: () => setMulti({ rp: 8, rf: 2, sigmap: 6 }) },
+      { name: "高风险策略", description: "Rp=25%, Rf=3%, σ=35%", apply: () => setMulti({ rp: 25, rf: 3, sigmap: 35 }) },
+    ],
+    var: [
+      { name: "Basel 标准", description: "99%置信, 10天持有期", apply: () => setMulti({ portfolio: 1000, mu: 0.04, dailySigma: 1.5, confidence: 99, holdingDays: 10 }) },
+      { name: "日内交易", description: "95%置信, 1天, 高波动", apply: () => setMulti({ portfolio: 5000, mu: 0.1, dailySigma: 3, confidence: 95, holdingDays: 1 }) },
+      { name: "保守配置", description: "99.9%置信, 20天", apply: () => setMulti({ portfolio: 2000, mu: 0.02, dailySigma: 0.8, confidence: 99.9, holdingDays: 20 }) },
+    ],
+  };
+
   const result = useMemo(() => {
     if (active === "capm") {
       const er = values.rf + values.beta * (values.rm - values.rf);

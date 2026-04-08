@@ -275,6 +275,11 @@ const RateModelSimulator = () => {
             {/* Parameters */}
             <div className="space-y-4">
               <p className="text-xs font-mono text-muted-foreground uppercase tracking-wider mb-2">模型参数</p>
+              <PresetButtons presets={[
+                { name: "Vasicek经典", description: "r₀=5%, κ=0.3, θ=5%, σ=1%", apply: () => { setModel("vasicek"); setR0(5); setKappa(0.3); setTheta(5); setSigma(1); setT(10); } },
+                { name: "CIR低利率", description: "r₀=1%, κ=0.5, θ=3%, σ=0.8%", apply: () => { setModel("cir"); setR0(1); setKappa(0.5); setTheta(3); setSigma(0.8); setT(10); } },
+                { name: "高波动环境", description: "r₀=8%, κ=0.2, θ=6%, σ=3%", apply: () => { setModel("vasicek"); setR0(8); setKappa(0.2); setTheta(6); setSigma(3); setT(15); } },
+              ]} />
               {renderSlider("初始利率 r₀", r0, 0.1, 15, 0.1, setR0, "%")}
               {renderSlider("均值回复速度 κ", kappa, 0.05, 3, 0.05, setKappa)}
               {renderSlider("长期均值 θ", theta, 0.5, 15, 0.1, setTheta, "%")}

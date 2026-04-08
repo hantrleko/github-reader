@@ -297,6 +297,12 @@ const EfficientFrontier = () => {
             </p>
           </div>
 
+          <PresetButtons presets={[
+            { name: "经典双资产", description: "股票+债券, ρ=0.2", apply: () => { setAssets([{ id: "1", name: "股票", ret: 12, vol: 20 }, { id: "2", name: "债券", ret: 5, vol: 8 }]); setRho(0.2); setAllowShort(false); } },
+            { name: "全球配置", description: "美股/国债/新兴/商品", apply: () => { setAssets([{ id: "1", name: "美股", ret: 10, vol: 16 }, { id: "2", name: "国债", ret: 4, vol: 5 }, { id: "3", name: "新兴市场", ret: 14, vol: 25 }, { id: "4", name: "商品", ret: 7, vol: 18 }]); setRho(0.3); setAllowShort(false); } },
+            { name: "Markowitz示例", description: "允许卖空, ρ=0.5", apply: () => { setAssets([{ id: "1", name: "资产 A", ret: 15, vol: 22 }, { id: "2", name: "资产 B", ret: 8, vol: 12 }, { id: "3", name: "资产 C", ret: 11, vol: 18 }]); setRho(0.5); setAllowShort(true); } },
+          ]} />
+
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
             {/* Asset inputs */}
             <div>
