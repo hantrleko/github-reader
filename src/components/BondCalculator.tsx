@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import PresetButtons, { Preset } from "./PresetButtons";
 import { motion } from "framer-motion";
 import {
   LineChart,
@@ -263,6 +264,12 @@ const BondCalculator = () => {
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
                 <div className="space-y-5">
                   <p className="text-xs font-mono text-muted-foreground uppercase tracking-wider mb-2">债券参数</p>
+                  <PresetButtons presets={[
+                    { name: "国债标准", description: "F=100, c=3%, YTM=4%, 10Y半年付", apply: () => { setFace(100); setCouponRate(3); setYtm(4); setMaturity(10); setFreq(2); } },
+                    { name: "高收益债", description: "F=100, c=8%, YTM=6%, 5Y", apply: () => { setFace(100); setCouponRate(8); setYtm(6); setMaturity(5); setFreq(2); } },
+                    { name: "零息债券", description: "F=100, c=0%, YTM=5%, 20Y", apply: () => { setFace(100); setCouponRate(0); setYtm(5); setMaturity(20); setFreq(1); } },
+                    { name: "溢价债券", description: "F=100, c=7%, YTM=4%, 15Y", apply: () => { setFace(100); setCouponRate(7); setYtm(4); setMaturity(15); setFreq(2); } },
+                  ]} />
                   {renderSlider("面值 F", "F", "", face, 100, 10000, 100, setFace)}
                   {renderSlider("票面利率", "c", "%", couponRate, 0, 15, 0.1, setCouponRate)}
                   {renderSlider("到期收益率 YTM", "y", "%", ytm, 0.1, 20, 0.1, setYtm)}
