@@ -10,6 +10,7 @@ const Index = () => {
       <HeroSection />
       <TopicCards />
       <ModelShowcase />
+      <CalculatorSection />
       <LearningPath />
 
       {/* Footer */}
