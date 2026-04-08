@@ -942,49 +942,225 @@ export const topicsData: TopicData[] = [
     icon: GitBranch,
     title: "衍生品定价",
     subtitle: "Derivatives",
-    desc: "Black-Scholes、二叉树模型、蒙特卡洛模拟",
-    tags: ["BS", "Binomial", "MC"],
+    desc: "无套利原理、BS 模型、Greeks、奇异期权、利率衍生品与信用衍生品",
+    tags: ["无套利", "BS", "Greeks", "奇异期权", "利率"],
     heroDesc:
-      "衍生品定价理论基于无套利原理和风险中性定价，为期权、期货等衍生工具提供精确的估值方法。",
+      "衍生品定价理论基于无套利原理和风险中性定价，为期权、期货、互换等衍生工具提供精确的估值方法。本模块从无套利基础出发，覆盖经典模型到前沿定价技术。",
     knowledgePoints: [
+      // ── 一、无套利基础 ──
       {
-        title: "Black-Scholes 模型",
+        title: "无套利原理与一价定律",
         content:
-          "Black & Scholes (1973) 假设标的资产价格服从几何布朗运动，通过构造 Delta 对冲组合推导出期权定价的偏微分方程。",
-        formula: "C = S₀N(d₁) − Ke⁻ʳᵀN(d₂)",
+          "无套利原理是所有衍生品定价的基石：不存在零初始投资、零风险却有正收益的交易策略。一价定律是其推论：具有相同未来现金流的资产必须有相同价格。违反无套利会产生 money machine，被市场力量迅速消除。",
+        formula: "若 V_T(ω) ≥ 0 对所有 ω 成立，且 P(V_T > 0) > 0，则 V₀ > 0",
         formulaExplain:
-          "d₁ = [ln(S₀/K) + (r + σ²/2)T] / (σ√T)，d₂ = d₁ − σ√T。",
+          "无套利的形式化定义：非负终值且正概率严格为正的组合，初始成本必须为正。",
+      },
+      {
+        title: "远期与期货定价",
+        content:
+          "远期价格由无套利的 cash-and-carry 策略确定：买入标的、借入资金、卖出远期。持有成本模型统一了股票、商品、外汇远期的定价。期货与远期在利率非随机时价格相同。",
+        formula: "F₀ = S₀ · e^{(r−q)T}",
+        formulaExplain:
+          "S₀ 为现价，r 为无风险利率，q 为连续红利收益率，T 为到期时间。商品需加存储成本减便利收益。",
         derivation: [
-          "1. 假设：dS = μSdt + σSdW（几何布朗运动）",
-          "2. 构造组合 Π = V − ΔS，选择 Δ = ∂V/∂S 使组合无风险",
-          "3. 无套利条件：dΠ = rΠdt",
-          "4. 代入 Itô 引理得 BS PDE：∂V/∂t + ½σ²S²∂²V/∂S² + rS∂V/∂S − rV = 0",
-          "5. 配合边界条件 C(S,T) = max(S−K, 0) 求解得封闭解",
+          "1. 策略 A：买入远期合约（成本 0），到期支付 F₀ 获得资产",
+          "2. 策略 B：借 S₀e^{−qT} 买入资产，红利再投资，到期持有 1 单位资产",
+          "3. 策略 B 到期成本 = S₀e^{(r−q)T}",
+          "4. 无套利要求 F₀ = S₀e^{(r−q)T}，否则可构造套利",
+          "5. 当 F₀ > S₀e^{(r−q)T}：卖远期 + 买现货（正向套利）",
         ],
       },
       {
-        title: "二叉树模型 (CRR)",
+        title: "看跌-看涨期权平价 (Put-Call Parity)",
         content:
-          "Cox, Ross & Rubinstein (1979) 的离散时间模型，将期权到期日分为 n 步，每步价格上涨 u 或下跌 d，通过风险中性概率后向归纳定价。",
-        formula: "C = e⁻ʳᐩᵀ Σ C(n,j) pʲ(1−p)ⁿ⁻ʲ max(Sujdn-j−K, 0)",
+          "无套利条件下，欧式看涨与看跌期权价格之间的确定性关系。通过构造两个等价组合（保护性看跌 vs 信托看涨）证明。违反平价意味着存在套利机会。",
+        formula: "C − P = S₀e^{−qT} − Ke^{−rT}",
         formulaExplain:
-          "p = (eʳᐩᵀ − d)/(u − d) 为风险中性概率，u = eσ√Δt，d = 1/u。",
+          "C 为欧式看涨价格，P 为看跌价格，K 为执行价，q 为红利率。对美式期权仅为不等式。",
+        derivation: [
+          "1. 组合 A：买看涨 C + 投资 Ke^{−rT} 于无风险资产",
+          "2. 组合 B：买看跌 P + 买 e^{−qT} 单位标的资产",
+          "3. 到期时组合 A 价值 = max(S_T, K)",
+          "4. 到期时组合 B 价值 = max(S_T, K)（相同）",
+          "5. 无套利 ⟹ 初始成本相等：C + Ke^{−rT} = P + S₀e^{−qT}",
+        ],
+      },
+      {
+        title: "风险中性定价原理",
+        content:
+          "资产基本定理（FTAP）：市场无套利 ⟺ 存在等价鞅测度 Q（风险中性概率）。在 Q 下，所有资产的贴现价格是鞅，衍生品价格等于 Q 下贴现期望收益。定价无需知道真实概率和风险偏好。",
+        formula: "V₀ = e^{−rT} E^Q[V_T]",
+        formulaExplain:
+          "E^Q 为风险中性期望。在 Q 下标的资产漂移率为 r − q，而非真实漂移率 μ。",
+        derivation: [
+          "1. 第一基本定理：无套利 ⟺ ∃ 等价鞅测度 Q",
+          "2. 第二基本定理：市场完备 ⟺ Q 唯一",
+          "3. 在 Q 下：dS/S = (r−q)dt + σdW^Q（Girsanov 定理换测度）",
+          "4. 贴现过程 e^{−rt}S_t 在 Q 下为鞅",
+          "5. 衍生品价格：V₀ = e^{−rT} E^Q[payoff(S_T)]",
+        ],
+      },
+      // ── 二、Black-Scholes 框架 ──
+      {
+        title: "几何布朗运动与 Itô 引理",
+        content:
+          "GBM 是 BS 模型的基础假设：股价的对数收益服从正态分布。Itô 引理将随机微积分中的链式法则推广到含随机项的函数，是推导 BS PDE 的关键工具。",
+        formula: "dS = μSdt + σSdW；df = (∂f/∂t + μS∂f/∂S + ½σ²S²∂²f/∂S²)dt + σS(∂f/∂S)dW",
+        formulaExplain:
+          "Itô 引理比普通链式法则多出 ½σ²S²∂²f/∂S² 项，源于 (dW)² = dt。",
+      },
+      {
+        title: "Black-Scholes PDE 与封闭解",
+        content:
+          "通过 Delta 对冲构造无风险组合推导 BS PDE。欧式看涨/看跌期权有解析封闭解。BS 公式是连续时间金融的里程碑，Scholes 和 Merton 因此获 1997 年诺贝尔经济学奖。",
+        formula: "C = S₀e^{−qT}N(d₁) − Ke^{−rT}N(d₂)",
+        formulaExplain:
+          "d₁ = [ln(S₀/K) + (r − q + σ²/2)T] / (σ√T)，d₂ = d₁ − σ√T。",
+        derivation: [
+          "1. 构造对冲组合 Π = V − ΔS，令 Δ = ∂V/∂S",
+          "2. 由 Itô 引理：dΠ = (∂V/∂t + ½σ²S²∂²V/∂S²)dt",
+          "3. 无风险增长：dΠ = rΠdt = r(V − S∂V/∂S)dt",
+          "4. 得 BS PDE：∂V/∂t + ½σ²S²∂²V/∂S² + (r−q)S∂V/∂S − rV = 0",
+          "5. 边界条件 C(S,T) = max(S−K, 0)，通过热传导方程变换求解",
+          "6. N(d₁) = Delta，N(d₂) = Q 下期权被执行的概率",
+        ],
       },
       {
         title: "希腊字母 (Greeks)",
         content:
-          "衡量期权价格对各参数的敏感度。Delta (Δ) 对标的价格、Gamma (Γ) 对 Delta 变化、Theta (Θ) 对时间、Vega (ν) 对波动率、Rho (ρ) 对利率。",
-        formula: "Δ = ∂C/∂S,  Γ = ∂²C/∂S²,  Θ = ∂C/∂t,  ν = ∂C/∂σ",
+          "Greeks 度量期权价格对各参数的局部敏感度，是风险管理和对冲的核心工具。Delta 对冲消除一阶价格风险，Gamma 对冲进一步消除凸性风险，Vega 对冲管理波动率敞口。",
+        formula: "Δ = ∂V/∂S，Γ = ∂²V/∂S²，Θ = ∂V/∂t，ν = ∂V/∂σ，ρ = ∂V/∂r",
         formulaExplain:
-          "对于 BS 模型中的欧式看涨期权：Δ = N(d₁)，Γ = N'(d₁)/(Sσ√T)。",
+          "BS 欧式看涨：Δ = e^{−qT}N(d₁)，Γ = e^{−qT}n(d₁)/(Sσ√T)，ν = Se^{−qT}n(d₁)√T。",
+        derivation: [
+          "1. Delta-Gamma 近似：ΔV ≈ ΔS · δ + ½ΔS² · Γ + Δt · Θ",
+          "2. Delta 中性组合：Δ_portfolio = 0，需动态再对冲",
+          "3. Gamma 中性需引入另一个期权（不能仅用标的对冲）",
+          "4. Theta-Gamma 关系（BS PDE）：Θ + ½σ²S²Γ + (r−q)SΔ = rV",
+          "5. 在 ATM 附近：Γ 最大，Theta 消耗最快（时间价值衰减）",
+        ],
+      },
+      // ── 三、数值方法 ──
+      {
+        title: "二叉树模型 (CRR)",
+        content:
+          "Cox-Ross-Rubinstein (1979) 将连续 GBM 离散化为二叉格子，每步价格上涨 u 或下跌 d。通过后向归纳和风险中性概率定价，可处理美式期权的提前行权。当步数 n → ∞ 时收敛于 BS 价格。",
+        formula: "u = e^{σ√Δt}，d = 1/u，p = (e^{(r−q)Δt} − d) / (u − d)",
+        formulaExplain:
+          "Δt = T/n。风险中性概率 p 保证 E^Q[S_{t+Δt}] = S_t · e^{(r−q)Δt}。",
+        derivation: [
+          "1. 在每个节点，期权价值 = e^{−rΔt}[p·V_up + (1−p)·V_down]",
+          "2. 美式期权：V = max(行权价值, 继续持有价值)",
+          "3. 终端节点：V = max(S·u^j·d^{n−j} − K, 0)（看涨）",
+          "4. 逐层后向计算直到根节点得 V₀",
+          "5. Delta ≈ (V_up − V_down) / (S·u − S·d)（数值 Greeks）",
+        ],
       },
       {
         title: "蒙特卡洛模拟",
         content:
-          "利用随机模拟估计期权价格，特别适用于路径依赖型期权（亚式、障碍期权等）和高维问题。",
-        formula: "Ĉ = e⁻ʳᵀ (1/N) Σ payoff(Sᵢ_T)",
+          "基于大数定律，通过模拟大量标的价格路径取贴现期望收益的平均值来估计期权价格。特别适合高维、路径依赖问题。方差缩减技术（对偶变量、控制变量、重要性采样）可大幅提高效率。",
+        formula: "Ĉ = e^{−rT} · (1/M) Σᵢ₌₁ᴹ payoff(S_T^{(i)})",
         formulaExplain:
-          "模拟 N 条路径，对贴现后的期望收益取平均。方差缩减技术（对偶变量、控制变量）可提高效率。",
+          "M 为模拟路径数。标准误差 = σ_payoff / √M，收敛速度为 O(1/√M)。",
+        derivation: [
+          "1. 在 Q 下模拟：S_T = S₀ exp[(r−q−σ²/2)T + σ√T · Z]，Z ~ N(0,1)",
+          "2. 路径依赖：沿时间网格逐步模拟 S_{t+Δt} = S_t exp[(r−q−σ²/2)Δt + σ√Δt · Zₜ]",
+          "3. 对偶变量：同时用 Z 和 −Z，减少约一半方差",
+          "4. 控制变量：用已知解析解的简单期权校正估计偏差",
+          "5. Longstaff-Schwartz (LSM)：回归法处理美式期权的最优行权",
+        ],
+      },
+      {
+        title: "有限差分法",
+        content:
+          "将 BS PDE 在 (S, t) 网格上离散化，用显式、隐式或 Crank-Nicolson 格式求解。适合低维问题，可处理美式期权和各种边界条件。隐式格式无条件稳定但需求解线性方程组。",
+        formula: "显式：(Vⁿ⁺¹ᵢ − Vⁿᵢ)/Δt = ½σ²S²ᵢ(Vⁿᵢ₊₁ − 2Vⁿᵢ + Vⁿᵢ₋₁)/ΔS² + ⋯",
+        formulaExplain:
+          "Crank-Nicolson 取显式和隐式的平均，精度 O(Δt², ΔS²)，兼顾稳定性与精度。",
+      },
+      // ── 四、波动率建模 ──
+      {
+        title: "隐含波动率与波动率微笑",
+        content:
+          "将市场期权价格代入 BS 公式反解出的波动率称为隐含波动率 (IV)。IV 随执行价变化呈现微笑（smile）或偏斜（skew）形态，表明真实分布非对数正态：存在厚尾和负偏。",
+        formula: "C_market = BS(S, K, T, r, σ_imp) ⟹ 数值反解 σ_imp(K, T)",
+        formulaExplain:
+          "波动率曲面 σ(K, T) 是二维函数。equity 市场通常呈 skew（低 K 处 IV 更高）。",
+      },
+      {
+        title: "局部波动率模型 (Dupire)",
+        content:
+          "Dupire (1994) 证明存在唯一的局部波动率函数 σ_loc(S, t) 使得模型精确匹配所有欧式期权市场价格。局部波动率可从波动率曲面解析推导，但对远期波动率动态的预测不佳。",
+        formula: "σ²_loc(K, T) = 2[∂C/∂T + (r−q)K·∂C/∂K + qC] / (K²·∂²C/∂K²)",
+        formulaExplain:
+          "Dupire 公式从欧式期权价格曲面 C(K,T) 直接计算局部波动率，无需参数化假设。",
+      },
+      {
+        title: "随机波动率模型 (Heston)",
+        content:
+          "Heston (1993) 假设波动率本身服从 CIR 过程，捕捉波动率聚集和杠杆效应。模型有半解析的特征函数解，可通过 FFT 高效定价。五个参数：长期方差、均值回复速度、vol of vol、相关系数、初始方差。",
+        formula: "dS = (r−q)Sdt + √vₜ S dW₁；dvₜ = κ(θ−vₜ)dt + ξ√vₜ dW₂",
+        formulaExplain:
+          "Corr(dW₁, dW₂) = ρ（通常 ρ < 0，产生 skew）。Feller 条件 2κθ > ξ² 保证 v > 0。",
+        derivation: [
+          "1. 特征函数 φ(u) = E^Q[e^{iu·ln S_T}] 有解析表达式",
+          "2. 期权价格通过 Fourier 反变换：C = S·P₁ − Ke^{−rT}·P₂",
+          "3. P₁, P₂ 由特征函数积分得到：Pⱼ = ½ + (1/π)∫ Re[e^{−iu·lnK}φⱼ(u)/(iu)] du",
+          "4. Carr-Madan FFT 方法将积分转化为快速 Fourier 变换",
+          "5. 校准：最小化 Σ(C_model − C_market)² / vega²（vega 加权）",
+        ],
+      },
+      // ── 五、奇异期权 ──
+      {
+        title: "障碍期权 (Barrier Options)",
+        content:
+          "期权的有效性取决于标的价格是否触及预设障碍水平。分为敲入 (knock-in) 和敲出 (knock-out) 两类，各含上障碍和下障碍。In-Out Parity 将障碍期权与普通期权联系起来。",
+        formula: "C_knock-in + C_knock-out = C_vanilla",
+        formulaExplain:
+          "敲入 + 敲出 = 普通期权（同一障碍、相同参数）。连续监控的障碍期权在 BS 下有解析解。",
+      },
+      {
+        title: "亚式期权 (Asian Options)",
+        content:
+          "收益取决于标的价格在某段时间内的平均值而非到期时点价格，降低了价格操纵风险。算术平均亚式期权无解析解（算术平均的分布无闭式），通常用 MC 或近似方法定价。",
+        formula: "Payoff = max(Ā − K, 0)，Ā = (1/n)Σ S(tᵢ)（算术平均）",
+        formulaExplain:
+          "几何平均亚式期权有 BS 型解析解，常用作算术平均的控制变量。",
+      },
+      {
+        title: "互换与互换期权 (Swaptions)",
+        content:
+          "利率互换 (IRS) 交换固定利率和浮动利率现金流，定价基于无套利的贴现因子曲线。Swaption 是买入互换的期权，Black 模型是标准定价工具。互换利差反映信用风险和流动性溢价。",
+        formula: "Swap Value = Σ τᵢ(f_i − K)·DF(tᵢ)（固定端 vs 浮动端）",
+        formulaExplain:
+          "τᵢ 为付息期长度，f_i 为远期利率，K 为固定利率，DF 为贴现因子。Par swap rate 使价值为零。",
+      },
+      // ── 六、利率与信用衍生品 ──
+      {
+        title: "利率期限结构模型",
+        content:
+          "短期利率模型分为均衡模型（Vasicek, CIR：参数由数据估计）和无套利模型（Ho-Lee, Hull-White：精确匹配当前收益率曲线）。Heath-Jarrow-Morton (HJM) 框架直接对远期利率的漂移施加无套利约束。",
+        formula: "Vasicek: dr = κ(θ − r)dt + σdW；零息债券 P(t,T) = A(t,T)e^{−B(t,T)r_t}",
+        formulaExplain:
+          "Vasicek 模型允许负利率。CIR 用 σ√r 替代 σ 保证利率非负。Hull-White 加入时变 θ(t)。",
+      },
+      {
+        title: "信用违约互换 (CDS) 定价",
+        content:
+          "CDS 是信用保护的核心工具：保护买方定期支付保费（premium leg），卖方在信用事件发生时赔付损失（protection leg）。公平价差使两条腿的现值相等。",
+        formula: "CDS spread s = [Σ DF(tᵢ) · Δt · Q(tᵢ₋₁) − Q(tᵢ)] · LGD / [Σ DF(tᵢ) · Δt · Q(tᵢ)]",
+        formulaExplain:
+          "Q(t) 为存活概率，LGD = 1 − Recovery。从市场 CDS 价差可 bootstrap 出违约概率期限结构。",
+      },
+      {
+        title: "波动率曲面插值与无套利约束",
+        content:
+          "构建光滑且无套利的波动率曲面是衍生品交易台的核心技术。SVI (Stochastic Volatility Inspired) 参数化在实务中广泛使用。无套利约束包括：蝶式价差 ≥ 0（凸性）、日历价差 ≥ 0（总方差单调递增）。",
+        formula: "SVI: w(k) = a + b[ρ(k−m) + √((k−m)² + σ²)]",
+        formulaExplain:
+          "w = σ²_imp · T（总隐含方差），k = ln(K/F)（对数行权价）。5 参数 (a,b,ρ,m,σ) 拟合每个到期日。",
       },
     ],
   },
