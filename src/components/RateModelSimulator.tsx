@@ -265,7 +265,7 @@ const RateModelSimulator = () => {
             </p>
             {model === "cir" && !fellerCondition && (
               <p className="text-xs font-mono text-red-400 mt-2">
-                ⚠ Feller 条件不满足 (2κθ < σ²)，利率可能触及零
+                {"⚠ Feller 条件不满足 (2κθ < σ²)，利率可能触及零"}
               </p>
             )}
           </div>
