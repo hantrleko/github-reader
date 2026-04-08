@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { Menu, X } from "lucide-react";
+import ThemeToggle from "./ThemeToggle";
 
 const NAV_ITEMS = [
   { id: "hero", label: "首页" },
@@ -75,13 +76,16 @@ const Navbar = () => {
           ))}
         </div>
 
-        {/* Mobile toggle */}
-        <button
-          className="md:hidden p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-accent"
-          onClick={() => setMobileOpen(!mobileOpen)}
-        >
-          {mobileOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
-        </button>
+        <div className="flex items-center gap-1">
+          <ThemeToggle />
+          {/* Mobile toggle */}
+          <button
+            className="md:hidden p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-accent"
+            onClick={() => setMobileOpen(!mobileOpen)}
+          >
+            {mobileOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
+          </button>
+        </div>
       </div>
 
       {/* Mobile menu */}
