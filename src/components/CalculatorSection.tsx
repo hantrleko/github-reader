@@ -542,6 +542,17 @@ const CalculatorSection = () => {
     [active, values, effectiveSweep, params]
   );
 
+  // Greeks data for BS
+  const greeksData = useMemo(() => {
+    if (active !== "bs") return null;
+    return generateGreeksData(values);
+  }, [active, values]);
+
+  const currentGreeks = useMemo(() => {
+    if (active !== "bs") return null;
+    return bsGreeks(values.s, values.k, values.r / 100, values.sigma / 100, values.t);
+  }, [active, values]);
+
   // VaR-specific data
   const mcData = useMemo(() => {
     if (active !== "var") return null;
