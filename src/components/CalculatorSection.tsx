@@ -15,6 +15,7 @@ import {
   Cell,
   AreaChart,
   Area,
+  ComposedChart,
 } from "recharts";
 
 interface ParamConfig {
