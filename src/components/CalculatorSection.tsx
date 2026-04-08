@@ -15,6 +15,7 @@ import {
   Cell,
   AreaChart,
   Area,
+  ComposedChart,
 } from "recharts";
 
 interface ParamConfig {
@@ -226,25 +227,22 @@ function generateHistSimData(values: Record<string, number>) {
   const sigma = values.dailySigma / 100;
   const T = values.holdingDays;
   const W = values.portfolio;
-  const nDays = 500; // 2 years of daily data
+  const nDays = 500;
   const rand = mulberry32(123);
 
-  // Generate synthetic daily returns
   const dailyReturns: number[] = [];
   for (let i = 0; i < nDays; i++) {
-    // Use t-distribution-like returns (fatter tails) for realism
     const z = boxMuller(rand);
-    dailyReturns.push(mu + sigma * z * (1 + 0.1 * Math.abs(z))); // slight fat tail
+    dailyReturns.push(mu + sigma * z * (1 + 0.1 * Math.abs(z)));
   }
 
-  // Rolling T-day returns
   const holdingReturns: number[] = [];
   for (let i = 0; i <= nDays - T; i++) {
     let cum = 0;
     for (let d = 0; d < T; d++) {
       cum += dailyReturns[i + d];
     }
-    holdingReturns.push(-cum * W); // positive = loss
+    holdingReturns.push(-cum * W);
   }
   holdingReturns.sort((a, b) => a - b);
 
@@ -260,6 +258,99 @@ function generateHistSimData(values: Record<string, number>) {
   const histES = esCount > 0 ? esSum / esCount : histVaR;
 
   return { histVaR, histES, nObs: holdingReturns.length };
+}
+
+// Chi-squared CDF approximation (1 degree of freedom) for Kupiec test
+function chi2Cdf1(x: number): number {
+  if (x <= 0) return 0;
+  return 2 * normCdf(Math.sqrt(x)) - 1;
+}
+
+// Backtesting: generate daily P&L series & compare against VaR
+function generateBacktestData(values: Record<string, number>) {
+  const mu = values.mu / 100;
+  const sigma = values.dailySigma / 100;
+  const W = values.portfolio;
+  const confidence = values.confidence / 100;
+  const z = normInv(confidence);
+  const nDays = 250; // 1 trading year
+  const rand = mulberry32(777);
+
+  // Daily parametric VaR (1-day holding)
+  const dailyVaR = W * Math.abs(mu - z * sigma);
+
+  const timeline: { day: number; pnl: number; var: number; exception: boolean }[] = [];
+  let exceptions = 0;
+
+  for (let i = 0; i < nDays; i++) {
+    const zr = boxMuller(rand);
+    // Add occasional fat-tail shocks for realism
+    const shock = Math.random() < 0.03 ? 1.8 : 1.0;
+    const dailyReturn = mu + sigma * zr * shock;
+    const pnl = dailyReturn * W; // positive = gain, negative = loss
+    const loss = -pnl;
+    const isException = loss > dailyVaR;
+    if (isException) exceptions++;
+    timeline.push({
+      day: i + 1,
+      pnl: parseFloat(pnl.toFixed(2)),
+      var: parseFloat((-dailyVaR).toFixed(2)), // show as negative line
+      exception: isException,
+    });
+  }
+
+  // Kupiec POF test
+  const T = nDays;
+  const x = exceptions;
+  const p = 1 - confidence; // expected exception rate
+  const pHat = x / T; // observed exception rate
+
+  let kupiecLR = 0;
+  if (x > 0 && x < T) {
+    kupiecLR = 2 * (
+      x * Math.log(pHat / p) + (T - x) * Math.log((1 - pHat) / (1 - p))
+    );
+  } else if (x === 0) {
+    kupiecLR = 2 * T * Math.log((1 - 0) / (1 - p)); // simplified
+  } else {
+    kupiecLR = 2 * T * Math.log(1 / p);
+  }
+  kupiecLR = Math.max(0, kupiecLR);
+
+  const kupiecPValue = 1 - chi2Cdf1(kupiecLR);
+  const kupiecReject = kupiecPValue < 0.05;
+
+  // Basel traffic light zones (for 250 days at given confidence)
+  // Green: exceptions <= expected * ~1.5 (roughly 0-4 at 99%)
+  // Yellow: 5-9, Red: 10+
+  const expectedExceptions = T * (1 - confidence);
+  let trafficLight: "green" | "yellow" | "red";
+  if (x <= Math.ceil(expectedExceptions + 1.5 * Math.sqrt(expectedExceptions * confidence))) {
+    trafficLight = "green";
+  } else if (x <= Math.ceil(expectedExceptions + 3 * Math.sqrt(expectedExceptions * confidence))) {
+    trafficLight = "yellow";
+  } else {
+    trafficLight = "red";
+  }
+
+  // For 99% confidence specifically, use Basel standard thresholds
+  if (Math.abs(confidence - 0.99) < 0.001) {
+    if (x <= 4) trafficLight = "green";
+    else if (x <= 9) trafficLight = "yellow";
+    else trafficLight = "red";
+  }
+
+  return {
+    timeline,
+    exceptions,
+    expectedExceptions,
+    dailyVaR,
+    kupiecLR,
+    kupiecPValue,
+    kupiecReject,
+    trafficLight,
+    nDays,
+  };
 }
 
 const CustomTooltip = ({ active: isActive, payload, label, unit }: any) => {
@@ -373,6 +464,11 @@ const CalculatorSection = () => {
   const histData = useMemo(() => {
     if (active !== "var") return null;
     return generateHistSimData(values);
+  }, [active, values]);
+
+  const backtestData = useMemo(() => {
+    if (active !== "var") return null;
+    return generateBacktestData(values);
   }, [active, values]);
 
   const sweepParam = params.find((p) => p.key === effectiveSweep)!;
@@ -727,6 +823,153 @@ const CalculatorSection = () => {
                   </AreaChart>
                 </ResponsiveContainer>
               </div>
+            </div>
+          )}
+
+          {/* Backtesting Section */}
+          {active === "var" && backtestData && (
+            <div className="mb-8">
+              <p className="text-xs font-mono text-muted-foreground uppercase tracking-wider mb-4">
+                回测检验 · Backtesting（250 交易日）
+              </p>
+
+              {/* Traffic Light + Kupiec Stats */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                {/* Traffic Light */}
+                <div className="rounded-xl border border-border bg-secondary/30 p-5 flex flex-col items-center justify-center">
+                  <p className="text-xs font-mono text-muted-foreground mb-3 uppercase tracking-wider">
+                    Basel 交通灯
+                  </p>
+                  <div className="flex gap-3 mb-3">
+                    {(["green", "yellow", "red"] as const).map((color) => {
+                      const isActive = backtestData.trafficLight === color;
+                      const bgMap = { green: "bg-emerald-500", yellow: "bg-yellow-400", red: "bg-red-500" };
+                      return (
+                        <div
+                          key={color}
+                          className={`w-10 h-10 rounded-full transition-all duration-500 ${bgMap[color]} ${
+                            isActive ? "opacity-100 shadow-lg scale-110" : "opacity-20"
+                          }`}
+                          style={isActive ? { boxShadow: `0 0 20px ${color === "green" ? "rgba(16,185,129,0.5)" : color === "yellow" ? "rgba(250,204,21,0.5)" : "rgba(239,68,68,0.5)"}` } : {}}
+                        />
+                      );
+                    })}
+                  </div>
+                  <p className={`text-sm font-mono font-bold ${
+                    backtestData.trafficLight === "green" ? "text-emerald-400" :
+                    backtestData.trafficLight === "yellow" ? "text-yellow-400" : "text-red-400"
+                  }`}>
+                    {backtestData.trafficLight === "green" ? "绿区 · 模型合格" :
+                     backtestData.trafficLight === "yellow" ? "黄区 · 需关注" : "红区 · 模型失效"}
+                  </p>
+                </div>
+
+                {/* Exception Count */}
+                <div className="rounded-xl border border-border bg-secondary/30 p-5 text-center">
+                  <p className="text-xs font-mono text-muted-foreground mb-2 uppercase tracking-wider">
+                    突破次数
+                  </p>
+                  <p className="text-3xl font-mono font-bold text-foreground">
+                    {backtestData.exceptions}
+                  </p>
+                  <p className="text-xs font-mono text-muted-foreground mt-1">
+                    预期: {backtestData.expectedExceptions.toFixed(1)} 次
+                  </p>
+                  <p className="text-xs font-mono text-muted-foreground">
+                    突破率: {((backtestData.exceptions / backtestData.nDays) * 100).toFixed(2)}%
+                  </p>
+                </div>
+
+                {/* Kupiec Test */}
+                <div className={`rounded-xl border p-5 text-center ${
+                  backtestData.kupiecReject
+                    ? "border-red-400/20 bg-red-400/[0.03]"
+                    : "border-emerald-400/20 bg-emerald-400/[0.03]"
+                }`}>
+                  <p className="text-xs font-mono text-muted-foreground mb-2 uppercase tracking-wider">
+                    Kupiec POF 检验
+                  </p>
+                  <p className="text-lg font-mono font-bold text-foreground">
+                    LR = {backtestData.kupiecLR.toFixed(3)}
+                  </p>
+                  <p className="text-sm font-mono text-muted-foreground mt-1">
+                    p-value = {backtestData.kupiecPValue.toFixed(4)}
+                  </p>
+                  <p className={`text-xs font-mono mt-2 font-bold ${
+                    backtestData.kupiecReject ? "text-red-400" : "text-emerald-400"
+                  }`}>
+                    {backtestData.kupiecReject ? "拒绝 H₀ · 模型不准确" : "不拒绝 H₀ · 模型可接受"}
+                  </p>
+                </div>
+              </div>
+
+              {/* P&L Timeline Chart */}
+              <div className="rounded-xl bg-secondary/30 border border-border p-4">
+                <ResponsiveContainer width="100%" height={250}>
+                  <ComposedChart data={backtestData.timeline} margin={{ top: 5, right: 10, left: 5, bottom: 5 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID} />
+                    <XAxis
+                      dataKey="day"
+                      stroke={CHART_TEXT}
+                      tick={{ fontSize: 9, fontFamily: "var(--font-mono)" }}
+                      label={{
+                        value: "交易日",
+                        position: "insideBottom",
+                        offset: -2,
+                        style: { fontSize: 11, fill: CHART_TEXT, fontFamily: "var(--font-mono)" },
+                      }}
+                    />
+                    <YAxis
+                      stroke={CHART_TEXT}
+                      tick={{ fontSize: 9, fontFamily: "var(--font-mono)" }}
+                      width={50}
+                    />
+                    <Tooltip
+                      content={({ active: isActive, payload }) => {
+                        if (!isActive || !payload?.length) return null;
+                        const d = payload[0]?.payload;
+                        return (
+                          <div className="rounded-lg bg-card border border-border px-3 py-2 shadow-lg">
+                            <p className="text-xs font-mono text-muted-foreground">第 {d?.day} 天</p>
+                            <p className={`text-sm font-mono ${d?.pnl >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                              P&L: {d?.pnl?.toFixed(2)} 万
+                            </p>
+                            <p className="text-xs font-mono text-muted-foreground">
+                              VaR线: {d?.var?.toFixed(2)} 万
+                            </p>
+                            {d?.exception && (
+                              <p className="text-xs font-mono text-red-400 font-bold">⚠ VaR 突破</p>
+                            )}
+                          </div>
+                        );
+                      }}
+                    />
+                    <ReferenceLine y={0} stroke={CHART_TEXT} strokeOpacity={0.3} />
+                    <Bar dataKey="pnl" name="P&L">
+                      {backtestData.timeline.map((entry, index) => (
+                        <Cell
+                          key={`bt-${index}`}
+                          fill={entry.exception ? CHART_RED : entry.pnl >= 0 ? "hsl(160, 50%, 40%)" : CHART_TEAL}
+                          fillOpacity={entry.exception ? 0.9 : 0.5}
+                        />
+                      ))}
+                    </Bar>
+                    <Line
+                      type="monotone"
+                      dataKey="var"
+                      name="−VaR"
+                      stroke={CHART_RED}
+                      strokeWidth={1.5}
+                      strokeDasharray="4 3"
+                      dot={false}
+                    />
+                    <Legend wrapperStyle={{ fontSize: 11, fontFamily: "var(--font-mono)" }} />
+                  </ComposedChart>
+                </ResponsiveContainer>
+              </div>
+              <p className="text-[10px] text-muted-foreground font-mono mt-2 text-center">
+                红色柱 = 损失超过VaR的突破日 · 虚线 = −VaR 阈值 · Kupiec LR ~ χ²(1), 5%显著性水平
+              </p>
             </div>
           )}
 
