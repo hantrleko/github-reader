@@ -229,10 +229,24 @@ const EfficientFrontier = () => {
     );
   };
 
-  const { frontier, gmv, tangent } = useMemo(
+  const { frontier, gmv, tangent, weights } = useMemo(
     () => computeEfficientFrontier(assets, rho, 100, allowShort),
     [assets, rho, allowShort]
   );
+
+  const ASSET_COLORS = [CHART_GOLD, CHART_TEAL, CHART_RED, CHART_BLUE, "hsl(280,60%,55%)", "hsl(150,60%,45%)", "hsl(30,80%,50%)", "hsl(340,60%,50%)"];
+
+  const selectedWeights = selectedIdx !== null && selectedIdx < weights.length
+    ? weights[selectedIdx]
+    : null;
+
+  const pieData = selectedWeights
+    ? assets.map((a, i) => ({
+        name: a.name,
+        value: Math.round(selectedWeights[i] * 10000) / 100,
+        absValue: Math.abs(Math.round(selectedWeights[i] * 10000) / 100),
+      }))
+    : null;
 
   const assetPoints = assets.map(a => ({
     vol: a.vol,
