@@ -920,26 +920,95 @@ const CalculatorSection = () => {
                   </p>
                 </div>
 
-                {/* Kupiec Test */}
+                {/* Kupiec POF Test */}
                 <div className={`rounded-xl border p-5 text-center ${
-                  backtestData.kupiecReject
-                    ? "border-red-400/20 bg-red-400/[0.03]"
-                    : "border-emerald-400/20 bg-emerald-400/[0.03]"
+                  backtestData.kupiecReject ? "border-red-400/20 bg-red-400/[0.03]" : "border-emerald-400/20 bg-emerald-400/[0.03]"
                 }`}>
                   <p className="text-xs font-mono text-muted-foreground mb-2 uppercase tracking-wider">
                     Kupiec POF 检验
                   </p>
+                  <p className="text-xs font-mono text-muted-foreground mb-1">H₀: p = p̂（覆盖率正确）</p>
                   <p className="text-lg font-mono font-bold text-foreground">
-                    LR = {backtestData.kupiecLR.toFixed(3)}
+                    LR<sub>uc</sub> = {backtestData.kupiecLR.toFixed(3)}
                   </p>
-                  <p className="text-sm font-mono text-muted-foreground mt-1">
-                    p-value = {backtestData.kupiecPValue.toFixed(4)}
+                  <p className="text-sm font-mono text-muted-foreground">
+                    p = {backtestData.kupiecPValue.toFixed(4)} · χ²(1)
                   </p>
-                  <p className={`text-xs font-mono mt-2 font-bold ${
-                    backtestData.kupiecReject ? "text-red-400" : "text-emerald-400"
-                  }`}>
-                    {backtestData.kupiecReject ? "拒绝 H₀ · 模型不准确" : "不拒绝 H₀ · 模型可接受"}
+                  <p className={`text-xs font-mono mt-1 font-bold ${backtestData.kupiecReject ? "text-red-400" : "text-emerald-400"}`}>
+                    {backtestData.kupiecReject ? "拒绝 · 覆盖率不准确" : "通过 · 覆盖率可接受"}
                   </p>
+                </div>
+              </div>
+
+              {/* Christoffersen Tests Row */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                {/* Independence Test */}
+                <div className={`rounded-xl border p-5 text-center ${
+                  backtestData.indReject ? "border-red-400/20 bg-red-400/[0.03]" : "border-emerald-400/20 bg-emerald-400/[0.03]"
+                }`}>
+                  <p className="text-xs font-mono text-muted-foreground mb-2 uppercase tracking-wider">
+                    独立性检验 (LR<sub>ind</sub>)
+                  </p>
+                  <p className="text-xs font-mono text-muted-foreground mb-1">H₀: 突破间相互独立</p>
+                  <p className="text-lg font-mono font-bold text-foreground">
+                    LR<sub>ind</sub> = {backtestData.indLR.toFixed(3)}
+                  </p>
+                  <p className="text-sm font-mono text-muted-foreground">
+                    p = {backtestData.indPValue.toFixed(4)} · χ²(1)
+                  </p>
+                  <p className={`text-xs font-mono mt-1 font-bold ${backtestData.indReject ? "text-red-400" : "text-emerald-400"}`}>
+                    {backtestData.indReject ? "拒绝 · 存在聚集效应" : "通过 · 突破独立"}
+                  </p>
+                </div>
+
+                {/* Conditional Coverage Test */}
+                <div className={`rounded-xl border p-5 text-center ${
+                  backtestData.ccReject ? "border-red-400/20 bg-red-400/[0.03]" : "border-emerald-400/20 bg-emerald-400/[0.03]"
+                }`}>
+                  <p className="text-xs font-mono text-muted-foreground mb-2 uppercase tracking-wider">
+                    条件覆盖检验 (LR<sub>cc</sub>)
+                  </p>
+                  <p className="text-xs font-mono text-muted-foreground mb-1">LR<sub>cc</sub> = LR<sub>uc</sub> + LR<sub>ind</sub></p>
+                  <p className="text-lg font-mono font-bold text-foreground">
+                    LR<sub>cc</sub> = {backtestData.ccLR.toFixed(3)}
+                  </p>
+                  <p className="text-sm font-mono text-muted-foreground">
+                    p = {backtestData.ccPValue.toFixed(4)} · χ²(2)
+                  </p>
+                  <p className={`text-xs font-mono mt-1 font-bold ${backtestData.ccReject ? "text-red-400" : "text-emerald-400"}`}>
+                    {backtestData.ccReject ? "拒绝 · 模型综合不合格" : "通过 · 模型综合合格"}
+                  </p>
+                </div>
+
+                {/* Transition Matrix */}
+                <div className="rounded-xl border border-border bg-secondary/30 p-5">
+                  <p className="text-xs font-mono text-muted-foreground mb-3 uppercase tracking-wider text-center">
+                    转移矩阵
+                  </p>
+                  <table className="w-full text-center font-mono text-sm">
+                    <thead>
+                      <tr>
+                        <th className="text-[10px] text-muted-foreground p-1"></th>
+                        <th className="text-[10px] text-muted-foreground p-1">→ 正常</th>
+                        <th className="text-[10px] text-muted-foreground p-1">→ 突破</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td className="text-[10px] text-muted-foreground p-1">正常 →</td>
+                        <td className="text-foreground p-1 font-bold">{backtestData.n00}</td>
+                        <td className="text-gold p-1 font-bold">{backtestData.n01}</td>
+                      </tr>
+                      <tr>
+                        <td className="text-[10px] text-muted-foreground p-1">突破 →</td>
+                        <td className="text-foreground p-1 font-bold">{backtestData.n10}</td>
+                        <td className="text-red-400 p-1 font-bold">{backtestData.n11}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                  <div className="mt-2 text-[10px] font-mono text-muted-foreground text-center space-y-0.5">
+                    <p>π₀₁ = {backtestData.pi01.toFixed(4)} · π₁₁ = {backtestData.pi11.toFixed(4)}</p>
+                  </div>
                 </div>
               </div>
 
