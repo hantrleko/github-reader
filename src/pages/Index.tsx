@@ -4,6 +4,7 @@ import ModelShowcase from "@/components/ModelShowcase";
 import CalculatorSection from "@/components/CalculatorSection";
 import EfficientFrontier from "@/components/EfficientFrontier";
 import BondCalculator from "@/components/BondCalculator";
+import RateModelSimulator from "@/components/RateModelSimulator";
 import LearningPath from "@/components/LearningPath";
 
 const Index = () => {
@@ -15,6 +16,7 @@ const Index = () => {
       <CalculatorSection />
       <EfficientFrontier />
       <BondCalculator />
+      <RateModelSimulator />
       <LearningPath />
 
       {/* Footer */}
