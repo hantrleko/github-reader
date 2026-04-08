@@ -2,6 +2,7 @@ import HeroSection from "@/components/HeroSection";
 import TopicCards from "@/components/TopicCards";
 import ModelShowcase from "@/components/ModelShowcase";
 import CalculatorSection from "@/components/CalculatorSection";
+import EfficientFrontier from "@/components/EfficientFrontier";
 import LearningPath from "@/components/LearningPath";
 
 const Index = () => {
@@ -11,6 +12,7 @@ const Index = () => {
       <TopicCards />
       <ModelShowcase />
       <CalculatorSection />
+      <EfficientFrontier />
       <LearningPath />
 
       {/* Footer */}
