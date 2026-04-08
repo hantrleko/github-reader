@@ -5,6 +5,7 @@ import CalculatorSection from "@/components/CalculatorSection";
 import EfficientFrontier from "@/components/EfficientFrontier";
 import BondCalculator from "@/components/BondCalculator";
 import RateModelSimulator from "@/components/RateModelSimulator";
+import ImpliedVolTool from "@/components/ImpliedVolTool";
 import LearningPath from "@/components/LearningPath";
 
 const Index = () => {
@@ -14,6 +15,7 @@ const Index = () => {
       <TopicCards />
       <ModelShowcase />
       <CalculatorSection />
+      <ImpliedVolTool />
       <EfficientFrontier />
       <BondCalculator />
       <RateModelSimulator />
