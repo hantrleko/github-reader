@@ -825,6 +825,153 @@ const CalculatorSection = () => {
             </div>
           )}
 
+          {/* Backtesting Section */}
+          {active === "var" && backtestData && (
+            <div className="mb-8">
+              <p className="text-xs font-mono text-muted-foreground uppercase tracking-wider mb-4">
+                回测检验 · Backtesting（250 交易日）
+              </p>
+
+              {/* Traffic Light + Kupiec Stats */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                {/* Traffic Light */}
+                <div className="rounded-xl border border-border bg-secondary/30 p-5 flex flex-col items-center justify-center">
+                  <p className="text-xs font-mono text-muted-foreground mb-3 uppercase tracking-wider">
+                    Basel 交通灯
+                  </p>
+                  <div className="flex gap-3 mb-3">
+                    {(["green", "yellow", "red"] as const).map((color) => {
+                      const isActive = backtestData.trafficLight === color;
+                      const bgMap = { green: "bg-emerald-500", yellow: "bg-yellow-400", red: "bg-red-500" };
+                      return (
+                        <div
+                          key={color}
+                          className={`w-10 h-10 rounded-full transition-all duration-500 ${bgMap[color]} ${
+                            isActive ? "opacity-100 shadow-lg scale-110" : "opacity-20"
+                          }`}
+                          style={isActive ? { boxShadow: `0 0 20px ${color === "green" ? "rgba(16,185,129,0.5)" : color === "yellow" ? "rgba(250,204,21,0.5)" : "rgba(239,68,68,0.5)"}` } : {}}
+                        />
+                      );
+                    })}
+                  </div>
+                  <p className={`text-sm font-mono font-bold ${
+                    backtestData.trafficLight === "green" ? "text-emerald-400" :
+                    backtestData.trafficLight === "yellow" ? "text-yellow-400" : "text-red-400"
+                  }`}>
+                    {backtestData.trafficLight === "green" ? "绿区 · 模型合格" :
+                     backtestData.trafficLight === "yellow" ? "黄区 · 需关注" : "红区 · 模型失效"}
+                  </p>
+                </div>
+
+                {/* Exception Count */}
+                <div className="rounded-xl border border-border bg-secondary/30 p-5 text-center">
+                  <p className="text-xs font-mono text-muted-foreground mb-2 uppercase tracking-wider">
+                    突破次数
+                  </p>
+                  <p className="text-3xl font-mono font-bold text-foreground">
+                    {backtestData.exceptions}
+                  </p>
+                  <p className="text-xs font-mono text-muted-foreground mt-1">
+                    预期: {backtestData.expectedExceptions.toFixed(1)} 次
+                  </p>
+                  <p className="text-xs font-mono text-muted-foreground">
+                    突破率: {((backtestData.exceptions / backtestData.nDays) * 100).toFixed(2)}%
+                  </p>
+                </div>
+
+                {/* Kupiec Test */}
+                <div className={`rounded-xl border p-5 text-center ${
+                  backtestData.kupiecReject
+                    ? "border-red-400/20 bg-red-400/[0.03]"
+                    : "border-emerald-400/20 bg-emerald-400/[0.03]"
+                }`}>
+                  <p className="text-xs font-mono text-muted-foreground mb-2 uppercase tracking-wider">
+                    Kupiec POF 检验
+                  </p>
+                  <p className="text-lg font-mono font-bold text-foreground">
+                    LR = {backtestData.kupiecLR.toFixed(3)}
+                  </p>
+                  <p className="text-sm font-mono text-muted-foreground mt-1">
+                    p-value = {backtestData.kupiecPValue.toFixed(4)}
+                  </p>
+                  <p className={`text-xs font-mono mt-2 font-bold ${
+                    backtestData.kupiecReject ? "text-red-400" : "text-emerald-400"
+                  }`}>
+                    {backtestData.kupiecReject ? "拒绝 H₀ · 模型不准确" : "不拒绝 H₀ · 模型可接受"}
+                  </p>
+                </div>
+              </div>
+
+              {/* P&L Timeline Chart */}
+              <div className="rounded-xl bg-secondary/30 border border-border p-4">
+                <ResponsiveContainer width="100%" height={250}>
+                  <BarChart data={backtestData.timeline} margin={{ top: 5, right: 10, left: 5, bottom: 5 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID} />
+                    <XAxis
+                      dataKey="day"
+                      stroke={CHART_TEXT}
+                      tick={{ fontSize: 9, fontFamily: "var(--font-mono)" }}
+                      label={{
+                        value: "交易日",
+                        position: "insideBottom",
+                        offset: -2,
+                        style: { fontSize: 11, fill: CHART_TEXT, fontFamily: "var(--font-mono)" },
+                      }}
+                    />
+                    <YAxis
+                      stroke={CHART_TEXT}
+                      tick={{ fontSize: 9, fontFamily: "var(--font-mono)" }}
+                      width={50}
+                    />
+                    <Tooltip
+                      content={({ active: isActive, payload }) => {
+                        if (!isActive || !payload?.length) return null;
+                        const d = payload[0]?.payload;
+                        return (
+                          <div className="rounded-lg bg-card border border-border px-3 py-2 shadow-lg">
+                            <p className="text-xs font-mono text-muted-foreground">第 {d?.day} 天</p>
+                            <p className={`text-sm font-mono ${d?.pnl >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                              P&L: {d?.pnl?.toFixed(2)} 万
+                            </p>
+                            <p className="text-xs font-mono text-muted-foreground">
+                              VaR线: {d?.var?.toFixed(2)} 万
+                            </p>
+                            {d?.exception && (
+                              <p className="text-xs font-mono text-red-400 font-bold">⚠ VaR 突破</p>
+                            )}
+                          </div>
+                        );
+                      }}
+                    />
+                    <ReferenceLine y={0} stroke={CHART_TEXT} strokeOpacity={0.3} />
+                    <Line
+                      type="monotone"
+                      dataKey="var"
+                      name="−VaR"
+                      stroke={CHART_RED}
+                      strokeWidth={1.5}
+                      strokeDasharray="4 3"
+                      dot={false}
+                    />
+                    <Bar dataKey="pnl" name="P&L">
+                      {backtestData.timeline.map((entry, index) => (
+                        <Cell
+                          key={`bt-${index}`}
+                          fill={entry.exception ? CHART_RED : entry.pnl >= 0 ? "hsl(160, 50%, 40%)" : CHART_TEAL}
+                          fillOpacity={entry.exception ? 0.9 : 0.5}
+                        />
+                      ))}
+                    </Bar>
+                    <Legend wrapperStyle={{ fontSize: 11, fontFamily: "var(--font-mono)" }} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+              <p className="text-[10px] text-muted-foreground font-mono mt-2 text-center">
+                红色柱 = 损失超过VaR的突破日 · 虚线 = −VaR 阈值 · Kupiec LR ~ χ²(1), 5%显著性水平
+              </p>
+            </div>
+          )}
+
           {/* Result (non-VaR) */}
           {active !== "var" && (
             <div className="rounded-xl border border-gold/20 bg-gold/[0.03] p-6 text-center">
