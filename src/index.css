@@ -6,6 +6,61 @@
 
 @layer base {
   :root {
+    --background: 40 30% 96%;
+    --foreground: 220 20% 12%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 220 20% 12%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 20% 12%;
+
+    --primary: 43 80% 45%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 220 15% 92%;
+    --secondary-foreground: 220 15% 30%;
+
+    --muted: 220 12% 90%;
+    --muted-foreground: 220 10% 45%;
+
+    --accent: 200 60% 45%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 65% 50%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 220 12% 85%;
+    --input: 220 12% 85%;
+    --ring: 43 80% 45%;
+
+    --radius: 0.75rem;
+
+    --gold: 43 80% 45%;
+    --gold-dim: 43 50% 30%;
+    --gold-glow: 43 90% 55%;
+    --navy-light: 220 15% 88%;
+    --teal: 180 50% 35%;
+    --teal-glow: 180 60% 45%;
+
+    --font-display: 'Playfair Display', Georgia, serif;
+    --font-body: 'Source Sans 3', system-ui, sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+
+    --shadow-gold: 0 4px 30px -8px hsl(43 80% 45% / 0.2);
+    --shadow-card: 0 8px 32px -12px hsl(0 0% 0% / 0.1);
+
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 220 15% 30%;
+    --sidebar-primary: 43 80% 45%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 220 15% 92%;
+    --sidebar-accent-foreground: 220 15% 30%;
+    --sidebar-border: 220 12% 85%;
+    --sidebar-ring: 43 80% 45%;
+  }
+
+  .dark {
     --background: 220 20% 7%;
     --foreground: 40 20% 92%;
 
