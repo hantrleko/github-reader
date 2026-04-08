@@ -465,6 +465,11 @@ const CalculatorSection = () => {
     return generateHistSimData(values);
   }, [active, values]);
 
+  const backtestData = useMemo(() => {
+    if (active !== "var") return null;
+    return generateBacktestData(values);
+  }, [active, values]);
+
   const sweepParam = params.find((p) => p.key === effectiveSweep)!;
 
   return (
