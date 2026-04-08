@@ -1,3 +1,4 @@
+import Navbar from "@/components/Navbar";
 import HeroSection from "@/components/HeroSection";
 import TopicCards from "@/components/TopicCards";
 import ModelShowcase from "@/components/ModelShowcase";
@@ -12,16 +13,17 @@ import LearningPath from "@/components/LearningPath";
 const Index = () => {
   return (
     <div className="min-h-screen bg-background">
-      <HeroSection />
-      <TopicCards />
-      <ModelShowcase />
-      <CalculatorSection />
-      <ImpliedVolTool />
-      <MCOptionPricer />
-      <EfficientFrontier />
-      <BondCalculator />
-      <RateModelSimulator />
-      <LearningPath />
+      <Navbar />
+      <div id="hero" className="scroll-mt-12"><HeroSection /></div>
+      <div id="topics" className="scroll-mt-12"><TopicCards /></div>
+      <div id="models" className="scroll-mt-12"><ModelShowcase /></div>
+      <div id="calculator" className="scroll-mt-12"><CalculatorSection /></div>
+      <div id="implied-vol" className="scroll-mt-12"><ImpliedVolTool /></div>
+      <div id="mc-pricer" className="scroll-mt-12"><MCOptionPricer /></div>
+      <div id="frontier" className="scroll-mt-12"><EfficientFrontier /></div>
+      <div id="bond" className="scroll-mt-12"><BondCalculator /></div>
+      <div id="rate-model" className="scroll-mt-12"><RateModelSimulator /></div>
+      <div id="learning" className="scroll-mt-12"><LearningPath /></div>
 
       {/* Footer */}
       <footer className="py-12 px-6 border-t border-border">
