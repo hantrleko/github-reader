@@ -14,16 +14,16 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
-      <div id="hero"><HeroSection /></div>
-      <div id="topics"><TopicCards /></div>
-      <div id="models"><ModelShowcase /></div>
-      <div id="calculator"><CalculatorSection /></div>
-      <div id="implied-vol"><ImpliedVolTool /></div>
-      <div id="mc-pricer"><MCOptionPricer /></div>
-      <div id="frontier"><EfficientFrontier /></div>
-      <div id="bond"><BondCalculator /></div>
-      <div id="rate-model"><RateModelSimulator /></div>
-      <div id="learning"><LearningPath /></div>
+      <div id="hero" className="scroll-mt-12"><HeroSection /></div>
+      <div id="topics" className="scroll-mt-12"><TopicCards /></div>
+      <div id="models" className="scroll-mt-12"><ModelShowcase /></div>
+      <div id="calculator" className="scroll-mt-12"><CalculatorSection /></div>
+      <div id="implied-vol" className="scroll-mt-12"><ImpliedVolTool /></div>
+      <div id="mc-pricer" className="scroll-mt-12"><MCOptionPricer /></div>
+      <div id="frontier" className="scroll-mt-12"><EfficientFrontier /></div>
+      <div id="bond" className="scroll-mt-12"><BondCalculator /></div>
+      <div id="rate-model" className="scroll-mt-12"><RateModelSimulator /></div>
+      <div id="learning" className="scroll-mt-12"><LearningPath /></div>
 
       {/* Footer */}
       <footer className="py-12 px-6 border-t border-border">
