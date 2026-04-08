@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import PresetButtons, { Preset } from "./PresetButtons";
 import { motion } from "framer-motion";
 import {
   ScatterChart,
