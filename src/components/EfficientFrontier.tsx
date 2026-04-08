@@ -10,6 +10,9 @@ import {
   ResponsiveContainer,
   Legend,
   ReferenceLine,
+  PieChart,
+  Pie,
+  Cell,
 } from "recharts";
 import { Plus, Trash2 } from "lucide-react";
 
