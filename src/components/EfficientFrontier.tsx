@@ -206,6 +206,8 @@ let nextId = 5;
 
 const EfficientFrontier = () => {
   const [assets, setAssets] = useState<Asset[]>(defaultAssets);
+  const [rho, setRho] = useState(0.3);
+  const [allowShort, setAllowShort] = useState(true);
   const [selectedIdx, setSelectedIdx] = useState<number | null>(null);
 
   const addAsset = () => {
