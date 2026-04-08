@@ -906,7 +906,7 @@ const CalculatorSection = () => {
               {/* P&L Timeline Chart */}
               <div className="rounded-xl bg-secondary/30 border border-border p-4">
                 <ResponsiveContainer width="100%" height={250}>
-                  <BarChart data={backtestData.timeline} margin={{ top: 5, right: 10, left: 5, bottom: 5 }}>
+                  <ComposedChart data={backtestData.timeline} margin={{ top: 5, right: 10, left: 5, bottom: 5 }}>
                     <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID} />
                     <XAxis
                       dataKey="day"
@@ -945,15 +945,6 @@ const CalculatorSection = () => {
                       }}
                     />
                     <ReferenceLine y={0} stroke={CHART_TEXT} strokeOpacity={0.3} />
-                    <Line
-                      type="monotone"
-                      dataKey="var"
-                      name="−VaR"
-                      stroke={CHART_RED}
-                      strokeWidth={1.5}
-                      strokeDasharray="4 3"
-                      dot={false}
-                    />
                     <Bar dataKey="pnl" name="P&L">
                       {backtestData.timeline.map((entry, index) => (
                         <Cell
@@ -963,8 +954,17 @@ const CalculatorSection = () => {
                         />
                       ))}
                     </Bar>
+                    <Line
+                      type="monotone"
+                      dataKey="var"
+                      name="−VaR"
+                      stroke={CHART_RED}
+                      strokeWidth={1.5}
+                      strokeDasharray="4 3"
+                      dot={false}
+                    />
                     <Legend wrapperStyle={{ fontSize: 11, fontFamily: "var(--font-mono)" }} />
-                  </BarChart>
+                  </ComposedChart>
                 </ResponsiveContainer>
               </div>
               <p className="text-[10px] text-muted-foreground font-mono mt-2 text-center">
