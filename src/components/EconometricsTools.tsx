@@ -1106,6 +1106,7 @@ const SVARTool = () => {
   const [s2, setS2] = useState(1.0);         // structural shock 2 std
   const [boots, setBoots] = useState(200);
   const [shockIdx, setShockIdx] = useState<0 | 1>(0); // which structural shock to plot
+  const [identMode, setIdentMode] = useState<"chol" | "bq" | "both">("chol");
 
   /* Simulate reduced-form VAR(1):
      y_t = A y_{t-1} + u_t,  u_t = B0 ε_t,  ε ~ N(0, diag(s1², s2²))
