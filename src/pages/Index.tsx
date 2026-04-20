@@ -1,3 +1,5 @@
+import { useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import HeroSection from "@/components/HeroSection";
 import TopicCards from "@/components/TopicCards";
@@ -11,6 +13,15 @@ import MCOptionPricer from "@/components/MCOptionPricer";
 import LearningPath from "@/components/LearningPath";
 
 const Index = () => {
+  const { hash } = useLocation();
+  useEffect(() => {
+    if (!hash) return;
+    const id = hash.slice(1);
+    const t = setTimeout(() => {
+      document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 100);
+    return () => clearTimeout(t);
+  }, [hash]);
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
