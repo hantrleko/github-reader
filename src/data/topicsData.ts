@@ -14,6 +14,8 @@ export interface KnowledgePoint {
   formula?: string;
   formulaExplain?: string;
   derivation?: string[];
+  /** Optional: section id on the home page that hosts the related interactive tool */
+  tool?: { id: string; label: string };
 }
 
 export interface TopicData {
