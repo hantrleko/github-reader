@@ -1356,46 +1356,81 @@ const SVARTool = () => {
         </div>
       </div>
 
-      {/* Identification note */}
-      <div className="p-3 rounded-lg border border-border bg-secondary/30 text-xs font-mono text-muted-foreground leading-relaxed">
-        <span className="text-gold">Cholesky 识别：</span>
-        u<sub>t</sub> = B₀ ε<sub>t</sub>，B₀ = [[1,0],[b̂₂₁,1]] · diag(σ̂)。
-        排序假设 y₁ 在同期不被 ε₂ 影响（y₁ 先于 y₂ 反应）。
-        IRF<sub>h</sub> = Â<sup>h</sup> · L̂ · e<sub>j</sub>，95% 置信带由残差对 bootstrap 得到。
+      {/* Identification mode toggle */}
+      <div className="flex items-center gap-2 flex-wrap">
+        <span className="text-[10px] font-mono text-muted-foreground uppercase tracking-wider">识别策略</span>
+        {[
+          { id: "chol", label: "Cholesky" },
+          { id: "bq", label: "Blanchard-Quah (长期约束)" },
+          { id: "both", label: "对比叠加" },
+        ].map(opt => (
+          <button key={opt.id} onClick={() => setIdentMode(opt.id as "chol" | "bq" | "both")}
+            className={`px-3 py-1.5 text-xs font-mono rounded-md border transition-all ${
+              identMode === opt.id
+                ? "bg-gold/20 border-gold text-gold"
+                : "bg-secondary/50 border-border text-muted-foreground hover:text-foreground"
+            }`}>
+            {opt.label}
+          </button>
+        ))}
       </div>
 
-      {/* Two IRF plots: response of y1 and y2 */}
-      {[
-        { key: "y1", label: `y₁ 对 ε${shockIdx + 1} 的脉冲响应`, lo: "y1_lo_v", band: "y1_band_v", line: "y1" },
-        { key: "y2", label: `y₂ 对 ε${shockIdx + 1} 的脉冲响应`, lo: "y2_lo_v", band: "y2_band_v", line: "y2" },
-      ].map(cfg => (
-        <div key={cfg.key} className="rounded-xl border border-border bg-background/50 p-4">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-mono text-muted-foreground uppercase tracking-wider">{cfg.label}</span>
-            <span className="text-[10px] font-mono text-muted-foreground">95% Bootstrap CI</span>
-          </div>
-          <ResponsiveContainer width="100%" height={220}>
-            <ComposedChart data={result.series} margin={{ top: 10, right: 20, left: 0, bottom: 5 }}>
-              <CartesianGrid stroke={CHART_GRID} strokeDasharray="3 3" />
-              <XAxis dataKey="h" stroke={CHART_TEXT} tick={{ fontSize: 11 }}
-                label={{ value: "horizon h", position: "insideBottom", offset: -2, fill: CHART_TEXT, fontSize: 10 }} />
-              <YAxis stroke={CHART_TEXT} tick={{ fontSize: 11 }} />
-              <Tooltip
-                contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", fontSize: 11, fontFamily: "monospace" }}
-                formatter={(v: number) => v.toFixed(3)}
-              />
-              <ReferenceLine y={0} stroke={CHART_TEXT} strokeDasharray="2 2" />
-              {/* Lower bound (transparent) + band height (filled) for shaded CI */}
-              <Area type="monotone" dataKey={cfg.lo} stackId={cfg.key} stroke="none" fill="transparent" />
-              <Area type="monotone" dataKey={cfg.band} stackId={cfg.key} stroke="none" fill={CHART_GOLD} fillOpacity={0.18} />
-              <Line type="monotone" dataKey={cfg.line} stroke={CHART_GOLD} strokeWidth={2.5} dot={{ r: 2.5, fill: CHART_GOLD }} />
-            </ComposedChart>
-          </ResponsiveContainer>
+      {/* Identification note */}
+      <div className="p-3 rounded-lg border border-border bg-secondary/30 text-xs font-mono text-muted-foreground leading-relaxed space-y-1">
+        <div><span className="text-gold">Cholesky：</span>
+          B₀ 下三角 ⇒ ε₂ 同期不影响 y₁。短期排序假设。
         </div>
-      ))}
+        <div><span className="text-teal-400">Blanchard-Quah：</span>
+          长期累计影响 C(1)·B 下三角 ⇒ ε₂ <span className="underline">长期</span>累计对 y₁ 为 0
+          (典型用法：ε₁=供给冲击有 LR 效果，ε₂=需求冲击仅短期)。
+        </div>
+      </div>
+
+      {/* Two IRF plots */}
+      {[
+        { key: "y1", label: `y₁ 对 ε${shockIdx + 1} 的脉冲响应` },
+        { key: "y2", label: `y₂ 对 ε${shockIdx + 1} 的脉冲响应` },
+      ].map(cfg => {
+        const cLo = `${cfg.key}_lo_v`, cBand = `${cfg.key}_band_v`, cLine = cfg.key;
+        const bLo = `${cfg.key}_bq_lo_v`, bBand = `${cfg.key}_bq_band_v`, bLine = `${cfg.key}_bq`;
+        const showChol = identMode === "chol" || identMode === "both";
+        const showBq = identMode === "bq" || identMode === "both";
+        return (
+          <div key={cfg.key} className="rounded-xl border border-border bg-background/50 p-4">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-xs font-mono text-muted-foreground uppercase tracking-wider">{cfg.label}</span>
+              <span className="text-[10px] font-mono text-muted-foreground">95% Bootstrap CI</span>
+            </div>
+            <ResponsiveContainer width="100%" height={220}>
+              <ComposedChart data={result.series} margin={{ top: 10, right: 20, left: 0, bottom: 5 }}>
+                <CartesianGrid stroke={CHART_GRID} strokeDasharray="3 3" />
+                <XAxis dataKey="h" stroke={CHART_TEXT} tick={{ fontSize: 11 }}
+                  label={{ value: "horizon h", position: "insideBottom", offset: -2, fill: CHART_TEXT, fontSize: 10 }} />
+                <YAxis stroke={CHART_TEXT} tick={{ fontSize: 11 }} />
+                <Tooltip
+                  contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", fontSize: 11, fontFamily: "monospace" }}
+                  formatter={(v: number) => v.toFixed(3)}
+                />
+                <Legend wrapperStyle={{ fontSize: 10, fontFamily: "monospace" }} />
+                <ReferenceLine y={0} stroke={CHART_TEXT} strokeDasharray="2 2" />
+                {showChol && <>
+                  <Area type="monotone" dataKey={cLo} stackId={`c-${cfg.key}`} stroke="none" fill="transparent" legendType="none" name="" />
+                  <Area type="monotone" dataKey={cBand} stackId={`c-${cfg.key}`} stroke="none" fill={CHART_GOLD} fillOpacity={0.18} legendType="none" name="" />
+                  <Line type="monotone" dataKey={cLine} stroke={CHART_GOLD} strokeWidth={2.5} dot={{ r: 2.5, fill: CHART_GOLD }} name="Cholesky" />
+                </>}
+                {showBq && <>
+                  <Area type="monotone" dataKey={bLo} stackId={`b-${cfg.key}`} stroke="none" fill="transparent" legendType="none" name="" />
+                  <Area type="monotone" dataKey={bBand} stackId={`b-${cfg.key}`} stroke="none" fill={CHART_TEAL} fillOpacity={0.18} legendType="none" name="" />
+                  <Line type="monotone" dataKey={bLine} stroke={CHART_TEAL} strokeWidth={2.5} strokeDasharray="5 3" dot={{ r: 2, fill: CHART_TEAL }} name="Blanchard-Quah" />
+                </>}
+              </ComposedChart>
+            </ResponsiveContainer>
+          </div>
+        );
+      })}
 
       {/* Estimated matrices */}
-      <div className="grid md:grid-cols-2 gap-3">
+      <div className="grid md:grid-cols-3 gap-3">
         <div className="p-3 rounded-lg border border-border bg-secondary/30">
           <div className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground mb-1">估计 Â</div>
           <pre className="text-xs font-mono text-gold leading-tight">
@@ -1404,7 +1439,7 @@ const SVARTool = () => {
           </pre>
         </div>
         <div className="p-3 rounded-lg border border-border bg-secondary/30">
-          <div className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground mb-1">Cholesky L̂  (= B̂₀ · diag(σ̂))</div>
+          <div className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground mb-1">Cholesky L̂</div>
           <pre className="text-xs font-mono text-gold leading-tight">
 {`[ ${result.L[0][0].toFixed(3).padStart(6)}  ${result.L[0][1].toFixed(3).padStart(6)} ]
 [ ${result.L[1][0].toFixed(3).padStart(6)}  ${result.L[1][1].toFixed(3).padStart(6)} ]`}
