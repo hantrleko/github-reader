@@ -439,7 +439,13 @@ const DIDTool = () => {
           </ResponsiveContainer>
         </div>
         <p className="mt-2 text-[11px] text-muted-foreground font-mono">
-          k&lt;0 处置信区间应包含 0 → 平行趋势成立；k≥0 处 τ̂_k 反映动态效应（首期、滞后、衰减等）。
+          金线为 τ̂_k 估计 + 95% CI 阴影；红虚线为 DGP 设定的真实 τ_k 路径。当前模式：
+          <span className="text-gold ml-1">
+            {dynamicMode === "instant" && "瞬时跳跃 — k≥0 立即达到峰值并保持"}
+            {dynamicMode === "ramp" && "渐进上升 — 政策效应需要时间累积"}
+            {dynamicMode === "decay" && "衰减回归 — 首期冲击大、后期消退"}
+          </span>。
+          k&lt;0 的 CI 应覆盖 0 → 平行趋势成立。
         </p>
       </div>
     </div>
