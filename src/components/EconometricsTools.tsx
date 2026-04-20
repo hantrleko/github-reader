@@ -1,8 +1,8 @@
-import { useState, useMemo, useRef, useCallback } from "react";
+import { useState, useMemo, useRef, useCallback, useEffect } from "react";
 import { motion } from "framer-motion";
 import {
   ScatterChart, Scatter, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-  ReferenceLine, Line, LineChart, Legend, ComposedChart, ReferenceArea,
+  ReferenceLine, Line, LineChart, Legend, ComposedChart, ReferenceArea, Area,
 } from "recharts";
 import PresetButtons, { Preset } from "./PresetButtons";
 import { ShareExportToolbar, useSharedState } from "@/lib/calculatorTools";
