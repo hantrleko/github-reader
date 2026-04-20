@@ -13,6 +13,7 @@ const NAV_ITEMS = [
   { id: "frontier", label: "有效前沿" },
   { id: "bond", label: "债券计算" },
   { id: "rate-model", label: "利率模型" },
+  { id: "econometrics", label: "计量工具" },
   { id: "learning", label: "学习路径" },
 ];
 
