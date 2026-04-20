@@ -141,6 +141,20 @@ const ImpliedVolTool = () => {
   const [skew, setSkew] = useState(-0.1);
   const [smile, setSmile] = useState(0.05);
 
+  const captureRef = useRef<HTMLDivElement>(null);
+  const apply = useCallback((s: any) => {
+    if (s.optType) setOptType(s.optType);
+    if (s.mktPrice != null) setMktPrice(s.mktPrice);
+    if (s.ivS != null) setIvS(s.ivS);
+    if (s.ivK != null) setIvK(s.ivK);
+    if (s.ivR != null) setIvR(s.ivR);
+    if (s.ivT != null) setIvT(s.ivT);
+    if (s.baseVol != null) setBaseVol(s.baseVol);
+    if (s.skew != null) setSkew(s.skew);
+    if (s.smile != null) setSmile(s.smile);
+  }, []);
+  useSharedState("iv", apply);
+
   // Compute IV
   const ivResult = useMemo(() => {
     const iv = impliedVol(mktPrice, ivS, ivK, ivR / 100, ivT, optType === "call");
