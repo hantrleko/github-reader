@@ -1092,6 +1092,286 @@ const GMMTool = () => {
   );
 };
 
+/* ──────────────────  SVAR / IRF Tool  ────────────────── */
+const SVARTool = () => {
+  const [seed, setSeed] = useState(11);
+  const [T, setT] = useState(200);
+  const [H, setH] = useState(20);            // IRF horizon
+  const [a11, setA11] = useState(0.6);       // y1_{t-1} → y1
+  const [a12, setA12] = useState(0.1);       // y2_{t-1} → y1
+  const [a21, setA21] = useState(0.2);       // y1_{t-1} → y2
+  const [a22, setA22] = useState(0.5);       // y2_{t-1} → y2
+  const [b21, setB21] = useState(0.4);       // contemporaneous: ε1 → y2 (Cholesky lower triangular)
+  const [s1, setS1] = useState(1.0);         // structural shock 1 std
+  const [s2, setS2] = useState(1.0);         // structural shock 2 std
+  const [boots, setBoots] = useState(200);
+  const [shockIdx, setShockIdx] = useState<0 | 1>(0); // which structural shock to plot
+
+  /* Simulate reduced-form VAR(1):
+     y_t = A y_{t-1} + u_t,  u_t = B0 ε_t,  ε ~ N(0, diag(s1², s2²))
+     Cholesky identification: B0 = [[1,0],[b21,1]]                                   */
+  const simulate = (rng: () => number) => {
+    const y = [[0, 0]];
+    for (let t = 1; t < T; t++) {
+      const e1 = randn(rng) * s1;
+      const e2 = randn(rng) * s2;
+      const u1 = e1;
+      const u2 = b21 * e1 + e2;
+      const yp = y[t - 1];
+      y.push([
+        a11 * yp[0] + a12 * yp[1] + u1,
+        a21 * yp[0] + a22 * yp[1] + u2,
+      ]);
+    }
+    return y;
+  };
+
+  /* Estimate VAR(1) by OLS equation-by-equation, then Cholesky on Σ̂_u */
+  const estimate = (y: number[][]) => {
+    const n = y.length;
+    // Build regressors: const + y1_{t-1} + y2_{t-1}
+    const fitEq = (col: 0 | 1) => {
+      // Solve normal equations 3x3
+      let X00 = 0, X01 = 0, X02 = 0, X11 = 0, X12 = 0, X22 = 0;
+      let b0 = 0, b1 = 0, b2 = 0;
+      let cnt = 0;
+      for (let t = 1; t < n; t++) {
+        const x1 = y[t - 1][0], x2 = y[t - 1][1], yt = y[t][col];
+        X00 += 1; X01 += x1; X02 += x2;
+        X11 += x1 * x1; X12 += x1 * x2; X22 += x2 * x2;
+        b0 += yt; b1 += x1 * yt; b2 += x2 * yt;
+        cnt++;
+      }
+      // 3x3 inverse via cofactors
+      const M = [[X00, X01, X02], [X01, X11, X12], [X02, X12, X22]];
+      const det =
+        M[0][0] * (M[1][1] * M[2][2] - M[1][2] * M[2][1]) -
+        M[0][1] * (M[1][0] * M[2][2] - M[1][2] * M[2][0]) +
+        M[0][2] * (M[1][0] * M[2][1] - M[1][1] * M[2][0]);
+      if (Math.abs(det) < 1e-12) return { c: 0, p1: 0, p2: 0 };
+      const inv = [
+        [(M[1][1] * M[2][2] - M[1][2] * M[2][1]) / det,
+         -(M[0][1] * M[2][2] - M[0][2] * M[2][1]) / det,
+         (M[0][1] * M[1][2] - M[0][2] * M[1][1]) / det],
+        [-(M[1][0] * M[2][2] - M[1][2] * M[2][0]) / det,
+         (M[0][0] * M[2][2] - M[0][2] * M[2][0]) / det,
+         -(M[0][0] * M[1][2] - M[0][2] * M[1][0]) / det],
+        [(M[1][0] * M[2][1] - M[1][1] * M[2][0]) / det,
+         -(M[0][0] * M[2][1] - M[0][1] * M[2][0]) / det,
+         (M[0][0] * M[1][1] - M[0][1] * M[1][0]) / det],
+      ];
+      return {
+        c: inv[0][0] * b0 + inv[0][1] * b1 + inv[0][2] * b2,
+        p1: inv[1][0] * b0 + inv[1][1] * b1 + inv[1][2] * b2,
+        p2: inv[2][0] * b0 + inv[2][1] * b1 + inv[2][2] * b2,
+      };
+    };
+    const eq1 = fitEq(0);
+    const eq2 = fitEq(1);
+    const A = [[eq1.p1, eq1.p2], [eq2.p1, eq2.p2]];
+    // Residuals & Σ̂
+    let s11 = 0, s22 = 0, s12 = 0, k = 0;
+    for (let t = 1; t < n; t++) {
+      const r1 = y[t][0] - eq1.c - eq1.p1 * y[t - 1][0] - eq1.p2 * y[t - 1][1];
+      const r2 = y[t][1] - eq2.c - eq2.p1 * y[t - 1][0] - eq2.p2 * y[t - 1][1];
+      s11 += r1 * r1; s22 += r2 * r2; s12 += r1 * r2; k++;
+    }
+    s11 /= k; s22 /= k; s12 /= k;
+    // Cholesky on Σ̂ = L L', L lower-triangular
+    const L11 = Math.sqrt(Math.max(s11, 1e-12));
+    const L21 = s12 / L11;
+    const L22 = Math.sqrt(Math.max(s22 - L21 * L21, 1e-12));
+    const Lhat = [[L11, 0], [L21, L22]];
+    return { A, L: Lhat };
+  };
+
+  /* IRF: Φ_h = A^h, structural IRF to shock j of size 1 SD: Φ_h · L · e_j           */
+  const computeIRF = (A: number[][], L: number[][], j: 0 | 1, h: number) => {
+    // Initial impact = L[:,j]
+    let v = [L[0][j], L[1][j]];
+    const out: { y1: number; y2: number }[] = [{ y1: v[0], y2: v[1] }];
+    for (let s = 1; s <= h; s++) {
+      v = [A[0][0] * v[0] + A[0][1] * v[1], A[1][0] * v[0] + A[1][1] * v[1]];
+      out.push({ y1: v[0], y2: v[1] });
+    }
+    return out;
+  };
+
+  const result = useMemo(() => {
+    const rng = mulberry32(seed);
+    const y = simulate(rng);
+    const { A, L } = estimate(y);
+    const irf = computeIRF(A, L, shockIdx, H);
+
+    // Bootstrap: resample residuals to get IRF CI
+    const n = y.length;
+    // Recompute residuals using estimated A & implicit constants (refit for residuals)
+    const fitFull = () => {
+      const eqRes = (col: 0 | 1) => {
+        const res: number[] = [];
+        // simple OLS again for residuals
+        let mx1 = 0, mx2 = 0, my = 0; let cnt = 0;
+        for (let t = 1; t < n; t++) { mx1 += y[t-1][0]; mx2 += y[t-1][1]; my += y[t][col]; cnt++; }
+        // Use estimated A row
+        const row = col === 0 ? [A[0][0], A[0][1]] : [A[1][0], A[1][1]];
+        const c = my / cnt - row[0] * (mx1 / cnt) - row[1] * (mx2 / cnt);
+        for (let t = 1; t < n; t++) {
+          res.push(y[t][col] - c - row[0] * y[t-1][0] - row[1] * y[t-1][1]);
+        }
+        return { c, res };
+      };
+      return [eqRes(0), eqRes(1)];
+    };
+    const fits = fitFull();
+    const res1 = fits[0].res, res2 = fits[1].res;
+    const c1 = fits[0].c, c2 = fits[1].c;
+
+    const irfBoot: number[][][] = []; // [B][h+1][2]
+    for (let b = 0; b < boots; b++) {
+      const ysim: number[][] = [[y[0][0], y[0][1]]];
+      for (let t = 1; t < n; t++) {
+        const idx = Math.floor(rng() * res1.length);
+        const u1 = res1[idx], u2 = res2[idx]; // pair-resample to preserve contemp corr
+        ysim.push([
+          c1 + A[0][0] * ysim[t-1][0] + A[0][1] * ysim[t-1][1] + u1,
+          c2 + A[1][0] * ysim[t-1][0] + A[1][1] * ysim[t-1][1] + u2,
+        ]);
+      }
+      const est = estimate(ysim);
+      const ib = computeIRF(est.A, est.L, shockIdx, H);
+      irfBoot.push(ib.map(p => [p.y1, p.y2]));
+    }
+
+    // Quantiles per horizon
+    const q = (arr: number[], p: number) => {
+      const s = [...arr].sort((a, b) => a - b);
+      const i = Math.min(s.length - 1, Math.max(0, Math.floor(p * (s.length - 1))));
+      return s[i];
+    };
+    const series = irf.map((pt, h) => {
+      const v1 = irfBoot.map(b => b[h][0]);
+      const v2 = irfBoot.map(b => b[h][1]);
+      return {
+        h,
+        y1: pt.y1, y2: pt.y2,
+        y1_lo: boots ? q(v1, 0.025) : pt.y1,
+        y1_hi: boots ? q(v1, 0.975) : pt.y1,
+        y2_lo: boots ? q(v2, 0.025) : pt.y2,
+        y2_hi: boots ? q(v2, 0.975) : pt.y2,
+        // Recharts band needs [lo, hi-lo] for stacked area trick; simpler: provide band = hi-lo
+        y1_band: 0, y2_band: 0,
+      };
+    });
+    // Convert to lo + band height pairs for Area stacking
+    const series2 = series.map(s => ({
+      ...s,
+      y1_lo_v: s.y1_lo, y1_band_v: s.y1_hi - s.y1_lo,
+      y2_lo_v: s.y2_lo, y2_band_v: s.y2_hi - s.y2_lo,
+    }));
+
+    return { series: series2, A, L };
+  }, [seed, T, H, a11, a12, a21, a22, b21, s1, s2, boots, shockIdx]);
+
+  const presets: Preset[] = [
+    { name: "标准教科书", description: "稳定 VAR + 中等同期溢出", apply: () => { setA11(0.6); setA12(0.1); setA21(0.2); setA22(0.5); setB21(0.4); setS1(1); setS2(1); setT(200); setH(20); } },
+    { name: "高持续性", description: "接近单位根，IRF 衰减很慢", apply: () => { setA11(0.9); setA22(0.85); setA12(0.05); setA21(0.05); setB21(0.3); } },
+    { name: "无同期溢出", description: "B0 对角，y2 对 ε1 的瞬时反应=0", apply: () => { setB21(0); } },
+    { name: "强同期溢出", description: "ε1 立即推动 y2 大幅上升", apply: () => { setB21(1.2); } },
+    { name: "短样本", description: "T=60, 看置信带变宽", apply: () => { setT(60); setBoots(150); } },
+  ];
+
+  return (
+    <div className="space-y-6">
+      <PresetButtons presets={presets} />
+
+      {/* Sliders */}
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-4 p-4 rounded-xl bg-secondary/30 border border-border">
+        <Slider label="样本量 T" value={T} min={50} max={500} step={10} onChange={setT} />
+        <Slider label="IRF 期数 H" value={H} min={5} max={40} step={1} onChange={setH} />
+        <Slider label="Bootstrap 次数" value={boots} min={0} max={400} step={20} onChange={setBoots} />
+        <Slider label="A₁₁ (y₁→y₁)" value={a11} min={-0.95} max={0.95} step={0.05} onChange={setA11} />
+        <Slider label="A₁₂ (y₂→y₁)" value={a12} min={-0.5} max={0.5} step={0.05} onChange={setA12} />
+        <Slider label="A₂₁ (y₁→y₂)" value={a21} min={-0.5} max={0.5} step={0.05} onChange={setA21} />
+        <Slider label="A₂₂ (y₂→y₂)" value={a22} min={-0.95} max={0.95} step={0.05} onChange={setA22} />
+        <Slider label="B₀ 同期 b₂₁" value={b21} min={-1.5} max={1.5} step={0.05} onChange={setB21} />
+        <Slider label="σ(ε₁)" value={s1} min={0.2} max={2} step={0.1} onChange={setS1} />
+        <Slider label="σ(ε₂)" value={s2} min={0.2} max={2} step={0.1} onChange={setS2} />
+        <Slider label="随机种子" value={seed} min={1} max={200} step={1} onChange={setSeed} />
+        <div className="flex items-end">
+          <div className="flex gap-1 w-full">
+            {[0, 1].map(i => (
+              <button key={i} onClick={() => setShockIdx(i as 0 | 1)}
+                className={`flex-1 px-3 py-2 text-xs font-mono rounded-md border transition-all ${
+                  shockIdx === i
+                    ? "bg-gold/20 border-gold text-gold"
+                    : "bg-secondary/50 border-border text-muted-foreground hover:text-foreground"
+                }`}>
+                冲击 ε{i + 1}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Identification note */}
+      <div className="p-3 rounded-lg border border-border bg-secondary/30 text-xs font-mono text-muted-foreground leading-relaxed">
+        <span className="text-gold">Cholesky 识别：</span>
+        u<sub>t</sub> = B₀ ε<sub>t</sub>，B₀ = [[1,0],[b̂₂₁,1]] · diag(σ̂)。
+        排序假设 y₁ 在同期不被 ε₂ 影响（y₁ 先于 y₂ 反应）。
+        IRF<sub>h</sub> = Â<sup>h</sup> · L̂ · e<sub>j</sub>，95% 置信带由残差对 bootstrap 得到。
+      </div>
+
+      {/* Two IRF plots: response of y1 and y2 */}
+      {[
+        { key: "y1", label: `y₁ 对 ε${shockIdx + 1} 的脉冲响应`, lo: "y1_lo_v", band: "y1_band_v", line: "y1" },
+        { key: "y2", label: `y₂ 对 ε${shockIdx + 1} 的脉冲响应`, lo: "y2_lo_v", band: "y2_band_v", line: "y2" },
+      ].map(cfg => (
+        <div key={cfg.key} className="rounded-xl border border-border bg-background/50 p-4">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-xs font-mono text-muted-foreground uppercase tracking-wider">{cfg.label}</span>
+            <span className="text-[10px] font-mono text-muted-foreground">95% Bootstrap CI</span>
+          </div>
+          <ResponsiveContainer width="100%" height={220}>
+            <ComposedChart data={result.series} margin={{ top: 10, right: 20, left: 0, bottom: 5 }}>
+              <CartesianGrid stroke={CHART_GRID} strokeDasharray="3 3" />
+              <XAxis dataKey="h" stroke={CHART_TEXT} tick={{ fontSize: 11 }}
+                label={{ value: "horizon h", position: "insideBottom", offset: -2, fill: CHART_TEXT, fontSize: 10 }} />
+              <YAxis stroke={CHART_TEXT} tick={{ fontSize: 11 }} />
+              <Tooltip
+                contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", fontSize: 11, fontFamily: "monospace" }}
+                formatter={(v: number) => v.toFixed(3)}
+              />
+              <ReferenceLine y={0} stroke={CHART_TEXT} strokeDasharray="2 2" />
+              {/* Lower bound (transparent) + band height (filled) for shaded CI */}
+              <Area type="monotone" dataKey={cfg.lo} stackId={cfg.key} stroke="none" fill="transparent" />
+              <Area type="monotone" dataKey={cfg.band} stackId={cfg.key} stroke="none" fill={CHART_GOLD} fillOpacity={0.18} />
+              <Line type="monotone" dataKey={cfg.line} stroke={CHART_GOLD} strokeWidth={2.5} dot={{ r: 2.5, fill: CHART_GOLD }} />
+            </ComposedChart>
+          </ResponsiveContainer>
+        </div>
+      ))}
+
+      {/* Estimated matrices */}
+      <div className="grid md:grid-cols-2 gap-3">
+        <div className="p-3 rounded-lg border border-border bg-secondary/30">
+          <div className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground mb-1">估计 Â</div>
+          <pre className="text-xs font-mono text-gold leading-tight">
+{`[ ${result.A[0][0].toFixed(3).padStart(6)}  ${result.A[0][1].toFixed(3).padStart(6)} ]
+[ ${result.A[1][0].toFixed(3).padStart(6)}  ${result.A[1][1].toFixed(3).padStart(6)} ]`}
+          </pre>
+        </div>
+        <div className="p-3 rounded-lg border border-border bg-secondary/30">
+          <div className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground mb-1">Cholesky L̂  (= B̂₀ · diag(σ̂))</div>
+          <pre className="text-xs font-mono text-gold leading-tight">
+{`[ ${result.L[0][0].toFixed(3).padStart(6)}  ${result.L[0][1].toFixed(3).padStart(6)} ]
+[ ${result.L[1][0].toFixed(3).padStart(6)}  ${result.L[1][1].toFixed(3).padStart(6)} ]`}
+          </pre>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 /* ──────────────────  Shared UI atoms  ────────────────── */
 const Slider = ({ label, value, min, max, step, onChange }: { label: string; value: number; min: number; max: number; step: number; onChange: (v: number) => void }) => (
   <div>
