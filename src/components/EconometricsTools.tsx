@@ -4,6 +4,8 @@ import {
   ScatterChart, Scatter, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   ReferenceLine, Line, LineChart, Legend, ComposedChart, ReferenceArea, Area,
 } from "recharts";
+import { BlockMath, InlineMath } from "react-katex";
+import "katex/dist/katex.min.css";
 import PresetButtons, { Preset } from "./PresetButtons";
 import { ShareExportToolbar, useSharedState } from "@/lib/calculatorTools";
 
