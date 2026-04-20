@@ -586,11 +586,11 @@ const RDDTool = () => {
         <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
           <h4 className="text-sm font-semibold text-foreground">McCrary 密度检验</h4>
           <div className="flex gap-3 text-[11px] font-mono">
-            <span>f̂(c⁻) = <span className="text-teal-400">{isFinite(data.fHatL) ? data.fHatL.toFixed(4) : "—"}</span></span>
+            <span>f̂(c⁻) = <span style={{color: CHART_TEAL}}>{isFinite(data.fHatL) ? data.fHatL.toFixed(4) : "—"}</span></span>
             <span>f̂(c⁺) = <span style={{color: CHART_RED}}>{isFinite(data.fHatR) ? data.fHatR.toFixed(4) : "—"}</span></span>
             <span>θ̂ = log f̂(c⁺)−log f̂(c⁻) = <span className="text-gold">{isFinite(data.theta) ? data.theta.toFixed(3) : "—"}</span></span>
             <span>z = <span className="text-gold">{isFinite(data.z) ? data.z.toFixed(2) : "—"}</span></span>
-            <span>p = <span className={Math.abs(data.z) > 1.96 ? "text-red-500 font-bold" : "text-emerald-400"}>
+            <span>p = <span className="font-bold" style={{color: Math.abs(data.z) > 1.96 ? CHART_RED : CHART_TEAL}}>
               {isFinite(data.pVal) ? data.pVal.toFixed(4) : "—"}
             </span></span>
           </div>
