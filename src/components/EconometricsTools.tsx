@@ -1380,7 +1380,7 @@ const SVARTool = () => {
         <div><span className="text-gold">Cholesky：</span>
           B₀ 下三角 ⇒ ε₂ 同期不影响 y₁。短期排序假设。
         </div>
-        <div><span className="text-teal-400">Blanchard-Quah：</span>
+        <div><span style={{ color: CHART_TEAL }}>Blanchard-Quah：</span>
           长期累计影响 C(1)·B 下三角 ⇒ ε₂ <span className="underline">长期</span>累计对 y₁ 为 0
           (典型用法：ε₁=供给冲击有 LR 效果，ε₂=需求冲击仅短期)。
         </div>
