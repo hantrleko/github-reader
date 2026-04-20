@@ -590,13 +590,38 @@ const RDDTool = () => {
   return (
     <div className="space-y-6">
       <PresetButtons presets={[
-        { name: "清晰跳跃", description: "强政策效应 τ=3, 无操纵", apply: () => { setJump(3); setNoise(0.5); setBandwidth(2); setManipulation(0); } },
-        { name: "弱效应高噪声", description: "τ=1, 检验功效", apply: () => { setJump(1); setNoise(1.5); setBandwidth(2); setManipulation(0); } },
-        { name: "存在操纵", description: "个体跳到切点之上", apply: () => { setJump(3); setNoise(0.5); setManipulation(0.7); setN(600); } },
+        { name: "清晰跳跃 (Sharp)", description: "确定性处理 τ=3", apply: () => { setMode("sharp"); setJump(3); setNoise(0.5); setBandwidth(2); setManipulation(0); } },
+        { name: "Fuzzy 高顺从", description: "0.10 → 0.85, 强工具", apply: () => { setMode("fuzzy"); setPBelow(0.10); setPAbove(0.85); setJump(3); setNoise(0.5); setBandwidth(2); setManipulation(0); setN(800); } },
+        { name: "Fuzzy 弱跳跃", description: "0.30 → 0.45, 弱工具", apply: () => { setMode("fuzzy"); setPBelow(0.30); setPAbove(0.45); setJump(3); setNoise(0.5); setBandwidth(2); setN(1200); } },
+        { name: "存在操纵", description: "个体跳到切点之上", apply: () => { setMode("sharp"); setJump(3); setNoise(0.5); setManipulation(0.7); setN(600); } },
       ]} />
+
+      {/* Mode toggle */}
+      <div className="flex items-center gap-2 flex-wrap">
+        <span className="text-xs font-mono text-muted-foreground">RDD 模式：</span>
+        {([
+          { id: "sharp" as const, label: "Sharp RDD", desc: "D = 1{X≥c} 确定性" },
+          { id: "fuzzy" as const, label: "Fuzzy RDD", desc: "D 概率性跳跃, 用 Wald" },
+        ]).map((m) => (
+          <button
+            key={m.id}
+            onClick={() => setMode(m.id)}
+            title={m.desc}
+            className={
+              "text-xs px-3 py-1.5 rounded border transition-colors font-mono " +
+              (mode === m.id
+                ? "border-gold bg-gold/10 text-gold"
+                : "border-border text-muted-foreground hover:text-foreground hover:border-foreground/40")
+            }
+          >
+            {m.label}
+          </button>
+        ))}
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="space-y-3">
-          <Slider label="样本量 n" value={n} min={50} max={1500} step={50} onChange={setN} />
+          <Slider label="样本量 n" value={n} min={50} max={2000} step={50} onChange={setN} />
           <Slider label="切点 c" value={cutoff} min={-3} max={3} step={0.1} onChange={setCutoff} />
           <Slider label="真实跳跃 τ" value={jump} min={-5} max={8} step={0.1} onChange={setJump} />
           <Slider label="左侧斜率" value={slopeL} min={-2} max={3} step={0.1} onChange={setSlopeL} />
@@ -604,15 +629,50 @@ const RDDTool = () => {
           <Slider label="噪声 σ" value={noise} min={0.1} max={3} step={0.05} onChange={setNoise} />
           <Slider label="带宽 h" value={bandwidth} min={0.5} max={5} step={0.1} onChange={setBandwidth} />
           <Slider label="操纵概率 (just-below 跳到 just-above)" value={manipulation} min={0} max={1} step={0.05} onChange={setManipulation} />
+          {mode === "fuzzy" && (
+            <>
+              <Slider label="P(D=1 | X<c)  (always-takers)" value={pBelow} min={0} max={1} step={0.05} onChange={setPBelow} />
+              <Slider label="P(D=1 | X≥c)" value={pAbove} min={0} max={1} step={0.05} onChange={setPAbove} />
+            </>
+          )}
           <Slider label="随机种子" value={seed} min={1} max={999} step={1} onChange={setSeed} />
         </div>
         <div className="space-y-3">
-          <ResultRow label="局部线性 τ̂" value={data.tau} truth={jump} se={NaN} color={CHART_GOLD} />
-          <ResultRow label="切点左极限" value={data.yL} color={CHART_TEAL} />
-          <ResultRow label="切点右极限" value={data.yR} color={CHART_RED} />
+          <ResultRow
+            label={mode === "fuzzy" ? "Wald 估计 τ̂ = ΔY/ΔD" : "局部线性 τ̂"}
+            value={data.tauWald}
+            truth={jump}
+            color={CHART_GOLD}
+          />
+          {mode === "fuzzy" && (
+            <>
+              <ResultRow label="reduced-form ΔY = Y(c⁺)−Y(c⁻)" value={data.tauSharp} color={CHART_BLUE} />
+              <ResultRow
+                label="first-stage ΔD = P̂(c⁺)−P̂(c⁻)"
+                value={data.dJump}
+                color={Math.abs(data.dJump) < 0.1 ? CHART_RED : CHART_TEAL}
+              />
+            </>
+          )}
+          {mode === "sharp" && (
+            <>
+              <ResultRow label="切点左极限 Y(c⁻)" value={data.yL} color={CHART_TEAL} />
+              <ResultRow label="切点右极限 Y(c⁺)" value={data.yR} color={CHART_RED} />
+            </>
+          )}
           <div className="text-xs font-mono text-muted-foreground p-3 rounded-lg bg-secondary/40 border border-border leading-relaxed">
-            <p><span className="text-gold">公式：</span>τ = lim_{"{x→c⁺}"} E[Y|X=x] − lim_{"{x→c⁻}"} E[Y|X=x]</p>
-            <p><span className="text-gold">假设：</span>个体无法精确操控 X 越过切点；E[Y(0)|X] 在 c 处连续。</p>
+            {mode === "sharp" ? (
+              <>
+                <p><span className="text-gold">Sharp：</span>τ = lim_{"{x→c⁺}"} E[Y|X] − lim_{"{x→c⁻}"} E[Y|X]</p>
+                <p>处理在切点处确定性变化（D=1{"{X≥c}"}），τ̂ 即为 Y 的局部线性跳跃。</p>
+              </>
+            ) : (
+              <>
+                <p><span className="text-gold">Fuzzy / Wald：</span>τ = (lim Y⁺−lim Y⁻) / (lim P(D=1)⁺−lim P(D=1)⁻)</p>
+                <p>把 Z=1{"{X≥c}"} 视为工具变量，τ 是 LATE（complier 的局部平均处理效应）。</p>
+                <p>第一阶段 ΔD 越大 → 工具越强；ΔD→0 时 Wald 方差爆炸（弱工具问题）。</p>
+              </>
+            )}
             <p>带宽 h 越小偏差越小但方差越大 (bias-variance trade-off)。</p>
           </div>
         </div>
@@ -629,13 +689,56 @@ const RDDTool = () => {
             <Legend wrapperStyle={{ fontSize: 11 }} />
             <ReferenceArea x1={cutoff - bandwidth} x2={cutoff + bandwidth} fill={CHART_GOLD} fillOpacity={0.05} />
             <ReferenceLine x={cutoff} stroke={CHART_GOLD} strokeDasharray="4 4" />
-            <Scatter name="控制组 (X<c)" data={data.pts.filter(p => p.treated === 0)} fill={CHART_TEAL} fillOpacity={0.45} />
-            <Scatter name="处理组 (X≥c)" data={data.pts.filter(p => p.treated === 1)} fill={CHART_RED} fillOpacity={0.45} />
-            <Line name="左侧拟合" data={data.lineL} dataKey="y" stroke={CHART_TEAL} strokeWidth={2.5} dot={false} />
-            <Line name="右侧拟合" data={data.lineR} dataKey="y" stroke={CHART_RED} strokeWidth={2.5} dot={false} />
+            <Scatter name="未接受处理 (D=0)" data={data.pts.filter(p => p.D === 0)} fill={CHART_TEAL} fillOpacity={0.45} />
+            <Scatter name="接受处理 (D=1)" data={data.pts.filter(p => p.D === 1)} fill={CHART_RED} fillOpacity={0.45} />
+            <Line name="左侧拟合 E[Y|X]" data={data.lineL} dataKey="y" stroke={CHART_TEAL} strokeWidth={2.5} dot={false} />
+            <Line name="右侧拟合 E[Y|X]" data={data.lineR} dataKey="y" stroke={CHART_RED} strokeWidth={2.5} dot={false} />
           </ComposedChart>
         </ResponsiveContainer>
       </div>
+
+      {/* First-stage chart (fuzzy only) */}
+      {mode === "fuzzy" && (
+        <div className="rounded-xl border border-border bg-secondary/20 p-4">
+          <div className="flex items-center justify-between mb-2 flex-wrap gap-2">
+            <h4 className="text-sm font-semibold text-foreground">第一阶段：P(D=1 | X) 在切点处跳跃</h4>
+            <div className="flex gap-3 text-[11px] font-mono">
+              <span>P̂(c⁻) = <span style={{color: CHART_TEAL}}>{Number.isFinite(data.dL) ? data.dL.toFixed(3) : "—"}</span></span>
+              <span>P̂(c⁺) = <span style={{color: CHART_RED}}>{Number.isFinite(data.dR) ? data.dR.toFixed(3) : "—"}</span></span>
+              <span>ΔD = <span className="text-gold font-bold">{Number.isFinite(data.dJump) ? data.dJump.toFixed(3) : "—"}</span></span>
+            </div>
+          </div>
+          <div className="h-[260px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <ComposedChart>
+                <CartesianGrid stroke={CHART_GRID} strokeDasharray="3 3" />
+                <XAxis type="number" dataKey="x" domain={[-5, 5]} stroke={CHART_TEXT} tick={{ fontSize: 11 }} label={{ value: "跑分变量 X", position: "insideBottom", offset: -2, fill: CHART_TEXT, fontSize: 10 }} />
+                <YAxis type="number" domain={[0, 1]} stroke={CHART_TEXT} tick={{ fontSize: 11 }} label={{ value: "P(D=1|X)", angle: -90, position: "insideLeft", fill: CHART_TEXT, fontSize: 10 }} />
+                <Tooltip contentStyle={{ background: "hsl(220 15% 12%)", border: `1px solid ${CHART_GRID}`, fontSize: 11 }} />
+                <Legend wrapperStyle={{ fontSize: 11 }} />
+                <ReferenceArea x1={cutoff - bandwidth} x2={cutoff + bandwidth} fill={CHART_GOLD} fillOpacity={0.05} />
+                <ReferenceLine x={cutoff} stroke={CHART_GOLD} strokeDasharray="4 4" />
+                <Scatter
+                  name="个体处理状态 D"
+                  data={data.pts.map(p => ({ x: p.x, p: p.D + (Math.random() - 0.5) * 0.04 }))}
+                  dataKey="p"
+                  fill={CHART_BLUE}
+                  fillOpacity={0.35}
+                />
+                <Line name="左侧 P̂(D=1|X)" data={data.dLineL} dataKey="p" stroke={CHART_TEAL} strokeWidth={2.5} dot={false} />
+                <Line name="右侧 P̂(D=1|X)" data={data.dLineR} dataKey="p" stroke={CHART_RED} strokeWidth={2.5} dot={false} />
+              </ComposedChart>
+            </ResponsiveContainer>
+          </div>
+          <p className="mt-2 text-[11px] font-mono text-muted-foreground leading-relaxed">
+            <span className="text-gold">Wald = ΔY / ΔD = </span>
+            {Number.isFinite(data.tauSharp) ? data.tauSharp.toFixed(3) : "—"} / {Number.isFinite(data.dJump) ? data.dJump.toFixed(3) : "—"}
+            {" = "}
+            <span className="text-gold font-bold">{Number.isFinite(data.tauWald) ? data.tauWald.toFixed(3) : "—"}</span>
+            。当 ΔD 接近 0（弱工具），Wald 估计极不稳定 — 注意提高 P(D=1|X≥c) 与 P(D=1|X&lt;c) 的差距。
+          </p>
+        </div>
+      )}
 
       {/* McCrary density test panel */}
       <div className="rounded-xl border border-border bg-secondary/20 p-4">
