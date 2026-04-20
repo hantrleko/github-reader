@@ -268,11 +268,21 @@ const RateModelSimulator = () => {
 
         <motion.div
           key={model}
+          ref={captureRef}
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.35 }}
           className="rounded-2xl border border-border bg-card p-8 md:p-10 glow-gold"
         >
+          <div className="flex justify-end mb-4">
+            <ShareExportToolbar
+              storageKey="rate"
+              anchorId="rate-model"
+              state={{ model, r0, kappa, theta, sigma, T, nPaths, seed }}
+              captureRef={captureRef}
+              filename={`rate-model-${model}`}
+            />
+          </div>
           {/* Formula */}
           <div className="text-center mb-8 py-4 px-6 rounded-xl bg-secondary/50 border border-border">
             <p className="text-xl md:text-2xl font-mono text-gold tracking-wide">
