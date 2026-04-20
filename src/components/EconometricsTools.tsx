@@ -1699,6 +1699,62 @@ const SVARTool = () => {
         </div>
       </div>
 
+      {/* Granger causality */}
+      <div className="rounded-xl border border-border bg-background/50 p-4">
+        <div className="flex items-center justify-between mb-3">
+          <div>
+            <div className="text-xs font-mono text-muted-foreground uppercase tracking-wider">Granger 因果检验</div>
+            <div className="text-[10px] font-mono text-muted-foreground/70">Granger Causality F-Test  ·  H₀: lagged predictor is jointly insignificant</div>
+          </div>
+          <div className="text-[10px] font-mono text-muted-foreground tabular-nums">
+            df = (1, {result.granger.y2_to_y1.df})  ·  α = 0.05
+          </div>
+        </div>
+        <div className="grid md:grid-cols-2 gap-3">
+          {[
+            { dir: "y₂ ⟶ y₁", direnEn: "Does y₂ Granger-cause y₁ ?", coef: "A_{12}", res: result.granger.y2_to_y1 },
+            { dir: "y₁ ⟶ y₂", direnEn: "Does y₁ Granger-cause y₂ ?", coef: "A_{21}", res: result.granger.y1_to_y2 },
+          ].map(t => {
+            const reject = t.res.p < 0.05;
+            return (
+              <div key={t.dir} className={`p-3 rounded-lg border ${reject ? "border-gold/40 bg-gold/5" : "border-border bg-secondary/30"}`}>
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-mono font-semibold text-foreground">{t.dir}</span>
+                  <span className={`text-[10px] font-mono px-2 py-0.5 rounded ${reject ? "bg-gold/20 text-gold" : "bg-muted text-muted-foreground"}`}>
+                    {reject ? "拒绝 H₀ · Reject" : "不拒绝 · Fail to reject"}
+                  </span>
+                </div>
+                <div className="text-[11px] text-muted-foreground mb-1">{t.direnEn}</div>
+                <div className="text-[10px] font-mono text-muted-foreground mb-2">
+                  H₀ : <InlineMath math={t.coef + " = 0"} />
+                </div>
+                <div className="grid grid-cols-2 gap-2 text-xs font-mono">
+                  <div className="flex items-center justify-between p-2 rounded bg-background/50 border border-border/50">
+                    <span className="text-muted-foreground">F-stat</span>
+                    <span className="text-gold tabular-nums font-semibold">{Number.isFinite(t.res.F) ? t.res.F.toFixed(3) : "—"}</span>
+                  </div>
+                  <div className="flex items-center justify-between p-2 rounded bg-background/50 border border-border/50">
+                    <span className="text-muted-foreground">p-value</span>
+                    <span className={`tabular-nums font-semibold ${reject ? "text-gold" : "text-foreground"}`}>
+                      {t.res.p < 0.001 ? "< 0.001" : t.res.p.toFixed(4)}
+                    </span>
+                  </div>
+                </div>
+                <div className="mt-2 text-[10px] text-muted-foreground leading-relaxed">
+                  {reject
+                    ? <>有证据表明存在 Granger 因果关系。<span className="text-foreground/60">Significant predictive content.</span></>
+                    : <>没有显著证据表明 Granger 因果关系。<span className="text-foreground/60">No significant predictive content.</span></>}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+        <div className="mt-3 text-[10px] font-mono text-muted-foreground leading-relaxed text-center">
+          <InlineMath math={String.raw`F = \dfrac{(\mathrm{SSR}_R - \mathrm{SSR}_U)/q}{\mathrm{SSR}_U/(n-k)} \;\sim\; F(q,\, n-k)`} />
+          <span className="ml-2">此处 <InlineMath math="q=1" /> (1 期滞后), <InlineMath math="k=3" /> (常数 + 2 滞后)</span>
+        </div>
+      </div>
+
       {/* Estimated matrices */}
       <div className="grid md:grid-cols-3 gap-3">
         <div className="p-3 rounded-lg border border-border bg-secondary/30">
