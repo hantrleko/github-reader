@@ -230,63 +230,136 @@ const OLSvsIV = () => {
    2. DID — Difference-in-Differences
    ════════════════════════════════════════════════════════════ */
 const DIDTool = () => {
-  const [trend, setTrend] = useState(2);       // common trend
-  const [treatLevel, setTreatLevel] = useState(3); // pre treatment level diff
-  const [effect, setEffect] = useState(4);     // true ATT
+  const [trend, setTrend] = useState(2);
+  const [treatLevel, setTreatLevel] = useState(3);
+  const [effect, setEffect] = useState(4);
   const [noise, setNoise] = useState(0.5);
   const [seed, setSeed] = useState(7);
+  const [preTrendBias, setPreTrendBias] = useState(0); // differential pre-trend (violates parallel trends)
+  const [nUnits, setNUnits] = useState(40);            // units per group (for event-study CI)
 
   const data = useMemo(() => {
     const rng = mulberry32(seed);
-    const T = 8;             // periods
-    const treatStart = 4;    // policy at t=4
+    const T = 8;
+    const treatStart = 4;
+
+    // simulate nUnits per group across T periods
+    // event-time k = t - treatStart  (k = -4..3)
+    const ks: number[] = [];
+    for (let t = 0; t < T; t++) ks.push(t - treatStart);
+
+    // collect outcomes per (group, unit, t)
+    const ctrlPanel: number[][] = []; // [unit][t]
+    const treatPanel: number[][] = [];
+    for (let u = 0; u < nUnits; u++) {
+      const cFE = randn(rng) * 0.5;       // unit fixed effect
+      const tFE = randn(rng) * 0.5;
+      const cRow: number[] = [];
+      const tRow: number[] = [];
+      for (let t = 0; t < T; t++) {
+        const c = trend * t + cFE + randn(rng) * noise;
+        const k = t - treatStart;
+        // pre-trend bias: linearly differential trend before treatment as well
+        const bias = preTrendBias * t;
+        const tau_t = k >= 0 ? effect : 0;
+        const tv = trend * t + treatLevel + bias + tau_t + tFE + randn(rng) * noise;
+        cRow.push(c);
+        tRow.push(tv);
+      }
+      ctrlPanel.push(cRow);
+      treatPanel.push(tRow);
+    }
+
+    // group means per period
+    const meanCol = (M: number[][], t: number) => {
+      let s = 0; for (let u = 0; u < M.length; u++) s += M[u][t];
+      return s / M.length;
+    };
     const series: any[] = [];
     for (let t = 0; t < T; t++) {
-      const ctrl = trend * t + randn(rng) * noise;
-      const treat = trend * t + treatLevel + (t >= treatStart ? effect : 0) + randn(rng) * noise;
-      series.push({ t, control: +ctrl.toFixed(2), treated: +treat.toFixed(2) });
+      series.push({
+        t,
+        control: +meanCol(ctrlPanel, t).toFixed(3),
+        treated: +meanCol(treatPanel, t).toFixed(3),
+      });
     }
-    // estimate ATT via 2x2 DID (avg pre vs post)
+
+    // 2x2 ATT
     const avg = (arr: number[]) => arr.reduce((a, b) => a + b, 0) / arr.length;
     const cPre = avg(series.slice(0, treatStart).map(d => d.control));
     const cPost = avg(series.slice(treatStart).map(d => d.control));
     const tPre = avg(series.slice(0, treatStart).map(d => d.treated));
     const tPost = avg(series.slice(treatStart).map(d => d.treated));
     const att = (tPost - tPre) - (cPost - cPre);
-    // counterfactual line for treated under parallel trends
+
+    // counterfactual (parallel-trends extrapolation)
     const counterfactual = series.map(d => ({
       t: d.t,
       cf: d.t < treatStart ? null : tPre + (d.control - cPre),
     }));
     const merged = series.map((d, i) => ({ ...d, cf: counterfactual[i].cf }));
-    return { series: merged, att, treatStart };
-  }, [trend, treatLevel, effect, noise, seed]);
+
+    // ── Event Study: τ_k = (Ȳ₁,k - Ȳ₁,baseline) - (Ȳ₀,k - Ȳ₀,baseline)
+    // baseline = period just before treatment (k = -1, i.e. t = treatStart-1)
+    const baseT = treatStart - 1;
+    // per-unit differences against own baseline; then group mean diff
+    const diffsPerK = (M: number[][], t: number) =>
+      M.map((row) => row[t] - row[baseT]);
+    const eventRows: any[] = [];
+    for (let t = 0; t < T; t++) {
+      const k = t - treatStart;
+      if (t === baseT) {
+        eventRows.push({ k, tau: 0, lo: 0, hi: 0 });
+        continue;
+      }
+      const dT = diffsPerK(treatPanel, t);
+      const dC = diffsPerK(ctrlPanel, t);
+      const mT = avg(dT), mC = avg(dC);
+      const tau_k = mT - mC;
+      // var of difference of means (independent groups)
+      const varOf = (arr: number[], m: number) =>
+        arr.reduce((s, v) => s + (v - m) ** 2, 0) / Math.max(arr.length - 1, 1);
+      const seK = Math.sqrt(varOf(dT, mT) / nUnits + varOf(dC, mC) / nUnits);
+      eventRows.push({
+        k,
+        tau: +tau_k.toFixed(4),
+        lo: +(tau_k - 1.96 * seK).toFixed(4),
+        hi: +(tau_k + 1.96 * seK).toFixed(4),
+        ci: [+(tau_k - 1.96 * seK).toFixed(4), +(tau_k + 1.96 * seK).toFixed(4)] as [number, number],
+      });
+    }
+
+    return { series: merged, att, treatStart, eventRows, baseT };
+  }, [trend, treatLevel, effect, noise, seed, preTrendBias, nUnits]);
 
   return (
     <div className="space-y-6">
       <PresetButtons presets={[
-        { name: "经典案例", description: "正向干预效应 ATT=4", apply: () => { setTrend(2); setTreatLevel(3); setEffect(4); setNoise(0.5); } },
-        { name: "零效应", description: "ATT=0, 检验假阳性", apply: () => { setEffect(0); setNoise(1); } },
-        { name: "负效应", description: "ATT=-3, 反向冲击", apply: () => { setEffect(-3); setNoise(0.4); } },
+        { name: "经典案例", description: "正向干预 ATT=4，无预趋势", apply: () => { setTrend(2); setTreatLevel(3); setEffect(4); setNoise(0.5); setPreTrendBias(0); } },
+        { name: "零效应", description: "ATT=0, 检验假阳性", apply: () => { setEffect(0); setNoise(1); setPreTrendBias(0); } },
+        { name: "违反平行趋势", description: "处理组预期已偏离", apply: () => { setEffect(4); setPreTrendBias(0.6); setNoise(0.4); } },
       ]} />
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="space-y-3">
           <Slider label="共同趋势斜率" value={trend} min={-2} max={5} step={0.1} onChange={setTrend} />
           <Slider label="处理组初始水平差" value={treatLevel} min={-5} max={10} step={0.1} onChange={setTreatLevel} />
           <Slider label="真实政策效应 (ATT)" value={effect} min={-5} max={10} step={0.1} onChange={setEffect} />
+          <Slider label="预趋势偏差 (违反PT)" value={preTrendBias} min={-1} max={1} step={0.05} onChange={setPreTrendBias} />
           <Slider label="噪声强度" value={noise} min={0} max={3} step={0.05} onChange={setNoise} />
+          <Slider label="每组单位数" value={nUnits} min={10} max={200} step={5} onChange={setNUnits} />
           <Slider label="随机种子" value={seed} min={1} max={999} step={1} onChange={setSeed} />
         </div>
         <div className="space-y-3">
           <ResultRow label="估计 ATT (2×2 DID)" value={data.att} truth={effect} se={NaN} color={CHART_GOLD} />
           <div className="text-xs font-mono text-muted-foreground p-3 rounded-lg bg-secondary/40 border border-border leading-relaxed">
-            <p><span className="text-gold">公式：</span>τ̂ = (Ȳ₁ₚₒₛₜ − Ȳ₁ₚᵣₑ) − (Ȳ₀ₚₒₛₜ − Ȳ₀ₚᵣₑ)</p>
-            <p><span className="text-gold">关键假设：</span>平行趋势 (Parallel Trends)。虚线展示处理组的反事实路径。</p>
-            <p>若实际处理组路径偏离虚线，差距即为政策效应。</p>
+            <p><span className="text-gold">2×2 DID：</span>τ̂ = (Ȳ₁ₚₒₛₜ − Ȳ₁ₚᵣₑ) − (Ȳ₀ₚₒₛₜ − Ȳ₀ₚᵣₑ)</p>
+            <p><span className="text-gold">事件研究：</span>τ_k = (Ȳ₁,k − Ȳ₁,−1) − (Ȳ₀,k − Ȳ₀,−1)，k=−1 为基准期 (固定为 0)。</p>
+            <p>k&lt;0 的 τ_k 显著非零 → 平行趋势假设被违反；k≥0 即动态处理效应。</p>
           </div>
         </div>
       </div>
-      <div className="h-[320px] mt-4 rounded-xl border border-border p-4 bg-secondary/20">
+
+      <div className="h-[300px] mt-4 rounded-xl border border-border p-4 bg-secondary/20">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={data.series}>
             <CartesianGrid stroke={CHART_GRID} strokeDasharray="3 3" />
@@ -295,11 +368,38 @@ const DIDTool = () => {
             <Tooltip contentStyle={{ background: "hsl(220 15% 12%)", border: `1px solid ${CHART_GRID}`, fontSize: 11 }} />
             <Legend wrapperStyle={{ fontSize: 11 }} />
             <ReferenceLine x={data.treatStart} stroke={CHART_GOLD} strokeDasharray="4 4" label={{ value: "政策实施", fill: CHART_GOLD, fontSize: 10, position: "top" }} />
-            <Line dataKey="control" name="控制组" stroke={CHART_TEAL} strokeWidth={2} dot={{ r: 3 }} />
-            <Line dataKey="treated" name="处理组" stroke={CHART_GOLD} strokeWidth={2} dot={{ r: 3 }} />
+            <Line dataKey="control" name="控制组均值" stroke={CHART_TEAL} strokeWidth={2} dot={{ r: 3 }} />
+            <Line dataKey="treated" name="处理组均值" stroke={CHART_GOLD} strokeWidth={2} dot={{ r: 3 }} />
             <Line dataKey="cf" name="反事实 (平行趋势)" stroke={CHART_RED} strokeWidth={1.5} strokeDasharray="5 5" dot={false} connectNulls />
           </LineChart>
         </ResponsiveContainer>
+      </div>
+
+      {/* Event Study panel */}
+      <div className="rounded-xl border border-border bg-secondary/20 p-4">
+        <div className="flex items-center justify-between mb-2">
+          <h4 className="text-sm font-semibold text-foreground">事件研究 (Event Study) τ_k ± 95% CI</h4>
+          <span className="text-[10px] font-mono text-muted-foreground">基准期 k=−1（设为 0）</span>
+        </div>
+        <div className="h-[260px]">
+          <ResponsiveContainer width="100%" height="100%">
+            <ComposedChart data={data.eventRows}>
+              <CartesianGrid stroke={CHART_GRID} strokeDasharray="3 3" />
+              <XAxis dataKey="k" stroke={CHART_TEXT} tick={{ fontSize: 11 }} label={{ value: "事件时间 k", position: "insideBottom", offset: -2, fill: CHART_TEXT, fontSize: 10 }} />
+              <YAxis stroke={CHART_TEXT} tick={{ fontSize: 11 }} />
+              <Tooltip contentStyle={{ background: "hsl(220 15% 12%)", border: `1px solid ${CHART_GRID}`, fontSize: 11 }} />
+              <Legend wrapperStyle={{ fontSize: 11 }} />
+              <ReferenceLine y={0} stroke={CHART_TEXT} strokeDasharray="2 2" />
+              <ReferenceLine x={-0.5} stroke={CHART_GOLD} strokeDasharray="4 4" label={{ value: "处理前 / 处理后", fill: CHART_GOLD, fontSize: 10, position: "top" }} />
+              <ReferenceLine y={effect} stroke={CHART_RED} strokeDasharray="3 3" label={{ value: `真实 ATT=${effect.toFixed(2)}`, fill: CHART_RED, fontSize: 10, position: "right" }} />
+              <Area dataKey="ci" stroke="none" fill={CHART_GOLD} fillOpacity={0.18} name="95% CI" />
+              <Line dataKey="tau" name="τ̂_k" stroke={CHART_GOLD} strokeWidth={2} dot={{ r: 3 }} />
+            </ComposedChart>
+          </ResponsiveContainer>
+        </div>
+        <p className="mt-2 text-[11px] text-muted-foreground font-mono">
+          k&lt;0 处置信区间应包含 0 → 平行趋势成立；k≥0 处 τ̂_k 反映动态效应（首期、滞后、衰减等）。
+        </p>
       </div>
     </div>
   );
