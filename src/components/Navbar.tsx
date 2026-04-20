@@ -59,7 +59,6 @@ const Navbar = () => {
           Econ & Finance Lab
           <span className="text-[9px] px-1.5 py-0.5 rounded bg-gold/15 text-gold font-normal tracking-wider">V1.0</span>
         </span>
-        </span>
 
         {/* Desktop */}
         <div className="hidden md:flex items-center gap-1">
