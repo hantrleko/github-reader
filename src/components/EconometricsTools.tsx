@@ -1741,10 +1741,13 @@ const EconometricsTools = () => {
           </div>
 
           {/* Formula bar */}
-          <div className="text-center mb-8 py-4 px-6 rounded-xl bg-secondary/50 border border-border">
-            <p className="text-base md:text-lg font-mono text-gold tracking-wide">
-              {Active.formula}
+          <div className="text-center mb-8 py-5 px-6 rounded-xl bg-gradient-to-br from-secondary/60 to-secondary/30 border border-gold/20 shadow-inner">
+            <p className="text-[10px] font-mono uppercase tracking-[0.25em] text-gold/80 mb-2">
+              {Active.nameEn}
             </p>
+            <div className="text-foreground katex-display-gold">
+              <BlockMath math={Active.formula} />
+            </div>
           </div>
 
           <Active.component />
