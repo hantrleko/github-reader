@@ -119,8 +119,8 @@ export const topicsData: TopicData[] = [
           "4. 均衡中市场组合已是切线组合，边际 Sharpe Ratio = CML 斜率",
           "5. [E(Rᵢ)−E(Rₘ)] / [(Cov(Rᵢ,Rₘ)−σ²ₘ)/σₘ] = [E(Rₘ)−Rᶠ] / σₘ",
           "6. 整理得 E(Rᵢ) − Rᶠ = [Cov(Rᵢ,Rₘ)/Var(Rₘ)] × [E(Rₘ) − Rᶠ]",
-        ],,
-        tool: { id: "calculator", label: "CAPM 计算器" }
+        ],
+        tool: { id: "calculator", label: "CAPM 计算器" },
       },
       {
         title: "CAPM 的实证检验",
@@ -777,8 +777,8 @@ export const topicsData: TopicData[] = [
           "4. 代入两个约束条件，解出 λ₁ 和 λ₂",
           "5. 定义 A = 𝟏'Σ⁻¹μ，B = μ'Σ⁻¹μ，C = 𝟏'Σ⁻¹𝟏，D = BC − A²",
           "6. 最优权重：w* = (1/D)[B(Σ⁻¹𝟏) − A(Σ⁻¹μ)] + (μ₀/D)[C(Σ⁻¹μ) − A(Σ⁻¹𝟏)]",
-        ],,
-        tool: { id: "frontier", label: "有效前沿" }
+        ],
+        tool: { id: "frontier", label: "有效前沿" },
       },
       // ── 二、有效前沿与分离定理 ──
       {
@@ -1031,8 +1031,8 @@ export const topicsData: TopicData[] = [
           "4. 得 BS PDE：∂V/∂t + ½σ²S²∂²V/∂S² + (r−q)S∂V/∂S − rV = 0",
           "5. 边界条件 C(S,T) = max(S−K, 0)，通过热传导方程变换求解",
           "6. N(d₁) = Delta，N(d₂) = Q 下期权被执行的概率",
-        ],,
-        tool: { id: "calculator", label: "Black-Scholes 计算器" }
+        ],
+        tool: { id: "calculator", label: "Black-Scholes 计算器" },
       },
       {
         title: "希腊字母 (Greeks)",
@@ -1047,8 +1047,8 @@ export const topicsData: TopicData[] = [
           "3. Gamma 中性需引入另一个期权（不能仅用标的对冲）",
           "4. Theta-Gamma 关系（BS PDE）：Θ + ½σ²S²Γ + (r−q)SΔ = rV",
           "5. 在 ATM 附近：Γ 最大，Theta 消耗最快（时间价值衰减）",
-        ],,
-        tool: { id: "calculator", label: "Greeks 敏感性分析" }
+        ],
+        tool: { id: "calculator", label: "Greeks 敏感性分析" },
       },
       // ── 三、数值方法 ──
       {
@@ -1079,8 +1079,8 @@ export const topicsData: TopicData[] = [
           "3. 对偶变量：同时用 Z 和 −Z，减少约一半方差",
           "4. 控制变量：用已知解析解的简单期权校正估计偏差",
           "5. Longstaff-Schwartz (LSM)：回归法处理美式期权的最优行权",
-        ],,
-        tool: { id: "mc-pricer", label: "MC 期权定价器" }
+        ],
+        tool: { id: "mc-pricer", label: "MC 期权定价器" },
       },
       {
         title: "有限差分法",
@@ -1203,8 +1203,8 @@ export const topicsData: TopicData[] = [
           "3. 蒙特卡洛：模拟风险因子联合分布 → 重新定价 → 取分位数",
           "4. 持有期调整：VaR_T = VaR_1 × √T（i.i.d. 假设下）",
           "5. 置信水平转换：VaR_99% ≈ VaR_95% × z₀.₉₉/z₀.₉₅ ≈ 1.41 × VaR_95%",
-        ],,
-        tool: { id: "calculator", label: "VaR 计算器" }
+        ],
+        tool: { id: "calculator", label: "VaR 计算器" },
       },
       {
         title: "条件在险价值 (CVaR / Expected Shortfall)",
