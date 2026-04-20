@@ -262,11 +262,21 @@ const BondCalculator = () => {
 
         <motion.div
           key={tab}
+          ref={captureRef}
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.35 }}
           className="rounded-2xl border border-border bg-card p-8 md:p-10 glow-gold"
         >
+          <div className="flex justify-end mb-4">
+            <ShareExportToolbar
+              storageKey="bond"
+              anchorId="bond"
+              state={{ tab, face, couponRate, ytm, maturity, freq, b0, b1, b2, lambda }}
+              captureRef={captureRef}
+              filename={`bond-${tab}`}
+            />
+          </div>
           {/* Formula bar */}
           <div className="text-center mb-8 py-4 px-6 rounded-xl bg-secondary/50 border border-border">
             <p className="text-lg md:text-xl font-mono text-gold tracking-wide">

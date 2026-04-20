@@ -294,11 +294,21 @@ const EfficientFrontier = () => {
         </motion.div>
 
         <motion.div
+          ref={captureRef}
           initial={{ opacity: 0, y: 12 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           className="rounded-2xl border border-border bg-card p-8 md:p-10 glow-gold"
         >
+          <div className="flex justify-end mb-4">
+            <ShareExportToolbar
+              storageKey="frontier"
+              anchorId="frontier"
+              state={{ assets, rho, allowShort }}
+              captureRef={captureRef}
+              filename="efficient-frontier"
+            />
+          </div>
           {/* Formula bar */}
           <div className="text-center mb-8 py-4 px-6 rounded-xl bg-secondary/50 border border-border">
             <p className="text-lg md:text-xl font-mono text-gold tracking-wide">
