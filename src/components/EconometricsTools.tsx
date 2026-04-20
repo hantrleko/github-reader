@@ -88,27 +88,70 @@ const OLSvsIV = () => {
     const xs: number[] = [], ys: number[] = [], zs: number[] = [], pts: any[] = [];
     for (let i = 0; i < n; i++) {
       const z = randn(rng);
-      const u = randn(rng);            // common shock → endogeneity
+      const u = randn(rng);
       const ex = randn(rng);
       const ey = randn(rng);
       const x = zStrength * z + endo * u + ex;
-      const y = trueBeta * x + u + ey;   // u correlated with x
+      const y = trueBeta * x + u + ey;
       xs.push(x); ys.push(y); zs.push(z);
       pts.push({ x, y, z });
     }
     const olsR = ols(xs, ys);
     const ivR = tsls(xs, ys, zs);
     const xMin = Math.min(...xs), xMax = Math.max(...xs);
-    const olsLine = [
-      { x: xMin, y: olsR.alpha + olsR.beta * xMin },
-      { x: xMax, y: olsR.alpha + olsR.beta * xMax },
-    ];
-    const ivLine = [
-      { x: xMin, y: ivR.alpha + ivR.beta * xMin },
-      { x: xMax, y: ivR.alpha + ivR.beta * xMax },
-    ];
-    return { pts, olsR, ivR, olsLine, ivLine };
+
+    const mx = xs.reduce((a, b) => a + b, 0) / n;
+    let sxx = 0;
+    for (let i = 0; i < n; i++) sxx += (xs[i] - mx) ** 2;
+    const resVar = (a: number, b: number) => {
+      let s = 0;
+      for (let i = 0; i < n; i++) {
+        const e = ys[i] - (a + b * xs[i]);
+        s += e * e;
+      }
+      return s / Math.max(n - 2, 1);
+    };
+    const sigma2_ols = resVar(olsR.alpha, olsR.beta);
+    const sigma2_iv = resVar(ivR.alpha, ivR.beta);
+    const seFit = (sig2: number, xv: number) =>
+      Math.sqrt(sig2 * (1 / n + ((xv - mx) ** 2) / Math.max(sxx, 1e-9)));
+
+    const STEPS = 40;
+    const band = Array.from({ length: STEPS + 1 }, (_, i) => {
+      const xv = xMin + ((xMax - xMin) * i) / STEPS;
+      const yhO = olsR.alpha + olsR.beta * xv;
+      const yhI = ivR.alpha + ivR.beta * xv;
+      const sO = 1.96 * seFit(sigma2_ols, xv);
+      const sI = 1.96 * seFit(sigma2_iv, xv);
+      return {
+        x: +xv.toFixed(3),
+        olsY: +yhO.toFixed(4),
+        olsCI: [+(yhO - sO).toFixed(4), +(yhO + sO).toFixed(4)] as [number, number],
+        ivY: +yhI.toFixed(4),
+        ivCI: [+(yhI - sI).toFixed(4), +(yhI + sI).toFixed(4)] as [number, number],
+      };
+    });
+
+    return { pts, olsR, ivR, band };
   }, [n, trueBeta, endo, zStrength, seed]);
+
+  // R² history (last 30 parameter changes)
+  const historyRef = useRef<{ k: number; ols: number; iv: number }[]>([]);
+  const counterRef = useRef(0);
+  const [, setHistoryTick] = useState(0);
+  useEffect(() => {
+    counterRef.current += 1;
+    historyRef.current = [
+      ...historyRef.current,
+      { k: counterRef.current, ols: +data.olsR.r2.toFixed(4), iv: +data.ivR.r2.toFixed(4) },
+    ].slice(-30);
+    setHistoryTick((t) => t + 1);
+  }, [data]);
+  const resetHistory = () => {
+    historyRef.current = [];
+    counterRef.current = 0;
+    setHistoryTick((t) => t + 1);
+  };
 
   return (
     <div className="space-y-6">
@@ -128,26 +171,56 @@ const OLSvsIV = () => {
         <div className="space-y-3">
           <ResultRow label="OLS β̂" value={data.olsR.beta} truth={trueBeta} se={data.olsR.se_beta} color={CHART_RED} />
           <ResultRow label="IV (2SLS) β̂" value={data.ivR.beta} truth={trueBeta} se={data.ivR.se_beta} color={CHART_GOLD} />
+          <ResultRow label="OLS R²" value={data.olsR.r2} color={CHART_RED} />
+          <ResultRow label="IV R²" value={data.ivR.r2} color={CHART_GOLD} />
           <div className="text-xs font-mono text-muted-foreground p-3 rounded-lg bg-secondary/40 border border-border leading-relaxed">
             <p><span className="text-gold">解读：</span>当 x 与误差项相关时，OLS 估计系统性偏离真实 β。</p>
-            <p>有效的工具变量 z 满足：<span className="text-gold">相关性</span> Cov(z,x)≠0 且 <span className="text-gold">外生性</span> Cov(z,ε)=0。</p>
-            <p>弱工具变量会显著放大 IV 估计的方差。</p>
+            <p>阴影带为拟合值 95% 置信区间 ŷ ± 1.96·SE(ŷ)，SE(ŷ)=σ̂·√(1/n+(x-x̄)²/Sₓₓ)。</p>
+            <p>弱工具变量 → IV 阴影带显著变宽，方差放大。</p>
           </div>
         </div>
       </div>
-      <div className="h-[320px] mt-4 rounded-xl border border-border p-4 bg-secondary/20">
+
+      <div className="h-[340px] mt-4 rounded-xl border border-border p-4 bg-secondary/20">
         <ResponsiveContainer width="100%" height="100%">
-          <ComposedChart>
+          <ComposedChart data={data.band}>
             <CartesianGrid stroke={CHART_GRID} strokeDasharray="3 3" />
-            <XAxis type="number" dataKey="x" stroke={CHART_TEXT} tick={{ fontSize: 11 }} />
-            <YAxis type="number" dataKey="y" stroke={CHART_TEXT} tick={{ fontSize: 11 }} />
+            <XAxis type="number" dataKey="x" stroke={CHART_TEXT} tick={{ fontSize: 11 }} domain={["dataMin", "dataMax"]} />
+            <YAxis stroke={CHART_TEXT} tick={{ fontSize: 11 }} />
             <Tooltip contentStyle={{ background: "hsl(220 15% 12%)", border: `1px solid ${CHART_GRID}`, fontSize: 11 }} />
             <Legend wrapperStyle={{ fontSize: 11 }} />
-            <Scatter name="样本" data={data.pts} fill={CHART_TEAL} fillOpacity={0.5} />
-            <Line name="OLS" data={data.olsLine} dataKey="y" stroke={CHART_RED} strokeWidth={2} dot={false} />
-            <Line name="IV/2SLS" data={data.ivLine} dataKey="y" stroke={CHART_GOLD} strokeWidth={2} dot={false} />
+            <Area type="monotone" dataKey="olsCI" stroke="none" fill={CHART_RED} fillOpacity={0.13} name="OLS 95% CI" />
+            <Area type="monotone" dataKey="ivCI" stroke="none" fill={CHART_GOLD} fillOpacity={0.13} name="IV 95% CI" />
+            <Scatter name="样本" data={data.pts} fill={CHART_TEAL} fillOpacity={0.45} dataKey="y" />
+            <Line name="OLS 拟合" type="monotone" dataKey="olsY" stroke={CHART_RED} strokeWidth={2} dot={false} />
+            <Line name="IV/2SLS 拟合" type="monotone" dataKey="ivY" stroke={CHART_GOLD} strokeWidth={2} dot={false} />
           </ComposedChart>
         </ResponsiveContainer>
+      </div>
+
+      <div className="rounded-xl border border-border bg-secondary/20 p-4">
+        <div className="flex items-center justify-between mb-2">
+          <h4 className="text-sm font-semibold text-foreground">R² 趋势（最近 {historyRef.current.length} 次参数变化）</h4>
+          <button
+            onClick={resetHistory}
+            className="text-xs px-2 py-1 rounded border border-border hover:border-gold hover:text-gold transition-colors"
+          >
+            清空
+          </button>
+        </div>
+        <div className="h-[180px]">
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={historyRef.current}>
+              <CartesianGrid stroke={CHART_GRID} strokeDasharray="3 3" />
+              <XAxis dataKey="k" stroke={CHART_TEXT} tick={{ fontSize: 10 }} />
+              <YAxis domain={[0, 1]} stroke={CHART_TEXT} tick={{ fontSize: 10 }} />
+              <Tooltip contentStyle={{ background: "hsl(220 15% 12%)", border: `1px solid ${CHART_GRID}`, fontSize: 11 }} />
+              <Legend wrapperStyle={{ fontSize: 11 }} />
+              <Line type="monotone" dataKey="ols" name="OLS R²" stroke={CHART_RED} strokeWidth={2} dot={{ r: 2 }} />
+              <Line type="monotone" dataKey="iv" name="IV R²" stroke={CHART_GOLD} strokeWidth={2} dot={{ r: 2 }} />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
       </div>
     </div>
   );
