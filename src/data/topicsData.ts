@@ -103,6 +103,7 @@ export const topicsData: TopicData[] = [
         formula: "E(Rₚ) = Rᶠ + [(E(Rₘ) − Rᶠ) / σₘ] × σₚ",
         formulaExplain:
           "CML 仅适用于有效组合。单个资产一般不在 CML 上，因为它们包含非系统性风险。",
+        tool: { id: "frontier", label: "有效前沿" },
       },
       // ===== 第三部分：CAPM =====
       {
@@ -647,6 +648,7 @@ export const topicsData: TopicData[] = [
           "4. 数值优化（BHHH 算法）求最大似然估计",
           "5. 波动率半衰期：h = ln(0.5) / ln(α + β)",
         ],
+        tool: { id: "implied-vol", label: "波动率工具" },
       },
       {
         title: "GARCH 扩展：EGARCH、GJR-GARCH、IGARCH",
@@ -655,6 +657,7 @@ export const topicsData: TopicData[] = [
         formula: "GJR: σ²ₜ = ω + (α + γIₜ₋₁)ε²ₜ₋₁ + βσ²ₜ₋₁",
         formulaExplain:
           "Iₜ₋₁ = 1 当 εₜ₋₁ < 0（坏消息）。γ > 0 表示杠杆效应：负冲击对波动率影响更大。",
+        tool: { id: "implied-vol", label: "波动率工具" },
       },
       // ── 五、多元时间序列 ──
       {
@@ -733,6 +736,7 @@ export const topicsData: TopicData[] = [
         formula: "rₜ = exp(hₜ/2)εₜ，hₜ = μ + φ(hₜ₋₁ − μ) + σᵥηₜ",
         formulaExplain:
           "hₜ 为对数波动率状态，|φ| < 1 保证平稳。εₜ 和 ηₜ 独立或允许相关（杠杆 SV）。",
+        tool: { id: "implied-vol", label: "波动率工具" },
       },
     ],
   },
@@ -762,6 +766,7 @@ export const topicsData: TopicData[] = [
         formula: "σ²ₚ(等权) = (1/N)σ̄² + (1 − 1/N)C̄ov → C̄ov（当 N→∞）",
         formulaExplain:
           "σ̄² 为平均方差，C̄ov 为平均协方差。分散化无法消除系统风险（市场风险）。",
+        tool: { id: "frontier", label: "有效前沿" },
       },
       {
         title: "均值-方差优化 (MVO)",
@@ -812,6 +817,7 @@ export const topicsData: TopicData[] = [
           "4. w ∝ Σ⁻¹(μ − Rᶠ𝟏)，归一化后得切线组合权重",
           "5. 投资者选择：将财富在无风险资产和切线组合间分配",
         ],
+        tool: { id: "frontier", label: "有效前沿" },
       },
       // ── 三、风险度量 ──
       {
@@ -830,6 +836,7 @@ export const topicsData: TopicData[] = [
         formula: "ES_α = E[−Rₚ | −Rₚ > VaR_α] = μₚ + σₚ · φ(z_α) / (1−α)",
         formulaExplain:
           "φ 为标准正态密度函数。ES 总是 ≥ VaR，且对尾部风险更敏感。",
+        tool: { id: "calculator", label: "VaR / CVaR 计算器" },
       },
       {
         title: "最大回撤与 Sharpe / Sortino 比率",
@@ -838,6 +845,7 @@ export const topicsData: TopicData[] = [
         formula: "Sharpe = (E(Rₚ) − Rᶠ) / σₚ；Sortino = (E(Rₚ) − Rᶠ) / σ_down",
         formulaExplain:
           "σ_down = √E[min(Rₚ − Rᶠ, 0)²]，仅计入负超额收益的波动。",
+        tool: { id: "calculator", label: "Sharpe 计算器" },
       },
       // ── 四、估计误差与稳健方法 ──
       {
@@ -854,6 +862,7 @@ export const topicsData: TopicData[] = [
           "4. 收缩后矩阵条件数改善，组合权重更稳定",
           "5. 实证中 Ledoit-Wolf 收缩显著优于未收缩的样本协方差矩阵",
         ],
+        tool: { id: "frontier", label: "有效前沿" },
       },
       {
         title: "重采样有效前沿 (Resampled Efficiency)",
@@ -893,6 +902,7 @@ export const topicsData: TopicData[] = [
           "5. 后验协方差：Σ_BL = [(τΣ)⁻¹ + P'Ω⁻¹P]⁻¹",
           "6. 最优权重：w_BL = (1/δ)Σ⁻¹μ_BL，通常比 MVO 更接近市值权重",
         ],
+        tool: { id: "frontier", label: "有效前沿" },
       },
       // ── 六、现代配置方法 ──
       {
@@ -909,6 +919,7 @@ export const topicsData: TopicData[] = [
           "4. 风险平价条件：w_i(Σw)_i = w_j(Σw)_j，∀ i,j",
           "5. 无解析解，通过 SQP 或 Cyclical Coordinate Descent 数值求解",
         ],
+        tool: { id: "frontier", label: "有效前沿" },
       },
       {
         title: "最大分散化组合 (MDP)",
@@ -917,6 +928,7 @@ export const topicsData: TopicData[] = [
         formula: "DR = w'σ / √(w'Σw)；max DR  s.t.  w'𝟏 = 1, w ≥ 0",
         formulaExplain:
           "σ 为各资产标准差向量。DR ≥ 1，等号当且仅当所有资产完全相关。",
+        tool: { id: "frontier", label: "有效前沿" },
       },
       {
         title: "均值-CVaR 优化",
@@ -925,6 +937,7 @@ export const topicsData: TopicData[] = [
         formula: "min CVaR_α(w)  s.t.  w'μ ≥ μ₀,  w'𝟏 = 1",
         formulaExplain:
           "通过引入辅助变量将非线性问题转化为 LP：min ζ + (1/(1−α)T) Σₜ max(−w'rₜ − ζ, 0)。",
+        tool: { id: "frontier", label: "有效前沿" },
       },
       {
         title: "因子配置与风险预算",
@@ -933,6 +946,7 @@ export const topicsData: TopicData[] = [
         formula: "σ²ₚ = β'Σ_f β + σ²_ε（因子风险 + 特质风险）",
         formulaExplain:
           "β 为组合对各因子的暴露向量，Σ_f 为因子协方差矩阵。目标是平衡各因子的风险贡献。",
+        tool: { id: "frontier", label: "有效前沿" },
       },
       {
         title: "交易成本与换手约束",
@@ -977,6 +991,7 @@ export const topicsData: TopicData[] = [
           "4. 无套利要求 F₀ = S₀e^{(r−q)T}，否则可构造套利",
           "5. 当 F₀ > S₀e^{(r−q)T}：卖远期 + 买现货（正向套利）",
         ],
+        tool: { id: "calculator", label: "BS 计算器" },
       },
       {
         title: "看跌-看涨期权平价 (Put-Call Parity)",
@@ -992,6 +1007,7 @@ export const topicsData: TopicData[] = [
           "4. 到期时组合 B 价值 = max(S_T, K)（相同）",
           "5. 无套利 ⟹ 初始成本相等：C + Ke^{−rT} = P + S₀e^{−qT}",
         ],
+        tool: { id: "calculator", label: "Black-Scholes 计算器" },
       },
       {
         title: "风险中性定价原理",
@@ -1065,6 +1081,7 @@ export const topicsData: TopicData[] = [
           "4. 逐层后向计算直到根节点得 V₀",
           "5. Delta ≈ (V_up − V_down) / (S·u − S·d)（数值 Greeks）",
         ],
+        tool: { id: "mc-pricer", label: "MC 期权定价器" },
       },
       {
         title: "蒙特卡洛模拟",
@@ -1089,6 +1106,7 @@ export const topicsData: TopicData[] = [
         formula: "显式：(Vⁿ⁺¹ᵢ − Vⁿᵢ)/Δt = ½σ²S²ᵢ(Vⁿᵢ₊₁ − 2Vⁿᵢ + Vⁿᵢ₋₁)/ΔS² + ⋯",
         formulaExplain:
           "Crank-Nicolson 取显式和隐式的平均，精度 O(Δt², ΔS²)，兼顾稳定性与精度。",
+        tool: { id: "mc-pricer", label: "MC 期权定价器" },
       },
       // ── 四、波动率建模 ──
       {
@@ -1107,6 +1125,7 @@ export const topicsData: TopicData[] = [
         formula: "σ²_loc(K, T) = 2[∂C/∂T + (r−q)K·∂C/∂K + qC] / (K²·∂²C/∂K²)",
         formulaExplain:
           "Dupire 公式从欧式期权价格曲面 C(K,T) 直接计算局部波动率，无需参数化假设。",
+        tool: { id: "implied-vol", label: "波动率曲面" },
       },
       {
         title: "随机波动率模型 (Heston)",
@@ -1122,6 +1141,7 @@ export const topicsData: TopicData[] = [
           "4. Carr-Madan FFT 方法将积分转化为快速 Fourier 变换",
           "5. 校准：最小化 Σ(C_model − C_market)² / vega²（vega 加权）",
         ],
+        tool: { id: "implied-vol", label: "波动率曲面" },
       },
       // ── 五、奇异期权 ──
       {
@@ -1149,6 +1169,7 @@ export const topicsData: TopicData[] = [
         formula: "Swap Value = Σ τᵢ(f_i − K)·DF(tᵢ)（固定端 vs 浮动端）",
         formulaExplain:
           "τᵢ 为付息期长度，f_i 为远期利率，K 为固定利率，DF 为贴现因子。Par swap rate 使价值为零。",
+        tool: { id: "rate-model", label: "利率模型模拟器" },
       },
       // ── 六、利率与信用衍生品 ──
       {
@@ -1220,6 +1241,7 @@ export const topicsData: TopicData[] = [
           "4. Rockafellar-Uryasev (2000)：ES 可通过线性规划优化",
           "5. 历史模拟 ES = 超过 VaR 的所有损失的算术平均",
         ],
+        tool: { id: "calculator", label: "VaR / CVaR 计算器" },
       },
       {
         title: "VaR 回测检验 (Backtesting)",
@@ -1228,6 +1250,7 @@ export const topicsData: TopicData[] = [
         formula: "Kupiec LR_POF = 2ln[(p̂^x(1−p̂)^{T−x}) / (α^x(1−α)^{T−x})] ~ χ²(1)",
         formulaExplain:
           "p̂ = x/T 为实际违例比例，α = 1 − 置信水平为预期违例比例。Basel 用交通灯法（绿/黄/红区）。",
+        tool: { id: "calculator", label: "VaR 计算器" },
       },
       {
         title: "风险因子映射与 Delta-Gamma 近似",
@@ -1446,6 +1469,7 @@ export const topicsData: TopicData[] = [
         formula: "D_Mac = (1/P) Σᵢ₌₁ⁿ tᵢ · Cᵢ/(1+y)^tᵢ",
         formulaExplain:
           "tᵢ 为第 i 笔现金流的支付时间（年），Cᵢ 为现金流金额。D_Mac 的单位是「年」。零息债券 D_Mac = T。",
+        tool: { id: "bond", label: "债券计算器" },
       },
       {
         title: "修正久期与价格敏感性",
@@ -1461,6 +1485,7 @@ export const topicsData: TopicData[] = [
           "4. = −D_Mac/(1+y) = −D_mod",
           "5. 因此 ΔP/P ≈ −D_mod · Δy（一阶近似）",
         ],
+        tool: { id: "bond", label: "债券久期" },
       },
       {
         title: "凸性 (Convexity)",
@@ -1476,6 +1501,7 @@ export const topicsData: TopicData[] = [
           "4. ΔP/P ≈ −D_mod · Δy + ½C · (Δy)²",
           "5. 误差项 ε = 实际ΔP − (−D_mod·P·Δy) ≈ ½C·P·(Δy)² > 0",
         ],
+        tool: { id: "bond", label: "债券凸性" },
       },
       {
         title: "有效久期与有效凸性",
@@ -1484,6 +1510,7 @@ export const topicsData: TopicData[] = [
         formula: "D_eff = (P₋ − P₊) / (2 · P₀ · Δy)",
         formulaExplain:
           "P₋ 为利率下移 Δy 后的价格，P₊ 为利率上移后的价格，P₀ 为当前价格。有效凸性 C_eff = (P₋ + P₊ − 2P₀) / (P₀ · (Δy)²)。",
+        tool: { id: "bond", label: "债券计算器" },
       },
       // ===== 第三部分：收益率曲线 =====
       {
@@ -1572,6 +1599,7 @@ export const topicsData: TopicData[] = [
         formula: "P = Σ Cᵢ / (1 + z(tᵢ) + s)^tᵢ  →  解出 s = Z-spread",
         formulaExplain:
           "z(tᵢ) 为国债零息利率，s 为 Z-spread。I-spread 使用互换利率。ASW spread 基于资产互换结构。CDS basis = CDS spread − Z-spread。",
+        tool: { id: "bond", label: "债券计算器" },
       },
       {
         title: "利率互换定价",
@@ -1587,6 +1615,7 @@ export const topicsData: TopicData[] = [
           "4. 令固定腿 PV = 浮动腿 PV：s = (1 − d(tₙ)) / A",
           "5. 互换的 DV01 = A · 面值 · 0.0001",
         ],
+        tool: { id: "rate-model", label: "利率模型模拟器" },
       },
       {
         title: "久期免疫策略",
@@ -1595,6 +1624,7 @@ export const topicsData: TopicData[] = [
         formula: "D_A = D_L,  C_A ≥ C_L,  PV_A = PV_L",
         formulaExplain:
           "满足三个条件时，利率平行移动 Δy 导致的组合净值变化 ΔNW ≈ ½(C_A − C_L)·PV·(Δy)² ≥ 0。但非平行移动仍有风险。",
+        tool: { id: "bond", label: "债券计算器" },
       },
     ],
   },
