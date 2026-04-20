@@ -323,15 +323,15 @@ const DIDTool = () => {
     const eventRows: any[] = [];
     for (let t = 0; t < T; t++) {
       const k = t - treatStart;
+      const trueK = trueTau(k, dynamicMode, effect);
       if (t === baseT) {
-        eventRows.push({ k, tau: 0, lo: 0, hi: 0 });
+        eventRows.push({ k, tau: 0, lo: 0, hi: 0, ci: [0, 0] as [number, number], trueK });
         continue;
       }
       const dT = diffsPerK(treatPanel, t);
       const dC = diffsPerK(ctrlPanel, t);
       const mT = avg(dT), mC = avg(dC);
       const tau_k = mT - mC;
-      // var of difference of means (independent groups)
       const varOf = (arr: number[], m: number) =>
         arr.reduce((s, v) => s + (v - m) ** 2, 0) / Math.max(arr.length - 1, 1);
       const seK = Math.sqrt(varOf(dT, mT) / nUnits + varOf(dC, mC) / nUnits);
@@ -341,11 +341,12 @@ const DIDTool = () => {
         lo: +(tau_k - 1.96 * seK).toFixed(4),
         hi: +(tau_k + 1.96 * seK).toFixed(4),
         ci: [+(tau_k - 1.96 * seK).toFixed(4), +(tau_k + 1.96 * seK).toFixed(4)] as [number, number],
+        trueK: +trueK.toFixed(4),
       });
     }
 
     return { series: merged, att, treatStart, eventRows, baseT };
-  }, [trend, treatLevel, effect, noise, seed, preTrendBias, nUnits]);
+  }, [trend, treatLevel, effect, noise, seed, preTrendBias, nUnits, dynamicMode]);
 
   return (
     <div className="space-y-6">
