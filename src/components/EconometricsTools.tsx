@@ -1407,13 +1407,14 @@ const ResultRow = ({ label, value, truth, se, color }: { label: string; value: n
 };
 
 /* ──────────────────  Main module  ────────────────── */
-type ToolId = "olsiv" | "did" | "rdd" | "gmm";
+type ToolId = "olsiv" | "did" | "rdd" | "gmm" | "svar";
 
 const TOOLS: { id: ToolId; name: string; formula: string; component: React.FC }[] = [
   { id: "olsiv", name: "OLS / IV", formula: "y = α + βx + ε,  内生时用 IV: x̂ = π̂z → y", component: OLSvsIV },
   { id: "did",   name: "DID",      formula: "τ̂ = (Ȳ₁ₚₒₛₜ − Ȳ₁ₚᵣₑ) − (Ȳ₀ₚₒₛₜ − Ȳ₀ₚᵣₑ)", component: DIDTool },
   { id: "rdd",   name: "RDD",      formula: "τ = lim_{x→c⁺} E[Y|X=x] − lim_{x→c⁻} E[Y|X=x]", component: RDDTool },
   { id: "gmm",   name: "GMM",      formula: "μ̂ = argmin g(μ)' W g(μ)", component: GMMTool },
+  { id: "svar",  name: "SVAR / IRF", formula: "y_t = A y_{t-1} + B₀ ε_t,   IRF_h = A^h · L · e_j  (Cholesky)", component: SVARTool },
 ];
 
 const EconometricsTools = () => {
