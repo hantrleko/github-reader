@@ -281,9 +281,6 @@ const DIDTool = () => {
         cRow.push(c);
         tRow.push(tv);
       }
-        cRow.push(c);
-        tRow.push(tv);
-      }
       ctrlPanel.push(cRow);
       treatPanel.push(tRow);
     }
