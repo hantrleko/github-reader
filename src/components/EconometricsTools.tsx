@@ -411,24 +411,32 @@ const DIDTool = () => {
 const RDDTool = () => {
   const [n, setN] = useState(300);
   const [cutoff, setCutoff] = useState(0);
-  const [jump, setJump] = useState(3);     // true treatment effect
+  const [jump, setJump] = useState(3);
   const [slopeL, setSlopeL] = useState(1);
   const [slopeR, setSlopeR] = useState(1);
   const [noise, setNoise] = useState(0.8);
   const [seed, setSeed] = useState(11);
   const [bandwidth, setBandwidth] = useState(2);
+  const [manipulation, setManipulation] = useState(0); // 0..1: prob a "just-below" individual hops above c
 
   const data = useMemo(() => {
     const rng = mulberry32(seed);
     const pts: { x: number; y: number; treated: number }[] = [];
     for (let i = 0; i < n; i++) {
-      const x = (rng() - 0.5) * 10;       // running variable in [-5, 5]
+      let x = (rng() - 0.5) * 10;
+      // ── manipulation: if x falls just below cutoff, with prob `manipulation` push it just above
+      if (manipulation > 0 && x < cutoff && x > cutoff - 1.0) {
+        if (rng() < manipulation) {
+          x = cutoff + rng() * 0.5; // hop into [c, c+0.5]
+        }
+      }
       const treated = x >= cutoff ? 1 : 0;
       const slope = treated ? slopeR : slopeL;
       const y = slope * (x - cutoff) + treated * jump + randn(rng) * noise;
       pts.push({ x, y, treated });
     }
-    // local-linear within bandwidth
+
+    // ── local-linear RDD fit ──
     const left = pts.filter(p => p.x >= cutoff - bandwidth && p.x < cutoff).map(p => [p.x, p.y]);
     const right = pts.filter(p => p.x <= cutoff + bandwidth && p.x >= cutoff).map(p => [p.x, p.y]);
     const olsL = left.length > 5 ? ols(left.map(p => p[0]), left.map(p => p[1])) : null;
@@ -438,25 +446,108 @@ const RDDTool = () => {
     const tau = yR - yL;
     const lineL = olsL ? [{ x: cutoff - bandwidth, y: olsL.alpha + olsL.beta * (cutoff - bandwidth) }, { x: cutoff, y: yL }] : [];
     const lineR = olsR ? [{ x: cutoff, y: yR }, { x: cutoff + bandwidth, y: olsR.alpha + olsR.beta * (cutoff + bandwidth) }] : [];
-    return { pts, tau, lineL, lineR, yL, yR };
-  }, [n, cutoff, jump, slopeL, slopeR, noise, seed, bandwidth]);
+
+    // ══════════════ McCrary (2008) density test ══════════════
+    // Step 1: histogram of running variable with bin width b, NOT crossing cutoff
+    const xs = pts.map(p => p.x);
+    const xMin = -5, xMax = 5;
+    const binW = 0.25;
+    // build bins offset so cutoff is a bin edge
+    const edgesL: number[] = [];
+    for (let e = cutoff; e > xMin - binW; e -= binW) edgesL.unshift(e);
+    const edgesR: number[] = [];
+    for (let e = cutoff; e < xMax + binW; e += binW) edgesR.push(e);
+    // edgesL ends with cutoff; edgesR starts with cutoff
+    const counts: { mid: number; count: number; side: -1 | 1 }[] = [];
+    for (let i = 0; i < edgesL.length - 1; i++) {
+      const lo = edgesL[i], hi = edgesL[i + 1];
+      const c = xs.filter(x => x >= lo && x < hi).length;
+      counts.push({ mid: (lo + hi) / 2, count: c, side: -1 });
+    }
+    for (let i = 0; i < edgesR.length - 1; i++) {
+      const lo = edgesR[i], hi = edgesR[i + 1];
+      const c = xs.filter(x => x >= lo && x < hi).length;
+      counts.push({ mid: (lo + hi) / 2, count: c, side: 1 });
+    }
+    // density per bin = count / (n * binW)
+    const densityRows = counts.map(c => ({
+      mid: +c.mid.toFixed(3),
+      density: +(c.count / (n * binW)).toFixed(4),
+      side: c.side,
+      densityL: c.side === -1 ? +(c.count / (n * binW)).toFixed(4) : null,
+      densityR: c.side === 1 ? +(c.count / (n * binW)).toFixed(4) : null,
+    }));
+
+    // Step 2: local linear regression of density on bin midpoint, on each side, within bandwidth
+    // f̂(c⁻) = intercept of left local linear at mid → cutoff
+    const leftBins = counts.filter(c => c.side === -1 && c.mid >= cutoff - bandwidth);
+    const rightBins = counts.filter(c => c.side === 1 && c.mid <= cutoff + bandwidth);
+    let fHatL = NaN, fHatR = NaN, seL = NaN, seR = NaN;
+    if (leftBins.length >= 3) {
+      const olsBL = ols(leftBins.map(b => b.mid), leftBins.map(b => b.count / (n * binW)));
+      fHatL = Math.max(olsBL.alpha + olsBL.beta * cutoff, 1e-6);
+      // crude SE: sqrt(f̂ / (n·h)) — McCrary asymptotic form (constant absorbed)
+      seL = Math.sqrt(fHatL / (n * bandwidth));
+    }
+    if (rightBins.length >= 3) {
+      const olsBR = ols(rightBins.map(b => b.mid), rightBins.map(b => b.count / (n * binW)));
+      fHatR = Math.max(olsBR.alpha + olsBR.beta * cutoff, 1e-6);
+      seR = Math.sqrt(fHatR / (n * bandwidth));
+    }
+    // log-difference statistic
+    const theta = Math.log(fHatR) - Math.log(fHatL);
+    // var(log f̂) ≈ 1/(n·h·f̂), then var(θ̂) = sum
+    const seTheta = Math.sqrt(1 / (n * bandwidth * fHatL) + 1 / (n * bandwidth * fHatR));
+    const z = theta / seTheta;
+    // 2-sided normal p-value approximation (simple erfc)
+    const erfc = (v: number) => {
+      // Abramowitz & Stegun 7.1.26
+      const t = 1 / (1 + 0.3275911 * Math.abs(v));
+      const y = 1 - (((((
+        1.061405429 * t - 1.453152027) * t) + 1.421413741) * t - 0.284496736) * t + 0.254829592) * t * Math.exp(-v * v);
+      return v >= 0 ? 1 - y : 1 + y;
+    };
+    const pVal = erfc(Math.abs(z) / Math.SQRT2);
+
+    // fitted lines for density chart (within bandwidth, for visualization)
+    const densLineL =
+      leftBins.length >= 3
+        ? [
+            { mid: cutoff - bandwidth, fit: fHatL + (ols(leftBins.map(b => b.mid), leftBins.map(b => b.count / (n * binW)))).beta * (-bandwidth) },
+            { mid: cutoff, fit: fHatL },
+          ]
+        : [];
+    const densLineR =
+      rightBins.length >= 3
+        ? [
+            { mid: cutoff, fit: fHatR },
+            { mid: cutoff + bandwidth, fit: fHatR + (ols(rightBins.map(b => b.mid), rightBins.map(b => b.count / (n * binW)))).beta * (bandwidth) },
+          ]
+        : [];
+
+    return {
+      pts, tau, lineL, lineR, yL, yR,
+      densityRows, fHatL, fHatR, theta, seTheta, z, pVal, densLineL, densLineR,
+    };
+  }, [n, cutoff, jump, slopeL, slopeR, noise, seed, bandwidth, manipulation]);
 
   return (
     <div className="space-y-6">
       <PresetButtons presets={[
-        { name: "清晰跳跃", description: "强政策效应 τ=3", apply: () => { setJump(3); setNoise(0.5); setBandwidth(2); } },
-        { name: "弱效应高噪声", description: "τ=1, 检验功效", apply: () => { setJump(1); setNoise(1.5); setBandwidth(2); } },
-        { name: "斜率不连续", description: "左右斜率不同", apply: () => { setJump(2); setSlopeL(0.5); setSlopeR(2); setNoise(0.5); } },
+        { name: "清晰跳跃", description: "强政策效应 τ=3, 无操纵", apply: () => { setJump(3); setNoise(0.5); setBandwidth(2); setManipulation(0); } },
+        { name: "弱效应高噪声", description: "τ=1, 检验功效", apply: () => { setJump(1); setNoise(1.5); setBandwidth(2); setManipulation(0); } },
+        { name: "存在操纵", description: "个体跳到切点之上", apply: () => { setJump(3); setNoise(0.5); setManipulation(0.7); setN(600); } },
       ]} />
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="space-y-3">
-          <Slider label="样本量 n" value={n} min={50} max={1000} step={50} onChange={setN} />
+          <Slider label="样本量 n" value={n} min={50} max={1500} step={50} onChange={setN} />
           <Slider label="切点 c" value={cutoff} min={-3} max={3} step={0.1} onChange={setCutoff} />
           <Slider label="真实跳跃 τ" value={jump} min={-5} max={8} step={0.1} onChange={setJump} />
           <Slider label="左侧斜率" value={slopeL} min={-2} max={3} step={0.1} onChange={setSlopeL} />
           <Slider label="右侧斜率" value={slopeR} min={-2} max={3} step={0.1} onChange={setSlopeR} />
           <Slider label="噪声 σ" value={noise} min={0.1} max={3} step={0.05} onChange={setNoise} />
           <Slider label="带宽 h" value={bandwidth} min={0.5} max={5} step={0.1} onChange={setBandwidth} />
+          <Slider label="操纵概率 (just-below 跳到 just-above)" value={manipulation} min={0} max={1} step={0.05} onChange={setManipulation} />
           <Slider label="随机种子" value={seed} min={1} max={999} step={1} onChange={setSeed} />
         </div>
         <div className="space-y-3">
@@ -470,6 +561,8 @@ const RDDTool = () => {
           </div>
         </div>
       </div>
+
+      {/* Outcome RDD plot */}
       <div className="h-[340px] mt-4 rounded-xl border border-border p-4 bg-secondary/20">
         <ResponsiveContainer width="100%" height="100%">
           <ComposedChart>
@@ -486,6 +579,45 @@ const RDDTool = () => {
             <Line name="右侧拟合" data={data.lineR} dataKey="y" stroke={CHART_RED} strokeWidth={2.5} dot={false} />
           </ComposedChart>
         </ResponsiveContainer>
+      </div>
+
+      {/* McCrary density test panel */}
+      <div className="rounded-xl border border-border bg-secondary/20 p-4">
+        <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
+          <h4 className="text-sm font-semibold text-foreground">McCrary 密度检验</h4>
+          <div className="flex gap-3 text-[11px] font-mono">
+            <span>f̂(c⁻) = <span className="text-teal-400">{isFinite(data.fHatL) ? data.fHatL.toFixed(4) : "—"}</span></span>
+            <span>f̂(c⁺) = <span style={{color: CHART_RED}}>{isFinite(data.fHatR) ? data.fHatR.toFixed(4) : "—"}</span></span>
+            <span>θ̂ = log f̂(c⁺)−log f̂(c⁻) = <span className="text-gold">{isFinite(data.theta) ? data.theta.toFixed(3) : "—"}</span></span>
+            <span>z = <span className="text-gold">{isFinite(data.z) ? data.z.toFixed(2) : "—"}</span></span>
+            <span>p = <span className={Math.abs(data.z) > 1.96 ? "text-red-500 font-bold" : "text-emerald-400"}>
+              {isFinite(data.pVal) ? data.pVal.toFixed(4) : "—"}
+            </span></span>
+          </div>
+        </div>
+        <div className="h-[260px]">
+          <ResponsiveContainer width="100%" height="100%">
+            <ComposedChart data={data.densityRows}>
+              <CartesianGrid stroke={CHART_GRID} strokeDasharray="3 3" />
+              <XAxis dataKey="mid" type="number" domain={[-5, 5]} stroke={CHART_TEXT} tick={{ fontSize: 11 }} label={{ value: "跑分变量 X", position: "insideBottom", offset: -2, fill: CHART_TEXT, fontSize: 10 }} />
+              <YAxis stroke={CHART_TEXT} tick={{ fontSize: 11 }} label={{ value: "密度 f̂(X)", angle: -90, position: "insideLeft", fill: CHART_TEXT, fontSize: 10 }} />
+              <Tooltip contentStyle={{ background: "hsl(220 15% 12%)", border: `1px solid ${CHART_GRID}`, fontSize: 11 }} />
+              <Legend wrapperStyle={{ fontSize: 11 }} />
+              <ReferenceLine x={cutoff} stroke={CHART_GOLD} strokeDasharray="4 4" label={{ value: "c", fill: CHART_GOLD, fontSize: 10, position: "top" }} />
+              <ReferenceArea x1={cutoff - bandwidth} x2={cutoff + bandwidth} fill={CHART_GOLD} fillOpacity={0.04} />
+              {/* Histogram bars via thin scatters with size proxy is messy; use Line of two side series */}
+              <Scatter name="左侧密度 (X<c)" data={data.densityRows.filter(d => d.side === -1)} dataKey="density" fill={CHART_TEAL} />
+              <Scatter name="右侧密度 (X≥c)" data={data.densityRows.filter(d => d.side === 1)} dataKey="density" fill={CHART_RED} />
+              <Line name="左侧局部线性" data={data.densLineL} dataKey="fit" stroke={CHART_TEAL} strokeWidth={2.5} dot={false} />
+              <Line name="右侧局部线性" data={data.densLineR} dataKey="fit" stroke={CHART_RED} strokeWidth={2.5} dot={false} />
+            </ComposedChart>
+          </ResponsiveContainer>
+        </div>
+        <div className="mt-3 text-[11px] font-mono text-muted-foreground leading-relaxed">
+          <p><span className="text-gold">McCrary (2008)：</span>检验跑分变量密度 f(X) 在切点 c 处是否连续。原假设 H₀: f(c⁻)=f(c⁺)。</p>
+          <p>检验量 θ̂ = log f̂(c⁺) − log f̂(c⁻)，SE(θ̂) ≈ √(1/(nh·f̂(c⁻)) + 1/(nh·f̂(c⁺)))，z = θ̂/SE。</p>
+          <p>|z| &gt; 1.96 (p &lt; 0.05) → <span className="text-red-500">拒绝 H₀，存在操纵迹象</span>，RDD 估计可疑；否则不能拒绝连续性。</p>
+        </div>
       </div>
     </div>
   );
