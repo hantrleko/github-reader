@@ -1312,7 +1312,96 @@ const SVARTool = () => {
       };
     });
 
-    return { series: series2, A, L, Bbq };
+    /* ── Historical Decomposition (using Cholesky ident: B = L) ──
+       1) ε_t = L⁻¹ u_t  (structural shocks from reduced-form residuals)
+       2) For variable i:  ŷ_{i,t} - baseline = Σ_j Σ_{s=0..t-1} (Φ_s · L)_{ij} · ε_{t-s, j}
+       Φ_s = A^s, M_s = Φ_s · L. We split contribution by shock j and overlay actual.       */
+    const Linv = (() => {
+      const a = L[0][0], b = L[0][1], c = L[1][0], d = L[1][1];
+      const det = a * d - b * c;
+      return [[d / det, -b / det], [-c / det, a / det]];
+    })();
+    const eps: number[][] = res1.map((r1, t) => {
+      const u1 = r1, u2 = res2[t];
+      return [Linv[0][0] * u1 + Linv[0][1] * u2, Linv[1][0] * u1 + Linv[1][1] * u2];
+    });
+    // Precompute M_s = A^s · L for s = 0..eps.length
+    const Mlist2: number[][][] = [];
+    {
+      let Phi = [[1, 0], [0, 1]];
+      for (let s = 0; s < eps.length; s++) {
+        Mlist2.push([
+          [Phi[0][0] * L[0][0] + Phi[0][1] * L[1][0], Phi[0][0] * L[0][1] + Phi[0][1] * L[1][1]],
+          [Phi[1][0] * L[0][0] + Phi[1][1] * L[1][0], Phi[1][0] * L[0][1] + Phi[1][1] * L[1][1]],
+        ]);
+        Phi = [
+          [A[0][0] * Phi[0][0] + A[0][1] * Phi[1][0], A[0][0] * Phi[0][1] + A[0][1] * Phi[1][1]],
+          [A[1][0] * Phi[0][0] + A[1][1] * Phi[1][0], A[1][0] * Phi[0][1] + A[1][1] * Phi[1][1]],
+        ];
+      }
+    }
+    // baseline (deterministic part) = forecast from initial condition with no shocks
+    const N = eps.length;
+    const baseline: number[][] = [[y[0][0], y[0][1]]];
+    for (let t = 1; t <= N; t++) {
+      const yp = baseline[t - 1];
+      baseline.push([
+        c1 + A[0][0] * yp[0] + A[0][1] * yp[1],
+        c2 + A[1][0] * yp[0] + A[1][1] * yp[1],
+      ]);
+    }
+    const hd: { t: number; y1_e1: number; y1_e2: number; y2_e1: number; y2_e2: number; y1_actual: number; y2_actual: number; y1_base: number; y2_base: number }[] = [];
+    for (let t = 0; t < N; t++) {
+      let c11 = 0, c12 = 0, c21 = 0, c22 = 0;
+      for (let s = 0; s <= t; s++) {
+        const M = Mlist2[s];
+        const e = eps[t - s];
+        c11 += M[0][0] * e[0]; c12 += M[0][1] * e[1];
+        c21 += M[1][0] * e[0]; c22 += M[1][1] * e[1];
+      }
+      // y_{t+1} corresponds to first observation after init in residual indexing
+      const tIdx = t + 1;
+      hd.push({
+        t: tIdx,
+        y1_e1: c11, y1_e2: c12,
+        y2_e1: c21, y2_e2: c22,
+        y1_actual: y[tIdx][0] - baseline[tIdx][0],
+        y2_actual: y[tIdx][1] - baseline[tIdx][1],
+        y1_base: baseline[tIdx][0],
+        y2_base: baseline[tIdx][1],
+      });
+    }
+
+    /* ── FEVD: variance share contributed by shock j to variable i at horizon h ── */
+    const Mfevd: number[][][] = [];
+    {
+      let Phi = [[1, 0], [0, 1]];
+      for (let h = 0; h <= H; h++) {
+        Mfevd.push([
+          [Phi[0][0] * L[0][0] + Phi[0][1] * L[1][0], Phi[0][0] * L[0][1] + Phi[0][1] * L[1][1]],
+          [Phi[1][0] * L[0][0] + Phi[1][1] * L[1][0], Phi[1][0] * L[0][1] + Phi[1][1] * L[1][1]],
+        ]);
+        Phi = [
+          [A[0][0] * Phi[0][0] + A[0][1] * Phi[1][0], A[0][0] * Phi[0][1] + A[0][1] * Phi[1][1]],
+          [A[1][0] * Phi[0][0] + A[1][1] * Phi[1][0], A[1][0] * Phi[0][1] + A[1][1] * Phi[1][1]],
+        ];
+      }
+    }
+    const fevd: { h: number; y1_e1: number; y1_e2: number; y2_e1: number; y2_e2: number }[] = [];
+    let cumY1 = [0, 0], cumY2 = [0, 0];
+    for (let h = 0; h <= H; h++) {
+      cumY1[0] += Mfevd[h][0][0] ** 2; cumY1[1] += Mfevd[h][0][1] ** 2;
+      cumY2[0] += Mfevd[h][1][0] ** 2; cumY2[1] += Mfevd[h][1][1] ** 2;
+      const t1 = cumY1[0] + cumY1[1] || 1e-12;
+      const t2 = cumY2[0] + cumY2[1] || 1e-12;
+      fevd.push({
+        h,
+        y1_e1: cumY1[0] / t1, y1_e2: cumY1[1] / t1,
+        y2_e1: cumY2[0] / t2, y2_e2: cumY2[1] / t2,
+      });
+    }
+
+    return { series: series2, A, L, Bbq, hd, fevd };
   }, [seed, T, H, a11, a12, a21, a22, b21, s1, s2, boots, shockIdx]);
 
   const presets: Preset[] = [
@@ -1428,6 +1517,77 @@ const SVARTool = () => {
           </div>
         );
       })}
+
+      {/* FEVD: forecast error variance decomposition (Cholesky) */}
+      <div className="rounded-xl border border-border bg-background/50 p-4">
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-xs font-mono text-muted-foreground uppercase tracking-wider">方差分解 FEVD (Cholesky)</span>
+          <span className="text-[10px] font-mono text-muted-foreground">各结构冲击对预测误差方差贡献份额</span>
+        </div>
+        <div className="grid md:grid-cols-2 gap-4">
+          {[
+            { key: "y1", label: "y₁ 的 FEVD", e1: "y1_e1", e2: "y1_e2" },
+            { key: "y2", label: "y₂ 的 FEVD", e1: "y2_e1", e2: "y2_e2" },
+          ].map(cfg => (
+            <div key={cfg.key}>
+              <div className="text-[10px] font-mono text-muted-foreground mb-1">{cfg.label}</div>
+              <ResponsiveContainer width="100%" height={200}>
+                <ComposedChart data={result.fevd} margin={{ top: 5, right: 10, left: 0, bottom: 5 }} stackOffset="expand">
+                  <CartesianGrid stroke={CHART_GRID} strokeDasharray="3 3" />
+                  <XAxis dataKey="h" stroke={CHART_TEXT} tick={{ fontSize: 11 }}
+                    label={{ value: "horizon h", position: "insideBottom", offset: -2, fill: CHART_TEXT, fontSize: 10 }} />
+                  <YAxis stroke={CHART_TEXT} tick={{ fontSize: 11 }} domain={[0, 1]} tickFormatter={(v) => `${(v * 100).toFixed(0)}%`} />
+                  <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", fontSize: 11, fontFamily: "monospace" }}
+                    formatter={(v: number) => `${(v * 100).toFixed(1)}%`} />
+                  <Legend wrapperStyle={{ fontSize: 11, fontFamily: "monospace" }} />
+                  <Area type="monotone" dataKey={cfg.e1} stackId="f" name="ε₁ 贡献" stroke={CHART_GOLD} fill={CHART_GOLD} fillOpacity={0.55} />
+                  <Area type="monotone" dataKey={cfg.e2} stackId="f" name="ε₂ 贡献" stroke={CHART_TEAL} fill={CHART_TEAL} fillOpacity={0.55} />
+                </ComposedChart>
+              </ResponsiveContainer>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Historical Decomposition (Cholesky) */}
+      <div className="rounded-xl border border-border bg-background/50 p-4">
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-xs font-mono text-muted-foreground uppercase tracking-wider">历史分解 Historical Decomposition</span>
+          <span className="text-[10px] font-mono text-muted-foreground">y_t − 基线 = Σ_j (累计冲击 ε_j 贡献)</span>
+        </div>
+        <div className="grid md:grid-cols-2 gap-4">
+          {[
+            { key: "y1", label: "y₁ 路径分解", e1: "y1_e1", e2: "y1_e2", actual: "y1_actual" },
+            { key: "y2", label: "y₂ 路径分解", e1: "y2_e1", e2: "y2_e2", actual: "y2_actual" },
+          ].map(cfg => (
+            <div key={cfg.key}>
+              <div className="text-[10px] font-mono text-muted-foreground mb-1">{cfg.label}</div>
+              <ResponsiveContainer width="100%" height={220}>
+                <ComposedChart data={result.hd} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
+                  <CartesianGrid stroke={CHART_GRID} strokeDasharray="3 3" />
+                  <XAxis dataKey="t" stroke={CHART_TEXT} tick={{ fontSize: 11 }}
+                    label={{ value: "t", position: "insideBottom", offset: -2, fill: CHART_TEXT, fontSize: 10 }} />
+                  <YAxis stroke={CHART_TEXT} tick={{ fontSize: 11 }} />
+                  <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", fontSize: 11, fontFamily: "monospace" }}
+                    formatter={(v: number) => v.toFixed(3)} />
+                  <Legend wrapperStyle={{ fontSize: 11, fontFamily: "monospace" }} />
+                  <ReferenceLine y={0} stroke={CHART_TEXT} strokeDasharray="2 2" />
+                  <Area type="monotone" dataKey={cfg.e1} stackId="hd" name="ε₁ 累计贡献"
+                    stroke={CHART_GOLD} fill={CHART_GOLD} fillOpacity={0.45} />
+                  <Area type="monotone" dataKey={cfg.e2} stackId="hd" name="ε₂ 累计贡献"
+                    stroke={CHART_TEAL} fill={CHART_TEAL} fillOpacity={0.45} />
+                  <Line type="monotone" dataKey={cfg.actual} stroke={CHART_RED} strokeWidth={1.8} dot={false}
+                    name="实际偏离 (y_t − baseline)" />
+                </ComposedChart>
+              </ResponsiveContainer>
+            </div>
+          ))}
+        </div>
+        <div className="mt-2 text-[10px] font-mono text-muted-foreground leading-relaxed">
+          公式：y<sub>i,t</sub> − ŷ<sub>i,t|0</sub> = Σ<sub>j</sub> Σ<sub>s=0..t-1</sub> (Φ<sub>s</sub>L)<sub>ij</sub> · ε<sub>t-s,j</sub>。
+          堆叠面积 = 各结构冲击的累计贡献；红线 = 实际偏离基线，应与堆叠总高度吻合（识别正确的诊断）。
+        </div>
+      </div>
 
       {/* Estimated matrices */}
       <div className="grid md:grid-cols-3 gap-3">
