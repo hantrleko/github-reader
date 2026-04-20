@@ -1403,7 +1403,108 @@ const SVARTool = () => {
       });
     }
 
-    return { series: series2, A, L, Bbq, hd, fevd };
+    /* ── Granger causality F-tests on the bivariate VAR(1) ──
+       H0: y_j does NOT Granger-cause y_i  ⇔  A[i,j]=0  (only 1 lag, q=1, df1=1, df2=n-3) */
+    const grangerSSR = (col: 0 | 1, useY1: boolean, useY2: boolean) => {
+      let n = 0;
+      const xs: number[][] = [];
+      const ys: number[] = [];
+      for (let t = 1; t < y.length; t++) {
+        const row = [1];
+        if (useY1) row.push(y[t - 1][0]);
+        if (useY2) row.push(y[t - 1][1]);
+        xs.push(row); ys.push(y[t][col]); n++;
+      }
+      const k = xs[0].length;
+      const XtX: number[][] = Array.from({ length: k }, () => Array(k).fill(0));
+      const Xty: number[] = Array(k).fill(0);
+      for (let i = 0; i < n; i++) {
+        for (let a = 0; a < k; a++) {
+          Xty[a] += xs[i][a] * ys[i];
+          for (let b2 = 0; b2 < k; b2++) XtX[a][b2] += xs[i][a] * xs[i][b2];
+        }
+      }
+      const M = XtX.map((r, i) => [...r, Xty[i]]);
+      for (let i = 0; i < k; i++) {
+        let piv = i;
+        for (let r = i + 1; r < k; r++) if (Math.abs(M[r][i]) > Math.abs(M[piv][i])) piv = r;
+        [M[i], M[piv]] = [M[piv], M[i]];
+        const d = M[i][i] || 1e-12;
+        for (let j = i; j <= k; j++) M[i][j] /= d;
+        for (let r = 0; r < k; r++) if (r !== i) {
+          const f = M[r][i];
+          for (let j = i; j <= k; j++) M[r][j] -= f * M[i][j];
+        }
+      }
+      const beta = M.map(r => r[k]);
+      let ssr = 0;
+      for (let i = 0; i < n; i++) {
+        let yhat = 0;
+        for (let a = 0; a < k; a++) yhat += xs[i][a] * beta[a];
+        ssr += (ys[i] - yhat) ** 2;
+      }
+      return { ssr, n, k };
+    };
+
+    /* p-value for F(1, df2) via incomplete beta function:
+       P(F > f) = I_{df2/(df2+f)}(df2/2, 1/2)                                            */
+    const lnGamma = (z: number): number => {
+      const c = [76.18009172947146, -86.50532032941677, 24.01409824083091,
+                 -1.231739572450155, 0.1208650973866179e-2, -0.5395239384953e-5];
+      let x = z, y2 = z, tmp = x + 5.5;
+      tmp -= (x + 0.5) * Math.log(tmp);
+      let ser = 1.000000000190015;
+      for (let j = 0; j < 6; j++) { y2 += 1; ser += c[j] / y2; }
+      return -tmp + Math.log(2.5066282746310005 * ser / x);
+    };
+    const betacf = (a: number, b: number, x: number): number => {
+      const MAXIT = 200, EPS = 3e-7, FPMIN = 1e-30;
+      const qab = a + b, qap = a + 1, qam = a - 1;
+      let c = 1, d = 1 - qab * x / qap;
+      if (Math.abs(d) < FPMIN) d = FPMIN;
+      d = 1 / d; let h = d;
+      for (let m = 1; m <= MAXIT; m++) {
+        const m2 = 2 * m;
+        let aa = m * (b - m) * x / ((qam + m2) * (a + m2));
+        d = 1 + aa * d; if (Math.abs(d) < FPMIN) d = FPMIN;
+        c = 1 + aa / c; if (Math.abs(c) < FPMIN) c = FPMIN;
+        d = 1 / d; h *= d * c;
+        aa = -(a + m) * (qab + m) * x / ((a + m2) * (qap + m2));
+        d = 1 + aa * d; if (Math.abs(d) < FPMIN) d = FPMIN;
+        c = 1 + aa / c; if (Math.abs(c) < FPMIN) c = FPMIN;
+        d = 1 / d; const del = d * c; h *= del;
+        if (Math.abs(del - 1) < EPS) break;
+      }
+      return h;
+    };
+    const betaI = (a: number, b: number, x: number): number => {
+      if (x <= 0) return 0; if (x >= 1) return 1;
+      const bt = Math.exp(lnGamma(a + b) - lnGamma(a) - lnGamma(b) + a * Math.log(x) + b * Math.log(1 - x));
+      if (x < (a + 1) / (a + b + 2)) return bt * betacf(a, b, x) / a;
+      return 1 - bt * betacf(b, a, 1 - x) / b;
+    };
+    const pValueF = (f: number, df1: number, df2: number) => {
+      if (!Number.isFinite(f) || f <= 0) return 1;
+      return betaI(df2 / 2, df1 / 2, df2 / (df2 + df1 * f));
+    };
+
+    // Test: does y2 Granger-cause y1?  (drop y2 lag from y1 equation)
+    const ug1 = grangerSSR(0, true, true);
+    const rg1 = grangerSSR(0, true, false);
+    const F_2to1 = ((rg1.ssr - ug1.ssr) / 1) / (ug1.ssr / (ug1.n - ug1.k));
+    const p_2to1 = pValueF(F_2to1, 1, ug1.n - ug1.k);
+    // Test: does y1 Granger-cause y2?
+    const ug2 = grangerSSR(1, true, true);
+    const rg2 = grangerSSR(1, false, true);
+    const F_1to2 = ((rg2.ssr - ug2.ssr) / 1) / (ug2.ssr / (ug2.n - ug2.k));
+    const p_1to2 = pValueF(F_1to2, 1, ug2.n - ug2.k);
+
+    const granger = {
+      y2_to_y1: { F: F_2to1, p: p_2to1, df: ug1.n - ug1.k },
+      y1_to_y2: { F: F_1to2, p: p_1to2, df: ug2.n - ug2.k },
+    };
+
+    return { series: series2, A, L, Bbq, hd, fevd, granger };
   }, [seed, T, H, a11, a12, a21, a22, b21, s1, s2, boots, shockIdx]);
 
   const presets: Preset[] = [
