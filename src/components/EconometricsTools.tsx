@@ -229,14 +229,30 @@ const OLSvsIV = () => {
 /* ════════════════════════════════════════════════════════════
    2. DID — Difference-in-Differences
    ════════════════════════════════════════════════════════════ */
+type DynamicMode = "instant" | "ramp" | "decay";
+
 const DIDTool = () => {
   const [trend, setTrend] = useState(2);
   const [treatLevel, setTreatLevel] = useState(3);
   const [effect, setEffect] = useState(4);
   const [noise, setNoise] = useState(0.5);
   const [seed, setSeed] = useState(7);
-  const [preTrendBias, setPreTrendBias] = useState(0); // differential pre-trend (violates parallel trends)
-  const [nUnits, setNUnits] = useState(40);            // units per group (for event-study CI)
+  const [preTrendBias, setPreTrendBias] = useState(0);
+  const [nUnits, setNUnits] = useState(40);
+  const [dynamicMode, setDynamicMode] = useState<DynamicMode>("instant");
+
+  // True per-period treatment effect τ(k) for k>=0, given peak `effect`
+  const trueTau = (k: number, mode: DynamicMode, peak: number): number => {
+    if (k < 0) return 0;
+    if (mode === "instant") return peak;
+    if (mode === "ramp") {
+      // linear ramp: 0 at k=0 baseline → reaches `peak` by k=3, capped
+      const ramp = Math.min((k + 1) / 4, 1);
+      return peak * ramp;
+    }
+    // decay: peak at k=0, exponentially decays toward 0
+    return peak * Math.exp(-0.6 * k);
+  };
 
   const data = useMemo(() => {
     const rng = mulberry32(seed);
@@ -259,9 +275,8 @@ const DIDTool = () => {
       for (let t = 0; t < T; t++) {
         const c = trend * t + cFE + randn(rng) * noise;
         const k = t - treatStart;
-        // pre-trend bias: linearly differential trend before treatment as well
         const bias = preTrendBias * t;
-        const tau_t = k >= 0 ? effect : 0;
+        const tau_t = trueTau(k, dynamicMode, effect);
         const tv = trend * t + treatLevel + bias + tau_t + tFE + randn(rng) * noise;
         cRow.push(c);
         tRow.push(tv);
@@ -308,15 +323,15 @@ const DIDTool = () => {
     const eventRows: any[] = [];
     for (let t = 0; t < T; t++) {
       const k = t - treatStart;
+      const trueK = trueTau(k, dynamicMode, effect);
       if (t === baseT) {
-        eventRows.push({ k, tau: 0, lo: 0, hi: 0 });
+        eventRows.push({ k, tau: 0, lo: 0, hi: 0, ci: [0, 0] as [number, number], trueK });
         continue;
       }
       const dT = diffsPerK(treatPanel, t);
       const dC = diffsPerK(ctrlPanel, t);
       const mT = avg(dT), mC = avg(dC);
       const tau_k = mT - mC;
-      // var of difference of means (independent groups)
       const varOf = (arr: number[], m: number) =>
         arr.reduce((s, v) => s + (v - m) ** 2, 0) / Math.max(arr.length - 1, 1);
       const seK = Math.sqrt(varOf(dT, mT) / nUnits + varOf(dC, mC) / nUnits);
@@ -326,19 +341,45 @@ const DIDTool = () => {
         lo: +(tau_k - 1.96 * seK).toFixed(4),
         hi: +(tau_k + 1.96 * seK).toFixed(4),
         ci: [+(tau_k - 1.96 * seK).toFixed(4), +(tau_k + 1.96 * seK).toFixed(4)] as [number, number],
+        trueK: +trueK.toFixed(4),
       });
     }
 
     return { series: merged, att, treatStart, eventRows, baseT };
-  }, [trend, treatLevel, effect, noise, seed, preTrendBias, nUnits]);
+  }, [trend, treatLevel, effect, noise, seed, preTrendBias, nUnits, dynamicMode]);
 
   return (
     <div className="space-y-6">
       <PresetButtons presets={[
-        { name: "经典案例", description: "正向干预 ATT=4，无预趋势", apply: () => { setTrend(2); setTreatLevel(3); setEffect(4); setNoise(0.5); setPreTrendBias(0); } },
-        { name: "零效应", description: "ATT=0, 检验假阳性", apply: () => { setEffect(0); setNoise(1); setPreTrendBias(0); } },
-        { name: "违反平行趋势", description: "处理组预期已偏离", apply: () => { setEffect(4); setPreTrendBias(0.6); setNoise(0.4); } },
+        { name: "瞬时跳跃", description: "ATT=4, k≥0 立即生效", apply: () => { setTrend(2); setTreatLevel(3); setEffect(4); setNoise(0.5); setPreTrendBias(0); setDynamicMode("instant"); } },
+        { name: "渐进上升", description: "效应逐期累积到峰值", apply: () => { setEffect(4); setPreTrendBias(0); setNoise(0.4); setDynamicMode("ramp"); } },
+        { name: "衰减回归", description: "首期峰值后指数衰减", apply: () => { setEffect(5); setPreTrendBias(0); setNoise(0.4); setDynamicMode("decay"); } },
+        { name: "违反平行趋势", description: "处理组预期已偏离", apply: () => { setEffect(4); setPreTrendBias(0.6); setNoise(0.4); setDynamicMode("instant"); } },
       ]} />
+
+      {/* Dynamic effect mode selector */}
+      <div className="flex items-center gap-2 flex-wrap">
+        <span className="text-xs font-mono text-muted-foreground">动态效应模式：</span>
+        {([
+          { id: "instant", label: "瞬时跳跃", desc: "τ_k = ATT 对所有 k≥0" },
+          { id: "ramp", label: "渐进上升", desc: "线性爬升至峰值" },
+          { id: "decay", label: "衰减回归", desc: "指数衰减 e^(-0.6k)" },
+        ] as const).map((m) => (
+          <button
+            key={m.id}
+            onClick={() => setDynamicMode(m.id)}
+            title={m.desc}
+            className={
+              "text-xs px-3 py-1.5 rounded border transition-colors font-mono " +
+              (dynamicMode === m.id
+                ? "border-gold bg-gold/10 text-gold"
+                : "border-border text-muted-foreground hover:text-foreground hover:border-foreground/40")
+            }
+          >
+            {m.label}
+          </button>
+        ))}
+      </div>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="space-y-3">
           <Slider label="共同趋势斜率" value={trend} min={-2} max={5} step={0.1} onChange={setTrend} />
@@ -391,14 +432,20 @@ const DIDTool = () => {
               <Legend wrapperStyle={{ fontSize: 11 }} />
               <ReferenceLine y={0} stroke={CHART_TEXT} strokeDasharray="2 2" />
               <ReferenceLine x={-0.5} stroke={CHART_GOLD} strokeDasharray="4 4" label={{ value: "处理前 / 处理后", fill: CHART_GOLD, fontSize: 10, position: "top" }} />
-              <ReferenceLine y={effect} stroke={CHART_RED} strokeDasharray="3 3" label={{ value: `真实 ATT=${effect.toFixed(2)}`, fill: CHART_RED, fontSize: 10, position: "right" }} />
               <Area dataKey="ci" stroke="none" fill={CHART_GOLD} fillOpacity={0.18} name="95% CI" />
-              <Line dataKey="tau" name="τ̂_k" stroke={CHART_GOLD} strokeWidth={2} dot={{ r: 3 }} />
+              <Line dataKey="trueK" name="真实 τ_k (DGP)" stroke={CHART_RED} strokeWidth={2} strokeDasharray="5 4" dot={{ r: 2 }} />
+              <Line dataKey="tau" name="估计 τ̂_k" stroke={CHART_GOLD} strokeWidth={2} dot={{ r: 3 }} />
             </ComposedChart>
           </ResponsiveContainer>
         </div>
         <p className="mt-2 text-[11px] text-muted-foreground font-mono">
-          k&lt;0 处置信区间应包含 0 → 平行趋势成立；k≥0 处 τ̂_k 反映动态效应（首期、滞后、衰减等）。
+          金线为 τ̂_k 估计 + 95% CI 阴影；红虚线为 DGP 设定的真实 τ_k 路径。当前模式：
+          <span className="text-gold ml-1">
+            {dynamicMode === "instant" && "瞬时跳跃 — k≥0 立即达到峰值并保持"}
+            {dynamicMode === "ramp" && "渐进上升 — 政策效应需要时间累积"}
+            {dynamicMode === "decay" && "衰减回归 — 首期冲击大、后期消退"}
+          </span>。
+          k&lt;0 的 CI 应覆盖 0 → 平行趋势成立。
         </p>
       </div>
     </div>
