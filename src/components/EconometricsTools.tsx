@@ -455,6 +455,8 @@ const DIDTool = () => {
 /* ════════════════════════════════════════════════════════════
    3. RDD — Sharp Regression Discontinuity
    ════════════════════════════════════════════════════════════ */
+type RDDMode = "sharp" | "fuzzy";
+
 const RDDTool = () => {
   const [n, setN] = useState(300);
   const [cutoff, setCutoff] = useState(0);
@@ -464,47 +466,66 @@ const RDDTool = () => {
   const [noise, setNoise] = useState(0.8);
   const [seed, setSeed] = useState(11);
   const [bandwidth, setBandwidth] = useState(2);
-  const [manipulation, setManipulation] = useState(0); // 0..1: prob a "just-below" individual hops above c
+  const [manipulation, setManipulation] = useState(0);
+  const [mode, setMode] = useState<RDDMode>("sharp");
+  const [pBelow, setPBelow] = useState(0.10); // P(D=1 | X<c) — always-takers
+  const [pAbove, setPAbove] = useState(0.75); // P(D=1 | X≥c) — compliers + always-takers
+  // Note: for sharp RDD these are forced to 0 / 1.
 
   const data = useMemo(() => {
     const rng = mulberry32(seed);
-    const pts: { x: number; y: number; treated: number }[] = [];
+    const pBel = mode === "sharp" ? 0 : pBelow;
+    const pAbo = mode === "sharp" ? 1 : pAbove;
+
+    const pts: { x: number; y: number; treated: number; D: number }[] = [];
     for (let i = 0; i < n; i++) {
       let x = (rng() - 0.5) * 10;
-      // ── manipulation: if x falls just below cutoff, with prob `manipulation` push it just above
       if (manipulation > 0 && x < cutoff && x > cutoff - 1.0) {
         if (rng() < manipulation) {
-          x = cutoff + rng() * 0.5; // hop into [c, c+0.5]
+          x = cutoff + rng() * 0.5;
         }
       }
-      const treated = x >= cutoff ? 1 : 0;
-      const slope = treated ? slopeR : slopeL;
-      const y = slope * (x - cutoff) + treated * jump + randn(rng) * noise;
-      pts.push({ x, y, treated });
+      const aboveCutoff = x >= cutoff ? 1 : 0;
+      // assignment Z = 1 if x >= c. Treatment receipt D depends on probability.
+      const probD = aboveCutoff ? pAbo : pBel;
+      const D = rng() < probD ? 1 : 0;
+      const slope = aboveCutoff ? slopeR : slopeL;
+      // Outcome depends on actual treatment receipt D (not on Z)
+      const y = slope * (x - cutoff) + D * jump + randn(rng) * noise;
+      pts.push({ x, y, treated: D, D });
     }
 
-    // ── local-linear RDD fit ──
-    const left = pts.filter(p => p.x >= cutoff - bandwidth && p.x < cutoff).map(p => [p.x, p.y]);
-    const right = pts.filter(p => p.x <= cutoff + bandwidth && p.x >= cutoff).map(p => [p.x, p.y]);
-    const olsL = left.length > 5 ? ols(left.map(p => p[0]), left.map(p => p[1])) : null;
-    const olsR = right.length > 5 ? ols(right.map(p => p[0]), right.map(p => p[1])) : null;
-    const yL = olsL ? olsL.alpha + olsL.beta * cutoff : NaN;
-    const yR = olsR ? olsR.alpha + olsR.beta * cutoff : NaN;
-    const tau = yR - yL;
-    const lineL = olsL ? [{ x: cutoff - bandwidth, y: olsL.alpha + olsL.beta * (cutoff - bandwidth) }, { x: cutoff, y: yL }] : [];
-    const lineR = olsR ? [{ x: cutoff, y: yR }, { x: cutoff + bandwidth, y: olsR.alpha + olsR.beta * (cutoff + bandwidth) }] : [];
+    // ── Local-linear fits on Y (reduced form / sharp τ̂) ──
+    const left = pts.filter(p => p.x >= cutoff - bandwidth && p.x < cutoff);
+    const right = pts.filter(p => p.x <= cutoff + bandwidth && p.x >= cutoff);
+    const olsLY = left.length > 5 ? ols(left.map(p => p.x), left.map(p => p.y)) : null;
+    const olsRY = right.length > 5 ? ols(right.map(p => p.x), right.map(p => p.y)) : null;
+    const yL = olsLY ? olsLY.alpha + olsLY.beta * cutoff : NaN;
+    const yR = olsRY ? olsRY.alpha + olsRY.beta * cutoff : NaN;
+    const tauSharp = yR - yL;     // reduced-form jump in Y at c
+    const lineL = olsLY ? [{ x: cutoff - bandwidth, y: olsLY.alpha + olsLY.beta * (cutoff - bandwidth) }, { x: cutoff, y: yL }] : [];
+    const lineR = olsRY ? [{ x: cutoff, y: yR }, { x: cutoff + bandwidth, y: olsRY.alpha + olsRY.beta * (cutoff + bandwidth) }] : [];
 
-    // ══════════════ McCrary (2008) density test ══════════════
-    // Step 1: histogram of running variable with bin width b, NOT crossing cutoff
+    // ── First-stage local-linear on D (probability of treatment) ──
+    const olsLD = left.length > 5 ? ols(left.map(p => p.x), left.map(p => p.D)) : null;
+    const olsRD = right.length > 5 ? ols(right.map(p => p.x), right.map(p => p.D)) : null;
+    const dL = olsLD ? Math.min(Math.max(olsLD.alpha + olsLD.beta * cutoff, 0), 1) : NaN;
+    const dR = olsRD ? Math.min(Math.max(olsRD.alpha + olsRD.beta * cutoff, 0), 1) : NaN;
+    const dJump = dR - dL;        // first-stage jump
+    const dLineL = olsLD ? [{ x: cutoff - bandwidth, p: olsLD.alpha + olsLD.beta * (cutoff - bandwidth) }, { x: cutoff, p: dL }] : [];
+    const dLineR = olsRD ? [{ x: cutoff, p: dR }, { x: cutoff + bandwidth, p: olsRD.alpha + olsRD.beta * (cutoff + bandwidth) }] : [];
+
+    // ── Wald / Fuzzy estimator ──
+    const tauWald = mode === "fuzzy" ? tauSharp / (Math.abs(dJump) > 1e-6 ? dJump : NaN) : tauSharp;
+
+    // density rows for McCrary (unchanged)
     const xs = pts.map(p => p.x);
     const xMin = -5, xMax = 5;
     const binW = 0.25;
-    // build bins offset so cutoff is a bin edge
     const edgesL: number[] = [];
     for (let e = cutoff; e > xMin - binW; e -= binW) edgesL.unshift(e);
     const edgesR: number[] = [];
     for (let e = cutoff; e < xMax + binW; e += binW) edgesR.push(e);
-    // edgesL ends with cutoff; edgesR starts with cutoff
     const counts: { mid: number; count: number; side: -1 | 1 }[] = [];
     for (let i = 0; i < edgesL.length - 1; i++) {
       const lo = edgesL[i], hi = edgesL[i + 1];
@@ -516,7 +537,6 @@ const RDDTool = () => {
       const c = xs.filter(x => x >= lo && x < hi).length;
       counts.push({ mid: (lo + hi) / 2, count: c, side: 1 });
     }
-    // density per bin = count / (n * binW)
     const densityRows = counts.map(c => ({
       mid: +c.mid.toFixed(3),
       density: +(c.count / (n * binW)).toFixed(4),
@@ -524,39 +544,27 @@ const RDDTool = () => {
       densityL: c.side === -1 ? +(c.count / (n * binW)).toFixed(4) : null,
       densityR: c.side === 1 ? +(c.count / (n * binW)).toFixed(4) : null,
     }));
-
-    // Step 2: local linear regression of density on bin midpoint, on each side, within bandwidth
-    // f̂(c⁻) = intercept of left local linear at mid → cutoff
     const leftBins = counts.filter(c => c.side === -1 && c.mid >= cutoff - bandwidth);
     const rightBins = counts.filter(c => c.side === 1 && c.mid <= cutoff + bandwidth);
-    let fHatL = NaN, fHatR = NaN, seL = NaN, seR = NaN;
+    let fHatL = NaN, fHatR = NaN;
     if (leftBins.length >= 3) {
       const olsBL = ols(leftBins.map(b => b.mid), leftBins.map(b => b.count / (n * binW)));
       fHatL = Math.max(olsBL.alpha + olsBL.beta * cutoff, 1e-6);
-      // crude SE: sqrt(f̂ / (n·h)) — McCrary asymptotic form (constant absorbed)
-      seL = Math.sqrt(fHatL / (n * bandwidth));
     }
     if (rightBins.length >= 3) {
       const olsBR = ols(rightBins.map(b => b.mid), rightBins.map(b => b.count / (n * binW)));
       fHatR = Math.max(olsBR.alpha + olsBR.beta * cutoff, 1e-6);
-      seR = Math.sqrt(fHatR / (n * bandwidth));
     }
-    // log-difference statistic
     const theta = Math.log(fHatR) - Math.log(fHatL);
-    // var(log f̂) ≈ 1/(n·h·f̂), then var(θ̂) = sum
     const seTheta = Math.sqrt(1 / (n * bandwidth * fHatL) + 1 / (n * bandwidth * fHatR));
     const z = theta / seTheta;
-    // 2-sided normal p-value approximation (simple erfc)
     const erfc = (v: number) => {
-      // Abramowitz & Stegun 7.1.26
       const t = 1 / (1 + 0.3275911 * Math.abs(v));
       const y = 1 - (((((
         1.061405429 * t - 1.453152027) * t) + 1.421413741) * t - 0.284496736) * t + 0.254829592) * t * Math.exp(-v * v);
       return v >= 0 ? 1 - y : 1 + y;
     };
     const pVal = erfc(Math.abs(z) / Math.SQRT2);
-
-    // fitted lines for density chart (within bandwidth, for visualization)
     const densLineL =
       leftBins.length >= 3
         ? [
@@ -573,21 +581,47 @@ const RDDTool = () => {
         : [];
 
     return {
-      pts, tau, lineL, lineR, yL, yR,
+      pts, tauSharp, tauWald, lineL, lineR, yL, yR,
+      dL, dR, dJump, dLineL, dLineR,
       densityRows, fHatL, fHatR, theta, seTheta, z, pVal, densLineL, densLineR,
     };
-  }, [n, cutoff, jump, slopeL, slopeR, noise, seed, bandwidth, manipulation]);
+  }, [n, cutoff, jump, slopeL, slopeR, noise, seed, bandwidth, manipulation, mode, pBelow, pAbove]);
 
   return (
     <div className="space-y-6">
       <PresetButtons presets={[
-        { name: "清晰跳跃", description: "强政策效应 τ=3, 无操纵", apply: () => { setJump(3); setNoise(0.5); setBandwidth(2); setManipulation(0); } },
-        { name: "弱效应高噪声", description: "τ=1, 检验功效", apply: () => { setJump(1); setNoise(1.5); setBandwidth(2); setManipulation(0); } },
-        { name: "存在操纵", description: "个体跳到切点之上", apply: () => { setJump(3); setNoise(0.5); setManipulation(0.7); setN(600); } },
+        { name: "清晰跳跃 (Sharp)", description: "确定性处理 τ=3", apply: () => { setMode("sharp"); setJump(3); setNoise(0.5); setBandwidth(2); setManipulation(0); } },
+        { name: "Fuzzy 高顺从", description: "0.10 → 0.85, 强工具", apply: () => { setMode("fuzzy"); setPBelow(0.10); setPAbove(0.85); setJump(3); setNoise(0.5); setBandwidth(2); setManipulation(0); setN(800); } },
+        { name: "Fuzzy 弱跳跃", description: "0.30 → 0.45, 弱工具", apply: () => { setMode("fuzzy"); setPBelow(0.30); setPAbove(0.45); setJump(3); setNoise(0.5); setBandwidth(2); setN(1200); } },
+        { name: "存在操纵", description: "个体跳到切点之上", apply: () => { setMode("sharp"); setJump(3); setNoise(0.5); setManipulation(0.7); setN(600); } },
       ]} />
+
+      {/* Mode toggle */}
+      <div className="flex items-center gap-2 flex-wrap">
+        <span className="text-xs font-mono text-muted-foreground">RDD 模式：</span>
+        {([
+          { id: "sharp" as const, label: "Sharp RDD", desc: "D = 1{X≥c} 确定性" },
+          { id: "fuzzy" as const, label: "Fuzzy RDD", desc: "D 概率性跳跃, 用 Wald" },
+        ]).map((m) => (
+          <button
+            key={m.id}
+            onClick={() => setMode(m.id)}
+            title={m.desc}
+            className={
+              "text-xs px-3 py-1.5 rounded border transition-colors font-mono " +
+              (mode === m.id
+                ? "border-gold bg-gold/10 text-gold"
+                : "border-border text-muted-foreground hover:text-foreground hover:border-foreground/40")
+            }
+          >
+            {m.label}
+          </button>
+        ))}
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="space-y-3">
-          <Slider label="样本量 n" value={n} min={50} max={1500} step={50} onChange={setN} />
+          <Slider label="样本量 n" value={n} min={50} max={2000} step={50} onChange={setN} />
           <Slider label="切点 c" value={cutoff} min={-3} max={3} step={0.1} onChange={setCutoff} />
           <Slider label="真实跳跃 τ" value={jump} min={-5} max={8} step={0.1} onChange={setJump} />
           <Slider label="左侧斜率" value={slopeL} min={-2} max={3} step={0.1} onChange={setSlopeL} />
@@ -595,15 +629,50 @@ const RDDTool = () => {
           <Slider label="噪声 σ" value={noise} min={0.1} max={3} step={0.05} onChange={setNoise} />
           <Slider label="带宽 h" value={bandwidth} min={0.5} max={5} step={0.1} onChange={setBandwidth} />
           <Slider label="操纵概率 (just-below 跳到 just-above)" value={manipulation} min={0} max={1} step={0.05} onChange={setManipulation} />
+          {mode === "fuzzy" && (
+            <>
+              <Slider label="P(D=1 | X<c)  (always-takers)" value={pBelow} min={0} max={1} step={0.05} onChange={setPBelow} />
+              <Slider label="P(D=1 | X≥c)" value={pAbove} min={0} max={1} step={0.05} onChange={setPAbove} />
+            </>
+          )}
           <Slider label="随机种子" value={seed} min={1} max={999} step={1} onChange={setSeed} />
         </div>
         <div className="space-y-3">
-          <ResultRow label="局部线性 τ̂" value={data.tau} truth={jump} se={NaN} color={CHART_GOLD} />
-          <ResultRow label="切点左极限" value={data.yL} color={CHART_TEAL} />
-          <ResultRow label="切点右极限" value={data.yR} color={CHART_RED} />
+          <ResultRow
+            label={mode === "fuzzy" ? "Wald 估计 τ̂ = ΔY/ΔD" : "局部线性 τ̂"}
+            value={data.tauWald}
+            truth={jump}
+            color={CHART_GOLD}
+          />
+          {mode === "fuzzy" && (
+            <>
+              <ResultRow label="reduced-form ΔY = Y(c⁺)−Y(c⁻)" value={data.tauSharp} color={CHART_BLUE} />
+              <ResultRow
+                label="first-stage ΔD = P̂(c⁺)−P̂(c⁻)"
+                value={data.dJump}
+                color={Math.abs(data.dJump) < 0.1 ? CHART_RED : CHART_TEAL}
+              />
+            </>
+          )}
+          {mode === "sharp" && (
+            <>
+              <ResultRow label="切点左极限 Y(c⁻)" value={data.yL} color={CHART_TEAL} />
+              <ResultRow label="切点右极限 Y(c⁺)" value={data.yR} color={CHART_RED} />
+            </>
+          )}
           <div className="text-xs font-mono text-muted-foreground p-3 rounded-lg bg-secondary/40 border border-border leading-relaxed">
-            <p><span className="text-gold">公式：</span>τ = lim_{"{x→c⁺}"} E[Y|X=x] − lim_{"{x→c⁻}"} E[Y|X=x]</p>
-            <p><span className="text-gold">假设：</span>个体无法精确操控 X 越过切点；E[Y(0)|X] 在 c 处连续。</p>
+            {mode === "sharp" ? (
+              <>
+                <p><span className="text-gold">Sharp：</span>τ = lim_{"{x→c⁺}"} E[Y|X] − lim_{"{x→c⁻}"} E[Y|X]</p>
+                <p>处理在切点处确定性变化（D=1{"{X≥c}"}），τ̂ 即为 Y 的局部线性跳跃。</p>
+              </>
+            ) : (
+              <>
+                <p><span className="text-gold">Fuzzy / Wald：</span>τ = (lim Y⁺−lim Y⁻) / (lim P(D=1)⁺−lim P(D=1)⁻)</p>
+                <p>把 Z=1{"{X≥c}"} 视为工具变量，τ 是 LATE（complier 的局部平均处理效应）。</p>
+                <p>第一阶段 ΔD 越大 → 工具越强；ΔD→0 时 Wald 方差爆炸（弱工具问题）。</p>
+              </>
+            )}
             <p>带宽 h 越小偏差越小但方差越大 (bias-variance trade-off)。</p>
           </div>
         </div>
@@ -620,13 +689,56 @@ const RDDTool = () => {
             <Legend wrapperStyle={{ fontSize: 11 }} />
             <ReferenceArea x1={cutoff - bandwidth} x2={cutoff + bandwidth} fill={CHART_GOLD} fillOpacity={0.05} />
             <ReferenceLine x={cutoff} stroke={CHART_GOLD} strokeDasharray="4 4" />
-            <Scatter name="控制组 (X<c)" data={data.pts.filter(p => p.treated === 0)} fill={CHART_TEAL} fillOpacity={0.45} />
-            <Scatter name="处理组 (X≥c)" data={data.pts.filter(p => p.treated === 1)} fill={CHART_RED} fillOpacity={0.45} />
-            <Line name="左侧拟合" data={data.lineL} dataKey="y" stroke={CHART_TEAL} strokeWidth={2.5} dot={false} />
-            <Line name="右侧拟合" data={data.lineR} dataKey="y" stroke={CHART_RED} strokeWidth={2.5} dot={false} />
+            <Scatter name="未接受处理 (D=0)" data={data.pts.filter(p => p.D === 0)} fill={CHART_TEAL} fillOpacity={0.45} />
+            <Scatter name="接受处理 (D=1)" data={data.pts.filter(p => p.D === 1)} fill={CHART_RED} fillOpacity={0.45} />
+            <Line name="左侧拟合 E[Y|X]" data={data.lineL} dataKey="y" stroke={CHART_TEAL} strokeWidth={2.5} dot={false} />
+            <Line name="右侧拟合 E[Y|X]" data={data.lineR} dataKey="y" stroke={CHART_RED} strokeWidth={2.5} dot={false} />
           </ComposedChart>
         </ResponsiveContainer>
       </div>
+
+      {/* First-stage chart (fuzzy only) */}
+      {mode === "fuzzy" && (
+        <div className="rounded-xl border border-border bg-secondary/20 p-4">
+          <div className="flex items-center justify-between mb-2 flex-wrap gap-2">
+            <h4 className="text-sm font-semibold text-foreground">第一阶段：P(D=1 | X) 在切点处跳跃</h4>
+            <div className="flex gap-3 text-[11px] font-mono">
+              <span>P̂(c⁻) = <span style={{color: CHART_TEAL}}>{Number.isFinite(data.dL) ? data.dL.toFixed(3) : "—"}</span></span>
+              <span>P̂(c⁺) = <span style={{color: CHART_RED}}>{Number.isFinite(data.dR) ? data.dR.toFixed(3) : "—"}</span></span>
+              <span>ΔD = <span className="text-gold font-bold">{Number.isFinite(data.dJump) ? data.dJump.toFixed(3) : "—"}</span></span>
+            </div>
+          </div>
+          <div className="h-[260px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <ComposedChart>
+                <CartesianGrid stroke={CHART_GRID} strokeDasharray="3 3" />
+                <XAxis type="number" dataKey="x" domain={[-5, 5]} stroke={CHART_TEXT} tick={{ fontSize: 11 }} label={{ value: "跑分变量 X", position: "insideBottom", offset: -2, fill: CHART_TEXT, fontSize: 10 }} />
+                <YAxis type="number" domain={[0, 1]} stroke={CHART_TEXT} tick={{ fontSize: 11 }} label={{ value: "P(D=1|X)", angle: -90, position: "insideLeft", fill: CHART_TEXT, fontSize: 10 }} />
+                <Tooltip contentStyle={{ background: "hsl(220 15% 12%)", border: `1px solid ${CHART_GRID}`, fontSize: 11 }} />
+                <Legend wrapperStyle={{ fontSize: 11 }} />
+                <ReferenceArea x1={cutoff - bandwidth} x2={cutoff + bandwidth} fill={CHART_GOLD} fillOpacity={0.05} />
+                <ReferenceLine x={cutoff} stroke={CHART_GOLD} strokeDasharray="4 4" />
+                <Scatter
+                  name="个体处理状态 D"
+                  data={data.pts.map(p => ({ x: p.x, p: p.D + (Math.random() - 0.5) * 0.04 }))}
+                  dataKey="p"
+                  fill={CHART_BLUE}
+                  fillOpacity={0.35}
+                />
+                <Line name="左侧 P̂(D=1|X)" data={data.dLineL} dataKey="p" stroke={CHART_TEAL} strokeWidth={2.5} dot={false} />
+                <Line name="右侧 P̂(D=1|X)" data={data.dLineR} dataKey="p" stroke={CHART_RED} strokeWidth={2.5} dot={false} />
+              </ComposedChart>
+            </ResponsiveContainer>
+          </div>
+          <p className="mt-2 text-[11px] font-mono text-muted-foreground leading-relaxed">
+            <span className="text-gold">Wald = ΔY / ΔD = </span>
+            {Number.isFinite(data.tauSharp) ? data.tauSharp.toFixed(3) : "—"} / {Number.isFinite(data.dJump) ? data.dJump.toFixed(3) : "—"}
+            {" = "}
+            <span className="text-gold font-bold">{Number.isFinite(data.tauWald) ? data.tauWald.toFixed(3) : "—"}</span>
+            。当 ΔD 接近 0（弱工具），Wald 估计极不稳定 — 注意提高 P(D=1|X≥c) 与 P(D=1|X&lt;c) 的差距。
+          </p>
+        </div>
+      )}
 
       {/* McCrary density test panel */}
       <div className="rounded-xl border border-border bg-secondary/20 p-4">
