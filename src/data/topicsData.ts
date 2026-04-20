@@ -366,6 +366,7 @@ export const topicsData: TopicData[] = [
           "5. 整理：X'Xβ̂ = X'Y → β̂ = (X'X)⁻¹X'Y",
           "6. 方差：Var(β̂|X) = σ²(X'X)⁻¹",
         ],
+        tool: { id: "econometrics", label: "OLS 回归工具" },
       },
       {
         title: "Gauss-Markov 定理",
@@ -380,6 +381,7 @@ export const topicsData: TopicData[] = [
           "3. Var(β̃) = σ²CC' = σ²[(X'X)⁻¹ + DD']",
           "4. 因此 Var(β̃) − Var(β̂) = σ²DD' ≥ 0（半正定）",
         ],
+        tool: { id: "econometrics", label: "OLS 回归工具" },
       },
       {
         title: "异方差与稳健推断",
@@ -388,6 +390,7 @@ export const topicsData: TopicData[] = [
         formula: "V̂ₕc = (X'X)⁻¹ (Σ ê²ᵢ xᵢxᵢ') (X'X)⁻¹",
         formulaExplain:
           "White 异方差一致协方差矩阵估计（三明治估计量），êᵢ 为 OLS 残差。",
+        tool: { id: "econometrics", label: "OLS 工具" },
       },
       {
         title: "多重共线性",
@@ -405,6 +408,7 @@ export const topicsData: TopicData[] = [
         formula: "plim β̂ₒₗₛ = β + Cov(X,ε)/Var(X)",
         formulaExplain:
           "OLS 不一致性的来源：当 Cov(X,ε) ≠ 0 时，β̂ 的概率极限偏离真值 β。",
+        tool: { id: "econometrics", label: "OLS vs IV 演示" },
       },
       {
         title: "工具变量法 (IV/2SLS)",
@@ -420,6 +424,7 @@ export const topicsData: TopicData[] = [
           "4. β̂₂ₛₗₛ = (X̂'X̂)⁻¹X̂'Y = (X'PzX)⁻¹X'PzY",
           "5. 渐近分布：√n(β̂ − β) →ᵈ N(0, σ²(Q'ₓᵤQ⁻¹ᵤᵤQₓᵤ)⁻¹)",
         ],
+        tool: { id: "econometrics", label: "IV/2SLS 工具" },
       },
       {
         title: "广义矩估计 (GMM)",
@@ -436,6 +441,7 @@ export const topicsData: TopicData[] = [
           "5. 最优权重：W* = [Var(√n·gₙ)]⁻¹ = S⁻¹",
           "6. J 检验：nQₙ(θ̂) →ᵈ χ²(q−p) 用于过度识别检验",
         ],
+        tool: { id: "econometrics", label: "GMM 工具" },
       },
       // ===== 第五部分：面板数据 =====
       {
@@ -486,6 +492,7 @@ export const topicsData: TopicData[] = [
         formula: "ATE = E[Y₁ − Y₀] = E[Y|D=1] − E[Y|D=0]  (under RCT)",
         formulaExplain:
           "平均处理效应。随机化保证 (Y₀,Y₁) ⊥ D，消除选择偏差。",
+        tool: { id: "econometrics", label: "DID/RDD 演示" },
       },
       {
         title: "双重差分法 (DID)",
@@ -494,6 +501,7 @@ export const topicsData: TopicData[] = [
         formula: "τ̂ᴰᴵᴰ = (Ȳ₁₁ − Ȳ₁₀) − (Ȳ₀₁ − Ȳ₀₀)",
         formulaExplain:
           "下标：第一位为组别 (1=处理, 0=对照)，第二位为时期 (1=后, 0=前)。差中之差消除组别和时间固定效应。",
+        tool: { id: "econometrics", label: "DID 工具" },
       },
       {
         title: "断点回归 (RDD)",
@@ -502,6 +510,7 @@ export const topicsData: TopicData[] = [
         formula: "τᴿᴰᴰ = lim_{x→c⁺} E[Y|X=x] − lim_{x→c⁻} E[Y|X=x]",
         formulaExplain:
           "在阈值 c 处条件期望的跳跃即为局部平均处理效应 (LATE)。",
+        tool: { id: "econometrics", label: "RDD 工具" },
       },
     ],
   },

@@ -35,6 +35,7 @@ const Index = () => {
       <div id="frontier" className="scroll-mt-12"><EfficientFrontier /></div>
       <div id="bond" className="scroll-mt-12"><BondCalculator /></div>
       <div id="rate-model" className="scroll-mt-12"><RateModelSimulator /></div>
+      <div id="econometrics" className="scroll-mt-12"><EconometricsTools /></div>
       <div id="learning" className="scroll-mt-12"><LearningPath /></div>
 
       {/* Footer */}
