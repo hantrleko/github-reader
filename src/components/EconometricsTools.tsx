@@ -455,6 +455,8 @@ const DIDTool = () => {
 /* ════════════════════════════════════════════════════════════
    3. RDD — Sharp Regression Discontinuity
    ════════════════════════════════════════════════════════════ */
+type RDDMode = "sharp" | "fuzzy";
+
 const RDDTool = () => {
   const [n, setN] = useState(300);
   const [cutoff, setCutoff] = useState(0);
@@ -464,47 +466,66 @@ const RDDTool = () => {
   const [noise, setNoise] = useState(0.8);
   const [seed, setSeed] = useState(11);
   const [bandwidth, setBandwidth] = useState(2);
-  const [manipulation, setManipulation] = useState(0); // 0..1: prob a "just-below" individual hops above c
+  const [manipulation, setManipulation] = useState(0);
+  const [mode, setMode] = useState<RDDMode>("sharp");
+  const [pBelow, setPBelow] = useState(0.10); // P(D=1 | X<c) — always-takers
+  const [pAbove, setPAbove] = useState(0.75); // P(D=1 | X≥c) — compliers + always-takers
+  // Note: for sharp RDD these are forced to 0 / 1.
 
   const data = useMemo(() => {
     const rng = mulberry32(seed);
-    const pts: { x: number; y: number; treated: number }[] = [];
+    const pBel = mode === "sharp" ? 0 : pBelow;
+    const pAbo = mode === "sharp" ? 1 : pAbove;
+
+    const pts: { x: number; y: number; treated: number; D: number }[] = [];
     for (let i = 0; i < n; i++) {
       let x = (rng() - 0.5) * 10;
-      // ── manipulation: if x falls just below cutoff, with prob `manipulation` push it just above
       if (manipulation > 0 && x < cutoff && x > cutoff - 1.0) {
         if (rng() < manipulation) {
-          x = cutoff + rng() * 0.5; // hop into [c, c+0.5]
+          x = cutoff + rng() * 0.5;
         }
       }
-      const treated = x >= cutoff ? 1 : 0;
-      const slope = treated ? slopeR : slopeL;
-      const y = slope * (x - cutoff) + treated * jump + randn(rng) * noise;
-      pts.push({ x, y, treated });
+      const aboveCutoff = x >= cutoff ? 1 : 0;
+      // assignment Z = 1 if x >= c. Treatment receipt D depends on probability.
+      const probD = aboveCutoff ? pAbo : pBel;
+      const D = rng() < probD ? 1 : 0;
+      const slope = aboveCutoff ? slopeR : slopeL;
+      // Outcome depends on actual treatment receipt D (not on Z)
+      const y = slope * (x - cutoff) + D * jump + randn(rng) * noise;
+      pts.push({ x, y, treated: D, D });
     }
 
-    // ── local-linear RDD fit ──
-    const left = pts.filter(p => p.x >= cutoff - bandwidth && p.x < cutoff).map(p => [p.x, p.y]);
-    const right = pts.filter(p => p.x <= cutoff + bandwidth && p.x >= cutoff).map(p => [p.x, p.y]);
-    const olsL = left.length > 5 ? ols(left.map(p => p[0]), left.map(p => p[1])) : null;
-    const olsR = right.length > 5 ? ols(right.map(p => p[0]), right.map(p => p[1])) : null;
-    const yL = olsL ? olsL.alpha + olsL.beta * cutoff : NaN;
-    const yR = olsR ? olsR.alpha + olsR.beta * cutoff : NaN;
-    const tau = yR - yL;
-    const lineL = olsL ? [{ x: cutoff - bandwidth, y: olsL.alpha + olsL.beta * (cutoff - bandwidth) }, { x: cutoff, y: yL }] : [];
-    const lineR = olsR ? [{ x: cutoff, y: yR }, { x: cutoff + bandwidth, y: olsR.alpha + olsR.beta * (cutoff + bandwidth) }] : [];
+    // ── Local-linear fits on Y (reduced form / sharp τ̂) ──
+    const left = pts.filter(p => p.x >= cutoff - bandwidth && p.x < cutoff);
+    const right = pts.filter(p => p.x <= cutoff + bandwidth && p.x >= cutoff);
+    const olsLY = left.length > 5 ? ols(left.map(p => p.x), left.map(p => p.y)) : null;
+    const olsRY = right.length > 5 ? ols(right.map(p => p.x), right.map(p => p.y)) : null;
+    const yL = olsLY ? olsLY.alpha + olsLY.beta * cutoff : NaN;
+    const yR = olsRY ? olsRY.alpha + olsRY.beta * cutoff : NaN;
+    const tauSharp = yR - yL;     // reduced-form jump in Y at c
+    const lineL = olsLY ? [{ x: cutoff - bandwidth, y: olsLY.alpha + olsLY.beta * (cutoff - bandwidth) }, { x: cutoff, y: yL }] : [];
+    const lineR = olsRY ? [{ x: cutoff, y: yR }, { x: cutoff + bandwidth, y: olsRY.alpha + olsRY.beta * (cutoff + bandwidth) }] : [];
 
-    // ══════════════ McCrary (2008) density test ══════════════
-    // Step 1: histogram of running variable with bin width b, NOT crossing cutoff
+    // ── First-stage local-linear on D (probability of treatment) ──
+    const olsLD = left.length > 5 ? ols(left.map(p => p.x), left.map(p => p.D)) : null;
+    const olsRD = right.length > 5 ? ols(right.map(p => p.x), right.map(p => p.D)) : null;
+    const dL = olsLD ? Math.min(Math.max(olsLD.alpha + olsLD.beta * cutoff, 0), 1) : NaN;
+    const dR = olsRD ? Math.min(Math.max(olsRD.alpha + olsRD.beta * cutoff, 0), 1) : NaN;
+    const dJump = dR - dL;        // first-stage jump
+    const dLineL = olsLD ? [{ x: cutoff - bandwidth, p: olsLD.alpha + olsLD.beta * (cutoff - bandwidth) }, { x: cutoff, p: dL }] : [];
+    const dLineR = olsRD ? [{ x: cutoff, p: dR }, { x: cutoff + bandwidth, p: olsRD.alpha + olsRD.beta * (cutoff + bandwidth) }] : [];
+
+    // ── Wald / Fuzzy estimator ──
+    const tauWald = mode === "fuzzy" ? tauSharp / (Math.abs(dJump) > 1e-6 ? dJump : NaN) : tauSharp;
+
+    // density rows for McCrary (unchanged)
     const xs = pts.map(p => p.x);
     const xMin = -5, xMax = 5;
     const binW = 0.25;
-    // build bins offset so cutoff is a bin edge
     const edgesL: number[] = [];
     for (let e = cutoff; e > xMin - binW; e -= binW) edgesL.unshift(e);
     const edgesR: number[] = [];
     for (let e = cutoff; e < xMax + binW; e += binW) edgesR.push(e);
-    // edgesL ends with cutoff; edgesR starts with cutoff
     const counts: { mid: number; count: number; side: -1 | 1 }[] = [];
     for (let i = 0; i < edgesL.length - 1; i++) {
       const lo = edgesL[i], hi = edgesL[i + 1];
@@ -516,7 +537,6 @@ const RDDTool = () => {
       const c = xs.filter(x => x >= lo && x < hi).length;
       counts.push({ mid: (lo + hi) / 2, count: c, side: 1 });
     }
-    // density per bin = count / (n * binW)
     const densityRows = counts.map(c => ({
       mid: +c.mid.toFixed(3),
       density: +(c.count / (n * binW)).toFixed(4),
@@ -524,39 +544,27 @@ const RDDTool = () => {
       densityL: c.side === -1 ? +(c.count / (n * binW)).toFixed(4) : null,
       densityR: c.side === 1 ? +(c.count / (n * binW)).toFixed(4) : null,
     }));
-
-    // Step 2: local linear regression of density on bin midpoint, on each side, within bandwidth
-    // f̂(c⁻) = intercept of left local linear at mid → cutoff
     const leftBins = counts.filter(c => c.side === -1 && c.mid >= cutoff - bandwidth);
     const rightBins = counts.filter(c => c.side === 1 && c.mid <= cutoff + bandwidth);
-    let fHatL = NaN, fHatR = NaN, seL = NaN, seR = NaN;
+    let fHatL = NaN, fHatR = NaN;
     if (leftBins.length >= 3) {
       const olsBL = ols(leftBins.map(b => b.mid), leftBins.map(b => b.count / (n * binW)));
       fHatL = Math.max(olsBL.alpha + olsBL.beta * cutoff, 1e-6);
-      // crude SE: sqrt(f̂ / (n·h)) — McCrary asymptotic form (constant absorbed)
-      seL = Math.sqrt(fHatL / (n * bandwidth));
     }
     if (rightBins.length >= 3) {
       const olsBR = ols(rightBins.map(b => b.mid), rightBins.map(b => b.count / (n * binW)));
       fHatR = Math.max(olsBR.alpha + olsBR.beta * cutoff, 1e-6);
-      seR = Math.sqrt(fHatR / (n * bandwidth));
     }
-    // log-difference statistic
     const theta = Math.log(fHatR) - Math.log(fHatL);
-    // var(log f̂) ≈ 1/(n·h·f̂), then var(θ̂) = sum
     const seTheta = Math.sqrt(1 / (n * bandwidth * fHatL) + 1 / (n * bandwidth * fHatR));
     const z = theta / seTheta;
-    // 2-sided normal p-value approximation (simple erfc)
     const erfc = (v: number) => {
-      // Abramowitz & Stegun 7.1.26
       const t = 1 / (1 + 0.3275911 * Math.abs(v));
       const y = 1 - (((((
         1.061405429 * t - 1.453152027) * t) + 1.421413741) * t - 0.284496736) * t + 0.254829592) * t * Math.exp(-v * v);
       return v >= 0 ? 1 - y : 1 + y;
     };
     const pVal = erfc(Math.abs(z) / Math.SQRT2);
-
-    // fitted lines for density chart (within bandwidth, for visualization)
     const densLineL =
       leftBins.length >= 3
         ? [
@@ -573,10 +581,11 @@ const RDDTool = () => {
         : [];
 
     return {
-      pts, tau, lineL, lineR, yL, yR,
+      pts, tauSharp, tauWald, lineL, lineR, yL, yR,
+      dL, dR, dJump, dLineL, dLineR,
       densityRows, fHatL, fHatR, theta, seTheta, z, pVal, densLineL, densLineR,
     };
-  }, [n, cutoff, jump, slopeL, slopeR, noise, seed, bandwidth, manipulation]);
+  }, [n, cutoff, jump, slopeL, slopeR, noise, seed, bandwidth, manipulation, mode, pBelow, pAbove]);
 
   return (
     <div className="space-y-6">
