@@ -1,6 +1,7 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef, useCallback } from "react";
 import { motion } from "framer-motion";
 import PresetButtons, { Preset } from "./PresetButtons";
+import { ShareExportToolbar, useSharedState } from "@/lib/calculatorTools";
 import {
   LineChart,
   Line,
@@ -495,6 +496,13 @@ const CalculatorSection = () => {
   const setMulti = (pairs: Record<string, number>) =>
     setValues((prev) => ({ ...prev, ...pairs }));
 
+  const captureRef = useRef<HTMLDivElement>(null);
+  const apply = useCallback((s: { active: CalcId; values: Record<string, number> }) => {
+    setActive(s.active);
+    setValues((prev) => ({ ...prev, ...s.values }));
+  }, []);
+  useSharedState<{ active: CalcId; values: Record<string, number> }>("calc", apply);
+
   const presets: Record<CalcId, Preset[]> = {
     capm: [
       { name: "教科书标准", description: "Rf=3%, β=1.2, Rm=10%", apply: () => setMulti({ rf: 3, beta: 1.2, rm: 10 }) },
@@ -640,11 +648,21 @@ const CalculatorSection = () => {
 
         <motion.div
           key={active}
+          ref={captureRef}
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.35 }}
           className="rounded-2xl border border-border bg-card p-8 md:p-10 glow-gold"
         >
+          <div className="flex justify-end mb-4">
+            <ShareExportToolbar
+              storageKey="calc"
+              anchorId="calculator"
+              state={{ active, values }}
+              captureRef={captureRef}
+              filename={`calculator-${active}`}
+            />
+          </div>
           {/* Formula */}
           <div className="text-center mb-8 py-4 px-6 rounded-xl bg-secondary/50 border border-border">
             <p className="text-xl md:text-2xl font-mono text-gold tracking-wide">
