@@ -1182,7 +1182,38 @@ const SVARTool = () => {
     const L21 = s12 / L11;
     const L22 = Math.sqrt(Math.max(s22 - L21 * L21, 1e-12));
     const Lhat = [[L11, 0], [L21, L22]];
-    return { A, L: Lhat };
+    return { A, L: Lhat, Sigma: [[s11, s12], [s12, s22]] as number[][] };
+  };
+
+  /* Blanchard-Quah long-run identification:
+     Long-run cumulative impact C(1) = (I - A)⁻¹. Restrict C(1)·B to be lower-triangular
+     ⇒ shock ε₂ has zero long-run effect on y₁.
+     Algorithm: H = C(1) Σ C(1)', Cholesky H = K K' (lower-tri), B = (I - A) · K. */
+  const bqIdentify = (A: number[][], Sigma: number[][]) => {
+    const I_A = [[1 - A[0][0], -A[0][1]], [-A[1][0], 1 - A[1][1]]];
+    const det = I_A[0][0] * I_A[1][1] - I_A[0][1] * I_A[1][0];
+    if (Math.abs(det) < 1e-8) return [[0, 0], [0, 0]];
+    const C1 = [
+      [ I_A[1][1] / det, -I_A[0][1] / det],
+      [-I_A[1][0] / det,  I_A[0][0] / det],
+    ];
+    const CS = [
+      [C1[0][0] * Sigma[0][0] + C1[0][1] * Sigma[1][0], C1[0][0] * Sigma[0][1] + C1[0][1] * Sigma[1][1]],
+      [C1[1][0] * Sigma[0][0] + C1[1][1] * Sigma[1][0], C1[1][0] * Sigma[0][1] + C1[1][1] * Sigma[1][1]],
+    ];
+    const Hm = [
+      [CS[0][0] * C1[0][0] + CS[0][1] * C1[0][1], CS[0][0] * C1[1][0] + CS[0][1] * C1[1][1]],
+      [CS[1][0] * C1[0][0] + CS[1][1] * C1[0][1], CS[1][0] * C1[1][0] + CS[1][1] * C1[1][1]],
+    ];
+    const k11 = Math.sqrt(Math.max(Hm[0][0], 1e-12));
+    const k21 = Hm[1][0] / k11;
+    const k22 = Math.sqrt(Math.max(Hm[1][1] - k21 * k21, 1e-12));
+    const K = [[k11, 0], [k21, k22]];
+    const B = [
+      [I_A[0][0] * K[0][0] + I_A[0][1] * K[1][0], I_A[0][0] * K[0][1] + I_A[0][1] * K[1][1]],
+      [I_A[1][0] * K[0][0] + I_A[1][1] * K[1][0], I_A[1][0] * K[0][1] + I_A[1][1] * K[1][1]],
+    ];
+    return B;
   };
 
   /* IRF: Φ_h = A^h, structural IRF to shock j of size 1 SD: Φ_h · L · e_j           */
