@@ -1,4 +1,5 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef, useCallback } from "react";
+import { ShareExportToolbar, useSharedState } from "@/lib/calculatorTools";
 import PresetButtons, { Preset } from "./PresetButtons";
 import { motion } from "framer-motion";
 import {
@@ -145,6 +146,19 @@ const RateModelSimulator = () => {
   const [T, setT] = useState(10);
   const [nPaths, setNPaths] = useState(10);
   const [seed, setSeed] = useState(42);
+
+  const captureRef = useRef<HTMLDivElement>(null);
+  const apply = useCallback((s: any) => {
+    if (s.model) setModel(s.model);
+    if (s.r0 != null) setR0(s.r0);
+    if (s.kappa != null) setKappa(s.kappa);
+    if (s.theta != null) setTheta(s.theta);
+    if (s.sigma != null) setSigma(s.sigma);
+    if (s.T != null) setT(s.T);
+    if (s.nPaths != null) setNPaths(s.nPaths);
+    if (s.seed != null) setSeed(s.seed);
+  }, []);
+  useSharedState("rate", apply);
 
   const nSteps = 200;
   const displayPaths = Math.min(nPaths, 10); // show max 10 on chart

@@ -1,4 +1,5 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef, useCallback } from "react";
+import { ShareExportToolbar, useSharedState } from "@/lib/calculatorTools";
 import PresetButtons, { Preset } from "./PresetButtons";
 import { motion } from "framer-motion";
 import {
@@ -210,6 +211,14 @@ const EfficientFrontier = () => {
   const [rho, setRho] = useState(0.3);
   const [allowShort, setAllowShort] = useState(true);
   const [selectedIdx, setSelectedIdx] = useState<number | null>(null);
+
+  const captureRef = useRef<HTMLDivElement>(null);
+  const apply = useCallback((s: any) => {
+    if (s.assets) setAssets(s.assets);
+    if (s.rho != null) setRho(s.rho);
+    if (typeof s.allowShort === "boolean") setAllowShort(s.allowShort);
+  }, []);
+  useSharedState("frontier", apply);
 
   const addAsset = () => {
     if (assets.length >= 8) return;

@@ -1,4 +1,5 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef, useCallback } from "react";
+import { ShareExportToolbar, useSharedState } from "@/lib/calculatorTools";
 import PresetButtons, { Preset } from "./PresetButtons";
 import { motion } from "framer-motion";
 import {
@@ -223,6 +224,22 @@ const MCOptionPricer = () => {
   const [seed, setSeed] = useState(42);
   const [barrierType, setBarrierType] = useState<BarrierType>("up-out");
   const [barrierLevel, setBarrierLevel] = useState(120);
+
+  const captureRef = useRef<HTMLDivElement>(null);
+  const apply = useCallback((s: any) => {
+    if (s.optionType) setOptionType(s.optionType);
+    if (s.putCall) setPutCall(s.putCall);
+    if (s.s0 != null) setS0(s.s0);
+    if (s.k != null) setK(s.k);
+    if (s.r != null) setR(s.r);
+    if (s.sigma != null) setSigma(s.sigma);
+    if (s.T != null) setT(s.T);
+    if (s.nPaths != null) setNPaths(s.nPaths);
+    if (s.seed != null) setSeed(s.seed);
+    if (s.barrierType) setBarrierType(s.barrierType);
+    if (s.barrierLevel != null) setBarrierLevel(s.barrierLevel);
+  }, []);
+  useSharedState("mc", apply);
 
   const nSteps = 252;
 
