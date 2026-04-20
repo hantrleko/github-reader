@@ -1260,50 +1260,59 @@ const SVARTool = () => {
     const res1 = fits[0].res, res2 = fits[1].res;
     const c1 = fits[0].c, c2 = fits[1].c;
 
-    const irfBoot: number[][][] = []; // [B][h+1][2]
+    const irfBootC: number[][][] = []; // Cholesky bootstrap
+    const irfBootB: number[][][] = []; // BQ bootstrap
     for (let b = 0; b < boots; b++) {
       const ysim: number[][] = [[y[0][0], y[0][1]]];
       for (let t = 1; t < n; t++) {
         const idx = Math.floor(rng() * res1.length);
-        const u1 = res1[idx], u2 = res2[idx]; // pair-resample to preserve contemp corr
+        const u1 = res1[idx], u2 = res2[idx];
         ysim.push([
           c1 + A[0][0] * ysim[t-1][0] + A[0][1] * ysim[t-1][1] + u1,
           c2 + A[1][0] * ysim[t-1][0] + A[1][1] * ysim[t-1][1] + u2,
         ]);
       }
       const est = estimate(ysim);
-      const ib = computeIRF(est.A, est.L, shockIdx, H);
-      irfBoot.push(ib.map(p => [p.y1, p.y2]));
+      const ibC = computeIRF(est.A, est.L, shockIdx, H);
+      const Bb = bqIdentify(est.A, est.Sigma);
+      const ibB = computeIRF(est.A, Bb, shockIdx, H);
+      irfBootC.push(ibC.map(p => [p.y1, p.y2]));
+      irfBootB.push(ibB.map(p => [p.y1, p.y2]));
     }
 
-    // Quantiles per horizon
     const q = (arr: number[], p: number) => {
       const s = [...arr].sort((a, b) => a - b);
       const i = Math.min(s.length - 1, Math.max(0, Math.floor(p * (s.length - 1))));
       return s[i];
     };
-    const series = irf.map((pt, h) => {
-      const v1 = irfBoot.map(b => b[h][0]);
-      const v2 = irfBoot.map(b => b[h][1]);
+    const series2 = irfChol.map((pt, h) => {
+      const v1c = irfBootC.map(b => b[h][0]);
+      const v2c = irfBootC.map(b => b[h][1]);
+      const v1b = irfBootB.map(b => b[h][0]);
+      const v2b = irfBootB.map(b => b[h][1]);
+      const ptB = irfBq[h];
+      const c_y1_lo = boots ? q(v1c, 0.025) : pt.y1;
+      const c_y1_hi = boots ? q(v1c, 0.975) : pt.y1;
+      const c_y2_lo = boots ? q(v2c, 0.025) : pt.y2;
+      const c_y2_hi = boots ? q(v2c, 0.975) : pt.y2;
+      const b_y1_lo = boots ? q(v1b, 0.025) : ptB.y1;
+      const b_y1_hi = boots ? q(v1b, 0.975) : ptB.y1;
+      const b_y2_lo = boots ? q(v2b, 0.025) : ptB.y2;
+      const b_y2_hi = boots ? q(v2b, 0.975) : ptB.y2;
       return {
         h,
+        // Cholesky
         y1: pt.y1, y2: pt.y2,
-        y1_lo: boots ? q(v1, 0.025) : pt.y1,
-        y1_hi: boots ? q(v1, 0.975) : pt.y1,
-        y2_lo: boots ? q(v2, 0.025) : pt.y2,
-        y2_hi: boots ? q(v2, 0.975) : pt.y2,
-        // Recharts band needs [lo, hi-lo] for stacked area trick; simpler: provide band = hi-lo
-        y1_band: 0, y2_band: 0,
+        y1_lo_v: c_y1_lo, y1_band_v: c_y1_hi - c_y1_lo,
+        y2_lo_v: c_y2_lo, y2_band_v: c_y2_hi - c_y2_lo,
+        // BQ
+        y1_bq: ptB.y1, y2_bq: ptB.y2,
+        y1_bq_lo_v: b_y1_lo, y1_bq_band_v: b_y1_hi - b_y1_lo,
+        y2_bq_lo_v: b_y2_lo, y2_bq_band_v: b_y2_hi - b_y2_lo,
       };
     });
-    // Convert to lo + band height pairs for Area stacking
-    const series2 = series.map(s => ({
-      ...s,
-      y1_lo_v: s.y1_lo, y1_band_v: s.y1_hi - s.y1_lo,
-      y2_lo_v: s.y2_lo, y2_band_v: s.y2_hi - s.y2_lo,
-    }));
 
-    return { series: series2, A, L };
+    return { series: series2, A, L, Bbq };
   }, [seed, T, H, a11, a12, a21, a22, b21, s1, s2, boots, shockIdx]);
 
   const presets: Preset[] = [
