@@ -1312,7 +1312,67 @@ const SVARTool = () => {
       };
     });
 
-    return { series: series2, A, L, Bbq };
+    /* ── Historical Decomposition (using Cholesky ident: B = L) ──
+       1) ε_t = L⁻¹ u_t  (structural shocks from reduced-form residuals)
+       2) For variable i:  ŷ_{i,t} - baseline = Σ_j Σ_{s=0..t-1} (Φ_s · L)_{ij} · ε_{t-s, j}
+       Φ_s = A^s, M_s = Φ_s · L. We split contribution by shock j and overlay actual.       */
+    const Linv = (() => {
+      const a = L[0][0], b = L[0][1], c = L[1][0], d = L[1][1];
+      const det = a * d - b * c;
+      return [[d / det, -b / det], [-c / det, a / det]];
+    })();
+    const eps: number[][] = res1.map((r1, t) => {
+      const u1 = r1, u2 = res2[t];
+      return [Linv[0][0] * u1 + Linv[0][1] * u2, Linv[1][0] * u1 + Linv[1][1] * u2];
+    });
+    // Precompute M_s = A^s · L for s = 0..eps.length
+    const Mlist2: number[][][] = [];
+    {
+      let Phi = [[1, 0], [0, 1]];
+      for (let s = 0; s < eps.length; s++) {
+        Mlist2.push([
+          [Phi[0][0] * L[0][0] + Phi[0][1] * L[1][0], Phi[0][0] * L[0][1] + Phi[0][1] * L[1][1]],
+          [Phi[1][0] * L[0][0] + Phi[1][1] * L[1][0], Phi[1][0] * L[0][1] + Phi[1][1] * L[1][1]],
+        ]);
+        Phi = [
+          [A[0][0] * Phi[0][0] + A[0][1] * Phi[1][0], A[0][0] * Phi[0][1] + A[0][1] * Phi[1][1]],
+          [A[1][0] * Phi[0][0] + A[1][1] * Phi[1][0], A[1][0] * Phi[0][1] + A[1][1] * Phi[1][1]],
+        ];
+      }
+    }
+    // baseline (deterministic part) = forecast from initial condition with no shocks
+    const N = eps.length;
+    const baseline: number[][] = [[y[0][0], y[0][1]]];
+    for (let t = 1; t <= N; t++) {
+      const yp = baseline[t - 1];
+      baseline.push([
+        c1 + A[0][0] * yp[0] + A[0][1] * yp[1],
+        c2 + A[1][0] * yp[0] + A[1][1] * yp[1],
+      ]);
+    }
+    const hd: { t: number; y1_e1: number; y1_e2: number; y2_e1: number; y2_e2: number; y1_actual: number; y2_actual: number; y1_base: number; y2_base: number }[] = [];
+    for (let t = 0; t < N; t++) {
+      let c11 = 0, c12 = 0, c21 = 0, c22 = 0;
+      for (let s = 0; s <= t; s++) {
+        const M = Mlist2[s];
+        const e = eps[t - s];
+        c11 += M[0][0] * e[0]; c12 += M[0][1] * e[1];
+        c21 += M[1][0] * e[0]; c22 += M[1][1] * e[1];
+      }
+      // y_{t+1} corresponds to first observation after init in residual indexing
+      const tIdx = t + 1;
+      hd.push({
+        t: tIdx,
+        y1_e1: c11, y1_e2: c12,
+        y2_e1: c21, y2_e2: c22,
+        y1_actual: y[tIdx][0] - baseline[tIdx][0],
+        y2_actual: y[tIdx][1] - baseline[tIdx][1],
+        y1_base: baseline[tIdx][0],
+        y2_base: baseline[tIdx][1],
+      });
+    }
+
+    return { series: series2, A, L, Bbq, hd };
   }, [seed, T, H, a11, a12, a21, a22, b21, s1, s2, boots, shockIdx]);
 
   const presets: Preset[] = [
