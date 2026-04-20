@@ -1518,6 +1518,77 @@ const SVARTool = () => {
         );
       })}
 
+      {/* FEVD: forecast error variance decomposition (Cholesky) */}
+      <div className="rounded-xl border border-border bg-background/50 p-4">
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-xs font-mono text-muted-foreground uppercase tracking-wider">方差分解 FEVD (Cholesky)</span>
+          <span className="text-[10px] font-mono text-muted-foreground">各结构冲击对预测误差方差贡献份额</span>
+        </div>
+        <div className="grid md:grid-cols-2 gap-4">
+          {[
+            { key: "y1", label: "y₁ 的 FEVD", e1: "y1_e1", e2: "y1_e2" },
+            { key: "y2", label: "y₂ 的 FEVD", e1: "y2_e1", e2: "y2_e2" },
+          ].map(cfg => (
+            <div key={cfg.key}>
+              <div className="text-[10px] font-mono text-muted-foreground mb-1">{cfg.label}</div>
+              <ResponsiveContainer width="100%" height={200}>
+                <ComposedChart data={result.fevd} margin={{ top: 5, right: 10, left: 0, bottom: 5 }} stackOffset="expand">
+                  <CartesianGrid stroke={CHART_GRID} strokeDasharray="3 3" />
+                  <XAxis dataKey="h" stroke={CHART_TEXT} tick={{ fontSize: 11 }}
+                    label={{ value: "horizon h", position: "insideBottom", offset: -2, fill: CHART_TEXT, fontSize: 10 }} />
+                  <YAxis stroke={CHART_TEXT} tick={{ fontSize: 11 }} domain={[0, 1]} tickFormatter={(v) => `${(v * 100).toFixed(0)}%`} />
+                  <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", fontSize: 11, fontFamily: "monospace" }}
+                    formatter={(v: number) => `${(v * 100).toFixed(1)}%`} />
+                  <Legend wrapperStyle={{ fontSize: 11, fontFamily: "monospace" }} />
+                  <Area type="monotone" dataKey={cfg.e1} stackId="f" name="ε₁ 贡献" stroke={CHART_GOLD} fill={CHART_GOLD} fillOpacity={0.55} />
+                  <Area type="monotone" dataKey={cfg.e2} stackId="f" name="ε₂ 贡献" stroke={CHART_TEAL} fill={CHART_TEAL} fillOpacity={0.55} />
+                </ComposedChart>
+              </ResponsiveContainer>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Historical Decomposition (Cholesky) */}
+      <div className="rounded-xl border border-border bg-background/50 p-4">
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-xs font-mono text-muted-foreground uppercase tracking-wider">历史分解 Historical Decomposition</span>
+          <span className="text-[10px] font-mono text-muted-foreground">y_t − 基线 = Σ_j (累计冲击 ε_j 贡献)</span>
+        </div>
+        <div className="grid md:grid-cols-2 gap-4">
+          {[
+            { key: "y1", label: "y₁ 路径分解", e1: "y1_e1", e2: "y1_e2", actual: "y1_actual" },
+            { key: "y2", label: "y₂ 路径分解", e1: "y2_e1", e2: "y2_e2", actual: "y2_actual" },
+          ].map(cfg => (
+            <div key={cfg.key}>
+              <div className="text-[10px] font-mono text-muted-foreground mb-1">{cfg.label}</div>
+              <ResponsiveContainer width="100%" height={220}>
+                <ComposedChart data={result.hd} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
+                  <CartesianGrid stroke={CHART_GRID} strokeDasharray="3 3" />
+                  <XAxis dataKey="t" stroke={CHART_TEXT} tick={{ fontSize: 11 }}
+                    label={{ value: "t", position: "insideBottom", offset: -2, fill: CHART_TEXT, fontSize: 10 }} />
+                  <YAxis stroke={CHART_TEXT} tick={{ fontSize: 11 }} />
+                  <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", fontSize: 11, fontFamily: "monospace" }}
+                    formatter={(v: number) => v.toFixed(3)} />
+                  <Legend wrapperStyle={{ fontSize: 11, fontFamily: "monospace" }} />
+                  <ReferenceLine y={0} stroke={CHART_TEXT} strokeDasharray="2 2" />
+                  <Area type="monotone" dataKey={cfg.e1} stackId="hd" name="ε₁ 累计贡献"
+                    stroke={CHART_GOLD} fill={CHART_GOLD} fillOpacity={0.45} />
+                  <Area type="monotone" dataKey={cfg.e2} stackId="hd" name="ε₂ 累计贡献"
+                    stroke={CHART_TEAL} fill={CHART_TEAL} fillOpacity={0.45} />
+                  <Line type="monotone" dataKey={cfg.actual} stroke={CHART_RED} strokeWidth={1.8} dot={false}
+                    name="实际偏离 (y_t − baseline)" />
+                </ComposedChart>
+              </ResponsiveContainer>
+            </div>
+          ))}
+        </div>
+        <div className="mt-2 text-[10px] font-mono text-muted-foreground leading-relaxed">
+          公式：y<sub>i,t</sub> − ŷ<sub>i,t|0</sub> = Σ<sub>j</sub> Σ<sub>s=0..t-1</sub> (Φ<sub>s</sub>L)<sub>ij</sub> · ε<sub>t-s,j</sub>。
+          堆叠面积 = 各结构冲击的累计贡献；红线 = 实际偏离基线，应与堆叠总高度吻合（识别正确的诊断）。
+        </div>
+      </div>
+
       {/* Estimated matrices */}
       <div className="grid md:grid-cols-3 gap-3">
         <div className="p-3 rounded-lg border border-border bg-secondary/30">
