@@ -351,10 +351,35 @@ const DIDTool = () => {
   return (
     <div className="space-y-6">
       <PresetButtons presets={[
-        { name: "经典案例", description: "正向干预 ATT=4，无预趋势", apply: () => { setTrend(2); setTreatLevel(3); setEffect(4); setNoise(0.5); setPreTrendBias(0); } },
-        { name: "零效应", description: "ATT=0, 检验假阳性", apply: () => { setEffect(0); setNoise(1); setPreTrendBias(0); } },
-        { name: "违反平行趋势", description: "处理组预期已偏离", apply: () => { setEffect(4); setPreTrendBias(0.6); setNoise(0.4); } },
+        { name: "瞬时跳跃", description: "ATT=4, k≥0 立即生效", apply: () => { setTrend(2); setTreatLevel(3); setEffect(4); setNoise(0.5); setPreTrendBias(0); setDynamicMode("instant"); } },
+        { name: "渐进上升", description: "效应逐期累积到峰值", apply: () => { setEffect(4); setPreTrendBias(0); setNoise(0.4); setDynamicMode("ramp"); } },
+        { name: "衰减回归", description: "首期峰值后指数衰减", apply: () => { setEffect(5); setPreTrendBias(0); setNoise(0.4); setDynamicMode("decay"); } },
+        { name: "违反平行趋势", description: "处理组预期已偏离", apply: () => { setEffect(4); setPreTrendBias(0.6); setNoise(0.4); setDynamicMode("instant"); } },
       ]} />
+
+      {/* Dynamic effect mode selector */}
+      <div className="flex items-center gap-2 flex-wrap">
+        <span className="text-xs font-mono text-muted-foreground">动态效应模式：</span>
+        {([
+          { id: "instant", label: "瞬时跳跃", desc: "τ_k = ATT 对所有 k≥0" },
+          { id: "ramp", label: "渐进上升", desc: "线性爬升至峰值" },
+          { id: "decay", label: "衰减回归", desc: "指数衰减 e^(-0.6k)" },
+        ] as const).map((m) => (
+          <button
+            key={m.id}
+            onClick={() => setDynamicMode(m.id)}
+            title={m.desc}
+            className={
+              "text-xs px-3 py-1.5 rounded border transition-colors font-mono " +
+              (dynamicMode === m.id
+                ? "border-gold bg-gold/10 text-gold"
+                : "border-border text-muted-foreground hover:text-foreground hover:border-foreground/40")
+            }
+          >
+            {m.label}
+          </button>
+        ))}
+      </div>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="space-y-3">
           <Slider label="共同趋势斜率" value={trend} min={-2} max={5} step={0.1} onChange={setTrend} />
