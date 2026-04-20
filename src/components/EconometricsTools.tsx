@@ -1568,13 +1568,20 @@ const SVARTool = () => {
       </div>
 
       {/* Identification note */}
-      <div className="p-3 rounded-lg border border-border bg-secondary/30 text-xs font-mono text-muted-foreground leading-relaxed space-y-1">
-        <div><span className="text-gold">Cholesky：</span>
-          B₀ 下三角 ⇒ ε₂ 同期不影响 y₁。短期排序假设。
+      <div className="p-4 rounded-xl border border-border bg-secondary/30 space-y-2">
+        <div className="flex items-start gap-2">
+          <span className="text-[11px] font-mono text-gold uppercase tracking-wider mt-0.5 shrink-0">Cholesky</span>
+          <div className="text-xs text-muted-foreground leading-relaxed">
+            短期排序约束：<InlineMath math={String.raw`B_0`} /> 下三角 ⇒ <InlineMath math={String.raw`\varepsilon_2`} /> 同期不影响 <InlineMath math={String.raw`y_1`} />。
+            <span className="text-foreground/70 ml-1">(Short-run recursive ordering)</span>
+          </div>
         </div>
-        <div><span style={{ color: CHART_TEAL }}>Blanchard-Quah：</span>
-          长期累计影响 C(1)·B 下三角 ⇒ ε₂ <span className="underline">长期</span>累计对 y₁ 为 0
-          (典型用法：ε₁=供给冲击有 LR 效果，ε₂=需求冲击仅短期)。
+        <div className="flex items-start gap-2">
+          <span className="text-[11px] font-mono uppercase tracking-wider mt-0.5 shrink-0" style={{ color: CHART_TEAL }}>Blanchard-Quah</span>
+          <div className="text-xs text-muted-foreground leading-relaxed">
+            长期约束：<InlineMath math={String.raw`C(1)\,B`} /> 下三角 ⇒ <InlineMath math={String.raw`\varepsilon_2`} /> <span className="underline">长期</span>累计对 <InlineMath math={String.raw`y_1`} /> 为 0。
+            <span className="text-foreground/70 ml-1">(Long-run zero restriction; e.g. demand shocks have no permanent effect on output)</span>
+          </div>
         </div>
       </div>
 
