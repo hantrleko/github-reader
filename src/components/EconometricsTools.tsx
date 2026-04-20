@@ -1445,6 +1445,13 @@ const SVARTool = () => {
 [ ${result.L[1][0].toFixed(3).padStart(6)}  ${result.L[1][1].toFixed(3).padStart(6)} ]`}
           </pre>
         </div>
+        <div className="p-3 rounded-lg border border-border bg-secondary/30">
+          <div className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground mb-1">BQ B̂  (长期约束)</div>
+          <pre className="text-xs font-mono leading-tight" style={{ color: CHART_TEAL }}>
+{`[ ${result.Bbq[0][0].toFixed(3).padStart(6)}  ${result.Bbq[0][1].toFixed(3).padStart(6)} ]
+[ ${result.Bbq[1][0].toFixed(3).padStart(6)}  ${result.Bbq[1][1].toFixed(3).padStart(6)} ]`}
+          </pre>
+        </div>
       </div>
     </div>
   );
