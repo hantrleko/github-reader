@@ -1232,8 +1232,10 @@ const SVARTool = () => {
   const result = useMemo(() => {
     const rng = mulberry32(seed);
     const y = simulate(rng);
-    const { A, L } = estimate(y);
-    const irf = computeIRF(A, L, shockIdx, H);
+    const { A, L, Sigma } = estimate(y);
+    const Bbq = bqIdentify(A, Sigma);
+    const irfChol = computeIRF(A, L, shockIdx, H);
+    const irfBq = computeIRF(A, Bbq, shockIdx, H);
 
     // Bootstrap: resample residuals to get IRF CI
     const n = y.length;
