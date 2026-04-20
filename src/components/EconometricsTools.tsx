@@ -1372,7 +1372,36 @@ const SVARTool = () => {
       });
     }
 
-    return { series: series2, A, L, Bbq, hd };
+    /* ── FEVD: variance share contributed by shock j to variable i at horizon h ── */
+    const Mfevd: number[][][] = [];
+    {
+      let Phi = [[1, 0], [0, 1]];
+      for (let h = 0; h <= H; h++) {
+        Mfevd.push([
+          [Phi[0][0] * L[0][0] + Phi[0][1] * L[1][0], Phi[0][0] * L[0][1] + Phi[0][1] * L[1][1]],
+          [Phi[1][0] * L[0][0] + Phi[1][1] * L[1][0], Phi[1][0] * L[0][1] + Phi[1][1] * L[1][1]],
+        ]);
+        Phi = [
+          [A[0][0] * Phi[0][0] + A[0][1] * Phi[1][0], A[0][0] * Phi[0][1] + A[0][1] * Phi[1][1]],
+          [A[1][0] * Phi[0][0] + A[1][1] * Phi[1][0], A[1][0] * Phi[0][1] + A[1][1] * Phi[1][1]],
+        ];
+      }
+    }
+    const fevd: { h: number; y1_e1: number; y1_e2: number; y2_e1: number; y2_e2: number }[] = [];
+    let cumY1 = [0, 0], cumY2 = [0, 0];
+    for (let h = 0; h <= H; h++) {
+      cumY1[0] += Mfevd[h][0][0] ** 2; cumY1[1] += Mfevd[h][0][1] ** 2;
+      cumY2[0] += Mfevd[h][1][0] ** 2; cumY2[1] += Mfevd[h][1][1] ** 2;
+      const t1 = cumY1[0] + cumY1[1] || 1e-12;
+      const t2 = cumY2[0] + cumY2[1] || 1e-12;
+      fevd.push({
+        h,
+        y1_e1: cumY1[0] / t1, y1_e2: cumY1[1] / t1,
+        y2_e1: cumY2[0] / t2, y2_e2: cumY2[1] / t2,
+      });
+    }
+
+    return { series: series2, A, L, Bbq, hd, fevd };
   }, [seed, T, H, a11, a12, a21, a22, b21, s1, s2, boots, shockIdx]);
 
   const presets: Preset[] = [
