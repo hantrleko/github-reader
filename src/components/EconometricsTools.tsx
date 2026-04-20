@@ -432,9 +432,9 @@ const DIDTool = () => {
               <Legend wrapperStyle={{ fontSize: 11 }} />
               <ReferenceLine y={0} stroke={CHART_TEXT} strokeDasharray="2 2" />
               <ReferenceLine x={-0.5} stroke={CHART_GOLD} strokeDasharray="4 4" label={{ value: "处理前 / 处理后", fill: CHART_GOLD, fontSize: 10, position: "top" }} />
-              <ReferenceLine y={effect} stroke={CHART_RED} strokeDasharray="3 3" label={{ value: `真实 ATT=${effect.toFixed(2)}`, fill: CHART_RED, fontSize: 10, position: "right" }} />
               <Area dataKey="ci" stroke="none" fill={CHART_GOLD} fillOpacity={0.18} name="95% CI" />
-              <Line dataKey="tau" name="τ̂_k" stroke={CHART_GOLD} strokeWidth={2} dot={{ r: 3 }} />
+              <Line dataKey="trueK" name="真实 τ_k (DGP)" stroke={CHART_RED} strokeWidth={2} strokeDasharray="5 4" dot={{ r: 2 }} />
+              <Line dataKey="tau" name="估计 τ̂_k" stroke={CHART_GOLD} strokeWidth={2} dot={{ r: 3 }} />
             </ComposedChart>
           </ResponsiveContainer>
         </div>
