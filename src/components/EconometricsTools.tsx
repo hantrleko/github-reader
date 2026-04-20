@@ -229,14 +229,30 @@ const OLSvsIV = () => {
 /* ════════════════════════════════════════════════════════════
    2. DID — Difference-in-Differences
    ════════════════════════════════════════════════════════════ */
+type DynamicMode = "instant" | "ramp" | "decay";
+
 const DIDTool = () => {
   const [trend, setTrend] = useState(2);
   const [treatLevel, setTreatLevel] = useState(3);
   const [effect, setEffect] = useState(4);
   const [noise, setNoise] = useState(0.5);
   const [seed, setSeed] = useState(7);
-  const [preTrendBias, setPreTrendBias] = useState(0); // differential pre-trend (violates parallel trends)
-  const [nUnits, setNUnits] = useState(40);            // units per group (for event-study CI)
+  const [preTrendBias, setPreTrendBias] = useState(0);
+  const [nUnits, setNUnits] = useState(40);
+  const [dynamicMode, setDynamicMode] = useState<DynamicMode>("instant");
+
+  // True per-period treatment effect τ(k) for k>=0, given peak `effect`
+  const trueTau = (k: number, mode: DynamicMode, peak: number): number => {
+    if (k < 0) return 0;
+    if (mode === "instant") return peak;
+    if (mode === "ramp") {
+      // linear ramp: 0 at k=0 baseline → reaches `peak` by k=3, capped
+      const ramp = Math.min((k + 1) / 4, 1);
+      return peak * ramp;
+    }
+    // decay: peak at k=0, exponentially decays toward 0
+    return peak * Math.exp(-0.6 * k);
+  };
 
   const data = useMemo(() => {
     const rng = mulberry32(seed);
