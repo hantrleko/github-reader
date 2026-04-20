@@ -1,4 +1,5 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef, useCallback } from "react";
+import { ShareExportToolbar, useSharedState } from "@/lib/calculatorTools";
 import PresetButtons, { Preset } from "./PresetButtons";
 import { motion } from "framer-motion";
 import {
@@ -224,6 +225,22 @@ const MCOptionPricer = () => {
   const [barrierType, setBarrierType] = useState<BarrierType>("up-out");
   const [barrierLevel, setBarrierLevel] = useState(120);
 
+  const captureRef = useRef<HTMLDivElement>(null);
+  const apply = useCallback((s: any) => {
+    if (s.optionType) setOptionType(s.optionType);
+    if (s.putCall) setPutCall(s.putCall);
+    if (s.s0 != null) setS0(s.s0);
+    if (s.k != null) setK(s.k);
+    if (s.r != null) setR(s.r);
+    if (s.sigma != null) setSigma(s.sigma);
+    if (s.T != null) setT(s.T);
+    if (s.nPaths != null) setNPaths(s.nPaths);
+    if (s.seed != null) setSeed(s.seed);
+    if (s.barrierType) setBarrierType(s.barrierType);
+    if (s.barrierLevel != null) setBarrierLevel(s.barrierLevel);
+  }, []);
+  useSharedState("mc", apply);
+
   const nSteps = 252;
 
   const result = useMemo(() => {
@@ -290,11 +307,21 @@ const MCOptionPricer = () => {
         </motion.div>
 
         <motion.div
+          ref={captureRef}
           initial={{ opacity: 0, y: 12 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           className="rounded-2xl border border-border bg-card p-8 md:p-10 glow-gold"
         >
+          <div className="flex justify-end mb-4">
+            <ShareExportToolbar
+              storageKey="mc"
+              anchorId="mc-pricer"
+              state={{ optionType, putCall, s0, k, r, sigma, T, nPaths, seed, barrierType, barrierLevel }}
+              captureRef={captureRef}
+              filename={`mc-${optionType}`}
+            />
+          </div>
           {/* Option type tabs */}
           <div className="flex flex-wrap justify-center gap-2 mb-6">
             {(["european", "asian", "barrier"] as OptionType[]).map((t) => (

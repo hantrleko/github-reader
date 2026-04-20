@@ -1,4 +1,5 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef, useCallback } from "react";
+import { ShareExportToolbar, useSharedState } from "@/lib/calculatorTools";
 import PresetButtons, { Preset } from "./PresetButtons";
 import { motion } from "framer-motion";
 import {
@@ -211,6 +212,14 @@ const EfficientFrontier = () => {
   const [allowShort, setAllowShort] = useState(true);
   const [selectedIdx, setSelectedIdx] = useState<number | null>(null);
 
+  const captureRef = useRef<HTMLDivElement>(null);
+  const apply = useCallback((s: any) => {
+    if (s.assets) setAssets(s.assets);
+    if (s.rho != null) setRho(s.rho);
+    if (typeof s.allowShort === "boolean") setAllowShort(s.allowShort);
+  }, []);
+  useSharedState("frontier", apply);
+
   const addAsset = () => {
     if (assets.length >= 8) return;
     setAssets(prev => [
@@ -285,11 +294,21 @@ const EfficientFrontier = () => {
         </motion.div>
 
         <motion.div
+          ref={captureRef}
           initial={{ opacity: 0, y: 12 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           className="rounded-2xl border border-border bg-card p-8 md:p-10 glow-gold"
         >
+          <div className="flex justify-end mb-4">
+            <ShareExportToolbar
+              storageKey="frontier"
+              anchorId="frontier"
+              state={{ assets, rho, allowShort }}
+              captureRef={captureRef}
+              filename="efficient-frontier"
+            />
+          </div>
           {/* Formula bar */}
           <div className="text-center mb-8 py-4 px-6 rounded-xl bg-secondary/50 border border-border">
             <p className="text-lg md:text-xl font-mono text-gold tracking-wide">

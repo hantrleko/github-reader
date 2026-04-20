@@ -1,4 +1,5 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef, useCallback } from "react";
+import { ShareExportToolbar, useSharedState } from "@/lib/calculatorTools";
 import PresetButtons, { Preset } from "./PresetButtons";
 import { motion } from "framer-motion";
 import {
@@ -153,6 +154,21 @@ const BondCalculator = () => {
   const [b2, setB2] = useState(1.5);
   const [lambda, setLambda] = useState(1.8);
 
+  const captureRef = useRef<HTMLDivElement>(null);
+  const apply = useCallback((s: any) => {
+    if (s.tab) setTab(s.tab);
+    if (s.face != null) setFace(s.face);
+    if (s.couponRate != null) setCouponRate(s.couponRate);
+    if (s.ytm != null) setYtm(s.ytm);
+    if (s.maturity != null) setMaturity(s.maturity);
+    if (s.freq != null) setFreq(s.freq);
+    if (s.b0 != null) setB0(s.b0);
+    if (s.b1 != null) setB1(s.b1);
+    if (s.b2 != null) setB2(s.b2);
+    if (s.lambda != null) setLambda(s.lambda);
+  }, []);
+  useSharedState("bond", apply);
+
   // Computed bond metrics
   const metrics = useMemo(() => {
     const price = bondPrice(face, couponRate, ytm, maturity, freq);
@@ -246,11 +262,21 @@ const BondCalculator = () => {
 
         <motion.div
           key={tab}
+          ref={captureRef}
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.35 }}
           className="rounded-2xl border border-border bg-card p-8 md:p-10 glow-gold"
         >
+          <div className="flex justify-end mb-4">
+            <ShareExportToolbar
+              storageKey="bond"
+              anchorId="bond"
+              state={{ tab, face, couponRate, ytm, maturity, freq, b0, b1, b2, lambda }}
+              captureRef={captureRef}
+              filename={`bond-${tab}`}
+            />
+          </div>
           {/* Formula bar */}
           <div className="text-center mb-8 py-4 px-6 rounded-xl bg-secondary/50 border border-border">
             <p className="text-lg md:text-xl font-mono text-gold tracking-wide">

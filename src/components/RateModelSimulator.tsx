@@ -1,4 +1,5 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef, useCallback } from "react";
+import { ShareExportToolbar, useSharedState } from "@/lib/calculatorTools";
 import PresetButtons, { Preset } from "./PresetButtons";
 import { motion } from "framer-motion";
 import {
@@ -146,6 +147,19 @@ const RateModelSimulator = () => {
   const [nPaths, setNPaths] = useState(10);
   const [seed, setSeed] = useState(42);
 
+  const captureRef = useRef<HTMLDivElement>(null);
+  const apply = useCallback((s: any) => {
+    if (s.model) setModel(s.model);
+    if (s.r0 != null) setR0(s.r0);
+    if (s.kappa != null) setKappa(s.kappa);
+    if (s.theta != null) setTheta(s.theta);
+    if (s.sigma != null) setSigma(s.sigma);
+    if (s.T != null) setT(s.T);
+    if (s.nPaths != null) setNPaths(s.nPaths);
+    if (s.seed != null) setSeed(s.seed);
+  }, []);
+  useSharedState("rate", apply);
+
   const nSteps = 200;
   const displayPaths = Math.min(nPaths, 10); // show max 10 on chart
 
@@ -254,11 +268,21 @@ const RateModelSimulator = () => {
 
         <motion.div
           key={model}
+          ref={captureRef}
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.35 }}
           className="rounded-2xl border border-border bg-card p-8 md:p-10 glow-gold"
         >
+          <div className="flex justify-end mb-4">
+            <ShareExportToolbar
+              storageKey="rate"
+              anchorId="rate-model"
+              state={{ model, r0, kappa, theta, sigma, T, nPaths, seed }}
+              captureRef={captureRef}
+              filename={`rate-model-${model}`}
+            />
+          </div>
           {/* Formula */}
           <div className="text-center mb-8 py-4 px-6 rounded-xl bg-secondary/50 border border-border">
             <p className="text-xl md:text-2xl font-mono text-gold tracking-wide">

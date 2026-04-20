@@ -1,4 +1,5 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef, useCallback } from "react";
+import { ShareExportToolbar, useSharedState } from "@/lib/calculatorTools";
 import PresetButtons, { Preset } from "./PresetButtons";
 import { motion } from "framer-motion";
 import {
@@ -140,6 +141,20 @@ const ImpliedVolTool = () => {
   const [skew, setSkew] = useState(-0.1);
   const [smile, setSmile] = useState(0.05);
 
+  const captureRef = useRef<HTMLDivElement>(null);
+  const apply = useCallback((s: any) => {
+    if (s.optType) setOptType(s.optType);
+    if (s.mktPrice != null) setMktPrice(s.mktPrice);
+    if (s.ivS != null) setIvS(s.ivS);
+    if (s.ivK != null) setIvK(s.ivK);
+    if (s.ivR != null) setIvR(s.ivR);
+    if (s.ivT != null) setIvT(s.ivT);
+    if (s.baseVol != null) setBaseVol(s.baseVol);
+    if (s.skew != null) setSkew(s.skew);
+    if (s.smile != null) setSmile(s.smile);
+  }, []);
+  useSharedState("iv", apply);
+
   // Compute IV
   const ivResult = useMemo(() => {
     const iv = impliedVol(mktPrice, ivS, ivK, ivR / 100, ivT, optType === "call");
@@ -209,11 +224,21 @@ const ImpliedVolTool = () => {
         </motion.div>
 
         <motion.div
+          ref={captureRef}
           initial={{ opacity: 0, y: 12 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           className="rounded-2xl border border-border bg-card p-8 md:p-10 glow-gold"
         >
+          <div className="flex justify-end mb-4">
+            <ShareExportToolbar
+              storageKey="iv"
+              anchorId="implied-vol"
+              state={{ optType, mktPrice, ivS, ivK, ivR, ivT, baseVol, skew, smile }}
+              captureRef={captureRef}
+              filename="implied-vol"
+            />
+          </div>
           {/* Formula */}
           <div className="text-center mb-8 py-4 px-6 rounded-xl bg-secondary/50 border border-border">
             <p className="text-lg md:text-xl font-mono text-gold tracking-wide">

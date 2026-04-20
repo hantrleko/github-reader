@@ -1,6 +1,6 @@
 import { useParams, Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowLeft, BookOpen } from "lucide-react";
+import { ArrowLeft, BookOpen, Calculator } from "lucide-react";
 import { topicsData } from "@/data/topicsData";
 
 const TopicDetail = () => {
@@ -125,6 +125,18 @@ const TopicDetail = () => {
                     ))}
                   </ol>
                 </div>
+              )}
+
+              {/* Linked interactive tool */}
+              {kp.tool && (
+                <Link
+                  to={`/#${kp.tool.id}`}
+                  className="mt-6 inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-gold/10 border border-gold/30 text-gold text-sm font-mono hover:bg-gold/20 transition-colors"
+                >
+                  <Calculator className="w-4 h-4" />
+                  打开 {kp.tool.label}
+                  <span aria-hidden>→</span>
+                </Link>
               )}
             </motion.article>
           ))}

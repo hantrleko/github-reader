@@ -14,6 +14,8 @@ export interface KnowledgePoint {
   formula?: string;
   formulaExplain?: string;
   derivation?: string[];
+  /** Optional: section id on the home page that hosts the related interactive tool */
+  tool?: { id: string; label: string };
 }
 
 export interface TopicData {
@@ -118,6 +120,7 @@ export const topicsData: TopicData[] = [
           "5. [E(Rᵢ)−E(Rₘ)] / [(Cov(Rᵢ,Rₘ)−σ²ₘ)/σₘ] = [E(Rₘ)−Rᶠ] / σₘ",
           "6. 整理得 E(Rᵢ) − Rᶠ = [Cov(Rᵢ,Rₘ)/Var(Rₘ)] × [E(Rₘ) − Rᶠ]",
         ],
+        tool: { id: "calculator", label: "CAPM 计算器" },
       },
       {
         title: "CAPM 的实证检验",
@@ -775,6 +778,7 @@ export const topicsData: TopicData[] = [
           "5. 定义 A = 𝟏'Σ⁻¹μ，B = μ'Σ⁻¹μ，C = 𝟏'Σ⁻¹𝟏，D = BC − A²",
           "6. 最优权重：w* = (1/D)[B(Σ⁻¹𝟏) − A(Σ⁻¹μ)] + (μ₀/D)[C(Σ⁻¹μ) − A(Σ⁻¹𝟏)]",
         ],
+        tool: { id: "frontier", label: "有效前沿" },
       },
       // ── 二、有效前沿与分离定理 ──
       {
@@ -784,6 +788,7 @@ export const topicsData: TopicData[] = [
         formula: "w_GMV = Σ⁻¹𝟏 / (𝟏'Σ⁻¹𝟏)；σ²_GMV = 1 / C",
         formulaExplain:
           "GMV 组合仅需协方差矩阵估计，是对估计误差最鲁棒的组合之一。",
+        tool: { id: "frontier", label: "有效前沿" },
       },
       {
         title: "两基金分离定理",
@@ -816,6 +821,7 @@ export const topicsData: TopicData[] = [
         formula: "VaR_α = μₚ − z_α · σₚ（参数法）",
         formulaExplain:
           "α = 99% 时 z_α ≈ 2.326。持有期调整：VaR_T = VaR_1 × √T（假设 i.i.d.）。",
+        tool: { id: "calculator", label: "VaR 计算器" },
       },
       {
         title: "Expected Shortfall (CVaR)",
@@ -1026,6 +1032,7 @@ export const topicsData: TopicData[] = [
           "5. 边界条件 C(S,T) = max(S−K, 0)，通过热传导方程变换求解",
           "6. N(d₁) = Delta，N(d₂) = Q 下期权被执行的概率",
         ],
+        tool: { id: "calculator", label: "Black-Scholes 计算器" },
       },
       {
         title: "希腊字母 (Greeks)",
@@ -1041,6 +1048,7 @@ export const topicsData: TopicData[] = [
           "4. Theta-Gamma 关系（BS PDE）：Θ + ½σ²S²Γ + (r−q)SΔ = rV",
           "5. 在 ATM 附近：Γ 最大，Theta 消耗最快（时间价值衰减）",
         ],
+        tool: { id: "calculator", label: "Greeks 敏感性分析" },
       },
       // ── 三、数值方法 ──
       {
@@ -1072,6 +1080,7 @@ export const topicsData: TopicData[] = [
           "4. 控制变量：用已知解析解的简单期权校正估计偏差",
           "5. Longstaff-Schwartz (LSM)：回归法处理美式期权的最优行权",
         ],
+        tool: { id: "mc-pricer", label: "MC 期权定价器" },
       },
       {
         title: "有限差分法",
@@ -1089,6 +1098,7 @@ export const topicsData: TopicData[] = [
         formula: "C_market = BS(S, K, T, r, σ_imp) ⟹ 数值反解 σ_imp(K, T)",
         formulaExplain:
           "波动率曲面 σ(K, T) 是二维函数。equity 市场通常呈 skew（低 K 处 IV 更高）。",
+        tool: { id: "implied-vol", label: "隐含波动率工具" },
       },
       {
         title: "局部波动率模型 (Dupire)",
@@ -1121,6 +1131,7 @@ export const topicsData: TopicData[] = [
         formula: "C_knock-in + C_knock-out = C_vanilla",
         formulaExplain:
           "敲入 + 敲出 = 普通期权（同一障碍、相同参数）。连续监控的障碍期权在 BS 下有解析解。",
+        tool: { id: "mc-pricer", label: "MC 障碍期权" },
       },
       {
         title: "亚式期权 (Asian Options)",
@@ -1129,6 +1140,7 @@ export const topicsData: TopicData[] = [
         formula: "Payoff = max(Ā − K, 0)，Ā = (1/n)Σ S(tᵢ)（算术平均）",
         formulaExplain:
           "几何平均亚式期权有 BS 型解析解，常用作算术平均的控制变量。",
+        tool: { id: "mc-pricer", label: "MC 亚式期权" },
       },
       {
         title: "互换与互换期权 (Swaptions)",
@@ -1146,6 +1158,7 @@ export const topicsData: TopicData[] = [
         formula: "Vasicek: dr = κ(θ − r)dt + σdW；零息债券 P(t,T) = A(t,T)e^{−B(t,T)r_t}",
         formulaExplain:
           "Vasicek 模型允许负利率。CIR 用 σ√r 替代 σ 保证利率非负。Hull-White 加入时变 θ(t)。",
+        tool: { id: "rate-model", label: "利率模型模拟器" },
       },
       {
         title: "信用违约互换 (CDS) 定价",
@@ -1162,6 +1175,7 @@ export const topicsData: TopicData[] = [
         formula: "SVI: w(k) = a + b[ρ(k−m) + √((k−m)² + σ²)]",
         formulaExplain:
           "w = σ²_imp · T（总隐含方差），k = ln(K/F)（对数行权价）。5 参数 (a,b,ρ,m,σ) 拟合每个到期日。",
+        tool: { id: "implied-vol", label: "波动率曲面" },
       },
     ],
   },
@@ -1190,6 +1204,7 @@ export const topicsData: TopicData[] = [
           "4. 持有期调整：VaR_T = VaR_1 × √T（i.i.d. 假设下）",
           "5. 置信水平转换：VaR_99% ≈ VaR_95% × z₀.₉₉/z₀.₉₅ ≈ 1.41 × VaR_95%",
         ],
+        tool: { id: "calculator", label: "VaR 计算器" },
       },
       {
         title: "条件在险价值 (CVaR / Expected Shortfall)",
