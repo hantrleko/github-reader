@@ -1106,6 +1106,7 @@ const SVARTool = () => {
   const [s2, setS2] = useState(1.0);         // structural shock 2 std
   const [boots, setBoots] = useState(200);
   const [shockIdx, setShockIdx] = useState<0 | 1>(0); // which structural shock to plot
+  const [identMode, setIdentMode] = useState<"chol" | "bq" | "both">("chol");
 
   /* Simulate reduced-form VAR(1):
      y_t = A y_{t-1} + u_t,  u_t = B0 ε_t,  ε ~ N(0, diag(s1², s2²))
@@ -1182,7 +1183,38 @@ const SVARTool = () => {
     const L21 = s12 / L11;
     const L22 = Math.sqrt(Math.max(s22 - L21 * L21, 1e-12));
     const Lhat = [[L11, 0], [L21, L22]];
-    return { A, L: Lhat };
+    return { A, L: Lhat, Sigma: [[s11, s12], [s12, s22]] as number[][] };
+  };
+
+  /* Blanchard-Quah long-run identification:
+     Long-run cumulative impact C(1) = (I - A)⁻¹. Restrict C(1)·B to be lower-triangular
+     ⇒ shock ε₂ has zero long-run effect on y₁.
+     Algorithm: H = C(1) Σ C(1)', Cholesky H = K K' (lower-tri), B = (I - A) · K. */
+  const bqIdentify = (A: number[][], Sigma: number[][]) => {
+    const I_A = [[1 - A[0][0], -A[0][1]], [-A[1][0], 1 - A[1][1]]];
+    const det = I_A[0][0] * I_A[1][1] - I_A[0][1] * I_A[1][0];
+    if (Math.abs(det) < 1e-8) return [[0, 0], [0, 0]];
+    const C1 = [
+      [ I_A[1][1] / det, -I_A[0][1] / det],
+      [-I_A[1][0] / det,  I_A[0][0] / det],
+    ];
+    const CS = [
+      [C1[0][0] * Sigma[0][0] + C1[0][1] * Sigma[1][0], C1[0][0] * Sigma[0][1] + C1[0][1] * Sigma[1][1]],
+      [C1[1][0] * Sigma[0][0] + C1[1][1] * Sigma[1][0], C1[1][0] * Sigma[0][1] + C1[1][1] * Sigma[1][1]],
+    ];
+    const Hm = [
+      [CS[0][0] * C1[0][0] + CS[0][1] * C1[0][1], CS[0][0] * C1[1][0] + CS[0][1] * C1[1][1]],
+      [CS[1][0] * C1[0][0] + CS[1][1] * C1[0][1], CS[1][0] * C1[1][0] + CS[1][1] * C1[1][1]],
+    ];
+    const k11 = Math.sqrt(Math.max(Hm[0][0], 1e-12));
+    const k21 = Hm[1][0] / k11;
+    const k22 = Math.sqrt(Math.max(Hm[1][1] - k21 * k21, 1e-12));
+    const K = [[k11, 0], [k21, k22]];
+    const B = [
+      [I_A[0][0] * K[0][0] + I_A[0][1] * K[1][0], I_A[0][0] * K[0][1] + I_A[0][1] * K[1][1]],
+      [I_A[1][0] * K[0][0] + I_A[1][1] * K[1][0], I_A[1][0] * K[0][1] + I_A[1][1] * K[1][1]],
+    ];
+    return B;
   };
 
   /* IRF: Φ_h = A^h, structural IRF to shock j of size 1 SD: Φ_h · L · e_j           */
@@ -1200,8 +1232,10 @@ const SVARTool = () => {
   const result = useMemo(() => {
     const rng = mulberry32(seed);
     const y = simulate(rng);
-    const { A, L } = estimate(y);
-    const irf = computeIRF(A, L, shockIdx, H);
+    const { A, L, Sigma } = estimate(y);
+    const Bbq = bqIdentify(A, Sigma);
+    const irfChol = computeIRF(A, L, shockIdx, H);
+    const irfBq = computeIRF(A, Bbq, shockIdx, H);
 
     // Bootstrap: resample residuals to get IRF CI
     const n = y.length;
@@ -1226,50 +1260,59 @@ const SVARTool = () => {
     const res1 = fits[0].res, res2 = fits[1].res;
     const c1 = fits[0].c, c2 = fits[1].c;
 
-    const irfBoot: number[][][] = []; // [B][h+1][2]
+    const irfBootC: number[][][] = []; // Cholesky bootstrap
+    const irfBootB: number[][][] = []; // BQ bootstrap
     for (let b = 0; b < boots; b++) {
       const ysim: number[][] = [[y[0][0], y[0][1]]];
       for (let t = 1; t < n; t++) {
         const idx = Math.floor(rng() * res1.length);
-        const u1 = res1[idx], u2 = res2[idx]; // pair-resample to preserve contemp corr
+        const u1 = res1[idx], u2 = res2[idx];
         ysim.push([
           c1 + A[0][0] * ysim[t-1][0] + A[0][1] * ysim[t-1][1] + u1,
           c2 + A[1][0] * ysim[t-1][0] + A[1][1] * ysim[t-1][1] + u2,
         ]);
       }
       const est = estimate(ysim);
-      const ib = computeIRF(est.A, est.L, shockIdx, H);
-      irfBoot.push(ib.map(p => [p.y1, p.y2]));
+      const ibC = computeIRF(est.A, est.L, shockIdx, H);
+      const Bb = bqIdentify(est.A, est.Sigma);
+      const ibB = computeIRF(est.A, Bb, shockIdx, H);
+      irfBootC.push(ibC.map(p => [p.y1, p.y2]));
+      irfBootB.push(ibB.map(p => [p.y1, p.y2]));
     }
 
-    // Quantiles per horizon
     const q = (arr: number[], p: number) => {
       const s = [...arr].sort((a, b) => a - b);
       const i = Math.min(s.length - 1, Math.max(0, Math.floor(p * (s.length - 1))));
       return s[i];
     };
-    const series = irf.map((pt, h) => {
-      const v1 = irfBoot.map(b => b[h][0]);
-      const v2 = irfBoot.map(b => b[h][1]);
+    const series2 = irfChol.map((pt, h) => {
+      const v1c = irfBootC.map(b => b[h][0]);
+      const v2c = irfBootC.map(b => b[h][1]);
+      const v1b = irfBootB.map(b => b[h][0]);
+      const v2b = irfBootB.map(b => b[h][1]);
+      const ptB = irfBq[h];
+      const c_y1_lo = boots ? q(v1c, 0.025) : pt.y1;
+      const c_y1_hi = boots ? q(v1c, 0.975) : pt.y1;
+      const c_y2_lo = boots ? q(v2c, 0.025) : pt.y2;
+      const c_y2_hi = boots ? q(v2c, 0.975) : pt.y2;
+      const b_y1_lo = boots ? q(v1b, 0.025) : ptB.y1;
+      const b_y1_hi = boots ? q(v1b, 0.975) : ptB.y1;
+      const b_y2_lo = boots ? q(v2b, 0.025) : ptB.y2;
+      const b_y2_hi = boots ? q(v2b, 0.975) : ptB.y2;
       return {
         h,
+        // Cholesky
         y1: pt.y1, y2: pt.y2,
-        y1_lo: boots ? q(v1, 0.025) : pt.y1,
-        y1_hi: boots ? q(v1, 0.975) : pt.y1,
-        y2_lo: boots ? q(v2, 0.025) : pt.y2,
-        y2_hi: boots ? q(v2, 0.975) : pt.y2,
-        // Recharts band needs [lo, hi-lo] for stacked area trick; simpler: provide band = hi-lo
-        y1_band: 0, y2_band: 0,
+        y1_lo_v: c_y1_lo, y1_band_v: c_y1_hi - c_y1_lo,
+        y2_lo_v: c_y2_lo, y2_band_v: c_y2_hi - c_y2_lo,
+        // BQ
+        y1_bq: ptB.y1, y2_bq: ptB.y2,
+        y1_bq_lo_v: b_y1_lo, y1_bq_band_v: b_y1_hi - b_y1_lo,
+        y2_bq_lo_v: b_y2_lo, y2_bq_band_v: b_y2_hi - b_y2_lo,
       };
     });
-    // Convert to lo + band height pairs for Area stacking
-    const series2 = series.map(s => ({
-      ...s,
-      y1_lo_v: s.y1_lo, y1_band_v: s.y1_hi - s.y1_lo,
-      y2_lo_v: s.y2_lo, y2_band_v: s.y2_hi - s.y2_lo,
-    }));
 
-    return { series: series2, A, L };
+    return { series: series2, A, L, Bbq };
   }, [seed, T, H, a11, a12, a21, a22, b21, s1, s2, boots, shockIdx]);
 
   const presets: Preset[] = [
@@ -1313,46 +1356,81 @@ const SVARTool = () => {
         </div>
       </div>
 
-      {/* Identification note */}
-      <div className="p-3 rounded-lg border border-border bg-secondary/30 text-xs font-mono text-muted-foreground leading-relaxed">
-        <span className="text-gold">Cholesky 识别：</span>
-        u<sub>t</sub> = B₀ ε<sub>t</sub>，B₀ = [[1,0],[b̂₂₁,1]] · diag(σ̂)。
-        排序假设 y₁ 在同期不被 ε₂ 影响（y₁ 先于 y₂ 反应）。
-        IRF<sub>h</sub> = Â<sup>h</sup> · L̂ · e<sub>j</sub>，95% 置信带由残差对 bootstrap 得到。
+      {/* Identification mode toggle */}
+      <div className="flex items-center gap-2 flex-wrap">
+        <span className="text-[10px] font-mono text-muted-foreground uppercase tracking-wider">识别策略</span>
+        {[
+          { id: "chol", label: "Cholesky" },
+          { id: "bq", label: "Blanchard-Quah (长期约束)" },
+          { id: "both", label: "对比叠加" },
+        ].map(opt => (
+          <button key={opt.id} onClick={() => setIdentMode(opt.id as "chol" | "bq" | "both")}
+            className={`px-3 py-1.5 text-xs font-mono rounded-md border transition-all ${
+              identMode === opt.id
+                ? "bg-gold/20 border-gold text-gold"
+                : "bg-secondary/50 border-border text-muted-foreground hover:text-foreground"
+            }`}>
+            {opt.label}
+          </button>
+        ))}
       </div>
 
-      {/* Two IRF plots: response of y1 and y2 */}
-      {[
-        { key: "y1", label: `y₁ 对 ε${shockIdx + 1} 的脉冲响应`, lo: "y1_lo_v", band: "y1_band_v", line: "y1" },
-        { key: "y2", label: `y₂ 对 ε${shockIdx + 1} 的脉冲响应`, lo: "y2_lo_v", band: "y2_band_v", line: "y2" },
-      ].map(cfg => (
-        <div key={cfg.key} className="rounded-xl border border-border bg-background/50 p-4">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-mono text-muted-foreground uppercase tracking-wider">{cfg.label}</span>
-            <span className="text-[10px] font-mono text-muted-foreground">95% Bootstrap CI</span>
-          </div>
-          <ResponsiveContainer width="100%" height={220}>
-            <ComposedChart data={result.series} margin={{ top: 10, right: 20, left: 0, bottom: 5 }}>
-              <CartesianGrid stroke={CHART_GRID} strokeDasharray="3 3" />
-              <XAxis dataKey="h" stroke={CHART_TEXT} tick={{ fontSize: 11 }}
-                label={{ value: "horizon h", position: "insideBottom", offset: -2, fill: CHART_TEXT, fontSize: 10 }} />
-              <YAxis stroke={CHART_TEXT} tick={{ fontSize: 11 }} />
-              <Tooltip
-                contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", fontSize: 11, fontFamily: "monospace" }}
-                formatter={(v: number) => v.toFixed(3)}
-              />
-              <ReferenceLine y={0} stroke={CHART_TEXT} strokeDasharray="2 2" />
-              {/* Lower bound (transparent) + band height (filled) for shaded CI */}
-              <Area type="monotone" dataKey={cfg.lo} stackId={cfg.key} stroke="none" fill="transparent" />
-              <Area type="monotone" dataKey={cfg.band} stackId={cfg.key} stroke="none" fill={CHART_GOLD} fillOpacity={0.18} />
-              <Line type="monotone" dataKey={cfg.line} stroke={CHART_GOLD} strokeWidth={2.5} dot={{ r: 2.5, fill: CHART_GOLD }} />
-            </ComposedChart>
-          </ResponsiveContainer>
+      {/* Identification note */}
+      <div className="p-3 rounded-lg border border-border bg-secondary/30 text-xs font-mono text-muted-foreground leading-relaxed space-y-1">
+        <div><span className="text-gold">Cholesky：</span>
+          B₀ 下三角 ⇒ ε₂ 同期不影响 y₁。短期排序假设。
         </div>
-      ))}
+        <div><span style={{ color: CHART_TEAL }}>Blanchard-Quah：</span>
+          长期累计影响 C(1)·B 下三角 ⇒ ε₂ <span className="underline">长期</span>累计对 y₁ 为 0
+          (典型用法：ε₁=供给冲击有 LR 效果，ε₂=需求冲击仅短期)。
+        </div>
+      </div>
+
+      {/* Two IRF plots */}
+      {[
+        { key: "y1", label: `y₁ 对 ε${shockIdx + 1} 的脉冲响应` },
+        { key: "y2", label: `y₂ 对 ε${shockIdx + 1} 的脉冲响应` },
+      ].map(cfg => {
+        const cLo = `${cfg.key}_lo_v`, cBand = `${cfg.key}_band_v`, cLine = cfg.key;
+        const bLo = `${cfg.key}_bq_lo_v`, bBand = `${cfg.key}_bq_band_v`, bLine = `${cfg.key}_bq`;
+        const showChol = identMode === "chol" || identMode === "both";
+        const showBq = identMode === "bq" || identMode === "both";
+        return (
+          <div key={cfg.key} className="rounded-xl border border-border bg-background/50 p-4">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-xs font-mono text-muted-foreground uppercase tracking-wider">{cfg.label}</span>
+              <span className="text-[10px] font-mono text-muted-foreground">95% Bootstrap CI</span>
+            </div>
+            <ResponsiveContainer width="100%" height={220}>
+              <ComposedChart data={result.series} margin={{ top: 10, right: 20, left: 0, bottom: 5 }}>
+                <CartesianGrid stroke={CHART_GRID} strokeDasharray="3 3" />
+                <XAxis dataKey="h" stroke={CHART_TEXT} tick={{ fontSize: 11 }}
+                  label={{ value: "horizon h", position: "insideBottom", offset: -2, fill: CHART_TEXT, fontSize: 10 }} />
+                <YAxis stroke={CHART_TEXT} tick={{ fontSize: 11 }} />
+                <Tooltip
+                  contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", fontSize: 11, fontFamily: "monospace" }}
+                  formatter={(v: number) => v.toFixed(3)}
+                />
+                <Legend wrapperStyle={{ fontSize: 10, fontFamily: "monospace" }} />
+                <ReferenceLine y={0} stroke={CHART_TEXT} strokeDasharray="2 2" />
+                {showChol && <>
+                  <Area type="monotone" dataKey={cLo} stackId={`c-${cfg.key}`} stroke="none" fill="transparent" legendType="none" name="" />
+                  <Area type="monotone" dataKey={cBand} stackId={`c-${cfg.key}`} stroke="none" fill={CHART_GOLD} fillOpacity={0.18} legendType="none" name="" />
+                  <Line type="monotone" dataKey={cLine} stroke={CHART_GOLD} strokeWidth={2.5} dot={{ r: 2.5, fill: CHART_GOLD }} name="Cholesky" />
+                </>}
+                {showBq && <>
+                  <Area type="monotone" dataKey={bLo} stackId={`b-${cfg.key}`} stroke="none" fill="transparent" legendType="none" name="" />
+                  <Area type="monotone" dataKey={bBand} stackId={`b-${cfg.key}`} stroke="none" fill={CHART_TEAL} fillOpacity={0.18} legendType="none" name="" />
+                  <Line type="monotone" dataKey={bLine} stroke={CHART_TEAL} strokeWidth={2.5} strokeDasharray="5 3" dot={{ r: 2, fill: CHART_TEAL }} name="Blanchard-Quah" />
+                </>}
+              </ComposedChart>
+            </ResponsiveContainer>
+          </div>
+        );
+      })}
 
       {/* Estimated matrices */}
-      <div className="grid md:grid-cols-2 gap-3">
+      <div className="grid md:grid-cols-3 gap-3">
         <div className="p-3 rounded-lg border border-border bg-secondary/30">
           <div className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground mb-1">估计 Â</div>
           <pre className="text-xs font-mono text-gold leading-tight">
@@ -1361,10 +1439,17 @@ const SVARTool = () => {
           </pre>
         </div>
         <div className="p-3 rounded-lg border border-border bg-secondary/30">
-          <div className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground mb-1">Cholesky L̂  (= B̂₀ · diag(σ̂))</div>
+          <div className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground mb-1">Cholesky L̂</div>
           <pre className="text-xs font-mono text-gold leading-tight">
 {`[ ${result.L[0][0].toFixed(3).padStart(6)}  ${result.L[0][1].toFixed(3).padStart(6)} ]
 [ ${result.L[1][0].toFixed(3).padStart(6)}  ${result.L[1][1].toFixed(3).padStart(6)} ]`}
+          </pre>
+        </div>
+        <div className="p-3 rounded-lg border border-border bg-secondary/30">
+          <div className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground mb-1">BQ B̂  (长期约束)</div>
+          <pre className="text-xs font-mono leading-tight" style={{ color: CHART_TEAL }}>
+{`[ ${result.Bbq[0][0].toFixed(3).padStart(6)}  ${result.Bbq[0][1].toFixed(3).padStart(6)} ]
+[ ${result.Bbq[1][0].toFixed(3).padStart(6)}  ${result.Bbq[1][1].toFixed(3).padStart(6)} ]`}
           </pre>
         </div>
       </div>
