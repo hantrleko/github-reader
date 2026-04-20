@@ -4,6 +4,8 @@ import {
   ScatterChart, Scatter, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   ReferenceLine, Line, LineChart, Legend, ComposedChart, ReferenceArea, Area,
 } from "recharts";
+import { BlockMath, InlineMath } from "react-katex";
+import "katex/dist/katex.min.css";
 import PresetButtons, { Preset } from "./PresetButtons";
 import { ShareExportToolbar, useSharedState } from "@/lib/calculatorTools";
 
@@ -1401,7 +1403,108 @@ const SVARTool = () => {
       });
     }
 
-    return { series: series2, A, L, Bbq, hd, fevd };
+    /* ── Granger causality F-tests on the bivariate VAR(1) ──
+       H0: y_j does NOT Granger-cause y_i  ⇔  A[i,j]=0  (only 1 lag, q=1, df1=1, df2=n-3) */
+    const grangerSSR = (col: 0 | 1, useY1: boolean, useY2: boolean) => {
+      let n = 0;
+      const xs: number[][] = [];
+      const ys: number[] = [];
+      for (let t = 1; t < y.length; t++) {
+        const row = [1];
+        if (useY1) row.push(y[t - 1][0]);
+        if (useY2) row.push(y[t - 1][1]);
+        xs.push(row); ys.push(y[t][col]); n++;
+      }
+      const k = xs[0].length;
+      const XtX: number[][] = Array.from({ length: k }, () => Array(k).fill(0));
+      const Xty: number[] = Array(k).fill(0);
+      for (let i = 0; i < n; i++) {
+        for (let a = 0; a < k; a++) {
+          Xty[a] += xs[i][a] * ys[i];
+          for (let b2 = 0; b2 < k; b2++) XtX[a][b2] += xs[i][a] * xs[i][b2];
+        }
+      }
+      const M = XtX.map((r, i) => [...r, Xty[i]]);
+      for (let i = 0; i < k; i++) {
+        let piv = i;
+        for (let r = i + 1; r < k; r++) if (Math.abs(M[r][i]) > Math.abs(M[piv][i])) piv = r;
+        [M[i], M[piv]] = [M[piv], M[i]];
+        const d = M[i][i] || 1e-12;
+        for (let j = i; j <= k; j++) M[i][j] /= d;
+        for (let r = 0; r < k; r++) if (r !== i) {
+          const f = M[r][i];
+          for (let j = i; j <= k; j++) M[r][j] -= f * M[i][j];
+        }
+      }
+      const beta = M.map(r => r[k]);
+      let ssr = 0;
+      for (let i = 0; i < n; i++) {
+        let yhat = 0;
+        for (let a = 0; a < k; a++) yhat += xs[i][a] * beta[a];
+        ssr += (ys[i] - yhat) ** 2;
+      }
+      return { ssr, n, k };
+    };
+
+    /* p-value for F(1, df2) via incomplete beta function:
+       P(F > f) = I_{df2/(df2+f)}(df2/2, 1/2)                                            */
+    const lnGamma = (z: number): number => {
+      const c = [76.18009172947146, -86.50532032941677, 24.01409824083091,
+                 -1.231739572450155, 0.1208650973866179e-2, -0.5395239384953e-5];
+      let x = z, y2 = z, tmp = x + 5.5;
+      tmp -= (x + 0.5) * Math.log(tmp);
+      let ser = 1.000000000190015;
+      for (let j = 0; j < 6; j++) { y2 += 1; ser += c[j] / y2; }
+      return -tmp + Math.log(2.5066282746310005 * ser / x);
+    };
+    const betacf = (a: number, b: number, x: number): number => {
+      const MAXIT = 200, EPS = 3e-7, FPMIN = 1e-30;
+      const qab = a + b, qap = a + 1, qam = a - 1;
+      let c = 1, d = 1 - qab * x / qap;
+      if (Math.abs(d) < FPMIN) d = FPMIN;
+      d = 1 / d; let h = d;
+      for (let m = 1; m <= MAXIT; m++) {
+        const m2 = 2 * m;
+        let aa = m * (b - m) * x / ((qam + m2) * (a + m2));
+        d = 1 + aa * d; if (Math.abs(d) < FPMIN) d = FPMIN;
+        c = 1 + aa / c; if (Math.abs(c) < FPMIN) c = FPMIN;
+        d = 1 / d; h *= d * c;
+        aa = -(a + m) * (qab + m) * x / ((a + m2) * (qap + m2));
+        d = 1 + aa * d; if (Math.abs(d) < FPMIN) d = FPMIN;
+        c = 1 + aa / c; if (Math.abs(c) < FPMIN) c = FPMIN;
+        d = 1 / d; const del = d * c; h *= del;
+        if (Math.abs(del - 1) < EPS) break;
+      }
+      return h;
+    };
+    const betaI = (a: number, b: number, x: number): number => {
+      if (x <= 0) return 0; if (x >= 1) return 1;
+      const bt = Math.exp(lnGamma(a + b) - lnGamma(a) - lnGamma(b) + a * Math.log(x) + b * Math.log(1 - x));
+      if (x < (a + 1) / (a + b + 2)) return bt * betacf(a, b, x) / a;
+      return 1 - bt * betacf(b, a, 1 - x) / b;
+    };
+    const pValueF = (f: number, df1: number, df2: number) => {
+      if (!Number.isFinite(f) || f <= 0) return 1;
+      return betaI(df2 / 2, df1 / 2, df2 / (df2 + df1 * f));
+    };
+
+    // Test: does y2 Granger-cause y1?  (drop y2 lag from y1 equation)
+    const ug1 = grangerSSR(0, true, true);
+    const rg1 = grangerSSR(0, true, false);
+    const F_2to1 = ((rg1.ssr - ug1.ssr) / 1) / (ug1.ssr / (ug1.n - ug1.k));
+    const p_2to1 = pValueF(F_2to1, 1, ug1.n - ug1.k);
+    // Test: does y1 Granger-cause y2?
+    const ug2 = grangerSSR(1, true, true);
+    const rg2 = grangerSSR(1, false, true);
+    const F_1to2 = ((rg2.ssr - ug2.ssr) / 1) / (ug2.ssr / (ug2.n - ug2.k));
+    const p_1to2 = pValueF(F_1to2, 1, ug2.n - ug2.k);
+
+    const granger = {
+      y2_to_y1: { F: F_2to1, p: p_2to1, df: ug1.n - ug1.k },
+      y1_to_y2: { F: F_1to2, p: p_1to2, df: ug2.n - ug2.k },
+    };
+
+    return { series: series2, A, L, Bbq, hd, fevd, granger };
   }, [seed, T, H, a11, a12, a21, a22, b21, s1, s2, boots, shockIdx]);
 
   const presets: Preset[] = [
@@ -1465,13 +1568,20 @@ const SVARTool = () => {
       </div>
 
       {/* Identification note */}
-      <div className="p-3 rounded-lg border border-border bg-secondary/30 text-xs font-mono text-muted-foreground leading-relaxed space-y-1">
-        <div><span className="text-gold">Cholesky：</span>
-          B₀ 下三角 ⇒ ε₂ 同期不影响 y₁。短期排序假设。
+      <div className="p-4 rounded-xl border border-border bg-secondary/30 space-y-2">
+        <div className="flex items-start gap-2">
+          <span className="text-[11px] font-mono text-gold uppercase tracking-wider mt-0.5 shrink-0">Cholesky</span>
+          <div className="text-xs text-muted-foreground leading-relaxed">
+            短期排序约束：<InlineMath math={String.raw`B_0`} /> 下三角 ⇒ <InlineMath math={String.raw`\varepsilon_2`} /> 同期不影响 <InlineMath math={String.raw`y_1`} />。
+            <span className="text-foreground/70 ml-1">(Short-run recursive ordering)</span>
+          </div>
         </div>
-        <div><span style={{ color: CHART_TEAL }}>Blanchard-Quah：</span>
-          长期累计影响 C(1)·B 下三角 ⇒ ε₂ <span className="underline">长期</span>累计对 y₁ 为 0
-          (典型用法：ε₁=供给冲击有 LR 效果，ε₂=需求冲击仅短期)。
+        <div className="flex items-start gap-2">
+          <span className="text-[11px] font-mono uppercase tracking-wider mt-0.5 shrink-0" style={{ color: CHART_TEAL }}>Blanchard-Quah</span>
+          <div className="text-xs text-muted-foreground leading-relaxed">
+            长期约束：<InlineMath math={String.raw`C(1)\,B`} /> 下三角 ⇒ <InlineMath math={String.raw`\varepsilon_2`} /> <span className="underline">长期</span>累计对 <InlineMath math={String.raw`y_1`} /> 为 0。
+            <span className="text-foreground/70 ml-1">(Long-run zero restriction; e.g. demand shocks have no permanent effect on output)</span>
+          </div>
         </div>
       </div>
 
@@ -1589,6 +1699,62 @@ const SVARTool = () => {
         </div>
       </div>
 
+      {/* Granger causality */}
+      <div className="rounded-xl border border-border bg-background/50 p-4">
+        <div className="flex items-center justify-between mb-3">
+          <div>
+            <div className="text-xs font-mono text-muted-foreground uppercase tracking-wider">Granger 因果检验</div>
+            <div className="text-[10px] font-mono text-muted-foreground/70">Granger Causality F-Test  ·  H₀: lagged predictor is jointly insignificant</div>
+          </div>
+          <div className="text-[10px] font-mono text-muted-foreground tabular-nums">
+            df = (1, {result.granger.y2_to_y1.df})  ·  α = 0.05
+          </div>
+        </div>
+        <div className="grid md:grid-cols-2 gap-3">
+          {[
+            { dir: "y₂ ⟶ y₁", direnEn: "Does y₂ Granger-cause y₁ ?", coef: "A_{12}", res: result.granger.y2_to_y1 },
+            { dir: "y₁ ⟶ y₂", direnEn: "Does y₁ Granger-cause y₂ ?", coef: "A_{21}", res: result.granger.y1_to_y2 },
+          ].map(t => {
+            const reject = t.res.p < 0.05;
+            return (
+              <div key={t.dir} className={`p-3 rounded-lg border ${reject ? "border-gold/40 bg-gold/5" : "border-border bg-secondary/30"}`}>
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-mono font-semibold text-foreground">{t.dir}</span>
+                  <span className={`text-[10px] font-mono px-2 py-0.5 rounded ${reject ? "bg-gold/20 text-gold" : "bg-muted text-muted-foreground"}`}>
+                    {reject ? "拒绝 H₀ · Reject" : "不拒绝 · Fail to reject"}
+                  </span>
+                </div>
+                <div className="text-[11px] text-muted-foreground mb-1">{t.direnEn}</div>
+                <div className="text-[10px] font-mono text-muted-foreground mb-2">
+                  H₀ : <InlineMath math={t.coef + " = 0"} />
+                </div>
+                <div className="grid grid-cols-2 gap-2 text-xs font-mono">
+                  <div className="flex items-center justify-between p-2 rounded bg-background/50 border border-border/50">
+                    <span className="text-muted-foreground">F-stat</span>
+                    <span className="text-gold tabular-nums font-semibold">{Number.isFinite(t.res.F) ? t.res.F.toFixed(3) : "—"}</span>
+                  </div>
+                  <div className="flex items-center justify-between p-2 rounded bg-background/50 border border-border/50">
+                    <span className="text-muted-foreground">p-value</span>
+                    <span className={`tabular-nums font-semibold ${reject ? "text-gold" : "text-foreground"}`}>
+                      {t.res.p < 0.001 ? "< 0.001" : t.res.p.toFixed(4)}
+                    </span>
+                  </div>
+                </div>
+                <div className="mt-2 text-[10px] text-muted-foreground leading-relaxed">
+                  {reject
+                    ? <>有证据表明存在 Granger 因果关系。<span className="text-foreground/60">Significant predictive content.</span></>
+                    : <>没有显著证据表明 Granger 因果关系。<span className="text-foreground/60">No significant predictive content.</span></>}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+        <div className="mt-3 text-[10px] font-mono text-muted-foreground leading-relaxed text-center">
+          <InlineMath math={String.raw`F = \dfrac{(\mathrm{SSR}_R - \mathrm{SSR}_U)/q}{\mathrm{SSR}_U/(n-k)} \;\sim\; F(q,\, n-k)`} />
+          <span className="ml-2">此处 <InlineMath math="q=1" /> (1 期滞后), <InlineMath math="k=3" /> (常数 + 2 滞后)</span>
+        </div>
+      </div>
+
       {/* Estimated matrices */}
       <div className="grid md:grid-cols-3 gap-3">
         <div className="p-3 rounded-lg border border-border bg-secondary/30">
@@ -1654,12 +1820,22 @@ const ResultRow = ({ label, value, truth, se, color }: { label: string; value: n
 /* ──────────────────  Main module  ────────────────── */
 type ToolId = "olsiv" | "did" | "rdd" | "gmm" | "svar";
 
-const TOOLS: { id: ToolId; name: string; formula: string; component: React.FC }[] = [
-  { id: "olsiv", name: "OLS / IV", formula: "y = α + βx + ε,  内生时用 IV: x̂ = π̂z → y", component: OLSvsIV },
-  { id: "did",   name: "DID",      formula: "τ̂ = (Ȳ₁ₚₒₛₜ − Ȳ₁ₚᵣₑ) − (Ȳ₀ₚₒₛₜ − Ȳ₀ₚᵣₑ)", component: DIDTool },
-  { id: "rdd",   name: "RDD",      formula: "τ = lim_{x→c⁺} E[Y|X=x] − lim_{x→c⁻} E[Y|X=x]", component: RDDTool },
-  { id: "gmm",   name: "GMM",      formula: "μ̂ = argmin g(μ)' W g(μ)", component: GMMTool },
-  { id: "svar",  name: "SVAR / IRF", formula: "y_t = A y_{t-1} + B₀ ε_t,   IRF_h = A^h · L · e_j  (Cholesky)", component: SVARTool },
+const TOOLS: { id: ToolId; name: string; nameEn: string; formula: string; component: React.FC }[] = [
+  { id: "olsiv", name: "OLS / IV (工具变量)", nameEn: "Ordinary Least Squares & Instrumental Variables",
+    formula: String.raw`y_i = \alpha + \beta\, x_i + \varepsilon_i \qquad\text{(IV)}\quad \hat{x}_i = \hat{\pi}\, z_i \;\Rightarrow\; \hat{\beta}_{\mathrm{IV}}`,
+    component: OLSvsIV },
+  { id: "did",   name: "DID (双重差分)", nameEn: "Difference-in-Differences",
+    formula: String.raw`\hat{\tau}_{\mathrm{DID}} = \bigl(\bar{Y}_{1,\mathrm{post}} - \bar{Y}_{1,\mathrm{pre}}\bigr) - \bigl(\bar{Y}_{0,\mathrm{post}} - \bar{Y}_{0,\mathrm{pre}}\bigr)`,
+    component: DIDTool },
+  { id: "rdd",   name: "RDD (断点回归)", nameEn: "Regression Discontinuity Design",
+    formula: String.raw`\tau_{\mathrm{RDD}} = \lim_{x \downarrow c} \mathbb{E}[Y\mid X=x] - \lim_{x \uparrow c} \mathbb{E}[Y\mid X=x]`,
+    component: RDDTool },
+  { id: "gmm",   name: "GMM (广义矩估计)", nameEn: "Generalized Method of Moments",
+    formula: String.raw`\hat{\mu}_{\mathrm{GMM}} = \arg\min_{\mu}\; g(\mu)^{\!\top}\, W\, g(\mu), \qquad J = n \cdot Q(\hat{\mu}_{\mathrm{eff}}) \sim \chi^2_{q-p}`,
+    component: GMMTool },
+  { id: "svar",  name: "SVAR / IRF (结构向量自回归)", nameEn: "Structural Vector Autoregression & Impulse Response",
+    formula: String.raw`y_t = A\, y_{t-1} + B_0\, \varepsilon_t, \qquad \mathrm{IRF}_h = A^{h} \cdot L \cdot e_j`,
+    component: SVARTool },
 ];
 
 const EconometricsTools = () => {
@@ -1729,10 +1905,13 @@ const EconometricsTools = () => {
           </div>
 
           {/* Formula bar */}
-          <div className="text-center mb-8 py-4 px-6 rounded-xl bg-secondary/50 border border-border">
-            <p className="text-base md:text-lg font-mono text-gold tracking-wide">
-              {Active.formula}
+          <div className="text-center mb-8 py-5 px-6 rounded-xl bg-gradient-to-br from-secondary/60 to-secondary/30 border border-gold/20 shadow-inner">
+            <p className="text-[10px] font-mono uppercase tracking-[0.25em] text-gold/80 mb-2">
+              {Active.nameEn}
             </p>
+            <div className="text-foreground katex-display-gold">
+              <BlockMath math={Active.formula} />
+            </div>
           </div>
 
           <Active.component />

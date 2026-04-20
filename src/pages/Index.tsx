@@ -40,9 +40,15 @@ const Index = () => {
 
       {/* Footer */}
       <footer className="py-12 px-6 border-t border-border">
-        <div className="container text-center">
+        <div className="container text-center space-y-2">
           <p className="text-xs font-mono text-muted-foreground tracking-wider">
-            Economics & Finance Lab — 系统学习经济金融实证方法
+            Economics &amp; Finance Lab — A systematic approach to empirical methods in economics and finance
+          </p>
+          <p className="text-[11px] font-mono text-muted-foreground/70 tracking-wider">
+            经济金融实验室 · 系统化的实证方法学习平台
+          </p>
+          <p className="text-[10px] font-mono text-gold/70 tracking-[0.2em] uppercase pt-2">
+            Version 1.0  ·  © 2026
           </p>
         </div>
       </footer>

@@ -55,8 +55,9 @@ const Navbar = () => {
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border/50">
       <div className="container flex items-center justify-between h-12">
-        <span className="text-xs font-mono font-semibold text-foreground tracking-wider">
+        <span className="text-xs font-mono font-semibold text-foreground tracking-wider flex items-center gap-2">
           Econ & Finance Lab
+          <span className="text-[9px] px-1.5 py-0.5 rounded bg-gold/15 text-gold font-normal tracking-wider">V1.0</span>
         </span>
 
         {/* Desktop */}
