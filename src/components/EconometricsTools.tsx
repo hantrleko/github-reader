@@ -275,10 +275,12 @@ const DIDTool = () => {
       for (let t = 0; t < T; t++) {
         const c = trend * t + cFE + randn(rng) * noise;
         const k = t - treatStart;
-        // pre-trend bias: linearly differential trend before treatment as well
         const bias = preTrendBias * t;
-        const tau_t = k >= 0 ? effect : 0;
+        const tau_t = trueTau(k, dynamicMode, effect);
         const tv = trend * t + treatLevel + bias + tau_t + tFE + randn(rng) * noise;
+        cRow.push(c);
+        tRow.push(tv);
+      }
         cRow.push(c);
         tRow.push(tv);
       }
