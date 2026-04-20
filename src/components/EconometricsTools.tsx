@@ -680,78 +680,301 @@ const GMMTool = () => {
   const [w1, setW1] = useState(0.5);  // weight on first moment
   const [seed, setSeed] = useState(99);
 
+  const [includeM3, setIncludeM3] = useState(false);
+
   const data = useMemo(() => {
     const rng = mulberry32(seed);
     const xs: number[] = [];
     for (let i = 0; i < n; i++) xs.push(trueMu + trueSigma * randn(rng));
-    const m1 = xs.reduce((a, b) => a + b, 0) / n;                        // E[x] = μ
-    const m2 = xs.reduce((a, b) => a + b * b, 0) / n;                    // E[x²] = μ² + σ²
-
-    // Two moment conditions:
-    //   g1(μ) = m1 - μ
-    //   g2(μ) = m2 - (μ² + σ²)  (treat σ as nuisance, use sample σ)
-    // Weighted GMM: μ̂ = arg min  W·g(μ)'g(μ)
-    // Use weight w1 on g1, (1-w1) on g2
+    const m1 = xs.reduce((a, b) => a + b, 0) / n;
+    const m2 = xs.reduce((a, b) => a + b * b, 0) / n;
+    const m3 = xs.reduce((a, b) => a + b * b * b, 0) / n;
     const sampleVar = m2 - m1 * m1;
-    // grid search over μ
-    let bestMu = m1, bestQ = Infinity;
-    for (let mu = -5; mu <= 10; mu += 0.001) {
-      const g1 = m1 - mu;
-      const g2 = m2 - (mu * mu + sampleVar);
-      const Q = w1 * g1 * g1 + (1 - w1) * g2 * g2;
-      if (Q < bestQ) { bestQ = Q; bestMu = mu; }
-    }
+    const sigmaUsed = Math.sqrt(Math.max(sampleVar, 1e-6));
 
-    // build objective curve for plot
+    // Per-observation moment functions. For k moments, returns array length k.
+    // g_i(μ) where E[g_i(μ₀)] = 0 :
+    //   g₁ = x_i − μ
+    //   g₂ = x_i² − (μ² + σ²)             (σ from sample)
+    //   g₃ = x_i³ − (μ³ + 3 μ σ²)         (Normal third moment)
+    const gPerObs = (mu: number, xi: number): number[] => {
+      const arr = [xi - mu, xi * xi - (mu * mu + sigmaUsed * sigmaUsed)];
+      if (includeM3) arr.push(xi * xi * xi - (mu * mu * mu + 3 * mu * sigmaUsed * sigmaUsed));
+      return arr;
+    };
+    const gBar = (mu: number): number[] => {
+      const k = includeM3 ? 3 : 2;
+      const acc = new Array(k).fill(0);
+      for (let i = 0; i < n; i++) {
+        const gi = gPerObs(mu, xs[i]);
+        for (let j = 0; j < k; j++) acc[j] += gi[j];
+      }
+      return acc.map((v) => v / n);
+    };
+    const Qfn = (mu: number, W: number[][]): number => {
+      const g = gBar(mu);
+      let s = 0;
+      for (let i = 0; i < g.length; i++)
+        for (let j = 0; j < g.length; j++) s += g[i] * W[i][j] * g[j];
+      return s;
+    };
+    const k = includeM3 ? 3 : 2;
+    const eye = (kk: number): number[][] => {
+      const M: number[][] = [];
+      for (let i = 0; i < kk; i++) {
+        const r = new Array(kk).fill(0);
+        // user-controlled weight on g₁ vs the rest (only meaningful when k=2)
+        if (kk === 2) r[i] = i === 0 ? w1 : 1 - w1;
+        else r[i] = 1 / kk;
+        M[i] = r;
+      }
+      return M;
+    };
+
+    // ── Step 1: GMM with identity / user weight, grid search for μ ──
+    const W1 = eye(k);
+    const grid = (W: number[][]) => {
+      let bestMu = m1, bestQ = Infinity;
+      for (let mu = -5; mu <= 10; mu += 0.001) {
+        const Q = Qfn(mu, W);
+        if (Q < bestQ) { bestQ = Q; bestMu = mu; }
+      }
+      return { bestMu, bestQ };
+    };
+    const step1 = grid(W1);
+
+    // ── Step 2: Efficient GMM. Compute Ω̂ at μ̂_step1, take inverse → W₂ ──
+    // Ω̂ = (1/n) Σ g_i g_i' (centered at gBar)
+    const muHat1 = step1.bestMu;
+    const gAtHat = gBar(muHat1);
+    const Omega: number[][] = Array.from({ length: k }, () => new Array(k).fill(0));
+    for (let i = 0; i < n; i++) {
+      const gi = gPerObs(muHat1, xs[i]).map((v, j) => v - gAtHat[j]);
+      for (let a = 0; a < k; a++)
+        for (let b = 0; b < k; b++) Omega[a][b] += gi[a] * gi[b];
+    }
+    for (let a = 0; a < k; a++) for (let b = 0; b < k; b++) Omega[a][b] /= n;
+    // Invert (k=2 or 3) via Gauss–Jordan
+    const invertMatrix = (M: number[][]): number[][] | null => {
+      const sz = M.length;
+      const A = M.map((r, i) => [...r, ...new Array(sz).fill(0).map((_, j) => (i === j ? 1 : 0))]);
+      for (let i = 0; i < sz; i++) {
+        // pivot
+        let piv = A[i][i];
+        if (Math.abs(piv) < 1e-10) {
+          let swap = -1;
+          for (let r = i + 1; r < sz; r++) if (Math.abs(A[r][i]) > 1e-10) { swap = r; break; }
+          if (swap < 0) return null;
+          [A[i], A[swap]] = [A[swap], A[i]];
+          piv = A[i][i];
+        }
+        for (let j = 0; j < 2 * sz; j++) A[i][j] /= piv;
+        for (let r = 0; r < sz; r++) {
+          if (r === i) continue;
+          const f = A[r][i];
+          for (let j = 0; j < 2 * sz; j++) A[r][j] -= f * A[i][j];
+        }
+      }
+      return A.map((r) => r.slice(sz));
+    };
+    const Winv = invertMatrix(Omega) ?? eye(k);
+    const step2 = grid(Winv);
+
+    // ── J statistic = n · Q(μ̂_eff) using efficient W (=Ω̂⁻¹) ──
+    // df = #moments − #params = k − 1
+    const J = n * step2.bestQ;
+    const df = k - 1;
+
+    // χ² survival function via series for regularized upper incomplete gamma
+    // For df=1 or 2 use closed forms; general via continued fraction.
+    const chi2Sf = (x: number, dof: number): number => {
+      if (x <= 0) return 1;
+      if (dof === 1) {
+        // SF = erfc(sqrt(x/2))
+        const erfc = (v: number) => {
+          const t = 1 / (1 + 0.3275911 * Math.abs(v));
+          const y = 1 - (((((
+            1.061405429 * t - 1.453152027) * t) + 1.421413741) * t - 0.284496736) * t + 0.254829592) * t * Math.exp(-v * v);
+          return v >= 0 ? 1 - y : 1 + y;
+        };
+        return erfc(Math.sqrt(x / 2));
+      }
+      if (dof === 2) return Math.exp(-x / 2);
+      // general: use regularized upper incomplete gamma Q(a, x/2) with a = dof/2
+      const a = dof / 2;
+      const z = x / 2;
+      // Use continued fraction (Numerical Recipes 6.2)
+      const ITMAX = 200, EPS = 3e-7, FPMIN = 1e-30;
+      let b = z + 1 - a;
+      let c0 = 1 / FPMIN;
+      let d = 1 / b;
+      let h = d;
+      for (let i = 1; i <= ITMAX; i++) {
+        const an = -i * (i - a);
+        b += 2;
+        d = an * d + b;
+        if (Math.abs(d) < FPMIN) d = FPMIN;
+        c0 = b + an / c0;
+        if (Math.abs(c0) < FPMIN) c0 = FPMIN;
+        d = 1 / d;
+        const del = d * c0;
+        h *= del;
+        if (Math.abs(del - 1) < EPS) break;
+      }
+      // gln (Stirling)
+      const gln = (xx: number) => {
+        const cof = [76.18009172947146, -86.50532032941677, 24.01409824083091,
+          -1.231739572450155, 0.001208650973866179, -5.395239384953e-6];
+        let y = xx, ttt = xx + 5.5;
+        ttt -= (xx + 0.5) * Math.log(ttt);
+        let ser = 1.000000000190015;
+        for (let j = 0; j < 6; j++) { y += 1; ser += cof[j] / y; }
+        return -ttt + Math.log(2.5066282746310005 * ser / xx);
+      };
+      return Math.exp(-z + a * Math.log(z) - gln(a)) * h;
+    };
+    const pJ = df > 0 ? chi2Sf(J, df) : NaN;
+
+    // ── Q(μ) curve under the active weight matrix (= W₁ for tutorial) ──
+    const muLo = trueMu - 2.5, muHi = trueMu + 2.5, nGrid = 161;
     const curve: any[] = [];
-    for (let mu = trueMu - 2; mu <= trueMu + 2; mu += 0.05) {
-      const g1 = m1 - mu;
-      const g2 = m2 - (mu * mu + sampleVar);
-      curve.push({ mu: +mu.toFixed(3), Q: +(w1 * g1 * g1 + (1 - w1) * g2 * g2).toFixed(4) });
+    let qMin = Infinity, qMax = -Infinity;
+    for (let i = 0; i < nGrid; i++) {
+      const mu = muLo + ((muHi - muLo) * i) / (nGrid - 1);
+      const q1 = Qfn(mu, W1);
+      qMin = Math.min(qMin, q1);
+      qMax = Math.max(qMax, q1);
+      curve.push({ mu: +mu.toFixed(3), Q: +q1.toFixed(6) });
     }
 
-    return { m1, m2, bestMu, bestQ, curve, sampleVar };
-  }, [trueMu, trueSigma, n, w1, seed]);
+    return {
+      m1, m2, m3,
+      sampleVar,
+      step1, step2,
+      bestMu: step2.bestMu,
+      bestQ: step2.bestQ,
+      curve,
+      J, df, pJ,
+      k,
+    };
+  }, [trueMu, trueSigma, n, w1, seed, includeM3]);
 
   return (
     <div className="space-y-6">
       <PresetButtons presets={[
-        { name: "等权重", description: "w₁=0.5, 标准 GMM", apply: () => { setW1(0.5); setTrueMu(2); setTrueSigma(1.5); } },
-        { name: "仅一阶矩", description: "w₁=1, 退化为样本均值", apply: () => { setW1(1); } },
-        { name: "仅二阶矩", description: "w₁=0, 用方差识别 μ", apply: () => { setW1(0); } },
+        { name: "等权重 (2 矩)", description: "标准 GMM, 仅识别 μ", apply: () => { setW1(0.5); setTrueMu(2); setTrueSigma(1.5); setIncludeM3(false); } },
+        { name: "仅一阶矩", description: "w₁=1, 退化为样本均值", apply: () => { setW1(1); setIncludeM3(false); } },
+        { name: "过度识别 (3 矩)", description: "加入三阶矩, J 检验有意义", apply: () => { setW1(0.5); setTrueMu(2); setTrueSigma(1.5); setIncludeM3(true); setN(500); } },
       ]} />
+
+      <div className="flex items-center gap-3 flex-wrap">
+        <span className="text-xs font-mono text-muted-foreground">矩条件数：</span>
+        <button
+          onClick={() => setIncludeM3(false)}
+          className={"text-xs px-3 py-1.5 rounded border font-mono transition-colors " +
+            (!includeM3 ? "border-gold bg-gold/10 text-gold" : "border-border text-muted-foreground hover:border-foreground/40")}
+        >
+          2 矩 (g₁, g₂) — 恰好识别
+        </button>
+        <button
+          onClick={() => setIncludeM3(true)}
+          className={"text-xs px-3 py-1.5 rounded border font-mono transition-colors " +
+            (includeM3 ? "border-gold bg-gold/10 text-gold" : "border-border text-muted-foreground hover:border-foreground/40")}
+        >
+          3 矩 (g₁, g₂, g₃) — 过度识别 (df=2)
+        </button>
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="space-y-3">
           <Slider label="真实 μ" value={trueMu} min={-3} max={5} step={0.1} onChange={setTrueMu} />
           <Slider label="真实 σ" value={trueSigma} min={0.2} max={3} step={0.1} onChange={setTrueSigma} />
           <Slider label="样本量 n" value={n} min={30} max={2000} step={10} onChange={setN} />
-          <Slider label="一阶矩权重 w₁" value={w1} min={0} max={1} step={0.05} onChange={setW1} />
+          <Slider label="一阶矩权重 w₁ (仅 2 矩有效)" value={w1} min={0} max={1} step={0.05} onChange={setW1} />
           <Slider label="随机种子" value={seed} min={1} max={999} step={1} onChange={setSeed} />
         </div>
         <div className="space-y-3">
-          <ResultRow label="GMM μ̂" value={data.bestMu} truth={trueMu} color={CHART_GOLD} />
-          <ResultRow label="样本一阶矩 m₁" value={data.m1} color={CHART_TEAL} />
-          <ResultRow label="样本二阶矩 m₂" value={data.m2} color={CHART_BLUE} />
-          <ResultRow label="目标函数 Q(μ̂)" value={data.bestQ} color={CHART_RED} />
+          <ResultRow label="一阶段 μ̂ (用户权重)" value={data.step1.bestMu} truth={trueMu} color={CHART_TEAL} />
+          <ResultRow label="二阶段有效 GMM μ̂" value={data.step2.bestMu} truth={trueMu} color={CHART_GOLD} />
+          <ResultRow label="目标函数 Q(μ̂_eff)" value={data.step2.bestQ} color={CHART_RED} />
+
+          {/* J test card */}
+          <div
+            className="p-3 rounded-lg border bg-secondary/30"
+            style={{ borderColor: data.df > 0 && data.pJ < 0.05 ? CHART_RED : "hsl(var(--border))" }}
+          >
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-xs font-mono text-muted-foreground">
+                Hansen J 过度识别检验 (χ²(df={data.df}))
+              </span>
+              {data.df === 0 && (
+                <span className="text-[10px] font-mono text-muted-foreground">恰好识别 → J 不可用</span>
+              )}
+            </div>
+            <div className="flex items-center gap-4 flex-wrap">
+              <span className="text-base font-mono font-semibold tabular-nums" style={{ color: CHART_GOLD }}>
+                J = {Number.isFinite(data.J) ? data.J.toFixed(3) : "—"}
+              </span>
+              <span className="text-sm font-mono tabular-nums">
+                p ={" "}
+                <span
+                  className="font-bold"
+                  style={{ color: Number.isFinite(data.pJ) && data.pJ < 0.05 ? CHART_RED : CHART_TEAL }}
+                >
+                  {Number.isFinite(data.pJ) ? data.pJ.toFixed(4) : "—"}
+                </span>
+              </span>
+              <span className="text-[10px] font-mono text-muted-foreground">
+                {data.df === 0
+                  ? "需要 ≥1 多余矩"
+                  : Number.isFinite(data.pJ) && data.pJ < 0.05
+                    ? "拒绝矩条件 — 模型可能错设"
+                    : "未拒绝 — 矩条件相容"}
+              </span>
+            </div>
+          </div>
+
           <div className="text-xs font-mono text-muted-foreground p-3 rounded-lg bg-secondary/40 border border-border leading-relaxed">
-            <p><span className="text-gold">矩条件：</span>g₁ = m₁ − μ， g₂ = m₂ − (μ² + σ²)</p>
-            <p><span className="text-gold">GMM：</span>μ̂ = argmin g(μ)' W g(μ)，权重矩阵 W 由 w₁ 控制。</p>
-            <p>当模型正确设定时，过度识别 J 检验可用于检验矩条件有效性。</p>
+            <p><span className="text-gold">矩条件：</span>g₁=m₁−μ, g₂=m₂−(μ²+σ²){data.k === 3 && ", g₃=m₃−(μ³+3μσ²)"}</p>
+            <p><span className="text-gold">两步 GMM：</span>μ̂_(1) → Ω̂⁻¹ → μ̂_(2) (有效)</p>
+            <p><span className="text-gold">J 统计量：</span>J = n·Q(μ̂_eff) ~ χ²(q−p)，q=矩数, p=参数数。</p>
           </div>
         </div>
       </div>
-      <div className="h-[300px] mt-4 rounded-xl border border-border p-4 bg-secondary/20">
-        <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={data.curve}>
-            <CartesianGrid stroke={CHART_GRID} strokeDasharray="3 3" />
-            <XAxis dataKey="mu" stroke={CHART_TEXT} tick={{ fontSize: 11 }} label={{ value: "μ", position: "insideBottom", offset: -2, fill: CHART_TEXT, fontSize: 11 }} />
-            <YAxis stroke={CHART_TEXT} tick={{ fontSize: 11 }} label={{ value: "Q(μ)", angle: -90, position: "insideLeft", fill: CHART_TEXT, fontSize: 11 }} />
-            <Tooltip contentStyle={{ background: "hsl(220 15% 12%)", border: `1px solid ${CHART_GRID}`, fontSize: 11 }} />
-            <ReferenceLine x={trueMu} stroke={CHART_TEAL} strokeDasharray="4 4" label={{ value: "真实 μ", fill: CHART_TEAL, fontSize: 10 }} />
-            <ReferenceLine x={data.bestMu} stroke={CHART_GOLD} strokeDasharray="4 4" label={{ value: "μ̂", fill: CHART_GOLD, fontSize: 10, position: "top" }} />
-            <Line dataKey="Q" stroke={CHART_GOLD} strokeWidth={2} dot={false} />
-          </LineChart>
-        </ResponsiveContainer>
+
+      {/* Q(μ) curve */}
+      <div className="rounded-xl border border-border bg-secondary/20 p-4">
+        <div className="flex items-center justify-between mb-2">
+          <h4 className="text-sm font-semibold text-foreground">目标函数曲线 Q(μ)</h4>
+          <span className="text-[10px] font-mono text-muted-foreground">在用户权重矩阵下绘制</span>
+        </div>
+        <div className="h-[300px]">
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={data.curve}>
+              <CartesianGrid stroke={CHART_GRID} strokeDasharray="3 3" />
+              <XAxis dataKey="mu" type="number" domain={["dataMin", "dataMax"]} stroke={CHART_TEXT} tick={{ fontSize: 11 }} label={{ value: "μ", position: "insideBottom", offset: -2, fill: CHART_TEXT, fontSize: 11 }} />
+              <YAxis stroke={CHART_TEXT} tick={{ fontSize: 11 }} label={{ value: "Q(μ)", angle: -90, position: "insideLeft", fill: CHART_TEXT, fontSize: 11 }} />
+              <Tooltip contentStyle={{ background: "hsl(220 15% 12%)", border: `1px solid ${CHART_GRID}`, fontSize: 11 }} />
+              <Legend wrapperStyle={{ fontSize: 11 }} />
+              <ReferenceLine x={trueMu} stroke={CHART_TEAL} strokeDasharray="4 4" label={{ value: "真实 μ", fill: CHART_TEAL, fontSize: 10, position: "top" }} />
+              <ReferenceLine x={data.step1.bestMu} stroke={CHART_BLUE} strokeDasharray="3 3" label={{ value: "μ̂_(1)", fill: CHART_BLUE, fontSize: 10, position: "insideTopRight" }} />
+              <ReferenceLine x={data.step2.bestMu} stroke={CHART_GOLD} strokeDasharray="4 4" label={{ value: "μ̂_(2) 有效", fill: CHART_GOLD, fontSize: 10, position: "top" }} />
+              <Line dataKey="Q" name="Q(μ)" stroke={CHART_GOLD} strokeWidth={2} dot={false} />
+              {/* explicit minimum marker */}
+              <Scatter
+                name="最小点"
+                data={[{ mu: +data.step1.bestMu.toFixed(3), Q: +data.step1.bestQ.toFixed(6) }]}
+                dataKey="Q"
+                fill={CHART_RED}
+                shape="star"
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+        <p className="mt-2 text-[11px] text-muted-foreground font-mono">
+          曲线在 <span className="text-gold">μ̂</span> 处取最小值；曲率越大 → 信息越多 → μ̂ 估计越精确（渐近方差越小）。
+          切换到 <span className="text-gold">3 矩</span> 模式后，J = n·Q(μ̂) 的大小可检验额外的矩条件是否被数据支持。
+        </p>
       </div>
     </div>
   );
