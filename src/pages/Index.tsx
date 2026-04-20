@@ -11,6 +11,7 @@ import RateModelSimulator from "@/components/RateModelSimulator";
 import ImpliedVolTool from "@/components/ImpliedVolTool";
 import MCOptionPricer from "@/components/MCOptionPricer";
 import LearningPath from "@/components/LearningPath";
+import EconometricsTools from "@/components/EconometricsTools";
 
 const Index = () => {
   const { hash } = useLocation();
