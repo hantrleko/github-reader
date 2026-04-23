@@ -1,0 +1,71 @@
+{
+  "common": {
+    "loading": "加载中…",
+    "error": "出错了",
+    "retry": "重试",
+    "fetch": "拉取",
+    "synthetic": "合成数据",
+    "real": "真实数据",
+    "presets": "预设场景",
+    "reset": "重置"
+  },
+  "nav": {
+    "brand": "Econ & Finance Lab",
+    "version": "V1.2",
+    "lang": "语言",
+    "groups": {
+      "guide": "导览",
+      "basics": "基础定价",
+      "deriv": "衍生品 · 高阶",
+      "fixed": "固收 & 组合",
+      "econ": "计量 & 风险",
+      "quant": "量化 & 学习"
+    },
+    "items": {
+      "hero": "首页",
+      "topics": "主题概览",
+      "models": "模型展示",
+      "calculator": "Black-Scholes",
+      "implied-vol": "隐含波动率",
+      "mc-pricer": "MC 期权定价",
+      "derivatives": "SVI / Heston / LSM",
+      "bond": "债券计算",
+      "rate-model": "利率模型",
+      "frontier": "有效前沿",
+      "econometrics": "OLS / GARCH / Kalman",
+      "risk": "Merton / Copula / 压测",
+      "quant": "量化策略实验室",
+      "quiz": "互动测验",
+      "learning": "学习路径",
+      "changelog": "更新日志"
+    }
+  },
+  "hero": {
+    "tagline": "Economics & Finance Lab",
+    "title1": "掌握经济金融",
+    "title2": "实证方法与模型",
+    "subtitle": "从经典资产定价到现代计量经济学,系统学习金融实证研究的核心模型、方法论与数据分析技术",
+    "cta1": "探索交互工具",
+    "cta2": "浏览学科",
+    "stats": { "topics": "学科领域", "formulas": "核心公式", "knowledge": "知识点" }
+  },
+  "realData": {
+    "title": "真实数据",
+    "load": "加载真实数据",
+    "symbol": "标的代码",
+    "range": "时间范围",
+    "fetch": "拉取",
+    "fetching": "拉取中…",
+    "success": "成功 · {{n}} 条数据",
+    "fail": "拉取失败,已回退合成数据",
+    "vol": "年化波动率",
+    "ret": "年化收益率",
+    "lastPrice": "最新价",
+    "tip": "数据来源:Yahoo Finance / FRED / Ken French — 免费公共 API",
+    "applyToParams": "已应用到下方参数"
+  },
+  "changelog": {
+    "title": "Changelog",
+    "subtitle": "追踪平台每次迭代的能力增量"
+  }
+}

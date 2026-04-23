@@ -3,9 +3,43 @@ import { Sparkles, Wrench, BookOpen, Zap, Layout, GraduationCap } from "lucide-r
 
 const RELEASES = [
   {
-    version: "V1.1",
+    version: "V1.2",
     date: "2026-04",
     tag: "Current",
+    highlights: [
+      {
+        icon: Zap,
+        title: "真实世界数据接入",
+        items: [
+          "新增 3 个 Lovable Cloud Edge Function 数据代理:market-quotes (Yahoo Finance,股票/ETF 历史日线)、fred-series (FRED,美国国债收益率/CPI/失业率)、famafrench-factors (Ken French 5 因子月度数据)",
+          "新增 RealDataLoader 通用工具栏组件:输入标的代码 (AAPL/SPY/^GSPC 等) 与时间区间,一键拉取真实价格和年化波动率,自动填入计算器参数",
+          "React Query 5 分钟缓存 + 失败自动回退合成数据,网络/限流不阻塞使用",
+        ],
+      },
+      {
+        icon: GraduationCap,
+        title: "中英双语 (i18n)",
+        items: [
+          "接入 react-i18next + i18next-browser-languagedetector,顶部新增 🌐 EN/中 切换按钮",
+          "首次访问按浏览器语言自动检测,选择持久化到 localStorage",
+          "本轮覆盖 Navbar、Hero、RealDataLoader、Changelog 等核心交互文案;计算器内部文案 key 化将在 V1.2.x 持续推进",
+        ],
+      },
+      {
+        icon: Wrench,
+        title: "基础设施",
+        items: [
+          "启用 Lovable Cloud (Supabase 后端) + 配置 FRED_API_KEY 密钥",
+          "Edge Function 默认 verify_jwt=false,公开数据无需登录即可拉取",
+          "TanStack Query 已集成,后续可扩展更多 hook 复用缓存层",
+        ],
+      },
+    ],
+  },
+  {
+    version: "V1.1",
+    date: "2026-04",
+    tag: "Stable",
     highlights: [
       {
         icon: Layout,

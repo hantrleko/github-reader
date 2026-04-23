@@ -1,12 +1,14 @@
 import { motion } from "framer-motion";
 import { TrendingUp, BookOpen, BarChart3, ArrowDown } from "lucide-react";
 import { topicsData } from "@/data/topicsData";
+import { useTranslation } from "react-i18next";
 
 const scrollTo = (id: string) => {
   document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
 };
 
 const HeroSection = () => {
+  const { t } = useTranslation();
   const topicCount = topicsData.length;
   const knowledgeCount = topicsData.reduce((s, t) => s + t.knowledgePoints.length, 0);
   const formulaCount = topicsData.reduce(
@@ -15,9 +17,9 @@ const HeroSection = () => {
   );
 
   const stats = [
-    { icon: BookOpen, label: "学科领域", count: `${topicCount}`, target: "topics" },
-    { icon: BarChart3, label: "核心公式", count: `${formulaCount}`, target: "models" },
-    { icon: TrendingUp, label: "知识点", count: `${knowledgeCount}`, target: "topics" },
+    { icon: BookOpen, label: t("hero.stats.topics"), count: `${topicCount}`, target: "topics" },
+    { icon: BarChart3, label: t("hero.stats.formulas"), count: `${formulaCount}`, target: "models" },
+    { icon: TrendingUp, label: t("hero.stats.knowledge"), count: `${knowledgeCount}`, target: "topics" },
   ];
 
   return (
@@ -32,15 +34,15 @@ const HeroSection = () => {
           transition={{ duration: 0.8, ease: "easeOut" }}
         >
           <p className="text-sm font-mono uppercase tracking-[0.3em] text-gold mb-6">
-            Economics & Finance Lab
+            {t("hero.tagline")}
           </p>
           <h1 className="text-5xl md:text-7xl lg:text-8xl font-display font-bold leading-[1.05] mb-6">
-            <span className="text-foreground">掌握经济金融</span>
+            <span className="text-foreground">{t("hero.title1")}</span>
             <br />
-            <span className="text-gold-gradient">实证方法与模型</span>
+            <span className="text-gold-gradient">{t("hero.title2")}</span>
           </h1>
           <p className="max-w-2xl mx-auto text-lg md:text-xl text-muted-foreground font-light leading-relaxed mb-10">
-            从经典资产定价到现代计量经济学，系统学习金融实证研究的核心模型、方法论与数据分析技术
+            {t("hero.subtitle")}
           </p>
         </motion.div>
 
@@ -55,14 +57,14 @@ const HeroSection = () => {
             onClick={() => scrollTo("calculator")}
             className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-primary text-primary-foreground font-medium text-sm transition-transform hover:scale-105 shadow-lg"
           >
-            探索交互工具
+            {t("hero.cta1")}
             <ArrowDown className="w-4 h-4" />
           </button>
           <button
             onClick={() => scrollTo("topics")}
             className="inline-flex items-center gap-2 px-6 py-3 rounded-lg border border-border bg-card/60 backdrop-blur-sm text-foreground font-medium text-sm transition-colors hover:border-gold/40 hover:text-gold"
           >
-            浏览学科
+            {t("hero.cta2")}
           </button>
         </motion.div>
 
