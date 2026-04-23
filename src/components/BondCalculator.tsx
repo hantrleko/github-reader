@@ -2,6 +2,7 @@ import { useState, useMemo, useRef, useCallback } from "react";
 import { ShareExportToolbar, useSharedState } from "@/lib/calculatorTools";
 import PresetButtons, { Preset } from "./PresetButtons";
 import { motion } from "framer-motion";
+import { useTranslation } from "react-i18next";
 import { BlockMath } from "react-katex";
 import "katex/dist/katex.min.css";
 import {
@@ -141,6 +142,7 @@ function cashFlowData(face: number, coupon: number, ytm: number, n: number, freq
 }
 
 const BondCalculator = () => {
+  const { t } = useTranslation();
   const [tab, setTab] = useState<TabId>("pricing");
 
   // Bond params
@@ -241,10 +243,10 @@ const BondCalculator = () => {
           viewport={{ once: true }}
         >
           <p className="text-xs font-mono uppercase tracking-[0.3em] text-gold mb-3">
-            Fixed Income Tools
+            {t("sections.bond.tag")}
           </p>
           <h2 className="text-3xl md:text-5xl font-display font-bold text-foreground">
-            债券计算器
+            {t("sections.bond.title")}
           </h2>
         </motion.div>
 

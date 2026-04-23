@@ -1,5 +1,6 @@
 import { useState, useRef, useCallback } from "react";
 import { motion } from "framer-motion";
+import { useTranslation } from "react-i18next";
 import { BlockMath } from "react-katex";
 import "katex/dist/katex.min.css";
 import { ShareExportToolbar, useSharedState } from "@/lib/calculatorTools";
@@ -26,6 +27,7 @@ const TOOLS: { id: ToolId; name: string; nameEn: string; formula: string; compon
 ];
 
 const QuantStrategyTools = () => {
+  const { t } = useTranslation();
   const [tool, setTool] = useState<ToolId>("backtest");
   const captureRef = useRef<HTMLDivElement>(null);
   const apply = useCallback((s: { tool: ToolId }) => { if (s?.tool) setTool(s.tool); }, []);
@@ -37,11 +39,9 @@ const QuantStrategyTools = () => {
       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-card/20 to-transparent pointer-events-none" />
       <div className="container relative z-10 max-w-5xl">
         <motion.div className="text-center mb-12" initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}>
-          <p className="text-xs font-mono uppercase tracking-[0.3em] text-gold mb-3">Quant Strategy Lab</p>
-          <h2 className="text-3xl md:text-5xl font-display font-bold text-foreground">量化策略实验室</h2>
-          <p className="text-sm text-muted-foreground mt-3 max-w-2xl mx-auto">
-            策略回测 · 贝叶斯组合 · 多因子归因
-          </p>
+          <p className="text-xs font-mono uppercase tracking-[0.3em] text-gold mb-3">{t("sections.quant.tag")}</p>
+          <h2 className="text-3xl md:text-5xl font-display font-bold text-foreground">{t("sections.quant.title")}</h2>
+          <p className="text-sm text-muted-foreground mt-3 max-w-2xl mx-auto">{t("sections.quant.subtitle")}</p>
         </motion.div>
 
         <div className="flex flex-wrap justify-center gap-2 mb-8">
