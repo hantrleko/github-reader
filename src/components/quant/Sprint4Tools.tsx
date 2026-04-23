@@ -281,26 +281,6 @@ export const BacktestTool = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-center gap-2 p-2.5 rounded-md border border-border/60 bg-muted/30 text-[11px] font-mono">
-        <span className="flex items-center gap-1.5 text-gold">
-          <Database className="w-3.5 h-3.5" />
-          Ken French 真实 5 因子月度数据
-        </span>
-        <button
-          onClick={loadRealFF}
-          disabled={ffQuery.isFetching}
-          className="px-2.5 py-1 rounded bg-primary/90 text-primary-foreground hover:bg-primary disabled:opacity-50 flex items-center gap-1"
-        >
-          {ffQuery.isFetching ? <Loader2 className="w-3 h-3 animate-spin" /> : null}
-          {ffQuery.isFetching ? "拉取中…" : "加载真实 F-F"}
-        </button>
-        {ffStatus && (
-          <span className="flex items-center gap-1 text-gold">
-            <CheckCircle2 className="w-3 h-3" />
-            {ffStatus}
-          </span>
-        )}
-      </div>
       <PresetButtons presets={[
         { name: "动量 60D", description: "趋势跟随经典", apply: () => { setStrategy("momentum"); setLookback(60); setMu(0.10); setSigma(0.18); } },
         { name: "均值回归 1.5σ", description: "短期反转", apply: () => { setStrategy("meanrev"); setZThr(1.5); setMrLook(20); setMu(0.05); setSigma(0.25); } },
