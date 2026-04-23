@@ -8,6 +8,7 @@ import { BlockMath, InlineMath } from "react-katex";
 import "katex/dist/katex.min.css";
 import PresetButtons, { Preset } from "./PresetButtons";
 import { ShareExportToolbar, useSharedState } from "@/lib/calculatorTools";
+import { GARCHTool, CointTool, KalmanTool } from "./econ/Sprint1Tools";
 
 const CHART_GOLD = "hsl(43, 80%, 55%)";
 const CHART_TEAL = "hsl(180, 50%, 40%)";
@@ -1818,7 +1819,7 @@ const ResultRow = ({ label, value, truth, se, color }: { label: string; value: n
 };
 
 /* ──────────────────  Main module  ────────────────── */
-type ToolId = "olsiv" | "did" | "rdd" | "gmm" | "svar";
+type ToolId = "olsiv" | "did" | "rdd" | "gmm" | "svar" | "garch" | "coint" | "kalman";
 
 const TOOLS: { id: ToolId; name: string; nameEn: string; formula: string; component: React.FC }[] = [
   { id: "olsiv", name: "OLS / IV (工具变量)", nameEn: "Ordinary Least Squares & Instrumental Variables",
@@ -1836,6 +1837,15 @@ const TOOLS: { id: ToolId; name: string; nameEn: string; formula: string; compon
   { id: "svar",  name: "SVAR / IRF (结构向量自回归)", nameEn: "Structural Vector Autoregression & Impulse Response",
     formula: String.raw`y_t = A\, y_{t-1} + B_0\, \varepsilon_t, \qquad \mathrm{IRF}_h = A^{h} \cdot L \cdot e_j`,
     component: SVARTool },
+  { id: "garch", name: "GARCH / EGARCH (波动率)", nameEn: "Generalized Autoregressive Conditional Heteroskedasticity",
+    formula: String.raw`\sigma_t^2 = \omega + \alpha\,r_{t-1}^2 + \beta\,\sigma_{t-1}^2 \qquad\text{(EGARCH)}\;\; \ln\sigma_t^2 = \omega + \beta\ln\sigma_{t-1}^2 + \alpha(|z_{t-1}|-E|z|) + \gamma z_{t-1}`,
+    component: GARCHTool },
+  { id: "coint", name: "协整 / VECM", nameEn: "Cointegration & Vector Error Correction Model",
+    formula: String.raw`y_t = \alpha + \beta\, x_t + u_t,\quad u_t \sim I(0)\;\Rightarrow\;\Delta y_t = \alpha_{\mathrm{ec}}\,u_{t-1} + \gamma\,\Delta x_t + \varepsilon_t`,
+    component: CointTool },
+  { id: "kalman", name: "Kalman / HP 滤波", nameEn: "Kalman Filter & Hodrick-Prescott Decomposition",
+    formula: String.raw`\hat\beta_{t|t} = \hat\beta_{t|t-1} + K_t\bigl(y_t - x_t\hat\beta_{t|t-1}\bigr),\quad K_t = \dfrac{P_{t|t-1}\,x_t}{x_t^2 P_{t|t-1} + R}`,
+    component: KalmanTool },
 ];
 
 const EconometricsTools = () => {
