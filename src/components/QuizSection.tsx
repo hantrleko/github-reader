@@ -161,7 +161,7 @@ const QUESTIONS: QuizQuestion[] = [
   },
   {
     id: "bl1", topic: "Black-Litterman",
-    question: "BL 模型中\"隐含均衡收益" π 是如何获得的？",
+    question: "BL 模型中\"隐含均衡收益\" π 是如何获得的？",
     options: [
       "从历史收益均值估计",
       "由分析师预测",
