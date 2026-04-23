@@ -2,6 +2,7 @@ import { useState, useMemo, useRef, useCallback } from "react";
 import { motion } from "framer-motion";
 import PresetButtons, { Preset } from "./PresetButtons";
 import { ShareExportToolbar, useSharedState } from "@/lib/calculatorTools";
+import RealDataLoader from "./RealDataLoader";
 import { BlockMath } from "react-katex";
 import "katex/dist/katex.min.css";
 import {
@@ -684,6 +685,16 @@ const CalculatorSection = () => {
             <div className="space-y-5">
               <p className="text-xs font-mono text-muted-foreground uppercase tracking-wider mb-2">参数设置</p>
               <PresetButtons presets={presets[active]} />
+              {active === "bs" && (
+                <RealDataLoader
+                  defaultSymbol="AAPL"
+                  onApply={({ S0, sigma }) => {
+                    // Snap S0 into slider range and clamp sigma (% units, capped at 200%)
+                    setVal("s", Math.max(1, Math.min(500, Math.round(S0))));
+                    setVal("sigma", Math.max(1, Math.min(200, Math.round(sigma * 100 * 10) / 10)));
+                  }}
+                />
+              )}
               {params.map((p) => (
                 <div key={p.key}>
                   <div className="flex justify-between items-baseline mb-2">
