@@ -5,54 +5,38 @@ import ThemeToggle from "./ThemeToggle";
 import LanguageToggle from "./LanguageToggle";
 import { useTranslation } from "react-i18next";
 
-type Item = { id: string; label: string };
-type Group = { label: string; items: Item[] };
+type Item = { id: string; labelKey: string };
+type Group = { labelKey: string; items: Item[] };
 
 const GROUPS: Group[] = [
-  {
-    label: "导览",
-    items: [
-      { id: "hero", label: "首页" },
-      { id: "topics", label: "主题概览" },
-      { id: "models", label: "模型展示" },
-    ],
-  },
-  {
-    label: "基础定价",
-    items: [
-      { id: "calculator", label: "Black-Scholes" },
-      { id: "implied-vol", label: "隐含波动率" },
-      { id: "mc-pricer", label: "MC 期权定价" },
-    ],
-  },
-  {
-    label: "衍生品 · 高阶",
-    items: [{ id: "derivatives", label: "SVI / Heston / LSM" }],
-  },
-  {
-    label: "固收 & 组合",
-    items: [
-      { id: "bond", label: "债券计算" },
-      { id: "rate-model", label: "利率模型" },
-      { id: "frontier", label: "有效前沿" },
-    ],
-  },
-  {
-    label: "计量 & 风险",
-    items: [
-      { id: "econometrics", label: "OLS / GARCH / Kalman" },
-      { id: "risk", label: "Merton / Copula / 压力测试" },
-    ],
-  },
-  {
-    label: "量化 & 学习",
-    items: [
-      { id: "quant", label: "量化策略实验室" },
-      { id: "quiz", label: "互动测验" },
-      { id: "learning", label: "学习路径" },
-      { id: "changelog", label: "更新日志" },
-    ],
-  },
+  { labelKey: "nav.groups.guide", items: [
+    { id: "hero", labelKey: "nav.items.hero" },
+    { id: "topics", labelKey: "nav.items.topics" },
+    { id: "models", labelKey: "nav.items.models" },
+  ]},
+  { labelKey: "nav.groups.basics", items: [
+    { id: "calculator", labelKey: "nav.items.calculator" },
+    { id: "implied-vol", labelKey: "nav.items.implied-vol" },
+    { id: "mc-pricer", labelKey: "nav.items.mc-pricer" },
+  ]},
+  { labelKey: "nav.groups.deriv", items: [
+    { id: "derivatives", labelKey: "nav.items.derivatives" },
+  ]},
+  { labelKey: "nav.groups.fixed", items: [
+    { id: "bond", labelKey: "nav.items.bond" },
+    { id: "rate-model", labelKey: "nav.items.rate-model" },
+    { id: "frontier", labelKey: "nav.items.frontier" },
+  ]},
+  { labelKey: "nav.groups.econ", items: [
+    { id: "econometrics", labelKey: "nav.items.econometrics" },
+    { id: "risk", labelKey: "nav.items.risk" },
+  ]},
+  { labelKey: "nav.groups.quant", items: [
+    { id: "quant", labelKey: "nav.items.quant" },
+    { id: "quiz", labelKey: "nav.items.quiz" },
+    { id: "learning", labelKey: "nav.items.learning" },
+    { id: "changelog", labelKey: "nav.items.changelog" },
+  ]},
 ];
 
 const ALL_IDS = GROUPS.flatMap((g) => g.items.map((i) => i.id));
