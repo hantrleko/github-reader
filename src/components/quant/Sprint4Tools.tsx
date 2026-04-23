@@ -6,6 +6,8 @@ import {
 import { BlockMath } from "react-katex";
 import "katex/dist/katex.min.css";
 import PresetButtons from "../PresetButtons";
+import { useFamaFrench } from "@/lib/marketData";
+import { Database, Loader2, CheckCircle2 } from "lucide-react";
 
 const CHART_GOLD = "hsl(43, 80%, 55%)";
 const CHART_TEAL = "hsl(180, 50%, 40%)";
