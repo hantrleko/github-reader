@@ -1,4 +1,4 @@
-import { useEffect, lazy, Suspense } from "react";
+import { useEffect, useRef, useState, lazy, Suspense, type ReactNode } from "react";
 import { useLocation } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import HeroSection from "@/components/HeroSection";
@@ -29,6 +29,45 @@ const SectionFallback = () => (
     </div>
   </div>
 );
+
+/**
+ * Defer mounting of a heavy section until the user scrolls near it.
+ * Dramatically reduces initial DOM node count and first-paint script time.
+ */
+const DeferMount = ({
+  children,
+  minHeight = 480,
+  rootMargin = "600px 0px",
+}: {
+  children: ReactNode;
+  minHeight?: number;
+  rootMargin?: string;
+}) => {
+  const ref = useRef<HTMLDivElement | null>(null);
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    if (visible || !ref.current) return;
+    const el = ref.current;
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((e) => e.isIntersecting)) {
+          setVisible(true);
+          io.disconnect();
+        }
+      },
+      { rootMargin }
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [visible, rootMargin]);
+
+  return (
+    <div ref={ref} style={visible ? undefined : { minHeight }}>
+      {visible ? children : <SectionFallback />}
+    </div>
+  );
+};
 
 const SectionDivider = ({ label, kicker }: { label: string; kicker: string }) => (
   <div className="container max-w-6xl pt-16 pb-2 px-6">
@@ -65,53 +104,53 @@ const Index = () => {
       {/* ─── 1. 基础定价 ─── */}
       <SectionDivider kicker="Chapter 1" label="基础定价 · 期权与隐含波动率" />
       <Suspense fallback={<SectionFallback />}>
-        <div id="calculator" className="scroll-mt-12"><CalculatorSection /></div>
-        <div id="implied-vol" className="scroll-mt-12"><ImpliedVolTool /></div>
-        <div id="mc-pricer" className="scroll-mt-12"><MCOptionPricer /></div>
+        <div id="calculator" className="scroll-mt-12"><DeferMount><CalculatorSection /></DeferMount></div>
+        <div id="implied-vol" className="scroll-mt-12"><DeferMount><ImpliedVolTool /></DeferMount></div>
+        <div id="mc-pricer" className="scroll-mt-12"><DeferMount><MCOptionPricer /></DeferMount></div>
       </Suspense>
 
       {/* ─── 2. 衍生品高阶 ─── */}
       <SectionDivider kicker="Chapter 2" label="衍生品高阶 · 波动率曲面与路径依赖" />
       <Suspense fallback={<SectionFallback />}>
-        <div id="derivatives" className="scroll-mt-12"><DerivativesTools /></div>
+        <div id="derivatives" className="scroll-mt-12"><DeferMount><DerivativesTools /></DeferMount></div>
       </Suspense>
 
       {/* ─── 3. 固收与组合 ─── */}
       <SectionDivider kicker="Chapter 3" label="固定收益 & 资产配置" />
       <Suspense fallback={<SectionFallback />}>
-        <div id="bond" className="scroll-mt-12"><BondCalculator /></div>
-        <div id="rate-model" className="scroll-mt-12"><RateModelSimulator /></div>
-        <div id="frontier" className="scroll-mt-12"><EfficientFrontier /></div>
+        <div id="bond" className="scroll-mt-12"><DeferMount><BondCalculator /></DeferMount></div>
+        <div id="rate-model" className="scroll-mt-12"><DeferMount><RateModelSimulator /></DeferMount></div>
+        <div id="frontier" className="scroll-mt-12"><DeferMount><EfficientFrontier /></DeferMount></div>
       </Suspense>
 
       {/* ─── 4. 计量经济 ─── */}
       <SectionDivider kicker="Chapter 4" label="计量经济学 · 估计与状态空间" />
       <Suspense fallback={<SectionFallback />}>
-        <div id="econometrics" className="scroll-mt-12"><EconometricsTools /></div>
+        <div id="econometrics" className="scroll-mt-12"><DeferMount><EconometricsTools /></DeferMount></div>
       </Suspense>
 
       {/* ─── 5. 风险管理 ─── */}
       <SectionDivider kicker="Chapter 5" label="风险管理 · 信用、相依结构与压力测试" />
       <Suspense fallback={<SectionFallback />}>
-        <div id="risk" className="scroll-mt-12"><RiskTools /></div>
+        <div id="risk" className="scroll-mt-12"><DeferMount><RiskTools /></DeferMount></div>
       </Suspense>
 
       {/* ─── 6. 量化策略 ─── */}
       <SectionDivider kicker="Chapter 6" label="量化策略 · 回测与因子归因" />
       <Suspense fallback={<SectionFallback />}>
-        <div id="quant" className="scroll-mt-12"><QuantStrategyTools /></div>
+        <div id="quant" className="scroll-mt-12"><DeferMount><QuantStrategyTools /></DeferMount></div>
       </Suspense>
 
       {/* ─── 7. 测验与路径 ─── */}
       <SectionDivider kicker="Capstone" label="知识检验与学习路径" />
       <Suspense fallback={<SectionFallback />}>
-        <div id="quiz" className="scroll-mt-12"><QuizSection /></div>
-        <div id="learning" className="scroll-mt-12"><LearningPath /></div>
+        <div id="quiz" className="scroll-mt-12"><DeferMount><QuizSection /></DeferMount></div>
+        <div id="learning" className="scroll-mt-12"><DeferMount><LearningPath /></DeferMount></div>
       </Suspense>
 
       {/* ─── 8. 更新日志 ─── */}
       <Suspense fallback={<SectionFallback />}>
-        <div id="changelog" className="scroll-mt-12"><Changelog /></div>
+        <div id="changelog" className="scroll-mt-12"><DeferMount><Changelog /></DeferMount></div>
       </Suspense>
 
       {/* Footer */}
