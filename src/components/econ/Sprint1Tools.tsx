@@ -543,7 +543,7 @@ export const CointTool = () => {
               <span className="text-foreground/70 tabular-nums">{sim.crit5.toFixed(2)}</span>
             </div>
             <div className={`mt-2 px-2 py-1.5 rounded text-center font-mono ${
-              sim.cointReject ? "bg-gold/15 text-gold" : "bg-red-500/10 text-red-400"
+              sim.cointReject ? "bg-gold/15 text-gold" : "bg-destructive/10 text-destructive"
             }`}>
               {sim.cointReject ? "✓ 拒绝 H₀: 序列协整" : "✗ 不拒绝 H₀: 无协整"}
             </div>
@@ -828,7 +828,7 @@ export const KalmanTool = () => {
               <div className="grid grid-cols-2 gap-3">
                 <div className="rounded-lg border border-border bg-card p-3">
                   <div className="text-[10px] font-mono text-muted-foreground uppercase mb-1">RMSE OLS (静态)</div>
-                  <div className="text-xl font-mono text-red-400">{sim.rmseOLS.toFixed(4)}</div>
+                  <div className="text-xl font-mono text-destructive">{sim.rmseOLS.toFixed(4)}</div>
                 </div>
                 <div className="rounded-lg border border-border bg-card p-3">
                   <div className="text-[10px] font-mono text-muted-foreground uppercase mb-1">RMSE Kalman</div>
