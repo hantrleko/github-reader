@@ -16,6 +16,7 @@ const NAV_ITEMS = [
   { id: "econometrics", label: "计量工具" },
   { id: "risk", label: "风险管理" },
   { id: "derivatives", label: "衍生品高阶" },
+  { id: "quant", label: "量化策略" },
   { id: "learning", label: "学习路径" },
 ];
 
