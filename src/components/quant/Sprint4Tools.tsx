@@ -620,6 +620,28 @@ export const FamaFrenchTool = () => {
   const [months, setMonths] = useState(120);
   const [resVol, setResVol] = useState(0.015);
   const [seed, setSeed] = useState(11);
+  const [ffActive, setFfActive] = useState(false);
+  const ffQuery = useFamaFrench(months, ffActive);
+  const [ffStatus, setFfStatus] = useState<string | null>(null);
+
+  const loadRealFF = async () => {
+    setFfActive(true);
+    try {
+      const res = await ffQuery.refetch();
+      if (res.error || !res.data || !res.data.rows.length) throw res.error || new Error("no data");
+      const rows = res.data.rows;
+      // Estimate empirical loadings from a hypothetical portfolio? Instead,
+      // calibrate residual vol & sample length to the real series.
+      const mktVals = rows.map((r) => r.mktRf / 100);
+      const mean = mktVals.reduce((s, v) => s + v, 0) / mktVals.length;
+      const variance = mktVals.reduce((s, v) => s + (v - mean) ** 2, 0) / Math.max(mktVals.length - 1, 1);
+      setMonths(rows.length);
+      setResVol(parseFloat(Math.sqrt(variance).toFixed(4)));
+      setFfStatus(`Ken French · ${rows.length} 月 · ${res.data.from}→${res.data.to}`);
+    } catch {
+      setFfStatus("拉取失败,使用合成数据");
+    }
+  };
 
   const result = useMemo(() => {
     const rng = mulberry32(seed);
