@@ -3,6 +3,7 @@ import { BlockMath } from "react-katex";
 import "katex/dist/katex.min.css";
 import { ShareExportToolbar, useSharedState } from "@/lib/calculatorTools";
 import PresetButtons, { Preset } from "./PresetButtons";
+import RealDataLoader from "./RealDataLoader";
 import { motion } from "framer-motion";
 import {
   LineChart,
@@ -360,6 +361,14 @@ const MCOptionPricer = () => {
             {/* Parameters */}
             <div className="space-y-3">
               <p className="text-xs font-mono text-muted-foreground uppercase tracking-wider mb-2">参数设置</p>
+              <RealDataLoader
+                defaultSymbol="AAPL"
+                onApply={({ S0, sigma }) => {
+                  setS0(Math.round(S0));
+                  setK(Math.round(S0));
+                  setSigma(Math.round(sigma * 1000) / 10);
+                }}
+              />
               <PresetButtons presets={[
                 { name: "欧式标准", description: "Hull教材: S=K=100, σ=20%", apply: () => { setOptionType("european"); setPutCall("call"); setS0(100); setK(100); setR(5); setSigma(20); setT(1); setNPaths(10000); } },
                 { name: "亚式均价", description: "S=100, K=100, σ=25%", apply: () => { setOptionType("asian"); setPutCall("call"); setS0(100); setK(100); setR(5); setSigma(25); setT(1); setNPaths(10000); } },
