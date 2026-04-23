@@ -15,6 +15,7 @@ import EconometricsTools from "@/components/EconometricsTools";
 import RiskTools from "@/components/RiskTools";
 import DerivativesTools from "@/components/DerivativesTools";
 import QuantStrategyTools from "@/components/QuantStrategyTools";
+import QuizSection from "@/components/QuizSection";
 
 const Index = () => {
   const { hash } = useLocation();
@@ -42,6 +43,7 @@ const Index = () => {
       <div id="risk" className="scroll-mt-12"><RiskTools /></div>
       <div id="derivatives" className="scroll-mt-12"><DerivativesTools /></div>
       <div id="quant" className="scroll-mt-12"><QuantStrategyTools /></div>
+      <div id="quiz" className="scroll-mt-12"><QuizSection /></div>
       <div id="learning" className="scroll-mt-12"><LearningPath /></div>
 
       {/* Footer */}

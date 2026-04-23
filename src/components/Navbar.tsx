@@ -17,6 +17,7 @@ const NAV_ITEMS = [
   { id: "risk", label: "风险管理" },
   { id: "derivatives", label: "衍生品高阶" },
   { id: "quant", label: "量化策略" },
+  { id: "quiz", label: "互动测验" },
   { id: "learning", label: "学习路径" },
 ];
 
