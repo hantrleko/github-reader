@@ -2,6 +2,8 @@ import { useState, useMemo, useRef, useCallback } from "react";
 import { ShareExportToolbar, useSharedState } from "@/lib/calculatorTools";
 import PresetButtons, { Preset } from "./PresetButtons";
 import { motion } from "framer-motion";
+import { BlockMath } from "react-katex";
+import "katex/dist/katex.min.css";
 import {
   LineChart,
   Line,
@@ -240,10 +242,13 @@ const ImpliedVolTool = () => {
             />
           </div>
           {/* Formula */}
-          <div className="text-center mb-8 py-4 px-6 rounded-xl bg-secondary/50 border border-border">
-            <p className="text-lg md:text-xl font-mono text-gold tracking-wide">
-              {"σ_iv: C_BS(S, K, r, σ_iv, T) = C_market  ← Newton-Raphson"}
+          <div className="text-center mb-8 py-5 px-6 rounded-xl bg-gradient-to-br from-secondary/60 to-secondary/30 border border-gold/20 shadow-inner">
+            <p className="text-[10px] font-mono uppercase tracking-[0.25em] text-gold/80 mb-2">
+              Implied Volatility — Newton-Raphson Inversion
             </p>
+            <div className="text-foreground katex-display-gold">
+              <BlockMath math={String.raw`\text{Solve } \sigma_{\mathrm{iv}}\;:\;\; C_{\mathrm{BS}}(S,K,r,\sigma_{\mathrm{iv}},T)=C_{\mathrm{mkt}},\quad \sigma_{n+1}=\sigma_n - \dfrac{C_{\mathrm{BS}}(\sigma_n)-C_{\mathrm{mkt}}}{\mathcal{V}(\sigma_n)}`} />
+            </div>
           </div>
 
           {/* ─── IV Calculator ─── */}

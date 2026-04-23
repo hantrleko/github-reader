@@ -1,4 +1,6 @@
 import { useState, useMemo, useRef, useCallback } from "react";
+import { BlockMath } from "react-katex";
+import "katex/dist/katex.min.css";
 import { ShareExportToolbar, useSharedState } from "@/lib/calculatorTools";
 import PresetButtons, { Preset } from "./PresetButtons";
 import { motion } from "framer-motion";
@@ -283,9 +285,14 @@ const MCOptionPricer = () => {
 
   const optionNames: Record<OptionType, string> = { european: "欧式期权", asian: "亚式期权", barrier: "障碍期权" };
   const formulas: Record<OptionType, string> = {
-    european: "payoff = max(S_T − K, 0)",
-    asian: "payoff = max(S_avg − K, 0)",
-    barrier: "payoff = max(S_T − K, 0) × 1{barrier condition}",
+    european: String.raw`V = e^{-rT}\,\mathbb{E}^{\mathbb{Q}}\!\bigl[\max(S_T - K,\,0)\bigr]`,
+    asian:    String.raw`V = e^{-rT}\,\mathbb{E}^{\mathbb{Q}}\!\bigl[\max(\bar{S} - K,\,0)\bigr],\quad \bar{S}=\tfrac{1}{n}\sum_{i=1}^{n}S_{t_i}`,
+    barrier:  String.raw`V = e^{-rT}\,\mathbb{E}^{\mathbb{Q}}\!\bigl[\max(S_T - K,\,0)\,\cdot\,\mathbf{1}_{\{\text{barrier condition}\}}\bigr]`,
+  };
+  const formulaLabels: Record<OptionType, string> = {
+    european: "European Option — Risk-Neutral Expectation",
+    asian:    "Asian (Average-Price) Option",
+    barrier:  "Barrier Option (Knock-In / Knock-Out)",
   };
 
   return (
@@ -334,12 +341,18 @@ const MCOptionPricer = () => {
           </div>
 
           {/* Formula */}
-          <div className="text-center mb-8 py-4 px-6 rounded-xl bg-secondary/50 border border-border">
-            <p className="text-lg md:text-xl font-mono text-gold tracking-wide">
-              {"V = e^{-rT} · E^Q[" + formulas[optionType] + "]"}
+          <div className="text-center mb-8 py-5 px-6 rounded-xl bg-gradient-to-br from-secondary/60 to-secondary/30 border border-gold/20 shadow-inner">
+            <p className="text-[10px] font-mono uppercase tracking-[0.25em] text-gold/80 mb-2">
+              {formulaLabels[optionType]}
             </p>
-            <p className="text-xs font-mono text-muted-foreground mt-1">
-              {"dS = rS dt + σS dW  (GBM 风险中性测度)"}
+            <div className="text-foreground katex-display-gold">
+              <BlockMath math={formulas[optionType]} />
+            </div>
+            <p className="text-xs font-mono text-muted-foreground mt-2">
+              Underlying dynamics:&nbsp;
+              <span className="text-foreground/80">
+                <BlockMath math={String.raw`dS_t = r\,S_t\,dt + \sigma\,S_t\,dW_t \quad (\text{GBM under } \mathbb{Q})`} />
+              </span>
             </p>
           </div>
 

@@ -1,4 +1,6 @@
 import { useState, useMemo, useRef, useCallback } from "react";
+import { BlockMath } from "react-katex";
+import "katex/dist/katex.min.css";
 import { ShareExportToolbar, useSharedState } from "@/lib/calculatorTools";
 import PresetButtons, { Preset } from "./PresetButtons";
 import { motion } from "framer-motion";
@@ -284,10 +286,21 @@ const RateModelSimulator = () => {
             />
           </div>
           {/* Formula */}
-          <div className="text-center mb-8 py-4 px-6 rounded-xl bg-secondary/50 border border-border">
-            <p className="text-xl md:text-2xl font-mono text-gold tracking-wide">
-              {model === "vasicek" ? "dr = κ(θ − r)dt + σ dW" : "dr = κ(θ − r)dt + σ√r dW"}
+          <div className="text-center mb-8 py-5 px-6 rounded-xl bg-gradient-to-br from-secondary/60 to-secondary/30 border border-gold/20 shadow-inner">
+            <p className="text-[10px] font-mono uppercase tracking-[0.25em] text-gold/80 mb-2">
+              {model === "vasicek"
+                ? "Vasicek (1977) — Mean-Reverting Gaussian Short Rate"
+                : "Cox-Ingersoll-Ross (1985) — Square-Root Diffusion"}
             </p>
+            <div className="text-foreground katex-display-gold">
+              <BlockMath
+                math={
+                  model === "vasicek"
+                    ? String.raw`dr_t = \kappa\,(\theta - r_t)\,dt + \sigma\, dW_t`
+                    : String.raw`dr_t = \kappa\,(\theta - r_t)\,dt + \sigma\,\sqrt{r_t}\, dW_t`
+                }
+              />
+            </div>
             {model === "cir" && !fellerCondition && (
               <p className="text-xs font-mono text-red-400 mt-2">
                 {"⚠ Feller 条件不满足 (2κθ < σ²)，利率可能触及零"}
