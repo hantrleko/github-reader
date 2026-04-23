@@ -2,6 +2,8 @@ import { useState, useMemo, useRef, useCallback } from "react";
 import { ShareExportToolbar, useSharedState } from "@/lib/calculatorTools";
 import PresetButtons, { Preset } from "./PresetButtons";
 import { motion } from "framer-motion";
+import { BlockMath } from "react-katex";
+import "katex/dist/katex.min.css";
 import {
   LineChart,
   Line,
@@ -204,10 +206,13 @@ const BondCalculator = () => {
     return data;
   }, [b0, b1, b2, lambda]);
 
-  const tabs: { id: TabId; name: string; formula: string }[] = [
-    { id: "pricing", name: "债券定价", formula: "P = Σ C/(1+y)ⁱ + F/(1+y)ⁿ" },
-    { id: "duration", name: "久期 & 凸性", formula: "D_mod = D_Mac/(1+y),  ΔP/P ≈ −D·Δy + ½C·(Δy)²" },
-    { id: "curve", name: "收益率曲线", formula: "y(τ) = β₀ + β₁(1−e^{−τ/λ})/(τ/λ) + β₂[… − e^{−τ/λ}]" },
+  const tabs: { id: TabId; name: string; nameEn: string; formula: string }[] = [
+    { id: "pricing", name: "债券定价", nameEn: "Bond Pricing — Discounted Cash Flow",
+      formula: String.raw`P = \sum_{i=1}^{n}\frac{C}{(1+y)^{i}} + \frac{F}{(1+y)^{n}}` },
+    { id: "duration", name: "久期 & 凸性", nameEn: "Modified Duration & Convexity",
+      formula: String.raw`D_{\mathrm{mod}} = \dfrac{D_{\mathrm{Mac}}}{1+y},\quad \dfrac{\Delta P}{P} \approx -D_{\mathrm{mod}}\,\Delta y + \tfrac{1}{2}\,\mathrm{Conv}\,(\Delta y)^2` },
+    { id: "curve", name: "收益率曲线", nameEn: "Nelson-Siegel Yield Curve",
+      formula: String.raw`y(\tau) = \beta_0 + \beta_1\,\dfrac{1-e^{-\tau/\lambda}}{\tau/\lambda} + \beta_2\,\Bigl[\dfrac{1-e^{-\tau/\lambda}}{\tau/\lambda} - e^{-\tau/\lambda}\Bigr]` },
   ];
 
   const sliderClass = "w-full h-1.5 rounded-full appearance-none cursor-pointer bg-secondary accent-gold [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-gold [&::-webkit-slider-thumb]:shadow-md";
@@ -278,10 +283,13 @@ const BondCalculator = () => {
             />
           </div>
           {/* Formula bar */}
-          <div className="text-center mb-8 py-4 px-6 rounded-xl bg-secondary/50 border border-border">
-            <p className="text-lg md:text-xl font-mono text-gold tracking-wide">
-              {tabs.find((t) => t.id === tab)!.formula}
+          <div className="text-center mb-8 py-5 px-6 rounded-xl bg-gradient-to-br from-secondary/60 to-secondary/30 border border-gold/20 shadow-inner">
+            <p className="text-[10px] font-mono uppercase tracking-[0.25em] text-gold/80 mb-2">
+              {tabs.find((t) => t.id === tab)!.nameEn}
             </p>
+            <div className="text-foreground katex-display-gold">
+              <BlockMath math={tabs.find((t) => t.id === tab)!.formula} />
+            </div>
           </div>
 
           {/* ═══ PRICING TAB ═══ */}
