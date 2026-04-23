@@ -1,0 +1,71 @@
+{
+  "common": {
+    "loading": "Loading…",
+    "error": "Error",
+    "retry": "Retry",
+    "fetch": "Fetch",
+    "synthetic": "Synthetic data",
+    "real": "Real data",
+    "presets": "Presets",
+    "reset": "Reset"
+  },
+  "nav": {
+    "brand": "Econ & Finance Lab",
+    "version": "V1.2",
+    "lang": "Language",
+    "groups": {
+      "guide": "Overview",
+      "basics": "Basic Pricing",
+      "deriv": "Derivatives · Advanced",
+      "fixed": "Fixed Income & Portfolio",
+      "econ": "Econometrics & Risk",
+      "quant": "Quant & Learning"
+    },
+    "items": {
+      "hero": "Home",
+      "topics": "Topics",
+      "models": "Models",
+      "calculator": "Black-Scholes",
+      "implied-vol": "Implied Vol",
+      "mc-pricer": "MC Pricer",
+      "derivatives": "SVI / Heston / LSM",
+      "bond": "Bond Calculator",
+      "rate-model": "Rate Models",
+      "frontier": "Efficient Frontier",
+      "econometrics": "OLS / GARCH / Kalman",
+      "risk": "Merton / Copula / Stress",
+      "quant": "Quant Strategy Lab",
+      "quiz": "Interactive Quiz",
+      "learning": "Learning Path",
+      "changelog": "Changelog"
+    }
+  },
+  "hero": {
+    "tagline": "Economics & Finance Lab",
+    "title1": "Master Economics & Finance",
+    "title2": "Empirical Methods & Models",
+    "subtitle": "From classical asset pricing to modern econometrics — learn the core models, methodology and data analysis techniques of empirical finance research.",
+    "cta1": "Explore Interactive Tools",
+    "cta2": "Browse Topics",
+    "stats": { "topics": "Topics", "formulas": "Formulas", "knowledge": "Concepts" }
+  },
+  "realData": {
+    "title": "Real Data",
+    "load": "Load real data",
+    "symbol": "Symbol",
+    "range": "Range",
+    "fetch": "Fetch",
+    "fetching": "Fetching…",
+    "success": "OK · {{n}} points",
+    "fail": "Fetch failed, falling back to synthetic data",
+    "vol": "Annual vol",
+    "ret": "Annual return",
+    "lastPrice": "Last price",
+    "tip": "Data sources: Yahoo Finance / FRED / Ken French — free public APIs",
+    "applyToParams": "Applied to params below"
+  },
+  "changelog": {
+    "title": "Changelog",
+    "subtitle": "Tracking the capability delta of every release"
+  }
+}
