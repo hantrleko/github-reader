@@ -1,1 +1,10 @@
 project_id = "oshfqmmhxaaevucfdunk"
+
+[functions.market-quotes]
+verify_jwt = false
+
+[functions.fred-series]
+verify_jwt = false
+
+[functions.famafrench-factors]
+verify_jwt = false
