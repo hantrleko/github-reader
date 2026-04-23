@@ -151,4 +151,15 @@
   .glow-gold {
     box-shadow: 0 0 40px -10px hsl(var(--gold) / 0.25);
   }
+  /* Unified KaTeX styling — gold accent for primary formula bars */
+  .katex-display-gold .katex {
+    color: hsl(var(--gold));
+    font-size: 1.15em;
+  }
+  .katex-display-gold .katex-display {
+    margin: 0.25em 0;
+  }
+  .katex-display-gold .katex-display > .katex {
+    text-shadow: 0 0 18px hsl(var(--gold) / 0.25);
+  }
 }

@@ -2,6 +2,8 @@ import { useState, useMemo, useRef, useCallback } from "react";
 import { motion } from "framer-motion";
 import PresetButtons, { Preset } from "./PresetButtons";
 import { ShareExportToolbar, useSharedState } from "@/lib/calculatorTools";
+import { BlockMath } from "react-katex";
+import "katex/dist/katex.min.css";
 import {
   LineChart,
   Line,
@@ -151,11 +153,15 @@ const varParams: ParamConfig[] = [
 
 type CalcId = "capm" | "bs" | "sharpe" | "var";
 
-const calculators: { id: CalcId; name: string; formula: string }[] = [
-  { id: "capm", name: "CAPM", formula: "E(Rᵢ) = Rᶠ + βᵢ[E(Rₘ) − Rᶠ]" },
-  { id: "bs", name: "Black-Scholes", formula: "C = S₀N(d₁) − Ke⁻ʳᵀN(d₂)" },
-  { id: "sharpe", name: "Sharpe Ratio", formula: "SR = (Rₚ − Rᶠ) / σₚ" },
-  { id: "var", name: "VaR / ES", formula: "VaR_α = W × |μ − z_α · σ| × √T" },
+const calculators: { id: CalcId; name: string; nameEn: string; formula: string }[] = [
+  { id: "capm", name: "CAPM", nameEn: "Capital Asset Pricing Model",
+    formula: String.raw`E(R_i) = R_f + \beta_i\,\bigl[E(R_m) - R_f\bigr]` },
+  { id: "bs", name: "Black-Scholes", nameEn: "European Option Pricing Formula",
+    formula: String.raw`C = S_0\,N(d_1) - K e^{-rT} N(d_2),\quad d_{1,2}=\frac{\ln(S_0/K)+(r\pm\tfrac{1}{2}\sigma^2)T}{\sigma\sqrt{T}}` },
+  { id: "sharpe", name: "Sharpe Ratio", nameEn: "Risk-Adjusted Return",
+    formula: String.raw`\mathrm{SR} = \dfrac{R_p - R_f}{\sigma_p}` },
+  { id: "var", name: "VaR / ES", nameEn: "Value at Risk & Expected Shortfall",
+    formula: String.raw`\mathrm{VaR}_\alpha = W\,\bigl|\mu T - z_\alpha\,\sigma\sqrt{T}\bigr|,\quad \mathrm{ES}_\alpha = W\,\dfrac{\sigma\sqrt{T}\,\phi(z_\alpha)}{1-\alpha}` },
 ];
 
 const CHART_GOLD = "hsl(43, 80%, 55%)";
@@ -664,10 +670,13 @@ const CalculatorSection = () => {
             />
           </div>
           {/* Formula */}
-          <div className="text-center mb-8 py-4 px-6 rounded-xl bg-secondary/50 border border-border">
-            <p className="text-xl md:text-2xl font-mono text-gold tracking-wide">
-              {calculators.find((c) => c.id === active)!.formula}
+          <div className="text-center mb-8 py-5 px-6 rounded-xl bg-gradient-to-br from-secondary/60 to-secondary/30 border border-gold/20 shadow-inner">
+            <p className="text-[10px] font-mono uppercase tracking-[0.25em] text-gold/80 mb-2">
+              {calculators.find((c) => c.id === active)!.nameEn}
             </p>
+            <div className="text-foreground katex-display-gold">
+              <BlockMath math={calculators.find((c) => c.id === active)!.formula} />
+            </div>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">

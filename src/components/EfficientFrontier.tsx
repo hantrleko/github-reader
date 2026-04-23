@@ -2,6 +2,8 @@ import { useState, useMemo, useRef, useCallback } from "react";
 import { ShareExportToolbar, useSharedState } from "@/lib/calculatorTools";
 import PresetButtons, { Preset } from "./PresetButtons";
 import { motion } from "framer-motion";
+import { BlockMath } from "react-katex";
+import "katex/dist/katex.min.css";
 import {
   ScatterChart,
   Scatter,
@@ -310,10 +312,13 @@ const EfficientFrontier = () => {
             />
           </div>
           {/* Formula bar */}
-          <div className="text-center mb-8 py-4 px-6 rounded-xl bg-secondary/50 border border-border">
-            <p className="text-lg md:text-xl font-mono text-gold tracking-wide">
-              min w'Σw &nbsp; s.t. &nbsp; w'μ = μ₀, &nbsp; w'𝟏 = 1
+          <div className="text-center mb-8 py-5 px-6 rounded-xl bg-gradient-to-br from-secondary/60 to-secondary/30 border border-gold/20 shadow-inner">
+            <p className="text-[10px] font-mono uppercase tracking-[0.25em] text-gold/80 mb-2">
+              Markowitz Mean-Variance Optimization
             </p>
+            <div className="text-foreground katex-display-gold">
+              <BlockMath math={String.raw`\min_{\mathbf{w}}\;\tfrac{1}{2}\,\mathbf{w}^{\top}\boldsymbol{\Sigma}\,\mathbf{w}\quad \text{s.t.}\quad \mathbf{w}^{\top}\boldsymbol{\mu}=\mu_{0},\;\; \mathbf{w}^{\top}\mathbf{1}=1`} />
+            </div>
           </div>
 
           <PresetButtons presets={[
