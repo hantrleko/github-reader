@@ -12,6 +12,7 @@ import ImpliedVolTool from "@/components/ImpliedVolTool";
 import MCOptionPricer from "@/components/MCOptionPricer";
 import LearningPath from "@/components/LearningPath";
 import EconometricsTools from "@/components/EconometricsTools";
+import RiskTools from "@/components/RiskTools";
 
 const Index = () => {
   const { hash } = useLocation();
@@ -36,6 +37,7 @@ const Index = () => {
       <div id="bond" className="scroll-mt-12"><BondCalculator /></div>
       <div id="rate-model" className="scroll-mt-12"><RateModelSimulator /></div>
       <div id="econometrics" className="scroll-mt-12"><EconometricsTools /></div>
+      <div id="risk" className="scroll-mt-12"><RiskTools /></div>
       <div id="learning" className="scroll-mt-12"><LearningPath /></div>
 
       {/* Footer */}
