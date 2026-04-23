@@ -14,6 +14,7 @@ const NAV_ITEMS = [
   { id: "bond", label: "债券计算" },
   { id: "rate-model", label: "利率模型" },
   { id: "econometrics", label: "计量工具" },
+  { id: "risk", label: "风险管理" },
   { id: "learning", label: "学习路径" },
 ];
 
