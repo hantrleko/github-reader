@@ -2,6 +2,8 @@ import { useState, useEffect, useRef, useCallback, KeyboardEvent } from "react";
 import { cn } from "@/lib/utils";
 import { Menu, X, ChevronDown } from "lucide-react";
 import ThemeToggle from "./ThemeToggle";
+import LanguageToggle from "./LanguageToggle";
+import { useTranslation } from "react-i18next";
 
 type Item = { id: string; label: string };
 type Group = { label: string; items: Item[] };
@@ -57,6 +59,7 @@ const ALL_IDS = GROUPS.flatMap((g) => g.items.map((i) => i.id));
 const NAV_OFFSET = 80; // sticky-nav height + breathing room
 
 const Navbar = () => {
+  const { t } = useTranslation();
   const [active, setActive] = useState("hero");
   const [mobileOpen, setMobileOpen] = useState(false);
   const [openGroup, setOpenGroup] = useState<string | null>(null);
@@ -210,9 +213,9 @@ const Navbar = () => {
           onClick={() => scrollTo("hero")}
           className="text-xs font-mono font-semibold text-foreground tracking-wider flex items-center gap-2 hover:text-gold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/60 rounded"
         >
-          Econ &amp; Finance Lab
+          {t("nav.brand")}
           <span className="text-[9px] px-1.5 py-0.5 rounded bg-gold/15 text-gold font-normal tracking-wider">
-            V1.1
+            {t("nav.version")}
           </span>
         </button>
 
@@ -294,6 +297,7 @@ const Navbar = () => {
         </ul>
 
         <div className="flex items-center gap-1">
+          <LanguageToggle />
           <ThemeToggle />
           <button
             className="md:hidden p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/60"
