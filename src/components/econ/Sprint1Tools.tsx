@@ -5,7 +5,7 @@ import {
 } from "recharts";
 import { BlockMath, InlineMath } from "react-katex";
 import "katex/dist/katex.min.css";
-import PresetButtons, { Preset } from "./PresetButtons";
+import PresetButtons, { Preset } from "../PresetButtons";
 
 const CHART_GOLD = "hsl(43, 80%, 55%)";
 const CHART_TEAL = "hsl(180, 50%, 40%)";
