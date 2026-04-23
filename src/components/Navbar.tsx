@@ -5,54 +5,38 @@ import ThemeToggle from "./ThemeToggle";
 import LanguageToggle from "./LanguageToggle";
 import { useTranslation } from "react-i18next";
 
-type Item = { id: string; label: string };
-type Group = { label: string; items: Item[] };
+type Item = { id: string; labelKey: string };
+type Group = { labelKey: string; items: Item[] };
 
 const GROUPS: Group[] = [
-  {
-    label: "导览",
-    items: [
-      { id: "hero", label: "首页" },
-      { id: "topics", label: "主题概览" },
-      { id: "models", label: "模型展示" },
-    ],
-  },
-  {
-    label: "基础定价",
-    items: [
-      { id: "calculator", label: "Black-Scholes" },
-      { id: "implied-vol", label: "隐含波动率" },
-      { id: "mc-pricer", label: "MC 期权定价" },
-    ],
-  },
-  {
-    label: "衍生品 · 高阶",
-    items: [{ id: "derivatives", label: "SVI / Heston / LSM" }],
-  },
-  {
-    label: "固收 & 组合",
-    items: [
-      { id: "bond", label: "债券计算" },
-      { id: "rate-model", label: "利率模型" },
-      { id: "frontier", label: "有效前沿" },
-    ],
-  },
-  {
-    label: "计量 & 风险",
-    items: [
-      { id: "econometrics", label: "OLS / GARCH / Kalman" },
-      { id: "risk", label: "Merton / Copula / 压力测试" },
-    ],
-  },
-  {
-    label: "量化 & 学习",
-    items: [
-      { id: "quant", label: "量化策略实验室" },
-      { id: "quiz", label: "互动测验" },
-      { id: "learning", label: "学习路径" },
-      { id: "changelog", label: "更新日志" },
-    ],
-  },
+  { labelKey: "nav.groups.guide", items: [
+    { id: "hero", labelKey: "nav.items.hero" },
+    { id: "topics", labelKey: "nav.items.topics" },
+    { id: "models", labelKey: "nav.items.models" },
+  ]},
+  { labelKey: "nav.groups.basics", items: [
+    { id: "calculator", labelKey: "nav.items.calculator" },
+    { id: "implied-vol", labelKey: "nav.items.implied-vol" },
+    { id: "mc-pricer", labelKey: "nav.items.mc-pricer" },
+  ]},
+  { labelKey: "nav.groups.deriv", items: [
+    { id: "derivatives", labelKey: "nav.items.derivatives" },
+  ]},
+  { labelKey: "nav.groups.fixed", items: [
+    { id: "bond", labelKey: "nav.items.bond" },
+    { id: "rate-model", labelKey: "nav.items.rate-model" },
+    { id: "frontier", labelKey: "nav.items.frontier" },
+  ]},
+  { labelKey: "nav.groups.econ", items: [
+    { id: "econometrics", labelKey: "nav.items.econometrics" },
+    { id: "risk", labelKey: "nav.items.risk" },
+  ]},
+  { labelKey: "nav.groups.quant", items: [
+    { id: "quant", labelKey: "nav.items.quant" },
+    { id: "quiz", labelKey: "nav.items.quiz" },
+    { id: "learning", labelKey: "nav.items.learning" },
+    { id: "changelog", labelKey: "nav.items.changelog" },
+  ]},
 ];
 
 const ALL_IDS = GROUPS.flatMap((g) => g.items.map((i) => i.id));
@@ -136,7 +120,7 @@ const Navbar = () => {
   /* ─── Auto-focus first item when dropdown opens ─── */
   useEffect(() => {
     if (!openGroup) return;
-    const group = GROUPS.find((g) => g.label === openGroup);
+    const group = GROUPS.find((g) => g.labelKey === openGroup);
     if (!group) return;
     const first = itemRefs.current[group.items[0].id];
     // small delay so the menu is rendered
@@ -190,15 +174,15 @@ const Navbar = () => {
   ) => {
     if (e.key === "ArrowDown" || e.key === "Enter" || e.key === " ") {
       e.preventDefault();
-      setOpenGroup(group.label);
+      setOpenGroup(group.labelKey);
     } else if (e.key === "ArrowRight") {
       e.preventDefault();
       const next = GROUPS[(gIdx + 1) % GROUPS.length];
-      groupBtnRefs.current[next.label]?.focus();
+      groupBtnRefs.current[next.labelKey]?.focus();
     } else if (e.key === "ArrowLeft") {
       e.preventDefault();
       const prev = GROUPS[(gIdx - 1 + GROUPS.length) % GROUPS.length];
-      groupBtnRefs.current[prev.label]?.focus();
+      groupBtnRefs.current[prev.labelKey]?.focus();
     }
   };
 
@@ -223,15 +207,15 @@ const Navbar = () => {
         <ul className="hidden md:flex items-center gap-0.5" role="menubar">
           {GROUPS.map((g, gIdx) => {
             const groupActive = isGroupActive(g);
-            const open = openGroup === g.label;
+            const open = openGroup === g.labelKey;
             const menuId = `menu-${gIdx}`;
             return (
-              <li key={g.label} className="relative" role="none">
+              <li key={g.labelKey} className="relative" role="none">
                 <button
-                  ref={(el) => (groupBtnRefs.current[g.label] = el)}
+                  ref={(el) => (groupBtnRefs.current[g.labelKey] = el)}
                   onClick={(e) => {
                     e.stopPropagation();
-                    setOpenGroup(open ? null : g.label);
+                    setOpenGroup(open ? null : g.labelKey);
                   }}
                   onKeyDown={(e) => handleTriggerKey(e, g, gIdx)}
                   role="menuitem"
@@ -245,7 +229,7 @@ const Navbar = () => {
                       : "text-muted-foreground hover:text-foreground hover:bg-accent"
                   )}
                 >
-                  {g.label}
+                  {t(g.labelKey)}
                   {groupActive && (
                     <span className="w-1 h-1 rounded-full bg-gold" aria-hidden />
                   )}
@@ -258,7 +242,7 @@ const Navbar = () => {
                   <ul
                     id={menuId}
                     role="menu"
-                    aria-label={g.label}
+                    aria-label={t(g.labelKey)}
                     className="absolute right-0 top-full mt-1 min-w-[220px] rounded-md border border-border/70 bg-popover/95 backdrop-blur-lg shadow-lg overflow-hidden py-1"
                   >
                     {g.items.map((i, idx) => {
@@ -278,7 +262,7 @@ const Navbar = () => {
                                 : "text-muted-foreground hover:text-foreground hover:bg-accent"
                             )}
                           >
-                            <span>{i.label}</span>
+                            <span>{t(i.labelKey)}</span>
                             {isActive && (
                               <span
                                 className="w-1.5 h-1.5 rounded-full bg-gold shrink-0"
@@ -315,9 +299,9 @@ const Navbar = () => {
         <div className="md:hidden border-t border-border/50 bg-background/95 backdrop-blur-lg max-h-[70vh] overflow-y-auto">
           <div className="container py-3 space-y-3">
             {GROUPS.map((g) => (
-              <div key={g.label}>
+              <div key={g.labelKey}>
                 <p className="text-[10px] font-mono text-gold/80 tracking-wider uppercase mb-1.5 px-1">
-                  {g.label}
+                  {t(g.labelKey)}
                 </p>
                 <div className="grid grid-cols-2 gap-1">
                   {g.items.map((i) => {
@@ -334,7 +318,7 @@ const Navbar = () => {
                             : "text-muted-foreground hover:text-foreground hover:bg-accent"
                         )}
                       >
-                        {i.label}
+                        {t(i.labelKey)}
                       </button>
                     );
                   })}

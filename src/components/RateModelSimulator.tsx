@@ -4,6 +4,9 @@ import "katex/dist/katex.min.css";
 import { ShareExportToolbar, useSharedState } from "@/lib/calculatorTools";
 import PresetButtons, { Preset } from "./PresetButtons";
 import { motion } from "framer-motion";
+import { useFredSeries } from "@/lib/marketData";
+import { Database, Loader2, CheckCircle2 } from "lucide-react";
+import { toast } from "@/hooks/use-toast";
 import {
   LineChart,
   Line,
@@ -148,6 +151,35 @@ const RateModelSimulator = () => {
   const [T, setT] = useState(10);
   const [nPaths, setNPaths] = useState(10);
   const [seed, setSeed] = useState(42);
+  const [fredSeries, setFredSeries] = useState<"DGS10" | "DGS2" | "DGS5" | "DGS30" | "FEDFUNDS">("DGS10");
+  const [fredActive, setFredActive] = useState(false);
+  const fredQuery = useFredSeries(fredSeries, "2015-01-01", fredActive);
+
+  const loadFredCalibration = async () => {
+    setFredActive(true);
+    try {
+      const res = await fredQuery.refetch();
+      if (res.error || !res.data) throw res.error || new Error("no data");
+      const d = res.data;
+      const vals = d.values.filter((v) => Number.isFinite(v));
+      if (!vals.length || d.latest == null) throw new Error("empty series");
+      const mean = vals.reduce((s, v) => s + v, 0) / vals.length;
+      // monthly std → annualised vol of changes (rough), in % units
+      const diffs = vals.slice(1).map((v, i) => v - vals[i]);
+      const dMean = diffs.reduce((s, v) => s + v, 0) / Math.max(diffs.length, 1);
+      const dVar = diffs.reduce((s, v) => s + (v - dMean) ** 2, 0) / Math.max(diffs.length - 1, 1);
+      const sd = Math.sqrt(dVar) * Math.sqrt(252);
+      setR0(parseFloat(d.latest.toFixed(2)));
+      setTheta(parseFloat(mean.toFixed(2)));
+      setSigma(Math.min(5, Math.max(0.1, parseFloat(sd.toFixed(2)))));
+      toast({
+        title: "FRED 校准",
+        description: `${fredSeries} · 当前 ${d.latest.toFixed(2)}% · 长期均值 ${mean.toFixed(2)}%`,
+      });
+    } catch {
+      toast({ title: "拉取失败", description: "回退到合成参数", variant: "destructive" });
+    }
+  };
 
   const captureRef = useRef<HTMLDivElement>(null);
   const apply = useCallback((s: any) => {
@@ -312,6 +344,38 @@ const RateModelSimulator = () => {
             {/* Parameters */}
             <div className="space-y-4">
               <p className="text-xs font-mono text-muted-foreground uppercase tracking-wider mb-2">模型参数</p>
+              {/* FRED real-data calibration */}
+              <div className="flex flex-wrap items-center gap-2 p-2.5 rounded-md border border-border/60 bg-muted/30 text-[11px] font-mono">
+                <span className="flex items-center gap-1.5 text-gold">
+                  <Database className="w-3.5 h-3.5" />
+                  FRED 实测利率校准
+                </span>
+                <select
+                  value={fredSeries}
+                  onChange={(e) => setFredSeries(e.target.value as any)}
+                  className="px-2 py-1 rounded bg-background border border-border focus:border-gold/60 outline-none"
+                >
+                  <option value="DGS10">10Y 国债 (DGS10)</option>
+                  <option value="DGS2">2Y 国债 (DGS2)</option>
+                  <option value="DGS5">5Y 国债 (DGS5)</option>
+                  <option value="DGS30">30Y 国债 (DGS30)</option>
+                  <option value="FEDFUNDS">联邦基金利率</option>
+                </select>
+                <button
+                  onClick={loadFredCalibration}
+                  disabled={fredQuery.isFetching}
+                  className="px-2.5 py-1 rounded bg-primary/90 text-primary-foreground hover:bg-primary disabled:opacity-50 flex items-center gap-1"
+                >
+                  {fredQuery.isFetching ? <Loader2 className="w-3 h-3 animate-spin" /> : null}
+                  {fredQuery.isFetching ? "拉取中…" : "校准"}
+                </button>
+                {fredActive && fredQuery.data && !fredQuery.error && (
+                  <span className="flex items-center gap-1 text-gold">
+                    <CheckCircle2 className="w-3 h-3" />
+                    {fredSeries} {fredQuery.data.latest?.toFixed(2)}%
+                  </span>
+                )}
+              </div>
               <PresetButtons presets={[
                 { name: "Vasicek经典", description: "r₀=5%, κ=0.3, θ=5%, σ=1%", apply: () => { setModel("vasicek"); setR0(5); setKappa(0.3); setTheta(5); setSigma(1); setT(10); } },
                 { name: "CIR低利率", description: "r₀=1%, κ=0.5, θ=3%, σ=0.8%", apply: () => { setModel("cir"); setR0(1); setKappa(0.5); setTheta(3); setSigma(0.8); setT(10); } },

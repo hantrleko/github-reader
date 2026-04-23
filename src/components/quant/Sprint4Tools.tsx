@@ -6,6 +6,8 @@ import {
 import { BlockMath } from "react-katex";
 import "katex/dist/katex.min.css";
 import PresetButtons from "../PresetButtons";
+import { useFamaFrench } from "@/lib/marketData";
+import { Database, Loader2, CheckCircle2 } from "lucide-react";
 
 const CHART_GOLD = "hsl(43, 80%, 55%)";
 const CHART_TEAL = "hsl(180, 50%, 40%)";
@@ -618,6 +620,28 @@ export const FamaFrenchTool = () => {
   const [months, setMonths] = useState(120);
   const [resVol, setResVol] = useState(0.015);
   const [seed, setSeed] = useState(11);
+  const [ffActive, setFfActive] = useState(false);
+  const ffQuery = useFamaFrench(months, ffActive);
+  const [ffStatus, setFfStatus] = useState<string | null>(null);
+
+  const loadRealFF = async () => {
+    setFfActive(true);
+    try {
+      const res = await ffQuery.refetch();
+      if (res.error || !res.data || !res.data.rows.length) throw res.error || new Error("no data");
+      const rows = res.data.rows;
+      // Estimate empirical loadings from a hypothetical portfolio? Instead,
+      // calibrate residual vol & sample length to the real series.
+      const mktVals = rows.map((r) => r.mktRf / 100);
+      const mean = mktVals.reduce((s, v) => s + v, 0) / mktVals.length;
+      const variance = mktVals.reduce((s, v) => s + (v - mean) ** 2, 0) / Math.max(mktVals.length - 1, 1);
+      setMonths(rows.length);
+      setResVol(parseFloat(Math.sqrt(variance).toFixed(4)));
+      setFfStatus(`Ken French · ${rows.length} 月 · ${res.data.from}→${res.data.to}`);
+    } catch {
+      setFfStatus("拉取失败,使用合成数据");
+    }
+  };
 
   const result = useMemo(() => {
     const rng = mulberry32(seed);
@@ -714,6 +738,26 @@ export const FamaFrenchTool = () => {
 
   return (
     <div className="space-y-6">
+      <div className="flex flex-wrap items-center gap-2 p-2.5 rounded-md border border-border/60 bg-muted/30 text-[11px] font-mono">
+        <span className="flex items-center gap-1.5 text-gold">
+          <Database className="w-3.5 h-3.5" />
+          Ken French 真实 5 因子月度数据
+        </span>
+        <button
+          onClick={loadRealFF}
+          disabled={ffQuery.isFetching}
+          className="px-2.5 py-1 rounded bg-primary/90 text-primary-foreground hover:bg-primary disabled:opacity-50 flex items-center gap-1"
+        >
+          {ffQuery.isFetching ? <Loader2 className="w-3 h-3 animate-spin" /> : null}
+          {ffQuery.isFetching ? "拉取中…" : "加载真实 F-F"}
+        </button>
+        {ffStatus && (
+          <span className="flex items-center gap-1 text-gold">
+            <CheckCircle2 className="w-3 h-3" />
+            {ffStatus}
+          </span>
+        )}
+      </div>
       <PresetButtons presets={[
         { name: "小盘价值", description: "SMB+, HML+", apply: () => { setLoadings({ mkt: 1.0, smb: 0.6, hml: 0.5, rmw: 0.2, cma: 0.3 }); setTrueAlpha(0.001); } },
         { name: "大盘成长", description: "SMB-, HML-", apply: () => { setLoadings({ mkt: 1.1, smb: -0.3, hml: -0.4, rmw: 0.4, cma: -0.3 }); setTrueAlpha(0.002); } },

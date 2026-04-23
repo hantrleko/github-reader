@@ -1,6 +1,7 @@
 import { useState, useMemo, useRef, useCallback } from "react";
 import { ShareExportToolbar, useSharedState } from "@/lib/calculatorTools";
 import PresetButtons, { Preset } from "./PresetButtons";
+import RealDataLoader from "./RealDataLoader";
 import { motion } from "framer-motion";
 import { BlockMath } from "react-katex";
 import "katex/dist/katex.min.css";
@@ -255,6 +256,14 @@ const ImpliedVolTool = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-10">
             <div className="space-y-4">
               <p className="text-xs font-mono text-muted-foreground uppercase tracking-wider mb-2">隐含波动率反算</p>
+              <RealDataLoader
+                defaultSymbol="SPY"
+                onApply={({ S0, sigma }) => {
+                  setIvS(Math.round(S0));
+                  setIvK(Math.round(S0));
+                  setBaseVol(Math.round(sigma * 1000) / 10);
+                }}
+              />
               <PresetButtons presets={[
                 { name: "ATM标准", description: "S=K=100, T=1, 市场价10.45", apply: () => { setOptType("call"); setMktPrice(10.45); setIvS(100); setIvK(100); setIvR(5); setIvT(1); setBaseVol(20); setSkew(-0.1); setSmile(0.05); } },
                 { name: "OTM看跌", description: "S=100, K=90, Put", apply: () => { setOptType("put"); setMktPrice(3.2); setIvS(100); setIvK(90); setIvR(5); setIvT(0.5); } },
