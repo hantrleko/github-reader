@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { CheckCircle2, Circle, ArrowRight, RotateCcw } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 const STEPS = [
   { id: "prob", title: "概率论与数理统计基础", desc: "随机变量、分布、假设检验、大数定律与中心极限定理", target: "topics" },
@@ -18,6 +19,7 @@ const scrollTo = (id: string) => {
 };
 
 const LearningPath = () => {
+  const { t } = useTranslation();
   const [done, setDone] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
@@ -52,10 +54,10 @@ const LearningPath = () => {
           viewport={{ once: true }}
         >
           <p className="text-xs font-mono uppercase tracking-[0.3em] text-gold mb-3">
-            Learning Roadmap
+            {t("sections.learning.tag")}
           </p>
           <h2 className="text-3xl md:text-5xl font-display font-bold text-foreground">
-            学习路径
+            {t("sections.learning.title")}
           </h2>
         </motion.div>
 

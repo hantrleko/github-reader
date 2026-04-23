@@ -64,6 +64,17 @@
     "tip": "Data sources: Yahoo Finance / FRED / Ken French — free public APIs",
     "applyToParams": "Applied to params below"
   },
+  "sections": {
+    "topics": { "tag": "Core Disciplines", "title": "Disciplines" },
+    "learning": { "tag": "Learning Roadmap", "title": "Learning Path", "current": "Current stage", "progress": "Completed {{done}} / {{total}}", "reset": "Reset progress", "allDone": "All done — review", "start": "Start learning", "continue": "Continue: {{title}}" },
+    "bond": { "tag": "Fixed Income Tools", "title": "Bond Calculator" },
+    "frontier": { "tag": "Portfolio Optimization", "title": "Efficient Frontier" },
+    "deriv": { "tag": "Derivatives Lab", "title": "Advanced Derivatives", "subtitle": "SVI vol surface · American LSM · Black-76 rate derivatives" },
+    "quant": { "tag": "Quant Strategy Lab", "title": "Quant Strategy Lab", "subtitle": "Backtesting · Bayesian portfolio · Factor attribution" },
+    "econ": { "tag": "Advanced Econometrics", "title": "Econometrics Toolkit" },
+    "risk": { "tag": "Risk Management", "title": "Risk Management Toolkit" },
+    "quiz": { "tag": "Knowledge Check", "title": "Interactive Quiz Center", "subtitle": "17 core questions · instant feedback · progress saved locally", "all": "All", "answered": "Answered", "correct": "Correct", "accuracy": "Accuracy", "attempts": "Attempts", "question": "Q {{i}} / {{n}}", "next": "Next" }
+  },
   "changelog": {
     "title": "Changelog",
     "subtitle": "Tracking the capability delta of every release"

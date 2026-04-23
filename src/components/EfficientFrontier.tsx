@@ -2,6 +2,7 @@ import { useState, useMemo, useRef, useCallback } from "react";
 import { ShareExportToolbar, useSharedState } from "@/lib/calculatorTools";
 import PresetButtons, { Preset } from "./PresetButtons";
 import { motion } from "framer-motion";
+import { useTranslation } from "react-i18next";
 import { BlockMath } from "react-katex";
 import "katex/dist/katex.min.css";
 import {
@@ -209,6 +210,7 @@ const FrontierTooltip = ({ active, payload }: any) => {
 let nextId = 5;
 
 const EfficientFrontier = () => {
+  const { t } = useTranslation();
   const [assets, setAssets] = useState<Asset[]>(defaultAssets);
   const [rho, setRho] = useState(0.3);
   const [allowShort, setAllowShort] = useState(true);
@@ -288,10 +290,10 @@ const EfficientFrontier = () => {
           viewport={{ once: true }}
         >
           <p className="text-xs font-mono uppercase tracking-[0.3em] text-gold mb-3">
-            Portfolio Optimization
+            {t("sections.frontier.tag")}
           </p>
           <h2 className="text-3xl md:text-5xl font-display font-bold text-foreground">
-            有效前沿可视化
+            {t("sections.frontier.title")}
           </h2>
         </motion.div>
 

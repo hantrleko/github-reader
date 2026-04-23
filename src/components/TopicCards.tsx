@@ -2,8 +2,10 @@ import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { topicsData } from "@/data/topicsData";
 import { ArrowRight } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 const TopicCards = () => {
+  const { t } = useTranslation();
   return (
     <section className="py-24 px-6">
       <div className="container">
@@ -14,10 +16,10 @@ const TopicCards = () => {
           viewport={{ once: true }}
         >
           <p className="text-xs font-mono uppercase tracking-[0.3em] text-gold mb-3">
-            Core Disciplines
+            {t("sections.topics.tag")}
           </p>
           <h2 className="text-3xl md:text-5xl font-display font-bold text-foreground">
-            学科领域
+            {t("sections.topics.title")}
           </h2>
         </motion.div>
 
