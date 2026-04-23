@@ -738,6 +738,26 @@ export const FamaFrenchTool = () => {
 
   return (
     <div className="space-y-6">
+      <div className="flex flex-wrap items-center gap-2 p-2.5 rounded-md border border-border/60 bg-muted/30 text-[11px] font-mono">
+        <span className="flex items-center gap-1.5 text-gold">
+          <Database className="w-3.5 h-3.5" />
+          Ken French 真实 5 因子月度数据
+        </span>
+        <button
+          onClick={loadRealFF}
+          disabled={ffQuery.isFetching}
+          className="px-2.5 py-1 rounded bg-primary/90 text-primary-foreground hover:bg-primary disabled:opacity-50 flex items-center gap-1"
+        >
+          {ffQuery.isFetching ? <Loader2 className="w-3 h-3 animate-spin" /> : null}
+          {ffQuery.isFetching ? "拉取中…" : "加载真实 F-F"}
+        </button>
+        {ffStatus && (
+          <span className="flex items-center gap-1 text-gold">
+            <CheckCircle2 className="w-3 h-3" />
+            {ffStatus}
+          </span>
+        )}
+      </div>
       <PresetButtons presets={[
         { name: "小盘价值", description: "SMB+, HML+", apply: () => { setLoadings({ mkt: 1.0, smb: 0.6, hml: 0.5, rmw: 0.2, cma: 0.3 }); setTrueAlpha(0.001); } },
         { name: "大盘成长", description: "SMB-, HML-", apply: () => { setLoadings({ mkt: 1.1, smb: -0.3, hml: -0.4, rmw: 0.4, cma: -0.3 }); setTrueAlpha(0.002); } },
