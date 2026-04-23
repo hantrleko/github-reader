@@ -1,5 +1,6 @@
 import { useState, useMemo, useRef, useCallback } from "react";
 import { motion } from "framer-motion";
+import { useTranslation } from "react-i18next";
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   Legend, ReferenceLine, ScatterChart, Scatter, BarChart, Bar, ComposedChart, Area, Cell,
@@ -674,6 +675,7 @@ const TOOLS: { id: ToolId; name: string; nameEn: string; formula: string; compon
 ];
 
 const RiskTools = () => {
+  const { t } = useTranslation();
   const [tool, setTool] = useState<ToolId>("merton");
   const captureRef = useRef<HTMLDivElement>(null);
   const apply = useCallback((s: { tool: ToolId }) => {
@@ -694,10 +696,10 @@ const RiskTools = () => {
           viewport={{ once: true }}
         >
           <p className="text-xs font-mono uppercase tracking-[0.3em] text-gold mb-3">
-            Risk Management Lab
+            {t("sections.risk.tag")}
           </p>
           <h2 className="text-3xl md:text-5xl font-display font-bold text-foreground">
-            风险管理交互工具
+            {t("sections.risk.title")}
           </h2>
           <p className="text-sm text-muted-foreground mt-3 max-w-2xl mx-auto">
             Merton 信用违约 · Copula 尾相依 · Basel/CCAR 压力测试

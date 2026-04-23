@@ -1,5 +1,6 @@
 import { useState, useMemo, useRef, useCallback, useEffect } from "react";
 import { motion } from "framer-motion";
+import { useTranslation } from "react-i18next";
 import {
   ScatterChart, Scatter, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   ReferenceLine, Line, LineChart, Legend, ComposedChart, ReferenceArea, Area,
@@ -1849,6 +1850,7 @@ const TOOLS: { id: ToolId; name: string; nameEn: string; formula: string; compon
 ];
 
 const EconometricsTools = () => {
+  const { t } = useTranslation();
   const [tool, setTool] = useState<ToolId>("olsiv");
   const captureRef = useRef<HTMLDivElement>(null);
   const apply = useCallback((s: { tool: ToolId }) => {
@@ -1869,10 +1871,10 @@ const EconometricsTools = () => {
           viewport={{ once: true }}
         >
           <p className="text-xs font-mono uppercase tracking-[0.3em] text-gold mb-3">
-            Econometrics Lab
+            {t("sections.econ.tag")}
           </p>
           <h2 className="text-3xl md:text-5xl font-display font-bold text-foreground">
-            计量经济学交互工具
+            {t("sections.econ.title")}
           </h2>
           <p className="text-sm text-muted-foreground mt-3 max-w-2xl mx-auto">
             实时模拟数据生成过程 (DGP)，可视化估计量在不同场景下的偏差与方差

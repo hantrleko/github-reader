@@ -4,6 +4,7 @@ import { CheckCircle2, XCircle, Trophy, RotateCcw, ChevronRight, Sparkles } from
 import { BlockMath, InlineMath } from "react-katex";
 import "katex/dist/katex.min.css";
 import { Cite } from "@/lib/citations";
+import { useTranslation } from "react-i18next";
 
 interface QuizQuestion {
   id: string;
@@ -248,6 +249,7 @@ const saveProgress = (p: Progress) => {
 };
 
 const QuizSection = () => {
+  const { t } = useTranslation();
   const [topic, setTopic] = useState<string>("全部");
   const [progress, setProgress] = useState<Progress>(() => loadProgress());
   const [idx, setIdx] = useState(0);
@@ -314,11 +316,9 @@ const QuizSection = () => {
       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-card/20 to-transparent pointer-events-none" />
       <div className="container relative z-10 max-w-4xl">
         <motion.div className="text-center mb-12" initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}>
-          <p className="text-xs font-mono uppercase tracking-[0.3em] text-gold mb-3">Knowledge Check</p>
-          <h2 className="text-3xl md:text-5xl font-display font-bold text-foreground">交互测验中心</h2>
-          <p className="text-sm text-muted-foreground mt-3 max-w-2xl mx-auto">
-            17 道核心金融与计量题 · 即时反馈 · 进度本地保存
-          </p>
+          <p className="text-xs font-mono uppercase tracking-[0.3em] text-gold mb-3">{t("sections.quiz.tag")}</p>
+          <h2 className="text-3xl md:text-5xl font-display font-bold text-foreground">{t("sections.quiz.title")}</h2>
+          <p className="text-sm text-muted-foreground mt-3 max-w-2xl mx-auto">{t("sections.quiz.subtitle")}</p>
         </motion.div>
 
         {/* Progress dashboard */}
