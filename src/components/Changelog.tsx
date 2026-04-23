@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { Sparkles, Wrench, BookOpen, Zap, Layout, GraduationCap } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 const RELEASES = [
   {
@@ -113,6 +114,7 @@ const RELEASES = [
 ];
 
 const Changelog = () => {
+  const { t } = useTranslation();
   return (
     <section className="py-20 px-6 bg-background border-t border-border/40">
       <div className="container max-w-5xl">
@@ -126,10 +128,10 @@ const Changelog = () => {
             Release Notes · 更新日志
           </p>
           <h2 className="text-3xl md:text-4xl font-display text-foreground mb-3">
-            Changelog
+            {t("changelog.title")}
           </h2>
           <p className="text-sm text-muted-foreground font-mono">
-            追踪平台每次迭代的能力增量，从 V1.0 到 V1.1 的完整升级路径。
+            {t("changelog.subtitle")} — V1.0 → V1.2
           </p>
         </motion.div>
 
