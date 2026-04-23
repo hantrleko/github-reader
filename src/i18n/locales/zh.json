@@ -64,6 +64,17 @@
     "tip": "数据来源:Yahoo Finance / FRED / Ken French — 免费公共 API",
     "applyToParams": "已应用到下方参数"
   },
+  "sections": {
+    "topics": { "tag": "Core Disciplines", "title": "学科领域" },
+    "learning": { "tag": "Learning Roadmap", "title": "学习路径", "current": "当前阶段", "progress": "已完成 {{done}} / {{total}}", "reset": "重置进度", "allDone": "全部完成 — 复习一下", "start": "开始学习", "continue": "继续:{{title}}" },
+    "bond": { "tag": "Fixed Income Tools", "title": "债券计算器" },
+    "frontier": { "tag": "Portfolio Optimization", "title": "有效前沿可视化" },
+    "deriv": { "tag": "Derivatives Lab", "title": "衍生品高阶工具", "subtitle": "SVI 波动率曲面 · 美式期权 LSM · Black-76 利率衍生品" },
+    "quant": { "tag": "Quant Strategy Lab", "title": "量化策略实验室", "subtitle": "策略回测 · 贝叶斯组合 · 多因子归因" },
+    "econ": { "tag": "Advanced Econometrics", "title": "计量经济学工具集" },
+    "risk": { "tag": "Risk Management", "title": "风险管理工具集" },
+    "quiz": { "tag": "Knowledge Check", "title": "交互测验中心", "subtitle": "17 道核心金融与计量题 · 即时反馈 · 进度本地保存", "all": "全部", "answered": "已答题", "correct": "答对", "accuracy": "准确率", "attempts": "总尝试", "question": "题 {{i}} / {{n}}", "next": "下一题" }
+  },
   "changelog": {
     "title": "Changelog",
     "subtitle": "追踪平台每次迭代的能力增量"
