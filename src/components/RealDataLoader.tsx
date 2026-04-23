@@ -88,7 +88,7 @@ const RealDataLoader = ({ defaultSymbol = "AAPL", onApply, className }: Props) =
         {isFetching ? t("realData.fetching") : t("realData.fetch")}
       </button>
       {ok && data && (
-        <span className="flex items-center gap-1 text-emerald-500">
+        <span className="flex items-center gap-1 text-gold">
           <CheckCircle2 className="w-3 h-3" />
           {data.symbol} ${data.lastPrice?.toFixed(2)} · σ={(data.annualVol * 100).toFixed(1)}%
         </span>
