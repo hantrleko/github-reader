@@ -18,7 +18,6 @@ const RiskTools = lazy(() => import("@/components/RiskTools"));
 const QuantStrategyTools = lazy(() => import("@/components/QuantStrategyTools"));
 const QuizSection = lazy(() => import("@/components/QuizSection"));
 const LearningPath = lazy(() => import("@/components/LearningPath"));
-const Changelog = lazy(() => import("@/components/Changelog"));
 
 const SectionFallback = () => (
   <div className="py-20 px-6">
@@ -146,11 +145,6 @@ const Index = () => {
       <Suspense fallback={<SectionFallback />}>
         <div id="quiz" className="scroll-mt-12"><DeferMount><QuizSection /></DeferMount></div>
         <div id="learning" className="scroll-mt-12"><DeferMount><LearningPath /></DeferMount></div>
-      </Suspense>
-
-      {/* ─── 8. 更新日志 ─── */}
-      <Suspense fallback={<SectionFallback />}>
-        <div id="changelog" className="scroll-mt-12"><DeferMount><Changelog /></DeferMount></div>
       </Suspense>
 
       {/* Footer */}

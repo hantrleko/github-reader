@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback, KeyboardEvent } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { Menu, X, ChevronDown } from "lucide-react";
 import ThemeToggle from "./ThemeToggle";
@@ -35,7 +36,6 @@ const GROUPS: Group[] = [
     { id: "quant", labelKey: "nav.items.quant" },
     { id: "quiz", labelKey: "nav.items.quiz" },
     { id: "learning", labelKey: "nav.items.learning" },
-    { id: "changelog", labelKey: "nav.items.changelog" },
   ]},
 ];
 
@@ -44,6 +44,9 @@ const NAV_OFFSET = 80; // sticky-nav height + breathing room
 
 const Navbar = () => {
   const { t } = useTranslation();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const onHome = location.pathname === "/";
   const [active, setActive] = useState("hero");
   const [mobileOpen, setMobileOpen] = useState(false);
   const [openGroup, setOpenGroup] = useState<string | null>(null);
@@ -55,6 +58,7 @@ const Navbar = () => {
      Picks the section whose top is closest above the offset line — robust for
      short sections where IntersectionObserver flips between neighbours. */
   const recomputeActive = useCallback(() => {
+    if (!onHome) return;
     let bestId = ALL_IDS[0];
     let bestTop = -Infinity;
     const line = NAV_OFFSET + 1;
@@ -72,7 +76,7 @@ const Navbar = () => {
       bestId = ALL_IDS[ALL_IDS.length - 1];
     }
     setActive((prev) => (prev === bestId ? prev : bestId));
-  }, []);
+  }, [onHome]);
 
   useEffect(() => {
     let ticking = false;
@@ -128,6 +132,12 @@ const Navbar = () => {
   }, [openGroup]);
 
   const scrollTo = (id: string) => {
+    if (!onHome) {
+      navigate(`/#${id}`);
+      setMobileOpen(false);
+      setOpenGroup(null);
+      return;
+    }
     const el = document.getElementById(id);
     if (el) {
       el.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -281,6 +291,17 @@ const Navbar = () => {
         </ul>
 
         <div className="flex items-center gap-1">
+          <Link
+            to="/changelog"
+            className={cn(
+              "hidden sm:inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-mono transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/60",
+              location.pathname === "/changelog"
+                ? "bg-primary/10 text-primary font-semibold"
+                : "text-muted-foreground hover:text-foreground hover:bg-accent"
+            )}
+          >
+            {t("nav.items.changelog")}
+          </Link>
           <LanguageToggle />
           <ThemeToggle />
           <button
@@ -325,6 +346,23 @@ const Navbar = () => {
                 </div>
               </div>
             ))}
+            <div>
+              <p className="text-[10px] font-mono text-gold/80 tracking-wider uppercase mb-1.5 px-1">
+                {t("nav.items.changelog")}
+              </p>
+              <Link
+                to="/changelog"
+                onClick={() => setMobileOpen(false)}
+                className={cn(
+                  "block px-3 py-2 rounded-md text-xs font-mono transition-colors",
+                  location.pathname === "/changelog"
+                    ? "bg-primary/10 text-primary font-semibold"
+                    : "text-muted-foreground hover:text-foreground hover:bg-accent"
+                )}
+              >
+                {t("nav.items.changelog")}
+              </Link>
+            </div>
           </div>
         </div>
       )}
