@@ -1,114 +1,85 @@
 
 
-# Sprint 5 补完计划：真实数据接入 + i18n 双语切换
+# 进一步可优化点（按收益/成本排序）
 
-把 Sprint 5 剩余两块一次性做完。版本升至 **V1.2**。
-
----
-
-## Part A：真实世界数据接入
-
-### 架构
-所有外部 API 通过 Lovable Cloud 的 Edge Function 代理，避免 CORS 和密钥泄露；前端用 React Query 缓存 + 失败时回退到合成数据。
-
-```text
-[Calculator UI] ──invoke──> [Edge Function] ──fetch──> [Yahoo / FRED / Ken French]
-       ↑                          │
-       └──── React Query 缓存 ←───┘
-```
-
-### 三个 Edge Function
-
-| 函数 | 数据源 | 用途 | 接入工具 |
-|---|---|---|---|
-| `market-quotes` | Yahoo Finance v8 chart API（公开端点，无需 Key） | 拉股票/ETF 历史日线、隐含波动率链 | BS Pricer, Implied Vol, MC Pricer, Backtester |
-| `fred-series` | FRED API（需 API Key） | 国债收益率曲线（DGS1/2/5/10/30）、CPI、失业率 | Vasicek/CIR/HW, GARCH, Kalman |
-| `famafrench-factors` | Ken French CSV ZIP（公开） | F-F 5 因子月度数据 | Fama-French 归因工具 |
-
-### 前端集成模式
-每个相关计算器顶部新增一个小工具栏：
-
-```text
-[ 加载真实数据 ▾ ]  AAPL ▼  [2020-01-01] → [2024-12-31]  [拉取]   状态: ✓ 252 条
-```
-
-- 成功 → 数据填入参数，自动重算
-- 失败 → toast 提示 + 回退到原合成数据，不阻塞使用
-- 加 React Query (`@tanstack/react-query` 已在项目中) 做 5 分钟缓存
-
-### 需要的密钥
-- **FRED_API_KEY**：免费申请 https://fred.stlouisfed.org/docs/api/api_key.html，我会在切换到执行模式后通过 `add_secret` 工具向你索取
-- Yahoo / Ken French 无需密钥
+按"收益高 / 改动小"优先排列。你可以挑选要做的项，我再统一实施。
 
 ---
 
-## Part B：i18n 中英双语
+## 🔴 高收益（推荐优先）
 
-### 技术方案
-- `react-i18next` + `i18next` + `i18next-browser-languagedetector`
-- 翻译文件：`src/i18n/locales/zh.json` 和 `en.json`（按 namespace 拆分：`common`, `nav`, `tools`, `quiz`, `changelog`）
-- Navbar 加语言切换按钮（🌐 中 / EN），选择持久化到 localStorage
-- 默认根据浏览器语言自动判断，fallback = zh
+### 1. 路由级代码分割（最大单项收益）
+当前 `App.tsx` 把 `Index` / `TopicDetail` / `NotFound` 全部静态导入，首屏 bundle 一次性带上了 **所有 12 个计算器**（即使 `DeferMount` 延迟了挂载，JS 文件本身仍被加载）。
 
-### 改造范围
-| 模块 | 文案量 | 备注 |
-|---|---|---|
-| Navbar + 6 个分组菜单 | ~30 keys | 全部 key 化 |
-| HeroSection / TopicCards / LearningPath | ~80 keys | |
-| 12 个计算器的标题/参数标签/按钮/解读卡 | ~600 keys | 主体工作量 |
-| QuizSection（17 题题干+解析） | ~200 keys | 题目本身保留中英两版 |
-| Changelog | ~80 keys | |
-| 公式 LaTeX 不翻译 | — | 数学符号通用 |
+**做法**：把 3 个 page 改成 `lazy()` + `Suspense`，并在 `vite.config.ts` 里加 `manualChunks` 把 `recharts` / `katex` / `framer-motion` / `html-to-image` 拆成独立 vendor chunk。
+**预估**：首包 JS 体积下降 40%-60%，TTI 显著改善。
 
-### KaTeX 公式处理
-公式不动，只翻译公式上下文说明文字。
+### 2. Recharts 按需引入 / 懒加载图表
+12+ 组件都 `from "recharts"`，Recharts 体积约 400KB。
+**做法**：把每个 Tool 里的 Chart 子树抽成 `lazy()` 子组件，只有当卡片真正进入视口才加载图表代码。
+**预估**：再砍 ~150KB 关键路径 JS。
 
----
+### 3. Framer Motion 的 `motion.*` 改用更轻量方案
+`HeroSection`、几个 Tools 仅用 fade-in / translate，引入了完整的 framer-motion（~50KB gz）。
+**做法**：换成纯 CSS `animate-fade-in` keyframe（已有 Tailwind 配置），删除 framer-motion 依赖或改为只在真正需要的地方引入 `m`/`LazyMotion`。
+**预估**：-50KB，无视觉差异。
 
-## 文件改动清单
-
-**新建：**
-- `supabase/functions/market-quotes/index.ts`
-- `supabase/functions/fred-series/index.ts`
-- `supabase/functions/famafrench-factors/index.ts`
-- `src/lib/marketData.ts`（前端调用封装 + React Query hooks）
-- `src/components/RealDataLoader.tsx`（通用数据加载工具栏）
-- `src/i18n/index.ts`（i18next 初始化）
-- `src/i18n/locales/zh.json`
-- `src/i18n/locales/en.json`
-- `src/components/LanguageToggle.tsx`
-
-**修改：**
-- `src/main.tsx`（引入 i18n + QueryClientProvider — 若未引入）
-- `src/components/Navbar.tsx`（加 LanguageToggle，文案 key 化）
-- 12 个计算器组件：嵌入 `RealDataLoader` + 文案 key 化
-- `src/components/QuizSection.tsx` / `Changelog.tsx` / `HeroSection.tsx` / `TopicCards.tsx` / `LearningPath.tsx`：文案 key 化
-- `src/components/Changelog.tsx`：新增 V1.2 条目
-
-**密钥：**
-- 启用 Lovable Cloud（如未启用）
-- 添加 `FRED_API_KEY`
+### 4. i18n 资源懒加载
+当前 `src/i18n/index.ts` 把 zh + en 两份 JSON 都同步打进首包。
+**做法**：用 `i18next-http-backend` 或动态 `import()`，按当前语言只加载对应 JSON。
+**预估**：小量但纯净的优化（-3-7KB），并为后续加更多语言铺路。
 
 ---
 
-## 实施顺序（任务列表）
+## 🟡 中等收益
 
-1. 启用 Lovable Cloud + 添加 FRED API Key
-2. 实现 3 个 Edge Function（market-quotes / fred-series / famafrench-factors）
-3. 建 `marketData.ts` + `RealDataLoader` 通用组件
-4. 把真实数据接入 12 个计算器（按优先级：BS → Vasicek → Backtest → Fama-French → 其余）
-5. 安装并初始化 react-i18next，建 zh/en JSON 骨架
-6. 加 LanguageToggle 到 Navbar
-7. 全站文案 key 化（按 namespace 分批：common → nav → tools → quiz → changelog）
-8. 写 V1.2 Changelog 条目，版本号升级
-9. 自测：切换语言、拉数据成功/失败回退、缓存命中
+### 5. Navbar 滚动监听节流升级
+`recomputeActive()` 每次 rAF 都对 19 个 section 做 `getBoundingClientRect()`（强制 layout）。
+**做法**：改用一个长期持有的 `IntersectionObserver`（每个 section 一个 observer），active 状态由 entry 回调更新；移除 scroll 监听。
+**预估**：滚动时主线程开销 ↓，长列表/低端设备明显更顺。
+
+### 6. `DeferMount` 卸载策略 + 占位高度精确化
+当前 mount 后永不 unmount，长时间停留在底部时所有计算器仍在内存。
+**做法**：
+- 给每个 Section 设置更接近真实高度的 `minHeight`（避免快速滚动时跳动）
+- 可选：当 section 离开视口 > 2 屏时，`unmount` 并恢复占位（用 `content-visibility: auto` 的 CSS 替代 JS 也是一个选择）
+
+### 7. `EconometricsTools.tsx`（1936 行）和 `CalculatorSection.tsx`（1328 行）拆分
+单文件过大 → 编辑器/HMR 慢、Tree-shaking 差。
+**做法**：每个 Tab/子工具拆出独立文件，主文件只做 layout + lazy 装配。
+
+### 8. 给所有 section 容器加 `content-visibility: auto`
+浏览器原生跳过视口外的渲染/布局，几乎零代码代价。
+**做法**：在 `index.css` 加一条 `.cv-auto { content-visibility: auto; contain-intrinsic-size: 600px; }`，套到 Index 中每个章节 wrapper。
 
 ---
 
-## 风险与回退
+## 🟢 体验/质量提升（非性能）
 
-- Yahoo Finance 非官方 API，可能限流 → Edge Function 加 5 秒超时 + 失败回退合成数据
-- FRED 免费 Key 限 120 req/min → React Query 缓存 + 用户手动触发拉取（非自动）
-- i18n 工作量大 → 翻译先用准确直译，后续可由你 review 调优；不阻塞功能上线
-- 公式 LaTeX 与翻译解耦，零风险
+### 9. 错误边界 & 数据请求失败 UI
+`market-quotes` 等 Edge Function 失败时目前只 `toast`，部分组件可能崩溃。
+**做法**：在每个 lazy section 外包 `<ErrorBoundary>`（react-error-boundary），失败显示 retry 按钮。
+
+### 10. SEO / 元信息
+首页只有 1 个 `<title>`，没有 OpenGraph / 结构化数据 / sitemap。
+**做法**：用 `react-helmet-async` 注入 per-route meta，加 `/sitemap.xml`、`og:image`。
+
+### 11. 无障碍 & 键盘导航补完
+- 移动端菜单缺 `role="dialog"` + focus trap
+- 部分按钮 hover 才显示状态，没有 `aria-pressed`
+- 公式 LaTeX 缺 `aria-label`（屏幕阅读器读不出）
+
+### 12. 测试覆盖
+项目里有 `vitest` 和 `playwright` 配置，但只有 `example.test.ts`。
+**做法**：给数值算法（BS、Newton-Raphson、Vasicek、Sharpe）补关键单元测试，防止重构回归。
+
+---
+
+## 我的建议
+
+如果只挑 3 项做一次性收尾，按性价比我会推荐：
+**#1 路由分包 + manualChunks** → **#3 移除 framer-motion** → **#8 content-visibility**。
+三项加起来预计首屏 JS -50% 左右，且改动可控（约 5-8 个文件）、无视觉退化。
+
+告诉我你想做哪几项，我直接开干。
 
