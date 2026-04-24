@@ -346,6 +346,23 @@ const Navbar = () => {
                 </div>
               </div>
             ))}
+            <div>
+              <p className="text-[10px] font-mono text-gold/80 tracking-wider uppercase mb-1.5 px-1">
+                {t("nav.items.changelog")}
+              </p>
+              <Link
+                to="/changelog"
+                onClick={() => setMobileOpen(false)}
+                className={cn(
+                  "block px-3 py-2 rounded-md text-xs font-mono transition-colors",
+                  location.pathname === "/changelog"
+                    ? "bg-primary/10 text-primary font-semibold"
+                    : "text-muted-foreground hover:text-foreground hover:bg-accent"
+                )}
+              >
+                {t("nav.items.changelog")}
+              </Link>
+            </div>
           </div>
         </div>
       )}
