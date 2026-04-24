@@ -8,6 +8,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 
 const Index = lazy(() => import("./pages/Index.tsx"));
 const TopicDetail = lazy(() => import("./pages/TopicDetail.tsx"));
+const ChangelogPage = lazy(() => import("./pages/ChangelogPage.tsx"));
 const NotFound = lazy(() => import("./pages/NotFound.tsx"));
 
 const RouteFallback = () => (
@@ -29,6 +30,7 @@ const App = () => (
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/topic/:topicId" element={<TopicDetail />} />
+              <Route path="/changelog" element={<ChangelogPage />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
