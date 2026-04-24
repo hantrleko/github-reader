@@ -1,4 +1,3 @@
-import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { topicsData } from "@/data/topicsData";
 import { ArrowRight } from "lucide-react";
@@ -9,29 +8,21 @@ const TopicCards = () => {
   return (
     <section className="py-24 px-6">
       <div className="container">
-        <motion.div
-          className="text-center mb-16"
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-        >
+        <div className="text-center mb-16 animate-fade-in">
           <p className="text-xs font-mono uppercase tracking-[0.3em] text-gold mb-3">
             {t("sections.topics.tag")}
           </p>
           <h2 className="text-3xl md:text-5xl font-display font-bold text-foreground">
             {t("sections.topics.title")}
           </h2>
-        </motion.div>
+        </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {topicsData.map((topic, i) => (
-            <motion.div
+            <div
               key={topic.id}
-              initial={{ opacity: 0, y: 24 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.08 }}
-              whileHover={{ y: -4 }}
+              className="animate-fade-in-up hover:-translate-y-1 transition-transform duration-300"
+              style={{ animationDelay: `${i * 60}ms` }}
             >
               <Link
                 to={`/topic/${topic.id}`}
@@ -70,7 +61,7 @@ const TopicCards = () => {
                   </div>
                 </div>
               </Link>
-            </motion.div>
+            </div>
           ))}
         </div>
       </div>

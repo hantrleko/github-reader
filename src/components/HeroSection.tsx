@@ -1,4 +1,3 @@
-import { motion } from "framer-motion";
 import { TrendingUp, BookOpen, BarChart3, ArrowDown } from "lucide-react";
 import { topicsData } from "@/data/topicsData";
 import { useTranslation } from "react-i18next";
@@ -28,11 +27,7 @@ const HeroSection = () => {
       <div className="absolute bottom-0 left-0 w-[400px] h-[300px] rounded-full bg-teal/5 blur-[100px] pointer-events-none" />
 
       <div className="container relative z-10 px-6 text-center">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: "easeOut" }}
-        >
+        <div className="animate-fade-in-up">
           <p className="text-sm font-mono uppercase tracking-[0.3em] text-gold mb-6">
             {t("hero.tagline")}
           </p>
@@ -44,15 +39,10 @@ const HeroSection = () => {
           <p className="max-w-2xl mx-auto text-lg md:text-xl text-muted-foreground font-light leading-relaxed mb-10">
             {t("hero.subtitle")}
           </p>
-        </motion.div>
+        </div>
 
         {/* CTA buttons */}
-        <motion.div
-          className="flex flex-wrap justify-center gap-3 mb-10"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.3 }}
-        >
+        <div className="flex flex-wrap justify-center gap-3 mb-10 animate-fade-in-up animate-delay-300">
           <button
             onClick={() => scrollTo("calculator")}
             className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-primary text-primary-foreground font-medium text-sm transition-transform hover:scale-105 shadow-lg"
@@ -66,14 +56,9 @@ const HeroSection = () => {
           >
             {t("hero.cta2")}
           </button>
-        </motion.div>
+        </div>
 
-        <motion.div
-          className="flex flex-wrap justify-center gap-4"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.4 }}
-        >
+        <div className="flex flex-wrap justify-center gap-4 animate-fade-in-up animate-delay-400">
           {stats.map((item, i) => (
             <button
               key={i}
@@ -85,7 +70,7 @@ const HeroSection = () => {
               <span className="text-xs text-gold font-mono">{item.count}</span>
             </button>
           ))}
-        </motion.div>
+        </div>
       </div>
 
       <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-background to-transparent" />

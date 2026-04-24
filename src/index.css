@@ -151,6 +151,15 @@
   .glow-gold {
     box-shadow: 0 0 40px -10px hsl(var(--gold) / 0.25);
   }
+  /* Skip rendering off-screen sections (huge perf win on long pages) */
+  .cv-auto {
+    content-visibility: auto;
+    contain-intrinsic-size: 600px;
+  }
+  /* Animation delay helpers used by hero CTAs */
+  .animate-delay-200 { animation-delay: 200ms; }
+  .animate-delay-300 { animation-delay: 300ms; }
+  .animate-delay-400 { animation-delay: 400ms; }
   /* Unified KaTeX styling — gold accent for primary formula bars */
   .katex-display-gold .katex {
     color: hsl(var(--gold));

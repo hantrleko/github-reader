@@ -1,4 +1,3 @@
-import { motion } from "framer-motion";
 import { useState } from "react";
 
 const models = [
@@ -131,19 +130,14 @@ const ModelShowcase = () => {
     <section className="py-24 px-6 relative">
       <div className="absolute inset-0 bg-gradient-to-b from-background via-card/30 to-background pointer-events-none" />
       <div className="container relative z-10">
-        <motion.div
-          className="text-center mb-16"
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-        >
+        <div className="text-center mb-16 animate-fade-in">
           <p className="text-xs font-mono uppercase tracking-[0.3em] text-gold mb-3">
             Classic Models
           </p>
           <h2 className="text-3xl md:text-5xl font-display font-bold text-foreground">
             经典模型详解
           </h2>
-        </motion.div>
+        </div>
 
         {/* Model tabs */}
         <div className="flex flex-wrap justify-center gap-2 mb-12">
@@ -163,13 +157,7 @@ const ModelShowcase = () => {
         </div>
 
         {/* Model detail */}
-        <motion.div
-          key={model.id}
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4 }}
-          className="max-w-4xl mx-auto"
-        >
+        <div key={model.id} className="max-w-4xl mx-auto animate-fade-in-up">
           <div className="rounded-2xl border border-border bg-card p-8 md:p-10 glow-gold">
             <p className="text-xs font-mono text-muted-foreground mb-2">
               {model.fullName}
@@ -214,7 +202,7 @@ const ModelShowcase = () => {
               </div>
             </div>
           </div>
-        </motion.div>
+        </div>
       </div>
     </section>
   );

@@ -63,7 +63,7 @@ const DeferMount = ({
   }, [visible, rootMargin]);
 
   return (
-    <div ref={ref} style={visible ? undefined : { minHeight }}>
+    <div ref={ref} className="cv-auto" style={visible ? undefined : { minHeight }}>
       {visible ? children : <SectionFallback />}
     </div>
   );
