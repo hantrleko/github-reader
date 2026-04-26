@@ -6,10 +6,37 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
-const Index = lazy(() => import("./pages/Index.tsx"));
-const TopicDetail = lazy(() => import("./pages/TopicDetail.tsx"));
-const ChangelogPage = lazy(() => import("./pages/ChangelogPage.tsx"));
-const NotFound = lazy(() => import("./pages/NotFound.tsx"));
+/**
+ * Reload-once recovery for stale chunk hashes after a new deploy.
+ * When the browser holds an old index.html, dynamic imports point at
+ * filenames that no longer exist and throw "error loading dynamically
+ * imported module". A single reload fetches fresh hashes.
+ */
+const lazyWithRetry = <T,>(factory: () => Promise<T>) =>
+  lazy(() =>
+    (factory() as Promise<any>).catch((err) => {
+      const msg = String(err?.message ?? err ?? "");
+      const isChunkErr =
+        /dynamically imported module|Failed to fetch dynamically imported module|Importing a module script failed/i.test(
+          msg
+        );
+      if (isChunkErr && typeof window !== "undefined") {
+        const KEY = "__lov_chunk_reload__";
+        if (!sessionStorage.getItem(KEY)) {
+          sessionStorage.setItem(KEY, "1");
+          window.location.reload();
+          // Return a never-resolving promise so Suspense holds until reload.
+          return new Promise(() => {});
+        }
+      }
+      throw err;
+    })
+  );
+
+const Index = lazyWithRetry(() => import("./pages/Index.tsx"));
+const TopicDetail = lazyWithRetry(() => import("./pages/TopicDetail.tsx"));
+const ChangelogPage = lazyWithRetry(() => import("./pages/ChangelogPage.tsx"));
+const NotFound = lazyWithRetry(() => import("./pages/NotFound.tsx"));
 
 const RouteFallback = () => (
   <div className="min-h-screen bg-background flex items-center justify-center">
