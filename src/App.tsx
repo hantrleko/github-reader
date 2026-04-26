@@ -5,6 +5,7 @@ import { ThemeProvider } from "next-themes";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import CommandPalette from "@/components/CommandPalette";
 
 /**
  * Reload-once recovery for stale chunk hashes after a new deploy.
@@ -62,6 +63,7 @@ const App = () => (
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Suspense>
+          <CommandPalette />
         </BrowserRouter>
       </TooltipProvider>
     </QueryClientProvider>
