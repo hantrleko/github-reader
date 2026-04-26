@@ -4,6 +4,8 @@ import Navbar from "@/components/Navbar";
 import HeroSection from "@/components/HeroSection";
 import TopicCards from "@/components/TopicCards";
 import ModelShowcase from "@/components/ModelShowcase";
+import ScrollUtilities from "@/components/ScrollUtilities";
+import SectionErrorBoundary from "@/components/SectionErrorBoundary";
 
 // Heavy interactive sections — code-split to relieve homepage bundle & scroll lag
 const CalculatorSection = lazy(() => import("@/components/CalculatorSection"));
@@ -94,6 +96,7 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
+      <ScrollUtilities />
 
       {/* ─── 0. 导览 ─── */}
       <div id="hero" className="scroll-mt-12"><HeroSection /></div>
@@ -102,50 +105,64 @@ const Index = () => {
 
       {/* ─── 1. 基础定价 ─── */}
       <SectionDivider kicker="Chapter 1" label="基础定价 · 期权与隐含波动率" />
+      <SectionErrorBoundary name="基础定价">
       <Suspense fallback={<SectionFallback />}>
         <div id="calculator" className="scroll-mt-12"><DeferMount><CalculatorSection /></DeferMount></div>
         <div id="implied-vol" className="scroll-mt-12"><DeferMount><ImpliedVolTool /></DeferMount></div>
         <div id="mc-pricer" className="scroll-mt-12"><DeferMount><MCOptionPricer /></DeferMount></div>
       </Suspense>
+      </SectionErrorBoundary>
 
       {/* ─── 2. 衍生品高阶 ─── */}
       <SectionDivider kicker="Chapter 2" label="衍生品高阶 · 波动率曲面与路径依赖" />
+      <SectionErrorBoundary name="衍生品高阶">
       <Suspense fallback={<SectionFallback />}>
         <div id="derivatives" className="scroll-mt-12"><DeferMount><DerivativesTools /></DeferMount></div>
       </Suspense>
+      </SectionErrorBoundary>
 
       {/* ─── 3. 固收与组合 ─── */}
       <SectionDivider kicker="Chapter 3" label="固定收益 & 资产配置" />
+      <SectionErrorBoundary name="固收与组合">
       <Suspense fallback={<SectionFallback />}>
         <div id="bond" className="scroll-mt-12"><DeferMount><BondCalculator /></DeferMount></div>
         <div id="rate-model" className="scroll-mt-12"><DeferMount><RateModelSimulator /></DeferMount></div>
         <div id="frontier" className="scroll-mt-12"><DeferMount><EfficientFrontier /></DeferMount></div>
       </Suspense>
+      </SectionErrorBoundary>
 
       {/* ─── 4. 计量经济 ─── */}
       <SectionDivider kicker="Chapter 4" label="计量经济学 · 估计与状态空间" />
+      <SectionErrorBoundary name="计量经济">
       <Suspense fallback={<SectionFallback />}>
         <div id="econometrics" className="scroll-mt-12"><DeferMount><EconometricsTools /></DeferMount></div>
       </Suspense>
+      </SectionErrorBoundary>
 
       {/* ─── 5. 风险管理 ─── */}
       <SectionDivider kicker="Chapter 5" label="风险管理 · 信用、相依结构与压力测试" />
+      <SectionErrorBoundary name="风险管理">
       <Suspense fallback={<SectionFallback />}>
         <div id="risk" className="scroll-mt-12"><DeferMount><RiskTools /></DeferMount></div>
       </Suspense>
+      </SectionErrorBoundary>
 
       {/* ─── 6. 量化策略 ─── */}
       <SectionDivider kicker="Chapter 6" label="量化策略 · 回测与因子归因" />
+      <SectionErrorBoundary name="量化策略">
       <Suspense fallback={<SectionFallback />}>
         <div id="quant" className="scroll-mt-12"><DeferMount><QuantStrategyTools /></DeferMount></div>
       </Suspense>
+      </SectionErrorBoundary>
 
       {/* ─── 7. 测验与路径 ─── */}
       <SectionDivider kicker="Capstone" label="知识检验与学习路径" />
+      <SectionErrorBoundary name="测验与学习路径">
       <Suspense fallback={<SectionFallback />}>
         <div id="quiz" className="scroll-mt-12"><DeferMount><QuizSection /></DeferMount></div>
         <div id="learning" className="scroll-mt-12"><DeferMount><LearningPath /></DeferMount></div>
       </Suspense>
+      </SectionErrorBoundary>
 
       {/* Footer */}
       <footer className="py-12 px-6 border-t border-border">
@@ -156,8 +173,20 @@ const Index = () => {
           <p className="text-[11px] font-mono text-muted-foreground/70 tracking-wider">
             经济金融实验室 · 系统化的实证方法学习平台
           </p>
+          <div className="flex items-center justify-center gap-4 pt-3 text-[10px] font-mono text-muted-foreground/80">
+            <a href="/changelog" className="hover:text-gold transition-colors">更新日志</a>
+            <span className="text-border">·</span>
+            <button
+              onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+              className="hover:text-gold transition-colors"
+            >
+              回到顶部
+            </button>
+            <span className="text-border">·</span>
+            <span className="text-muted-foreground/60">⌘K 快速搜索</span>
+          </div>
           <p className="text-[10px] font-mono text-gold/70 tracking-[0.2em] uppercase pt-2">
-            Version 1.1  ·  © 2026
+            Version 1.3  ·  © 2026
           </p>
         </div>
       </footer>
