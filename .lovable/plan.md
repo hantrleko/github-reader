@@ -1,85 +1,150 @@
 
+# V1.3 全方位升级实施计划
 
-# 进一步可优化点（按收益/成本排序）
-
-按"收益高 / 改动小"优先排列。你可以挑选要做的项，我再统一实施。
-
----
-
-## 🔴 高收益（推荐优先）
-
-### 1. 路由级代码分割（最大单项收益）
-当前 `App.tsx` 把 `Index` / `TopicDetail` / `NotFound` 全部静态导入，首屏 bundle 一次性带上了 **所有 12 个计算器**（即使 `DeferMount` 延迟了挂载，JS 文件本身仍被加载）。
-
-**做法**：把 3 个 page 改成 `lazy()` + `Suspense`，并在 `vite.config.ts` 里加 `manualChunks` 把 `recharts` / `katex` / `framer-motion` / `html-to-image` 拆成独立 vendor chunk。
-**预估**：首包 JS 体积下降 40%-60%，TTI 显著改善。
-
-### 2. Recharts 按需引入 / 懒加载图表
-12+ 组件都 `from "recharts"`，Recharts 体积约 400KB。
-**做法**：把每个 Tool 里的 Chart 子树抽成 `lazy()` 子组件，只有当卡片真正进入视口才加载图表代码。
-**预估**：再砍 ~150KB 关键路径 JS。
-
-### 3. Framer Motion 的 `motion.*` 改用更轻量方案
-`HeroSection`、几个 Tools 仅用 fade-in / translate，引入了完整的 framer-motion（~50KB gz）。
-**做法**：换成纯 CSS `animate-fade-in` keyframe（已有 Tailwind 配置），删除 framer-motion 依赖或改为只在真正需要的地方引入 `m`/`LazyMotion`。
-**预估**：-50KB，无视觉差异。
-
-### 4. i18n 资源懒加载
-当前 `src/i18n/index.ts` 把 zh + en 两份 JSON 都同步打进首包。
-**做法**：用 `i18next-http-backend` 或动态 `import()`，按当前语言只加载对应 JSON。
-**预估**：小量但纯净的优化（-3-7KB），并为后续加更多语言铺路。
+把上一轮提出的 28 项建议**全部落地**，并把版本号从 V1.2 升到 **V1.3**。鉴于工作量巨大（涉及 20+ 文件、新增 10+ 组件），我会按 **5 个 Phase** 分批提交，每个 Phase 都是可独立运行的完整功能集。
 
 ---
 
-## 🟡 中等收益
+## 📦 Phase A — 通用基础设施（1 次提交，5 文件）
 
-### 5. Navbar 滚动监听节流升级
-`recomputeActive()` 每次 rAF 都对 19 个 section 做 `getBoundingClientRect()`（强制 layout）。
-**做法**：改用一个长期持有的 `IntersectionObserver`（每个 section 一个 observer），active 状态由 entry 回调更新；移除 scroll 监听。
-**预估**：滚动时主线程开销 ↓，长列表/低端设备明显更顺。
+为后续功能铺底，**先做这一层后面才能复用**。
 
-### 6. `DeferMount` 卸载策略 + 占位高度精确化
-当前 mount 后永不 unmount，长时间停留在底部时所有计算器仍在内存。
-**做法**：
-- 给每个 Section 设置更接近真实高度的 `minHeight`（避免快速滚动时跳动）
-- 可选：当 section 离开视口 > 2 屏时，`unmount` 并恢复占位（用 `content-visibility: auto` 的 CSS 替代 JS 也是一个选择）
+### A1. 新增 `src/lib/calculatorTools.tsx`
+统一的「**导出 PNG / 复制参数链接**」工具栏组件 `<ShareExportToolbar>`：
+- `html-to-image` 把指定 ref 节点导出 PNG
+- 把当前 state 序列化为 base64 写入 URL hash（`#calculator?s=eyJTIjox...`），加载时自动 hydrate
+- 复制成功 toast + ✓ 反馈
 
-### 7. `EconometricsTools.tsx`（1936 行）和 `CalculatorSection.tsx`（1328 行）拆分
-单文件过大 → 编辑器/HMR 慢、Tree-shaking 差。
-**做法**：每个 Tab/子工具拆出独立文件，主文件只做 layout + lazy 装配。
+### A2. 新增 `src/components/common/ChartTheme.tsx`
+统一的 Recharts 主题配置（CartesianGrid 颜色、Tooltip 卡片样式、轴字体、tabular-nums）。导出 `<ThemedTooltip>`、`CHART_COLORS`、`AXIS_PROPS`，所有图表后续替换。
 
-### 8. 给所有 section 容器加 `content-visibility: auto`
-浏览器原生跳过视口外的渲染/布局，几乎零代码代价。
-**做法**：在 `index.css` 加一条 `.cv-auto { content-visibility: auto; contain-intrinsic-size: 600px; }`，套到 Index 中每个章节 wrapper。
+### A3. 新增 `src/components/common/CompareToggle.tsx`
+通用 A/B 对比开关：左右双栏 state + 「同步参数」「重置 B」按钮，作为 hook `useCompareState(initial)` 提供。
 
----
+### A4. 新增 `src/components/common/InfoBadges.tsx`
+- `<DifficultyBadge level="basic|intermediate|advanced" />` — 🟢🟡🔴
+- `<WhyItMatters>{children}</WhyItMatters>` — 工具顶部说明卡片
+- `<TermTooltip cn="久期" en="Duration">久期</TermTooltip>` — 中英术语 hover
 
-## 🟢 体验/质量提升（非性能）
-
-### 9. 错误边界 & 数据请求失败 UI
-`market-quotes` 等 Edge Function 失败时目前只 `toast`，部分组件可能崩溃。
-**做法**：在每个 lazy section 外包 `<ErrorBoundary>`（react-error-boundary），失败显示 retry 按钮。
-
-### 10. SEO / 元信息
-首页只有 1 个 `<title>`，没有 OpenGraph / 结构化数据 / sitemap。
-**做法**：用 `react-helmet-async` 注入 per-route meta，加 `/sitemap.xml`、`og:image`。
-
-### 11. 无障碍 & 键盘导航补完
-- 移动端菜单缺 `role="dialog"` + focus trap
-- 部分按钮 hover 才显示状态，没有 `aria-pressed`
-- 公式 LaTeX 缺 `aria-label`（屏幕阅读器读不出）
-
-### 12. 测试覆盖
-项目里有 `vitest` 和 `playwright` 配置，但只有 `example.test.ts`。
-**做法**：给数值算法（BS、Newton-Raphson、Vasicek、Sharpe）补关键单元测试，防止重构回归。
+### A5. 新增 `src/lib/calcHistory.ts`
+localStorage 历史记录 + 收藏夹（最多 10 条），暴露 `useCalcHistory(toolKey)` hook。
 
 ---
 
-## 我的建议
+## 📦 Phase B — 全局交互升级（1 次提交，6 文件）
 
-如果只挑 3 项做一次性收尾，按性价比我会推荐：
-**#1 路由分包 + manualChunks** → **#3 移除 framer-motion** → **#8 content-visibility**。
-三项加起来预计首屏 JS -50% 左右，且改动可控（约 5-8 个文件）、无视觉退化。
+### B1. **命令面板** `src/components/CommandPalette.tsx`
+- 用现成的 `cmdk`（已在 ui/command.tsx）
+- `⌘K` / `Ctrl+K` 触发；搜索 19 个 section + 12 个工具
+- 在 `App.tsx` 全局挂载
 
-告诉我你想做哪几项，我直接开干。
+### B2. **快捷键 Hook** `src/hooks/useHotkeys.ts`
+- `?` 显示帮助 modal
+- `←/→` 在同章节工具间跳转
 
+### B3. **回到顶部 + 进度条** `src/components/ScrollUtilities.tsx`
+- 滚动 > 800px 显示浮动按钮
+- 右侧 fixed mini progress bar（章节位置）
+- 在 `Index.tsx` 挂载
+
+### B4. **Navbar 优化** `src/components/Navbar.tsx`
+- 章节 dropdown 已分组；增加 ⭐ 收藏入口、⌘K 提示
+- 移动端菜单加 `role="dialog"` + focus trap
+
+### B5. **首次访问 onboarding** `src/components/Onboarding.tsx`
+- 自写 3 步轻量引导（不引入 react-joyride，省体积）
+- localStorage flag 防重复
+
+### B6. **错误边界** `src/components/SectionErrorBoundary.tsx`
+- 包裹 `Index.tsx` 中每个 lazy section
+- 失败显示 retry 按钮 + 友好文案
+
+---
+
+## 📦 Phase C — 计算器增强（按工具改造，多次提交，~12 文件）
+
+对每个主要计算器套用 Phase A 的基础设施。**不修改算法**，只加壳：
+
+每个工具改造清单：
+1. 顶部加 `<DifficultyBadge>` + `<WhyItMatters>`（两句话讲清"为什么重要"）
+2. 关键参数 input 旁加 `<Slider>`（双向绑定）
+3. 数字 input 加 `+/-` 步进按钮
+4. 底部加 `<ShareExportToolbar>`（导出 PNG + 分享链接）
+5. 重型计算（MC、Frontier）加 loading skeleton
+6. Recharts 替换为统一的 `ChartTheme`
+
+涉及文件：
+- `CalculatorSection.tsx`、`ImpliedVolTool.tsx`、`MCOptionPricer.tsx`
+- `BondCalculator.tsx`、`RateModelSimulator.tsx`、`EfficientFrontier.tsx`
+- `RiskTools.tsx`、`QuantStrategyTools.tsx`
+- `EconometricsTools.tsx`、`DerivativesTools.tsx`
+
+> A/B 对比模式只接入 **3 个最具教学价值的工具**（BS 定价、Frontier、Bond），其余保留入口但默认关闭，避免一次性改动过大。
+
+---
+
+## 📦 Phase D — 内容与学习路径（1 次提交，4 文件）
+
+### D1. `LearningPath.tsx` — 完成度勾选
+localStorage 记录每个 topic 完成状态，进度条显示总进度。
+
+### D2. `QuizSection.tsx` — 完成后打勾 + 错题回顾
+答完一题后保存结果，章节顶部显示「已完成 3/8」。
+
+### D3. `RealDataLoader.tsx` — 数据时间戳 + 来源角标 + retry
+失败时显示「使用示例数据」按钮，永不崩溃。
+
+### D4. 公式视图三 Tab `src/components/common/FormulaCodeView.tsx`
+**「公式 | Python 代码 | 结果」** 三视图组件，先在 BS 定价、Bond YTM、Vasicek 三处接入示例。Python 代码用 `react-syntax-highlighter`（按需懒加载，加入 vite manualChunks）。
+
+---
+
+## 📦 Phase E — 视觉打磨 + 版本号（1 次提交，6 文件）
+
+### E1. `src/index.css` — 全局视觉规则
+- `body` `transition-colors duration-300`
+- 数字 `font-feature-settings: "tnum"`
+- 中文 `letter-spacing: 0.02em`，行高 1.7
+- 减弱金色滥用（部分 `text-gold` → `text-foreground hover:text-gold`）
+- 加大 section padding（`py-20` → `py-24`）
+
+### E2. `HeroSection.tsx` — 抽象金融背景
+低透明度 SVG 收益率曲线 / K 线作为背景层。
+
+### E3. `Footer` 升级（在 `Index.tsx` 内）
+导航链接 + GitHub + 反馈邮箱 + 订阅占位。
+
+### E4. `NotFound.tsx` — 趣味化
+"找不到这个金融模型" + 返回首页 CTA。
+
+### E5. `ThemeToggle.tsx` — sun/moon morph 过渡
+180ms rotate + scale 动画。
+
+### E6. **版本号 V1.3**
+- `src/components/Changelog.tsx` 新增 V1.3 条目（详细列出 28 项）
+- Footer Version 1.1 → **Version 1.3**
+- Changelog 顶部 "V1.0 → V1.2" → "V1.0 → V1.3"
+
+---
+
+## 📊 预计成果
+
+| 维度 | 改进 |
+|---|---|
+| 功能 | +导出/分享、+A/B 对比、+收藏历史、+命令面板、+完成度追踪 |
+| 交互 | +Slider/步进、+⌘K、+快捷键、+回到顶部、+进度条 |
+| 体验 | +onboarding、+难度标签、+"为什么重要"、+中英术语、+错误恢复 |
+| 美观 | 统一 ChartTheme、字体细节、金色克制、微动效、Hero 背景 |
+
+新增依赖（轻量）：
+- `react-syntax-highlighter` （懒加载分包，不影响首屏）
+
+涉及文件预计 **~25 个修改 + ~10 个新增**。
+
+---
+
+## ⏭️ 实施顺序
+
+我会按 **A → B → E → D → C** 的顺序提交（先把基础设施和视觉打磨做完，最后做计算器逐个套壳，因为 C 体量最大、最容易需要分批）。每个 Phase 提交后你可以即时预览。
+
+approved 后我立即从 Phase A 开始动工。
