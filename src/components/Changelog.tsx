@@ -4,9 +4,70 @@ import { useTranslation } from "react-i18next";
 
 const RELEASES = [
   {
-    version: "V1.2",
+    version: "V1.3",
     date: "2026-04",
     tag: "Current",
+    highlights: [
+      {
+        icon: Sparkles,
+        title: "全局命令面板 ⌘K",
+        items: [
+          "新增全站命令面板:⌘K (Mac) / Ctrl+K (Win) 一键唤起,模糊搜索全部 12 个计算器 + 7 个章节 + 2 个页面",
+          "支持键盘上下导航 + 回车跳转,跨页(从 /changelog 回首页 + 滚动到锚点)无缝切换",
+          "404 页面同样接入,失联时也能快速找回工具",
+        ],
+      },
+      {
+        icon: Zap,
+        title: "导出 / 分享 / 历史",
+        items: [
+          "新增 ShareExportToolbar 通用组件:一键导出当前结果为 PNG (html-to-image,2x DPR) 或复制带参数的分享链接",
+          "URL hash base64 序列化全部输入参数,粘贴链接即可还原同事/学生的计算上下文",
+          "已在 BS / IV / MC / Bond / Rate / Frontier / Risk / Quant 等 8 个工具接入",
+        ],
+      },
+      {
+        icon: Layout,
+        title: "导航与浏览体验",
+        items: [
+          "页面顶部新增金色阅读进度条 (基于 scrollTop / scrollHeight,requestAnimationFrame 节流)",
+          "右下角浮动「回到顶部」按钮:滚动 > 800px 自动浮现,平滑滚动",
+          "Footer 增补快捷入口:更新日志 · 回到顶部 · ⌘K 提示",
+        ],
+      },
+      {
+        icon: Wrench,
+        title: "稳定性与错误处理",
+        items: [
+          "新增 SectionErrorBoundary:每个章节独立错误边界,单个计算器崩溃不再白屏整页,提供「重试」按钮",
+          "lazyWithRetry 链路保留:陈旧 chunk hash 自动一次性重载恢复",
+          "404 页面重写为品牌化「找不到这个金融模型」+ 双语文案 + 返回首页 / 搜索工具双 CTA",
+        ],
+      },
+      {
+        icon: BookOpen,
+        title: "教学组件库 (基础设施)",
+        items: [
+          "新增 InfoBadges 组件包:DifficultyBadge (入门/进阶/高阶 三色徽章)、WhyItMatters (顶部说明卡)、TermTooltip (中英术语 hover)",
+          "为后续把 12 个计算器逐个补「难度 + 为什么重要 + 关键术语」做好基础",
+          "新增 calculatorTools.tsx 工具库 + useSharedState hook,标准化工具复用模式",
+        ],
+      },
+      {
+        icon: GraduationCap,
+        title: "版本号与文档",
+        items: [
+          "Footer 版本号 V1.1 → V1.3 同步,Changelog 顶部范围更新为 V1.0 → V1.3",
+          "上一轮提出的 28 项优化建议中的 P0 (功能/交互/稳定性) 已全部落地",
+          "P1 (视觉统一 ChartTheme、A/B 对比、完成度追踪等) 列入下一里程碑",
+        ],
+      },
+    ],
+  },
+  {
+    version: "V1.2",
+    date: "2026-04",
+    tag: "Stable",
     highlights: [
       {
         icon: Zap,
@@ -131,7 +192,7 @@ const Changelog = () => {
             {t("changelog.title")}
           </h2>
           <p className="text-sm text-muted-foreground font-mono">
-            {t("changelog.subtitle")} — V1.0 → V1.2
+            {t("changelog.subtitle")} — V1.0 → V1.3
           </p>
         </motion.div>
 

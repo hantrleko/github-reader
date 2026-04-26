@@ -123,12 +123,20 @@
   body {
     @apply bg-background text-foreground;
     font-family: var(--font-body);
+    transition: background-color 300ms ease, color 300ms ease;
+    line-height: 1.65;
   }
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-display);
   }
   code, pre {
     font-family: var(--font-mono);
+    font-feature-settings: "tnum", "zero";
+  }
+  /* tabular numerals for finance data (numbers align in columns) */
+  input[type="number"], .font-mono, .tabular-nums {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum";
   }
 }
 
