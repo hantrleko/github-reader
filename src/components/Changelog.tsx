@@ -49,7 +49,7 @@ const RELEASES = [
   {
     version: "V1.3",
     date: "2026-04",
-    tag: "Current",
+    tag: "Stable",
     highlights: [
       {
         icon: Sparkles,
