@@ -192,7 +192,7 @@ const Changelog = () => {
             {t("changelog.title")}
           </h2>
           <p className="text-sm text-muted-foreground font-mono">
-            {t("changelog.subtitle")} — V1.0 → V1.2
+            {t("changelog.subtitle")} — V1.0 → V1.3
           </p>
         </motion.div>
 
