@@ -4,9 +4,52 @@ import { useTranslation } from "react-i18next";
 
 const RELEASES = [
   {
-    version: "V1.3",
+    version: "V1.4",
     date: "2026-04",
     tag: "Current",
+    highlights: [
+      {
+        icon: Sparkles,
+        title: "首次访问引导 (Onboarding)",
+        items: [
+          "新增 3 步轻量 onboarding 弹窗:首次进站 800ms 后自动浮现,介绍命令面板 ⌘K、语言/主题切换、12 个计算器",
+          "localStorage 标记防重复弹出;遮罩点击 / X 按钮 / 完成按钮均可关闭",
+          "自写实现 (无 react-joyride 依赖) — 包体不增加,Spring 动画进出更顺滑",
+        ],
+      },
+      {
+        icon: Layout,
+        title: "Footer 升级 + Hero 背景",
+        items: [
+          "Footer 改为 4 列网格布局:品牌简介 + 章节快捷导航 + 资源 (更新日志/快捷键提示) + 版权区",
+          "HeroSection 加入抽象金融背景 SVG:平滑收益率曲线 + 20 根 K 线,仅 7-9% 透明度,提升'专业感'但不抢戏",
+          "ThemeToggle sun/moon 切换改用 framer-motion morph 动画 (180ms rotate + scale)",
+        ],
+      },
+      {
+        icon: Wrench,
+        title: "共享基础设施 (为未来计算器铺底)",
+        items: [
+          "新增 ChartTheme.tsx:统一 Recharts 配色 / Grid / Axis / ThemedTooltip,后续所有图表替换为同一套 token",
+          "新增 useCompareState + CompareToolbar:通用 A/B 对比 hook,可在任意计算器一行接入双栏参数对比",
+          "新增 calcHistory.ts (useCalcHistory hook):localStorage 历史记录 + 收藏夹,最多 10 条,收藏不被裁剪",
+        ],
+      },
+      {
+        icon: GraduationCap,
+        title: "版本号同步与文档",
+        items: [
+          "左上角 Navbar 版本徽章 V1.2 → V1.4 (i18n key nav.version 同步中英两份)",
+          "Footer Version 1.3 → V1.4,Changelog 顶部范围 V1.0 → V1.4",
+          "上一轮规划的 P1 视觉/教学基础设施全部落地;A/B 对比、历史收藏、ChartTheme 已就绪,等待逐个工具接入 (V1.5)",
+        ],
+      },
+    ],
+  },
+  {
+    version: "V1.3",
+    date: "2026-04",
+    tag: "Stable",
     highlights: [
       {
         icon: Sparkles,
@@ -192,7 +235,7 @@ const Changelog = () => {
             {t("changelog.title")}
           </h2>
           <p className="text-sm text-muted-foreground font-mono">
-            {t("changelog.subtitle")} — V1.0 → V1.3
+            {t("changelog.subtitle")} — V1.0 → V1.4
           </p>
         </motion.div>
 
