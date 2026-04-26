@@ -6,6 +6,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import CommandPalette from "@/components/CommandPalette";
+import Onboarding from "@/components/Onboarding";
 
 /**
  * Reload-once recovery for stale chunk hashes after a new deploy.
@@ -64,6 +65,7 @@ const App = () => (
             </Routes>
           </Suspense>
           <CommandPalette />
+          <Onboarding />
         </BrowserRouter>
       </TooltipProvider>
     </QueryClientProvider>

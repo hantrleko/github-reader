@@ -165,29 +165,60 @@ const Index = () => {
       </SectionErrorBoundary>
 
       {/* Footer */}
-      <footer className="py-12 px-6 border-t border-border">
-        <div className="container text-center space-y-2">
-          <p className="text-xs font-mono text-muted-foreground tracking-wider">
-            Economics &amp; Finance Lab — A systematic approach to empirical methods in economics and finance
-          </p>
-          <p className="text-[11px] font-mono text-muted-foreground/70 tracking-wider">
-            经济金融实验室 · 系统化的实证方法学习平台
-          </p>
-          <div className="flex items-center justify-center gap-4 pt-3 text-[10px] font-mono text-muted-foreground/80">
-            <a href="/changelog" className="hover:text-gold transition-colors">更新日志</a>
-            <span className="text-border">·</span>
-            <button
-              onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-              className="hover:text-gold transition-colors"
-            >
-              回到顶部
-            </button>
-            <span className="text-border">·</span>
-            <span className="text-muted-foreground/60">⌘K 快速搜索</span>
+      <footer className="mt-16 px-6 border-t border-border bg-card/30">
+        <div className="container max-w-6xl py-12">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-10">
+            {/* Brand */}
+            <div className="md:col-span-2">
+              <p className="text-sm font-display font-semibold text-foreground mb-2">
+                Econ &amp; Finance Lab
+              </p>
+              <p className="text-xs text-muted-foreground leading-relaxed max-w-sm">
+                系统化的实证方法学习平台 · 12 个交互式金融计算器,把教材公式跑成可调参数的真实计算。
+              </p>
+              <p className="text-[10px] font-mono text-muted-foreground/70 mt-3 tracking-wider">
+                A systematic approach to empirical methods in economics and finance.
+              </p>
+            </div>
+
+            {/* Navigation */}
+            <div>
+              <p className="text-[10px] font-mono uppercase tracking-[0.2em] text-gold mb-3">导航</p>
+              <ul className="space-y-1.5 text-xs">
+                <li><a href="#calculator" className="text-muted-foreground hover:text-gold transition-colors">期权与隐含波动率</a></li>
+                <li><a href="#bond" className="text-muted-foreground hover:text-gold transition-colors">固收 & 组合</a></li>
+                <li><a href="#risk" className="text-muted-foreground hover:text-gold transition-colors">风险管理</a></li>
+                <li><a href="#quant" className="text-muted-foreground hover:text-gold transition-colors">量化策略</a></li>
+              </ul>
+            </div>
+
+            {/* Resources */}
+            <div>
+              <p className="text-[10px] font-mono uppercase tracking-[0.2em] text-gold mb-3">资源</p>
+              <ul className="space-y-1.5 text-xs">
+                <li><a href="/changelog" className="text-muted-foreground hover:text-gold transition-colors">更新日志</a></li>
+                <li>
+                  <button
+                    onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+                    className="text-muted-foreground hover:text-gold transition-colors"
+                  >
+                    回到顶部 ↑
+                  </button>
+                </li>
+                <li><span className="text-muted-foreground/70">⌘K · 快速搜索</span></li>
+                <li><span className="text-muted-foreground/70">? · 快捷键帮助</span></li>
+              </ul>
+            </div>
           </div>
-          <p className="text-[10px] font-mono text-gold/70 tracking-[0.2em] uppercase pt-2">
-            Version 1.3  ·  © 2026
-          </p>
+
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-6 border-t border-border/60">
+            <p className="text-[10px] font-mono text-muted-foreground/70 tracking-wider">
+              © 2026 Econ &amp; Finance Lab · 仅供学习研究 · 不构成投资建议
+            </p>
+            <p className="text-[10px] font-mono text-gold/80 tracking-[0.2em] uppercase">
+              Version 1.4
+            </p>
+          </div>
         </div>
       </footer>
     </div>
