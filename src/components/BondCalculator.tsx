@@ -1,6 +1,7 @@
 import { useState, useMemo, useRef, useCallback } from "react";
 import { ShareExportToolbar, useSharedState } from "@/lib/calculatorTools";
 import PresetButtons, { Preset } from "./PresetButtons";
+import { FormulaCodeView } from "./common/FormulaCodeView";
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import { BlockMath } from "react-katex";
@@ -373,6 +374,45 @@ const BondCalculator = () => {
                     <p className="text-base font-mono font-bold text-foreground">{m.value}</p>
                   </div>
                 ))}
+              </div>
+
+              {/* 公式 / Python / 结果 三联视图 */}
+              <div className="mb-8">
+                <FormulaCodeView
+                  title="DCF Bond Pricing"
+                  formula={String.raw`P = \sum_{i=1}^{n}\frac{C}{(1+y/m)^{i}} + \frac{F}{(1+y/m)^{n}}`}
+                  python={`import numpy as np
+
+def bond_price(face, coupon_rate, ytm, n_years, freq=2):
+    """Plain-vanilla coupon bond price via DCF."""
+    c = coupon_rate / 100 * face / freq
+    y = ytm / 100 / freq
+    periods = n_years * freq
+    t = np.arange(1, periods + 1)
+    pv_coupons = np.sum(c / (1 + y) ** t)
+    pv_face    = face / (1 + y) ** periods
+    return pv_coupons + pv_face
+
+price = bond_price(face=${face}, coupon_rate=${couponRate},
+                   ytm=${ytm}, n_years=${maturity}, freq=${freq})
+# => ${metrics.price.toFixed(2)}`}
+                  result={
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs">
+                      <div className="rounded-md border border-gold/20 bg-gold/5 p-3">
+                        <div className="text-[10px] uppercase tracking-wider text-gold/80">价格 P</div>
+                        <div className="text-base text-gold font-bold">{metrics.price.toFixed(4)}</div>
+                      </div>
+                      <div className="rounded-md border border-border bg-card/50 p-3">
+                        <div className="text-[10px] uppercase tracking-wider text-muted-foreground">修正久期</div>
+                        <div className="text-base text-foreground font-bold">{metrics.dMod.toFixed(4)}</div>
+                      </div>
+                      <div className="rounded-md border border-border bg-card/50 p-3">
+                        <div className="text-[10px] uppercase tracking-wider text-muted-foreground">DV01</div>
+                        <div className="text-base text-foreground font-bold">{metrics.dv01.toFixed(4)}</div>
+                      </div>
+                    </div>
+                  }
+                />
               </div>
 
               {/* Cash flow waterfall */}

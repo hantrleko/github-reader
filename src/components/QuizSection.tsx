@@ -251,19 +251,31 @@ const saveProgress = (p: Progress) => {
 const QuizSection = () => {
   const { t } = useTranslation();
   const [topic, setTopic] = useState<string>("全部");
+  const [filterMode, setFilterMode] = useState<"all" | "wrong" | "unanswered">("all");
   const [progress, setProgress] = useState<Progress>(() => loadProgress());
   const [idx, setIdx] = useState(0);
   const [chosen, setChosen] = useState<number | null>(null);
   const [revealed, setRevealed] = useState(false);
 
   const topics = useMemo(() => ["全部", ...Array.from(new Set(QUESTIONS.map(q => q.topic)))], []);
-  const filtered = useMemo(
-    () => topic === "全部" ? QUESTIONS : QUESTIONS.filter(q => q.topic === topic),
-    [topic]
+  const filtered = useMemo(() => {
+    let list = topic === "全部" ? QUESTIONS : QUESTIONS.filter(q => q.topic === topic);
+    if (filterMode === "wrong") {
+      list = list.filter(q => progress.answered[q.id] && !progress.answered[q.id].correct);
+    } else if (filterMode === "unanswered") {
+      list = list.filter(q => !progress.answered[q.id]);
+    }
+    return list.length > 0 ? list : (topic === "全部" ? QUESTIONS : QUESTIONS.filter(q => q.topic === topic));
+  }, [topic, filterMode, progress.answered]);
+
+  const wrongCount = useMemo(
+    () => Object.values(progress.answered).filter(a => !a.correct).length,
+    [progress.answered]
   );
+  const unansweredCount = QUESTIONS.length - Object.keys(progress.answered).length;
 
   // Reset when topic changes
-  useEffect(() => { setIdx(0); setChosen(null); setRevealed(false); }, [topic]);
+  useEffect(() => { setIdx(0); setChosen(null); setRevealed(false); }, [topic, filterMode]);
 
   const q = filtered[idx % Math.max(filtered.length, 1)];
 
@@ -354,6 +366,27 @@ const QuizSection = () => {
               className={"text-xs px-3 py-1.5 rounded border font-mono transition-colors " +
                 (topic === t ? "border-gold bg-gold/10 text-gold" : "border-border text-muted-foreground hover:text-foreground")}>
               {t}
+            </button>
+          ))}
+        </div>
+
+        {/* Mode filter — 错题回顾 / 仅未答 */}
+        <div className="flex flex-wrap gap-2 mb-6 justify-center">
+          {[
+            { id: "all" as const, label: `全部题目 · ${QUESTIONS.length}` },
+            { id: "wrong" as const, label: `错题回顾 · ${wrongCount}`, disabled: wrongCount === 0 },
+            { id: "unanswered" as const, label: `仅未答 · ${unansweredCount}`, disabled: unansweredCount === 0 },
+          ].map((m) => (
+            <button
+              key={m.id}
+              onClick={() => !m.disabled && setFilterMode(m.id)}
+              disabled={m.disabled}
+              className={"text-xs px-3 py-1.5 rounded border font-mono transition-colors disabled:opacity-40 disabled:cursor-not-allowed " +
+                (filterMode === m.id
+                  ? "border-gold bg-gold/15 text-gold"
+                  : "border-border/60 text-muted-foreground hover:text-foreground")}
+            >
+              {m.label}
             </button>
           ))}
         </div>
