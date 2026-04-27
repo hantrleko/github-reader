@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Database, Loader2, CheckCircle2, AlertTriangle } from "lucide-react";
+import { Database, Loader2, CheckCircle2, AlertTriangle, Sparkles } from "lucide-react";
 import { useMarketQuotes } from "@/lib/marketData";
 import { toast } from "@/hooks/use-toast";
 
@@ -21,6 +21,7 @@ const RealDataLoader = ({ defaultSymbol = "AAPL", onApply, className }: Props) =
   const [symbol, setSymbol] = useState(defaultSymbol);
   const [range, setRange] = useState("2y");
   const [active, setActive] = useState(false);
+  const [fetchedAt, setFetchedAt] = useState<number | null>(null);
   const { data, isFetching, error, refetch } = useMarketQuotes(symbol, range, active);
 
   const handleFetch = async () => {
@@ -36,6 +37,7 @@ const RealDataLoader = ({ defaultSymbol = "AAPL", onApply, className }: Props) =
         symbol: d.symbol,
         annualReturn: d.annualReturn,
       });
+      setFetchedAt(Date.now());
       toast({
         title: t("realData.title"),
         description: t("realData.success", { n: d.n }) + " · " + t("realData.applyToParams"),
@@ -47,6 +49,20 @@ const RealDataLoader = ({ defaultSymbol = "AAPL", onApply, className }: Props) =
         variant: "destructive",
       });
     }
+  };
+
+  /** 离线兜底:用合成示例数据避免阻塞使用 */
+  const handleUseSample = () => {
+    onApply({ S0: 180, sigma: 0.25, symbol: `${symbol || "DEMO"}*`, annualReturn: 0.12 });
+    setFetchedAt(Date.now());
+    toast({ title: "已加载示例数据", description: "S₀=180, σ=25%, μ=12% · 仅供演示" });
+  };
+
+  const fmtTime = (ts: number) => {
+    const diff = Math.floor((Date.now() - ts) / 1000);
+    if (diff < 60) return `${diff}s 前`;
+    if (diff < 3600) return `${Math.floor(diff / 60)}m 前`;
+    return new Date(ts).toLocaleTimeString();
   };
 
   const ok = data && !error && active;
@@ -61,6 +77,13 @@ const RealDataLoader = ({ defaultSymbol = "AAPL", onApply, className }: Props) =
       <span className="flex items-center gap-1.5 text-gold">
         <Database className="w-3.5 h-3.5" />
         {t("realData.load")}
+      </span>
+      {/* 数据来源徽章 */}
+      <span
+        className="px-1.5 py-0.5 rounded border border-border/60 text-[9px] uppercase tracking-wider text-muted-foreground"
+        title="数据来源:Yahoo Finance,经 Lovable Cloud Edge Function 代理"
+      >
+        Yahoo
       </span>
       <input
         value={symbol}
@@ -91,13 +114,25 @@ const RealDataLoader = ({ defaultSymbol = "AAPL", onApply, className }: Props) =
         <span className="flex items-center gap-1 text-gold">
           <CheckCircle2 className="w-3 h-3" />
           {data.symbol} ${data.lastPrice?.toFixed(2)} · σ={(data.annualVol * 100).toFixed(1)}%
+          {fetchedAt && (
+            <span className="text-muted-foreground ml-1">· {fmtTime(fetchedAt)}</span>
+          )}
         </span>
       )}
       {active && error && (
-        <span className="flex items-center gap-1 text-destructive">
-          <AlertTriangle className="w-3 h-3" />
-          {t("realData.fail")}
-        </span>
+        <>
+          <span className="flex items-center gap-1 text-destructive">
+            <AlertTriangle className="w-3 h-3" />
+            {t("realData.fail")}
+          </span>
+          <button
+            onClick={handleUseSample}
+            className="inline-flex items-center gap-1 px-2 py-1 rounded border border-gold/40 text-gold hover:bg-gold/10 transition-colors"
+            title="使用合成示例数据,确保功能不被网络阻塞"
+          >
+            <Sparkles className="w-3 h-3" /> 使用示例数据
+          </button>
+        </>
       )}
       <span className="ml-auto text-[9px] text-muted-foreground/70 hidden md:inline">
         {t("realData.tip")}
