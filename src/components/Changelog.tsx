@@ -4,9 +4,74 @@ import { useTranslation } from "react-i18next";
 
 const RELEASES = [
   {
-    version: "V1.4",
+    version: "V1.6",
     date: "2026-04",
     tag: "Current",
+    highlights: [
+      {
+        icon: Sparkles,
+        title: "教学三联视图全面铺开",
+        items: [
+          "FormulaCodeView 接入 5 个核心计算器:Black-Scholes / 隐含波动率 / MC 期权 / 利率模型 / 有效前沿",
+          "每个工具都展示「LaTeX 公式 → Python 参考实现 → 当前数值结果」三联,Python 片段随当前参数实时插值",
+          "代码块支持一键复制,与教材公式一一对应,串联数学心智模型与代码实现",
+        ],
+      },
+      {
+        icon: Wrench,
+        title: "历史 / 收藏抽屉",
+        items: [
+          "新增 HistoryDrawer:右侧滑出抽屉显示「收藏 + 最近 10 条」参数快照,可一键应用或删除",
+          "已接入 6 个主力计算器 (BS / IV / MC / Bond / Rate / Frontier) 工具栏,与「保存」按钮并列",
+          "数据存于 localStorage,跨会话保留;收藏不被裁剪",
+        ],
+      },
+      {
+        icon: Layout,
+        title: "公式渲染与 KaTeX 美化",
+        items: [
+          "新增 EquationBlock 替换全站 BlockMath:长公式自动横向滚动 + hover 复制 LaTeX 源码",
+          ".katex 全局样式统一 (gold / plain 双 variant),修复暗色模式分式横线偏灰问题",
+          "细金色滚动条样式,公式跨设备显示一致",
+        ],
+      },
+      {
+        icon: GraduationCap,
+        title: "版本号同步",
+        items: [
+          "Navbar 徽章 + Footer + Changelog 同步至 V1.6 (中英 i18n key 一致)",
+          "V1.5 标记为 Stable;A/B 对比与移动端复查推迟到 V1.7",
+        ],
+      },
+    ],
+  },
+  {
+    version: "V1.5",
+    date: "2026-04",
+    tag: "Stable",
+    highlights: [
+      {
+        icon: Sparkles,
+        title: "教学闭环 (Phase D)",
+        items: [
+          "新增 FormulaCodeView 三联视图组件:LaTeX 公式 / Python 参考实现 / 实时结果 三个 Tab",
+          "QuizSection 错题复习模式:支持「全部 / 错题 / 未答」三态切换,带实时计数",
+        ],
+      },
+      {
+        icon: Wrench,
+        title: "数据层加固",
+        items: [
+          "RealDataLoader 增加数据来源徽章 (Yahoo) 与抓取时间戳",
+          "CORS / 网络失败时提供「使用示例数据」兜底按钮 (合成参数带 * 后缀标识)",
+        ],
+      },
+    ],
+  },
+  {
+    version: "V1.4",
+    date: "2026-04",
+    tag: "Stable",
     highlights: [
       {
         icon: Sparkles,
