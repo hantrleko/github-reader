@@ -1,9 +1,11 @@
 import { useState, useMemo, useRef, useCallback } from "react";
 import { ShareExportToolbar, useSharedState } from "@/lib/calculatorTools";
+import { HistoryDrawer } from "./common/HistoryDrawer";
 import PresetButtons, { Preset } from "./PresetButtons";
+import { FormulaCodeView } from "./common/FormulaCodeView";
 import RealDataLoader from "./RealDataLoader";
 import { motion } from "framer-motion";
-import { BlockMath } from "react-katex";
+
 import "katex/dist/katex.min.css";
 import {
   LineChart,
@@ -16,6 +18,7 @@ import {
   Legend,
   ReferenceLine,
 } from "recharts";
+import { EquationBlock } from "@/components/common/EquationBlock";
 
 const CHART_GOLD = "hsl(43, 80%, 55%)";
 const CHART_TEAL = "hsl(180, 50%, 40%)";
@@ -234,13 +237,31 @@ const ImpliedVolTool = () => {
           className="rounded-2xl border border-border bg-card p-8 md:p-10 glow-gold"
         >
           <div className="flex justify-end mb-4">
-            <ShareExportToolbar
-              storageKey="iv"
-              anchorId="implied-vol"
-              state={{ optType, mktPrice, ivS, ivK, ivR, ivT, baseVol, skew, smile }}
-              captureRef={captureRef}
-              filename="implied-vol"
-            />
+            <div className="flex flex-wrap gap-2">
+              <HistoryDrawer
+                storageKey="iv"
+                currentState={{ optType, mktPrice, ivS, ivK, ivR, ivT, baseVol, skew, smile }}
+                onApply={(s: any) => {
+                  if (s.optType) setOptType(s.optType);
+                  if (s.mktPrice !== undefined) setMktPrice(s.mktPrice);
+                  if (s.ivS !== undefined) setIvS(s.ivS);
+                  if (s.ivK !== undefined) setIvK(s.ivK);
+                  if (s.ivR !== undefined) setIvR(s.ivR);
+                  if (s.ivT !== undefined) setIvT(s.ivT);
+                  if (s.baseVol !== undefined) setBaseVol(s.baseVol);
+                  if (s.skew !== undefined) setSkew(s.skew);
+                  if (s.smile !== undefined) setSmile(s.smile);
+                }}
+                summarize={(s: any) => `S=${s.ivS} K=${s.ivK} T=${s.ivT}y price=${s.mktPrice}`}
+              />
+              <ShareExportToolbar
+                storageKey="iv"
+                anchorId="implied-vol"
+                state={{ optType, mktPrice, ivS, ivK, ivR, ivT, baseVol, skew, smile }}
+                captureRef={captureRef}
+                filename="implied-vol"
+              />
+            </div>
           </div>
           {/* Formula */}
           <div className="text-center mb-8 py-5 px-6 rounded-xl bg-gradient-to-br from-secondary/60 to-secondary/30 border border-gold/20 shadow-inner">
@@ -248,7 +269,7 @@ const ImpliedVolTool = () => {
               Implied Volatility — Newton-Raphson Inversion
             </p>
             <div className="text-foreground katex-display-gold">
-              <BlockMath math={String.raw`\text{Solve } \sigma_{\mathrm{iv}}\;:\;\; C_{\mathrm{BS}}(S,K,r,\sigma_{\mathrm{iv}},T)=C_{\mathrm{mkt}},\quad \sigma_{n+1}=\sigma_n - \dfrac{C_{\mathrm{BS}}(\sigma_n)-C_{\mathrm{mkt}}}{\mathcal{V}(\sigma_n)}`} />
+              <EquationBlock math={String.raw`\text{Solve } \sigma_{\mathrm{iv}}\;:\;\; C_{\mathrm{BS}}(S,K,r,\sigma_{\mathrm{iv}},T)=C_{\mathrm{mkt}},\quad \sigma_{n+1}=\sigma_n - \dfrac{C_{\mathrm{BS}}(\sigma_n)-C_{\mathrm{mkt}}}{\mathcal{V}(\sigma_n)}`} />
             </div>
           </div>
 
@@ -332,6 +353,57 @@ const ImpliedVolTool = () => {
                 </ResponsiveContainer>
               </div>
             </div>
+          </div>
+
+          {/* 公式 / Python / 结果 三联视图 */}
+          <div className="mb-8">
+            <FormulaCodeView
+              title="Newton-Raphson IV"
+              formula={String.raw`\sigma_{n+1} = \sigma_n - \frac{C_{\mathrm{BS}}(\sigma_n) - C_{\mathrm{mkt}}}{\mathcal{V}(\sigma_n)},\quad \mathcal{V} = S\,\phi(d_1)\sqrt{T}`}
+              python={`import numpy as np
+from scipy.stats import norm
+
+def bs_price(S, K, r, sigma, T, is_call=True):
+    d1 = (np.log(S/K) + (r + 0.5*sigma**2)*T) / (sigma*np.sqrt(T))
+    d2 = d1 - sigma*np.sqrt(T)
+    if is_call:
+        return S*norm.cdf(d1) - K*np.exp(-r*T)*norm.cdf(d2)
+    return K*np.exp(-r*T)*norm.cdf(-d2) - S*norm.cdf(-d1)
+
+def implied_vol(C_mkt, S, K, r, T, is_call=True, sigma=0.2, tol=1e-6, max_iter=80):
+    """Newton-Raphson on Black-Scholes price equation."""
+    for _ in range(max_iter):
+        price = bs_price(S, K, r, sigma, T, is_call)
+        d1    = (np.log(S/K) + (r + 0.5*sigma**2)*T) / (sigma*np.sqrt(T))
+        vega  = S * norm.pdf(d1) * np.sqrt(T)
+        if vega < 1e-10: return None
+        diff  = price - C_mkt
+        if abs(diff) < tol: return sigma
+        sigma -= diff / vega
+        if sigma <= 0: return None
+    return None
+
+iv = implied_vol(C_mkt=${mktPrice}, S=${ivS}, K=${ivK},
+                 r=${(ivR / 100).toFixed(4)}, T=${ivT},
+                 is_call=${optType === "call" ? "True" : "False"})
+# => ${ivResult ? (ivResult.iv / 100).toFixed(6) : "None"}`}
+              result={
+                ivResult ? (
+                  <div className="grid grid-cols-2 gap-3 text-xs">
+                    <div className="rounded-md border border-gold/20 bg-gold/5 p-3">
+                      <div className="text-[10px] uppercase tracking-wider text-gold/80">σ_iv</div>
+                      <div className="text-base text-gold font-bold">{ivResult.iv.toFixed(4)}%</div>
+                    </div>
+                    <div className="rounded-md border border-border bg-card/50 p-3">
+                      <div className="text-[10px] uppercase tracking-wider text-muted-foreground">BS 验证价</div>
+                      <div className="text-base text-foreground font-bold">{ivResult.bsPrice.toFixed(4)}</div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-red-400 text-xs">无解 — 检查输入</div>
+                )
+              }
+            />
           </div>
 
           {/* ─── Volatility Surface ─── */}

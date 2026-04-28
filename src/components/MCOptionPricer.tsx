@@ -1,8 +1,10 @@
 import { useState, useMemo, useRef, useCallback } from "react";
-import { BlockMath } from "react-katex";
+
 import "katex/dist/katex.min.css";
 import { ShareExportToolbar, useSharedState } from "@/lib/calculatorTools";
+import { HistoryDrawer } from "./common/HistoryDrawer";
 import PresetButtons, { Preset } from "./PresetButtons";
+import { FormulaCodeView } from "./common/FormulaCodeView";
 import RealDataLoader from "./RealDataLoader";
 import { motion } from "framer-motion";
 import {
@@ -21,6 +23,7 @@ import {
   AreaChart,
   Area,
 } from "recharts";
+import { EquationBlock } from "@/components/common/EquationBlock";
 
 const CHART_GOLD = "hsl(43, 80%, 55%)";
 const CHART_TEAL = "hsl(180, 50%, 40%)";
@@ -322,13 +325,33 @@ const MCOptionPricer = () => {
           className="rounded-2xl border border-border bg-card p-8 md:p-10 glow-gold"
         >
           <div className="flex justify-end mb-4">
-            <ShareExportToolbar
-              storageKey="mc"
-              anchorId="mc-pricer"
-              state={{ optionType, putCall, s0, k, r, sigma, T, nPaths, seed, barrierType, barrierLevel }}
-              captureRef={captureRef}
-              filename={`mc-${optionType}`}
-            />
+            <div className="flex flex-wrap gap-2">
+              <HistoryDrawer
+                storageKey="mc"
+                currentState={{ optionType, putCall, s0, k, r, sigma, T, nPaths, seed, barrierType, barrierLevel }}
+                onApply={(s: any) => {
+                  if (s.optionType) setOptionType(s.optionType);
+                  if (s.putCall) setPutCall(s.putCall);
+                  if (s.s0 !== undefined) setS0(s.s0);
+                  if (s.k !== undefined) setK(s.k);
+                  if (s.r !== undefined) setR(s.r);
+                  if (s.sigma !== undefined) setSigma(s.sigma);
+                  if (s.T !== undefined) setT(s.T);
+                  if (s.nPaths !== undefined) setNPaths(s.nPaths);
+                  if (s.seed !== undefined) setSeed(s.seed);
+                  if (s.barrierType) setBarrierType(s.barrierType);
+                  if (s.barrierLevel !== undefined) setBarrierLevel(s.barrierLevel);
+                }}
+                summarize={(s: any) => `${s.optionType}/${s.putCall} S=${s.s0} K=${s.k} σ=${s.sigma}`}
+              />
+              <ShareExportToolbar
+                storageKey="mc"
+                anchorId="mc-pricer"
+                state={{ optionType, putCall, s0, k, r, sigma, T, nPaths, seed, barrierType, barrierLevel }}
+                captureRef={captureRef}
+                filename={`mc-${optionType}`}
+              />
+            </div>
           </div>
           {/* Option type tabs */}
           <div className="flex flex-wrap justify-center gap-2 mb-6">
@@ -347,12 +370,12 @@ const MCOptionPricer = () => {
               {formulaLabels[optionType]}
             </p>
             <div className="text-foreground katex-display-gold">
-              <BlockMath math={formulas[optionType]} />
+              <EquationBlock math={formulas[optionType]} />
             </div>
             <div className="text-xs font-mono text-muted-foreground mt-2">
               <span className="block mb-1">Underlying dynamics (GBM under risk-neutral measure)</span>
               <div className="text-foreground/80 katex-display-gold opacity-80">
-                <BlockMath math={String.raw`dS_t = r\,S_t\,dt + \sigma\,S_t\,dW_t`} />
+                <EquationBlock math={String.raw`dS_t = r\,S_t\,dt + \sigma\,S_t\,dW_t`} />
               </div>
             </div>
           </div>
@@ -584,6 +607,51 @@ const MCOptionPricer = () => {
                 {"白色 = MC 估计 · 金色虚线 = 95% CI · " + (result.bsAnalytical !== null ? "蓝色 = BS 解析解" : "收敛速度 ∝ 1/√N")}
               </p>
             </div>
+          </div>
+
+          {/* 公式 / Python / 结果 三联视图 */}
+          <div className="mt-8">
+            <FormulaCodeView
+              title="Monte Carlo · GBM"
+              formula={String.raw`\hat{V}_0 = e^{-rT}\,\frac{1}{N}\sum_{i=1}^{N} \mathrm{payoff}\!\left(S_T^{(i)}\right),\quad S_T = S_0 \exp\!\left(\bigl(r-\tfrac{\sigma^2}{2}\bigr)T + \sigma\sqrt{T}\,Z\right)`}
+              python={`import numpy as np
+
+def mc_european(S0, K, r, sigma, T, n_paths, seed=42, is_call=True):
+    """Closed-form GBM terminal sampling — no path needed for vanilla."""
+    rng = np.random.default_rng(seed)
+    Z = rng.standard_normal(n_paths)
+    ST = S0 * np.exp((r - 0.5*sigma**2)*T + sigma*np.sqrt(T)*Z)
+    payoff = np.maximum(ST - K, 0) if is_call else np.maximum(K - ST, 0)
+    disc = np.exp(-r * T) * payoff
+    price = disc.mean()
+    se    = disc.std(ddof=1) / np.sqrt(n_paths)
+    return price, se, (price - 1.96*se, price + 1.96*se)
+
+price, se, ci = mc_european(
+    S0=${s0}, K=${k}, r=${(r / 100).toFixed(4)},
+    sigma=${(sigma / 100).toFixed(4)}, T=${T},
+    n_paths=${nPaths}, seed=${seed},
+    is_call=${putCall === "call" ? "True" : "False"})
+# => price ≈ ${result.price.toFixed(4)}, SE ≈ ${result.stdErr.toFixed(4)}`}
+              result={
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs">
+                  <div className="rounded-md border border-gold/20 bg-gold/5 p-3">
+                    <div className="text-[10px] uppercase tracking-wider text-gold/80">MC 价格</div>
+                    <div className="text-base text-gold font-bold">{result.price.toFixed(4)}</div>
+                  </div>
+                  <div className="rounded-md border border-border bg-card/50 p-3">
+                    <div className="text-[10px] uppercase tracking-wider text-muted-foreground">标准误差</div>
+                    <div className="text-base text-foreground font-bold">{result.stdErr.toFixed(4)}</div>
+                  </div>
+                  {result.bsAnalytical !== null && (
+                    <div className="rounded-md border border-border bg-card/50 p-3">
+                      <div className="text-[10px] uppercase tracking-wider text-muted-foreground">BS 解析</div>
+                      <div className="text-base text-foreground font-bold">{result.bsAnalytical.toFixed(4)}</div>
+                    </div>
+                  )}
+                </div>
+              }
+            />
           </div>
         </motion.div>
       </div>

@@ -1,10 +1,11 @@
 import { useState, useRef, useCallback } from "react";
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
-import { BlockMath } from "react-katex";
+
 import "katex/dist/katex.min.css";
 import { ShareExportToolbar, useSharedState } from "@/lib/calculatorTools";
 import { BacktestTool, BlackLittermanTool, FamaFrenchTool } from "./quant/Sprint4Tools";
+import { EquationBlock } from "@/components/common/EquationBlock";
 
 type ToolId = "backtest" | "bl" | "ff5";
 
@@ -63,7 +64,7 @@ const QuantStrategyTools = () => {
           <div className="text-center mb-8 py-5 px-6 rounded-xl bg-gradient-to-br from-secondary/60 to-secondary/30 border border-gold/20 shadow-inner">
             <p className="text-[10px] font-mono uppercase tracking-[0.25em] text-gold/80 mb-2">{Active.nameEn}</p>
             <div className="text-foreground katex-display-gold">
-              <BlockMath math={Active.formula} />
+              <EquationBlock math={Active.formula} />
             </div>
           </div>
           <Active.component />

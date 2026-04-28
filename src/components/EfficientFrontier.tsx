@@ -1,9 +1,11 @@
 import { useState, useMemo, useRef, useCallback } from "react";
 import { ShareExportToolbar, useSharedState } from "@/lib/calculatorTools";
+import { HistoryDrawer } from "./common/HistoryDrawer";
 import PresetButtons, { Preset } from "./PresetButtons";
+import { FormulaCodeView } from "./common/FormulaCodeView";
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
-import { BlockMath } from "react-katex";
+
 import "katex/dist/katex.min.css";
 import {
   ScatterChart,
@@ -20,6 +22,7 @@ import {
   Cell,
 } from "recharts";
 import { Plus, Trash2 } from "lucide-react";
+import { EquationBlock } from "@/components/common/EquationBlock";
 
 interface Asset {
   id: string;
@@ -305,13 +308,27 @@ const EfficientFrontier = () => {
           className="rounded-2xl border border-border bg-card p-8 md:p-10 glow-gold"
         >
           <div className="flex justify-end mb-4">
-            <ShareExportToolbar
-              storageKey="frontier"
-              anchorId="frontier"
-              state={{ assets, rho, allowShort }}
-              captureRef={captureRef}
-              filename="efficient-frontier"
-            />
+            <div className="flex flex-wrap gap-2">
+              <HistoryDrawer
+                storageKey="frontier"
+                currentState={{ assets, rho, allowShort }}
+                onApply={(s: any) => {
+                  if (s.assets) setAssets(s.assets);
+                  if (s.rho !== undefined) setRho(s.rho);
+                  if (typeof s.allowShort === "boolean") setAllowShort(s.allowShort);
+                }}
+                summarize={(s: any) =>
+                  `${(s.assets || []).length} 资产 · ρ=${s.rho} · ${s.allowShort ? "允许做空" : "仅做多"}`
+                }
+              />
+              <ShareExportToolbar
+                storageKey="frontier"
+                anchorId="frontier"
+                state={{ assets, rho, allowShort }}
+                captureRef={captureRef}
+                filename="efficient-frontier"
+              />
+            </div>
           </div>
           {/* Formula bar */}
           <div className="text-center mb-8 py-5 px-6 rounded-xl bg-gradient-to-br from-secondary/60 to-secondary/30 border border-gold/20 shadow-inner">
@@ -319,7 +336,7 @@ const EfficientFrontier = () => {
               Markowitz Mean-Variance Optimization
             </p>
             <div className="text-foreground katex-display-gold">
-              <BlockMath math={String.raw`\min_{\mathbf{w}}\;\tfrac{1}{2}\,\mathbf{w}^{\top}\boldsymbol{\Sigma}\,\mathbf{w}\quad \text{s.t.}\quad \mathbf{w}^{\top}\boldsymbol{\mu}=\mu_{0},\;\; \mathbf{w}^{\top}\mathbf{1}=1`} />
+              <EquationBlock math={String.raw`\min_{\mathbf{w}}\;\tfrac{1}{2}\,\mathbf{w}^{\top}\boldsymbol{\Sigma}\,\mathbf{w}\quad \text{s.t.}\quad \mathbf{w}^{\top}\boldsymbol{\mu}=\mu_{0},\;\; \mathbf{w}^{\top}\mathbf{1}=1`} />
             </div>
           </div>
 
@@ -661,6 +678,52 @@ const EfficientFrontier = () => {
                 风险降低（GMV vs 等权平均波动率）
               </p>
             </div>
+          </div>
+
+          {/* 公式 / Python / 结果 三联视图 */}
+          <div className="mt-8">
+            <FormulaCodeView
+              title="Mean-Variance Optimization"
+              formula={String.raw`\min_{w}\;\tfrac{1}{2}\,w^{\top}\Sigma\,w \quad \text{s.t.}\quad w^{\top}\mu = \mu_p,\;\; \mathbf{1}^{\top}w = 1\;\;\Longrightarrow\;\; w^{*} = \Sigma^{-1}(\lambda_1\mu + \lambda_2\mathbf{1})`}
+              python={`import numpy as np
+
+def efficient_frontier(mu, Sigma, n_points=100, allow_short=True):
+    """Closed-form Markowitz frontier (no shortsale = use cvxpy)."""
+    inv = np.linalg.inv(Sigma)
+    one = np.ones_like(mu)
+    A = mu  @ inv @ one
+    B = mu  @ inv @ mu
+    C = one @ inv @ one
+    D = B*C - A*A
+    g = (B*(inv @ one) - A*(inv @ mu)) / D
+    h = (C*(inv @ mu)  - A*(inv @ one)) / D
+    targets = np.linspace(mu.min(), mu.max(), n_points)
+    weights = np.array([g + h*t for t in targets])
+    vols = np.sqrt(np.einsum('ij,jk,ik->i', weights, Sigma, weights))
+    return targets, vols, weights
+
+# ${assets.length} 资产 · ρ=${rho} · ${allowShort ? "允许做空" : "仅做多"}
+mu    = np.array([${assets.map(a => (a.ret / 100).toFixed(4)).join(", ")}])
+# Σ 由各资产 σ 与 相关系数 ρ=${rho} 构造
+# GMV: σ ≈ ${gmv.vol.toFixed(2)}%, μ ≈ ${gmv.ret.toFixed(2)}%
+# Tangency Sharpe ≈ ${tangent ? tangent.sharpe.toFixed(3) : "n/a"}`}
+              result={
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs">
+                  <div className="rounded-md border border-blue-400/30 bg-blue-400/5 p-3">
+                    <div className="text-[10px] uppercase tracking-wider text-blue-400">GMV σ</div>
+                    <div className="text-base text-foreground font-bold">{gmv.vol.toFixed(2)}%</div>
+                  </div>
+                  <div className="rounded-md border border-gold/30 bg-gold/5 p-3">
+                    <div className="text-[10px] uppercase tracking-wider text-gold/80">Max Sharpe</div>
+                    <div className="text-base text-gold font-bold">{tangent ? tangent.sharpe.toFixed(3) : "—"}</div>
+                  </div>
+                  <div className="rounded-md border border-teal-400/30 bg-teal-400/5 p-3">
+                    <div className="text-[10px] uppercase tracking-wider text-teal-400">前沿点数</div>
+                    <div className="text-base text-foreground font-bold">{frontier.length}</div>
+                  </div>
+                </div>
+              }
+            />
           </div>
         </motion.div>
       </div>

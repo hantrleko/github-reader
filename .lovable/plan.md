@@ -1,150 +1,93 @@
+# V1.6 — 一致性、深度、可用性
 
-# V1.3 全方位升级实施计划
-
-把上一轮提出的 28 项建议**全部落地**，并把版本号从 V1.2 升到 **V1.3**。鉴于工作量巨大（涉及 20+ 文件、新增 10+ 组件），我会按 **5 个 Phase** 分批提交，每个 Phase 都是可独立运行的完整功能集。
-
----
-
-## 📦 Phase A — 通用基础设施（1 次提交，5 文件）
-
-为后续功能铺底，**先做这一层后面才能复用**。
-
-### A1. 新增 `src/lib/calculatorTools.tsx`
-统一的「**导出 PNG / 复制参数链接**」工具栏组件 `<ShareExportToolbar>`：
-- `html-to-image` 把指定 ref 节点导出 PNG
-- 把当前 state 序列化为 base64 写入 URL hash（`#calculator?s=eyJTIjox...`），加载时自动 hydrate
-- 复制成功 toast + ✓ 反馈
-
-### A2. 新增 `src/components/common/ChartTheme.tsx`
-统一的 Recharts 主题配置（CartesianGrid 颜色、Tooltip 卡片样式、轴字体、tabular-nums）。导出 `<ThemedTooltip>`、`CHART_COLORS`、`AXIS_PROPS`，所有图表后续替换。
-
-### A3. 新增 `src/components/common/CompareToggle.tsx`
-通用 A/B 对比开关：左右双栏 state + 「同步参数」「重置 B」按钮，作为 hook `useCompareState(initial)` 提供。
-
-### A4. 新增 `src/components/common/InfoBadges.tsx`
-- `<DifficultyBadge level="basic|intermediate|advanced" />` — 🟢🟡🔴
-- `<WhyItMatters>{children}</WhyItMatters>` — 工具顶部说明卡片
-- `<TermTooltip cn="久期" en="Duration">久期</TermTooltip>` — 中英术语 hover
-
-### A5. 新增 `src/lib/calcHistory.ts`
-localStorage 历史记录 + 收藏夹（最多 10 条），暴露 `useCalcHistory(toolKey)` hook。
+承接 V1.5，本次不引入大型新功能，专注把已有的优秀基础设施铺满全站，并对公式渲染、移动端、图表交互做精细打磨。
 
 ---
 
-## 📦 Phase B — 全局交互升级（1 次提交，6 文件）
+## 1. FormulaCodeView 推广（公式 | Python | 结果 三联视图）
 
-### B1. **命令面板** `src/components/CommandPalette.tsx`
-- 用现成的 `cmdk`（已在 ui/command.tsx）
-- `⌘K` / `Ctrl+K` 触发；搜索 19 个 section + 12 个工具
-- 在 `App.tsx` 全局挂载
+目前只有 `BondCalculator` 接入。本次扩展到全部主力计算器：
 
-### B2. **快捷键 Hook** `src/hooks/useHotkeys.ts`
-- `?` 显示帮助 modal
-- `←/→` 在同章节工具间跳转
+| 计算器 | 公式 | Python 片段要点 |
+|---|---|---|
+| `CalculatorSection`（Black-Scholes） | BS call/put 闭式解 | `scipy.stats.norm.cdf`、d1/d2 |
+| `ImpliedVolTool` | Newton-Raphson 求 σ | 迭代循环 + vega 导数 |
+| `MCOptionPricer` | GBM 终值期望 | `np.random.normal` 路径 + 折现 |
+| `EfficientFrontier` | μ-σ 二次规划 | 协方差矩阵 + `np.linalg.solve` |
+| `RateModelSimulator` | Vasicek/CIR Euler 离散 | `dr = κ(θ-r)dt + σ √r dW` |
+| `RiskTools`（VaR/ES） | 历史/参数法 VaR | `np.percentile` / `norm.ppf` |
+| `EconometricsTools`（OLS/GARCH 任选 1-2 个） | OLS β=(X'X)⁻¹X'y | `np.linalg.lstsq` |
 
-### B3. **回到顶部 + 进度条** `src/components/ScrollUtilities.tsx`
-- 滚动 > 800px 显示浮动按钮
-- 右侧 fixed mini progress bar（章节位置）
-- 在 `Index.tsx` 挂载
+每个 Python 片段都用当前参数做模板插值，与 Bond 风格保持一致。
 
-### B4. **Navbar 优化** `src/components/Navbar.tsx`
-- 章节 dropdown 已分组；增加 ⭐ 收藏入口、⌘K 提示
-- 移动端菜单加 `role="dialog"` + focus trap
+## 2. CompareToggle 真正落地（A/B 对比）
 
-### B5. **首次访问 onboarding** `src/components/Onboarding.tsx`
-- 自写 3 步轻量引导（不引入 react-joyride，省体积）
-- localStorage flag 防重复
+`useCompareState` hook 已就绪。本次给 3 个最适合对比的计算器接入：
 
-### B6. **错误边界** `src/components/SectionErrorBoundary.tsx`
-- 包裹 `Index.tsx` 中每个 lazy section
-- 失败显示 retry 按钮 + 友好文案
+- **Black-Scholes**：A vs B 的 Greeks 表 + 价格曲线叠加（不同颜色）
+- **Bond**：两套 (coupon, ytm, maturity) 的现金流图与 duration/convexity 并排
+- **EfficientFrontier**：两条前沿曲线叠加（如不同风险厌恶系数 / 是否允许做空）
 
----
+UI 模式：在 `ShareExportToolbar` 旁加 `CompareToolbar`，B 参数面板折叠在 A 下方，结果区双列对比。
 
-## 📦 Phase C — 计算器增强（按工具改造，多次提交，~12 文件）
+## 3. useCalcHistory 可视化（历史 / 收藏抽屉）
 
-对每个主要计算器套用 Phase A 的基础设施。**不修改算法**，只加壳：
+新建 `src/components/common/HistoryDrawer.tsx`：
 
-每个工具改造清单：
-1. 顶部加 `<DifficultyBadge>` + `<WhyItMatters>`（两句话讲清"为什么重要"）
-2. 关键参数 input 旁加 `<Slider>`（双向绑定）
-3. 数字 input 加 `+/-` 步进按钮
-4. 底部加 `<ShareExportToolbar>`（导出 PNG + 分享链接）
-5. 重型计算（MC、Frontier）加 loading skeleton
-6. Recharts 替换为统一的 `ChartTheme`
+- 触发按钮放在每个计算器工具栏（图标 `History`）
+- 用 shadcn `Sheet` 从右侧滑出
+- 列出最近 10 条 + 收藏，每条显示 label、时间、参数摘要
+- 操作：⭐ 收藏 / 应用 / 删除
+- 在所有接入 ShareExportToolbar 的计算器（8 个）中加入"保存当前参数"按钮 + 抽屉入口
 
-涉及文件：
-- `CalculatorSection.tsx`、`ImpliedVolTool.tsx`、`MCOptionPricer.tsx`
-- `BondCalculator.tsx`、`RateModelSimulator.tsx`、`EfficientFrontier.tsx`
-- `RiskTools.tsx`、`QuantStrategyTools.tsx`
-- `EconometricsTools.tsx`、`DerivativesTools.tsx`
+## 4. KaTeX 公式美化
 
-> A/B 对比模式只接入 **3 个最具教学价值的工具**（BS 定价、Frontier、Bond），其余保留入口但默认关闭，避免一次性改动过大。
+- 在 `index.css` 增加 `.katex` 全局样式：统一字号 (`1.05em`)、行距、色值随 theme 自适应（暗色 `text-foreground/95`，金色公式编号）
+- 修复暗色模式下分式横线偏灰的问题（`color: currentColor`）
+- 给 `BlockMath` 包装一个工具组件 `EquationBlock`：长公式自动横向滚动、点击复制 LaTeX 源码、可选编号
+- 全站所有 `BlockMath` 替换为 `EquationBlock`（grep 出来批量改）
 
----
+## 5. 移动端 375px 复查
 
-## 📦 Phase D — 内容与学习路径（1 次提交，4 文件）
+走查并修复：
 
-### D1. `LearningPath.tsx` — 完成度勾选
-localStorage 记录每个 topic 完成状态，进度条显示总进度。
+- Navbar：确认折叠菜单关闭时不溢出，版本徽章在窄屏隐藏
+- 计算器输入：网格强制 `grid-cols-1` < 480px
+- KaTeX 长公式：外层 `overflow-x-auto` 兜底
+- Footer 4 列：< 640px 改为 2 列，<400px 改为 1 列
+- HeroSection：标题字号梯度（`text-4xl sm:text-5xl md:text-7xl`）
+- CommandPalette：底部安全区适配
+- Onboarding 卡片：宽度 `max-w-[92vw]`
 
-### D2. `QuizSection.tsx` — 完成后打勾 + 错题回顾
-答完一题后保存结果，章节顶部显示「已完成 3/8」。
+## 6. 版本号同步到 V1.6
 
-### D3. `RealDataLoader.tsx` — 数据时间戳 + 来源角标 + retry
-失败时显示「使用示例数据」按钮，永不崩溃。
-
-### D4. 公式视图三 Tab `src/components/common/FormulaCodeView.tsx`
-**「公式 | Python 代码 | 结果」** 三视图组件，先在 BS 定价、Bond YTM、Vasicek 三处接入示例。Python 代码用 `react-syntax-highlighter`（按需懒加载，加入 vite manualChunks）。
+- `src/i18n/locales/{en,zh}.json` Navbar badge
+- `src/pages/Index.tsx` Footer
+- `src/components/Changelog.tsx` 新增 V1.6 条目，V1.5 转为 Stable
 
 ---
 
-## 📦 Phase E — 视觉打磨 + 版本号（1 次提交，6 文件）
+## 技术细节
 
-### E1. `src/index.css` — 全局视觉规则
-- `body` `transition-colors duration-300`
-- 数字 `font-feature-settings: "tnum"`
-- 中文 `letter-spacing: 0.02em`，行高 1.7
-- 减弱金色滥用（部分 `text-gold` → `text-foreground hover:text-gold`）
-- 加大 section padding（`py-20` → `py-24`）
+**新增文件**
+- `src/components/common/HistoryDrawer.tsx`（Sheet + 列表 + 操作）
+- `src/components/common/EquationBlock.tsx`（KaTeX 包装 + 复制 + 滚动）
 
-### E2. `HeroSection.tsx` — 抽象金融背景
-低透明度 SVG 收益率曲线 / K 线作为背景层。
+**修改文件**
+- `src/index.css`：`.katex` 全局样式 + 移动端工具类
+- 8 个计算器：接入 FormulaCodeView（按表）、HistoryDrawer 触发按钮
+- 3 个计算器：额外接入 CompareToggle（BS / Bond / Frontier）
+- 全站 `BlockMath` → `EquationBlock`（约 30+ 处，用 ripgrep 批量定位）
+- `Navbar.tsx`、`HeroSection.tsx`、`Index.tsx` Footer：移动端 className 调整
+- 版本号 4 处同步
 
-### E3. `Footer` 升级（在 `Index.tsx` 内）
-导航链接 + GitHub + 反馈邮箱 + 订阅占位。
+**不做**（留给后续版本）
+- 真实数据缓存层、AI 助教、PDF 笔记导出、知识图谱 — 工作量大，独立立项
+- 图表交互升级（十字光标 / SVG 导出）— 放到 V1.7，避免本次范围爆炸
 
-### E4. `NotFound.tsx` — 趣味化
-"找不到这个金融模型" + 返回首页 CTA。
+**预期效果**
+- 教学闭环：每个计算器都能看到「数学 → 代码 → 结果」
+- 探索闭环：保存 → 收藏 → 重新加载 → A/B 对比
+- 视觉一致：公式在暗/亮模式下都精致，移动端不破版
 
-### E5. `ThemeToggle.tsx` — sun/moon morph 过渡
-180ms rotate + scale 动画。
-
-### E6. **版本号 V1.3**
-- `src/components/Changelog.tsx` 新增 V1.3 条目（详细列出 28 项）
-- Footer Version 1.1 → **Version 1.3**
-- Changelog 顶部 "V1.0 → V1.2" → "V1.0 → V1.3"
-
----
-
-## 📊 预计成果
-
-| 维度 | 改进 |
-|---|---|
-| 功能 | +导出/分享、+A/B 对比、+收藏历史、+命令面板、+完成度追踪 |
-| 交互 | +Slider/步进、+⌘K、+快捷键、+回到顶部、+进度条 |
-| 体验 | +onboarding、+难度标签、+"为什么重要"、+中英术语、+错误恢复 |
-| 美观 | 统一 ChartTheme、字体细节、金色克制、微动效、Hero 背景 |
-
-新增依赖（轻量）：
-- `react-syntax-highlighter` （懒加载分包，不影响首屏）
-
-涉及文件预计 **~25 个修改 + ~10 个新增**。
-
----
-
-## ⏭️ 实施顺序
-
-我会按 **A → B → E → D → C** 的顺序提交（先把基础设施和视觉打磨做完，最后做计算器逐个套壳，因为 C 体量最大、最容易需要分批）。每个 Phase 提交后你可以即时预览。
-
-approved 后我立即从 Phase A 开始动工。
+确认无误请回复"开始"，我切到默认模式开工。

@@ -5,10 +5,11 @@ import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   Legend, ReferenceLine, ScatterChart, Scatter, BarChart, Bar, ComposedChart, Area, Cell,
 } from "recharts";
-import { BlockMath, InlineMath } from "react-katex";
+import { InlineMath } from "react-katex";
 import "katex/dist/katex.min.css";
 import PresetButtons from "./PresetButtons";
 import { ShareExportToolbar, useSharedState } from "@/lib/calculatorTools";
+import { EquationBlock } from "@/components/common/EquationBlock";
 
 const CHART_GOLD = "hsl(43, 80%, 55%)";
 const CHART_TEAL = "hsl(180, 50%, 40%)";
@@ -745,7 +746,7 @@ const RiskTools = () => {
               {Active.nameEn}
             </p>
             <div className="text-foreground katex-display-gold">
-              <BlockMath math={Active.formula} />
+              <EquationBlock math={Active.formula} />
             </div>
           </div>
 

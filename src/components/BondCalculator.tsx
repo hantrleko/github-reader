@@ -2,9 +2,10 @@ import { useState, useMemo, useRef, useCallback } from "react";
 import { ShareExportToolbar, useSharedState } from "@/lib/calculatorTools";
 import PresetButtons, { Preset } from "./PresetButtons";
 import { FormulaCodeView } from "./common/FormulaCodeView";
+import { HistoryDrawer } from "./common/HistoryDrawer";
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
-import { BlockMath } from "react-katex";
+
 import "katex/dist/katex.min.css";
 import {
   LineChart,
@@ -22,6 +23,7 @@ import {
   AreaChart,
   Area,
 } from "recharts";
+import { EquationBlock } from "@/components/common/EquationBlock";
 
 const CHART_GOLD = "hsl(43, 80%, 55%)";
 const CHART_TEAL = "hsl(180, 50%, 40%)";
@@ -277,13 +279,33 @@ const BondCalculator = () => {
           className="rounded-2xl border border-border bg-card p-8 md:p-10 glow-gold"
         >
           <div className="flex justify-end mb-4">
-            <ShareExportToolbar
-              storageKey="bond"
-              anchorId="bond"
-              state={{ tab, face, couponRate, ytm, maturity, freq, b0, b1, b2, lambda }}
-              captureRef={captureRef}
-              filename={`bond-${tab}`}
-            />
+            <div className="flex flex-wrap gap-2">
+              <HistoryDrawer
+                storageKey="bond"
+                currentState={{ tab, face, couponRate, ytm, maturity, freq, b0, b1, b2, lambda }}
+                onApply={(s: any) => {
+                  if (s.face !== undefined) setFace(s.face);
+                  if (s.couponRate !== undefined) setCouponRate(s.couponRate);
+                  if (s.ytm !== undefined) setYtm(s.ytm);
+                  if (s.maturity !== undefined) setMaturity(s.maturity);
+                  if (s.freq !== undefined) setFreq(s.freq);
+                  if (s.b0 !== undefined) setB0(s.b0);
+                  if (s.b1 !== undefined) setB1(s.b1);
+                  if (s.b2 !== undefined) setB2(s.b2);
+                  if (s.lambda !== undefined) setLambda(s.lambda);
+                }}
+                summarize={(s: any) =>
+                  `F=${s.face} c=${s.couponRate}% y=${s.ytm}% T=${s.maturity}y`
+                }
+              />
+              <ShareExportToolbar
+                storageKey="bond"
+                anchorId="bond"
+                state={{ tab, face, couponRate, ytm, maturity, freq, b0, b1, b2, lambda }}
+                captureRef={captureRef}
+                filename={`bond-${tab}`}
+              />
+            </div>
           </div>
           {/* Formula bar */}
           <div className="text-center mb-8 py-5 px-6 rounded-xl bg-gradient-to-br from-secondary/60 to-secondary/30 border border-gold/20 shadow-inner">
@@ -291,7 +313,7 @@ const BondCalculator = () => {
               {tabs.find((t) => t.id === tab)!.nameEn}
             </p>
             <div className="text-foreground katex-display-gold">
-              <BlockMath math={tabs.find((t) => t.id === tab)!.formula} />
+              <EquationBlock math={tabs.find((t) => t.id === tab)!.formula} />
             </div>
           </div>
 

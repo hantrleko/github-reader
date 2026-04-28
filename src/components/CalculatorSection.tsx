@@ -2,8 +2,10 @@ import { useState, useMemo, useRef, useCallback } from "react";
 import { motion } from "framer-motion";
 import PresetButtons, { Preset } from "./PresetButtons";
 import { ShareExportToolbar, useSharedState } from "@/lib/calculatorTools";
+import { HistoryDrawer } from "./common/HistoryDrawer";
+import { FormulaCodeView } from "./common/FormulaCodeView";
 import RealDataLoader from "./RealDataLoader";
-import { BlockMath } from "react-katex";
+
 import "katex/dist/katex.min.css";
 import {
   LineChart,
@@ -22,6 +24,7 @@ import {
   Area,
   ComposedChart,
 } from "recharts";
+import { EquationBlock } from "@/components/common/EquationBlock";
 
 interface ParamConfig {
   key: string;
@@ -662,13 +665,28 @@ const CalculatorSection = () => {
           className="rounded-2xl border border-border bg-card p-8 md:p-10 glow-gold"
         >
           <div className="flex justify-end mb-4">
-            <ShareExportToolbar
-              storageKey="calc"
-              anchorId="calculator"
-              state={{ active, values }}
-              captureRef={captureRef}
-              filename={`calculator-${active}`}
-            />
+            <div className="flex flex-wrap gap-2">
+              <HistoryDrawer
+                storageKey="bs"
+                currentState={{ active, values }}
+                defaultLabel={`BS · ${active}`}
+                onApply={(s: any) => {
+                  if (s.active) setActive(s.active);
+                  if (s.values) setValues((prev) => ({ ...prev, ...s.values }));
+                }}
+                summarize={(s: any) => {
+                  const keys = Object.keys(s.values || {}).slice(0, 3);
+                  return `${s.active} · ${keys.map((k) => `${k}=${(s.values[k] ?? 0).toFixed(2)}`).join(" ")}`;
+                }}
+              />
+              <ShareExportToolbar
+                storageKey="calc"
+                anchorId="calculator"
+                state={{ active, values }}
+                captureRef={captureRef}
+                filename={`calculator-${active}`}
+              />
+            </div>
           </div>
           {/* Formula */}
           <div className="text-center mb-8 py-5 px-6 rounded-xl bg-gradient-to-br from-secondary/60 to-secondary/30 border border-gold/20 shadow-inner">
@@ -676,7 +694,7 @@ const CalculatorSection = () => {
               {calculators.find((c) => c.id === active)!.nameEn}
             </p>
             <div className="text-foreground katex-display-gold">
-              <BlockMath math={calculators.find((c) => c.id === active)!.formula} />
+              <EquationBlock math={calculators.find((c) => c.id === active)!.formula} />
             </div>
           </div>
 
@@ -1318,6 +1336,46 @@ const CalculatorSection = () => {
               <p className="text-sm text-muted-foreground font-mono">
                 {result.detail}
               </p>
+            </div>
+          )}
+
+          {/* 公式 / Python / 结果 三联视图 (Black-Scholes only — most pedagogically rich) */}
+          {active === "bs" && (
+            <div className="mt-6">
+              <FormulaCodeView
+                title="Black-Scholes Closed-Form"
+                formula={String.raw`C = S\,N(d_1) - K e^{-rT} N(d_2),\quad d_{1,2} = \frac{\ln(S/K) + (r \pm \tfrac{\sigma^2}{2})T}{\sigma\sqrt{T}}`}
+                python={`import numpy as np
+from scipy.stats import norm
+
+def bs_call(S, K, r, sigma, T):
+    d1 = (np.log(S / K) + (r + 0.5 * sigma**2) * T) / (sigma * np.sqrt(T))
+    d2 = d1 - sigma * np.sqrt(T)
+    return S * norm.cdf(d1) - K * np.exp(-r * T) * norm.cdf(d2)
+
+def bs_put(S, K, r, sigma, T):
+    d1 = (np.log(S / K) + (r + 0.5 * sigma**2) * T) / (sigma * np.sqrt(T))
+    d2 = d1 - sigma * np.sqrt(T)
+    return K * np.exp(-r * T) * norm.cdf(-d2) - S * norm.cdf(-d1)
+
+price = bs_call(S=${values.s ?? 100}, K=${values.k ?? 100},
+                r=${((values.r ?? 5) / 100).toFixed(4)},
+                sigma=${((values.sigma ?? 20) / 100).toFixed(4)},
+                T=${values.t ?? 1})
+# => ${result.value}`}
+                result={
+                  <div className="grid grid-cols-2 gap-3 text-xs">
+                    <div className="rounded-md border border-gold/20 bg-gold/5 p-3">
+                      <div className="text-[10px] uppercase tracking-wider text-gold/80">{result.label}</div>
+                      <div className="text-base text-gold font-bold">{result.value}</div>
+                    </div>
+                    <div className="rounded-md border border-border bg-card/50 p-3">
+                      <div className="text-[10px] uppercase tracking-wider text-muted-foreground">说明</div>
+                      <div className="text-xs text-foreground">{result.detail}</div>
+                    </div>
+                  </div>
+                }
+              />
             </div>
           )}
         </motion.div>
