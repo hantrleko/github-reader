@@ -3,9 +3,10 @@ import { motion } from "framer-motion";
 import PresetButtons, { Preset } from "./PresetButtons";
 import { ShareExportToolbar, useSharedState } from "@/lib/calculatorTools";
 import RealDataLoader from "./RealDataLoader";
-import { BlockMath } from "react-katex";
+
 import "katex/dist/katex.min.css";
 import {
+import { EquationBlock } from "@/components/common/EquationBlock";
   LineChart,
   Line,
   XAxis,
@@ -676,7 +677,7 @@ const CalculatorSection = () => {
               {calculators.find((c) => c.id === active)!.nameEn}
             </p>
             <div className="text-foreground katex-display-gold">
-              <BlockMath math={calculators.find((c) => c.id === active)!.formula} />
+              <EquationBlock math={calculators.find((c) => c.id === active)!.formula} />
             </div>
           </div>
 

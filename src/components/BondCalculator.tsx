@@ -4,9 +4,10 @@ import PresetButtons, { Preset } from "./PresetButtons";
 import { FormulaCodeView } from "./common/FormulaCodeView";
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
-import { BlockMath } from "react-katex";
+
 import "katex/dist/katex.min.css";
 import {
+import { EquationBlock } from "@/components/common/EquationBlock";
   LineChart,
   Line,
   BarChart,
@@ -291,7 +292,7 @@ const BondCalculator = () => {
               {tabs.find((t) => t.id === tab)!.nameEn}
             </p>
             <div className="text-foreground katex-display-gold">
-              <BlockMath math={tabs.find((t) => t.id === tab)!.formula} />
+              <EquationBlock math={tabs.find((t) => t.id === tab)!.formula} />
             </div>
           </div>
 

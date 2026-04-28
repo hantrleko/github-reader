@@ -3,7 +3,7 @@ import { ShareExportToolbar, useSharedState } from "@/lib/calculatorTools";
 import PresetButtons, { Preset } from "./PresetButtons";
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
-import { BlockMath } from "react-katex";
+
 import "katex/dist/katex.min.css";
 import {
   ScatterChart,
@@ -20,6 +20,7 @@ import {
   Cell,
 } from "recharts";
 import { Plus, Trash2 } from "lucide-react";
+import { EquationBlock } from "@/components/common/EquationBlock";
 
 interface Asset {
   id: string;
@@ -319,7 +320,7 @@ const EfficientFrontier = () => {
               Markowitz Mean-Variance Optimization
             </p>
             <div className="text-foreground katex-display-gold">
-              <BlockMath math={String.raw`\min_{\mathbf{w}}\;\tfrac{1}{2}\,\mathbf{w}^{\top}\boldsymbol{\Sigma}\,\mathbf{w}\quad \text{s.t.}\quad \mathbf{w}^{\top}\boldsymbol{\mu}=\mu_{0},\;\; \mathbf{w}^{\top}\mathbf{1}=1`} />
+              <EquationBlock math={String.raw`\min_{\mathbf{w}}\;\tfrac{1}{2}\,\mathbf{w}^{\top}\boldsymbol{\Sigma}\,\mathbf{w}\quad \text{s.t.}\quad \mathbf{w}^{\top}\boldsymbol{\mu}=\mu_{0},\;\; \mathbf{w}^{\top}\mathbf{1}=1`} />
             </div>
           </div>
 

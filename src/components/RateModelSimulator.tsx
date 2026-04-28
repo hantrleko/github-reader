@@ -1,5 +1,5 @@
 import { useState, useMemo, useRef, useCallback } from "react";
-import { BlockMath } from "react-katex";
+
 import "katex/dist/katex.min.css";
 import { ShareExportToolbar, useSharedState } from "@/lib/calculatorTools";
 import PresetButtons, { Preset } from "./PresetButtons";
@@ -8,6 +8,7 @@ import { useFredSeries } from "@/lib/marketData";
 import { Database, Loader2, CheckCircle2 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import {
+import { EquationBlock } from "@/components/common/EquationBlock";
   LineChart,
   Line,
   XAxis,
@@ -325,7 +326,7 @@ const RateModelSimulator = () => {
                 : "Cox-Ingersoll-Ross (1985) — Square-Root Diffusion"}
             </p>
             <div className="text-foreground katex-display-gold">
-              <BlockMath
+              <EquationBlock
                 math={
                   model === "vasicek"
                     ? String.raw`dr_t = \kappa\,(\theta - r_t)\,dt + \sigma\, dW_t`

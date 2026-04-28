@@ -1,10 +1,11 @@
 import { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { CheckCircle2, XCircle, Trophy, RotateCcw, ChevronRight, Sparkles } from "lucide-react";
-import { BlockMath, InlineMath } from "react-katex";
+import { InlineMath } from "react-katex";
 import "katex/dist/katex.min.css";
 import { Cite } from "@/lib/citations";
 import { useTranslation } from "react-i18next";
+import { EquationBlock } from "@/components/common/EquationBlock";
 
 interface QuizQuestion {
   id: string;
@@ -406,7 +407,7 @@ const QuizSection = () => {
           <h3 className="text-lg md:text-xl font-display font-semibold text-foreground leading-relaxed mb-4">{q.question}</h3>
           {q.formula && (
             <div className="my-4 py-3 px-4 rounded-lg bg-secondary/40 border border-gold/20 text-foreground katex-display-gold text-center">
-              <BlockMath math={q.formula} />
+              <EquationBlock math={q.formula} />
             </div>
           )}
 

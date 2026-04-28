@@ -1,11 +1,12 @@
 import { useState, useMemo, useRef, useCallback } from "react";
-import { BlockMath } from "react-katex";
+
 import "katex/dist/katex.min.css";
 import { ShareExportToolbar, useSharedState } from "@/lib/calculatorTools";
 import PresetButtons, { Preset } from "./PresetButtons";
 import RealDataLoader from "./RealDataLoader";
 import { motion } from "framer-motion";
 import {
+import { EquationBlock } from "@/components/common/EquationBlock";
   LineChart,
   Line,
   XAxis,
@@ -347,12 +348,12 @@ const MCOptionPricer = () => {
               {formulaLabels[optionType]}
             </p>
             <div className="text-foreground katex-display-gold">
-              <BlockMath math={formulas[optionType]} />
+              <EquationBlock math={formulas[optionType]} />
             </div>
             <div className="text-xs font-mono text-muted-foreground mt-2">
               <span className="block mb-1">Underlying dynamics (GBM under risk-neutral measure)</span>
               <div className="text-foreground/80 katex-display-gold opacity-80">
-                <BlockMath math={String.raw`dS_t = r\,S_t\,dt + \sigma\,S_t\,dW_t`} />
+                <EquationBlock math={String.raw`dS_t = r\,S_t\,dt + \sigma\,S_t\,dW_t`} />
               </div>
             </div>
           </div>

@@ -3,9 +3,10 @@ import { ShareExportToolbar, useSharedState } from "@/lib/calculatorTools";
 import PresetButtons, { Preset } from "./PresetButtons";
 import RealDataLoader from "./RealDataLoader";
 import { motion } from "framer-motion";
-import { BlockMath } from "react-katex";
+
 import "katex/dist/katex.min.css";
 import {
+import { EquationBlock } from "@/components/common/EquationBlock";
   LineChart,
   Line,
   XAxis,
@@ -248,7 +249,7 @@ const ImpliedVolTool = () => {
               Implied Volatility — Newton-Raphson Inversion
             </p>
             <div className="text-foreground katex-display-gold">
-              <BlockMath math={String.raw`\text{Solve } \sigma_{\mathrm{iv}}\;:\;\; C_{\mathrm{BS}}(S,K,r,\sigma_{\mathrm{iv}},T)=C_{\mathrm{mkt}},\quad \sigma_{n+1}=\sigma_n - \dfrac{C_{\mathrm{BS}}(\sigma_n)-C_{\mathrm{mkt}}}{\mathcal{V}(\sigma_n)}`} />
+              <EquationBlock math={String.raw`\text{Solve } \sigma_{\mathrm{iv}}\;:\;\; C_{\mathrm{BS}}(S,K,r,\sigma_{\mathrm{iv}},T)=C_{\mathrm{mkt}},\quad \sigma_{n+1}=\sigma_n - \dfrac{C_{\mathrm{BS}}(\sigma_n)-C_{\mathrm{mkt}}}{\mathcal{V}(\sigma_n)}`} />
             </div>
           </div>
 
