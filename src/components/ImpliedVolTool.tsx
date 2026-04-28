@@ -2,6 +2,7 @@ import { useState, useMemo, useRef, useCallback } from "react";
 import { ShareExportToolbar, useSharedState } from "@/lib/calculatorTools";
 import { HistoryDrawer } from "./common/HistoryDrawer";
 import PresetButtons, { Preset } from "./PresetButtons";
+import { FormulaCodeView } from "./common/FormulaCodeView";
 import RealDataLoader from "./RealDataLoader";
 import { motion } from "framer-motion";
 
