@@ -4,6 +4,7 @@ import "katex/dist/katex.min.css";
 import { ShareExportToolbar, useSharedState } from "@/lib/calculatorTools";
 import { HistoryDrawer } from "./common/HistoryDrawer";
 import PresetButtons, { Preset } from "./PresetButtons";
+import { FormulaCodeView } from "./common/FormulaCodeView";
 import { motion } from "framer-motion";
 import { useFredSeries } from "@/lib/marketData";
 import { Database, Loader2, CheckCircle2 } from "lucide-react";
@@ -567,6 +568,60 @@ const RateModelSimulator = () => {
               </p>
             </div>
           )}
+
+          {/* 公式 / Python / 结果 三联视图 */}
+          <div className="mt-8">
+            <FormulaCodeView
+              title={`${model.toUpperCase()} · Euler Discretization`}
+              formula={
+                model === "vasicek"
+                  ? String.raw`dr_t = \kappa(\theta - r_t)\,dt + \sigma\, dW_t,\quad r_{t+\Delta t} \approx r_t + \kappa(\theta - r_t)\Delta t + \sigma\sqrt{\Delta t}\,Z`
+                  : model === "cir"
+                  ? String.raw`dr_t = \kappa(\theta - r_t)\,dt + \sigma\sqrt{r_t}\, dW_t,\quad r_{t+\Delta t} \approx r_t + \kappa(\theta - r_t)\Delta t + \sigma\sqrt{r_t\,\Delta t}\,Z`
+                  : String.raw`dr_t = \mu\, dt + \sigma\, dW_t,\quad r_{t+\Delta t} = r_t + \mu\,\Delta t + \sigma\sqrt{\Delta t}\,Z`
+              }
+              python={`import numpy as np
+
+def simulate_${model}(r0=${r0 / 100}, kappa=${kappa}, theta=${theta / 100},
+                      sigma=${sigma / 100}, T=${T}, n_steps=${(T * 50) | 0},
+                      n_paths=${nPaths}, seed=${seed}):
+    rng = np.random.default_rng(seed)
+    dt  = T / n_steps
+    paths = np.zeros((n_paths, n_steps + 1))
+    paths[:, 0] = r0
+    for t in range(n_steps):
+        Z = rng.standard_normal(n_paths)
+        r = paths[:, t]
+        ${
+          model === "vasicek"
+            ? "drift = kappa * (theta - r) * dt\n        diff  = sigma * np.sqrt(dt) * Z"
+            : model === "cir"
+            ? "drift = kappa * (theta - r) * dt\n        diff  = sigma * np.sqrt(np.maximum(r, 0) * dt) * Z"
+            : "drift = kappa * dt  # interpret kappa as drift μ\n        diff  = sigma * np.sqrt(dt) * Z"
+        }
+        paths[:, t+1] = r + drift + diff
+    return paths
+
+# Terminal: E[r_T] ≈ ${(simResult.terminalMean * 100).toFixed(3)}%
+#           σ[r_T] ≈ ${(simResult.terminalStd * 100).toFixed(3)}%`}
+              result={
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs">
+                  <div className="rounded-md border border-gold/20 bg-gold/5 p-3">
+                    <div className="text-[10px] uppercase tracking-wider text-gold/80">E[r(T)]</div>
+                    <div className="text-base text-gold font-bold">{(simResult.terminalMean * 100).toFixed(3)}%</div>
+                  </div>
+                  <div className="rounded-md border border-teal-400/30 bg-teal-400/5 p-3">
+                    <div className="text-[10px] uppercase tracking-wider text-teal-400">σ[r(T)]</div>
+                    <div className="text-base text-foreground font-bold">{(simResult.terminalStd * 100).toFixed(3)}%</div>
+                  </div>
+                  <div className="rounded-md border border-border bg-card/50 p-3">
+                    <div className="text-[10px] uppercase tracking-wider text-muted-foreground">路径数 / 步数</div>
+                    <div className="text-base text-foreground font-bold">{nPaths} × {(T * 50) | 0}</div>
+                  </div>
+                </div>
+              }
+            />
+          </div>
         </motion.div>
       </div>
     </section>
