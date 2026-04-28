@@ -6,7 +6,6 @@ import RealDataLoader from "./RealDataLoader";
 
 import "katex/dist/katex.min.css";
 import {
-import { EquationBlock } from "@/components/common/EquationBlock";
   LineChart,
   Line,
   XAxis,
@@ -23,6 +22,7 @@ import { EquationBlock } from "@/components/common/EquationBlock";
   Area,
   ComposedChart,
 } from "recharts";
+import { EquationBlock } from "@/components/common/EquationBlock";
 
 interface ParamConfig {
   key: string;

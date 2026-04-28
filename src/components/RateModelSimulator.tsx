@@ -8,7 +8,6 @@ import { useFredSeries } from "@/lib/marketData";
 import { Database, Loader2, CheckCircle2 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import {
-import { EquationBlock } from "@/components/common/EquationBlock";
   LineChart,
   Line,
   XAxis,
@@ -21,6 +20,7 @@ import { EquationBlock } from "@/components/common/EquationBlock";
   AreaChart,
   Area,
 } from "recharts";
+import { EquationBlock } from "@/components/common/EquationBlock";
 
 const CHART_GOLD = "hsl(43, 80%, 55%)";
 const CHART_TEAL = "hsl(180, 50%, 40%)";

@@ -7,7 +7,6 @@ import { useTranslation } from "react-i18next";
 
 import "katex/dist/katex.min.css";
 import {
-import { EquationBlock } from "@/components/common/EquationBlock";
   LineChart,
   Line,
   BarChart,
@@ -23,6 +22,7 @@ import { EquationBlock } from "@/components/common/EquationBlock";
   AreaChart,
   Area,
 } from "recharts";
+import { EquationBlock } from "@/components/common/EquationBlock";
 
 const CHART_GOLD = "hsl(43, 80%, 55%)";
 const CHART_TEAL = "hsl(180, 50%, 40%)";

@@ -6,7 +6,6 @@ import { motion } from "framer-motion";
 
 import "katex/dist/katex.min.css";
 import {
-import { EquationBlock } from "@/components/common/EquationBlock";
   LineChart,
   Line,
   XAxis,
@@ -17,6 +16,7 @@ import { EquationBlock } from "@/components/common/EquationBlock";
   Legend,
   ReferenceLine,
 } from "recharts";
+import { EquationBlock } from "@/components/common/EquationBlock";
 
 const CHART_GOLD = "hsl(43, 80%, 55%)";
 const CHART_TEAL = "hsl(180, 50%, 40%)";

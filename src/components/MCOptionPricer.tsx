@@ -6,7 +6,6 @@ import PresetButtons, { Preset } from "./PresetButtons";
 import RealDataLoader from "./RealDataLoader";
 import { motion } from "framer-motion";
 import {
-import { EquationBlock } from "@/components/common/EquationBlock";
   LineChart,
   Line,
   XAxis,
@@ -22,6 +21,7 @@ import { EquationBlock } from "@/components/common/EquationBlock";
   AreaChart,
   Area,
 } from "recharts";
+import { EquationBlock } from "@/components/common/EquationBlock";
 
 const CHART_GOLD = "hsl(43, 80%, 55%)";
 const CHART_TEAL = "hsl(180, 50%, 40%)";
