@@ -355,6 +355,57 @@ const ImpliedVolTool = () => {
             </div>
           </div>
 
+          {/* 公式 / Python / 结果 三联视图 */}
+          <div className="mb-8">
+            <FormulaCodeView
+              title="Newton-Raphson IV"
+              formula={String.raw`\sigma_{n+1} = \sigma_n - \frac{C_{\mathrm{BS}}(\sigma_n) - C_{\mathrm{mkt}}}{\mathcal{V}(\sigma_n)},\quad \mathcal{V} = S\,\phi(d_1)\sqrt{T}`}
+              python={`import numpy as np
+from scipy.stats import norm
+
+def bs_price(S, K, r, sigma, T, is_call=True):
+    d1 = (np.log(S/K) + (r + 0.5*sigma**2)*T) / (sigma*np.sqrt(T))
+    d2 = d1 - sigma*np.sqrt(T)
+    if is_call:
+        return S*norm.cdf(d1) - K*np.exp(-r*T)*norm.cdf(d2)
+    return K*np.exp(-r*T)*norm.cdf(-d2) - S*norm.cdf(-d1)
+
+def implied_vol(C_mkt, S, K, r, T, is_call=True, sigma=0.2, tol=1e-6, max_iter=80):
+    """Newton-Raphson on Black-Scholes price equation."""
+    for _ in range(max_iter):
+        price = bs_price(S, K, r, sigma, T, is_call)
+        d1    = (np.log(S/K) + (r + 0.5*sigma**2)*T) / (sigma*np.sqrt(T))
+        vega  = S * norm.pdf(d1) * np.sqrt(T)
+        if vega < 1e-10: return None
+        diff  = price - C_mkt
+        if abs(diff) < tol: return sigma
+        sigma -= diff / vega
+        if sigma <= 0: return None
+    return None
+
+iv = implied_vol(C_mkt=${mktPrice}, S=${ivS}, K=${ivK},
+                 r=${(ivR / 100).toFixed(4)}, T=${ivT},
+                 is_call=${optType === "call" ? "True" : "False"})
+# => ${ivResult ? (ivResult.iv / 100).toFixed(6) : "None"}`}
+              result={
+                ivResult ? (
+                  <div className="grid grid-cols-2 gap-3 text-xs">
+                    <div className="rounded-md border border-gold/20 bg-gold/5 p-3">
+                      <div className="text-[10px] uppercase tracking-wider text-gold/80">σ_iv</div>
+                      <div className="text-base text-gold font-bold">{ivResult.iv.toFixed(4)}%</div>
+                    </div>
+                    <div className="rounded-md border border-border bg-card/50 p-3">
+                      <div className="text-[10px] uppercase tracking-wider text-muted-foreground">BS 验证价</div>
+                      <div className="text-base text-foreground font-bold">{ivResult.bsPrice.toFixed(4)}</div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-red-400 text-xs">无解 — 检查输入</div>
+                )
+              }
+            />
+          </div>
+
           {/* ─── Volatility Surface ─── */}
           <div className="border-t border-border pt-8">
             <p className="text-xs font-mono text-muted-foreground uppercase tracking-wider mb-4">
