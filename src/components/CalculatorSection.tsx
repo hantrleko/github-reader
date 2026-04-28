@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import PresetButtons, { Preset } from "./PresetButtons";
 import { ShareExportToolbar, useSharedState } from "@/lib/calculatorTools";
 import { HistoryDrawer } from "./common/HistoryDrawer";
+import { FormulaCodeView } from "./common/FormulaCodeView";
 import RealDataLoader from "./RealDataLoader";
 
 import "katex/dist/katex.min.css";
@@ -1335,6 +1336,46 @@ const CalculatorSection = () => {
               <p className="text-sm text-muted-foreground font-mono">
                 {result.detail}
               </p>
+            </div>
+          )}
+
+          {/* 公式 / Python / 结果 三联视图 (Black-Scholes only — most pedagogically rich) */}
+          {active === "bs" && (
+            <div className="mt-6">
+              <FormulaCodeView
+                title="Black-Scholes Closed-Form"
+                formula={String.raw`C = S\,N(d_1) - K e^{-rT} N(d_2),\quad d_{1,2} = \frac{\ln(S/K) + (r \pm \tfrac{\sigma^2}{2})T}{\sigma\sqrt{T}}`}
+                python={`import numpy as np
+from scipy.stats import norm
+
+def bs_call(S, K, r, sigma, T):
+    d1 = (np.log(S / K) + (r + 0.5 * sigma**2) * T) / (sigma * np.sqrt(T))
+    d2 = d1 - sigma * np.sqrt(T)
+    return S * norm.cdf(d1) - K * np.exp(-r * T) * norm.cdf(d2)
+
+def bs_put(S, K, r, sigma, T):
+    d1 = (np.log(S / K) + (r + 0.5 * sigma**2) * T) / (sigma * np.sqrt(T))
+    d2 = d1 - sigma * np.sqrt(T)
+    return K * np.exp(-r * T) * norm.cdf(-d2) - S * norm.cdf(-d1)
+
+price = bs_call(S=${values.s ?? 100}, K=${values.k ?? 100},
+                r=${((values.r ?? 5) / 100).toFixed(4)},
+                sigma=${((values.sigma ?? 20) / 100).toFixed(4)},
+                T=${values.t ?? 1})
+# => ${result.value}`}
+                result={
+                  <div className="grid grid-cols-2 gap-3 text-xs">
+                    <div className="rounded-md border border-gold/20 bg-gold/5 p-3">
+                      <div className="text-[10px] uppercase tracking-wider text-gold/80">{result.label}</div>
+                      <div className="text-base text-gold font-bold">{result.value}</div>
+                    </div>
+                    <div className="rounded-md border border-border bg-card/50 p-3">
+                      <div className="text-[10px] uppercase tracking-wider text-muted-foreground">说明</div>
+                      <div className="text-xs text-foreground">{result.detail}</div>
+                    </div>
+                  </div>
+                }
+              />
             </div>
           )}
         </motion.div>
