@@ -1,5 +1,6 @@
 import { useState, useMemo, useRef, useCallback } from "react";
 import { ShareExportToolbar, useSharedState } from "@/lib/calculatorTools";
+import { HistoryDrawer } from "./common/HistoryDrawer";
 import PresetButtons, { Preset } from "./PresetButtons";
 import RealDataLoader from "./RealDataLoader";
 import { motion } from "framer-motion";
@@ -235,13 +236,31 @@ const ImpliedVolTool = () => {
           className="rounded-2xl border border-border bg-card p-8 md:p-10 glow-gold"
         >
           <div className="flex justify-end mb-4">
-            <ShareExportToolbar
-              storageKey="iv"
-              anchorId="implied-vol"
-              state={{ optType, mktPrice, ivS, ivK, ivR, ivT, baseVol, skew, smile }}
-              captureRef={captureRef}
-              filename="implied-vol"
-            />
+            <div className="flex flex-wrap gap-2">
+              <HistoryDrawer
+                storageKey="iv"
+                currentState={{ optType, mktPrice, ivS, ivK, ivR, ivT, baseVol, skew, smile }}
+                onApply={(s: any) => {
+                  if (s.optType) setOptType(s.optType);
+                  if (s.mktPrice !== undefined) setMktPrice(s.mktPrice);
+                  if (s.ivS !== undefined) setIvS(s.ivS);
+                  if (s.ivK !== undefined) setIvK(s.ivK);
+                  if (s.ivR !== undefined) setIvR(s.ivR);
+                  if (s.ivT !== undefined) setIvT(s.ivT);
+                  if (s.baseVol !== undefined) setBaseVol(s.baseVol);
+                  if (s.skew !== undefined) setSkew(s.skew);
+                  if (s.smile !== undefined) setSmile(s.smile);
+                }}
+                summarize={(s: any) => `S=${s.ivS} K=${s.ivK} T=${s.ivT}y price=${s.mktPrice}`}
+              />
+              <ShareExportToolbar
+                storageKey="iv"
+                anchorId="implied-vol"
+                state={{ optType, mktPrice, ivS, ivK, ivR, ivT, baseVol, skew, smile }}
+                captureRef={captureRef}
+                filename="implied-vol"
+              />
+            </div>
           </div>
           {/* Formula */}
           <div className="text-center mb-8 py-5 px-6 rounded-xl bg-gradient-to-br from-secondary/60 to-secondary/30 border border-gold/20 shadow-inner">

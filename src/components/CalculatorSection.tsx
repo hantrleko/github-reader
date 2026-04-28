@@ -2,6 +2,7 @@ import { useState, useMemo, useRef, useCallback } from "react";
 import { motion } from "framer-motion";
 import PresetButtons, { Preset } from "./PresetButtons";
 import { ShareExportToolbar, useSharedState } from "@/lib/calculatorTools";
+import { HistoryDrawer } from "./common/HistoryDrawer";
 import RealDataLoader from "./RealDataLoader";
 
 import "katex/dist/katex.min.css";
@@ -663,13 +664,28 @@ const CalculatorSection = () => {
           className="rounded-2xl border border-border bg-card p-8 md:p-10 glow-gold"
         >
           <div className="flex justify-end mb-4">
-            <ShareExportToolbar
-              storageKey="calc"
-              anchorId="calculator"
-              state={{ active, values }}
-              captureRef={captureRef}
-              filename={`calculator-${active}`}
-            />
+            <div className="flex flex-wrap gap-2">
+              <HistoryDrawer
+                storageKey="bs"
+                currentState={{ active, values }}
+                defaultLabel={`BS · ${active}`}
+                onApply={(s: any) => {
+                  if (s.active) setActive(s.active);
+                  if (s.values) setValues((prev) => ({ ...prev, ...s.values }));
+                }}
+                summarize={(s: any) => {
+                  const keys = Object.keys(s.values || {}).slice(0, 3);
+                  return `${s.active} · ${keys.map((k) => `${k}=${(s.values[k] ?? 0).toFixed(2)}`).join(" ")}`;
+                }}
+              />
+              <ShareExportToolbar
+                storageKey="calc"
+                anchorId="calculator"
+                state={{ active, values }}
+                captureRef={captureRef}
+                filename={`calculator-${active}`}
+              />
+            </div>
           </div>
           {/* Formula */}
           <div className="text-center mb-8 py-5 px-6 rounded-xl bg-gradient-to-br from-secondary/60 to-secondary/30 border border-gold/20 shadow-inner">

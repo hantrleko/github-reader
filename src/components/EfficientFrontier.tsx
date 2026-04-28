@@ -1,5 +1,6 @@
 import { useState, useMemo, useRef, useCallback } from "react";
 import { ShareExportToolbar, useSharedState } from "@/lib/calculatorTools";
+import { HistoryDrawer } from "./common/HistoryDrawer";
 import PresetButtons, { Preset } from "./PresetButtons";
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
@@ -306,13 +307,27 @@ const EfficientFrontier = () => {
           className="rounded-2xl border border-border bg-card p-8 md:p-10 glow-gold"
         >
           <div className="flex justify-end mb-4">
-            <ShareExportToolbar
-              storageKey="frontier"
-              anchorId="frontier"
-              state={{ assets, rho, allowShort }}
-              captureRef={captureRef}
-              filename="efficient-frontier"
-            />
+            <div className="flex flex-wrap gap-2">
+              <HistoryDrawer
+                storageKey="frontier"
+                currentState={{ assets, rho, allowShort }}
+                onApply={(s: any) => {
+                  if (s.assets) setAssets(s.assets);
+                  if (s.rho !== undefined) setRho(s.rho);
+                  if (typeof s.allowShort === "boolean") setAllowShort(s.allowShort);
+                }}
+                summarize={(s: any) =>
+                  `${(s.assets || []).length} 资产 · ρ=${s.rho} · ${s.allowShort ? "允许做空" : "仅做多"}`
+                }
+              />
+              <ShareExportToolbar
+                storageKey="frontier"
+                anchorId="frontier"
+                state={{ assets, rho, allowShort }}
+                captureRef={captureRef}
+                filename="efficient-frontier"
+              />
+            </div>
           </div>
           {/* Formula bar */}
           <div className="text-center mb-8 py-5 px-6 rounded-xl bg-gradient-to-br from-secondary/60 to-secondary/30 border border-gold/20 shadow-inner">

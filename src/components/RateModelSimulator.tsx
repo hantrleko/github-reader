@@ -2,6 +2,7 @@ import { useState, useMemo, useRef, useCallback } from "react";
 
 import "katex/dist/katex.min.css";
 import { ShareExportToolbar, useSharedState } from "@/lib/calculatorTools";
+import { HistoryDrawer } from "./common/HistoryDrawer";
 import PresetButtons, { Preset } from "./PresetButtons";
 import { motion } from "framer-motion";
 import { useFredSeries } from "@/lib/marketData";
@@ -310,13 +311,30 @@ const RateModelSimulator = () => {
           className="rounded-2xl border border-border bg-card p-8 md:p-10 glow-gold"
         >
           <div className="flex justify-end mb-4">
-            <ShareExportToolbar
-              storageKey="rate"
-              anchorId="rate-model"
-              state={{ model, r0, kappa, theta, sigma, T, nPaths, seed }}
-              captureRef={captureRef}
-              filename={`rate-model-${model}`}
-            />
+            <div className="flex flex-wrap gap-2">
+              <HistoryDrawer
+                storageKey="rate"
+                currentState={{ model, r0, kappa, theta, sigma, T, nPaths, seed }}
+                onApply={(s: any) => {
+                  if (s.model) setModel(s.model);
+                  if (s.r0 !== undefined) setR0(s.r0);
+                  if (s.kappa !== undefined) setKappa(s.kappa);
+                  if (s.theta !== undefined) setTheta(s.theta);
+                  if (s.sigma !== undefined) setSigma(s.sigma);
+                  if (s.T !== undefined) setT(s.T);
+                  if (s.nPaths !== undefined) setNPaths(s.nPaths);
+                  if (s.seed !== undefined) setSeed(s.seed);
+                }}
+                summarize={(s: any) => `${s.model} r₀=${s.r0}% κ=${s.kappa} θ=${s.theta}%`}
+              />
+              <ShareExportToolbar
+                storageKey="rate"
+                anchorId="rate-model"
+                state={{ model, r0, kappa, theta, sigma, T, nPaths, seed }}
+                captureRef={captureRef}
+                filename={`rate-model-${model}`}
+              />
+            </div>
           </div>
           {/* Formula */}
           <div className="text-center mb-8 py-5 px-6 rounded-xl bg-gradient-to-br from-secondary/60 to-secondary/30 border border-gold/20 shadow-inner">

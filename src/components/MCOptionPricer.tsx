@@ -2,6 +2,7 @@ import { useState, useMemo, useRef, useCallback } from "react";
 
 import "katex/dist/katex.min.css";
 import { ShareExportToolbar, useSharedState } from "@/lib/calculatorTools";
+import { HistoryDrawer } from "./common/HistoryDrawer";
 import PresetButtons, { Preset } from "./PresetButtons";
 import RealDataLoader from "./RealDataLoader";
 import { motion } from "framer-motion";
@@ -323,13 +324,33 @@ const MCOptionPricer = () => {
           className="rounded-2xl border border-border bg-card p-8 md:p-10 glow-gold"
         >
           <div className="flex justify-end mb-4">
-            <ShareExportToolbar
-              storageKey="mc"
-              anchorId="mc-pricer"
-              state={{ optionType, putCall, s0, k, r, sigma, T, nPaths, seed, barrierType, barrierLevel }}
-              captureRef={captureRef}
-              filename={`mc-${optionType}`}
-            />
+            <div className="flex flex-wrap gap-2">
+              <HistoryDrawer
+                storageKey="mc"
+                currentState={{ optionType, putCall, s0, k, r, sigma, T, nPaths, seed, barrierType, barrierLevel }}
+                onApply={(s: any) => {
+                  if (s.optionType) setOptionType(s.optionType);
+                  if (s.putCall) setPutCall(s.putCall);
+                  if (s.s0 !== undefined) setS0(s.s0);
+                  if (s.k !== undefined) setK(s.k);
+                  if (s.r !== undefined) setR(s.r);
+                  if (s.sigma !== undefined) setSigma(s.sigma);
+                  if (s.T !== undefined) setT(s.T);
+                  if (s.nPaths !== undefined) setNPaths(s.nPaths);
+                  if (s.seed !== undefined) setSeed(s.seed);
+                  if (s.barrierType) setBarrierType(s.barrierType);
+                  if (s.barrierLevel !== undefined) setBarrierLevel(s.barrierLevel);
+                }}
+                summarize={(s: any) => `${s.optionType}/${s.putCall} S=${s.s0} K=${s.k} σ=${s.sigma}`}
+              />
+              <ShareExportToolbar
+                storageKey="mc"
+                anchorId="mc-pricer"
+                state={{ optionType, putCall, s0, k, r, sigma, T, nPaths, seed, barrierType, barrierLevel }}
+                captureRef={captureRef}
+                filename={`mc-${optionType}`}
+              />
+            </div>
           </div>
           {/* Option type tabs */}
           <div className="flex flex-wrap justify-center gap-2 mb-6">
