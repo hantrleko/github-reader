@@ -179,4 +179,55 @@
   .katex-display-gold .katex-display > .katex {
     text-shadow: 0 0 18px hsl(var(--gold) / 0.25);
   }
+
+  /* ─────────────────────────────────────────────────────────────────
+     EquationBlock variants (V1.6)
+     - .katex-gold:  primary formula bars, gold-tinted, glowing
+     - .katex-plain: derivation steps, body color, slightly larger size
+     - .katex-scroll: horizontal scrollbar styling for long formulas
+  ───────────────────────────────────────────────────────────────── */
+  .katex-gold .katex,
+  .katex-gold .katex-display .katex {
+    color: hsl(var(--gold));
+    font-size: 1.12em;
+  }
+  .katex-gold .katex-display {
+    margin: 0.3em 0;
+  }
+  .katex-gold .katex-display > .katex {
+    text-shadow: 0 0 16px hsl(var(--gold) / 0.22);
+  }
+  .katex-plain .katex,
+  .katex-plain .katex-display .katex {
+    color: hsl(var(--foreground) / 0.95);
+    font-size: 1.05em;
+  }
+  .katex-plain .katex-display {
+    margin: 0.4em 0;
+  }
+  /* Make sure fraction lines & symbols inherit current color (fixes
+     dark-mode greyish fraction bar) */
+  .katex-gold .katex .frac-line,
+  .katex-plain .katex .frac-line,
+  .katex-gold .katex .overline-line,
+  .katex-plain .katex .overline-line,
+  .katex-gold .katex .underline-line,
+  .katex-plain .katex .underline-line {
+    border-bottom-color: currentColor !important;
+  }
+  /* Thin gold scrollbar for horizontally scrolling formula rows */
+  .katex-scroll {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--gold) / 0.4) transparent;
+  }
+  .katex-scroll::-webkit-scrollbar {
+    height: 4px;
+  }
+  .katex-scroll::-webkit-scrollbar-thumb {
+    background-color: hsl(var(--gold) / 0.4);
+    border-radius: 2px;
+  }
+  .katex-scroll::-webkit-scrollbar-track {
+    background: transparent;
+  }
 }
