@@ -4,9 +4,60 @@ import { useTranslation } from "react-i18next";
 
 const RELEASES = [
   {
-    version: "V1.7",
+    version: "V1.8",
     date: "2026-04",
     tag: "Current",
+    highlights: [
+      {
+        icon: Sparkles,
+        title: "教学三联视图全部计算器覆盖",
+        items: [
+          "FormulaCodeView/PythonReference 接入剩余 RiskTools (Merton/Copula/Stress) 与 EconometricsTools (OLS·IV/DID/RDD/GMM/SVAR/GARCH/Coint/Kalman),共 11 段全新 Python 参考实现",
+          "公式条下方折叠式 Python 卡片,一键复制,与既有 BS/Bond/Frontier 等 5 个计算器的视觉风格保持一致",
+          "至此全部 14 个核心计算器都具备「数学 ↔ 代码」对照",
+        ],
+      },
+      {
+        icon: Wrench,
+        title: "HistoryDrawer 全站铺开",
+        items: [
+          "RiskTools / EconometricsTools / QuantStrategyTools 三个之前漏接的计算器现在都有「保存 / 收藏 / 重放」抽屉",
+          "全部 9 个有 ShareExportToolbar 的计算器现已统一具备历史记录能力",
+        ],
+      },
+      {
+        icon: Layout,
+        title: "图表主题统一 (ChartTheme 铺开)",
+        items: [
+          "11 个计算器的硬编码 CHART_GRID/CHART_TEXT 改用 hsl(var(--border)) / hsl(var(--muted-foreground)) token",
+          "亮色模式下图表网格不再是几乎不可见的深色,坐标轴文字对比度更友好",
+          "暗色模式视觉无变化,过渡平滑",
+        ],
+      },
+      {
+        icon: Zap,
+        title: "快捷键帮助面板",
+        items: [
+          "新增 KeyboardHelp 组件:按 ? 任意位置唤起 (输入框中自动屏蔽避免误触发)",
+          "面板分「导航 / 页面 / 计算器」三组列出全部快捷键,kbd 样式与文案双语",
+          "左下角浮动 Keyboard 图标按钮 (md+ 显示),提供发现性",
+        ],
+      },
+      {
+        icon: GraduationCap,
+        title: "Skeleton loader 美化 + 版本号",
+        items: [
+          "SectionFallback 从单调灰条升级为完整的「卡片+脉冲+金色 shimmer 横扫」骨架,模拟最终内容布局",
+          "新增 @keyframes shimmer 1.6s 横向扫光动画",
+          "Navbar / Footer / Changelog 同步至 V1.8;V1.7 转为 Stable",
+        ],
+      },
+    ],
+  },
+  {
+    version: "V1.7",
+    date: "2026-04",
+    tag: "Stable",
     highlights: [
       {
         icon: Layout,
@@ -328,7 +379,7 @@ const Changelog = () => {
             {t("changelog.title")}
           </h2>
           <p className="text-sm text-muted-foreground font-mono">
-            {t("changelog.subtitle")} — V1.0 → V1.7
+            {t("changelog.subtitle")} — V1.0 → V1.8
           </p>
         </motion.div>
 
