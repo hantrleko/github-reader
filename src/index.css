@@ -230,4 +230,9 @@
   .katex-scroll::-webkit-scrollbar-track {
     background: transparent;
   }
+  /* Shimmer sweep used by SectionFallback skeleton */
+  @keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+  }
 }

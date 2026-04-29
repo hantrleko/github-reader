@@ -23,10 +23,36 @@ const LearningPath = lazy(() => import("@/components/LearningPath"));
 
 const SectionFallback = () => (
   <div className="py-20 px-6">
-    <div className="container max-w-4xl">
-      <div className="h-6 w-48 bg-muted/50 rounded animate-pulse mb-4" />
-      <div className="h-4 w-full bg-muted/30 rounded animate-pulse mb-2" />
-      <div className="h-4 w-3/4 bg-muted/30 rounded animate-pulse" />
+    <div className="container max-w-5xl">
+      <div className="rounded-2xl border border-border/60 bg-card/40 p-8 md:p-10 overflow-hidden relative">
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 -translate-x-full"
+          style={{
+            background:
+              "linear-gradient(90deg, transparent 0%, hsl(var(--gold) / 0.06) 50%, transparent 100%)",
+            animation: "shimmer 1.6s ease-in-out infinite",
+          }}
+        />
+        <div className="flex items-center gap-2 mb-5">
+          <span className="h-1.5 w-1.5 rounded-full bg-gold animate-pulse" />
+          <div className="h-3 w-32 rounded bg-muted/50 animate-pulse" />
+        </div>
+        <div className="h-7 w-2/3 max-w-md rounded bg-muted/60 animate-pulse mb-3" />
+        <div className="h-4 w-full max-w-lg rounded bg-muted/30 animate-pulse mb-2" />
+        <div className="h-4 w-1/2 rounded bg-muted/30 animate-pulse mb-8" />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="space-y-3">
+            {[0, 1, 2, 3].map((i) => (
+              <div key={i} className="flex items-center justify-between">
+                <div className="h-3 w-24 rounded bg-muted/40 animate-pulse" />
+                <div className="h-7 w-32 rounded bg-muted/40 animate-pulse" />
+              </div>
+            ))}
+          </div>
+          <div className="h-40 rounded-lg bg-muted/30 animate-pulse" />
+        </div>
+      </div>
     </div>
   </div>
 );
@@ -216,7 +242,7 @@ const Index = () => {
               © 2026 Econ &amp; Finance Lab · 仅供学习研究 · 不构成投资建议
             </p>
             <p className="text-[10px] font-mono text-gold/80 tracking-[0.2em] uppercase">
-              Version 1.7
+              Version 1.8
             </p>
           </div>
         </div>
