@@ -6,6 +6,7 @@ import TopicCards from "@/components/TopicCards";
 import ModelShowcase from "@/components/ModelShowcase";
 import ScrollUtilities from "@/components/ScrollUtilities";
 import SectionErrorBoundary from "@/components/SectionErrorBoundary";
+import KeyboardHelp from "@/components/KeyboardHelp";
 
 // Heavy interactive sections — code-split to relieve homepage bundle & scroll lag
 const CalculatorSection = lazy(() => import("@/components/CalculatorSection"));
@@ -123,6 +124,7 @@ const Index = () => {
     <div className="min-h-screen bg-background">
       <Navbar />
       <ScrollUtilities />
+      <KeyboardHelp />
 
       {/* ─── 0. 导览 ─── */}
       <div id="hero" className="scroll-mt-12"><HeroSection /></div>
