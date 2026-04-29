@@ -167,9 +167,9 @@ const Index = () => {
       {/* Footer */}
       <footer className="mt-16 px-6 border-t border-border bg-card/30">
         <div className="container max-w-6xl py-12">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-10">
+          <div className="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-4 gap-8 mb-10">
             {/* Brand */}
-            <div className="md:col-span-2">
+            <div className="xs:col-span-2 md:col-span-2">
               <p className="text-sm font-display font-semibold text-foreground mb-2">
                 Econ &amp; Finance Lab
               </p>
@@ -216,7 +216,7 @@ const Index = () => {
               © 2026 Econ &amp; Finance Lab · 仅供学习研究 · 不构成投资建议
             </p>
             <p className="text-[10px] font-mono text-gold/80 tracking-[0.2em] uppercase">
-              Version 1.6
+              Version 1.7
             </p>
           </div>
         </div>
