@@ -66,12 +66,12 @@ const HeroSection = () => {
           <p className="text-sm font-mono uppercase tracking-[0.3em] text-gold mb-6">
             {t("hero.tagline")}
           </p>
-          <h1 className="text-5xl md:text-7xl lg:text-8xl font-display font-bold leading-[1.05] mb-6">
+          <h1 className="text-4xl xs:text-5xl md:text-7xl lg:text-8xl font-display font-bold leading-[1.05] mb-6">
             <span className="text-foreground">{t("hero.title1")}</span>
             <br />
             <span className="text-gold-gradient">{t("hero.title2")}</span>
           </h1>
-          <p className="max-w-2xl mx-auto text-lg md:text-xl text-muted-foreground font-light leading-relaxed mb-10">
+          <p className="max-w-2xl mx-auto text-base xs:text-lg md:text-xl text-muted-foreground font-light leading-relaxed mb-10">
             {t("hero.subtitle")}
           </p>
         </div>

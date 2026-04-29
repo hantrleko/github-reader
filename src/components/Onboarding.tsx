@@ -67,7 +67,7 @@ const Onboarding = () => {
           animate={{ y: 0, opacity: 1, scale: 1 }}
           exit={{ y: 30, opacity: 0, scale: 0.96 }}
           transition={{ type: "spring", damping: 24, stiffness: 280 }}
-          className="relative w-full max-w-md rounded-2xl border border-gold/30 bg-card shadow-2xl p-6"
+          className="relative w-full max-w-md max-w-[92vw] rounded-2xl border border-gold/30 bg-card shadow-2xl p-6"
           onClick={(e) => e.stopPropagation()}
         >
           <button

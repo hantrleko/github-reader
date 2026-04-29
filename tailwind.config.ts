@@ -13,6 +13,9 @@ export default {
       },
     },
     extend: {
+      screens: {
+        xs: "400px",
+      },
       fontFamily: {
         display: ["var(--font-display)"],
         body: ["var(--font-body)"],

@@ -493,8 +493,8 @@ price = bond_price(face=${face}, coupon_rate=${couponRate},
                       const conv = convexity(face, couponRate, ytm, maturity, freq);
                       return (
                         <div className="space-y-1.5">
-                          <div className="grid grid-cols-4 text-[10px] font-mono text-muted-foreground border-b border-border pb-1">
-                            <span>Δy (bp)</span><span>久期近似</span><span>久期+凸性</span><span>精确值</span>
+                          <div className="grid grid-cols-4 gap-1 text-[9px] xs:text-[10px] font-mono text-muted-foreground border-b border-border pb-1">
+                            <span className="truncate">Δy (bp)</span><span className="truncate">久期近似</span><span className="truncate">久期+凸性</span><span className="truncate">精确值</span>
                           </div>
                           {shocks.map((s) => {
                             const dy = s / 10000;
@@ -502,11 +502,11 @@ price = bond_price(face=${face}, coupon_rate=${couponRate},
                             const durConv = (-dMod * dy + 0.5 * conv * dy * dy) * 100;
                             const exact = (bondPrice(face, couponRate, ytm + s / 100, maturity, freq) / p0 - 1) * 100;
                             return (
-                              <div key={s} className="grid grid-cols-4 text-xs font-mono">
+                              <div key={s} className="grid grid-cols-4 gap-1 text-[10px] xs:text-xs font-mono tabular-nums">
                                 <span className={s < 0 ? "text-emerald-400" : "text-red-400"}>{s > 0 ? "+" : ""}{s}</span>
-                                <span className="text-foreground">{durOnly.toFixed(2)}%</span>
-                                <span className="text-foreground">{durConv.toFixed(2)}%</span>
-                                <span className="text-gold">{exact.toFixed(2)}%</span>
+                                <span className="text-foreground truncate">{durOnly.toFixed(2)}%</span>
+                                <span className="text-foreground truncate">{durConv.toFixed(2)}%</span>
+                                <span className="text-gold truncate">{exact.toFixed(2)}%</span>
                               </div>
                             );
                           })}

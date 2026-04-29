@@ -119,7 +119,7 @@ const CommandPalette = () => {
           </div>
         ))}
       </CommandList>
-      <div className="border-t border-border px-3 py-2 text-[10px] font-mono text-muted-foreground flex items-center justify-between">
+      <div className="border-t border-border px-3 py-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] text-[10px] font-mono text-muted-foreground flex items-center justify-between">
         <span>↑↓ 导航 · ↵ 跳转 · esc 关闭</span>
         <span className="hidden sm:inline">⌘K / Ctrl+K 打开</span>
       </div>

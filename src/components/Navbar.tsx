@@ -208,7 +208,7 @@ const Navbar = () => {
           className="text-xs font-mono font-semibold text-foreground tracking-wider flex items-center gap-2 hover:text-gold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/60 rounded"
         >
           {t("nav.brand")}
-          <span className="text-[9px] px-1.5 py-0.5 rounded bg-gold/15 text-gold font-normal tracking-wider">
+          <span className="hidden xs:inline-flex text-[9px] px-1.5 py-0.5 rounded bg-gold/15 text-gold font-normal tracking-wider">
             {t("nav.version")}
           </span>
         </button>
