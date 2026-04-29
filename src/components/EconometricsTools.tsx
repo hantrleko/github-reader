@@ -1824,7 +1824,7 @@ const ResultRow = ({ label, value, truth, se, color }: { label: string; value: n
 /* ──────────────────  Main module  ────────────────── */
 type ToolId = "olsiv" | "did" | "rdd" | "gmm" | "svar" | "garch" | "coint" | "kalman";
 
-const TOOLS: { id: ToolId; name: string; nameEn: string; formula: string; component: React.FC }[] = [
+const TOOLS: { id: ToolId; name: string; nameEn: string; formula: string; python: string; component: React.FC }[] = [
   { id: "olsiv", name: "OLS / IV (工具变量)", nameEn: "Ordinary Least Squares & Instrumental Variables",
     formula: String.raw`y_i = \alpha + \beta\, x_i + \varepsilon_i \qquad\text{(IV)}\quad \hat{x}_i = \hat{\pi}\, z_i \;\Rightarrow\; \hat{\beta}_{\mathrm{IV}}`,
     component: OLSvsIV },
@@ -1850,6 +1850,45 @@ const TOOLS: { id: ToolId; name: string; nameEn: string; formula: string; compon
     formula: String.raw`\hat\beta_{t|t} = \hat\beta_{t|t-1} + K_t\bigl(y_t - x_t\hat\beta_{t|t-1}\bigr),\quad K_t = \dfrac{P_{t|t-1}\,x_t}{x_t^2 P_{t|t-1} + R}`,
     component: KalmanTool },
 ];
+
+
+/** Compact collapsible Python reference snippet — companion to the formula bar. */
+const PythonReference = ({ code }: { code: string }) => {
+  const [open, setOpen] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const onCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(code);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    } catch {}
+  };
+  return (
+    <div className="mb-6 rounded-xl border border-border/60 bg-card/40 overflow-hidden">
+      <div className="flex items-center justify-between px-4 py-2 border-b border-border/40">
+        <button
+          onClick={() => setOpen((o) => !o)}
+          className="text-[11px] font-mono uppercase tracking-[0.2em] text-gold/80 hover:text-gold flex items-center gap-2"
+        >
+          <span>{open ? "▾" : "▸"}</span> Python 参考实现
+        </button>
+        {open && (
+          <button
+            onClick={onCopy}
+            className="text-[10px] font-mono text-muted-foreground hover:text-gold transition-colors"
+          >
+            {copied ? "已复制 ✓" : "复制"}
+          </button>
+        )}
+      </div>
+      {open && (
+        <pre className="m-0 p-4 text-[11px] leading-relaxed font-mono text-foreground/90 overflow-x-auto bg-secondary/20">
+          <code>{code}</code>
+        </pre>
+      )}
+    </div>
+  );
+};
 
 const EconometricsTools = () => {
   const { t } = useTranslation();
@@ -1925,7 +1964,7 @@ const EconometricsTools = () => {
           </div>
 
           {/* Formula bar */}
-          <div className="text-center mb-8 py-5 px-6 rounded-xl bg-gradient-to-br from-secondary/60 to-secondary/30 border border-gold/20 shadow-inner">
+          <div className="text-center mb-3 py-5 px-6 rounded-xl bg-gradient-to-br from-secondary/60 to-secondary/30 border border-gold/20 shadow-inner">
             <p className="text-[10px] font-mono uppercase tracking-[0.25em] text-gold/80 mb-2">
               {Active.nameEn}
             </p>
@@ -1933,6 +1972,8 @@ const EconometricsTools = () => {
               <EquationBlock math={Active.formula} />
             </div>
           </div>
+
+          <PythonReference code={Active.python} />
 
           <Active.component />
         </motion.div>
