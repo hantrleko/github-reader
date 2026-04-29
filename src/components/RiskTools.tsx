@@ -658,23 +658,108 @@ export const StressTool = () => {
    ════════════════════════════════════════════════════════════ */
 type ToolId = "merton" | "copula" | "stress";
 
-const TOOLS: { id: ToolId; name: string; nameEn: string; formula: string; component: React.FC }[] = [
+const TOOLS: { id: ToolId; name: string; nameEn: string; formula: string; python: string; component: React.FC }[] = [
   {
     id: "merton", name: "Merton 信用风险", nameEn: "Merton Structural Credit Risk Model",
     formula: String.raw`E_0 = V_0\,\Phi(d_1) - D\,e^{-rT}\Phi(d_2),\qquad \mathrm{DD} = \dfrac{\ln(V_0/D) + (\mu - \tfrac{1}{2}\sigma_V^2)T}{\sigma_V\sqrt{T}},\qquad \mathrm{PD} = \Phi(-\mathrm{DD})`,
+    python: `import numpy as np
+from scipy.stats import norm
+
+def merton_pd(V0, D, r, mu, sigma_V, T):
+    """Merton structural model — equity as call on assets."""
+    d1 = (np.log(V0 / D) + (r + 0.5 * sigma_V ** 2) * T) / (sigma_V * np.sqrt(T))
+    d2 = d1 - sigma_V * np.sqrt(T)
+    equity = V0 * norm.cdf(d1) - D * np.exp(-r * T) * norm.cdf(d2)
+    DD = (np.log(V0 / D) + (mu - 0.5 * sigma_V ** 2) * T) / (sigma_V * np.sqrt(T))
+    PD = norm.cdf(-DD)
+    return equity, DD, PD`,
     component: MertonTool,
   },
   {
     id: "copula", name: "Copula 相依结构", nameEn: "Gaussian & Student-t Copula Dependence",
     formula: String.raw`F(x,y) = C\bigl(F_1(x),\, F_2(y)\bigr),\qquad \lambda_U = \lim_{q\to 1^-}\!\Pr(U>q\mid V>q),\qquad \tau = \tfrac{2}{\pi}\arcsin\rho`,
+    python: `import numpy as np
+from scipy.stats import norm, t as student_t
+
+def gaussian_copula_sample(rho, n=10000, seed=42):
+    rng = np.random.default_rng(seed)
+    L = np.linalg.cholesky([[1, rho], [rho, 1]])
+    z = rng.standard_normal((n, 2)) @ L.T
+    u = norm.cdf(z)            # uniform marginals
+    return u
+
+def t_copula_sample(rho, df=4, n=10000, seed=42):
+    rng = np.random.default_rng(seed)
+    L = np.linalg.cholesky([[1, rho], [rho, 1]])
+    z = rng.standard_normal((n, 2)) @ L.T
+    chi2 = rng.chisquare(df, size=n) / df
+    t = z / np.sqrt(chi2)[:, None]
+    return student_t.cdf(t, df)`,
     component: CopulaTool,
   },
   {
     id: "stress", name: "压力测试", nameEn: "Stress Testing — Historical & Hypothetical Scenarios",
     formula: String.raw`\mathrm{P\&L} = \sum_i w_i \cdot \Delta_i,\qquad \Delta_{\text{bond}} \approx -D_i\,\Delta y_i,\qquad \Delta_{\text{equity}} = r_{\text{shock}}`,
+    python: `import numpy as np
+
+def stress_pnl(positions, scenario):
+    """Apply a macro scenario to a portfolio of equity / bond / FX / oil."""
+    pnl = 0.0
+    for p in positions:
+        if p["type"] == "equity":
+            pnl += p["notional"] * scenario["eq"] / 100
+        elif p["type"] == "bond":
+            # First-order duration approximation
+            pnl += -p["notional"] * p["duration"] * scenario["rates"] / 10000
+            # Credit spread shock
+            pnl += -p["notional"] * p["spread_dur"] * scenario["credit"] / 10000
+        elif p["type"] == "fx":
+            pnl += p["notional"] * scenario["fx"] / 100
+        elif p["type"] == "oil":
+            pnl += p["notional"] * scenario["oil"] / 100
+    return pnl`,
     component: StressTool,
   },
 ];
+
+
+/** Compact collapsible Python reference snippet — companion to the formula bar. */
+const PythonReference = ({ code }: { code: string }) => {
+  const [open, setOpen] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const onCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(code);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    } catch {}
+  };
+  return (
+    <div className="mb-6 rounded-xl border border-border/60 bg-card/40 overflow-hidden">
+      <div className="flex items-center justify-between px-4 py-2 border-b border-border/40">
+        <button
+          onClick={() => setOpen((o) => !o)}
+          className="text-[11px] font-mono uppercase tracking-[0.2em] text-gold/80 hover:text-gold flex items-center gap-2"
+        >
+          <span>{open ? "▾" : "▸"}</span> Python 参考实现
+        </button>
+        {open && (
+          <button
+            onClick={onCopy}
+            className="text-[10px] font-mono text-muted-foreground hover:text-gold transition-colors"
+          >
+            {copied ? "已复制 ✓" : "复制"}
+          </button>
+        )}
+      </div>
+      {open && (
+        <pre className="m-0 p-4 text-[11px] leading-relaxed font-mono text-foreground/90 overflow-x-auto bg-secondary/20">
+          <code>{code}</code>
+        </pre>
+      )}
+    </div>
+  );
+};
 
 const RiskTools = () => {
   const { t } = useTranslation();
@@ -748,7 +833,7 @@ const RiskTools = () => {
             />
           </div>
 
-          <div className="text-center mb-8 py-5 px-6 rounded-xl bg-gradient-to-br from-secondary/60 to-secondary/30 border border-gold/20 shadow-inner">
+          <div className="text-center mb-3 py-5 px-6 rounded-xl bg-gradient-to-br from-secondary/60 to-secondary/30 border border-gold/20 shadow-inner">
             <p className="text-[10px] font-mono uppercase tracking-[0.25em] text-gold/80 mb-2">
               {Active.nameEn}
             </p>
@@ -756,6 +841,8 @@ const RiskTools = () => {
               <EquationBlock math={Active.formula} />
             </div>
           </div>
+
+          <PythonReference code={Active.python} />
 
           <Active.component />
         </motion.div>
