@@ -4,9 +4,37 @@ import { useTranslation } from "react-i18next";
 
 const RELEASES = [
   {
-    version: "V1.6",
+    version: "V1.7",
     date: "2026-04",
     tag: "Current",
+    highlights: [
+      {
+        icon: Layout,
+        title: "375px 移动端走查",
+        items: [
+          "新增 Tailwind `xs: 400px` 自定义断点,在最窄屏幕上提供细粒度控制",
+          "Hero 标题字号梯度优化:`text-4xl xs:text-5xl md:text-7xl lg:text-8xl`,375px 不再溢出",
+          "Navbar 版本徽章在 < 400px 自动隐藏,为分组导航 / 语言 / 主题按钮腾出空间",
+          "Footer 网格 `grid-cols-1 xs:grid-cols-2 md:grid-cols-4`,品牌区在窄屏跨 2 列保持平衡",
+          "BondCalculator 利率冲击表 `text-[9px] xs:text-[10px]` + `truncate`,4 列在 375px 不再被压扁",
+          "Onboarding 弹窗加 `max-w-[92vw]` 双重保险,避免在小屏溢出",
+          "CommandPalette 底部加 `env(safe-area-inset-bottom)`,iOS 下不再被 Home 指示条遮挡",
+        ],
+      },
+      {
+        icon: GraduationCap,
+        title: "版本号同步",
+        items: [
+          "Navbar 徽章 + Footer + Changelog 同步至 V1.7 (中英 i18n 一致)",
+          "V1.6 标记为 Stable;A/B 对比真正接入 (BS / Bond / Frontier 三个计算器) 因工作量较大,推迟到 V1.8 单独立项",
+        ],
+      },
+    ],
+  },
+  {
+    version: "V1.6",
+    date: "2026-04",
+    tag: "Stable",
     highlights: [
       {
         icon: Sparkles,
@@ -300,7 +328,7 @@ const Changelog = () => {
             {t("changelog.title")}
           </h2>
           <p className="text-sm text-muted-foreground font-mono">
-            {t("changelog.subtitle")} — V1.0 → V1.4
+            {t("changelog.subtitle")} — V1.0 → V1.7
           </p>
         </motion.div>
 
