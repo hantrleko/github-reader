@@ -9,6 +9,7 @@ import { InlineMath } from "react-katex";
 import "katex/dist/katex.min.css";
 import PresetButtons, { Preset } from "./PresetButtons";
 import { ShareExportToolbar, useSharedState } from "@/lib/calculatorTools";
+import { HistoryDrawer } from "@/components/common/HistoryDrawer";
 import { GARCHTool, CointTool, KalmanTool } from "./econ/Sprint1Tools";
 import { EquationBlock } from "@/components/common/EquationBlock";
 
@@ -1907,7 +1908,13 @@ const EconometricsTools = () => {
           transition={{ duration: 0.35 }}
           className="rounded-2xl border border-border bg-card p-6 md:p-10 glow-gold"
         >
-          <div className="flex justify-end mb-4">
+          <div className="flex flex-wrap justify-end gap-2 mb-4">
+            <HistoryDrawer
+              storageKey="econ"
+              currentState={{ tool }}
+              onApply={(s: any) => { if (s?.tool) setTool(s.tool); }}
+              summarize={(s: any) => `工具: ${s.tool}`}
+            />
             <ShareExportToolbar
               storageKey="econ"
               anchorId="econometrics"

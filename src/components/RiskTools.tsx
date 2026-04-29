@@ -9,6 +9,7 @@ import { InlineMath } from "react-katex";
 import "katex/dist/katex.min.css";
 import PresetButtons from "./PresetButtons";
 import { ShareExportToolbar, useSharedState } from "@/lib/calculatorTools";
+import { HistoryDrawer } from "@/components/common/HistoryDrawer";
 import { EquationBlock } from "@/components/common/EquationBlock";
 
 const CHART_GOLD = "hsl(43, 80%, 55%)";
@@ -731,7 +732,13 @@ const RiskTools = () => {
           transition={{ duration: 0.35 }}
           className="rounded-2xl border border-border bg-card p-6 md:p-10 glow-gold"
         >
-          <div className="flex justify-end mb-4">
+          <div className="flex flex-wrap justify-end gap-2 mb-4">
+            <HistoryDrawer
+              storageKey="risk"
+              currentState={{ tool }}
+              onApply={(s: any) => { if (s?.tool) setTool(s.tool); }}
+              summarize={(s: any) => `工具: ${s.tool}`}
+            />
             <ShareExportToolbar
               storageKey="risk"
               anchorId="risk"
