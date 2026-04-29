@@ -15,8 +15,8 @@ const CHART_TEAL = "hsl(180, 50%, 40%)";
 const CHART_RED = "hsl(0, 70%, 55%)";
 const CHART_BLUE = "hsl(220, 70%, 55%)";
 const CHART_PURPLE = "hsl(280, 60%, 60%)";
-const CHART_GRID = "hsl(220, 12%, 18%)";
-const CHART_TEXT = "hsl(220, 10%, 50%)";
+const CHART_GRID = "hsl(var(--border))";
+const CHART_TEXT = "hsl(var(--muted-foreground))";
 
 /* ─── Helpers ─── */
 function mulberry32(seed: number) {

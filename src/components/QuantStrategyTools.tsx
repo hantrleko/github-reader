@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 
 import "katex/dist/katex.min.css";
 import { ShareExportToolbar, useSharedState } from "@/lib/calculatorTools";
+import { HistoryDrawer } from "@/components/common/HistoryDrawer";
 import { BacktestTool, BlackLittermanTool, FamaFrenchTool } from "./quant/Sprint4Tools";
 import { EquationBlock } from "@/components/common/EquationBlock";
 
@@ -58,7 +59,13 @@ const QuantStrategyTools = () => {
 
         <motion.div key={tool} ref={captureRef} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35 }}
           className="rounded-2xl border border-border bg-card p-6 md:p-10 glow-gold">
-          <div className="flex justify-end mb-4">
+          <div className="flex flex-wrap justify-end gap-2 mb-4">
+            <HistoryDrawer
+              storageKey="quant"
+              currentState={{ tool }}
+              onApply={(s: { tool: ToolId }) => { if (s?.tool) setTool(s.tool); }}
+              summarize={(s: any) => `工具: ${s.tool}`}
+            />
             <ShareExportToolbar storageKey="quant" anchorId="quant" state={{ tool }} captureRef={captureRef} filename={`quant-${tool}`} />
           </div>
           <div className="text-center mb-8 py-5 px-6 rounded-xl bg-gradient-to-br from-secondary/60 to-secondary/30 border border-gold/20 shadow-inner">

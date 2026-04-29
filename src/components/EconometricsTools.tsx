@@ -9,6 +9,7 @@ import { InlineMath } from "react-katex";
 import "katex/dist/katex.min.css";
 import PresetButtons, { Preset } from "./PresetButtons";
 import { ShareExportToolbar, useSharedState } from "@/lib/calculatorTools";
+import { HistoryDrawer } from "@/components/common/HistoryDrawer";
 import { GARCHTool, CointTool, KalmanTool } from "./econ/Sprint1Tools";
 import { EquationBlock } from "@/components/common/EquationBlock";
 
@@ -16,8 +17,8 @@ const CHART_GOLD = "hsl(43, 80%, 55%)";
 const CHART_TEAL = "hsl(180, 50%, 40%)";
 const CHART_RED = "hsl(0, 70%, 55%)";
 const CHART_BLUE = "hsl(220, 70%, 55%)";
-const CHART_GRID = "hsl(220, 12%, 18%)";
-const CHART_TEXT = "hsl(220, 10%, 50%)";
+const CHART_GRID = "hsl(var(--border))";
+const CHART_TEXT = "hsl(var(--muted-foreground))";
 
 /* ──────────────────  Deterministic PRNG  ────────────────── */
 function mulberry32(seed: number) {
@@ -1823,32 +1824,160 @@ const ResultRow = ({ label, value, truth, se, color }: { label: string; value: n
 /* ──────────────────  Main module  ────────────────── */
 type ToolId = "olsiv" | "did" | "rdd" | "gmm" | "svar" | "garch" | "coint" | "kalman";
 
-const TOOLS: { id: ToolId; name: string; nameEn: string; formula: string; component: React.FC }[] = [
+const TOOLS: { id: ToolId; name: string; nameEn: string; formula: string; python: string; component: React.FC }[] = [
   { id: "olsiv", name: "OLS / IV (工具变量)", nameEn: "Ordinary Least Squares & Instrumental Variables",
     formula: String.raw`y_i = \alpha + \beta\, x_i + \varepsilon_i \qquad\text{(IV)}\quad \hat{x}_i = \hat{\pi}\, z_i \;\Rightarrow\; \hat{\beta}_{\mathrm{IV}}`,
+    python: `import numpy as np
+
+def ols(X, y):
+    X = np.column_stack([np.ones(len(y)), X])
+    beta = np.linalg.solve(X.T @ X, X.T @ y)
+    resid = y - X @ beta
+    sigma2 = (resid @ resid) / (len(y) - X.shape[1])
+    var_beta = sigma2 * np.linalg.inv(X.T @ X)
+    return beta, np.sqrt(np.diag(var_beta))
+
+def iv_2sls(X, y, Z):
+    """Two-stage least squares with instrument Z."""
+    X = np.column_stack([np.ones(len(y)), X])
+    Z = np.column_stack([np.ones(len(y)), Z])
+    Pz = Z @ np.linalg.solve(Z.T @ Z, Z.T)
+    return np.linalg.solve(X.T @ Pz @ X, X.T @ Pz @ y)`,
     component: OLSvsIV },
   { id: "did",   name: "DID (双重差分)", nameEn: "Difference-in-Differences",
     formula: String.raw`\hat{\tau}_{\mathrm{DID}} = \bigl(\bar{Y}_{1,\mathrm{post}} - \bar{Y}_{1,\mathrm{pre}}\bigr) - \bigl(\bar{Y}_{0,\mathrm{post}} - \bar{Y}_{0,\mathrm{pre}}\bigr)`,
+    python: `import numpy as np
+import pandas as pd
+
+def did_estimator(df):
+    """df: columns [y, treated (0/1), post (0/1)]"""
+    df = df.copy()
+    df["interaction"] = df["treated"] * df["post"]
+    X = df[["treated", "post", "interaction"]].values
+    X = np.column_stack([np.ones(len(df)), X])
+    beta = np.linalg.solve(X.T @ X, X.T @ df["y"].values)
+    return {"alpha": beta[0], "treated": beta[1], "post": beta[2], "DID": beta[3]}`,
     component: DIDTool },
   { id: "rdd",   name: "RDD (断点回归)", nameEn: "Regression Discontinuity Design",
     formula: String.raw`\tau_{\mathrm{RDD}} = \lim_{x \downarrow c} \mathbb{E}[Y\mid X=x] - \lim_{x \uparrow c} \mathbb{E}[Y\mid X=x]`,
+    python: `import numpy as np
+
+def rdd_local_linear(x, y, c, bandwidth):
+    """Sharp RDD: fit local linear on each side of cutoff c."""
+    mask_l = (x >= c - bandwidth) & (x < c)
+    mask_r = (x >= c) & (x <= c + bandwidth)
+    fit_l = np.polyfit(x[mask_l] - c, y[mask_l], 1)
+    fit_r = np.polyfit(x[mask_r] - c, y[mask_r], 1)
+    return fit_r[1] - fit_l[1]`,
     component: RDDTool },
   { id: "gmm",   name: "GMM (广义矩估计)", nameEn: "Generalized Method of Moments",
     formula: String.raw`\hat{\mu}_{\mathrm{GMM}} = \arg\min_{\mu}\; g(\mu)^{\!\top}\, W\, g(\mu), \qquad J = n \cdot Q(\hat{\mu}_{\mathrm{eff}}) \sim \chi^2_{q-p}`,
+    python: `import numpy as np
+from scipy.optimize import minimize
+
+def gmm_estimate(moments, theta0, W=None):
+    def Q(theta):
+        g = moments(theta).mean(axis=0)
+        Wm = np.eye(len(g)) if W is None else W
+        return g @ Wm @ g
+    return minimize(Q, theta0, method="BFGS").x`,
     component: GMMTool },
   { id: "svar",  name: "SVAR / IRF (结构向量自回归)", nameEn: "Structural Vector Autoregression & Impulse Response",
     formula: String.raw`y_t = A\, y_{t-1} + B_0\, \varepsilon_t, \qquad \mathrm{IRF}_h = A^{h} \cdot L \cdot e_j`,
+    python: `import numpy as np
+
+def svar_irf(A, L, horizon=20):
+    """A = VAR(1) coefficient, L = lower-triangular Cholesky of Sigma."""
+    n = A.shape[0]
+    irf = np.zeros((horizon, n, n))
+    Ah = np.eye(n)
+    for h in range(horizon):
+        irf[h] = Ah @ L
+        Ah = Ah @ A
+    return irf`,
     component: SVARTool },
   { id: "garch", name: "GARCH / EGARCH (波动率)", nameEn: "Generalized Autoregressive Conditional Heteroskedasticity",
     formula: String.raw`\sigma_t^2 = \omega + \alpha\,r_{t-1}^2 + \beta\,\sigma_{t-1}^2 \qquad\text{(EGARCH)}\;\; \ln\sigma_t^2 = \omega + \beta\ln\sigma_{t-1}^2 + \alpha(|z_{t-1}|-E|z|) + \gamma z_{t-1}`,
+    python: `import numpy as np
+from scipy.optimize import minimize
+
+def garch_loglik(params, r):
+    omega, alpha, beta = params
+    sig2 = np.zeros(len(r))
+    sig2[0] = np.var(r)
+    for t in range(1, len(r)):
+        sig2[t] = omega + alpha * r[t-1]**2 + beta * sig2[t-1]
+    return 0.5 * np.sum(np.log(sig2) + r**2 / sig2)`,
     component: GARCHTool },
   { id: "coint", name: "协整 / VECM", nameEn: "Cointegration & Vector Error Correction Model",
     formula: String.raw`y_t = \alpha + \beta\, x_t + u_t,\quad u_t \sim I(0)\;\Rightarrow\;\Delta y_t = \alpha_{\mathrm{ec}}\,u_{t-1} + \gamma\,\Delta x_t + \varepsilon_t`,
+    python: `import numpy as np
+from statsmodels.tsa.stattools import adfuller
+
+def engle_granger(y, x):
+    X = np.column_stack([np.ones(len(y)), x])
+    beta = np.linalg.solve(X.T @ X, X.T @ y)
+    u = y - X @ beta
+    adf_stat, p_value, *_ = adfuller(u, regression="nc")
+    return {"beta": beta[1], "alpha": beta[0],
+            "adf": adf_stat, "p": p_value,
+            "cointegrated": p_value < 0.05}`,
     component: CointTool },
   { id: "kalman", name: "Kalman / HP 滤波", nameEn: "Kalman Filter & Hodrick-Prescott Decomposition",
     formula: String.raw`\hat\beta_{t|t} = \hat\beta_{t|t-1} + K_t\bigl(y_t - x_t\hat\beta_{t|t-1}\bigr),\quad K_t = \dfrac{P_{t|t-1}\,x_t}{x_t^2 P_{t|t-1} + R}`,
+    python: `import numpy as np
+
+def kalman_1d(y, x, R=1.0, Q=1e-4, beta0=0.0, P0=1.0):
+    """Time-varying beta: beta_t = beta_{t-1} + eta, y_t = x_t beta_t + eps."""
+    beta = np.zeros(len(y))
+    beta[0], P = beta0, P0
+    for t in range(1, len(y)):
+        P_pred = P + Q
+        K = P_pred * x[t] / (x[t]**2 * P_pred + R)
+        beta[t] = beta[t-1] + K * (y[t] - x[t] * beta[t-1])
+        P = (1 - K * x[t]) * P_pred
+    return beta`,
     component: KalmanTool },
 ];
+
+
+/** Compact collapsible Python reference snippet — companion to the formula bar. */
+const PythonReference = ({ code }: { code: string }) => {
+  const [open, setOpen] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const onCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(code);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    } catch {}
+  };
+  return (
+    <div className="mb-6 rounded-xl border border-border/60 bg-card/40 overflow-hidden">
+      <div className="flex items-center justify-between px-4 py-2 border-b border-border/40">
+        <button
+          onClick={() => setOpen((o) => !o)}
+          className="text-[11px] font-mono uppercase tracking-[0.2em] text-gold/80 hover:text-gold flex items-center gap-2"
+        >
+          <span>{open ? "▾" : "▸"}</span> Python 参考实现
+        </button>
+        {open && (
+          <button
+            onClick={onCopy}
+            className="text-[10px] font-mono text-muted-foreground hover:text-gold transition-colors"
+          >
+            {copied ? "已复制 ✓" : "复制"}
+          </button>
+        )}
+      </div>
+      {open && (
+        <pre className="m-0 p-4 text-[11px] leading-relaxed font-mono text-foreground/90 overflow-x-auto bg-secondary/20">
+          <code>{code}</code>
+        </pre>
+      )}
+    </div>
+  );
+};
 
 const EconometricsTools = () => {
   const { t } = useTranslation();
@@ -1907,7 +2036,13 @@ const EconometricsTools = () => {
           transition={{ duration: 0.35 }}
           className="rounded-2xl border border-border bg-card p-6 md:p-10 glow-gold"
         >
-          <div className="flex justify-end mb-4">
+          <div className="flex flex-wrap justify-end gap-2 mb-4">
+            <HistoryDrawer
+              storageKey="econ"
+              currentState={{ tool }}
+              onApply={(s: any) => { if (s?.tool) setTool(s.tool); }}
+              summarize={(s: any) => `工具: ${s.tool}`}
+            />
             <ShareExportToolbar
               storageKey="econ"
               anchorId="econometrics"
@@ -1918,7 +2053,7 @@ const EconometricsTools = () => {
           </div>
 
           {/* Formula bar */}
-          <div className="text-center mb-8 py-5 px-6 rounded-xl bg-gradient-to-br from-secondary/60 to-secondary/30 border border-gold/20 shadow-inner">
+          <div className="text-center mb-3 py-5 px-6 rounded-xl bg-gradient-to-br from-secondary/60 to-secondary/30 border border-gold/20 shadow-inner">
             <p className="text-[10px] font-mono uppercase tracking-[0.25em] text-gold/80 mb-2">
               {Active.nameEn}
             </p>
@@ -1926,6 +2061,8 @@ const EconometricsTools = () => {
               <EquationBlock math={Active.formula} />
             </div>
           </div>
+
+          <PythonReference code={Active.python} />
 
           <Active.component />
         </motion.div>

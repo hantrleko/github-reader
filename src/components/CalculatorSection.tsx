@@ -171,8 +171,8 @@ const calculators: { id: CalcId; name: string; nameEn: string; formula: string }
 const CHART_GOLD = "hsl(43, 80%, 55%)";
 const CHART_TEAL = "hsl(180, 50%, 40%)";
 const CHART_RED = "hsl(0, 70%, 55%)";
-const CHART_GRID = "hsl(220, 12%, 18%)";
-const CHART_TEXT = "hsl(220, 10%, 50%)";
+const CHART_GRID = "hsl(var(--border))";
+const CHART_TEXT = "hsl(var(--muted-foreground))";
 const CHART_BLUE = "hsl(220, 70%, 55%)";
 
 // Seeded pseudo-random for reproducibility
