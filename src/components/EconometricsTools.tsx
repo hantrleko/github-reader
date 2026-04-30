@@ -10,7 +10,8 @@ import "katex/dist/katex.min.css";
 import PresetButtons, { Preset } from "./PresetButtons";
 import { ShareExportToolbar, useSharedState } from "@/lib/calculatorTools";
 import { HistoryDrawer } from "@/components/common/HistoryDrawer";
-import { GARCHTool, CointTool, KalmanTool, MIDASTool } from "./econ/Sprint1Tools";
+import { GARCHTool, CointTool, KalmanTool } from "./econ/Sprint1Tools";
+import { MIDASTool } from "./econ/MIDASTool";
 import { EquationBlock } from "@/components/common/EquationBlock";
 
 const CHART_GOLD = "hsl(43, 80%, 55%)";
