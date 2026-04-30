@@ -10,7 +10,7 @@ import "katex/dist/katex.min.css";
 import PresetButtons, { Preset } from "./PresetButtons";
 import { ShareExportToolbar, useSharedState } from "@/lib/calculatorTools";
 import { HistoryDrawer } from "@/components/common/HistoryDrawer";
-import { GARCHTool, CointTool, KalmanTool } from "./econ/Sprint1Tools";
+import { GARCHTool, CointTool, KalmanTool, MIDASTool } from "./econ/Sprint1Tools";
 import { EquationBlock } from "@/components/common/EquationBlock";
 
 const CHART_GOLD = "hsl(43, 80%, 55%)";
@@ -1822,7 +1822,7 @@ const ResultRow = ({ label, value, truth, se, color }: { label: string; value: n
 };
 
 /* ──────────────────  Main module  ────────────────── */
-type ToolId = "olsiv" | "did" | "rdd" | "gmm" | "svar" | "garch" | "coint" | "kalman";
+type ToolId = "olsiv" | "did" | "rdd" | "gmm" | "svar" | "garch" | "coint" | "kalman" | "midas";
 
 const TOOLS: { id: ToolId; name: string; nameEn: string; formula: string; python: string; component: React.FC }[] = [
   { id: "olsiv", name: "OLS / IV (工具变量)", nameEn: "Ordinary Least Squares & Instrumental Variables",
@@ -1938,6 +1938,28 @@ def kalman_1d(y, x, R=1.0, Q=1e-4, beta0=0.0, P0=1.0):
         P = (1 - K * x[t]) * P_pred
     return beta`,
     component: KalmanTool },
+  { id: "midas", name: "MIDAS (混频回归)", nameEn: "Mixed Data Sampling — High-Freq X → Low-Freq y",
+    formula: String.raw`y_t = \alpha + \beta\sum_{k=1}^{K} w_k(\theta)\, x_{t-k/K}^{(H)} + \varepsilon_t,\qquad w_k(\theta) = \dfrac{f(k/(K+1);\,\theta_1,\theta_2)}{\sum_{j=1}^{K} f(j/(K+1);\,\theta_1,\theta_2)}`,
+    python: `import numpy as np
+from scipy.optimize import minimize
+
+def beta_weights(K, t1, t2):
+    """Ghysels (2007) Beta lag polynomial, normalised."""
+    x = np.arange(1, K + 1) / (K + 1)
+    w = x ** (t1 - 1) * (1 - x) ** (t2 - 1)
+    return w / w.sum()
+
+def midas_loss(params, y, X_high, K):
+    """X_high: (n_low, K) matrix of K most-recent high-freq lags per low-freq period."""
+    alpha, beta, t1, t2 = params
+    w = beta_weights(K, max(t1, 1e-3), max(t2, 1e-3))
+    yhat = alpha + beta * (X_high @ w)
+    return np.mean((y - yhat) ** 2)
+
+def fit_midas(y, X_high, K, x0=(0.0, 1.0, 1.0, 5.0)):
+    res = minimize(midas_loss, x0, args=(y, X_high, K), method="Nelder-Mead")
+    return res.x  # alpha, beta, theta1, theta2`,
+    component: MIDASTool },
 ];
 
 
