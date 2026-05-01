@@ -24,7 +24,7 @@ const RELEASES = [
   {
     version: "V1.8",
     date: "2026-04",
-    tag: "Current",
+    tag: "Stable",
     highlights: [
       {
         icon: Sparkles,
