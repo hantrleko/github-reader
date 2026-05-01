@@ -4,6 +4,24 @@ import { useTranslation } from "react-i18next";
 
 const RELEASES = [
   {
+    version: "V1.9",
+    date: "2026-05",
+    tag: "Latest",
+    highlights: [
+      {
+        icon: Sparkles,
+        title: "DCC-GARCH 多变量动态相关",
+        items: [
+          "Engle (2002) 两步 QMLE: 先对每资产估计单变量 GARCH(1,1), 再在标准化残差上估计 DCC(a,b)",
+          "动态可增删 2-4 资产卡片, 每张卡显示 ω/α/β 与持续性 α+β",
+          "双数据源: 内置 5y SPY/TLT/GLD/QQQ 合成日频 (含 2020 危机窗口) + Yahoo 实时拉取并按日期交集对齐",
+          "可视化: ρ_ij(t) 多曲线 + 危机期着色, 可拖动的相关矩阵热力图快照, 组合时变 σ_p 与 95/99% VaR 曲线, 标准化残差散点诊断",
+          "教学价值: 直观演示「相关性崩塌」如何让多元化在压力期同时失效",
+        ],
+      },
+    ],
+  },
+  {
     version: "V1.8",
     date: "2026-04",
     tag: "Current",
