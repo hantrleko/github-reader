@@ -1911,6 +1911,49 @@ def garch_loglik(params, r):
         sig2[t] = omega + alpha * r[t-1]**2 + beta * sig2[t-1]
     return 0.5 * np.sum(np.log(sig2) + r**2 / sig2)`,
     component: GARCHTool },
+  { id: "dcc", name: "DCC-GARCH (动态相关)", nameEn: "Dynamic Conditional Correlation — Engle (2002)",
+    formula: String.raw`Q_t = (1-a-b)\,\bar{Q} + a\,z_{t-1}z_{t-1}^{\top} + b\,Q_{t-1},\qquad R_t = \mathrm{diag}(Q_t)^{-1/2}\, Q_t\, \mathrm{diag}(Q_t)^{-1/2},\quad \Sigma_t = D_t R_t D_t`,
+    python: `import numpy as np
+from scipy.optimize import minimize
+
+def fit_garch11(r):
+    """Step 1: univariate GARCH(1,1) QMLE per asset."""
+    def neg_ll(p):
+        omega, alpha, beta = p
+        if omega <= 0 or alpha < 0 or beta < 0 or alpha + beta >= 0.999:
+            return 1e12
+        sig2 = np.empty_like(r); sig2[0] = r.var()
+        for t in range(1, len(r)):
+            sig2[t] = omega + alpha * r[t-1]**2 + beta * sig2[t-1]
+        return 0.5 * np.sum(np.log(sig2[1:]) + r[1:]**2 / sig2[1:])
+    res = minimize(neg_ll, [0.05*r.var(), 0.08, 0.88], method="Nelder-Mead")
+    omega, alpha, beta = res.x
+    sig2 = np.empty_like(r); sig2[0] = r.var()
+    for t in range(1, len(r)):
+        sig2[t] = omega + alpha * r[t-1]**2 + beta * sig2[t-1]
+    return sig2, r / np.sqrt(sig2)
+
+def fit_dcc(returns):
+    """Engle (2002) DCC(1,1). returns: (T, d) matrix."""
+    sig2_z = [fit_garch11(returns[:, i]) for i in range(returns.shape[1])]
+    Z = np.column_stack([z for _, z in sig2_z])
+    Qbar = (Z.T @ Z) / len(Z)
+    def neg_corr_ll(p):
+        a, b = p
+        if a < 0 or b < 0 or a + b > 0.999: return 1e10
+        Q = Qbar.copy(); ll = 0.0
+        for t in range(1, len(Z)):
+            zlag = Z[t-1][:, None]
+            Q = (1 - a - b) * Qbar + a * (zlag @ zlag.T) + b * Q
+            sd = np.sqrt(np.diag(Q))
+            R = Q / np.outer(sd, sd)
+            sign, logdet = np.linalg.slogdet(R)
+            quad = Z[t] @ np.linalg.solve(R, Z[t])
+            ll += -0.5 * (logdet + quad - Z[t] @ Z[t])
+        return -ll
+    res = minimize(neg_corr_ll, [0.04, 0.93], method="Nelder-Mead")
+    return {"a": res.x[0], "b": res.x[1], "Z": Z, "ll": -res.fun}`,
+    component: DCCGarchTool },
   { id: "coint", name: "协整 / VECM", nameEn: "Cointegration & Vector Error Correction Model",
     formula: String.raw`y_t = \alpha + \beta\, x_t + u_t,\quad u_t \sim I(0)\;\Rightarrow\;\Delta y_t = \alpha_{\mathrm{ec}}\,u_{t-1} + \gamma\,\Delta x_t + \varepsilon_t`,
     python: `import numpy as np
