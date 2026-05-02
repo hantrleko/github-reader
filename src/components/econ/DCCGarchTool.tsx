@@ -921,6 +921,164 @@ export const DCCGarchTool = () => {
         </div>
       )}
 
+      {/* VaR back-testing panel: Kupiec POF + Christoffersen */}
+      {fit && backtest && (
+        <div className="rounded-lg border border-border/60 bg-card/30 p-4 space-y-4">
+          <div className="flex items-center justify-between flex-wrap gap-2">
+            <h4 className="text-sm font-mono uppercase tracking-wider text-foreground flex items-center gap-2">
+              <Activity className="w-4 h-4 text-gold" /> VaR 回测面板 — Kupiec / Christoffersen
+            </h4>
+            <span className="text-[10px] font-mono text-muted-foreground">
+              T = {backtest.c95.T} 天 · 当前可视化: {(vaRConf * 100).toFixed(0)}%
+            </span>
+          </div>
+
+          <div className="grid gap-3 md:grid-cols-2">
+            {([backtest.c95, backtest.c99] as const).map((bt) => {
+              const verdict = (pv: number) => pv < 0.05
+                ? { tag: "拒绝 H0", cls: "text-[hsl(0,70%,55%)]" }
+                : { tag: "接受 H0", cls: "text-[hsl(140,55%,45%)]" };
+              const vUC = verdict(bt.p_uc);
+              const vIND = verdict(bt.p_ind);
+              const vCC = verdict(bt.p_cc);
+              const isActive = (vaRConf * 100).toFixed(0) === (bt.alpha * 100).toFixed(0);
+              return (
+                <div key={bt.alpha}
+                  className={`rounded-md border p-3 ${
+                    isActive ? "border-gold/50 bg-gold/5" : "border-border/40 bg-card/40"
+                  }`}>
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="text-xs font-mono uppercase tracking-wider text-foreground">
+                      {(bt.alpha * 100).toFixed(0)}% VaR
+                    </div>
+                    <button
+                      onClick={() => setVaRConf(bt.alpha as 0.95 | 0.99)}
+                      className="text-[10px] font-mono text-muted-foreground hover:text-gold underline-offset-2 hover:underline">
+                      可视化此置信度
+                    </button>
+                  </div>
+                  <div className="grid grid-cols-3 gap-2 mb-3">
+                    <div className="rounded bg-secondary/30 p-2">
+                      <div className="text-[9px] font-mono uppercase text-muted-foreground">实际违约</div>
+                      <div className="text-base font-display tabular-nums text-foreground">{bt.n1}</div>
+                    </div>
+                    <div className="rounded bg-secondary/30 p-2">
+                      <div className="text-[9px] font-mono uppercase text-muted-foreground">期望</div>
+                      <div className="text-base font-display tabular-nums text-foreground">{bt.expected.toFixed(1)}</div>
+                    </div>
+                    <div className="rounded bg-secondary/30 p-2">
+                      <div className="text-[9px] font-mono uppercase text-muted-foreground">π̂</div>
+                      <div className="text-base font-display tabular-nums text-foreground">{(bt.piHat * 100).toFixed(2)}%</div>
+                    </div>
+                  </div>
+                  <table className="w-full text-[11px] font-mono">
+                    <thead>
+                      <tr className="text-muted-foreground border-b border-border/40">
+                        <th className="text-left py-1">检验</th>
+                        <th className="text-right">LR</th>
+                        <th className="text-right">df</th>
+                        <th className="text-right">p-value</th>
+                        <th className="text-right">结论</th>
+                      </tr>
+                    </thead>
+                    <tbody className="text-foreground tabular-nums">
+                      <tr className="border-b border-border/20">
+                        <td className="py-1 text-muted-foreground">Kupiec POF (覆盖率)</td>
+                        <td className="text-right">{bt.LR_uc.toFixed(3)}</td>
+                        <td className="text-right">1</td>
+                        <td className="text-right">{bt.p_uc.toFixed(4)}</td>
+                        <td className={`text-right ${vUC.cls}`}>{vUC.tag}</td>
+                      </tr>
+                      <tr className="border-b border-border/20">
+                        <td className="py-1 text-muted-foreground">Christoffersen IND (独立性)</td>
+                        <td className="text-right">{bt.LR_ind.toFixed(3)}</td>
+                        <td className="text-right">1</td>
+                        <td className="text-right">{bt.p_ind.toFixed(4)}</td>
+                        <td className={`text-right ${vIND.cls}`}>{vIND.tag}</td>
+                      </tr>
+                      <tr>
+                        <td className="py-1 text-muted-foreground">联合 CC (UC+IND)</td>
+                        <td className="text-right">{bt.LR_cc.toFixed(3)}</td>
+                        <td className="text-right">2</td>
+                        <td className="text-right">{bt.p_cc.toFixed(4)}</td>
+                        <td className={`text-right ${vCC.cls}`}>{vCC.tag}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                  <div className="text-[10px] text-muted-foreground/80 mt-2 leading-relaxed">
+                    转移计数 n₀₀={bt.n00} · n₀₁={bt.n01} · n₁₀={bt.n10} · n₁₁={bt.n11}
+                    {bt.n11 > 0 && " · ⚠ 出现连续违约"}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {breachSeries.length > 0 && (
+            <div>
+              <div className="text-[11px] font-mono uppercase tracking-wider text-muted-foreground mb-1">
+                累计违约次数: 实际 vs 期望 (α = {(vaRConf * 100).toFixed(0)}%)
+              </div>
+              <ResponsiveContainer width="100%" height={180}>
+                <LineChart data={breachSeries} margin={{ top: 5, right: 10, bottom: 0, left: -10 }}>
+                  <CartesianGrid stroke={CHART_GRID} strokeDasharray="3 3" />
+                  <XAxis dataKey="date" tick={{ fill: CHART_TEXT, fontSize: 10 }}
+                    interval={Math.floor(breachSeries.length / 8)} />
+                  <YAxis tick={{ fill: CHART_TEXT, fontSize: 10 }} />
+                  <Tooltip
+                    contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", fontSize: 11 }}
+                    formatter={(v: number) => v.toFixed(2)} />
+                  <Legend wrapperStyle={{ fontSize: 11 }} />
+                  <Line dataKey="expected" type="monotone" stroke={CHART_TEAL} dot={false}
+                    name="期望累计 (T·p)" strokeWidth={1.5} strokeDasharray="4 3" />
+                  <Line dataKey="actual" type="monotone" stroke={CHART_RED} dot={false}
+                    name="实际累计违约" strokeWidth={1.8} />
+                </LineChart>
+              </ResponsiveContainer>
+              <p className="text-[10px] text-muted-foreground/80 mt-1">
+                若实际曲线显著偏离期望线 → 模型 低估/高估 风险。Kupiec 检验等价于"两曲线终点是否显著不同"。
+              </p>
+            </div>
+          )}
+
+          {breachSeries.length > 0 && (
+            <div>
+              <div className="text-[11px] font-mono uppercase tracking-wider text-muted-foreground mb-1">
+                违约日标注 — 红点 = 损失击穿 VaR
+              </div>
+              <ResponsiveContainer width="100%" height={200}>
+                <ComposedChart data={breachSeries} margin={{ top: 5, right: 10, bottom: 0, left: -10 }}>
+                  <CartesianGrid stroke={CHART_GRID} strokeDasharray="3 3" />
+                  <XAxis dataKey="date" tick={{ fill: CHART_TEXT, fontSize: 10 }}
+                    interval={Math.floor(breachSeries.length / 8)} />
+                  <YAxis tick={{ fill: CHART_TEXT, fontSize: 10 }} />
+                  <Tooltip
+                    contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", fontSize: 11 }}
+                    formatter={(v: number | null) => v == null ? "—" : `${v.toFixed(3)}%`} />
+                  <Legend wrapperStyle={{ fontSize: 11 }} />
+                  <ReferenceLine y={0} stroke={CHART_TEXT} strokeDasharray="3 3" />
+                  <Line dataKey="ret" type="monotone" stroke={CHART_TEAL} dot={false}
+                    name="组合日收益" strokeWidth={1} />
+                  <Line dataKey="var" type="monotone" stroke={CHART_RED} dot={false}
+                    name={`VaR 阈值 (${(vaRConf*100).toFixed(0)}%)`} strokeWidth={1.5} strokeDasharray="4 3" />
+                  <Scatter dataKey="breach" fill={CHART_RED} name="违约" shape="circle" />
+                </ComposedChart>
+              </ResponsiveContainer>
+              <p className="text-[10px] text-muted-foreground/80 mt-1">
+                <InlineMath math={`I_t = \\mathbf{1}\\{r_{p,t} < -z_\\alpha \\sigma_{p,t}\\}`} />
+                {" "}— 期望频率 {(vaRConf === 0.95 ? 5 : 1)}%。簇集出现的红点提示违约非独立 → Christoffersen 拒绝 H0。
+              </p>
+            </div>
+          )}
+
+          <div className="rounded-md border border-gold/20 bg-gold/5 p-3 text-[11px] text-foreground/90 space-y-1">
+            <div className="font-mono text-[10px] uppercase tracking-[0.25em] text-gold mb-1">检验公式</div>
+            <div>Kupiec POF: <InlineMath math={`LR_{uc} = -2\\ln\\frac{(1-p)^{n_0} p^{n_1}}{(1-\\hat\\pi)^{n_0}\\hat\\pi^{n_1}} \\sim \\chi^2_1`} /></div>
+            <div>Christoffersen IND: <InlineMath math={`LR_{ind} \\sim \\chi^2_1`} /> · 条件覆盖 <InlineMath math={`LR_{cc} = LR_{uc} + LR_{ind} \\sim \\chi^2_2`} /></div>
+          </div>
+        </div>
+      )}
+
       {/* Standardised residual diagnostics */}
       {fit && (
         <div>
