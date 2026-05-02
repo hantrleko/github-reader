@@ -456,7 +456,10 @@ const DEFAULT_OFFLINE_ASSETS: AssetSpec[] = [
 export const DCCGarchTool = () => {
   const [mode, setMode] = useState<DataMode>("offline");
   const [assets, setAssets] = useState<AssetSpec[]>(DEFAULT_OFFLINE_ASSETS);
-  const [vaRConf, setVaRConf] = useState<0.95 | 0.99>(0.95);
+  // Selected confidence levels (decimal). Default 90/95/99 + a custom slot.
+  const [vaRLevels, setVaRLevels] = useState<number[]>([0.90, 0.95, 0.99]);
+  const [vaRConf, setVaRConf] = useState<number>(0.95);
+  const [customConf, setCustomConf] = useState<string>("97.5");
   const [snapshotIdx, setSnapshotIdx] = useState<number>(0); // for heatmap slider
   const [running, setRunning] = useState(false);
   const [fit, setFit] = useState<{
