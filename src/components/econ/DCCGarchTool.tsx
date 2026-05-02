@@ -57,6 +57,56 @@ function normCdf(x: number): number {
 const Z_95 = 1.6449;
 const Z_99 = 2.3263;
 
+/* ──────────────── Chi-squared survival (df=1,2) via series ──────────────── */
+/* Lanczos log-gamma */
+function logGamma(z: number): number {
+  const g = 7;
+  const c = [
+    0.99999999999980993, 676.5203681218851, -1259.1392167224028,
+    771.32342877765313, -176.61502916214059, 12.507343278686905,
+    -0.13857109526572012, 9.9843695780195716e-6, 1.5056327351493116e-7,
+  ];
+  if (z < 0.5) return Math.log(Math.PI / Math.sin(Math.PI * z)) - logGamma(1 - z);
+  z -= 1;
+  let x = c[0];
+  for (let i = 1; i < g + 2; i++) x += c[i] / (z + i);
+  const t = z + g + 0.5;
+  return 0.5 * Math.log(2 * Math.PI) + (z + 0.5) * Math.log(t) - t + Math.log(x);
+}
+/* Lower regularised incomplete gamma P(a,x) via series + continued fraction */
+function regLowerGamma(a: number, x: number): number {
+  if (x <= 0) return 0;
+  if (x < a + 1) {
+    // series
+    let term = 1 / a, sum = term;
+    for (let n = 1; n < 200; n++) {
+      term *= x / (a + n);
+      sum += term;
+      if (Math.abs(term) < Math.abs(sum) * 1e-12) break;
+    }
+    return sum * Math.exp(-x + a * Math.log(x) - logGamma(a));
+  } else {
+    // continued fraction for Q, then 1-Q
+    let b = x + 1 - a, c = 1 / 1e-30, d = 1 / b, h = d;
+    for (let i = 1; i < 200; i++) {
+      const an = -i * (i - a);
+      b += 2;
+      d = an * d + b; if (Math.abs(d) < 1e-30) d = 1e-30;
+      c = b + an / c; if (Math.abs(c) < 1e-30) c = 1e-30;
+      d = 1 / d;
+      const del = d * c;
+      h *= del;
+      if (Math.abs(del - 1) < 1e-12) break;
+    }
+    const Q = Math.exp(-x + a * Math.log(x) - logGamma(a)) * h;
+    return 1 - Q;
+  }
+}
+function chiSqSurvival(stat: number, df: number): number {
+  if (!isFinite(stat) || stat <= 0) return 1;
+  return 1 - regLowerGamma(df / 2, stat / 2);
+}
+
 /* ──────────────── Asset spec & built-in offline panel ──────────────── */
 export type DataMode = "offline" | "live";
 export interface AssetSpec {
