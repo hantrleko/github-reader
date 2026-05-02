@@ -607,6 +607,88 @@ export const DCCGarchTool = () => {
     }));
   }, [fit, vaRConf]);
 
+  /* ---------- VaR back-test (Kupiec POF + Christoffersen independence/CC) ---------- */
+  const backtest = useMemo(() => {
+    if (!fit || fit.portRet.length < 30) return null;
+    const compute = (alpha: number) => {
+      const z = alpha === 0.95 ? Z_95 : Z_99;
+      const p = 1 - alpha;
+      const T = fit.portRet.length;
+      // Hit indicator I_t = 1 if r_t < -z·σ_t  (loss exceeds VaR)
+      const hits: number[] = new Array(T);
+      const exceedances: { date: string; idx: number; ret: number; var: number }[] = [];
+      let n1 = 0;
+      for (let t = 0; t < T; t++) {
+        const v = -z * fit.portVol[t];
+        const breach = fit.portRet[t] < v ? 1 : 0;
+        hits[t] = breach;
+        if (breach) {
+          n1++;
+          exceedances.push({
+            date: fit.dates[t], idx: t,
+            ret: fit.portRet[t] * 100, var: v * 100,
+          });
+        }
+      }
+      const n0 = T - n1;
+      const piHat = n1 / T;
+      // Kupiec POF (LR_uc): -2 ln[ p^n1 (1-p)^n0 / piHat^n1 (1-piHat)^n0 ]
+      const safeLog = (x: number) => Math.log(Math.max(x, 1e-300));
+      const llNull = n1 * safeLog(p) + n0 * safeLog(1 - p);
+      const llAlt  = n1 * safeLog(piHat) + n0 * safeLog(1 - piHat);
+      const LR_uc = 2 * (llAlt - llNull);
+      const p_uc  = chiSqSurvival(LR_uc, 1);
+      // Christoffersen independence: count transitions n_ij
+      let n00 = 0, n01 = 0, n10 = 0, n11 = 0;
+      for (let t = 1; t < T; t++) {
+        const a = hits[t - 1], b = hits[t];
+        if (a === 0 && b === 0) n00++;
+        else if (a === 0 && b === 1) n01++;
+        else if (a === 1 && b === 0) n10++;
+        else n11++;
+      }
+      const pi01 = n01 / Math.max(n00 + n01, 1);
+      const pi11 = n11 / Math.max(n10 + n11, 1);
+      const piAll = (n01 + n11) / Math.max(n00 + n01 + n10 + n11, 1);
+      const llIndH0 = (n00 + n10) * safeLog(1 - piAll) + (n01 + n11) * safeLog(piAll);
+      const llIndH1 = n00 * safeLog(1 - pi01) + n01 * safeLog(pi01)
+                    + n10 * safeLog(1 - pi11) + n11 * safeLog(pi11);
+      const LR_ind = 2 * (llIndH1 - llIndH0);
+      const p_ind  = chiSqSurvival(LR_ind, 1);
+      const LR_cc  = LR_uc + LR_ind;
+      const p_cc   = chiSqSurvival(LR_cc, 2);
+      const expected = T * p;
+      return {
+        alpha, p, T, n1, expected, piHat,
+        LR_uc, p_uc, LR_ind, p_ind, LR_cc, p_cc,
+        n00, n01, n10, n11, exceedances,
+      };
+    };
+    return { c95: compute(0.95), c99: compute(0.99) };
+  }, [fit]);
+
+  /* Cumulative breaches series for the chart (current vaRConf) */
+  const breachSeries = useMemo(() => {
+    if (!fit || !backtest) return [];
+    const cur = vaRConf === 0.95 ? backtest.c95 : backtest.c99;
+    const z = vaRConf === 0.95 ? Z_95 : Z_99;
+    let cumExp = 0, cumAct = 0;
+    return fit.dates.map((dt, t) => {
+      cumExp += cur.p;
+      const breach = fit.portRet[t] < -z * fit.portVol[t] ? 1 : 0;
+      cumAct += breach;
+      return {
+        date: dt, idx: t,
+        expected: cumExp,
+        actual: cumAct,
+        ret: fit.portRet[t] * 100,
+        var: -z * fit.portVol[t] * 100,
+        breach: breach ? fit.portRet[t] * 100 : null,
+      };
+    });
+  }, [fit, backtest, vaRConf]);
+
+
   const corrPairs = useMemo(() => {
     const d = assets.length;
     const out: { key: string; color: string }[] = [];
