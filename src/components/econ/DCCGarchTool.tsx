@@ -912,13 +912,13 @@ export const DCCGarchTool = () => {
             <h4 className="text-sm font-mono uppercase tracking-wider text-foreground">
               组合时变波动率 & VaR
             </h4>
-            <div className="flex gap-1">
-              {([0.95, 0.99] as const).map(c => (
+            <div className="flex flex-wrap items-center gap-1">
+              {vaRLevels.map(c => (
                 <button key={c} onClick={() => setVaRConf(c)}
                   className={`px-2 py-1 rounded text-[10px] font-mono ${
-                    vaRConf === c ? "bg-gold/20 text-gold" : "text-muted-foreground hover:text-foreground"
+                    Math.abs(vaRConf - c) < 1e-9 ? "bg-gold/20 text-gold" : "text-muted-foreground hover:text-foreground"
                   }`}>
-                  {(c * 100).toFixed(0)}%
+                  {(c * 100).toFixed(c >= 0.999 ? 2 : 1).replace(/\.0$/, "")}%
                 </button>
               ))}
             </div>
