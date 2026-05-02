@@ -1156,7 +1156,7 @@ export const DCCGarchTool = () => {
               </ResponsiveContainer>
               <p className="text-[10px] text-muted-foreground/80 mt-1">
                 <InlineMath math={`I_t = \\mathbf{1}\\{r_{p,t} < -z_\\alpha \\sigma_{p,t}\\}`} />
-                {" "}— 期望频率 {(vaRConf === 0.95 ? 5 : 1)}%。簇集出现的红点提示违约非独立 → Christoffersen 拒绝 H0。
+                {" "}— 期望频率 {((1 - vaRConf) * 100).toFixed(2).replace(/\.?0+$/, "")}%。簇集出现的红点提示违约非独立 → Christoffersen 拒绝 H0。
               </p>
             </div>
           )}
