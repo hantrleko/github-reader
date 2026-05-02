@@ -628,7 +628,7 @@ export const DCCGarchTool = () => {
 
   const portSeries = useMemo(() => {
     if (!fit) return [];
-    const z = vaRConf === 0.95 ? Z_95 : Z_99;
+    const z = zAlpha(vaRConf);
     return fit.dates.map((dt, t) => ({
       date: dt, idx: t,
       vol: fit.portVol[t] * 100,
@@ -641,7 +641,7 @@ export const DCCGarchTool = () => {
   const backtest = useMemo(() => {
     if (!fit || fit.portRet.length < 30) return null;
     const compute = (alpha: number) => {
-      const z = alpha === 0.95 ? Z_95 : Z_99;
+      const z = zAlpha(alpha);
       const p = 1 - alpha;
       const T = fit.portRet.length;
       // Hit indicator I_t = 1 if r_t < -z·σ_t  (loss exceeds VaR)
@@ -694,14 +694,15 @@ export const DCCGarchTool = () => {
         n00, n01, n10, n11, exceedances,
       };
     };
-    return { c95: compute(0.95), c99: compute(0.99) };
-  }, [fit]);
+    const results = vaRLevels.map(compute);
+    return { results, byLevel: Object.fromEntries(results.map(r => [r.alpha, r])) };
+  }, [fit, vaRLevels]);
 
   /* Cumulative breaches series for the chart (current vaRConf) */
   const breachSeries = useMemo(() => {
     if (!fit || !backtest) return [];
-    const cur = vaRConf === 0.95 ? backtest.c95 : backtest.c99;
-    const z = vaRConf === 0.95 ? Z_95 : Z_99;
+    const cur = backtest.byLevel[vaRConf] ?? backtest.results[0];
+    const z = zAlpha(vaRConf);
     let cumExp = 0, cumAct = 0;
     return fit.dates.map((dt, t) => {
       cumExp += cur.p;
