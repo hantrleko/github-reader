@@ -57,6 +57,56 @@ function normCdf(x: number): number {
 const Z_95 = 1.6449;
 const Z_99 = 2.3263;
 
+/* ──────────────── Chi-squared survival (df=1,2) via series ──────────────── */
+/* Lanczos log-gamma */
+function logGamma(z: number): number {
+  const g = 7;
+  const c = [
+    0.99999999999980993, 676.5203681218851, -1259.1392167224028,
+    771.32342877765313, -176.61502916214059, 12.507343278686905,
+    -0.13857109526572012, 9.9843695780195716e-6, 1.5056327351493116e-7,
+  ];
+  if (z < 0.5) return Math.log(Math.PI / Math.sin(Math.PI * z)) - logGamma(1 - z);
+  z -= 1;
+  let x = c[0];
+  for (let i = 1; i < g + 2; i++) x += c[i] / (z + i);
+  const t = z + g + 0.5;
+  return 0.5 * Math.log(2 * Math.PI) + (z + 0.5) * Math.log(t) - t + Math.log(x);
+}
+/* Lower regularised incomplete gamma P(a,x) via series + continued fraction */
+function regLowerGamma(a: number, x: number): number {
+  if (x <= 0) return 0;
+  if (x < a + 1) {
+    // series
+    let term = 1 / a, sum = term;
+    for (let n = 1; n < 200; n++) {
+      term *= x / (a + n);
+      sum += term;
+      if (Math.abs(term) < Math.abs(sum) * 1e-12) break;
+    }
+    return sum * Math.exp(-x + a * Math.log(x) - logGamma(a));
+  } else {
+    // continued fraction for Q, then 1-Q
+    let b = x + 1 - a, c = 1 / 1e-30, d = 1 / b, h = d;
+    for (let i = 1; i < 200; i++) {
+      const an = -i * (i - a);
+      b += 2;
+      d = an * d + b; if (Math.abs(d) < 1e-30) d = 1e-30;
+      c = b + an / c; if (Math.abs(c) < 1e-30) c = 1e-30;
+      d = 1 / d;
+      const del = d * c;
+      h *= del;
+      if (Math.abs(del - 1) < 1e-12) break;
+    }
+    const Q = Math.exp(-x + a * Math.log(x) - logGamma(a)) * h;
+    return 1 - Q;
+  }
+}
+function chiSqSurvival(stat: number, df: number): number {
+  if (!isFinite(stat) || stat <= 0) return 1;
+  return 1 - regLowerGamma(df / 2, stat / 2);
+}
+
 /* ──────────────── Asset spec & built-in offline panel ──────────────── */
 export type DataMode = "offline" | "live";
 export interface AssetSpec {
@@ -557,6 +607,88 @@ export const DCCGarchTool = () => {
     }));
   }, [fit, vaRConf]);
 
+  /* ---------- VaR back-test (Kupiec POF + Christoffersen independence/CC) ---------- */
+  const backtest = useMemo(() => {
+    if (!fit || fit.portRet.length < 30) return null;
+    const compute = (alpha: number) => {
+      const z = alpha === 0.95 ? Z_95 : Z_99;
+      const p = 1 - alpha;
+      const T = fit.portRet.length;
+      // Hit indicator I_t = 1 if r_t < -z·σ_t  (loss exceeds VaR)
+      const hits: number[] = new Array(T);
+      const exceedances: { date: string; idx: number; ret: number; var: number }[] = [];
+      let n1 = 0;
+      for (let t = 0; t < T; t++) {
+        const v = -z * fit.portVol[t];
+        const breach = fit.portRet[t] < v ? 1 : 0;
+        hits[t] = breach;
+        if (breach) {
+          n1++;
+          exceedances.push({
+            date: fit.dates[t], idx: t,
+            ret: fit.portRet[t] * 100, var: v * 100,
+          });
+        }
+      }
+      const n0 = T - n1;
+      const piHat = n1 / T;
+      // Kupiec POF (LR_uc): -2 ln[ p^n1 (1-p)^n0 / piHat^n1 (1-piHat)^n0 ]
+      const safeLog = (x: number) => Math.log(Math.max(x, 1e-300));
+      const llNull = n1 * safeLog(p) + n0 * safeLog(1 - p);
+      const llAlt  = n1 * safeLog(piHat) + n0 * safeLog(1 - piHat);
+      const LR_uc = 2 * (llAlt - llNull);
+      const p_uc  = chiSqSurvival(LR_uc, 1);
+      // Christoffersen independence: count transitions n_ij
+      let n00 = 0, n01 = 0, n10 = 0, n11 = 0;
+      for (let t = 1; t < T; t++) {
+        const a = hits[t - 1], b = hits[t];
+        if (a === 0 && b === 0) n00++;
+        else if (a === 0 && b === 1) n01++;
+        else if (a === 1 && b === 0) n10++;
+        else n11++;
+      }
+      const pi01 = n01 / Math.max(n00 + n01, 1);
+      const pi11 = n11 / Math.max(n10 + n11, 1);
+      const piAll = (n01 + n11) / Math.max(n00 + n01 + n10 + n11, 1);
+      const llIndH0 = (n00 + n10) * safeLog(1 - piAll) + (n01 + n11) * safeLog(piAll);
+      const llIndH1 = n00 * safeLog(1 - pi01) + n01 * safeLog(pi01)
+                    + n10 * safeLog(1 - pi11) + n11 * safeLog(pi11);
+      const LR_ind = 2 * (llIndH1 - llIndH0);
+      const p_ind  = chiSqSurvival(LR_ind, 1);
+      const LR_cc  = LR_uc + LR_ind;
+      const p_cc   = chiSqSurvival(LR_cc, 2);
+      const expected = T * p;
+      return {
+        alpha, p, T, n1, expected, piHat,
+        LR_uc, p_uc, LR_ind, p_ind, LR_cc, p_cc,
+        n00, n01, n10, n11, exceedances,
+      };
+    };
+    return { c95: compute(0.95), c99: compute(0.99) };
+  }, [fit]);
+
+  /* Cumulative breaches series for the chart (current vaRConf) */
+  const breachSeries = useMemo(() => {
+    if (!fit || !backtest) return [];
+    const cur = vaRConf === 0.95 ? backtest.c95 : backtest.c99;
+    const z = vaRConf === 0.95 ? Z_95 : Z_99;
+    let cumExp = 0, cumAct = 0;
+    return fit.dates.map((dt, t) => {
+      cumExp += cur.p;
+      const breach = fit.portRet[t] < -z * fit.portVol[t] ? 1 : 0;
+      cumAct += breach;
+      return {
+        date: dt, idx: t,
+        expected: cumExp,
+        actual: cumAct,
+        ret: fit.portRet[t] * 100,
+        var: -z * fit.portVol[t] * 100,
+        breach: breach ? fit.portRet[t] * 100 : null,
+      };
+    });
+  }, [fit, backtest, vaRConf]);
+
+
   const corrPairs = useMemo(() => {
     const d = assets.length;
     const out: { key: string; color: string }[] = [];
@@ -786,6 +918,164 @@ export const DCCGarchTool = () => {
             <InlineMath math={`\\text{VaR}_t^{${(vaRConf*100).toFixed(0)}\\%} = z_\\alpha \\cdot \\sqrt{w'\\Sigma_t w}`} />
             {" "}— 高斯分位数下的单日组合损失上界。注意危机期 σ_p 同时受单变量波动率与相关性飙升驱动。
           </p>
+        </div>
+      )}
+
+      {/* VaR back-testing panel: Kupiec POF + Christoffersen */}
+      {fit && backtest && (
+        <div className="rounded-lg border border-border/60 bg-card/30 p-4 space-y-4">
+          <div className="flex items-center justify-between flex-wrap gap-2">
+            <h4 className="text-sm font-mono uppercase tracking-wider text-foreground flex items-center gap-2">
+              <Activity className="w-4 h-4 text-gold" /> VaR 回测面板 — Kupiec / Christoffersen
+            </h4>
+            <span className="text-[10px] font-mono text-muted-foreground">
+              T = {backtest.c95.T} 天 · 当前可视化: {(vaRConf * 100).toFixed(0)}%
+            </span>
+          </div>
+
+          <div className="grid gap-3 md:grid-cols-2">
+            {([backtest.c95, backtest.c99] as const).map((bt) => {
+              const verdict = (pv: number) => pv < 0.05
+                ? { tag: "拒绝 H0", cls: "text-[hsl(0,70%,55%)]" }
+                : { tag: "接受 H0", cls: "text-[hsl(140,55%,45%)]" };
+              const vUC = verdict(bt.p_uc);
+              const vIND = verdict(bt.p_ind);
+              const vCC = verdict(bt.p_cc);
+              const isActive = (vaRConf * 100).toFixed(0) === (bt.alpha * 100).toFixed(0);
+              return (
+                <div key={bt.alpha}
+                  className={`rounded-md border p-3 ${
+                    isActive ? "border-gold/50 bg-gold/5" : "border-border/40 bg-card/40"
+                  }`}>
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="text-xs font-mono uppercase tracking-wider text-foreground">
+                      {(bt.alpha * 100).toFixed(0)}% VaR
+                    </div>
+                    <button
+                      onClick={() => setVaRConf(bt.alpha as 0.95 | 0.99)}
+                      className="text-[10px] font-mono text-muted-foreground hover:text-gold underline-offset-2 hover:underline">
+                      可视化此置信度
+                    </button>
+                  </div>
+                  <div className="grid grid-cols-3 gap-2 mb-3">
+                    <div className="rounded bg-secondary/30 p-2">
+                      <div className="text-[9px] font-mono uppercase text-muted-foreground">实际违约</div>
+                      <div className="text-base font-display tabular-nums text-foreground">{bt.n1}</div>
+                    </div>
+                    <div className="rounded bg-secondary/30 p-2">
+                      <div className="text-[9px] font-mono uppercase text-muted-foreground">期望</div>
+                      <div className="text-base font-display tabular-nums text-foreground">{bt.expected.toFixed(1)}</div>
+                    </div>
+                    <div className="rounded bg-secondary/30 p-2">
+                      <div className="text-[9px] font-mono uppercase text-muted-foreground">π̂</div>
+                      <div className="text-base font-display tabular-nums text-foreground">{(bt.piHat * 100).toFixed(2)}%</div>
+                    </div>
+                  </div>
+                  <table className="w-full text-[11px] font-mono">
+                    <thead>
+                      <tr className="text-muted-foreground border-b border-border/40">
+                        <th className="text-left py-1">检验</th>
+                        <th className="text-right">LR</th>
+                        <th className="text-right">df</th>
+                        <th className="text-right">p-value</th>
+                        <th className="text-right">结论</th>
+                      </tr>
+                    </thead>
+                    <tbody className="text-foreground tabular-nums">
+                      <tr className="border-b border-border/20">
+                        <td className="py-1 text-muted-foreground">Kupiec POF (覆盖率)</td>
+                        <td className="text-right">{bt.LR_uc.toFixed(3)}</td>
+                        <td className="text-right">1</td>
+                        <td className="text-right">{bt.p_uc.toFixed(4)}</td>
+                        <td className={`text-right ${vUC.cls}`}>{vUC.tag}</td>
+                      </tr>
+                      <tr className="border-b border-border/20">
+                        <td className="py-1 text-muted-foreground">Christoffersen IND (独立性)</td>
+                        <td className="text-right">{bt.LR_ind.toFixed(3)}</td>
+                        <td className="text-right">1</td>
+                        <td className="text-right">{bt.p_ind.toFixed(4)}</td>
+                        <td className={`text-right ${vIND.cls}`}>{vIND.tag}</td>
+                      </tr>
+                      <tr>
+                        <td className="py-1 text-muted-foreground">联合 CC (UC+IND)</td>
+                        <td className="text-right">{bt.LR_cc.toFixed(3)}</td>
+                        <td className="text-right">2</td>
+                        <td className="text-right">{bt.p_cc.toFixed(4)}</td>
+                        <td className={`text-right ${vCC.cls}`}>{vCC.tag}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                  <div className="text-[10px] text-muted-foreground/80 mt-2 leading-relaxed">
+                    转移计数 n₀₀={bt.n00} · n₀₁={bt.n01} · n₁₀={bt.n10} · n₁₁={bt.n11}
+                    {bt.n11 > 0 && " · ⚠ 出现连续违约"}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {breachSeries.length > 0 && (
+            <div>
+              <div className="text-[11px] font-mono uppercase tracking-wider text-muted-foreground mb-1">
+                累计违约次数: 实际 vs 期望 (α = {(vaRConf * 100).toFixed(0)}%)
+              </div>
+              <ResponsiveContainer width="100%" height={180}>
+                <LineChart data={breachSeries} margin={{ top: 5, right: 10, bottom: 0, left: -10 }}>
+                  <CartesianGrid stroke={CHART_GRID} strokeDasharray="3 3" />
+                  <XAxis dataKey="date" tick={{ fill: CHART_TEXT, fontSize: 10 }}
+                    interval={Math.floor(breachSeries.length / 8)} />
+                  <YAxis tick={{ fill: CHART_TEXT, fontSize: 10 }} />
+                  <Tooltip
+                    contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", fontSize: 11 }}
+                    formatter={(v: number) => v.toFixed(2)} />
+                  <Legend wrapperStyle={{ fontSize: 11 }} />
+                  <Line dataKey="expected" type="monotone" stroke={CHART_TEAL} dot={false}
+                    name="期望累计 (T·p)" strokeWidth={1.5} strokeDasharray="4 3" />
+                  <Line dataKey="actual" type="monotone" stroke={CHART_RED} dot={false}
+                    name="实际累计违约" strokeWidth={1.8} />
+                </LineChart>
+              </ResponsiveContainer>
+              <p className="text-[10px] text-muted-foreground/80 mt-1">
+                若实际曲线显著偏离期望线 → 模型 低估/高估 风险。Kupiec 检验等价于"两曲线终点是否显著不同"。
+              </p>
+            </div>
+          )}
+
+          {breachSeries.length > 0 && (
+            <div>
+              <div className="text-[11px] font-mono uppercase tracking-wider text-muted-foreground mb-1">
+                违约日标注 — 红点 = 损失击穿 VaR
+              </div>
+              <ResponsiveContainer width="100%" height={200}>
+                <ComposedChart data={breachSeries} margin={{ top: 5, right: 10, bottom: 0, left: -10 }}>
+                  <CartesianGrid stroke={CHART_GRID} strokeDasharray="3 3" />
+                  <XAxis dataKey="date" tick={{ fill: CHART_TEXT, fontSize: 10 }}
+                    interval={Math.floor(breachSeries.length / 8)} />
+                  <YAxis tick={{ fill: CHART_TEXT, fontSize: 10 }} />
+                  <Tooltip
+                    contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", fontSize: 11 }}
+                    formatter={(v: number | null) => v == null ? "—" : `${v.toFixed(3)}%`} />
+                  <Legend wrapperStyle={{ fontSize: 11 }} />
+                  <ReferenceLine y={0} stroke={CHART_TEXT} strokeDasharray="3 3" />
+                  <Line dataKey="ret" type="monotone" stroke={CHART_TEAL} dot={false}
+                    name="组合日收益" strokeWidth={1} />
+                  <Line dataKey="var" type="monotone" stroke={CHART_RED} dot={false}
+                    name={`VaR 阈值 (${(vaRConf*100).toFixed(0)}%)`} strokeWidth={1.5} strokeDasharray="4 3" />
+                  <Scatter dataKey="breach" fill={CHART_RED} name="违约" shape="circle" />
+                </ComposedChart>
+              </ResponsiveContainer>
+              <p className="text-[10px] text-muted-foreground/80 mt-1">
+                <InlineMath math={`I_t = \\mathbf{1}\\{r_{p,t} < -z_\\alpha \\sigma_{p,t}\\}`} />
+                {" "}— 期望频率 {(vaRConf === 0.95 ? 5 : 1)}%。簇集出现的红点提示违约非独立 → Christoffersen 拒绝 H0。
+              </p>
+            </div>
+          )}
+
+          <div className="rounded-md border border-gold/20 bg-gold/5 p-3 text-[11px] text-foreground/90 space-y-1">
+            <div className="font-mono text-[10px] uppercase tracking-[0.25em] text-gold mb-1">检验公式</div>
+            <div>Kupiec POF: <InlineMath math={`LR_{uc} = -2\\ln\\frac{(1-p)^{n_0} p^{n_1}}{(1-\\hat\\pi)^{n_0}\\hat\\pi^{n_1}} \\sim \\chi^2_1`} /></div>
+            <div>Christoffersen IND: <InlineMath math={`LR_{ind} \\sim \\chi^2_1`} /> · 条件覆盖 <InlineMath math={`LR_{cc} = LR_{uc} + LR_{ind} \\sim \\chi^2_2`} /></div>
+          </div>
         </div>
       )}
 
