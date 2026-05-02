@@ -960,33 +960,92 @@ export const DCCGarchTool = () => {
               <Activity className="w-4 h-4 text-gold" /> VaR 回测面板 — Kupiec / Christoffersen
             </h4>
             <span className="text-[10px] font-mono text-muted-foreground">
-              T = {backtest.c95.T} 天 · 当前可视化: {(vaRConf * 100).toFixed(0)}%
+              T = {backtest.results[0]?.T ?? 0} 天 · 当前可视化: {(vaRConf * 100).toFixed(2).replace(/\.?0+$/, "")}%
             </span>
           </div>
 
-          <div className="grid gap-3 md:grid-cols-2">
-            {([backtest.c95, backtest.c99] as const).map((bt) => {
+          {/* Confidence-level selector: presets + custom α */}
+          <div className="flex flex-wrap items-center gap-2 rounded-md border border-border/40 bg-card/40 p-2">
+            <span className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">置信度 α</span>
+            {[0.90, 0.95, 0.975, 0.99, 0.995].map(lv => {
+              const on = vaRLevels.some(x => Math.abs(x - lv) < 1e-9);
+              return (
+                <button key={lv}
+                  onClick={() => setVaRLevels(prev => {
+                    const has = prev.some(x => Math.abs(x - lv) < 1e-9);
+                    const next = has ? prev.filter(x => Math.abs(x - lv) >= 1e-9) : [...prev, lv].sort((a,b)=>a-b);
+                    if (has && Math.abs(vaRConf - lv) < 1e-9 && next.length) setVaRConf(next[0]);
+                    return next.length ? next : prev;
+                  })}
+                  className={`px-2 py-1 rounded text-[10px] font-mono border ${
+                    on ? "border-gold/50 bg-gold/15 text-gold" : "border-border/40 text-muted-foreground hover:text-foreground"
+                  }`}>
+                  {(lv * 100).toFixed(lv >= 0.995 ? 1 : (lv === 0.975 ? 1 : 0))}%
+                </button>
+              );
+            })}
+            <div className="flex items-center gap-1 ml-2">
+              <span className="text-[10px] font-mono text-muted-foreground">自定义</span>
+              <input
+                type="number" min={50} max={99.99} step={0.1}
+                value={customConf}
+                onChange={(e) => setCustomConf(e.target.value)}
+                className="w-16 h-7 px-2 rounded bg-background border border-border/50 text-[11px] font-mono tabular-nums"
+              />
+              <span className="text-[10px] font-mono text-muted-foreground">%</span>
+              <button
+                onClick={() => {
+                  const v = parseFloat(customConf);
+                  if (!Number.isFinite(v) || v <= 50 || v >= 99.999) return;
+                  const lv = v / 100;
+                  setVaRLevels(prev => prev.some(x => Math.abs(x - lv) < 1e-6)
+                    ? prev
+                    : [...prev, lv].sort((a,b)=>a-b));
+                  setVaRConf(lv);
+                }}
+                className="px-2 py-1 rounded text-[10px] font-mono border border-gold/40 text-gold hover:bg-gold/10">
+                添加
+              </button>
+            </div>
+          </div>
+
+          <div className={`grid gap-3 ${backtest.results.length >= 3 ? "md:grid-cols-3" : "md:grid-cols-2"}`}>
+            {backtest.results.map((bt) => {
               const verdict = (pv: number) => pv < 0.05
                 ? { tag: "拒绝 H0", cls: "text-[hsl(0,70%,55%)]" }
                 : { tag: "接受 H0", cls: "text-[hsl(140,55%,45%)]" };
               const vUC = verdict(bt.p_uc);
               const vIND = verdict(bt.p_ind);
               const vCC = verdict(bt.p_cc);
-              const isActive = (vaRConf * 100).toFixed(0) === (bt.alpha * 100).toFixed(0);
+              const isActive = Math.abs(vaRConf - bt.alpha) < 1e-9;
               return (
                 <div key={bt.alpha}
                   className={`rounded-md border p-3 ${
                     isActive ? "border-gold/50 bg-gold/5" : "border-border/40 bg-card/40"
                   }`}>
-                  <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center justify-between mb-2 gap-2">
                     <div className="text-xs font-mono uppercase tracking-wider text-foreground">
-                      {(bt.alpha * 100).toFixed(0)}% VaR
+                      {(bt.alpha * 100).toFixed(2).replace(/\.?0+$/, "")}% VaR
+                      <span className="ml-1 text-[9px] text-muted-foreground">z={zAlpha(bt.alpha).toFixed(3)}</span>
                     </div>
-                    <button
-                      onClick={() => setVaRConf(bt.alpha as 0.95 | 0.99)}
-                      className="text-[10px] font-mono text-muted-foreground hover:text-gold underline-offset-2 hover:underline">
-                      可视化此置信度
-                    </button>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => setVaRConf(bt.alpha)}
+                        className="text-[10px] font-mono text-muted-foreground hover:text-gold underline-offset-2 hover:underline">
+                        可视化
+                      </button>
+                      {backtest.results.length > 1 && (
+                        <button
+                          onClick={() => setVaRLevels(prev => {
+                            const next = prev.filter(x => Math.abs(x - bt.alpha) >= 1e-9);
+                            if (Math.abs(vaRConf - bt.alpha) < 1e-9 && next.length) setVaRConf(next[0]);
+                            return next.length ? next : prev;
+                          })}
+                          className="text-[10px] font-mono text-muted-foreground hover:text-[hsl(0,70%,55%)]">
+                          ✕
+                        </button>
+                      )}
+                    </div>
                   </div>
                   <div className="grid grid-cols-3 gap-2 mb-3">
                     <div className="rounded bg-secondary/30 p-2">
