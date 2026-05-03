@@ -1240,7 +1240,7 @@ export const DCCGarchTool = () => {
               </div>
               <div className="rounded border border-border/30 bg-secondary/20 p-2">
                 <div className="font-mono text-foreground mb-1">Monte-Carlo Bootstrap</div>
-                <div>在 H₀:<span className="font-mono">I<sub>t</sub> ~ iid Bernoulli(p)</span> 下重抽 <span className="font-mono">B=2000</span> 条命中序列,经验分位数估计 p-value(<span className="font-mono">(#≥obs+1)/(B+1)</span>)。</div>
+                <div>在 H₀:<span className="font-mono">I<sub>t</sub> ~ iid Bernoulli(p)</span> 下重抽 <span className="font-mono text-foreground">B={mcB}</span> 条命中序列,经验分位数估计 p-value(<span className="font-mono">(#≥obs+1)/(B+1)</span>)。可在上方切换 B ∈ {`{500, 1k, 2k, 5k, 10k}`} 实时刷新。</div>
                 <div className="mt-1"><span className="text-foreground">适用条件:</span> 任意样本量,尤其推荐 <span className="font-mono">T·p &lt; 10</span> 或高 α(99%+)。</div>
                 <div className="mt-1"><span className="text-foreground">优点:</span> 有限样本精确,不依赖渐近;<span className="text-foreground">缺点:</span> 计算开销 O(B·T),且仅检验"<em>iid</em> Bernoulli"——若交易日波动结构性变化,H₀ 本身可能失真。</div>
               </div>
