@@ -1099,6 +1099,26 @@ export const DCCGarchTool = () => {
                     转移计数 n₀₀={bt.n00} · n₀₁={bt.n01} · n₁₀={bt.n10} · n₁₁={bt.n11}
                     {bt.n11 > 0 && " · ⚠ 出现连续违约"}
                   </div>
+                  {(() => {
+                    const lowExp = bt.expected < 5;
+                    const lowAct = bt.n1 < 5;
+                    const zeroAct = bt.n1 === 0;
+                    if (!lowExp && !lowAct) return null;
+                    const msgs: string[] = [];
+                    if (zeroAct) {
+                      msgs.push(`实际违约 = 0,Kupiec/Christoffersen LR 退化(π̂=0),p-value 不可靠`);
+                    } else if (lowAct) {
+                      msgs.push(`实际违约 n₁=${bt.n1} < 5,χ² 渐近近似不稳定`);
+                    }
+                    if (lowExp) {
+                      msgs.push(`期望违约 ${bt.expected.toFixed(1)} < 5(T=${bt.T},α=${(bt.alpha * 100).toFixed(2).replace(/\.?0+$/, "")}%),建议增大样本或降低置信水平`);
+                    }
+                    return (
+                      <div className="mt-2 rounded border border-[hsl(38,92%,50%)]/40 bg-[hsl(38,92%,50%)]/10 px-2 py-1.5 text-[10px] leading-relaxed text-[hsl(38,92%,40%)] dark:text-[hsl(38,92%,65%)]">
+                        ⚠ <span className="font-mono uppercase tracking-wider">样本不足</span> · {msgs.join(" · ")}
+                      </div>
+                    );
+                  })()}
                 </div>
               );
             })}
