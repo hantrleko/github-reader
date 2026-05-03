@@ -1202,6 +1202,30 @@ export const DCCGarchTool = () => {
             })}
           </div>
 
+          {/* p-value 方法说明 */}
+          <div className="rounded-md border border-border/40 bg-card/40 p-3 text-[11px] leading-relaxed">
+            <div className="text-[11px] font-mono uppercase tracking-wider text-gold mb-2">
+              p-value 方法对照 — χ² 渐近 vs Monte-Carlo Bootstrap
+            </div>
+            <div className="grid md:grid-cols-2 gap-3 text-muted-foreground">
+              <div className="rounded border border-border/30 bg-secondary/20 p-2">
+                <div className="font-mono text-foreground mb-1">χ² 渐近近似</div>
+                <div>依据 Wilks 定理:<span className="font-mono">2(ℓ₁−ℓ₀) →ᵈ χ²<sub>k</sub></span>。</div>
+                <div className="mt-1"><span className="text-foreground">适用条件:</span> 样本充足,通常要求 期望违约 <span className="font-mono">T·p ≥ 10</span> 且 实际违约 <span className="font-mono">n₁ ≥ 10</span>。</div>
+                <div className="mt-1"><span className="text-foreground">优点:</span> 解析、瞬时;<span className="text-foreground">缺点:</span> 小样本下 LR 分布偏离 χ²,p-value 偏小 → 易误拒 H₀;当 <span className="font-mono">n₁=0</span> 或独立性表格存在零行/零列时退化。</div>
+              </div>
+              <div className="rounded border border-border/30 bg-secondary/20 p-2">
+                <div className="font-mono text-foreground mb-1">Monte-Carlo Bootstrap</div>
+                <div>在 H₀:<span className="font-mono">I<sub>t</sub> ~ iid Bernoulli(p)</span> 下重抽 <span className="font-mono">B=2000</span> 条命中序列,经验分位数估计 p-value(<span className="font-mono">(#≥obs+1)/(B+1)</span>)。</div>
+                <div className="mt-1"><span className="text-foreground">适用条件:</span> 任意样本量,尤其推荐 <span className="font-mono">T·p &lt; 10</span> 或高 α(99%+)。</div>
+                <div className="mt-1"><span className="text-foreground">优点:</span> 有限样本精确,不依赖渐近;<span className="text-foreground">缺点:</span> 计算开销 O(B·T),且仅检验"<em>iid</em> Bernoulli"——若交易日波动结构性变化,H₀ 本身可能失真。</div>
+              </div>
+            </div>
+            <div className="mt-2 text-[10px] text-muted-foreground/80 font-mono">
+              本工具策略: 当 <span className="text-foreground">期望违约 &lt; 10</span> 或 <span className="text-foreground">实际违约 &lt; 10</span> 时自动切换为 MC Bootstrap;否则使用 χ² 渐近。MC 模式下卡片内会同时展示 χ² 对照,便于诊断两者的差异。
+            </div>
+          </div>
+
           {breachSeries.length > 0 && (
             <div>
               <div className="text-[11px] font-mono uppercase tracking-wider text-muted-foreground mb-1">
