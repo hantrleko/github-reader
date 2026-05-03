@@ -1070,6 +1070,28 @@ export const DCCGarchTool = () => {
                 添加
               </button>
             </div>
+            <div className="flex items-center gap-1 ml-auto pl-2 border-l border-border/40">
+              <span className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">MC B</span>
+              {[500, 1000, 2000, 5000, 10000].map(b => (
+                <button key={b}
+                  onClick={() => setMcB(b)}
+                  className={`px-2 py-1 rounded text-[10px] font-mono border ${
+                    mcB === b ? "border-gold/50 bg-gold/15 text-gold" : "border-border/40 text-muted-foreground hover:text-foreground"
+                  }`}>
+                  {b >= 1000 ? `${b/1000}k` : b}
+                </button>
+              ))}
+              <input
+                type="number" min={100} max={50000} step={100}
+                value={mcB}
+                onChange={(e) => {
+                  const v = parseInt(e.target.value, 10);
+                  if (Number.isFinite(v) && v >= 100 && v <= 50000) setMcB(v);
+                }}
+                className="w-20 h-7 px-2 rounded bg-background border border-border/50 text-[11px] font-mono tabular-nums"
+                title="自定义重抽次数 (100–50000)"
+              />
+            </div>
           </div>
 
           <div className={`grid gap-3 ${backtest.results.length >= 3 ? "md:grid-cols-3" : "md:grid-cols-2"}`}>
