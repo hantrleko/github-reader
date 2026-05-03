@@ -744,7 +744,7 @@ export const DCCGarchTool = () => {
       let p_uc = p_uc_chi, p_ind = p_ind_chi, p_cc = p_cc_chi;
       let mcInfo: { B: number } | null = null;
       if (useMC) {
-        const mc = mcPValues(T, p, { uc: LR_uc, ind: LR_ind, cc: LR_cc }, 2000);
+        const mc = mcPValues(T, p, { uc: LR_uc, ind: LR_ind, cc: LR_cc }, mcB);
         p_uc = mc.p_uc; p_ind = mc.p_ind; p_cc = mc.p_cc;
         mcInfo = { B: mc.B };
       }
@@ -759,7 +759,7 @@ export const DCCGarchTool = () => {
     };
     const results = vaRLevels.map(compute);
     return { results, byLevel: Object.fromEntries(results.map(r => [r.alpha, r])) };
-  }, [fit, vaRLevels]);
+  }, [fit, vaRLevels, mcB]);
 
   /* Cumulative breaches series for the chart (current vaRConf) */
   const breachSeries = useMemo(() => {
