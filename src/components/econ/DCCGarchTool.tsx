@@ -640,6 +640,54 @@ export const DCCGarchTool = () => {
   /* ---------- VaR back-test (Kupiec POF + Christoffersen independence/CC) ---------- */
   const backtest = useMemo(() => {
     if (!fit || fit.portRet.length < 30) return null;
+    // Helper: compute LR_uc, LR_ind, LR_cc from a hits sequence
+    const lrFromHits = (hits: number[], p: number) => {
+      const safeLog = (x: number) => Math.log(Math.max(x, 1e-300));
+      const T = hits.length;
+      let n1 = 0;
+      for (let t = 0; t < T; t++) n1 += hits[t];
+      const n0 = T - n1;
+      const piHat = n1 / T;
+      const llNull = n1 * safeLog(p) + n0 * safeLog(1 - p);
+      const llAlt  = n1 * safeLog(piHat) + n0 * safeLog(1 - piHat);
+      const LR_uc = 2 * (llAlt - llNull);
+      let n00 = 0, n01 = 0, n10 = 0, n11 = 0;
+      for (let t = 1; t < T; t++) {
+        const a = hits[t - 1], b = hits[t];
+        if (a === 0 && b === 0) n00++;
+        else if (a === 0 && b === 1) n01++;
+        else if (a === 1 && b === 0) n10++;
+        else n11++;
+      }
+      const pi01 = n01 / Math.max(n00 + n01, 1);
+      const pi11 = n11 / Math.max(n10 + n11, 1);
+      const piAll = (n01 + n11) / Math.max(n00 + n01 + n10 + n11, 1);
+      const llIndH0 = (n00 + n10) * safeLog(1 - piAll) + (n01 + n11) * safeLog(piAll);
+      const llIndH1 = n00 * safeLog(1 - pi01) + n01 * safeLog(pi01)
+                    + n10 * safeLog(1 - pi11) + n11 * safeLog(pi11);
+      const LR_ind = 2 * (llIndH1 - llIndH0);
+      const LR_cc  = LR_uc + LR_ind;
+      return { n1, n0, piHat, n00, n01, n10, n11, LR_uc, LR_ind, LR_cc };
+    };
+    // Monte-Carlo p-value under H0: hits ~ iid Bernoulli(p)
+    const mcPValues = (T: number, p: number, obs: { uc: number; ind: number; cc: number }, B = 2000) => {
+      let cUC = 0, cIND = 0, cCC = 0;
+      const sim: number[] = new Array(T);
+      for (let b = 0; b < B; b++) {
+        for (let t = 0; t < T; t++) sim[t] = Math.random() < p ? 1 : 0;
+        const s = lrFromHits(sim, p);
+        // Use ≥ (one-sided LR upper tail). +1 smoothing for finite-sample p-value.
+        if (s.LR_uc  >= obs.uc)  cUC++;
+        if (s.LR_ind >= obs.ind) cIND++;
+        if (s.LR_cc  >= obs.cc)  cCC++;
+      }
+      return {
+        p_uc:  (cUC  + 1) / (B + 1),
+        p_ind: (cIND + 1) / (B + 1),
+        p_cc:  (cCC  + 1) / (B + 1),
+        B,
+      };
+    };
     const compute = (alpha: number) => {
       const z = zAlpha(alpha);
       const p = 1 - alpha;
@@ -667,7 +715,7 @@ export const DCCGarchTool = () => {
       const llNull = n1 * safeLog(p) + n0 * safeLog(1 - p);
       const llAlt  = n1 * safeLog(piHat) + n0 * safeLog(1 - piHat);
       const LR_uc = 2 * (llAlt - llNull);
-      const p_uc  = chiSqSurvival(LR_uc, 1);
+      const p_uc_chi  = chiSqSurvival(LR_uc, 1);
       // Christoffersen independence: count transitions n_ij
       let n00 = 0, n01 = 0, n10 = 0, n11 = 0;
       for (let t = 1; t < T; t++) {
@@ -684,13 +732,26 @@ export const DCCGarchTool = () => {
       const llIndH1 = n00 * safeLog(1 - pi01) + n01 * safeLog(pi01)
                     + n10 * safeLog(1 - pi11) + n11 * safeLog(pi11);
       const LR_ind = 2 * (llIndH1 - llIndH0);
-      const p_ind  = chiSqSurvival(LR_ind, 1);
+      const p_ind_chi  = chiSqSurvival(LR_ind, 1);
       const LR_cc  = LR_uc + LR_ind;
-      const p_cc   = chiSqSurvival(LR_cc, 2);
+      const p_cc_chi   = chiSqSurvival(LR_cc, 2);
       const expected = T * p;
+      // Auto-switch to Monte-Carlo bootstrap when chi-sq asymptotics unreliable
+      // Trigger if expected breaches < 10 or actual breaches < 10 (incl. zero).
+      const useMC = expected < 10 || n1 < 10;
+      let p_uc = p_uc_chi, p_ind = p_ind_chi, p_cc = p_cc_chi;
+      let mcInfo: { B: number } | null = null;
+      if (useMC) {
+        const mc = mcPValues(T, p, { uc: LR_uc, ind: LR_ind, cc: LR_cc }, 2000);
+        p_uc = mc.p_uc; p_ind = mc.p_ind; p_cc = mc.p_cc;
+        mcInfo = { B: mc.B };
+      }
       return {
         alpha, p, T, n1, expected, piHat,
         LR_uc, p_uc, LR_ind, p_ind, LR_cc, p_cc,
+        p_uc_chi, p_ind_chi, p_cc_chi,
+        method: useMC ? "mc" as const : "chi2" as const,
+        mcInfo,
         n00, n01, n10, n11, exceedances,
       };
     };
