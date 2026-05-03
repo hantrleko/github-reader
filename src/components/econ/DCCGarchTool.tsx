@@ -460,6 +460,8 @@ export const DCCGarchTool = () => {
   const [vaRLevels, setVaRLevels] = useState<number[]>([0.90, 0.95, 0.99]);
   const [vaRConf, setVaRConf] = useState<number>(0.95);
   const [customConf, setCustomConf] = useState<string>("97.5");
+  // Monte-Carlo bootstrap resample count B (user-configurable)
+  const [mcB, setMcB] = useState<number>(2000);
   const [snapshotIdx, setSnapshotIdx] = useState<number>(0); // for heatmap slider
   const [running, setRunning] = useState(false);
   const [fit, setFit] = useState<{
