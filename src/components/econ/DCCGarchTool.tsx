@@ -1156,6 +1156,23 @@ export const DCCGarchTool = () => {
                       </tr>
                     </tbody>
                   </table>
+                  <div className="flex items-center justify-between mt-2 text-[10px] font-mono">
+                    <span className="text-muted-foreground">p-value 方法</span>
+                    {bt.method === "mc" ? (
+                      <span className="px-1.5 py-0.5 rounded bg-gold/15 text-gold border border-gold/30">
+                        Monte-Carlo Bootstrap (B={bt.mcInfo?.B ?? 0})
+                      </span>
+                    ) : (
+                      <span className="px-1.5 py-0.5 rounded bg-secondary/40 text-muted-foreground border border-border/40">
+                        χ² 渐近近似
+                      </span>
+                    )}
+                  </div>
+                  {bt.method === "mc" && (
+                    <div className="text-[9.5px] text-muted-foreground/80 mt-1 leading-relaxed font-mono">
+                      χ² 对照: p_uc={bt.p_uc_chi.toFixed(4)} · p_ind={bt.p_ind_chi.toFixed(4)} · p_cc={bt.p_cc_chi.toFixed(4)}
+                    </div>
+                  )}
                   <div className="text-[10px] text-muted-foreground/80 mt-2 leading-relaxed">
                     转移计数 n₀₀={bt.n00} · n₀₁={bt.n01} · n₁₀={bt.n10} · n₁₁={bt.n11}
                     {bt.n11 > 0 && " · ⚠ 出现连续违约"}
@@ -1167,9 +1184,9 @@ export const DCCGarchTool = () => {
                     if (!lowExp && !lowAct) return null;
                     const msgs: string[] = [];
                     if (zeroAct) {
-                      msgs.push(`实际违约 = 0,Kupiec/Christoffersen LR 退化(π̂=0),p-value 不可靠`);
+                      msgs.push(`实际违约 = 0,LR 退化 → 已切换 Monte-Carlo bootstrap`);
                     } else if (lowAct) {
-                      msgs.push(`实际违约 n₁=${bt.n1} < 5,χ² 渐近近似不稳定`);
+                      msgs.push(`实际违约 n₁=${bt.n1} < 5,χ² 渐近不稳定 → 已切换 MC bootstrap`);
                     }
                     if (lowExp) {
                       msgs.push(`期望违约 ${bt.expected.toFixed(1)} < 5(T=${bt.T},α=${(bt.alpha * 100).toFixed(2).replace(/\.?0+$/, "")}%),建议增大样本或降低置信水平`);
