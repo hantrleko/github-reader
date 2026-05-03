@@ -460,6 +460,8 @@ export const DCCGarchTool = () => {
   const [vaRLevels, setVaRLevels] = useState<number[]>([0.90, 0.95, 0.99]);
   const [vaRConf, setVaRConf] = useState<number>(0.95);
   const [customConf, setCustomConf] = useState<string>("97.5");
+  // Monte-Carlo bootstrap resample count B (user-configurable)
+  const [mcB, setMcB] = useState<number>(2000);
   const [snapshotIdx, setSnapshotIdx] = useState<number>(0); // for heatmap slider
   const [running, setRunning] = useState(false);
   const [fit, setFit] = useState<{
@@ -742,7 +744,7 @@ export const DCCGarchTool = () => {
       let p_uc = p_uc_chi, p_ind = p_ind_chi, p_cc = p_cc_chi;
       let mcInfo: { B: number } | null = null;
       if (useMC) {
-        const mc = mcPValues(T, p, { uc: LR_uc, ind: LR_ind, cc: LR_cc }, 2000);
+        const mc = mcPValues(T, p, { uc: LR_uc, ind: LR_ind, cc: LR_cc }, mcB);
         p_uc = mc.p_uc; p_ind = mc.p_ind; p_cc = mc.p_cc;
         mcInfo = { B: mc.B };
       }
@@ -757,7 +759,7 @@ export const DCCGarchTool = () => {
     };
     const results = vaRLevels.map(compute);
     return { results, byLevel: Object.fromEntries(results.map(r => [r.alpha, r])) };
-  }, [fit, vaRLevels]);
+  }, [fit, vaRLevels, mcB]);
 
   /* Cumulative breaches series for the chart (current vaRConf) */
   const breachSeries = useMemo(() => {
@@ -1068,6 +1070,28 @@ export const DCCGarchTool = () => {
                 添加
               </button>
             </div>
+            <div className="flex items-center gap-1 ml-auto pl-2 border-l border-border/40">
+              <span className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">MC B</span>
+              {[500, 1000, 2000, 5000, 10000].map(b => (
+                <button key={b}
+                  onClick={() => setMcB(b)}
+                  className={`px-2 py-1 rounded text-[10px] font-mono border ${
+                    mcB === b ? "border-gold/50 bg-gold/15 text-gold" : "border-border/40 text-muted-foreground hover:text-foreground"
+                  }`}>
+                  {b >= 1000 ? `${b/1000}k` : b}
+                </button>
+              ))}
+              <input
+                type="number" min={100} max={50000} step={100}
+                value={mcB}
+                onChange={(e) => {
+                  const v = parseInt(e.target.value, 10);
+                  if (Number.isFinite(v) && v >= 100 && v <= 50000) setMcB(v);
+                }}
+                className="w-20 h-7 px-2 rounded bg-background border border-border/50 text-[11px] font-mono tabular-nums"
+                title="自定义重抽次数 (100–50000)"
+              />
+            </div>
           </div>
 
           <div className={`grid gap-3 ${backtest.results.length >= 3 ? "md:grid-cols-3" : "md:grid-cols-2"}`}>
@@ -1216,7 +1240,7 @@ export const DCCGarchTool = () => {
               </div>
               <div className="rounded border border-border/30 bg-secondary/20 p-2">
                 <div className="font-mono text-foreground mb-1">Monte-Carlo Bootstrap</div>
-                <div>在 H₀:<span className="font-mono">I<sub>t</sub> ~ iid Bernoulli(p)</span> 下重抽 <span className="font-mono">B=2000</span> 条命中序列,经验分位数估计 p-value(<span className="font-mono">(#≥obs+1)/(B+1)</span>)。</div>
+                <div>在 H₀:<span className="font-mono">I<sub>t</sub> ~ iid Bernoulli(p)</span> 下重抽 <span className="font-mono text-foreground">B={mcB}</span> 条命中序列,经验分位数估计 p-value(<span className="font-mono">(#≥obs+1)/(B+1)</span>)。可在上方切换 B ∈ {`{500, 1k, 2k, 5k, 10k}`} 实时刷新。</div>
                 <div className="mt-1"><span className="text-foreground">适用条件:</span> 任意样本量,尤其推荐 <span className="font-mono">T·p &lt; 10</span> 或高 α(99%+)。</div>
                 <div className="mt-1"><span className="text-foreground">优点:</span> 有限样本精确,不依赖渐近;<span className="text-foreground">缺点:</span> 计算开销 O(B·T),且仅检验"<em>iid</em> Bernoulli"——若交易日波动结构性变化,H₀ 本身可能失真。</div>
               </div>
