@@ -549,6 +549,11 @@ const RDDTool = () => {
   const [pBelow, setPBelow] = useState(0.10); // P(D=1 | X<c) — always-takers
   const [pAbove, setPAbove] = useState(0.75); // P(D=1 | X≥c) — compliers + always-takers
   // Note: for sharp RDD these are forced to 0 / 1.
+  // ── New: Donut RDD, polynomial order, kernel, Placebo cutoff ──
+  const [donut, setDonut] = useState(0);                       // donut hole half-width δ; drop |x-c| ≤ δ
+  const [polyOrder, setPolyOrder] = useState<1 | 2>(1);        // local linear (1) or local quadratic (2)
+  const [kernel, setKernel] = useState<"triangular" | "uniform">("triangular");
+  const [placeboShift, setPlaceboShift] = useState(1.5);       // false cutoff = c + shift; expect τ̂≈0
 
   const data = useMemo(() => {
     const rng = mulberry32(seed);
@@ -573,28 +578,84 @@ const RDDTool = () => {
       pts.push({ x, y, treated: D, D });
     }
 
-    // ── Local-linear fits on Y (reduced form / sharp τ̂) ──
-    const left = pts.filter(p => p.x >= cutoff - bandwidth && p.x < cutoff);
-    const right = pts.filter(p => p.x <= cutoff + bandwidth && p.x >= cutoff);
-    const olsLY = left.length > 5 ? ols(left.map(p => p.x), left.map(p => p.y)) : null;
-    const olsRY = right.length > 5 ? ols(right.map(p => p.x), right.map(p => p.y)) : null;
-    const yL = olsLY ? olsLY.alpha + olsLY.beta * cutoff : NaN;
-    const yR = olsRY ? olsRY.alpha + olsRY.beta * cutoff : NaN;
-    const tauSharp = yR - yL;     // reduced-form jump in Y at c
-    const lineL = olsLY ? [{ x: cutoff - bandwidth, y: olsLY.alpha + olsLY.beta * (cutoff - bandwidth) }, { x: cutoff, y: yL }] : [];
-    const lineR = olsRY ? [{ x: cutoff, y: yR }, { x: cutoff + bandwidth, y: olsRY.alpha + olsRY.beta * (cutoff + bandwidth) }] : [];
+    // ── Donut hole: drop observations within ±δ of the (real) cutoff ──
+    const ptsAfterDonut = donut > 0 ? pts.filter(p => Math.abs(p.x - cutoff) > donut) : pts;
+    const nKept = ptsAfterDonut.length;
 
-    // ── First-stage local-linear on D (probability of treatment) ──
-    const olsLD = left.length > 5 ? ols(left.map(p => p.x), left.map(p => p.D)) : null;
-    const olsRD = right.length > 5 ? ols(right.map(p => p.x), right.map(p => p.D)) : null;
-    const dL = olsLD ? Math.min(Math.max(olsLD.alpha + olsLD.beta * cutoff, 0), 1) : NaN;
-    const dR = olsRD ? Math.min(Math.max(olsRD.alpha + olsRD.beta * cutoff, 0), 1) : NaN;
+    // helper: local-poly fit on one side, then build a 2-point line for plotting on [c-h, c]/[c, c+h]
+    const fitSide = (
+      pool: typeof pts,
+      side: "left" | "right",
+      target: "y" | "D",
+      cval: number,
+      h: number,
+    ) => {
+      const sub = side === "left"
+        ? pool.filter(p => p.x < cval && p.x >= cval - h)
+        : pool.filter(p => p.x >= cval && p.x <= cval + h);
+      if (sub.length < polyOrder + 2) return null;
+      const xs = sub.map(p => p.x);
+      const ys = sub.map(p => (target === "y" ? p.y : p.D));
+      // For one-sided local poly we use 2*h as kernel bandwidth so all sub points get positive weight
+      // and "triangular" weight is computed wrt distance from c.
+      const fit = localPoly(xs, ys, cval, h, polyOrder, kernel);
+      return fit;
+    };
+
+    // ── Local-poly fits on Y (reduced form / sharp τ̂) at the real cutoff ──
+    const fitLY = fitSide(ptsAfterDonut, "left", "y", cutoff, bandwidth);
+    const fitRY = fitSide(ptsAfterDonut, "right", "y", cutoff, bandwidth);
+    const yL = fitLY ? fitLY.intercept : NaN;
+    const yR = fitRY ? fitRY.intercept : NaN;
+    const tauSharp = yR - yL;     // reduced-form jump in Y at c
+    const lineL = fitLY
+      ? Array.from({ length: 21 }, (_, i) => {
+          const x = cutoff - bandwidth + (i / 20) * bandwidth;
+          return { x, y: polyPredict(fitLY.coefs, cutoff, x) };
+        })
+      : [];
+    const lineR = fitRY
+      ? Array.from({ length: 21 }, (_, i) => {
+          const x = cutoff + (i / 20) * bandwidth;
+          return { x, y: polyPredict(fitRY.coefs, cutoff, x) };
+        })
+      : [];
+
+    // ── First-stage local-poly on D (probability of treatment) ──
+    const fitLD = fitSide(ptsAfterDonut, "left", "D", cutoff, bandwidth);
+    const fitRD = fitSide(ptsAfterDonut, "right", "D", cutoff, bandwidth);
+    const dL = fitLD ? Math.min(Math.max(fitLD.intercept, 0), 1) : NaN;
+    const dR = fitRD ? Math.min(Math.max(fitRD.intercept, 0), 1) : NaN;
     const dJump = dR - dL;        // first-stage jump
-    const dLineL = olsLD ? [{ x: cutoff - bandwidth, p: olsLD.alpha + olsLD.beta * (cutoff - bandwidth) }, { x: cutoff, p: dL }] : [];
-    const dLineR = olsRD ? [{ x: cutoff, p: dR }, { x: cutoff + bandwidth, p: olsRD.alpha + olsRD.beta * (cutoff + bandwidth) }] : [];
+    const dLineL = fitLD
+      ? Array.from({ length: 21 }, (_, i) => {
+          const x = cutoff - bandwidth + (i / 20) * bandwidth;
+          return { x, p: polyPredict(fitLD.coefs, cutoff, x) };
+        })
+      : [];
+    const dLineR = fitRD
+      ? Array.from({ length: 21 }, (_, i) => {
+          const x = cutoff + (i / 20) * bandwidth;
+          return { x, p: polyPredict(fitRD.coefs, cutoff, x) };
+        })
+      : [];
 
     // ── Wald / Fuzzy estimator ──
     const tauWald = mode === "fuzzy" ? tauSharp / (Math.abs(dJump) > 1e-6 ? dJump : NaN) : tauSharp;
+
+    // ── Rule-of-Thumb optimal bandwidth (simplified IK-style) ──
+    // h_ROT = 1.84 * σ_X * n^{-1/5}; serves as a coarse data-driven suggestion.
+    const allX = ptsAfterDonut.map(p => p.x);
+    const meanX = allX.reduce((a, b) => a + b, 0) / Math.max(allX.length, 1);
+    const varX = allX.reduce((a, b) => a + (b - meanX) ** 2, 0) / Math.max(allX.length - 1, 1);
+    const hROT = 1.84 * Math.sqrt(Math.max(varX, 1e-6)) * Math.pow(Math.max(nKept, 1), -1 / 5);
+
+    // ── Placebo cutoff (false cutoff at c + placeboShift). Expect τ̂_placebo ≈ 0. ──
+    const cFalse = cutoff + placeboShift;
+    const fitLYp = fitSide(ptsAfterDonut, "left", "y", cFalse, bandwidth);
+    const fitRYp = fitSide(ptsAfterDonut, "right", "y", cFalse, bandwidth);
+    const tauPlacebo =
+      fitLYp && fitRYp ? fitRYp.intercept - fitLYp.intercept : NaN;
 
     // density rows for McCrary (unchanged)
     const xs = pts.map(p => p.x);
@@ -662,8 +723,9 @@ const RDDTool = () => {
       pts, tauSharp, tauWald, lineL, lineR, yL, yR,
       dL, dR, dJump, dLineL, dLineR,
       densityRows, fHatL, fHatR, theta, seTheta, z, pVal, densLineL, densLineR,
+      nKept, hROT, tauPlacebo, cFalse,
     };
-  }, [n, cutoff, jump, slopeL, slopeR, noise, seed, bandwidth, manipulation, mode, pBelow, pAbove]);
+  }, [n, cutoff, jump, slopeL, slopeR, noise, seed, bandwidth, manipulation, mode, pBelow, pAbove, donut, polyOrder, kernel, placeboShift]);
 
   return (
     <div className="space-y-6">
@@ -672,6 +734,8 @@ const RDDTool = () => {
         { name: "Fuzzy 高顺从", description: "0.10 → 0.85, 强工具", apply: () => { setMode("fuzzy"); setPBelow(0.10); setPAbove(0.85); setJump(3); setNoise(0.5); setBandwidth(2); setManipulation(0); setN(800); } },
         { name: "Fuzzy 弱跳跃", description: "0.30 → 0.45, 弱工具", apply: () => { setMode("fuzzy"); setPBelow(0.30); setPAbove(0.45); setJump(3); setNoise(0.5); setBandwidth(2); setN(1200); } },
         { name: "存在操纵", description: "个体跳到切点之上", apply: () => { setMode("sharp"); setJump(3); setNoise(0.5); setManipulation(0.7); setN(600); } },
+        { name: "Donut 修正", description: "存在操纵 + δ=0.5 剔除", apply: () => { setMode("sharp"); setJump(3); setNoise(0.5); setManipulation(0.7); setN(600); setDonut(0.5); } },
+        { name: "局部二次拟合", description: "polyOrder=2，缓解边界偏误", apply: () => { setPolyOrder(2); setBandwidth(3); setNoise(0.6); } },
       ]} />
 
       {/* Mode toggle */}
@@ -695,6 +759,36 @@ const RDDTool = () => {
             {m.label}
           </button>
         ))}
+        <span className="text-xs font-mono text-muted-foreground ml-3">多项式阶数：</span>
+        {([1, 2] as const).map((p) => (
+          <button
+            key={p}
+            onClick={() => setPolyOrder(p)}
+            className={
+              "text-xs px-3 py-1.5 rounded border transition-colors font-mono " +
+              (polyOrder === p
+                ? "border-gold bg-gold/10 text-gold"
+                : "border-border text-muted-foreground hover:text-foreground hover:border-foreground/40")
+            }
+          >
+            {p === 1 ? "Local Linear" : "Local Quadratic"}
+          </button>
+        ))}
+        <span className="text-xs font-mono text-muted-foreground ml-3">核函数：</span>
+        {(["triangular", "uniform"] as const).map((k) => (
+          <button
+            key={k}
+            onClick={() => setKernel(k)}
+            className={
+              "text-xs px-3 py-1.5 rounded border transition-colors font-mono " +
+              (kernel === k
+                ? "border-gold bg-gold/10 text-gold"
+                : "border-border text-muted-foreground hover:text-foreground hover:border-foreground/40")
+            }
+          >
+            {k === "triangular" ? "Triangular" : "Uniform"}
+          </button>
+        ))}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -705,8 +799,21 @@ const RDDTool = () => {
           <Slider label="左侧斜率" value={slopeL} min={-2} max={3} step={0.1} onChange={setSlopeL} />
           <Slider label="右侧斜率" value={slopeR} min={-2} max={3} step={0.1} onChange={setSlopeR} />
           <Slider label="噪声 σ" value={noise} min={0.1} max={3} step={0.05} onChange={setNoise} />
-          <Slider label="带宽 h" value={bandwidth} min={0.5} max={5} step={0.1} onChange={setBandwidth} />
+          <div className="flex items-end gap-2">
+            <div className="flex-1">
+              <Slider label="带宽 h" value={bandwidth} min={0.5} max={5} step={0.1} onChange={setBandwidth} />
+            </div>
+            <button
+              onClick={() => setBandwidth(+Math.max(0.5, Math.min(5, data.hROT)).toFixed(2))}
+              title={`Rule-of-Thumb h ≈ 1.84·σ̂_X·n^(-1/5) = ${data.hROT.toFixed(3)}`}
+              className="text-[10px] font-mono px-2 py-1 rounded border border-gold/60 text-gold hover:bg-gold/10 transition-colors whitespace-nowrap mb-2"
+            >
+              用 ROT h ({data.hROT.toFixed(2)})
+            </button>
+          </div>
+          <Slider label="Donut 半径 δ (剔除 |X−c|≤δ)" value={donut} min={0} max={1} step={0.05} onChange={setDonut} />
           <Slider label="操纵概率 (just-below 跳到 just-above)" value={manipulation} min={0} max={1} step={0.05} onChange={setManipulation} />
+          <Slider label="假断点偏移 (Placebo)" value={placeboShift} min={-3} max={3} step={0.1} onChange={setPlaceboShift} />
           {mode === "fuzzy" && (
             <>
               <Slider label="P(D=1 | X<c)  (always-takers)" value={pBelow} min={0} max={1} step={0.05} onChange={setPBelow} />
@@ -738,6 +845,14 @@ const RDDTool = () => {
               <ResultRow label="切点右极限 Y(c⁺)" value={data.yR} color={CHART_RED} />
             </>
           )}
+          <ResultRow
+            label={`Placebo τ̂ @ c'=${data.cFalse.toFixed(2)} (期望≈0)`}
+            value={data.tauPlacebo}
+            color={Math.abs(data.tauPlacebo) > Math.abs(jump) * 0.3 ? CHART_RED : CHART_TEAL}
+          />
+          <div className="text-[11px] font-mono text-muted-foreground px-2">
+            实际用于估计的样本（去除 donut 后）：<span className="text-foreground">{data.nKept}</span> / {n}
+          </div>
           <div className="text-xs font-mono text-muted-foreground p-3 rounded-lg bg-secondary/40 border border-border leading-relaxed">
             {mode === "sharp" ? (
               <>
@@ -752,6 +867,9 @@ const RDDTool = () => {
               </>
             )}
             <p>带宽 h 越小偏差越小但方差越大 (bias-variance trade-off)。</p>
+            <p className="mt-1"><span className="text-gold">Donut RDD：</span>剔除 |X−c|≤δ 的样本以缓解 heaping / 操纵性堆积造成的偏误 (Barreca et al. 2011)。</p>
+            <p><span className="text-gold">Placebo：</span>在非处理位置 c′ 跑同样估计；若 |τ̂(c′)| 显著非零则识别假设可疑。</p>
+            <p><span className="text-gold">局部多项式：</span>p=2 减小边界偏误（O(h³) vs O(h²)）但方差更大；推荐 p=1 + Triangular kernel (CCT)。</p>
           </div>
         </div>
       </div>
