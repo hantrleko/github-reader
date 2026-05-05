@@ -81,6 +81,76 @@ function tsls(xs: number[], ys: number[], zs: number[]): OLSResult {
   return ols(xhat, ys);
 }
 
+/** Solve Ax = b for small (≤4) symmetric positive-definite systems via Gaussian elimination. */
+function solveLinear(A: number[][], b: number[]): number[] | null {
+  const n = b.length;
+  const M = A.map((row, i) => [...row, b[i]]);
+  for (let i = 0; i < n; i++) {
+    let piv = i;
+    for (let k = i + 1; k < n; k++) if (Math.abs(M[k][i]) > Math.abs(M[piv][i])) piv = k;
+    if (Math.abs(M[piv][i]) < 1e-12) return null;
+    [M[i], M[piv]] = [M[piv], M[i]];
+    for (let k = i + 1; k < n; k++) {
+      const f = M[k][i] / M[i][i];
+      for (let j = i; j <= n; j++) M[k][j] -= f * M[i][j];
+    }
+  }
+  const x = new Array(n).fill(0);
+  for (let i = n - 1; i >= 0; i--) {
+    let s = M[i][n];
+    for (let j = i + 1; j < n; j++) s -= M[i][j] * x[j];
+    x[i] = s / M[i][i];
+  }
+  return x;
+}
+
+/**
+ * Weighted local polynomial regression evaluated at x = c.
+ * Regresses y on (x-c), (x-c)^2, ..., (x-c)^p with kernel weights.
+ * Returns intercept = Ê[Y | X = c] on this side of the cutoff, plus predicted line for plotting.
+ */
+function localPoly(
+  xs: number[],
+  ys: number[],
+  c: number,
+  h: number,
+  p: 1 | 2,
+  kernel: "triangular" | "uniform" = "triangular",
+): { intercept: number; coefs: number[]; n: number } | null {
+  const n = xs.length;
+  if (n < p + 2) return null;
+  const k = p + 1;
+  const A: number[][] = Array.from({ length: k }, () => new Array(k).fill(0));
+  const b: number[] = new Array(k).fill(0);
+  let used = 0;
+  for (let i = 0; i < n; i++) {
+    const u = (xs[i] - c) / h;
+    if (Math.abs(u) > 1) continue;
+    const w = kernel === "triangular" ? (1 - Math.abs(u)) : 1;
+    if (w <= 0) continue;
+    used++;
+    const dx = xs[i] - c;
+    const row: number[] = [1];
+    for (let j = 1; j <= p; j++) row.push(row[j - 1] * dx);
+    for (let r = 0; r < k; r++) {
+      for (let cc = 0; cc < k; cc++) A[r][cc] += w * row[r] * row[cc];
+      b[r] += w * row[r] * ys[i];
+    }
+  }
+  if (used < p + 2) return null;
+  const sol = solveLinear(A, b);
+  if (!sol) return null;
+  return { intercept: sol[0], coefs: sol, n: used };
+}
+
+/** Predict from localPoly coefficients at given x. */
+function polyPredict(coefs: number[], c: number, x: number): number {
+  const dx = x - c;
+  let v = 0, p = 1;
+  for (let i = 0; i < coefs.length; i++) { v += coefs[i] * p; p *= dx; }
+  return v;
+}
+
 /* ════════════════════════════════════════════════════════════
    1. OLS vs IV/2SLS — endogeneity demo
    ════════════════════════════════════════════════════════════ */
