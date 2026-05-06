@@ -612,6 +612,7 @@ const RDDTool = () => {
   const [noise, setNoise] = useState(0.8);
   const [seed, setSeed] = useState(11);
   const [bandwidth, setBandwidth] = useState(2);
+  const [bwMethod, setBwMethod] = useState<"manual" | "rot" | "cct">("manual");
   const [manipulation, setManipulation] = useState(0);
   const [mode, setMode] = useState<RDDMode>("sharp");
   const [pBelow, setPBelow] = useState(0.10); // P(D=1 | X<c) — always-takers
@@ -852,6 +853,16 @@ const RDDTool = () => {
     };
   }, [n, cutoff, jump, slopeL, slopeR, noise, seed, bandwidth, manipulation, mode, pBelow, pAbove, donut, polyOrder, kernel, placeboShift]);
 
+  // Auto-sync bandwidth to selected data-driven method (ROT or CCT) whenever it changes.
+  useEffect(() => {
+    if (bwMethod === "manual") return;
+    const target = bwMethod === "rot" ? data.hROT : data.hCCT;
+    if (!isFinite(target)) return;
+    const clamped = +Math.max(0.5, Math.min(5, target)).toFixed(2);
+    if (Math.abs(clamped - bandwidth) > 1e-3) setBandwidth(clamped);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [bwMethod, data.hROT, data.hCCT]);
+
   return (
     <div className="space-y-6">
       <PresetButtons presets={[
@@ -924,19 +935,45 @@ const RDDTool = () => {
           <Slider label="左侧斜率" value={slopeL} min={-2} max={3} step={0.1} onChange={setSlopeL} />
           <Slider label="右侧斜率" value={slopeR} min={-2} max={3} step={0.1} onChange={setSlopeR} />
           <Slider label="噪声 σ" value={noise} min={0.1} max={3} step={0.05} onChange={setNoise} />
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-xs font-mono text-muted-foreground">带宽选择：</span>
+            {([
+              { id: "manual" as const, label: "手动", desc: "拖动滑块自由设定" },
+              { id: "rot" as const, label: `ROT (${data.hROT.toFixed(2)})`, desc: "Rule-of-Thumb h ≈ 1.84·σ̂_X·n^(-1/5)" },
+              { id: "cct" as const, label: `CCT (${data.hCCT.toFixed(2)})`, desc: "Calonico-Cattaneo-Titiunik MSE-optimal h" },
+            ]).map((m) => (
+              <button
+                key={m.id}
+                onClick={() => setBwMethod(m.id)}
+                title={m.desc}
+                className={
+                  "text-xs px-3 py-1.5 rounded border transition-colors font-mono " +
+                  (bwMethod === m.id
+                    ? "border-gold bg-gold/10 text-gold"
+                    : "border-border text-muted-foreground hover:text-foreground hover:border-foreground/40")
+                }
+              >
+                {m.label}
+              </button>
+            ))}
+          </div>
           <div className="flex items-end gap-2">
             <div className="flex-1">
-              <Slider label="带宽 h" value={bandwidth} min={0.5} max={5} step={0.1} onChange={setBandwidth} />
+              <Slider
+                label={`带宽 h${bwMethod !== "manual" ? ` · ${bwMethod.toUpperCase()} 自动` : ""}`}
+                value={bandwidth} min={0.5} max={5} step={0.1}
+                onChange={(v) => { setBwMethod("manual"); setBandwidth(v); }}
+              />
             </div>
             <button
-              onClick={() => setBandwidth(+Math.max(0.5, Math.min(5, data.hROT)).toFixed(2))}
+              onClick={() => setBwMethod("rot")}
               title={`Rule-of-Thumb h ≈ 1.84·σ̂_X·n^(-1/5) = ${data.hROT.toFixed(3)}`}
               className="text-[10px] font-mono px-2 py-1 rounded border border-gold/60 text-gold hover:bg-gold/10 transition-colors whitespace-nowrap mb-2"
             >
               用 ROT h ({data.hROT.toFixed(2)})
             </button>
             <button
-              onClick={() => setBandwidth(+Math.max(0.5, Math.min(5, data.hCCT)).toFixed(2))}
+              onClick={() => setBwMethod("cct")}
               title={`CCT MSE-optimal h ≈ (V / 4nB²)^{1/5} = ${data.hCCT.toFixed(3)}`}
               className="text-[10px] font-mono px-2 py-1 rounded border border-gold/60 text-gold hover:bg-gold/10 transition-colors whitespace-nowrap mb-2"
             >
