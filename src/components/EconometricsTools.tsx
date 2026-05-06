@@ -935,6 +935,13 @@ const RDDTool = () => {
             >
               用 ROT h ({data.hROT.toFixed(2)})
             </button>
+            <button
+              onClick={() => setBandwidth(+Math.max(0.5, Math.min(5, data.hCCT)).toFixed(2))}
+              title={`CCT MSE-optimal h ≈ (V / 4nB²)^{1/5} = ${data.hCCT.toFixed(3)}`}
+              className="text-[10px] font-mono px-2 py-1 rounded border border-gold/60 text-gold hover:bg-gold/10 transition-colors whitespace-nowrap mb-2"
+            >
+              用 CCT h ({data.hCCT.toFixed(2)})
+            </button>
           </div>
           <Slider label="Donut 半径 δ (剔除 |X−c|≤δ)" value={donut} min={0} max={1} step={0.05} onChange={setDonut} />
           <Slider label="操纵概率 (just-below 跳到 just-above)" value={manipulation} min={0} max={1} step={0.05} onChange={setManipulation} />
