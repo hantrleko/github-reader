@@ -935,19 +935,45 @@ const RDDTool = () => {
           <Slider label="左侧斜率" value={slopeL} min={-2} max={3} step={0.1} onChange={setSlopeL} />
           <Slider label="右侧斜率" value={slopeR} min={-2} max={3} step={0.1} onChange={setSlopeR} />
           <Slider label="噪声 σ" value={noise} min={0.1} max={3} step={0.05} onChange={setNoise} />
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-xs font-mono text-muted-foreground">带宽选择：</span>
+            {([
+              { id: "manual" as const, label: "手动", desc: "拖动滑块自由设定" },
+              { id: "rot" as const, label: `ROT (${data.hROT.toFixed(2)})`, desc: "Rule-of-Thumb h ≈ 1.84·σ̂_X·n^(-1/5)" },
+              { id: "cct" as const, label: `CCT (${data.hCCT.toFixed(2)})`, desc: "Calonico-Cattaneo-Titiunik MSE-optimal h" },
+            ]).map((m) => (
+              <button
+                key={m.id}
+                onClick={() => setBwMethod(m.id)}
+                title={m.desc}
+                className={
+                  "text-xs px-3 py-1.5 rounded border transition-colors font-mono " +
+                  (bwMethod === m.id
+                    ? "border-gold bg-gold/10 text-gold"
+                    : "border-border text-muted-foreground hover:text-foreground hover:border-foreground/40")
+                }
+              >
+                {m.label}
+              </button>
+            ))}
+          </div>
           <div className="flex items-end gap-2">
             <div className="flex-1">
-              <Slider label="带宽 h" value={bandwidth} min={0.5} max={5} step={0.1} onChange={setBandwidth} />
+              <Slider
+                label={`带宽 h${bwMethod !== "manual" ? ` · ${bwMethod.toUpperCase()} 自动` : ""}`}
+                value={bandwidth} min={0.5} max={5} step={0.1}
+                onChange={(v) => { setBwMethod("manual"); setBandwidth(v); }}
+              />
             </div>
             <button
-              onClick={() => setBandwidth(+Math.max(0.5, Math.min(5, data.hROT)).toFixed(2))}
+              onClick={() => setBwMethod("rot")}
               title={`Rule-of-Thumb h ≈ 1.84·σ̂_X·n^(-1/5) = ${data.hROT.toFixed(3)}`}
               className="text-[10px] font-mono px-2 py-1 rounded border border-gold/60 text-gold hover:bg-gold/10 transition-colors whitespace-nowrap mb-2"
             >
               用 ROT h ({data.hROT.toFixed(2)})
             </button>
             <button
-              onClick={() => setBandwidth(+Math.max(0.5, Math.min(5, data.hCCT)).toFixed(2))}
+              onClick={() => setBwMethod("cct")}
               title={`CCT MSE-optimal h ≈ (V / 4nB²)^{1/5} = ${data.hCCT.toFixed(3)}`}
               className="text-[10px] font-mono px-2 py-1 rounded border border-gold/60 text-gold hover:bg-gold/10 transition-colors whitespace-nowrap mb-2"
             >
