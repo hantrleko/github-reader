@@ -612,6 +612,7 @@ const RDDTool = () => {
   const [noise, setNoise] = useState(0.8);
   const [seed, setSeed] = useState(11);
   const [bandwidth, setBandwidth] = useState(2);
+  const [bwMethod, setBwMethod] = useState<"manual" | "rot" | "cct">("manual");
   const [manipulation, setManipulation] = useState(0);
   const [mode, setMode] = useState<RDDMode>("sharp");
   const [pBelow, setPBelow] = useState(0.10); // P(D=1 | X<c) — always-takers
