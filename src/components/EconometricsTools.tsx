@@ -151,6 +151,74 @@ function polyPredict(coefs: number[], c: number, x: number): number {
   return v;
 }
 
+/**
+ * Weighted local polynomial regression with HC0-robust standard error of the intercept
+ * (Eicker-Huber-White sandwich on the kernel-weighted least-squares estimator).
+ * Used by the CCT bias-corrected RDD estimator.
+ */
+function localPolySE(
+  xs: number[],
+  ys: number[],
+  c: number,
+  h: number,
+  p: 1 | 2,
+  kernel: "triangular" | "uniform" = "triangular",
+): { intercept: number; coefs: number[]; se: number; n: number; sigma2: number } | null {
+  const n = xs.length;
+  if (n < p + 2) return null;
+  const k = p + 1;
+  const A: number[][] = Array.from({ length: k }, () => new Array(k).fill(0));
+  const bv: number[] = new Array(k).fill(0);
+  const rows: { row: number[]; w: number; y: number }[] = [];
+  for (let i = 0; i < n; i++) {
+    const u = (xs[i] - c) / h;
+    if (Math.abs(u) > 1) continue;
+    const w = kernel === "triangular" ? (1 - Math.abs(u)) : 1;
+    if (w <= 0) continue;
+    const dx = xs[i] - c;
+    const row: number[] = [1];
+    for (let j = 1; j <= p; j++) row.push(row[j - 1] * dx);
+    rows.push({ row, w, y: ys[i] });
+    for (let r = 0; r < k; r++) {
+      for (let cc = 0; cc < k; cc++) A[r][cc] += w * row[r] * row[cc];
+      bv[r] += w * row[r] * ys[i];
+    }
+  }
+  if (rows.length < p + 2) return null;
+  // Invert A by solving against identity.
+  const Ainv: number[][] = [];
+  for (let j = 0; j < k; j++) {
+    const e = new Array(k).fill(0); e[j] = 1;
+    const col = solveLinear(A.map(r => [...r]), e);
+    if (!col) return null;
+    Ainv.push(col);
+  }
+  // Coefficients via Ainv * bv.
+  const coefs = new Array(k).fill(0);
+  for (let r = 0; r < k; r++) for (let j = 0; j < k; j++) coefs[r] += Ainv[r][j] * bv[j];
+  // Residuals and meat matrix M = sum w_i^2 e_i^2 x_i x_i'
+  let ssr = 0;
+  const M: number[][] = Array.from({ length: k }, () => new Array(k).fill(0));
+  for (const { row, w, y } of rows) {
+    let yhat = 0;
+    for (let r = 0; r < k; r++) yhat += coefs[r] * row[r];
+    const e = y - yhat;
+    ssr += w * e * e;
+    const w2e2 = w * w * e * e;
+    for (let r = 0; r < k; r++) for (let cc = 0; cc < k; cc++) M[r][cc] += w2e2 * row[r] * row[cc];
+  }
+  // V = Ainv * M * Ainv
+  const AM: number[][] = Array.from({ length: k }, () => new Array(k).fill(0));
+  for (let r = 0; r < k; r++) for (let cc = 0; cc < k; cc++)
+    for (let j = 0; j < k; j++) AM[r][cc] += Ainv[r][j] * M[j][cc];
+  const V: number[][] = Array.from({ length: k }, () => new Array(k).fill(0));
+  for (let r = 0; r < k; r++) for (let cc = 0; cc < k; cc++)
+    for (let j = 0; j < k; j++) V[r][cc] += AM[r][j] * Ainv[cc][j];
+  const v00 = Math.max(V[0][0], 0);
+  const sigma2 = ssr / Math.max(rows.length - k, 1);
+  return { intercept: coefs[0], coefs, se: Math.sqrt(v00), n: rows.length, sigma2 };
+}
+
 /* ════════════════════════════════════════════════════════════
    1. OLS vs IV/2SLS — endogeneity demo
    ════════════════════════════════════════════════════════════ */
