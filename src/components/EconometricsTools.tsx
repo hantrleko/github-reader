@@ -982,6 +982,36 @@ const RDDTool = () => {
             value={data.tauPlacebo}
             color={Math.abs(data.tauPlacebo) > Math.abs(jump) * 0.3 ? CHART_RED : CHART_TEAL}
           />
+          <div className="rounded-lg border border-gold/40 bg-gold/5 p-3 space-y-1 text-xs font-mono">
+            <div className="flex items-center justify-between">
+              <span className="text-gold font-bold">CCT 偏差校正稳健推断</span>
+              <span className="text-[10px] text-muted-foreground">h_CCT={data.hCCT.toFixed(2)}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">τ̂_bc = τ̂_ll − ĥ²·μ₂·(m̂″_R−m̂″_L)/2</span>
+              <span className="text-foreground">{isFinite(data.tauBC) ? data.tauBC.toFixed(3) : "—"}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">偏差估计 b̂(h)</span>
+              <span className="text-foreground">{isFinite(data.biasEst) ? data.biasEst.toFixed(3) : "—"}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">robust SE</span>
+              <span className="text-foreground">{isFinite(data.seBC) ? data.seBC.toFixed(3) : "—"}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">z / p-value</span>
+              <span className="text-foreground">
+                {isFinite(data.zBC) ? data.zBC.toFixed(2) : "—"} / {isFinite(data.pBC) ? data.pBC.toFixed(3) : "—"}
+              </span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">95% CI (robust)</span>
+              <span className="text-foreground">
+                [{isFinite(data.ciBClo) ? data.ciBClo.toFixed(2) : "—"}, {isFinite(data.ciBChi) ? data.ciBChi.toFixed(2) : "—"}]
+              </span>
+            </div>
+          </div>
           <div className="text-[11px] font-mono text-muted-foreground px-2">
             实际用于估计的样本（去除 donut 后）：<span className="text-foreground">{data.nKept}</span> / {n}
           </div>
@@ -1002,6 +1032,13 @@ const RDDTool = () => {
             <p className="mt-1"><span className="text-gold">Donut RDD：</span>剔除 |X−c|≤δ 的样本以缓解 heaping / 操纵性堆积造成的偏误 (Barreca et al. 2011)。</p>
             <p><span className="text-gold">Placebo：</span>在非处理位置 c′ 跑同样估计；若 |τ̂(c′)| 显著非零则识别假设可疑。</p>
             <p><span className="text-gold">局部多项式：</span>p=2 减小边界偏误（O(h³) vs O(h²)）但方差更大；推荐 p=1 + Triangular kernel (CCT)。</p>
+            <p className="mt-1"><span className="text-gold">CCT 带宽 (Calonico-Cattaneo-Titiunik 2014)：</span>
+              h* = (V / 4nB²)^{"{1/5}"}，其中 B = μ₂(K)·[m″(c⁺)−m″(c⁻)]/2 由 pilot 局部二次拟合估计，V = (σ²_L+σ²_R)/f̂_X(c)。
+              比 ROT 更接近真正最小化渐近 MSE 的最优带宽，但需要二阶导数与密度估计。</p>
+            <p><span className="text-gold">偏差校正稳健推断：</span>
+              τ̂_bc = τ̂_ll(h) − ĥ²·μ₂·(m̂″_R−m̂″_L)/2 显式扣除主导偏差项；
+              robust SE 在常规 HC0 sandwich 上加入因 bias 估计带来的方差膨胀因子，
+              使 t 统计量在 MSE-optimal 带宽下仍渐近正确（Calonico, Cattaneo, Titiunik 2014; Cattaneo et al. 2020）。</p>
           </div>
         </div>
       </div>
