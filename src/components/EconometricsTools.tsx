@@ -853,6 +853,16 @@ const RDDTool = () => {
     };
   }, [n, cutoff, jump, slopeL, slopeR, noise, seed, bandwidth, manipulation, mode, pBelow, pAbove, donut, polyOrder, kernel, placeboShift]);
 
+  // Auto-sync bandwidth to selected data-driven method (ROT or CCT) whenever it changes.
+  useEffect(() => {
+    if (bwMethod === "manual") return;
+    const target = bwMethod === "rot" ? data.hROT : data.hCCT;
+    if (!isFinite(target)) return;
+    const clamped = +Math.max(0.5, Math.min(5, target)).toFixed(2);
+    if (Math.abs(clamped - bandwidth) > 1e-3) setBandwidth(clamped);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [bwMethod, data.hROT, data.hCCT]);
+
   return (
     <div className="space-y-6">
       <PresetButtons presets={[
