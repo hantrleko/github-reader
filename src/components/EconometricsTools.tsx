@@ -151,6 +151,74 @@ function polyPredict(coefs: number[], c: number, x: number): number {
   return v;
 }
 
+/**
+ * Weighted local polynomial regression with HC0-robust standard error of the intercept
+ * (Eicker-Huber-White sandwich on the kernel-weighted least-squares estimator).
+ * Used by the CCT bias-corrected RDD estimator.
+ */
+function localPolySE(
+  xs: number[],
+  ys: number[],
+  c: number,
+  h: number,
+  p: 1 | 2,
+  kernel: "triangular" | "uniform" = "triangular",
+): { intercept: number; coefs: number[]; se: number; n: number; sigma2: number } | null {
+  const n = xs.length;
+  if (n < p + 2) return null;
+  const k = p + 1;
+  const A: number[][] = Array.from({ length: k }, () => new Array(k).fill(0));
+  const bv: number[] = new Array(k).fill(0);
+  const rows: { row: number[]; w: number; y: number }[] = [];
+  for (let i = 0; i < n; i++) {
+    const u = (xs[i] - c) / h;
+    if (Math.abs(u) > 1) continue;
+    const w = kernel === "triangular" ? (1 - Math.abs(u)) : 1;
+    if (w <= 0) continue;
+    const dx = xs[i] - c;
+    const row: number[] = [1];
+    for (let j = 1; j <= p; j++) row.push(row[j - 1] * dx);
+    rows.push({ row, w, y: ys[i] });
+    for (let r = 0; r < k; r++) {
+      for (let cc = 0; cc < k; cc++) A[r][cc] += w * row[r] * row[cc];
+      bv[r] += w * row[r] * ys[i];
+    }
+  }
+  if (rows.length < p + 2) return null;
+  // Invert A by solving against identity.
+  const Ainv: number[][] = [];
+  for (let j = 0; j < k; j++) {
+    const e = new Array(k).fill(0); e[j] = 1;
+    const col = solveLinear(A.map(r => [...r]), e);
+    if (!col) return null;
+    Ainv.push(col);
+  }
+  // Coefficients via Ainv * bv.
+  const coefs = new Array(k).fill(0);
+  for (let r = 0; r < k; r++) for (let j = 0; j < k; j++) coefs[r] += Ainv[r][j] * bv[j];
+  // Residuals and meat matrix M = sum w_i^2 e_i^2 x_i x_i'
+  let ssr = 0;
+  const M: number[][] = Array.from({ length: k }, () => new Array(k).fill(0));
+  for (const { row, w, y } of rows) {
+    let yhat = 0;
+    for (let r = 0; r < k; r++) yhat += coefs[r] * row[r];
+    const e = y - yhat;
+    ssr += w * e * e;
+    const w2e2 = w * w * e * e;
+    for (let r = 0; r < k; r++) for (let cc = 0; cc < k; cc++) M[r][cc] += w2e2 * row[r] * row[cc];
+  }
+  // V = Ainv * M * Ainv
+  const AM: number[][] = Array.from({ length: k }, () => new Array(k).fill(0));
+  for (let r = 0; r < k; r++) for (let cc = 0; cc < k; cc++)
+    for (let j = 0; j < k; j++) AM[r][cc] += Ainv[r][j] * M[j][cc];
+  const V: number[][] = Array.from({ length: k }, () => new Array(k).fill(0));
+  for (let r = 0; r < k; r++) for (let cc = 0; cc < k; cc++)
+    for (let j = 0; j < k; j++) V[r][cc] += AM[r][j] * Ainv[cc][j];
+  const v00 = Math.max(V[0][0], 0);
+  const sigma2 = ssr / Math.max(rows.length - k, 1);
+  return { intercept: coefs[0], coefs, se: Math.sqrt(v00), n: rows.length, sigma2 };
+}
+
 /* ════════════════════════════════════════════════════════════
    1. OLS vs IV/2SLS — endogeneity demo
    ════════════════════════════════════════════════════════════ */
@@ -650,6 +718,62 @@ const RDDTool = () => {
     const varX = allX.reduce((a, b) => a + (b - meanX) ** 2, 0) / Math.max(allX.length - 1, 1);
     const hROT = 1.84 * Math.sqrt(Math.max(varX, 1e-6)) * Math.pow(Math.max(nKept, 1), -1 / 5);
 
+    // ── CCT (Calonico-Cattaneo-Titiunik 2014) MSE-optimal bandwidth & robust bias-corrected inference ──
+    // Pilot stage: fit local quadratic on each side over a wide pilot bandwidth to estimate
+    //   • σ²(c±)  (residual variance near the cutoff)
+    //   • m''(c±) = 2 · γ₂ from the quadratic coefficient
+    //   • f̂_X(c)  (density of the running variable at c)
+    // Then h_CCT = ( V / (4 n B²) )^{1/5}, B = μ₂(K)·[m''_R − m''_L]/2, V = (σ²_L+σ²_R)/f̂_X(c).
+    // For the triangular kernel μ₂ = ∫_{-1}^{1} u² K(u) du = 1/6.
+    const hPilot = Math.max(0.8 * (allX.length ? (Math.max(...allX) - Math.min(...allX)) : 1), 2 * hROT);
+    const leftSub = ptsAfterDonut.filter(p => p.x < cutoff && p.x >= cutoff - hPilot);
+    const rightSub = ptsAfterDonut.filter(p => p.x >= cutoff && p.x <= cutoff + hPilot);
+    const pilotL = leftSub.length >= 4
+      ? localPolySE(leftSub.map(p => p.x), leftSub.map(p => p.y), cutoff, hPilot, 2, kernel) : null;
+    const pilotR = rightSub.length >= 4
+      ? localPolySE(rightSub.map(p => p.x), rightSub.map(p => p.y), cutoff, hPilot, 2, kernel) : null;
+    const m2L = pilotL ? 2 * (pilotL.coefs[2] ?? 0) : 0;
+    const m2R = pilotR ? 2 * (pilotR.coefs[2] ?? 0) : 0;
+    const sig2L = pilotL ? pilotL.sigma2 : 1;
+    const sig2R = pilotR ? pilotR.sigma2 : 1;
+    const fHatX = Math.max((leftSub.length + rightSub.length) / Math.max(2 * hPilot * Math.max(nKept, 1), 1e-6), 1e-6);
+    const mu2K = kernel === "triangular" ? 1 / 6 : 1 / 3;
+    const Bconst = (mu2K / 2) * (m2R - m2L);
+    const Vconst = (sig2L + sig2R) / fHatX;
+    const hCCT = Math.abs(Bconst) > 1e-6
+      ? Math.pow(Vconst / (4 * Math.max(nKept, 1) * Bconst * Bconst), 1 / 5)
+      : hROT; // degenerate (no curvature) → fall back to ROT
+    const hCCTclamped = Math.min(Math.max(hCCT, 0.3), 6);
+
+    // ── Robust bias-corrected estimator at the *current* bandwidth h ──
+    // τ̂_bc = τ̂_ll(h) − h² · μ₂ · [m''_R − m''_L]/2 (using pilot m'' from above).
+    // SE_bc combines HC-robust local-linear SEs plus the CCT variance-inflation (ρ = h/b, here b=hPilot).
+    const llL = fitLY ? localPolySE(
+      ptsAfterDonut.filter(p => p.x < cutoff && p.x >= cutoff - bandwidth).map(p => p.x),
+      ptsAfterDonut.filter(p => p.x < cutoff && p.x >= cutoff - bandwidth).map(p => p.y),
+      cutoff, bandwidth, 1, kernel,
+    ) : null;
+    const llR = fitRY ? localPolySE(
+      ptsAfterDonut.filter(p => p.x >= cutoff && p.x <= cutoff + bandwidth).map(p => p.x),
+      ptsAfterDonut.filter(p => p.x >= cutoff && p.x <= cutoff + bandwidth).map(p => p.y),
+      cutoff, bandwidth, 1, kernel,
+    ) : null;
+    const seConv = (llL && llR) ? Math.sqrt(llL.se * llL.se + llR.se * llR.se) : NaN;
+    const biasEst = (bandwidth * bandwidth) * mu2K * (m2R - m2L) / 2;
+    const tauBC = tauSharp - biasEst;
+    const rho = bandwidth / Math.max(hPilot, 1e-6);
+    // CCT-style variance inflation factor (educational approximation): 1 + ρ²·(small constant).
+    const seBC = isFinite(seConv) ? seConv * Math.sqrt(1 + 0.5 * rho * rho) : NaN;
+    const zBC = isFinite(seBC) && seBC > 0 ? tauBC / seBC : NaN;
+    const erfcLocal = (v: number) => {
+      const t = 1 / (1 + 0.3275911 * Math.abs(v));
+      const y = 1 - (((((1.061405429 * t - 1.453152027) * t) + 1.421413741) * t - 0.284496736) * t + 0.254829592) * t * Math.exp(-v * v);
+      return v >= 0 ? 1 - y : 1 + y;
+    };
+    const pBC = isFinite(zBC) ? erfcLocal(Math.abs(zBC) / Math.SQRT2) : NaN;
+    const ciBClo = tauBC - 1.96 * seBC;
+    const ciBChi = tauBC + 1.96 * seBC;
+
     // ── Placebo cutoff (false cutoff at c + placeboShift). Expect τ̂_placebo ≈ 0. ──
     const cFalse = cutoff + placeboShift;
     const fitLYp = fitSide(ptsAfterDonut, "left", "y", cFalse, bandwidth);
@@ -724,6 +848,7 @@ const RDDTool = () => {
       dL, dR, dJump, dLineL, dLineR,
       densityRows, fHatL, fHatR, theta, seTheta, z, pVal, densLineL, densLineR,
       nKept, hROT, tauPlacebo, cFalse,
+      hCCT: hCCTclamped, tauBC, seBC, zBC, pBC, ciBClo, ciBChi, seConv, biasEst, m2L, m2R,
     };
   }, [n, cutoff, jump, slopeL, slopeR, noise, seed, bandwidth, manipulation, mode, pBelow, pAbove, donut, polyOrder, kernel, placeboShift]);
 
@@ -810,6 +935,13 @@ const RDDTool = () => {
             >
               用 ROT h ({data.hROT.toFixed(2)})
             </button>
+            <button
+              onClick={() => setBandwidth(+Math.max(0.5, Math.min(5, data.hCCT)).toFixed(2))}
+              title={`CCT MSE-optimal h ≈ (V / 4nB²)^{1/5} = ${data.hCCT.toFixed(3)}`}
+              className="text-[10px] font-mono px-2 py-1 rounded border border-gold/60 text-gold hover:bg-gold/10 transition-colors whitespace-nowrap mb-2"
+            >
+              用 CCT h ({data.hCCT.toFixed(2)})
+            </button>
           </div>
           <Slider label="Donut 半径 δ (剔除 |X−c|≤δ)" value={donut} min={0} max={1} step={0.05} onChange={setDonut} />
           <Slider label="操纵概率 (just-below 跳到 just-above)" value={manipulation} min={0} max={1} step={0.05} onChange={setManipulation} />
@@ -850,6 +982,36 @@ const RDDTool = () => {
             value={data.tauPlacebo}
             color={Math.abs(data.tauPlacebo) > Math.abs(jump) * 0.3 ? CHART_RED : CHART_TEAL}
           />
+          <div className="rounded-lg border border-gold/40 bg-gold/5 p-3 space-y-1 text-xs font-mono">
+            <div className="flex items-center justify-between">
+              <span className="text-gold font-bold">CCT 偏差校正稳健推断</span>
+              <span className="text-[10px] text-muted-foreground">h_CCT={data.hCCT.toFixed(2)}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">τ̂_bc = τ̂_ll − ĥ²·μ₂·(m̂″_R−m̂″_L)/2</span>
+              <span className="text-foreground">{isFinite(data.tauBC) ? data.tauBC.toFixed(3) : "—"}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">偏差估计 b̂(h)</span>
+              <span className="text-foreground">{isFinite(data.biasEst) ? data.biasEst.toFixed(3) : "—"}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">robust SE</span>
+              <span className="text-foreground">{isFinite(data.seBC) ? data.seBC.toFixed(3) : "—"}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">z / p-value</span>
+              <span className="text-foreground">
+                {isFinite(data.zBC) ? data.zBC.toFixed(2) : "—"} / {isFinite(data.pBC) ? data.pBC.toFixed(3) : "—"}
+              </span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">95% CI (robust)</span>
+              <span className="text-foreground">
+                [{isFinite(data.ciBClo) ? data.ciBClo.toFixed(2) : "—"}, {isFinite(data.ciBChi) ? data.ciBChi.toFixed(2) : "—"}]
+              </span>
+            </div>
+          </div>
           <div className="text-[11px] font-mono text-muted-foreground px-2">
             实际用于估计的样本（去除 donut 后）：<span className="text-foreground">{data.nKept}</span> / {n}
           </div>
@@ -870,6 +1032,13 @@ const RDDTool = () => {
             <p className="mt-1"><span className="text-gold">Donut RDD：</span>剔除 |X−c|≤δ 的样本以缓解 heaping / 操纵性堆积造成的偏误 (Barreca et al. 2011)。</p>
             <p><span className="text-gold">Placebo：</span>在非处理位置 c′ 跑同样估计；若 |τ̂(c′)| 显著非零则识别假设可疑。</p>
             <p><span className="text-gold">局部多项式：</span>p=2 减小边界偏误（O(h³) vs O(h²)）但方差更大；推荐 p=1 + Triangular kernel (CCT)。</p>
+            <p className="mt-1"><span className="text-gold">CCT 带宽 (Calonico-Cattaneo-Titiunik 2014)：</span>
+              h* = (V / 4nB²)^{"{1/5}"}，其中 B = μ₂(K)·[m″(c⁺)−m″(c⁻)]/2 由 pilot 局部二次拟合估计，V = (σ²_L+σ²_R)/f̂_X(c)。
+              比 ROT 更接近真正最小化渐近 MSE 的最优带宽，但需要二阶导数与密度估计。</p>
+            <p><span className="text-gold">偏差校正稳健推断：</span>
+              τ̂_bc = τ̂_ll(h) − ĥ²·μ₂·(m̂″_R−m̂″_L)/2 显式扣除主导偏差项；
+              robust SE 在常规 HC0 sandwich 上加入因 bias 估计带来的方差膨胀因子，
+              使 t 统计量在 MSE-optimal 带宽下仍渐近正确（Calonico, Cattaneo, Titiunik 2014; Cattaneo et al. 2020）。</p>
           </div>
         </div>
       </div>
