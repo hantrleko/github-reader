@@ -718,6 +718,57 @@ const RDDTool = () => {
     const varX = allX.reduce((a, b) => a + (b - meanX) ** 2, 0) / Math.max(allX.length - 1, 1);
     const hROT = 1.84 * Math.sqrt(Math.max(varX, 1e-6)) * Math.pow(Math.max(nKept, 1), -1 / 5);
 
+    // ── CCT (Calonico-Cattaneo-Titiunik 2014) MSE-optimal bandwidth & robust bias-corrected inference ──
+    // Pilot stage: fit local quadratic on each side over a wide pilot bandwidth to estimate
+    //   • σ²(c±)  (residual variance near the cutoff)
+    //   • m''(c±) = 2 · γ₂ from the quadratic coefficient
+    //   • f̂_X(c)  (density of the running variable at c)
+    // Then h_CCT = ( V / (4 n B²) )^{1/5}, B = μ₂(K)·[m''_R − m''_L]/2, V = (σ²_L+σ²_R)/f̂_X(c).
+    // For the triangular kernel μ₂ = ∫_{-1}^{1} u² K(u) du = 1/6.
+    const hPilot = Math.max(0.8 * (allX.length ? (Math.max(...allX) - Math.min(...allX)) : 1), 2 * hROT);
+    const leftSub = ptsAfterDonut.filter(p => p.x < cutoff && p.x >= cutoff - hPilot);
+    const rightSub = ptsAfterDonut.filter(p => p.x >= cutoff && p.x <= cutoff + hPilot);
+    const pilotL = leftSub.length >= 4
+      ? localPolySE(leftSub.map(p => p.x), leftSub.map(p => p.y), cutoff, hPilot, 2, kernel) : null;
+    const pilotR = rightSub.length >= 4
+      ? localPolySE(rightSub.map(p => p.x), rightSub.map(p => p.y), cutoff, hPilot, 2, kernel) : null;
+    const m2L = pilotL ? 2 * (pilotL.coefs[2] ?? 0) : 0;
+    const m2R = pilotR ? 2 * (pilotR.coefs[2] ?? 0) : 0;
+    const sig2L = pilotL ? pilotL.sigma2 : 1;
+    const sig2R = pilotR ? pilotR.sigma2 : 1;
+    const fHatX = Math.max((leftSub.length + rightSub.length) / Math.max(2 * hPilot * Math.max(nKept, 1), 1e-6), 1e-6);
+    const mu2K = kernel === "triangular" ? 1 / 6 : 1 / 3;
+    const Bconst = (mu2K / 2) * (m2R - m2L);
+    const Vconst = (sig2L + sig2R) / fHatX;
+    const hCCT = Math.abs(Bconst) > 1e-6
+      ? Math.pow(Vconst / (4 * Math.max(nKept, 1) * Bconst * Bconst), 1 / 5)
+      : hROT; // degenerate (no curvature) → fall back to ROT
+    const hCCTclamped = Math.min(Math.max(hCCT, 0.3), 6);
+
+    // ── Robust bias-corrected estimator at the *current* bandwidth h ──
+    // τ̂_bc = τ̂_ll(h) − h² · μ₂ · [m''_R − m''_L]/2 (using pilot m'' from above).
+    // SE_bc combines HC-robust local-linear SEs plus the CCT variance-inflation (ρ = h/b, here b=hPilot).
+    const llL = fitLY ? localPolySE(
+      ptsAfterDonut.filter(p => p.x < cutoff && p.x >= cutoff - bandwidth).map(p => p.x),
+      ptsAfterDonut.filter(p => p.x < cutoff && p.x >= cutoff - bandwidth).map(p => p.y),
+      cutoff, bandwidth, 1, kernel,
+    ) : null;
+    const llR = fitRY ? localPolySE(
+      ptsAfterDonut.filter(p => p.x >= cutoff && p.x <= cutoff + bandwidth).map(p => p.x),
+      ptsAfterDonut.filter(p => p.x >= cutoff && p.x <= cutoff + bandwidth).map(p => p.y),
+      cutoff, bandwidth, 1, kernel,
+    ) : null;
+    const seConv = (llL && llR) ? Math.sqrt(llL.se * llL.se + llR.se * llR.se) : NaN;
+    const biasEst = (bandwidth * bandwidth) * mu2K * (m2R - m2L) / 2;
+    const tauBC = tauSharp - biasEst;
+    const rho = bandwidth / Math.max(hPilot, 1e-6);
+    // CCT-style variance inflation factor (educational approximation): 1 + ρ²·(small constant).
+    const seBC = isFinite(seConv) ? seConv * Math.sqrt(1 + 0.5 * rho * rho) : NaN;
+    const zBC = isFinite(seBC) && seBC > 0 ? tauBC / seBC : NaN;
+    const pBC = isFinite(zBC) ? erfcApprox(Math.abs(zBC) / Math.SQRT2) : NaN;
+    const ciBClo = tauBC - 1.96 * seBC;
+    const ciBChi = tauBC + 1.96 * seBC;
+
     // ── Placebo cutoff (false cutoff at c + placeboShift). Expect τ̂_placebo ≈ 0. ──
     const cFalse = cutoff + placeboShift;
     const fitLYp = fitSide(ptsAfterDonut, "left", "y", cFalse, bandwidth);
@@ -792,6 +843,7 @@ const RDDTool = () => {
       dL, dR, dJump, dLineL, dLineR,
       densityRows, fHatL, fHatR, theta, seTheta, z, pVal, densLineL, densLineR,
       nKept, hROT, tauPlacebo, cFalse,
+      hCCT: hCCTclamped, tauBC, seBC, zBC, pBC, ciBClo, ciBChi, seConv, biasEst, m2L, m2R,
     };
   }, [n, cutoff, jump, slopeL, slopeR, noise, seed, bandwidth, manipulation, mode, pBelow, pAbove, donut, polyOrder, kernel, placeboShift]);
 
