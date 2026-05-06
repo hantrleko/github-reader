@@ -765,7 +765,12 @@ const RDDTool = () => {
     // CCT-style variance inflation factor (educational approximation): 1 + ρ²·(small constant).
     const seBC = isFinite(seConv) ? seConv * Math.sqrt(1 + 0.5 * rho * rho) : NaN;
     const zBC = isFinite(seBC) && seBC > 0 ? tauBC / seBC : NaN;
-    const pBC = isFinite(zBC) ? erfcApprox(Math.abs(zBC) / Math.SQRT2) : NaN;
+    const erfcLocal = (v: number) => {
+      const t = 1 / (1 + 0.3275911 * Math.abs(v));
+      const y = 1 - (((((1.061405429 * t - 1.453152027) * t) + 1.421413741) * t - 0.284496736) * t + 0.254829592) * t * Math.exp(-v * v);
+      return v >= 0 ? 1 - y : 1 + y;
+    };
+    const pBC = isFinite(zBC) ? erfcLocal(Math.abs(zBC) / Math.SQRT2) : NaN;
     const ciBClo = tauBC - 1.96 * seBC;
     const ciBChi = tauBC + 1.96 * seBC;
 
