@@ -13,6 +13,7 @@ import { HistoryDrawer } from "@/components/common/HistoryDrawer";
 import { GARCHTool, CointTool, KalmanTool } from "./econ/Sprint1Tools";
 import { MIDASTool } from "./econ/MIDASTool";
 import { DCCGarchTool } from "./econ/DCCGarchTool";
+import { SyntheticControlTool, StaggeredDIDTool, RegimeSwitchTool } from "./econ/CausalAdvancedTools";
 import { EquationBlock } from "@/components/common/EquationBlock";
 
 const CHART_GOLD = "hsl(43, 80%, 55%)";
@@ -2218,7 +2219,7 @@ const ResultRow = ({ label, value, truth, se, color }: { label: string; value: n
 };
 
 /* ──────────────────  Main module  ────────────────── */
-type ToolId = "olsiv" | "did" | "rdd" | "gmm" | "svar" | "garch" | "dcc" | "coint" | "kalman" | "midas";
+type ToolId = "olsiv" | "did" | "sdid" | "rdd" | "synth" | "gmm" | "svar" | "garch" | "dcc" | "regime" | "coint" | "kalman" | "midas";
 
 const TOOLS: { id: ToolId; name: string; nameEn: string; formula: string; python: string; component: React.FC }[] = [
   { id: "olsiv", name: "OLS / IV (工具变量)", nameEn: "Ordinary Least Squares & Instrumental Variables",
@@ -2266,6 +2267,39 @@ def rdd_local_linear(x, y, c, bandwidth):
     fit_r = np.polyfit(x[mask_r] - c, y[mask_r], 1)
     return fit_r[1] - fit_l[1]`,
     component: RDDTool },
+  { id: "sdid", name: "Staggered DID (Callaway-Sant'Anna)", nameEn: "Staggered DiD with Heterogeneous Treatment Timing — Callaway & Sant'Anna (2021)",
+    formula: String.raw`\mathrm{ATT}(g, t) = \mathbb{E}\!\left[Y_t - Y_{g-1}\,\big|\,G=g\right] - \mathbb{E}\!\left[Y_t - Y_{g-1}\,\big|\,C=1\right],\qquad \mathrm{ATT}(e) = \tfrac{1}{|G_e|}\sum_{g} \mathrm{ATT}(g,\, g+e)`,
+    python: `import numpy as np
+
+def cs_att(panel, group_col="G", time_col="t", y_col="y"):
+    """Callaway-Sant'Anna ATT(g,t) using never-treated as control."""
+    treated = sorted(g for g in panel[group_col].unique() if np.isfinite(g))
+    rows = []
+    for g in treated:
+        for t in panel[time_col].unique():
+            if t < g: continue
+            base = panel[panel[time_col] == g - 1].set_index("id")[y_col]
+            now  = panel[panel[time_col] == t    ].set_index("id")[y_col]
+            d = now - base
+            mask_g = panel[panel[time_col]==t].set_index("id")[group_col] == g
+            mask_c = ~np.isfinite(panel[panel[time_col]==t].set_index("id")[group_col])
+            rows.append((g, t, d[mask_g].mean() - d[mask_c].mean()))
+    return rows`,
+    component: StaggeredDIDTool },
+  { id: "synth", name: "Synthetic Control (合成对照)", nameEn: "Synthetic Control Method — Abadie, Diamond & Hainmueller (2010)",
+    formula: String.raw`W^* = \arg\min_{w \in \Delta^{J-1}} \bigl\| X_1 - X_0\, w \bigr\|^{2},\qquad \widehat{\mathrm{ATT}}_t = Y_{1t} - \sum_{j=2}^{J+1} w_j^*\, Y_{jt}`,
+    python: `import numpy as np
+from scipy.optimize import minimize
+
+def synthetic_control(X1, X0):
+    """X1: (T0,) treated pre-period; X0: (T0, J) donor pool."""
+    J = X0.shape[1]
+    cons = [{"type": "eq", "fun": lambda w: w.sum() - 1}]
+    bnds = [(0, 1)] * J
+    res = minimize(lambda w: ((X1 - X0 @ w) ** 2).sum(),
+                   x0=np.ones(J)/J, bounds=bnds, constraints=cons)
+    return res.x`,
+    component: SyntheticControlTool },
   { id: "gmm",   name: "GMM (广义矩估计)", nameEn: "Generalized Method of Moments",
     formula: String.raw`\hat{\mu}_{\mathrm{GMM}} = \arg\min_{\mu}\; g(\mu)^{\!\top}\, W\, g(\mu), \qquad J = n \cdot Q(\hat{\mu}_{\mathrm{eff}}) \sim \chi^2_{q-p}`,
     python: `import numpy as np
@@ -2305,6 +2339,21 @@ def garch_loglik(params, r):
         sig2[t] = omega + alpha * r[t-1]**2 + beta * sig2[t-1]
     return 0.5 * np.sum(np.log(sig2) + r**2 / sig2)`,
     component: GARCHTool },
+  { id: "regime", name: "Markov Regime-Switching (Hamilton)", nameEn: "Markov Regime-Switching Model — Hamilton (1989)",
+    formula: String.raw`y_t \mid S_t = i \;\sim\; \mathcal{N}(\mu_i,\, \sigma_i^2),\qquad \Pr(S_t = j \mid S_{t-1} = i) = p_{ij},\qquad \mathbb{E}[d_i] = \dfrac{1}{1 - p_{ii}}`,
+    python: `import numpy as np
+
+def hamilton_filter(y, mu, sigma, P):
+    """Forward filter for 2-state Gaussian Markov-switching model."""
+    T = len(y); pi1 = (1 - P[1,1]) / (2 - P[0,0] - P[1,1])
+    pred = np.array([pi1, 1 - pi1]); filt = np.zeros((T, 2)); ll = 0.0
+    for t in range(T):
+        lik = np.array([np.exp(-0.5*((y[t]-mu[i])/sigma[i])**2)/(sigma[i]*np.sqrt(2*np.pi)) for i in range(2)])
+        joint = pred * lik; s = joint.sum()
+        ll += np.log(s); filt[t] = joint / s
+        pred = filt[t] @ P
+    return filt, ll`,
+    component: RegimeSwitchTool },
   { id: "dcc", name: "DCC-GARCH (动态相关)", nameEn: "Dynamic Conditional Correlation — Engle (2002)",
     formula: String.raw`Q_t = (1-a-b)\,\bar{Q} + a\,z_{t-1}z_{t-1}^{\top} + b\,Q_{t-1},\qquad R_t = \mathrm{diag}(Q_t)^{-1/2}\, Q_t\, \mathrm{diag}(Q_t)^{-1/2},\quad \Sigma_t = D_t R_t D_t`,
     python: `import numpy as np

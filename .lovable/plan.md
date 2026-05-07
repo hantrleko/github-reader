@@ -1,77 +1,66 @@
-# V1.7 — 把 V1.6 留下的尾巴收掉
+## 现状
 
-V1.6 把基础设施铺满了，但有两块推荐组合里的内容**没真正落地**，本次专门收尾，不引入新方向。
+计量模块已覆盖：OLS/IV、DID（含事件研究）、RDD（Sharp/Fuzzy/Donut/CCT）、GMM、SVAR/IRF、GARCH/EGARCH、DCC-GARCH、协整/VECM、Kalman/HP 滤波、MIDAS。
 
----
-
-## 1. CompareToggle A/B 对比真正接入（核心）
-
-`useCompareState` + `CompareToolbar` 早就写好但没人用。本次接入 3 个最适合对比的计算器：
-
-### 1.1 Black-Scholes（`CalculatorSection.tsx`）
-- 工具栏旁加 `CompareToolbar`
-- 开启后参数面板分 A / B 两列（S, K, T, r, σ, type）
-- 结果区双列：Call/Put 价格 + Δ Γ Vega Θ Rho 表格并排
-- 价格-标的曲线图叠加 A（金）/ B（青）两条线
-
-### 1.2 BondCalculator
-- 双列参数：face, coupon%, ytm%, maturity, freq
-- 双列结果：Price / Duration / Modified Duration / Convexity
-- 现金流表保持单组（避免移动端崩），用顶部 tab 切 A/B
-
-### 1.3 EfficientFrontier
-- 双列协方差/收益输入
-- 同一张图叠加两条前沿曲线（不同颜色 + 图例）
-- 切线组合点用空心 vs 实心区分
-
-**实现要点**：A/B 状态用 `useCompareState`；关闭对比时只渲染 A，零成本回退；B 面板用 `Collapsible` 折叠减少视觉负担。
-
-## 2. 375px 移动端走查（一次性扫尾）
-
-按文件清单走查 + 修复：
-
-| 文件 | 问题 | 修复 |
-|---|---|---|
-| `Navbar.tsx` | 版本徽章 + Lang/Theme 在 < 400px 挤 | 版本徽章 `hidden xs:inline-flex`，新增 `xs: 400px` 断点 |
-| `HeroSection.tsx` | 标题在 375px 偏大 | `text-4xl sm:text-5xl md:text-7xl` 梯度 |
-| `BondCalculator.tsx` 现金流表 | `grid-cols-4` 在 375px 字号被压扁 | `text-[9px] sm:text-[10px]`，前两列加 `truncate` |
-| `CalculatorSection.tsx` 输入网格 | `grid-cols-2 md:grid-cols-4` 在窄屏标签换行 | label 加 `truncate`，input 加 `min-w-0` |
-| `Index.tsx` Footer | 4 列在 < 640px 拥挤 | `grid-cols-2 sm:grid-cols-2 md:grid-cols-4` |
-| `Onboarding.tsx` | 卡片可能溢出 | 外层加 `max-w-[92vw]` |
-| `CommandPalette.tsx` | iOS 底部安全区 | `pb-[env(safe-area-inset-bottom)]` |
-| `EquationBlock` 已有横向滚动 | 无需改 | — |
-
-## 3. 版本号同步 V1.7
-
-- `src/i18n/locales/{en,zh}.json` — `nav.version` 字段
-- `src/pages/Index.tsx` Footer
-- `src/components/Changelog.tsx` — 新增 V1.7 条目（A/B 对比落地 + 移动端走查），V1.6 转 Stable
+下面按"教学价值 × 实现可行性"分四个梯队列出可加入的模型，供你勾选。
 
 ---
 
-## 技术细节
+## A. 面板数据 / 因果识别（最高优先级，补齐缺口）
 
-**新增文件**：无（复用现有 `CompareToggle.tsx`）
+1. **Synthetic Control (Abadie-Diamond-Hainmueller 2010)**
+   合成对照法。单一处理单元，构造加权"合成对照"。可视化：真实 vs 合成路径、Placebo in-space/in-time、permutation p-value、leave-one-out 稳健性。
+2. **Staggered DID — Callaway-Sant'Anna (2021) / Sun-Abraham (2021)**
+   交错处理下的异质性 ATT(g,t)。对比 TWFE 偏误（Goodman-Bacon 分解）、绘制群组-时间效应矩阵。
+3. **PSM / IPW / Doubly-Robust (AIPW)**
+   倾向得分匹配 + 加权 + 双稳健 ATE。可视化共同支撑、协变量平衡（SMD 图）、ATT/ATE 对比。
+4. **Panel Fixed/Random Effects + Hausman 检验**
+   FE / RE / Pooled OLS 三种估计 + Hausman χ² 决策。
 
-**修改文件**（约 9 个）
-- `src/components/CalculatorSection.tsx` — Black-Scholes 接入 A/B
-- `src/components/BondCalculator.tsx` — A/B + 现金流表移动端
-- `src/components/EfficientFrontier.tsx` — A/B 双前沿叠加
-- `src/components/Navbar.tsx` — 版本徽章窄屏隐藏
-- `src/components/HeroSection.tsx` — 标题字号梯度
-- `src/components/Onboarding.tsx` — 宽度限制
-- `src/components/CommandPalette.tsx` — 安全区
-- `src/pages/Index.tsx` — Footer 网格 + 版本号
-- `src/components/Changelog.tsx` — V1.7 条目
-- `src/i18n/locales/{en,zh}.json` — 版本字符串 + A/B 文案
-- `tailwind.config.ts` — 加 `xs: 400px` 断点
+## B. 时间序列 / 预测
 
-**不做**（继续延后）
-- AI 助教、PDF 笔记导出、知识图谱、图表十字光标 / SVG 导出 — 都是独立大功能
+5. **ARIMA(p,d,q) + 自动定阶（AIC/BIC）**
+   ACF/PACF 图、Ljung-Box 残差检验、out-of-sample 滚动预测带。
+6. **State-Space / DLM（局部水平 + 季节）**
+   已有 Kalman，可扩展为完整结构时序模型（Harvey 1989）。
+7. **Markov Regime-Switching (Hamilton 1989)**
+   双状态均值/方差切换，平滑概率图（识别衰退期）。
+8. **Local Projections (Jordà 2005)**
+   IRF 的回归式替代方案，与 SVAR IRF 并排对比。
 
-**预期效果**
-- A/B 对比从"有 hook"升级为"3 个核心计算器可用"，闭环完成
-- 375px 屏幕全站不再破版
-- 版本号统一 V1.7
+## C. 离散选择 / 微观计量
 
-确认无误请回复"开始"。
+9. **Logit / Probit + 边际效应**
+   ROC、混淆矩阵、AME vs MEM。
+10. **Tobit / Heckman 两步法**
+    截断 / 样本选择偏差校正。
+11. **Quantile Regression (Koenker-Bassett 1978)**
+    多分位数系数路径图。
+
+## D. 现代/机器学习计量
+
+12. **Double / Debiased Machine Learning (Chernozhukov et al. 2018)**
+    DML 的 partialling-out 演示，对比 OLS 偏误。
+13. **Causal Forest / GRF (Athey-Wager)**
+    异质性处理效应（HTE）的简化版可视化。
+14. **LASSO / Ridge / Elastic Net + 交叉验证**
+    系数路径与 CV 误差曲线。
+
+---
+
+## 推荐组合（如果只挑 3 个）
+
+- **Synthetic Control**（最经典且 RDD/DID 之后的自然延伸）
+- **Staggered DID (Callaway-Sant'Anna)**（修正现有 DID 的核心已知偏误）
+- **Markov Regime-Switching**（与 GARCH/SVAR 形成时序三件套）
+
+---
+
+## 请你确认
+
+请告诉我：
+- 想加入哪几个（编号即可，例如 "1, 2, 7"）
+- 是否需要为新增模型保持与现有 RDD 同等深度（presets / CCT 级别的稳健性检验 / 教学公式 + 中文解读）
+- 是否需要拆分到独立文件（如 `src/components/econ/CausalAdvanced.tsx`），避免 `EconometricsTools.tsx` 继续膨胀
+
+确认后我会输出实现计划并进入构建。
