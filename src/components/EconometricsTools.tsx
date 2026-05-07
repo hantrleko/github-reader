@@ -2267,6 +2267,39 @@ def rdd_local_linear(x, y, c, bandwidth):
     fit_r = np.polyfit(x[mask_r] - c, y[mask_r], 1)
     return fit_r[1] - fit_l[1]`,
     component: RDDTool },
+  { id: "sdid", name: "Staggered DID (Callaway-Sant'Anna)", nameEn: "Staggered DiD with Heterogeneous Treatment Timing — Callaway & Sant'Anna (2021)",
+    formula: String.raw`\mathrm{ATT}(g, t) = \mathbb{E}\!\left[Y_t - Y_{g-1}\,\big|\,G=g\right] - \mathbb{E}\!\left[Y_t - Y_{g-1}\,\big|\,C=1\right],\qquad \mathrm{ATT}(e) = \tfrac{1}{|G_e|}\sum_{g} \mathrm{ATT}(g,\, g+e)`,
+    python: `import numpy as np
+
+def cs_att(panel, group_col="G", time_col="t", y_col="y"):
+    """Callaway-Sant'Anna ATT(g,t) using never-treated as control."""
+    treated = sorted(g for g in panel[group_col].unique() if np.isfinite(g))
+    rows = []
+    for g in treated:
+        for t in panel[time_col].unique():
+            if t < g: continue
+            base = panel[panel[time_col] == g - 1].set_index("id")[y_col]
+            now  = panel[panel[time_col] == t    ].set_index("id")[y_col]
+            d = now - base
+            mask_g = panel[panel[time_col]==t].set_index("id")[group_col] == g
+            mask_c = ~np.isfinite(panel[panel[time_col]==t].set_index("id")[group_col])
+            rows.append((g, t, d[mask_g].mean() - d[mask_c].mean()))
+    return rows`,
+    component: StaggeredDIDTool },
+  { id: "synth", name: "Synthetic Control (合成对照)", nameEn: "Synthetic Control Method — Abadie, Diamond & Hainmueller (2010)",
+    formula: String.raw`W^* = \arg\min_{w \in \Delta^{J-1}} \bigl\| X_1 - X_0\, w \bigr\|^{2},\qquad \widehat{\mathrm{ATT}}_t = Y_{1t} - \sum_{j=2}^{J+1} w_j^*\, Y_{jt}`,
+    python: `import numpy as np
+from scipy.optimize import minimize
+
+def synthetic_control(X1, X0):
+    """X1: (T0,) treated pre-period; X0: (T0, J) donor pool."""
+    J = X0.shape[1]
+    cons = [{"type": "eq", "fun": lambda w: w.sum() - 1}]
+    bnds = [(0, 1)] * J
+    res = minimize(lambda w: ((X1 - X0 @ w) ** 2).sum(),
+                   x0=np.ones(J)/J, bounds=bnds, constraints=cons)
+    return res.x`,
+    component: SyntheticControlTool },
   { id: "gmm",   name: "GMM (广义矩估计)", nameEn: "Generalized Method of Moments",
     formula: String.raw`\hat{\mu}_{\mathrm{GMM}} = \arg\min_{\mu}\; g(\mu)^{\!\top}\, W\, g(\mu), \qquad J = n \cdot Q(\hat{\mu}_{\mathrm{eff}}) \sim \chi^2_{q-p}`,
     python: `import numpy as np
