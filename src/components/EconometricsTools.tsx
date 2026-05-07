@@ -2339,6 +2339,21 @@ def garch_loglik(params, r):
         sig2[t] = omega + alpha * r[t-1]**2 + beta * sig2[t-1]
     return 0.5 * np.sum(np.log(sig2) + r**2 / sig2)`,
     component: GARCHTool },
+  { id: "regime", name: "Markov Regime-Switching (Hamilton)", nameEn: "Markov Regime-Switching Model — Hamilton (1989)",
+    formula: String.raw`y_t \mid S_t = i \;\sim\; \mathcal{N}(\mu_i,\, \sigma_i^2),\qquad \Pr(S_t = j \mid S_{t-1} = i) = p_{ij},\qquad \mathbb{E}[d_i] = \dfrac{1}{1 - p_{ii}}`,
+    python: `import numpy as np
+
+def hamilton_filter(y, mu, sigma, P):
+    """Forward filter for 2-state Gaussian Markov-switching model."""
+    T = len(y); pi1 = (1 - P[1,1]) / (2 - P[0,0] - P[1,1])
+    pred = np.array([pi1, 1 - pi1]); filt = np.zeros((T, 2)); ll = 0.0
+    for t in range(T):
+        lik = np.array([np.exp(-0.5*((y[t]-mu[i])/sigma[i])**2)/(sigma[i]*np.sqrt(2*np.pi)) for i in range(2)])
+        joint = pred * lik; s = joint.sum()
+        ll += np.log(s); filt[t] = joint / s
+        pred = filt[t] @ P
+    return filt, ll`,
+    component: RegimeSwitchTool },
   { id: "dcc", name: "DCC-GARCH (动态相关)", nameEn: "Dynamic Conditional Correlation — Engle (2002)",
     formula: String.raw`Q_t = (1-a-b)\,\bar{Q} + a\,z_{t-1}z_{t-1}^{\top} + b\,Q_{t-1},\qquad R_t = \mathrm{diag}(Q_t)^{-1/2}\, Q_t\, \mathrm{diag}(Q_t)^{-1/2},\quad \Sigma_t = D_t R_t D_t`,
     python: `import numpy as np
