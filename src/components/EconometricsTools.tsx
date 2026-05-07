@@ -13,6 +13,7 @@ import { HistoryDrawer } from "@/components/common/HistoryDrawer";
 import { GARCHTool, CointTool, KalmanTool } from "./econ/Sprint1Tools";
 import { MIDASTool } from "./econ/MIDASTool";
 import { DCCGarchTool } from "./econ/DCCGarchTool";
+import { SyntheticControlTool, StaggeredDIDTool, RegimeSwitchTool } from "./econ/CausalAdvancedTools";
 import { EquationBlock } from "@/components/common/EquationBlock";
 
 const CHART_GOLD = "hsl(43, 80%, 55%)";
@@ -2218,7 +2219,7 @@ const ResultRow = ({ label, value, truth, se, color }: { label: string; value: n
 };
 
 /* ──────────────────  Main module  ────────────────── */
-type ToolId = "olsiv" | "did" | "rdd" | "gmm" | "svar" | "garch" | "dcc" | "coint" | "kalman" | "midas";
+type ToolId = "olsiv" | "did" | "sdid" | "rdd" | "synth" | "gmm" | "svar" | "garch" | "dcc" | "regime" | "coint" | "kalman" | "midas";
 
 const TOOLS: { id: ToolId; name: string; nameEn: string; formula: string; python: string; component: React.FC }[] = [
   { id: "olsiv", name: "OLS / IV (工具变量)", nameEn: "Ordinary Least Squares & Instrumental Variables",
