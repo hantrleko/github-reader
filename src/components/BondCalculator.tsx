@@ -24,6 +24,7 @@ import {
   Area,
 } from "recharts";
 import { EquationBlock } from "@/components/common/EquationBlock";
+import { RatesTermStructure } from "./bond/RatesTermStructure";
 
 const CHART_GOLD = "hsl(43, 80%, 55%)";
 const CHART_TEAL = "hsl(180, 50%, 40%)";
@@ -32,7 +33,7 @@ const CHART_BLUE = "hsl(220, 70%, 55%)";
 const CHART_GRID = "hsl(var(--border))";
 const CHART_TEXT = "hsl(var(--muted-foreground))";
 
-type TabId = "pricing" | "duration" | "curve";
+type TabId = "pricing" | "duration" | "curve" | "termstruct";
 
 // ─── Bond Pricing ───
 function bondPrice(face: number, coupon: number, ytm: number, n: number, freq: number) {
@@ -218,6 +219,8 @@ const BondCalculator = () => {
       formula: String.raw`D_{\mathrm{mod}} = \dfrac{D_{\mathrm{Mac}}}{1+y},\quad \dfrac{\Delta P}{P} \approx -D_{\mathrm{mod}}\,\Delta y + \tfrac{1}{2}\,\mathrm{Conv}\,(\Delta y)^2` },
     { id: "curve", name: "收益率曲线", nameEn: "Nelson-Siegel Yield Curve",
       formula: String.raw`y(\tau) = \beta_0 + \beta_1\,\dfrac{1-e^{-\tau/\lambda}}{\tau/\lambda} + \beta_2\,\Bigl[\dfrac{1-e^{-\tau/\lambda}}{\tau/\lambda} - e^{-\tau/\lambda}\Bigr]` },
+    { id: "termstruct", name: "Hull-White & Bootstrapping", nameEn: "Term Structure — Bootstrapping & Hull-White (1990)",
+      formula: String.raw`\text{Bootstrap: }P(0,T_i)=\dfrac{1-c\sum_{j<i}P(0,T_j)}{1+c}\quad\Big|\quad \text{HW: }dr_t=(\theta(t)-a\,r_t)\,dt+\sigma\,dW_t` },
   ];
 
   const sliderClass = "w-full h-1.5 rounded-full appearance-none cursor-pointer bg-secondary accent-gold [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-gold [&::-webkit-slider-thumb]:shadow-md";
