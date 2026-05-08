@@ -2451,6 +2451,38 @@ def fit_midas(y, X_high, K, x0=(0.0, 1.0, 1.0, 5.0)):
     component: MIDASTool },
 ];
 
+TOOLS.push({
+  id: "logit",
+  name: "Logit / Probit (离散选择)",
+  nameEn: "Binary Choice Models — Logit, Probit & Marginal Effects",
+  formula: String.raw`P(y_i=1\mid x_i) = F(x_i^{\top}\beta),\qquad \mathrm{AME}_k = \frac{1}{n}\sum_{i=1}^{n} f(x_i^{\top}\hat{\beta})\,\hat{\beta}_k,\qquad F \in \{\Lambda,\,\Phi\}`,
+  python: `import numpy as np
+from scipy.optimize import minimize
+from scipy.stats import norm
+
+def neg_ll(beta, X, y, family="logit"):
+    z = X @ beta
+    if family == "logit":
+        p = 1 / (1 + np.exp(-z))
+    else:
+        p = norm.cdf(z)
+    p = np.clip(p, 1e-12, 1 - 1e-12)
+    return -(y * np.log(p) + (1 - y) * np.log(1 - p)).sum()
+
+def fit(X, y, family="logit"):
+    res = minimize(neg_ll, np.zeros(X.shape[1]), args=(X, y, family), method="BFGS")
+    return res.x
+
+def ame(beta, X, family="logit"):
+    z = X @ beta
+    if family == "logit":
+        f = (1 / (1 + np.exp(-z))) * (1 - 1 / (1 + np.exp(-z)))
+    else:
+        f = norm.pdf(z)
+    return f.mean() * beta  # vector of marginal effects`,
+  component: LogitProbitTool,
+});
+
 
 /** Compact collapsible Python reference snippet — companion to the formula bar. */
 const PythonReference = ({ code }: { code: string }) => {
