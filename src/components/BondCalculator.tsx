@@ -660,6 +660,9 @@ price = bond_price(face=${face}, coupon_rate=${couponRate},
               </div>
             </>
           )}
+
+          {/* ═══ TERM-STRUCTURE / HULL-WHITE TAB ═══ */}
+          {tab === "termstruct" && <RatesTermStructure />}
         </motion.div>
       </div>
     </section>
