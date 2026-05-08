@@ -21,7 +21,7 @@ const RELEASES = [
       },
     ],
   },
-  // (V1.9 entry rewritten below — placeholder to satisfy patch tool)
+  // (placeholder removed)
   {
     version: "V1.8",
     date: "2026-04",
