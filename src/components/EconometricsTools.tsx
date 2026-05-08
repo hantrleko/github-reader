@@ -14,6 +14,7 @@ import { GARCHTool, CointTool, KalmanTool } from "./econ/Sprint1Tools";
 import { MIDASTool } from "./econ/MIDASTool";
 import { DCCGarchTool } from "./econ/DCCGarchTool";
 import { SyntheticControlTool, StaggeredDIDTool, RegimeSwitchTool } from "./econ/CausalAdvancedTools";
+import { LogitProbitTool } from "./econ/LogitProbitTool";
 import { EquationBlock } from "@/components/common/EquationBlock";
 
 const CHART_GOLD = "hsl(43, 80%, 55%)";
@@ -2219,7 +2220,7 @@ const ResultRow = ({ label, value, truth, se, color }: { label: string; value: n
 };
 
 /* ──────────────────  Main module  ────────────────── */
-type ToolId = "olsiv" | "did" | "sdid" | "rdd" | "synth" | "gmm" | "svar" | "garch" | "dcc" | "regime" | "coint" | "kalman" | "midas";
+type ToolId = "olsiv" | "did" | "sdid" | "rdd" | "synth" | "gmm" | "svar" | "garch" | "dcc" | "regime" | "coint" | "kalman" | "midas" | "logit";
 
 const TOOLS: { id: ToolId; name: string; nameEn: string; formula: string; python: string; component: React.FC }[] = [
   { id: "olsiv", name: "OLS / IV (工具变量)", nameEn: "Ordinary Least Squares & Instrumental Variables",
@@ -2449,6 +2450,38 @@ def fit_midas(y, X_high, K, x0=(0.0, 1.0, 1.0, 5.0)):
     return res.x  # alpha, beta, theta1, theta2`,
     component: MIDASTool },
 ];
+
+TOOLS.push({
+  id: "logit",
+  name: "Logit / Probit (离散选择)",
+  nameEn: "Binary Choice Models — Logit, Probit & Marginal Effects",
+  formula: String.raw`P(y_i=1\mid x_i) = F(x_i^{\top}\beta),\qquad \mathrm{AME}_k = \frac{1}{n}\sum_{i=1}^{n} f(x_i^{\top}\hat{\beta})\,\hat{\beta}_k,\qquad F \in \{\Lambda,\,\Phi\}`,
+  python: `import numpy as np
+from scipy.optimize import minimize
+from scipy.stats import norm
+
+def neg_ll(beta, X, y, family="logit"):
+    z = X @ beta
+    if family == "logit":
+        p = 1 / (1 + np.exp(-z))
+    else:
+        p = norm.cdf(z)
+    p = np.clip(p, 1e-12, 1 - 1e-12)
+    return -(y * np.log(p) + (1 - y) * np.log(1 - p)).sum()
+
+def fit(X, y, family="logit"):
+    res = minimize(neg_ll, np.zeros(X.shape[1]), args=(X, y, family), method="BFGS")
+    return res.x
+
+def ame(beta, X, family="logit"):
+    z = X @ beta
+    if family == "logit":
+        f = (1 / (1 + np.exp(-z))) * (1 - 1 / (1 + np.exp(-z)))
+    else:
+        f = norm.pdf(z)
+    return f.mean() * beta  # vector of marginal effects`,
+  component: LogitProbitTool,
+});
 
 
 /** Compact collapsible Python reference snippet — companion to the formula bar. */
