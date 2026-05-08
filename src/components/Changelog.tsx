@@ -21,8 +21,6 @@ const RELEASES = [
       },
     ],
   },
-  // _v19_anchor_
-  // (placeholder removed)
   {
     version: "V1.8",
     date: "2026-04",
