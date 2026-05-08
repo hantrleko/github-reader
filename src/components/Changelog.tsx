@@ -10,13 +10,64 @@ const RELEASES = [
     highlights: [
       {
         icon: Sparkles,
-        title: "DCC-GARCH 多变量动态相关",
+        title: "Heston 随机波动率模型 (衍生品)",
         items: [
-          "Engle (2002) 两步 QMLE: 先对每资产估计单变量 GARCH(1,1), 再在标准化残差上估计 DCC(a,b)",
-          "动态可增删 2-4 资产卡片, 每张卡显示 ω/α/β 与持续性 α+β",
-          "双数据源: 内置 5y SPY/TLT/GLD/QQQ 合成日频 (含 2020 危机窗口) + Yahoo 实时拉取并按日期交集对齐",
-          "可视化: ρ_ij(t) 多曲线 + 危机期着色, 可拖动的相关矩阵热力图快照, 组合时变 σ_p 与 95/99% VaR 曲线, 标准化残差散点诊断",
-          "教学价值: 直观演示「相关性崩塌」如何让多元化在压力期同时失效",
+          "Euler 离散化 Monte Carlo:同时演化 dSₜ 与 CIR 方差过程 dvₜ = κ(θ−v)dt + ξ√v dW₂,带 ρ 相关 Brownian",
+          "交互式 Volatility Smile:从 MC 价格反演 IV,与 BS 平坦 IV 假设并排对比,直观展示 Heston 如何捕捉 skew",
+          "可调 κ/θ/ξ/ρ/v₀ 与教科书 / Bakshi-Cao-Chen / Crisis 等多套预设,样本路径与终值分布同屏可视化",
+        ],
+      },
+      {
+        icon: Sparkles,
+        title: "Hull-White + Bootstrapping 利率曲线 (固收)",
+        items: [
+          "Bootstrapping:从可编辑的 par-bond 收益率迭代求解零息曲线与远期曲线",
+          "Hull-White (1-factor):校准到初始远期曲线的短期利率模拟,fan chart 展示路径分布与均值回复",
+          "全套交互参数 (a, σ, T, paths) 与重置预设,与 Vasicek/CIR 形成完整利率期限结构闭环",
+        ],
+      },
+      {
+        icon: Sparkles,
+        title: "Expected Shortfall + VaR 回测 (风险)",
+        items: [
+          "在传统 VaR 之外加入 ES (CVaR),分别用 Normal 与 Student-t 厚尾分布闭式计算",
+          "Kupiec POF 无条件覆盖检验 + Christoffersen 独立性检验,通过 χ² 序列近似自动给出 p-value",
+          "命中序列时间轴可视化与超出阈值的红色标记,符合 Basel FRTB 监管标准",
+        ],
+      },
+      {
+        icon: Sparkles,
+        title: "Risk Parity / HRP 组合优化 (量化)",
+        items: [
+          "Equal Risk Contribution (ERC):循环坐标下降迭代求解,使每个资产对组合波动贡献相等",
+          "Hierarchical Risk Parity (Lopez de Prado 2016):基于单链聚类的递归二分配权,无需 Σ⁻¹ 更稳健",
+          "与 Mean-Variance / Equal-Weight 三方对照:权重柱图、风险贡献分解、相关矩阵热力图同屏对比",
+        ],
+      },
+      {
+        icon: Sparkles,
+        title: "Logit / Probit + 边际效应 (计量)",
+        items: [
+          "Newton-Raphson (IRLS) MLE 同时拟合 Logit (Λ) 与 Probit (Φ),系数 ± SE 来自 Fisher 信息矩阵",
+          "AME (Average Marginal Effect) 与 MEM (Marginal Effect at Means) 双指标,与 LPM (OLS) 同表对比",
+          "预测概率曲线、McFadden Pseudo-R²、0.5 阈值分类准确率;含「稀有事件 / 小样本 / Probit DGP」预设",
+        ],
+      },
+      {
+        icon: Wrench,
+        title: "RDD CCT 带宽 + 进阶因果推断套件",
+        items: [
+          "RDD 工具新增 ROT (经验法则) ↔ CCT (Calonico-Cattaneo-Titiunik 最优带宽) 一键切换,辅以 MSE 诊断",
+          "新增 CausalAdvancedTools:Synthetic Control (ADH 2010,含 Placebo-in-space p-value)、Staggered DID (Callaway-Sant'Anna 2021)、Markov Regime-Switching (Hamilton 1989)",
+          "DCC-GARCH (Engle 2002) 两步 QMLE:动态相关矩阵热力图 + 组合时变 VaR + 「相关性崩塌」可视化",
+        ],
+      },
+      {
+        icon: GraduationCap,
+        title: "版本号同步",
+        items: [
+          "Navbar 徽章 + Footer + Changelog 同步至 V1.9 (中英 i18n 一致),V1.8 标记为 Stable",
+          "本版本一次性补齐 5 个跨学科核心模型 + 因果推断套件,计量 / 衍生品 / 固收 / 风险 / 量化全线覆盖主流教材模型",
         ],
       },
     ],
@@ -397,7 +448,7 @@ const Changelog = () => {
             {t("changelog.title")}
           </h2>
           <p className="text-sm text-muted-foreground font-mono">
-            {t("changelog.subtitle")} — V1.0 → V1.8
+            {t("changelog.subtitle")} — V1.0 → V1.9
           </p>
         </motion.div>
 
