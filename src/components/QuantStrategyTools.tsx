@@ -6,9 +6,10 @@ import "katex/dist/katex.min.css";
 import { ShareExportToolbar, useSharedState } from "@/lib/calculatorTools";
 import { HistoryDrawer } from "@/components/common/HistoryDrawer";
 import { BacktestTool, BlackLittermanTool, FamaFrenchTool } from "./quant/Sprint4Tools";
+import { RiskParityTool } from "./quant/RiskParityTool";
 import { EquationBlock } from "@/components/common/EquationBlock";
 
-type ToolId = "backtest" | "bl" | "ff5";
+type ToolId = "backtest" | "bl" | "rp" | "ff5";
 
 const TOOLS: { id: ToolId; name: string; nameEn: string; formula: string; component: React.FC }[] = [
   {
@@ -20,6 +21,11 @@ const TOOLS: { id: ToolId; name: string; nameEn: string; formula: string; compon
     id: "bl", name: "Black-Litterman 贝叶斯组合", nameEn: "Black-Litterman Bayesian Portfolio Construction",
     formula: String.raw`\pi = \delta\,\Sigma\, w_{\text{mkt}},\qquad \tilde\mu = \pi + \tau\Sigma P^{\!\top}\!\bigl(P\,\tau\Sigma\,P^{\!\top}+\Omega\bigr)^{\!-1}\!\bigl(Q - P\pi\bigr)`,
     component: BlackLittermanTool,
+  },
+  {
+    id: "rp", name: "Risk Parity / HRP", nameEn: "Risk Parity (ERC) & Hierarchical Risk Parity — Maillard 2010 / Lopez de Prado 2016",
+    formula: String.raw`\text{ERC: } w_i\,(\Sigma w)_i = w_j\,(\Sigma w)_j\;\;\forall\,i,j,\qquad \text{HRP: } d_{ij}=\sqrt{(1-\rho_{ij})/2}\;\to\;\text{cluster}\;\to\;\text{recursive bisection}`,
+    component: RiskParityTool,
   },
   {
     id: "ff5", name: "Fama-French 5 因子归因", nameEn: "Fama-French 5-Factor Performance Attribution",

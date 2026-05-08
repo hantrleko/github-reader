@@ -11,6 +11,7 @@ import PresetButtons from "./PresetButtons";
 import { ShareExportToolbar, useSharedState } from "@/lib/calculatorTools";
 import { HistoryDrawer } from "@/components/common/HistoryDrawer";
 import { EquationBlock } from "@/components/common/EquationBlock";
+import { ESBacktestTool } from "./risk/ESBacktestTool";
 
 const CHART_GOLD = "hsl(43, 80%, 55%)";
 const CHART_TEAL = "hsl(180, 50%, 40%)";
@@ -656,7 +657,7 @@ export const StressTool = () => {
 /* ════════════════════════════════════════════════════════════
    Main module
    ════════════════════════════════════════════════════════════ */
-type ToolId = "merton" | "copula" | "stress";
+type ToolId = "merton" | "copula" | "esback" | "stress";
 
 const TOOLS: { id: ToolId; name: string; nameEn: string; formula: string; python: string; component: React.FC }[] = [
   {
@@ -696,6 +697,29 @@ def t_copula_sample(rho, df=4, n=10000, seed=42):
     t = z / np.sqrt(chi2)[:, None]
     return student_t.cdf(t, df)`,
     component: CopulaTool,
+  },
+  {
+    id: "esback", name: "ES + VaR 回测", nameEn: "Expected Shortfall & VaR Backtesting (Kupiec / Christoffersen)",
+    formula: String.raw`\mathrm{VaR}_\alpha = -F_{L}^{-1}(1-\alpha),\quad \mathrm{ES}_\alpha = \mathbb{E}[L\mid L>\mathrm{VaR}_\alpha],\qquad \mathrm{LR}_{\mathrm{uc}} = -2\ln\!\dfrac{p^{x}(1-p)^{N-x}}{\hat p^{x}(1-\hat p)^{N-x}} \sim \chi^{2}_{1}`,
+    python: `import numpy as np
+from scipy.stats import norm, chi2
+
+def kupiec_pof(loss, var, alpha):
+    """Unconditional coverage LR test."""
+    N = len(loss); x = int(np.sum(loss > var))
+    p = 1 - alpha
+    if x in (0, N):
+        LR = -2 * (x*np.log(p) + (N-x)*np.log(1-p))
+    else:
+        ph = x / N
+        LR = -2 * (x*np.log(p) + (N-x)*np.log(1-p)
+                  - x*np.log(ph) - (N-x)*np.log(1-ph))
+    return LR, 1 - chi2.cdf(LR, 1)
+
+def expected_shortfall(loss, alpha):
+    var = np.quantile(loss, alpha)
+    return loss[loss > var].mean()`,
+    component: ESBacktestTool,
   },
   {
     id: "stress", name: "压力测试", nameEn: "Stress Testing — Historical & Hypothetical Scenarios",

@@ -5,15 +5,21 @@ import { useTranslation } from "react-i18next";
 import "katex/dist/katex.min.css";
 import { ShareExportToolbar, useSharedState } from "@/lib/calculatorTools";
 import { VolSurfaceTool, AmericanOptionTool, RatesDerivativesTool } from "./deriv/Sprint3Tools";
+import { HestonTool } from "./deriv/HestonTool";
 import { EquationBlock } from "@/components/common/EquationBlock";
 
-type ToolId = "vol" | "amer" | "rates";
+type ToolId = "vol" | "heston" | "amer" | "rates";
 
 const TOOLS: { id: ToolId; name: string; nameEn: string; formula: string; component: React.FC }[] = [
   {
     id: "vol", name: "波动率曲面 (SVI 3D)", nameEn: "Implied Volatility Surface — SVI Parametrization",
     formula: String.raw`w(k) \;=\; a + b\bigl\{\rho(k - m) + \sqrt{(k-m)^2 + \sigma^2}\bigr\},\qquad \sigma_{\mathrm{IV}}(k,T) = \sqrt{w(k)/T}`,
     component: VolSurfaceTool,
+  },
+  {
+    id: "heston", name: "Heston 随机波动率", nameEn: "Heston Stochastic Volatility — Smile/Skew Generator",
+    formula: String.raw`dS_t = r\,S_t\,dt + \sqrt{v_t}\,S_t\,dW_1,\qquad dv_t = \kappa(\theta - v_t)\,dt + \xi\sqrt{v_t}\,dW_2,\qquad \mathrm{Corr}(dW_1,dW_2)=\rho`,
+    component: HestonTool,
   },
   {
     id: "amer", name: "美式期权 (LSM)", nameEn: "American Option — Longstaff-Schwartz Least-Squares Monte Carlo",
