@@ -1,66 +1,83 @@
-## 现状
+## 各模块现状回顾
 
-计量模块已覆盖：OLS/IV、DID（含事件研究）、RDD（Sharp/Fuzzy/Donut/CCT）、GMM、SVAR/IRF、GARCH/EGARCH、DCC-GARCH、协整/VECM、Kalman/HP 滤波、MIDAS。
+- **衍生品 (Derivatives)**：BS、隐含波动率、SVI 曲面、美式 LSM、Caps/Floors/Swaptions、MC 定价
+- **固定收益 (Bond)**：DCF 定价、久期/凸性、Nelson-Siegel
+- **风险 (Risk)**：Merton 信用、Copula 联合 VaR、压力情景、（基础 VaR/ES）
+- **组合/量化 (Quant)**：Markowitz、有效前沿、Black-Litterman、回测、FF5 归因
+- **利率 (Rates)**：Vasicek、CIR
+- **计量 (Econ)**：OLS/IV、DID、RDD（Sharp/Fuzzy/Donut/CCT）、GMM、SVAR/IRF、GARCH/EGARCH、DCC、协整/VECM、Kalman/HP、MIDAS、Synthetic Control、Staggered DID、Markov Regime-Switching
 
-下面按"教学价值 × 实现可行性"分四个梯队列出可加入的模型，供你勾选。
-
----
-
-## A. 面板数据 / 因果识别（最高优先级，补齐缺口）
-
-1. **Synthetic Control (Abadie-Diamond-Hainmueller 2010)**
-   合成对照法。单一处理单元，构造加权"合成对照"。可视化：真实 vs 合成路径、Placebo in-space/in-time、permutation p-value、leave-one-out 稳健性。
-2. **Staggered DID — Callaway-Sant'Anna (2021) / Sun-Abraham (2021)**
-   交错处理下的异质性 ATT(g,t)。对比 TWFE 偏误（Goodman-Bacon 分解）、绘制群组-时间效应矩阵。
-3. **PSM / IPW / Doubly-Robust (AIPW)**
-   倾向得分匹配 + 加权 + 双稳健 ATE。可视化共同支撑、协变量平衡（SMD 图）、ATT/ATE 对比。
-4. **Panel Fixed/Random Effects + Hausman 检验**
-   FE / RE / Pooled OLS 三种估计 + Hausman χ² 决策。
-
-## B. 时间序列 / 预测
-
-5. **ARIMA(p,d,q) + 自动定阶（AIC/BIC）**
-   ACF/PACF 图、Ljung-Box 残差检验、out-of-sample 滚动预测带。
-6. **State-Space / DLM（局部水平 + 季节）**
-   已有 Kalman，可扩展为完整结构时序模型（Harvey 1989）。
-7. **Markov Regime-Switching (Hamilton 1989)**
-   双状态均值/方差切换，平滑概率图（识别衰退期）。
-8. **Local Projections (Jordà 2005)**
-   IRF 的回归式替代方案，与 SVAR IRF 并排对比。
-
-## C. 离散选择 / 微观计量
-
-9. **Logit / Probit + 边际效应**
-   ROC、混淆矩阵、AME vs MEM。
-10. **Tobit / Heckman 两步法**
-    截断 / 样本选择偏差校正。
-11. **Quantile Regression (Koenker-Bassett 1978)**
-    多分位数系数路径图。
-
-## D. 现代/机器学习计量
-
-12. **Double / Debiased Machine Learning (Chernozhukov et al. 2018)**
-    DML 的 partialling-out 演示，对比 OLS 偏误。
-13. **Causal Forest / GRF (Athey-Wager)**
-    异质性处理效应（HTE）的简化版可视化。
-14. **LASSO / Ridge / Elastic Net + 交叉验证**
-    系数路径与 CV 误差曲线。
+下面按学科列出**仍缺的重要模型**。
 
 ---
 
-## 推荐组合（如果只挑 3 个）
+## A. 衍生品 / 期权（结构性缺口大）
 
-- **Synthetic Control**（最经典且 RDD/DID 之后的自然延伸）
-- **Staggered DID (Callaway-Sant'Anna)**（修正现有 DID 的核心已知偏误）
-- **Markov Regime-Switching**（与 GARCH/SVAR 形成时序三件套）
+1. **Heston 随机波动率模型** — `dv = κ(θ−v)dt + ξ√v dW₂`，半解析（Carr-Madan FFT）定价 + 波动率曲面拟合，对比 BS 平坦 IV 的失败
+2. **SABR 模型** — `dF = σ F^β dW₁`，Hagan 隐含波动率近似公式，IR/Swaption 行业标准
+3. **Bates / Merton 跳跃扩散** — 加入 Poisson 跳跃，捕捉股指左尾与短期 smile
+4. **Local Volatility (Dupire)** — 由 IV 曲面反推 σ(S,t)，与 SVI 工具天然衔接
+5. **变分/障碍/亚式期权** — Barrier (UO/DO/UI/DI)、Asian (算术/几何) 解析+MC
+6. **Greeks 完整工作台** — Delta/Gamma/Vega/Theta/Rho/Vanna/Volga 热图
+
+## B. 固定收益 / 利率期限结构
+
+7. **Hull-White (扩展 Vasicek)** — 校准到当前零息曲线，trinomial tree
+8. **HJM / LMM (LIBOR Market Model)** — 远期利率框架，与 Vasicek/CIR 并列
+9. **Bootstrapping 即期曲线** — 从息票债 → spot/forward 曲线（教学经典）
+10. **OAS (Option-Adjusted Spread)** — 含赎回条款债券，配合 Hull-White 树
+11. **Svensson 曲线** — Nelson-Siegel 的 6 参数扩展（央行常用）
+
+## C. 信用风险 / 风险管理
+
+12. **CreditMetrics / CreditRisk+** — 组合层面信用 VaR
+13. **Reduced-Form (Jarrow-Turnbull, Duffie-Singleton)** — 强度模型，与 Merton 结构模型对照
+14. **CVA / DVA / FVA** — 交易对手信用估值调整（巴塞尔 III 必修）
+15. **Expected Shortfall + Cornish-Fisher VaR** — 巴塞尔 FRTB 主推度量
+16. **EVT / POT (Peaks-Over-Threshold)** — 极值理论尾部建模
+17. **Backtesting VaR** — Kupiec POF + Christoffersen 独立性检验
+
+## D. 投资组合 / 量化（中等优先级）
+
+18. **Risk Parity / HRP (Hierarchical Risk Parity)** — Lopez de Prado，无需 Σ⁻¹ 的现代分散
+19. **Mean-CVaR 优化 (Rockafellar-Uryasev)** — 用 CVaR 替代方差作为风险度量
+20. **Kelly Criterion / 凯利下注** — 对数效用最优杠杆
+21. **Carhart 4 因子 / Q-Factor / Hou-Xue-Zhang** — FF5 之外的主流因子模型
+22. **Performance Attribution (Brinson)** — 资产配置 vs 选股贡献分解
+
+## E. 计量（仍未覆盖）
+
+23. **Logit / Probit + 边际效应** — 离散选择必修
+24. **Quantile Regression** — 分位数路径
+25. **Local Projections (Jordà 2005)** — IRF 的回归式替代
+26. **Double / Debiased ML (Chernozhukov 2018)** — 现代因果推断
+27. **PSM / IPW / AIPW** — 倾向得分三件套
+
+## F. 宏观 / 经济学
+
+28. **Solow 增长模型** — 资本动力学 + 黄金率
+29. **DSGE 简化版 (3 方程 New Keynesian)** — IS / Phillips / Taylor 规则
+30. **Ramsey-Cass-Koopmans** — 最优消费跨期
+31. **Mundell-Fleming** — 开放经济 IS-LM-BP
+
+---
+
+## 推荐路线（如果只挑下一波 5 个）
+
+跨学科补关键缺口、避免单一模块膨胀：
+
+1. **Heston 随机波动率**（衍生品 — 最大缺口，与 SVI/IV 工具构成完整曲面体系）
+2. **Hull-White + Bootstrapping 曲线**（固收 — 完整利率期限结构闭环）
+3. **Expected Shortfall + Backtesting (Kupiec/Christoffersen)**（风险 — FRTB 标配）
+4. **Risk Parity / HRP**（组合 — Markowitz 之外的现代主流）
+5. **Logit / Probit + 边际效应**（计量 — 离散选择经典缺口）
+
+如果想要更激进的扩展，可以再加 **SABR**（衍生品）、**DSGE 三方程**（宏观）、**Double ML**（计量现代）。
 
 ---
 
 ## 请你确认
 
-请告诉我：
-- 想加入哪几个（编号即可，例如 "1, 2, 7"）
-- 是否需要为新增模型保持与现有 RDD 同等深度（presets / CCT 级别的稳健性检验 / 教学公式 + 中文解读）
-- 是否需要拆分到独立文件（如 `src/components/econ/CausalAdvanced.tsx`），避免 `EconometricsTools.tsx` 继续膨胀
-
-确认后我会输出实现计划并进入构建。
+- 选哪几个（编号）？例如 "1, 2, 7, 12, 23"
+- 是否仍按现有标准实现：preset / LaTeX 公式 / 中文教学卡 / 可视化 + 稳健性
+- 新增宏观模块需要单独建一个 section（`MacroTools.tsx`）吗，还是只在计量内追加？
