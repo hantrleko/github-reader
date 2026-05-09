@@ -6,9 +6,12 @@ import "katex/dist/katex.min.css";
 import { ShareExportToolbar, useSharedState } from "@/lib/calculatorTools";
 import { VolSurfaceTool, AmericanOptionTool, RatesDerivativesTool } from "./deriv/Sprint3Tools";
 import { HestonTool } from "./deriv/HestonTool";
+import { SABRTool } from "./deriv/SABRTool";
+import { LocalVolTool } from "./deriv/LocalVolTool";
+import { GreeksDeskTool } from "./deriv/GreeksDeskTool";
 import { EquationBlock } from "@/components/common/EquationBlock";
 
-type ToolId = "vol" | "heston" | "amer" | "rates";
+type ToolId = "vol" | "heston" | "sabr" | "localvol" | "greeks" | "amer" | "rates";
 
 const TOOLS: { id: ToolId; name: string; nameEn: string; formula: string; component: React.FC }[] = [
   {
@@ -20,6 +23,21 @@ const TOOLS: { id: ToolId; name: string; nameEn: string; formula: string; compon
     id: "heston", name: "Heston 随机波动率", nameEn: "Heston Stochastic Volatility — Smile/Skew Generator",
     formula: String.raw`dS_t = r\,S_t\,dt + \sqrt{v_t}\,S_t\,dW_1,\qquad dv_t = \kappa(\theta - v_t)\,dt + \xi\sqrt{v_t}\,dW_2,\qquad \mathrm{Corr}(dW_1,dW_2)=\rho`,
     component: HestonTool,
+  },
+  {
+    id: "sabr", name: "SABR 模型", nameEn: "SABR Stochastic-α-β-ρ — Hagan (2002) Implied Vol",
+    formula: String.raw`dF_t = \alpha_t\, F_t^{\beta}\, dW_1,\quad d\alpha_t = \nu\,\alpha_t\, dW_2,\quad \mathrm{Corr}(dW_1,dW_2)=\rho \;\Rightarrow\; \sigma_B(K,F,T) \;\text{(Hagan 近似)}`,
+    component: SABRTool,
+  },
+  {
+    id: "localvol", name: "Local Volatility (Dupire)", nameEn: "Dupire Local Volatility — Inversion from IV Surface",
+    formula: String.raw`\sigma_{\text{loc}}^{2}(K,T) \;=\; \dfrac{\partial C/\partial T \;+\; r\,K\,\partial C/\partial K}{\tfrac12 K^{2}\, \partial^{2} C/\partial K^{2}}`,
+    component: LocalVolTool,
+  },
+  {
+    id: "greeks", name: "Greeks 完整工作台", nameEn: "Black-Scholes Greeks Desk — Δ Γ Vega Θ ρ Vanna Volga",
+    formula: String.raw`\Delta = e^{-qT} N(d_1),\quad \Gamma = \dfrac{e^{-qT} n(d_1)}{S\sigma\sqrt{T}},\quad \mathrm{Vega} = S e^{-qT} n(d_1)\sqrt{T},\quad \mathrm{Vanna} = -\dfrac{e^{-qT} n(d_1)\, d_2}{\sigma}`,
+    component: GreeksDeskTool,
   },
   {
     id: "amer", name: "美式期权 (LSM)", nameEn: "American Option — Longstaff-Schwartz Least-Squares Monte Carlo",
