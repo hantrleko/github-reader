@@ -4,9 +4,70 @@ import { useTranslation } from "react-i18next";
 
 const RELEASES = [
   {
-    version: "V1.9",
+    version: "V2.0",
     date: "2026-05",
     tag: "Latest",
+    highlights: [
+      {
+        icon: Sparkles,
+        title: "SABR 模型 (衍生品) — IR/Swaption 行业标准",
+        items: [
+          "Hagan et al. (2002) 隐含 Black 波动率解析近似:dF=αF^β dW₁, dα=ν α dW₂, Corr=ρ —— 无需 MC,瞬时标定 smile",
+          "β 敏感性对比:同图叠加 β=0 (Normal SABR,LIBOR 市场) 与 β=1 (Lognormal),凸出 CEV 弹性的几何意义",
+          "ATM IV / 25Δ Risk Reversal / vol-of-vol 比率三元统计 + 股指 / FX / 利率 / Hagan 论文示例多套预设",
+        ],
+      },
+      {
+        icon: Sparkles,
+        title: "Local Volatility (Dupire) — 衍生品",
+        items: [
+          "Dupire (1994) 公式数值反演:σ²_loc = (∂C/∂T + rK·∂C/∂K) / (½K²·∂²C/∂K²),从 IV 曲面唯一确定确定性局部波动率",
+          "可调 SVI 风格 IV 曲面 (ATM σ / Skew / Curvature / 期限斜率) 与 Dupire 反演 σ_loc 同图对比",
+          "可视化经典直觉「σ_loc 是 σ_iv 的双倍 skew」,平直曲面退化为 BS 常数 σ 的边界检验",
+        ],
+      },
+      {
+        icon: Sparkles,
+        title: "Greeks 完整工作台 — 衍生品",
+        items: [
+          "Δ / Γ / Vega / Θ / ρ 一阶 Greeks 与 Vanna / Volga 二阶 Greeks 解析全套,带分红率 q 的广义 BS",
+          "沿 S 或 T 一键扫描的剖面图:深虚值 → ATM → 深实值的 Greeks 全景",
+          "ATM / 短期 ATM / 高波动率 / 深虚值 put 多套预设直观演示 Γ-Θ 对偶、Vega 主导、Vanna 倾斜效应",
+        ],
+      },
+      {
+        icon: Sparkles,
+        title: "Quantile Regression (计量) — Koenker-Bassett",
+        items: [
+          "Schlossmacher (1973) IRLS 求解多个分位数 τ ∈ {0.10, 0.25, 0.50, 0.75, 0.90},与 OLS 同表对比",
+          "β₁(τ) 系数路径:若曲线随 τ 变化 ⇒ 异方差或位置-尺度依赖,这是 OLS 看不见的尾部信息",
+          "DGP 切换:同方差 / 异方差 / 异常值 / 右偏分布,演示中位数回归 (τ=0.5) 对厚尾的鲁棒性",
+        ],
+      },
+      {
+        icon: GraduationCap,
+        title: "★ 新模块:宏观经济学 — Solow 增长模型",
+        items: [
+          "首次开辟 Chapter 7 宏观经济学板块:Cobb-Douglas Y = Aᴋ^α(Lh)^(1−α) 的人均资本动力学 k̇ = sf(k) − (n+g+δ)k",
+          "稳态 k̃* / ỹ* / c̃* 解析解 + 黄金率 s = α 消费最大化对照,过度储蓄/储蓄不足直观可见",
+          "Solow 相图:投资曲线 sf(k) 与折旧线 (n+g+δ)k 交点 = 稳态;美国基准 / 高储蓄中国 / 黄金率 / 贫困陷阱多套预设",
+        ],
+      },
+      {
+        icon: GraduationCap,
+        title: "版本号 V2.0 与学科覆盖里程碑",
+        items: [
+          "Navbar 徽章 + Footer + Changelog 同步至 V2.0,V1.9 标记为 Stable",
+          "学科覆盖达 7 大模块:衍生品 / 固收 / 风险 / 量化 / 计量 / 宏观 + 利率,合计 30+ 交互式模型",
+          "本版本一次性补齐 SABR / Dupire / Greeks 三大衍生品行业标配 + Quantile Regression + 全新宏观板块",
+        ],
+      },
+    ],
+  },
+  {
+    version: "V1.9",
+    date: "2026-05",
+    tag: "Stable",
     highlights: [
       {
         icon: Sparkles,
