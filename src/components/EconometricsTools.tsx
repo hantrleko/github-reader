@@ -15,6 +15,7 @@ import { MIDASTool } from "./econ/MIDASTool";
 import { DCCGarchTool } from "./econ/DCCGarchTool";
 import { SyntheticControlTool, StaggeredDIDTool, RegimeSwitchTool } from "./econ/CausalAdvancedTools";
 import { LogitProbitTool } from "./econ/LogitProbitTool";
+import { QuantileRegTool } from "./econ/QuantileRegTool";
 import { EquationBlock } from "@/components/common/EquationBlock";
 
 const CHART_GOLD = "hsl(43, 80%, 55%)";
@@ -2220,7 +2221,7 @@ const ResultRow = ({ label, value, truth, se, color }: { label: string; value: n
 };
 
 /* ──────────────────  Main module  ────────────────── */
-type ToolId = "olsiv" | "did" | "sdid" | "rdd" | "synth" | "gmm" | "svar" | "garch" | "dcc" | "regime" | "coint" | "kalman" | "midas" | "logit";
+type ToolId = "olsiv" | "did" | "sdid" | "rdd" | "synth" | "gmm" | "svar" | "garch" | "dcc" | "regime" | "coint" | "kalman" | "midas" | "logit" | "qreg";
 
 const TOOLS: { id: ToolId; name: string; nameEn: string; formula: string; python: string; component: React.FC }[] = [
   { id: "olsiv", name: "OLS / IV (工具变量)", nameEn: "Ordinary Least Squares & Instrumental Variables",
@@ -2481,6 +2482,31 @@ def ame(beta, X, family="logit"):
         f = norm.pdf(z)
     return f.mean() * beta  # vector of marginal effects`,
   component: LogitProbitTool,
+});
+
+TOOLS.push({
+  id: "qreg",
+  name: "Quantile Regression (分位数回归)",
+  nameEn: "Quantile Regression — Koenker & Bassett (1978)",
+  formula: String.raw`\hat\beta(\tau) = \arg\min_{\beta}\sum_{i=1}^{n} \rho_{\tau}\bigl(y_i - x_i^{\top}\beta\bigr),\qquad \rho_{\tau}(u) = u\bigl(\tau - \mathbf{1}\{u<0\}\bigr)`,
+  python: `import numpy as np
+from scipy.optimize import linprog
+
+def quantile_regression(X, y, tau=0.5):
+    """Koenker-Bassett quantile regression via linear programming.
+    Reformulate min Σ ρ_τ(y - Xβ) as LP with positive/negative residuals u, v.
+    """
+    n, k = X.shape
+    # Variables: [β (k), u (n, ≥0), v (n, ≥0)]; equality: Xβ + u - v = y
+    c = np.concatenate([np.zeros(k), tau * np.ones(n), (1 - tau) * np.ones(n)])
+    A_eq = np.hstack([X, np.eye(n), -np.eye(n)])
+    bounds = [(None, None)] * k + [(0, None)] * (2 * n)
+    res = linprog(c, A_eq=A_eq, b_eq=y, bounds=bounds, method="highs")
+    return res.x[:k]
+
+def quantile_path(X, y, taus=(0.1, 0.25, 0.5, 0.75, 0.9)):
+    return {tau: quantile_regression(X, y, tau) for tau in taus}`,
+  component: QuantileRegTool,
 });
 
 
