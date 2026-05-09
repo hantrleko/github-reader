@@ -19,6 +19,7 @@ const EfficientFrontier = lazy(() => import("@/components/EfficientFrontier"));
 const EconometricsTools = lazy(() => import("@/components/EconometricsTools"));
 const RiskTools = lazy(() => import("@/components/RiskTools"));
 const QuantStrategyTools = lazy(() => import("@/components/QuantStrategyTools"));
+const MacroTools = lazy(() => import("@/components/MacroTools"));
 const QuizSection = lazy(() => import("@/components/QuizSection"));
 const LearningPath = lazy(() => import("@/components/LearningPath"));
 
@@ -183,7 +184,15 @@ const Index = () => {
       </Suspense>
       </SectionErrorBoundary>
 
-      {/* ─── 7. 测验与路径 ─── */}
+      {/* ─── 7. 宏观经济学 ─── */}
+      <SectionDivider kicker="Chapter 7" label="宏观经济学 · 增长与动态均衡" />
+      <SectionErrorBoundary name="宏观经济">
+      <Suspense fallback={<SectionFallback />}>
+        <div id="macro" className="scroll-mt-12"><DeferMount><MacroTools /></DeferMount></div>
+      </Suspense>
+      </SectionErrorBoundary>
+
+      {/* ─── 8. 测验与路径 ─── */}
       <SectionDivider kicker="Capstone" label="知识检验与学习路径" />
       <SectionErrorBoundary name="测验与学习路径">
       <Suspense fallback={<SectionFallback />}>
@@ -244,7 +253,7 @@ const Index = () => {
               © 2026 Econ &amp; Finance Lab · 仅供学习研究 · 不构成投资建议
             </p>
             <p className="text-[10px] font-mono text-gold/80 tracking-[0.2em] uppercase">
-              Version 1.8
+              Version 2.0
             </p>
           </div>
         </div>
