@@ -9,9 +9,10 @@ import { HestonTool } from "./deriv/HestonTool";
 import { SABRTool } from "./deriv/SABRTool";
 import { LocalVolTool } from "./deriv/LocalVolTool";
 import { GreeksDeskTool } from "./deriv/GreeksDeskTool";
+import { SABRvsHestonTool } from "./deriv/SABRvsHestonTool";
 import { EquationBlock } from "@/components/common/EquationBlock";
 
-type ToolId = "vol" | "heston" | "sabr" | "localvol" | "greeks" | "amer" | "rates";
+type ToolId = "vol" | "heston" | "sabr" | "sabr_heston" | "localvol" | "greeks" | "amer" | "rates";
 
 const TOOLS: { id: ToolId; name: string; nameEn: string; formula: string; component: React.FC }[] = [
   {
@@ -28,6 +29,11 @@ const TOOLS: { id: ToolId; name: string; nameEn: string; formula: string; compon
     id: "sabr", name: "SABR 模型", nameEn: "SABR Stochastic-α-β-ρ — Hagan (2002) Implied Vol",
     formula: String.raw`dF_t = \alpha_t\, F_t^{\beta}\, dW_1,\quad d\alpha_t = \nu\,\alpha_t\, dW_2,\quad \mathrm{Corr}(dW_1,dW_2)=\rho \;\Rightarrow\; \sigma_B(K,F,T) \;\text{(Hagan 近似)}`,
     component: SABRTool,
+  },
+  {
+    id: "sabr_heston", name: "SABR vs Heston 对比", nameEn: "SABR vs Heston — Smile, Key Points & Error Heatmap",
+    formula: String.raw`\Delta\sigma(k,T) \;=\; \sigma^{\text{SABR}}_{B}(k,T) \;-\; \sigma^{\text{Heston}}_{\text{MC}}(k,T)`,
+    component: SABRvsHestonTool,
   },
   {
     id: "localvol", name: "Local Volatility (Dupire)", nameEn: "Dupire Local Volatility — Inversion from IV Surface",
