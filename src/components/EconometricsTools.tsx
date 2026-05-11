@@ -2510,6 +2510,80 @@ def quantile_path(X, y, taus=(0.1, 0.25, 0.5, 0.75, 0.9)):
   component: QuantileRegTool,
 });
 
+TOOLS.push({
+  id: "psm",
+  name: "PSM / IPW / AIPW (双稳健)",
+  nameEn: "Propensity-Score Methods — Matching, Weighting & Doubly-Robust ATE",
+  formula: String.raw`\widehat{\mathrm{ATE}}_{\mathrm{AIPW}} = \frac{1}{n}\sum_{i=1}^{n}\!\left[ m_1(X_i) - m_0(X_i) + \frac{T_i\bigl(Y_i - m_1(X_i)\bigr)}{\hat{e}(X_i)} - \frac{(1-T_i)\bigl(Y_i - m_0(X_i)\bigr)}{1 - \hat{e}(X_i)} \right]`,
+  python: `import numpy as np
+from sklearn.linear_model import LogisticRegression, LinearRegression
+
+def aipw(X, T, Y):
+    """Doubly-robust ATE: consistent if EITHER e(X) or m_t(X) is correct."""
+    e = LogisticRegression().fit(X, T).predict_proba(X)[:, 1].clip(0.02, 0.98)
+    m1 = LinearRegression().fit(X[T==1], Y[T==1]).predict(X)
+    m0 = LinearRegression().fit(X[T==0], Y[T==0]).predict(X)
+    return np.mean((m1 - m0) + T*(Y - m1)/e - (1-T)*(Y - m0)/(1-e))
+
+def ipw(X, T, Y):
+    e = LogisticRegression().fit(X, T).predict_proba(X)[:, 1].clip(0.02, 0.98)
+    return np.mean(T*Y/e - (1-T)*Y/(1-e))`,
+  component: PSMTool,
+});
+
+TOOLS.push({
+  id: "arima",
+  name: "ARIMA + 自动定阶 (AIC/BIC)",
+  nameEn: "ARIMA(p,d,q) with Hannan-Rissanen Estimation & Information Criteria",
+  formula: String.raw`\Phi(L)(1-L)^d\, y_t = \Theta(L)\,\varepsilon_t,\qquad \mathrm{AIC} = -2\ell + 2k,\quad \mathrm{BIC} = -2\ell + k\ln n,\quad (\hat p,\hat q) = \arg\min_{p,q}\mathrm{AIC}(p,q)`,
+  python: `import numpy as np
+
+def hannan_rissanen(y, p, q, L=10):
+    """Two-step ARMA(p,q): long-AR for residuals, then OLS on (y_lags, eps_lags)."""
+    T = len(y)
+    # Step 1: long AR(L) → residuals
+    Xa = np.column_stack([np.ones(T-L)] + [y[L-i-1:T-i-1] for i in range(L)])
+    ba = np.linalg.lstsq(Xa, y[L:], rcond=None)[0]
+    eps = np.zeros(T); eps[L:] = y[L:] - Xa @ ba
+    # Step 2: OLS on lagged y and lagged eps
+    s = max(p, q, L)
+    X = np.column_stack([np.ones(T-s)] +
+        [y[s-i-1:T-i-1] for i in range(p)] +
+        [eps[s-j-1:T-j-1] for j in range(q)])
+    return np.linalg.lstsq(X, y[s:], rcond=None)[0]
+
+def auto_order(y, pmax=3, qmax=3):
+    best = (None, np.inf)
+    for p in range(pmax+1):
+        for q in range(qmax+1):
+            res = hannan_rissanen(y, p, q)
+            # ssr → aic ...
+            if aic < best[1]: best = ((p, q), aic)
+    return best[0]`,
+  component: ARIMATool,
+});
+
+TOOLS.push({
+  id: "lp",
+  name: "Local Projections (Jordà)",
+  nameEn: "Local Projections vs. VAR Wold Impulse Responses — Jordà (2005)",
+  formula: String.raw`y_{t+h} = \alpha_h + \beta_h\, x_t + \gamma_h^{\top} W_t + u_{t+h},\qquad \widehat{\mathrm{IRF}}_{\mathrm{LP}}(h) = \hat{\beta}_h,\quad \mathrm{SE}(\hat\beta_h) \text{ via Newey-West}(h)`,
+  python: `import numpy as np
+from numpy.linalg import lstsq
+
+def local_projection_irf(y, x, H=12, W=None):
+    """Jordà (2005): one regression per horizon h → IRF = β_h."""
+    irf = []
+    for h in range(H+1):
+        Xh = np.column_stack([np.ones(len(x)-h-1), x[:-h-1] if h>0 else x[:-1]])
+        if W is not None: Xh = np.column_stack([Xh, W[:-h-1]])
+        yh = y[h+1:] if h>0 else y[1:]
+        b = lstsq(Xh, yh, rcond=None)[0]
+        irf.append(b[1])
+    return np.array(irf)`,
+  component: LocalProjectionTool,
+});
+
 
 /** Compact collapsible Python reference snippet — companion to the formula bar. */
 const PythonReference = ({ code }: { code: string }) => {
