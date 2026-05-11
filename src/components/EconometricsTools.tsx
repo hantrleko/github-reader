@@ -16,6 +16,7 @@ import { DCCGarchTool } from "./econ/DCCGarchTool";
 import { SyntheticControlTool, StaggeredDIDTool, RegimeSwitchTool } from "./econ/CausalAdvancedTools";
 import { LogitProbitTool } from "./econ/LogitProbitTool";
 import { QuantileRegTool } from "./econ/QuantileRegTool";
+import { PSMTool, ARIMATool, LocalProjectionTool } from "./econ/V21Tools";
 import { EquationBlock } from "@/components/common/EquationBlock";
 
 const CHART_GOLD = "hsl(43, 80%, 55%)";
