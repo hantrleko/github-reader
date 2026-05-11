@@ -135,15 +135,15 @@ function fitLogit(X: number[][], y: number[], iters = 30): number[] {
   return beta;
 }
 
-const PSM_PRESETS: Preset[] = [
-  { id: "balanced",     label: "弱选择偏差 (γ=0.3)",   description: "倾向得分接近随机分配,所有估计量都好",
-    values: { n: 600, tau: 1.0, gamma: 0.3, beta: 0.8, seed: 42 } },
-  { id: "selection",    label: "强选择偏差 (γ=1.5)",   description: "OLS 严重偏误,但 AIPW 双稳健",
-    values: { n: 600, tau: 1.0, gamma: 1.5, beta: 1.5, seed: 42 } },
-  { id: "overlap",      label: "重叠不足 (γ=2.5)",     description: "极端 IPW 权重,PSM 优势凸显",
-    values: { n: 600, tau: 1.0, gamma: 2.5, beta: 1.0, seed: 7 } },
-  { id: "rct",          label: "RCT 模拟 (γ=0)",        description: "无混淆 — 所有方法一致",
-    values: { n: 600, tau: 1.0, gamma: 0.0, beta: 1.0, seed: 42 } },
+const psmPresets = (set: (v: { n: number; tau: number; gamma: number; beta: number; seed: number }) => void): Preset[] => [
+  { name: "弱选择偏差 (γ=0.3)", description: "倾向得分接近随机分配,所有估计量都好",
+    apply: () => set({ n: 600, tau: 1.0, gamma: 0.3, beta: 0.8, seed: 42 }) },
+  { name: "强选择偏差 (γ=1.5)", description: "OLS 严重偏误,但 AIPW 双稳健",
+    apply: () => set({ n: 600, tau: 1.0, gamma: 1.5, beta: 1.5, seed: 42 }) },
+  { name: "重叠不足 (γ=2.5)", description: "极端 IPW 权重,PSM 优势凸显",
+    apply: () => set({ n: 600, tau: 1.0, gamma: 2.5, beta: 1.0, seed: 7 }) },
+  { name: "RCT 模拟 (γ=0)", description: "无混淆 — 所有方法一致",
+    apply: () => set({ n: 600, tau: 1.0, gamma: 0.0, beta: 1.0, seed: 42 }) },
 ];
 
 export const PSMTool = () => {
@@ -262,8 +262,7 @@ export const PSMTool = () => {
   return (
     <div className="space-y-6">
       <PresetButtons
-        presets={PSM_PRESETS}
-        onApply={(v) => { setN(v.n); setTau(v.tau); setGamma(v.gamma); setBeta(v.beta); setSeed(v.seed); }}
+        presets={psmPresets((v) => { setN(v.n); setTau(v.tau); setGamma(v.gamma); setBeta(v.beta); setSeed(v.seed); })}
       />
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -418,15 +417,15 @@ function acf(x: number[], K: number) {
   return c;
 }
 
-const ARIMA_PRESETS: Preset[] = [
-  { id: "wn",     label: "白噪声",            description: "纯随机:期望 (p,q)=(0,0)",
-    values: { phi1: 0, phi2: 0, theta1: 0, theta2: 0, T: 300, seed: 42 } },
-  { id: "ar1",    label: "AR(1) φ=0.7",       description: "强持续性:期望 (1,0)",
-    values: { phi1: 0.7, phi2: 0, theta1: 0, theta2: 0, T: 300, seed: 42 } },
-  { id: "ma1",    label: "MA(1) θ=0.6",       description: "短期记忆:期望 (0,1)",
-    values: { phi1: 0, phi2: 0, theta1: 0.6, theta2: 0, T: 300, seed: 42 } },
-  { id: "arma21", label: "ARMA(2,1)",         description: "复合动力:期望 (2,1)",
-    values: { phi1: 0.5, phi2: 0.2, theta1: 0.4, theta2: 0, T: 400, seed: 42 } },
+const arimaPresets = (set: (v: any) => void): Preset[] => [
+  { name: "白噪声", description: "纯随机:期望 (p,q)=(0,0)",
+    apply: () => set({ phi1: 0, phi2: 0, theta1: 0, theta2: 0, T: 300, seed: 42 }) },
+  { name: "AR(1) φ=0.7", description: "强持续性:期望 (1,0)",
+    apply: () => set({ phi1: 0.7, phi2: 0, theta1: 0, theta2: 0, T: 300, seed: 42 }) },
+  { name: "MA(1) θ=0.6", description: "短期记忆:期望 (0,1)",
+    apply: () => set({ phi1: 0, phi2: 0, theta1: 0.6, theta2: 0, T: 300, seed: 42 }) },
+  { name: "ARMA(2,1)", description: "复合动力:期望 (2,1)",
+    apply: () => set({ phi1: 0.5, phi2: 0.2, theta1: 0.4, theta2: 0, T: 400, seed: 42 }) },
 ];
 
 export const ARIMATool = () => {
@@ -501,8 +500,7 @@ export const ARIMATool = () => {
   return (
     <div className="space-y-6">
       <PresetButtons
-        presets={ARIMA_PRESETS}
-        onApply={(v) => { setPhi1(v.phi1); setPhi2(v.phi2); setTheta1(v.theta1); setTheta2(v.theta2); setT(v.T); setSeed(v.seed); }}
+        presets={arimaPresets((v) => { setPhi1(v.phi1); setPhi2(v.phi2); setTheta1(v.theta1); setTheta2(v.theta2); setT(v.T); setSeed(v.seed); })}
       />
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -606,15 +604,15 @@ export const ARIMATool = () => {
    3) LOCAL PROJECTIONS (Jordà 2005)
    ════════════════════════════════════════════════════════════════ */
 
-const LP_PRESETS: Preset[] = [
-  { id: "money",  label: "货币冲击",     description: "x 持续,y 滞后响应",
-    values: { rho: 0.7, alpha: 0.6, phi: 0.4, T: 300, H: 16, seed: 42 } },
-  { id: "fiscal", label: "财政冲击",     description: "x 较弱持续,y 强响应",
-    values: { rho: 0.4, alpha: 1.0, phi: 0.3, T: 300, H: 16, seed: 42 } },
-  { id: "trans",  label: "瞬时冲击",     description: "x 无持续,IRF 单期反应",
-    values: { rho: 0.0, alpha: 0.8, phi: 0.5, T: 300, H: 16, seed: 42 } },
-  { id: "noresp", label: "无响应",       description: "α≈0,IRF 应平直 0",
-    values: { rho: 0.6, alpha: 0.0, phi: 0.5, T: 300, H: 16, seed: 42 } },
+const lpPresets = (set: (v: any) => void): Preset[] => [
+  { name: "货币冲击", description: "x 持续,y 滞后响应",
+    apply: () => set({ rho: 0.7, alpha: 0.6, phi: 0.4, T: 300, H: 16, seed: 42 }) },
+  { name: "财政冲击", description: "x 较弱持续,y 强响应",
+    apply: () => set({ rho: 0.4, alpha: 1.0, phi: 0.3, T: 300, H: 16, seed: 42 }) },
+  { name: "瞬时冲击", description: "x 无持续,IRF 单期反应",
+    apply: () => set({ rho: 0.0, alpha: 0.8, phi: 0.5, T: 300, H: 16, seed: 42 }) },
+  { name: "无响应", description: "α≈0,IRF 应平直 0",
+    apply: () => set({ rho: 0.6, alpha: 0.0, phi: 0.5, T: 300, H: 16, seed: 42 }) },
 ];
 
 export const LocalProjectionTool = () => {
@@ -695,8 +693,7 @@ export const LocalProjectionTool = () => {
   return (
     <div className="space-y-6">
       <PresetButtons
-        presets={LP_PRESETS}
-        onApply={(v) => { setRho(v.rho); setAlpha(v.alpha); setPhi(v.phi); setT(v.T); setH(v.H); setSeed(v.seed); }}
+        presets={lpPresets((v) => { setRho(v.rho); setAlpha(v.alpha); setPhi(v.phi); setT(v.T); setH(v.H); setSeed(v.seed); })}
       />
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
