@@ -4,9 +4,55 @@ import { useTranslation } from "react-i18next";
 
 const RELEASES = [
   {
-    version: "V2.0",
+    version: "V2.1",
     date: "2026-05",
     tag: "Latest",
+    highlights: [
+      {
+        icon: Sparkles,
+        title: "PSM / IPW / AIPW — 双稳健 ATE 估计 (计量)",
+        items: [
+          "Logit 倾向得分 e(X)=σ(γX) + 1-NN PSM + Horvitz-Thompson IPW + AIPW 双稳健四种 ATE 同表对比真实 τ",
+          "AIPW (Robins-Rotnitzky-Zhao 1994):e(X) 或 m_t(X) 任一正确即一致 — 倾向得分 / 结果回归两条防线",
+          "倾向得分共同支撑直方图 (treated vs control 对称) + 协变量 SMD 加权前后对比 (|SMD|<0.1 视为平衡)",
+          "弱选择 / 强选择 / 重叠不足 / RCT 模拟四套预设,演示混淆强度对各方法偏差的影响",
+        ],
+      },
+      {
+        icon: Sparkles,
+        title: "ARIMA + 自动定阶 (AIC/BIC) — 时间序列",
+        items: [
+          "Hannan-Rissanen 两步法估计 ARMA(p,q):长 AR 估残差 ε̂ → OLS 回归 (y_lags, ε̂_lags)",
+          "AIC/BIC 网格搜索 (p,q) ∈ [0..3]²,4×4 颜色热力图标记 ★ 最优,直观对比信息准则差异",
+          "末端 1-步滚动预测 ±1.96σ̂ 置信带 + 残差 ACF 柱状图与 95% Bartlett 边界 + Ljung-Box Q(10) χ² 检验",
+          "白噪声 / AR(1) / MA(1) / ARMA(2,1) 四套 DGP 预设,验证算法能正确识别真阶",
+        ],
+      },
+      {
+        icon: Sparkles,
+        title: "Local Projections (Jordà 2005) — 计量",
+        items: [
+          "对每个 horizon h 独立 OLS:y_{t+h} = α_h + β_h x_t + 控制项,β_h 直接是 IRF 不需 VAR 递推",
+          "VAR(1) Wold IRF (A^h e) 同图叠加对比,可识别 VAR 设定错误时 LP 的鲁棒性优势",
+          "Newey-West HAC 标准误 (滞后阶 = h) 给出 LP 的 95% 置信带,准确反映 IRF 不确定度随 h 增长",
+          "货币 / 财政 / 瞬时 / 无响应四套冲击预设,『LP-VAR 最大偏差』作为模型设定诊断指标",
+        ],
+      },
+      {
+        icon: GraduationCap,
+        title: "版本 V2.1 — 计量经济学完整因果与时序工具链",
+        items: [
+          "Navbar 徽章 + Footer + Changelog 同步至 V2.1,V2.0 标记为 Stable",
+          "计量模块新增 3 个工具,合计 18 个:OLS-IV / DID / RDD / Staggered DID / Synthetic Control / GMM / SVAR / GARCH / DCC / Regime-Switching / Cointegration / Kalman / MIDAS / Logit-Probit / Quantile / PSM-AIPW / ARIMA / Local Projections",
+          "因果识别三件套(DID + Synthetic Control + PSM-AIPW)与时序三件套(GARCH + Regime-Switching + ARIMA)首次完整覆盖",
+        ],
+      },
+    ],
+  },
+  {
+    version: "V2.0",
+    date: "2026-05",
+    tag: "Stable",
     highlights: [
       {
         icon: Sparkles,

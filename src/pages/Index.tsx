@@ -253,7 +253,7 @@ const Index = () => {
               © 2026 Econ &amp; Finance Lab · 仅供学习研究 · 不构成投资建议
             </p>
             <p className="text-[10px] font-mono text-gold/80 tracking-[0.2em] uppercase">
-              Version 2.0
+              Version 2.1
             </p>
           </div>
         </div>
