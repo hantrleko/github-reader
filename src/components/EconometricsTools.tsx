@@ -17,6 +17,7 @@ import { SyntheticControlTool, StaggeredDIDTool, RegimeSwitchTool } from "./econ
 import { LogitProbitTool } from "./econ/LogitProbitTool";
 import { QuantileRegTool } from "./econ/QuantileRegTool";
 import { PSMTool, ARIMATool, LocalProjectionTool } from "./econ/V21Tools";
+import { LassoTool, PanelTool, TobitTool } from "./econ/V22Tools";
 import { EquationBlock } from "@/components/common/EquationBlock";
 
 const CHART_GOLD = "hsl(43, 80%, 55%)";
