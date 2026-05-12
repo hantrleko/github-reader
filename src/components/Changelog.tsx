@@ -4,9 +4,55 @@ import { useTranslation } from "react-i18next";
 
 const RELEASES = [
   {
-    version: "V2.1",
+    version: "V2.2",
     date: "2026-05",
     tag: "Latest",
+    highlights: [
+      {
+        icon: Sparkles,
+        title: "LASSO / Ridge / Elastic Net + 5-fold CV (机器学习计量)",
+        items: [
+          "Friedman-Hastie-Tibshirani (2010) 坐标下降 + soft-thresholding 求解 ½n⁻¹‖y−Xβ‖² + λ[α‖β‖₁ + ½(1−α)‖β‖²]",
+          "α=1 LASSO / α=0 Ridge / 0<α<1 Elastic Net 一键切换,40 点 log-λ 网格 warm-start 计算系数路径",
+          "5-fold 交叉验证 MSE ± 1 SE 误差带 + λ_min(最低 CV-MSE)与 λ_1se(Breiman 1-SE 准则)双竖线标注",
+          "稀疏路径 / 多重共线性 / 高维 p>n / Elastic Net 四套预设,β 恢复柱图直观对比 LASSO vs OLS",
+        ],
+      },
+      {
+        icon: Sparkles,
+        title: "Panel FE / RE + Hausman 检验 (面板数据)",
+        items: [
+          "Pooled OLS / Fixed Effects (Within 去均值) / Random Effects (Swamy-Arora θ 加权 GLS) 三方系数同表对比",
+          "Hausman (1978) χ²(1) 检验 H = (β̂_FE − β̂_RE)² / [V(FE) − V(RE)],p<0.05 自动标 『建议 FE』标签",
+          "个体效应 α̂_i 直方图 + N×T 面板规模卡片;FE 适用 / RE 高效 / 大 N 小 T / 弱效应四套预设",
+          "演示 Cov(α_i, X)≠0 时 RE 偏误,而 FE 即使在内生时不变效应下仍一致估计 β",
+        ],
+      },
+      {
+        icon: Sparkles,
+        title: "Tobit / Heckman 两步法 (受限因变量)",
+        items: [
+          "Tobit (Tobin 1958) 左截断 MLE:y>0 用密度 φ/σ + y=0 用 Φ(−Xβ/σ),Newton-Raphson 同时估 (β, σ)",
+          "Heckman 两步 (1979):Probit 选择方程求 Inverse Mills λ̂=φ(Zγ̂)/Φ(Zγ̂) → 选样 OLS 加 λ̂ 校正",
+          "ρ̂σ̂ 系数显著性 = 选择偏差检验;Mills λ(Zγ̂) 沿 Z 排序曲线 + 截断散点(红=y=0 / 金=观测)",
+          "强左截断 / 工资方程 Heckit 经典 / 无选择偏差 / 强 ρ=0.9 选择偏差四套预设",
+        ],
+      },
+      {
+        icon: GraduationCap,
+        title: "版本 V2.2 — 计量经济学三大缺口补完",
+        items: [
+          "Navbar 徽章 + Footer + Changelog 同步至 V2.2,V2.1 标记为 Stable",
+          "计量模块新增 3 个工具,合计 21 个;首次完整覆盖『机器学习计量 / 面板数据 / 受限因变量』三大教材子领域",
+          "至此因果识别 (DID/SDID/Synth/PSM/AIPW) + 时序 (GARCH/DCC/Regime/ARIMA/LP) + 面板 (FE/RE/Hausman) + 选择 (Logit/Probit/Tobit/Heckman) + 正则 (LASSO/Ridge/EN) 形成完整教学链",
+        ],
+      },
+    ],
+  },
+  {
+    version: "V2.1",
+    date: "2026-05",
+    tag: "Stable",
     highlights: [
       {
         icon: Sparkles,

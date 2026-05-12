@@ -1,58 +1,87 @@
-## 下一步方案 — V2.0 路线图
+## V2.2 路线图 — 计量经济学三大补缺
 
-V1.9 已落地 5 大模型（Heston / Hull-White+Bootstrap / ES-Backtest / Risk Parity-HRP / Logit-Probit）。下一阶段建议从"完整学科覆盖"角度补齐三大模块缺口，并首次开辟**宏观经济学**板块。
-
----
-
-### 推荐 5 个新模型（按优先级）
-
-#### 1. SABR 模型（衍生品）— ⭐最高优先级
-- **缺口**：Heston 解决股指 smile，但 IR/Swaption 行业用 SABR
-- **实现**：Hagan 隐含波动率近似公式（封闭解，无需 MC）
-- **可视化**：β、ρ、ν 三参数对 smile 形状的影响 + 与 Heston 对比
-- **公式**：`dF = σF^β dW₁, dσ = νσ dW₂, Corr=ρ`
-
-#### 2. Local Volatility (Dupire)（衍生品）
-- **缺口**：与已有 SVI 曲面工具天然衔接，从 IV 反推 σ(S,t)
-- **实现**：Dupire 公式数值微分 + 局部波动率热图
-- **公式**：`σ²_loc(K,T) = (∂C/∂T) / (½K² ∂²C/∂K²)`
-
-#### 3. Solow 增长模型（宏观 — 新模块）
-- **缺口**：完全未覆盖宏观经济学
-- **实现**：资本动力学迭代 `k̇ = sf(k) − (n+δ)k`，黄金率求解
-- **可视化**：稳态收敛路径、储蓄率对比、跨国收敛
-- **新建**：`src/components/MacroTools.tsx` + Index.tsx 新增 Chapter 7
-
-#### 4. Quantile Regression（计量）
-- **缺口**：OLS 只看条件均值，分位数回归看尾部
-- **实现**：线性规划（单纯形）求解多个分位数 τ ∈ {0.1, 0.25, 0.5, 0.75, 0.9}
-- **可视化**：分位数路径图 + 与 OLS 对比异方差识别
-
-#### 5. Greeks 完整工作台（衍生品）
-- **缺口**：分散在各工具，缺统一 Δ/Γ/Vega/Θ/ρ/Vanna/Volga 视图
-- **实现**：BS 解析 + 数值检验，热图覆盖 (S,T) 平面
-- **价值**：交易台日常工具，教学直观
+沿用 V2.1 的工程模式:单文件 `V22Tools.tsx` 导出三个组件,在 `EconometricsTools.tsx` 注册新 Tab,同步 Changelog 与 Navbar 版本号。
 
 ---
 
-### 技术细节
+### 1. LASSO / Ridge / Elastic Net + 交叉验证
 
-| 模型 | 主要算法 | 文件 |
-|------|---------|------|
-| SABR | Hagan 2002 公式 | `deriv/SABRTool.tsx` |
-| Local Vol | Dupire 数值差分 | `deriv/LocalVolTool.tsx` |
-| Solow | RK4/Euler + 黄金率求解 | `macro/SolowTool.tsx` + `MacroTools.tsx` |
-| Quantile | 内点法/Frisch-Newton | `econ/QuantileRegTool.tsx` |
-| Greeks | BS 解析 + 有限差分 | `deriv/GreeksDeskTool.tsx` |
+**算法**
+- **坐标下降法 (Friedman-Hastie-Tibshirani 2010)** 求解
+  L(β) = ½n⁻¹‖y − Xβ‖² + λ[α‖β‖₁ + ½(1−α)‖β‖²]
+- α=1 → LASSO,α=0 → Ridge,0<α<1 → Elastic Net
+- 标准化 X 后沿 λ 网格 (log 间隔 50 点) warm-start 计算系数路径
+- **K-fold CV**(K=5)选最优 λ:λ_min 与 λ_1se 两个准则
 
-每个工具沿用现有标准：preset 系统 / LaTeX 公式 / 中文教学卡 / 可视化 + 稳健性检验。
+**可视化**
+- 系数路径图:每条线一个 β_j(λ),x 轴 log(λ),竖线标 λ_min / λ_1se
+- CV MSE 曲线 ± 1 SE 误差带,标注最优点
+- 稀疏度计数:非零系数 # vs λ
+- 与 OLS 系数柱状图对比(同一组真值 β),展示 LASSO 变量选择能力
 
-宏观板块完成后，学科覆盖将达到：**衍生品 / 固收 / 风险 / 量化 / 利率 / 计量 / 宏观** 共 7 大模块。
+**预设**
+- 稀疏真模型 (10 个特征只 3 个非零) / 多重共线性 (Ridge 优势) / 高维 p>n / 弱信号
 
 ---
 
-### 请确认
+### 2. Panel FE / RE + Hausman 检验
 
-- **批准全部 5 个**，还是只挑其中几个（回复编号 e.g. "1, 3, 5"）？
-- 宏观模块是否**单独建 Chapter 7**（推荐），还是先暂缓只做衍生品+计量？
-- 完成后是否直接发布 **V2.0**（含宏观开新板块作为里程碑）？
+**算法**
+- **Pooled OLS**:忽略个体效应
+- **Fixed Effects (Within)**:对 (y_it, x_it) 按个体去均值后 OLS
+- **Random Effects (GLS)**:Swamy-Arora 估计 σ_u² / σ_ε²,θ 加权变换 y* = y_it − θ ȳ_i 后 OLS
+- **Hausman 检验**:H = (β̂_FE − β̂_RE)′ [V(β̂_FE) − V(β̂_RE)]⁻¹ (β̂_FE − β̂_RE) ~ χ²(k)
+  - p < 0.05 拒绝 RE,选 FE
+
+**可视化**
+- 三方系数表:Pooled / FE / RE 同一行对比真值,带 SE
+- 个体效应散点:N 个 α_i 的分布
+- Hausman χ² 统计量与 p-value 卡片,自动给出"建议使用 FE/RE"标签
+- 数据面板:N(个体)× T(时期)结构小图
+
+**预设**
+- 个体效应与 X 相关 (FE 适用) / 个体效应独立 (RE 高效) / 大 N 小 T / 平衡面板
+
+---
+
+### 3. Tobit / Heckman 两步法
+
+**Tobit (Type-I)**
+- 截断回归:y* = Xβ + ε,观测 y = max(0, y*)
+- 对数似然:L = Σ_{y>0} log φ((y−Xβ)/σ)/σ + Σ_{y=0} log Φ(−Xβ/σ)
+- BFGS / Newton-Raphson 数值最大化(50 次迭代)
+
+**Heckman 两步法 (Heckit 1979)**
+- 第一步:Probit 选择方程 P(d=1|Z) = Φ(Zγ),求 Inverse Mills Ratio λ̂ = φ(Zγ̂)/Φ(Zγ̂)
+- 第二步:对样本 d=1 做 OLS y = Xβ + ρσ·λ̂ + η,β̂ 一致
+
+**可视化**
+- 三种估计对比:OLS(有偏)/ Tobit / Heckman 系数表
+- 截断散点:y vs X 高亮被截断点(红)与观测点(金)
+- Mills ratio 曲线:λ(Zγ̂) 与样本点叠加
+- ρσ 的显著性 → 是否存在选择偏差
+
+**预设**
+- 强左截断 (40% y=0) / 工资方程经典示例 / 无选择偏差对照 / 强选择偏差
+
+---
+
+### 文件改动
+
+```text
+新建: src/components/econ/V22Tools.tsx          (~900 行,导出 3 个工具)
+修改: src/components/EconometricsTools.tsx       (注册 lasso / panel / tobit 三个 tab)
+修改: src/components/Changelog.tsx               (V2.2 条目,V2.1 转 Stable)
+修改: src/pages/Index.tsx                        (footer 版本号 → 2.2)
+修改: src/i18n/locales/{en,zh}.json              (nav.version → V2.2)
+```
+
+每个工具沿用现有标准:`PresetButtons` + `EquationBlock` LaTeX 公式 + 中文教学卡 + Recharts 主题 token + 稳健性检验。
+
+---
+
+### 完成后状态
+
+- 计量经济学模块:**18 → 21 个工具**
+- 学科覆盖完成度:面板因果 ✅ + 时序 ✅ + 离散选择 ✅ + 微观选择校正 ✅ + 机器学习计量 ✅
+- 仅余 V2.3 收尾 3 项:State-Space DLM / Double ML / Causal Forest
