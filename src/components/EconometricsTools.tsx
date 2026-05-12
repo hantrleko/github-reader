@@ -2585,6 +2585,90 @@ def local_projection_irf(y, x, H=12, W=None):
   component: LocalProjectionTool,
 });
 
+TOOLS.push({
+  id: "lasso",
+  name: "LASSO / Ridge / ElasticNet",
+  nameEn: "Regularised Regression — LASSO, Ridge & Elastic Net with K-fold CV",
+  formula: String.raw`\hat{\beta}(\lambda,\alpha) = \arg\min_{\beta}\;\frac{1}{2n}\bigl\lVert y - X\beta\bigr\rVert_2^2 + \lambda\!\left[\alpha\,\lVert\beta\rVert_1 + \tfrac{1}{2}(1-\alpha)\,\lVert\beta\rVert_2^2\right]`,
+  python: `import numpy as np
+from sklearn.linear_model import ElasticNetCV
+
+def fit_elastic_net(X, y, alpha=1.0, n_alphas=50, cv=5):
+    """alpha=1 → LASSO; alpha=0 → Ridge; 0<alpha<1 → Elastic Net.
+    Uses coordinate descent (Friedman-Hastie-Tibshirani 2010)."""
+    model = ElasticNetCV(l1_ratio=alpha, n_alphas=n_alphas, cv=cv,
+                         fit_intercept=True, max_iter=5000)
+    model.fit(X, y)
+    return {"beta": model.coef_,
+            "lambda_min": model.alpha_,
+            "mse_path": model.mse_path_.mean(axis=1),
+            "lambdas": model.alphas_}
+
+def lambda_1se(lambdas, mse_path):
+    """Breiman 1-SE rule: most regularised λ within 1 SE of λ_min."""
+    mean = mse_path.mean(axis=1); se = mse_path.std(axis=1) / np.sqrt(mse_path.shape[1])
+    k_min = mean.argmin()
+    return lambdas[(mean <= mean[k_min] + se[k_min]).argmax()]`,
+  component: LassoTool,
+});
+
+TOOLS.push({
+  id: "panel",
+  name: "Panel FE / RE + Hausman",
+  nameEn: "Panel Data — Fixed vs Random Effects with Hausman Specification Test",
+  formula: String.raw`y_{it} = \alpha_i + \beta\, x_{it} + \varepsilon_{it},\qquad H = (\hat\beta_{\mathrm{FE}} - \hat\beta_{\mathrm{RE}})^{\top}\!\bigl[V(\hat\beta_{\mathrm{FE}}) - V(\hat\beta_{\mathrm{RE}})\bigr]^{-1}\!(\hat\beta_{\mathrm{FE}} - \hat\beta_{\mathrm{RE}}) \sim \chi^2_k`,
+  python: `import numpy as np
+from linearmodels.panel import PanelOLS, RandomEffects
+
+def panel_estimators(df):
+    """df is a MultiIndex (entity, time) DataFrame with y, x columns."""
+    pooled = PanelOLS.from_formula("y ~ 1 + x", df).fit()
+    fe     = PanelOLS.from_formula("y ~ 1 + x + EntityEffects", df).fit()
+    re     = RandomEffects.from_formula("y ~ 1 + x", df).fit()
+    return pooled, fe, re
+
+def hausman_test(fe, re):
+    """H ~ χ²(k); reject H₀ ⇒ use FE."""
+    diff = fe.params - re.params
+    var  = fe.cov - re.cov
+    H    = float(diff.T @ np.linalg.inv(var) @ diff)
+    from scipy.stats import chi2
+    return H, 1 - chi2.cdf(H, df=len(diff))`,
+  component: PanelTool,
+});
+
+TOOLS.push({
+  id: "tobit",
+  name: "Tobit / Heckman 两步",
+  nameEn: "Limited Dependent Variables — Tobit & Heckman Sample-Selection Correction",
+  formula: String.raw`\text{Tobit:}\;y_i^* = X_i^{\top}\beta + \varepsilon_i,\;y_i = \max(0, y_i^*).\quad \text{Heckman:}\;y_i = X_i^{\top}\beta + \rho\sigma\,\hat\lambda(Z_i^{\top}\hat\gamma) + \eta_i,\;\hat\lambda = \dfrac{\phi(Z\hat\gamma)}{\Phi(Z\hat\gamma)}`,
+  python: `import numpy as np
+from scipy.optimize import minimize
+from scipy.stats import norm
+
+def tobit_neg_ll(params, X, y):
+    beta, log_sigma = params[:-1], params[-1]
+    sigma = np.exp(log_sigma)
+    Xb = X @ beta
+    obs = y > 0
+    L = np.where(obs,
+                 -0.5*np.log(2*np.pi) - log_sigma - 0.5*((y - Xb)/sigma)**2,
+                 np.log(np.clip(norm.cdf(-Xb/sigma), 1e-12, 1)))
+    return -L.sum()
+
+def heckit_two_step(X, y, Z, d):
+    """1) Probit on (Z, d).  2) OLS on selected sample with Mills λ̂."""
+    from statsmodels.discrete.discrete_model import Probit
+    gamma = Probit(d, Z).fit(disp=False).params
+    Zg = Z @ gamma
+    lam = norm.pdf(Zg) / np.clip(norm.cdf(Zg), 1e-9, 1)
+    sel = d == 1
+    Xs  = np.column_stack([X[sel], lam[sel]])
+    beta = np.linalg.lstsq(Xs, y[sel], rcond=None)[0]
+    return {"beta": beta[:-1], "rho_sigma": beta[-1], "gamma": gamma}`,
+  component: TobitTool,
+});
+
 
 /** Compact collapsible Python reference snippet — companion to the formula bar. */
 const PythonReference = ({ code }: { code: string }) => {
