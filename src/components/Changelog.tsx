@@ -4,9 +4,37 @@ import { useTranslation } from "react-i18next";
 
 const RELEASES = [
   {
-    version: "V2.2",
+    version: "V2.3",
     date: "2026-05",
     tag: "Latest",
+    highlights: [
+      {
+        icon: Sparkles,
+        title: "DLM 结构时间序列 — 局部线性趋势 + 随机季节 (时间序列)",
+        items: [
+          "Harvey (1989) / Durbin-Koopman (2012) 状态空间模型:y_t = μ_t + γ_t + ε_t,水平 μ + 斜率 ν + 周期 S 季节 γ 三分量",
+          "完整 Kalman 滤波 + RTS 平滑 (k = 2+(S-1) 维状态),分别提取趋势 / 季节 / irregular 三条平滑路径",
+          "h-步前向预测 ± 95% 预测区间,新息方差 F_t 通过状态协方差 P_t 递推累计",
+          "一键 MLE:在 log(σ_ε, σ_η, σ_ζ, σ_ω) 空间做坐标搜索最大化 prediction error decomposition log-lik",
+          "诊断:标准化新息 ε̃_t = v_t/√F_t 时序图 + Ljung-Box Q(10) 残差白噪声检验,AIC 同步显示",
+          "明显趋势+季节 / 纯局部水平 (random walk) / 弱信号噪声大 / 季度数据 4 套预设",
+        ],
+      },
+      {
+        icon: GraduationCap,
+        title: "版本 V2.3 — V2.3 路线图启动",
+        items: [
+          "Navbar / Footer / Changelog 同步至 V2.3,V2.2 标记为 Stable",
+          "计量模块:21 → 22 个工具,首次提供完整结构时间序列分解 (与 ARIMA 形成『定阶 / 分解』双视角)",
+          "V2.3 余下两项规划中:Double/Debiased ML (Chernozhukov 2018) · Causal Forest / GRF (Athey-Wager)",
+        ],
+      },
+    ],
+  },
+  {
+    version: "V2.2",
+    date: "2026-05",
+    tag: "Stable",
     highlights: [
       {
         icon: Sparkles,

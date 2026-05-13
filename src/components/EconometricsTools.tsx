@@ -18,6 +18,7 @@ import { LogitProbitTool } from "./econ/LogitProbitTool";
 import { QuantileRegTool } from "./econ/QuantileRegTool";
 import { PSMTool, ARIMATool, LocalProjectionTool } from "./econ/V21Tools";
 import { LassoTool, PanelTool, TobitTool } from "./econ/V22Tools";
+import { DLMTool } from "./econ/V23Tools";
 import { EquationBlock } from "@/components/common/EquationBlock";
 
 const CHART_GOLD = "hsl(43, 80%, 55%)";
@@ -2223,7 +2224,7 @@ const ResultRow = ({ label, value, truth, se, color }: { label: string; value: n
 };
 
 /* ──────────────────  Main module  ────────────────── */
-type ToolId = "olsiv" | "did" | "sdid" | "rdd" | "synth" | "gmm" | "svar" | "garch" | "dcc" | "regime" | "coint" | "kalman" | "midas" | "logit" | "qreg" | "psm" | "arima" | "lp" | "lasso" | "panel" | "tobit";
+type ToolId = "olsiv" | "did" | "sdid" | "rdd" | "synth" | "gmm" | "svar" | "garch" | "dcc" | "regime" | "coint" | "kalman" | "midas" | "logit" | "qreg" | "psm" | "arima" | "lp" | "lasso" | "panel" | "tobit" | "dlm";
 
 const TOOLS: { id: ToolId; name: string; nameEn: string; formula: string; python: string; component: React.FC }[] = [
   { id: "olsiv", name: "OLS / IV (工具变量)", nameEn: "Ordinary Least Squares & Instrumental Variables",
@@ -2667,6 +2668,32 @@ def heckit_two_step(X, y, Z, d):
     beta = np.linalg.lstsq(Xs, y[sel], rcond=None)[0]
     return {"beta": beta[:-1], "rho_sigma": beta[-1], "gamma": gamma}`,
   component: TobitTool,
+});
+
+TOOLS.push({
+  id: "dlm",
+  name: "DLM 结构时间序列",
+  nameEn: "Dynamic Linear Model — Local Linear Trend + Seasonal Decomposition (Harvey 1989)",
+  formula: String.raw`y_t = \mu_t + \gamma_t + \varepsilon_t,\;\; \mu_t = \mu_{t-1} + \nu_{t-1} + \eta_t,\;\; \nu_t = \nu_{t-1} + \zeta_t,\;\; \gamma_t = -\!\!\sum_{s=1}^{S-1}\!\gamma_{t-s} + \omega_t`,
+  python: `import numpy as np
+import statsmodels.api as sm
+
+def fit_dlm(y, period=12):
+    """Local-linear-trend + stochastic seasonal via UnobservedComponents."""
+    model = sm.tsa.UnobservedComponents(
+        y, level="local linear trend",
+        seasonal=period, stochastic_seasonal=True,
+    )
+    res = model.fit(disp=False)
+    return {
+        "level":    res.smoothed_state[0],
+        "slope":    res.smoothed_state[1],
+        "seasonal": res.smoothed_state[2],
+        "loglik":   res.llf,
+        "params":   res.params,
+        "forecast": res.get_forecast(24).predicted_mean,
+    }`,
+  component: DLMTool,
 });
 
 
