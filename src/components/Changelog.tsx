@@ -4,9 +4,55 @@ import { useTranslation } from "react-i18next";
 
 const RELEASES = [
   {
-    version: "V2.3",
+    version: "V2.4",
     date: "2026-05",
     tag: "Latest",
+    highlights: [
+      {
+        icon: Sparkles,
+        title: "Double / Debiased ML — Chernozhukov et al. (2018) (机器学习因果)",
+        items: [
+          "残差化 partialling-out:ỹ=y−ĝ(X), D̃=D−m̂(X) → θ̂_DML = Σ D̃ỹ / Σ D̃²,Neyman 正交性使估计对 ML 一阶扰动鲁棒",
+          "K-fold cross-fit 多项式 ridge 拟合 (deg 2/3 可调) 估计 ĝ, m̂,避免过拟合污染因果参数",
+          "Naive OLS / Long OLS (linear X) / DML 三方对比柱图,直观展示非线性混淆下 OLS 系统性偏误",
+          "强非线性混淆 / 弱混淆 / 高维样本 / K=2 cross-fit 四套预设,θ 偏误与渐近 SE 同步显示",
+        ],
+      },
+      {
+        icon: Sparkles,
+        title: "Causal Forest / GRF — Athey-Wager (CATE 异质性)",
+        items: [
+          "核加权局部 partialling-out τ̂(x₀) = Σ K_h(Xᵢ−x₀)·D̃ᵢỹᵢ / Σ K_h·D̃ᵢ²,Epanechnikov 核近似森林叶子权重",
+          "CATE 曲线 τ̂(x) ± 95% 渐近 CI 与真实 τ(x) 重叠对比,识别 sigmoid / 线性 / 阶跃三类异质性形态",
+          "ATE 全样本估计 + HTE 方差 Var(τ̂) 作为异质性强度代理,带宽 h 与样本 n 联动调节偏-方差权衡",
+          "Sigmoid / 线性 / 阶跃异质性 / 宽带宽过平滑四套预设,稀疏区段 CI 显著变宽显示局部识别下降",
+        ],
+      },
+      {
+        icon: Sparkles,
+        title: "Bayesian Linear Regression — NIG 共轭后验 (贝叶斯学派)",
+        items: [
+          "共轭 Normal-Inverse-Gamma 先验:β|σ² ~ N(β₀, σ²Λ₀⁻¹), σ² ~ IG(a₀,b₀);后验闭式 βₙ = Λₙ⁻¹(X'y + Λ₀β₀)",
+          "后验预测分布 y*|x* ~ t_{2aₙ}(x*'βₙ, (bₙ/aₙ)(1 + x*'Λₙ⁻¹x*)),自动吸收 σ² 不确定性 → 比 OLS 更宽预测带",
+          "β₁ 边际后验 t 密度图同时标注 β₀ (先验)、βₙ (后验) 与真值,直观可视化先验-似然-后验三方收缩",
+          "弱先验 (≈OLS) / 强先验 / 错指定先验 / 大样本四套预设,演示先验权重 Λ₀ 在小样本下的稳定化作用与大样本下的消散",
+        ],
+      },
+      {
+        icon: GraduationCap,
+        title: "版本 V2.4 — 计量经济学 v3.0 收官",
+        items: [
+          "Navbar / Footer / Changelog 同步至 V2.4,V2.3 标记为 Stable",
+          "计量模块:22 → 25 个工具,完整覆盖『经典 OLS/IV/GMM · 现代 ML 因果 (DML/Causal Forest/LASSO) · 贝叶斯学派』三大范式",
+          "至此 V2.x 路线图全部完成,可发布为 Econometrics v3.0;后续 V2.5+ 将开启高频微观结构 / DSGE / Notebook 模式新维度",
+        ],
+      },
+    ],
+  },
+  {
+    version: "V2.3",
+    date: "2026-05",
+    tag: "Stable",
     highlights: [
       {
         icon: Sparkles,
