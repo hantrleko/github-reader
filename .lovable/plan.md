@@ -1,87 +1,88 @@
-## V2.2 路线图 — 计量经济学三大补缺
+## 当前状态盘点
 
-沿用 V2.1 的工程模式:单文件 `V22Tools.tsx` 导出三个组件,在 `EconometricsTools.tsx` 注册新 Tab,同步 Changelog 与 Navbar 版本号。
-
----
-
-### 1. LASSO / Ridge / Elastic Net + 交叉验证
-
-**算法**
-- **坐标下降法 (Friedman-Hastie-Tibshirani 2010)** 求解
-  L(β) = ½n⁻¹‖y − Xβ‖² + λ[α‖β‖₁ + ½(1−α)‖β‖²]
-- α=1 → LASSO,α=0 → Ridge,0<α<1 → Elastic Net
-- 标准化 X 后沿 λ 网格 (log 间隔 50 点) warm-start 计算系数路径
-- **K-fold CV**(K=5)选最优 λ:λ_min 与 λ_1se 两个准则
-
-**可视化**
-- 系数路径图:每条线一个 β_j(λ),x 轴 log(λ),竖线标 λ_min / λ_1se
-- CV MSE 曲线 ± 1 SE 误差带,标注最优点
-- 稀疏度计数:非零系数 # vs λ
-- 与 OLS 系数柱状图对比(同一组真值 β),展示 LASSO 变量选择能力
-
-**预设**
-- 稀疏真模型 (10 个特征只 3 个非零) / 多重共线性 (Ridge 优势) / 高维 p>n / 弱信号
+经过 V2.1 → V2.3,计量经济模块已有 22 个工具,覆盖:
+- **面板/因果**: Synthetic Control, Staggered DID (CS), PSM/IPW/AIPW, RDD, IV/2SLS
+- **时序**: ARIMA, GARCH, DCC-GARCH, SVAR, Markov Regime-Switching, **DLM/状态空间** ✅
+- **离散/选择**: Logit/Probit, Tobit, Heckman, Quantile Reg
+- **机器学习计量**: LASSO/Ridge/Elastic Net
+- **基础**: Panel FE/RE + Hausman, MIDAS
 
 ---
 
-### 2. Panel FE / RE + Hausman 检验
+## 可扩展方向(按优先级排序)
 
-**算法**
-- **Pooled OLS**:忽略个体效应
-- **Fixed Effects (Within)**:对 (y_it, x_it) 按个体去均值后 OLS
-- **Random Effects (GLS)**:Swamy-Arora 估计 σ_u² / σ_ε²,θ 加权变换 y* = y_it − θ ȳ_i 后 OLS
-- **Hausman 检验**:H = (β̂_FE − β̂_RE)′ [V(β̂_FE) − V(β̂_RE)]⁻¹ (β̂_FE − β̂_RE) ~ χ²(k)
-  - p < 0.05 拒绝 RE,选 FE
+### 🅰 V2.4 — 完成机器学习计量三件套(最高 ROI)
 
-**可视化**
-- 三方系数表:Pooled / FE / RE 同一行对比真值,带 SE
-- 个体效应散点:N 个 α_i 的分布
-- Hausman χ² 统计量与 p-value 卡片,自动给出"建议使用 FE/RE"标签
-- 数据面板:N(个体)× T(时期)结构小图
+承接 V2.3 路线图原本的收尾:
 
-**预设**
-- 个体效应与 X 相关 (FE 适用) / 个体效应独立 (RE 高效) / 大 N 小 T / 平衡面板
+1. **Double / Debiased Machine Learning (Chernozhukov 2018)**
+   - Partialling-out: 用 ML(LASSO/RF)拟合 E[Y|X], E[D|X] 残差化后再回归
+   - Cross-fitting (K-fold) 消除过拟合偏误
+   - 可视化: 朴素 OLS 偏误 vs DML 一致估计、不同 ML learner 对比、覆盖率仿真
+
+2. **Causal Forest / GRF (Athey-Wager 2018)**
+   - 基于诚实分裂的随机森林估计 CATE τ(x)
+   - 可视化: HTE 热力图(2D 协变量切片)、变量重要性、置信区间瀑布图
+
+3. **Bayesian Linear Regression / BVAR**
+   - 共轭先验 + Gibbs 采样,后验分布带
+   - Minnesota prior BVAR 用于宏观预测
+
+### 🅱 V2.5 — 高频与微观结构(新维度)
+
+4. **Realized Volatility / HAR-RV (Corsi 2009)**
+   - 5-min RV、bipower variation、跳跃成分识别
+   - HAR(日/周/月)三尺度回归预测
+
+5. **Hawkes Process(自激点过程)**
+   - 高频订单流/违约聚集建模,MLE 拟合 + 强度路径
+
+6. **Order Book / Kyle Lambda**
+   - 价格冲击模型、PIN(知情交易概率)
+
+### 🅲 V2.6 — 衍生品 & 风险深化
+
+7. **CVA / XVA 计算器** — Wrong-way risk, Bilateral CVA
+8. **Copula 信用组合 (Vasicek/Li)** — 已有 Gaussian Copula 可扩展 t-Copula、违约相关性曲面
+9. **Bermudan Swaption (LMM)** — Libor Market Model 蒙特卡洛
+10. **Path-dependent Exotics** — Asian/Barrier/Lookback 蒙特卡洛 + 控制变量
+
+### 🅳 V2.7 — 宏观与公司金融(横向拓展)
+
+11. **DSGE 简化版(RBC / 三方程 NK)** — 脉冲响应可视化
+12. **HANK 异质代理人模型(教学版)**
+13. **Merton 结构化违约模型** — 资本结构 + 违约距离 DD
+14. **Real Options(实物期权)** — 投资递延决策树
+
+### 🅴 V2.8 — 平台/体验增强(非工具类)
+
+15. **Notebook 模式** — 用户可自由组合工具,导出 PDF 报告
+16. **真实数据基准库** — FRED/Yahoo 一键加载到任意工具
+17. **跨工具对比仪表盘** — 同一份数据并行跑 OLS/IV/DID
+18. **LLM 解读助手** — 调用 Lovable AI 自动解释结果系数与诊断
 
 ---
 
-### 3. Tobit / Heckman 两步法
+## 推荐组合(只挑 3 个,投入最小、收益最大)
 
-**Tobit (Type-I)**
-- 截断回归:y* = Xβ + ε,观测 y = max(0, y*)
-- 对数似然:L = Σ_{y>0} log φ((y−Xβ)/σ)/σ + Σ_{y=0} log Φ(−Xβ/σ)
-- BFGS / Newton-Raphson 数值最大化(50 次迭代)
+如果只做一个 Sprint,推荐 **🅰 V2.4 完整收官**:
+- Double ML(填补 ML 因果空白)
+- Causal Forest(HTE 可视化是教学亮点)
+- Bayesian Regression(贝叶斯学派代表)
 
-**Heckman 两步法 (Heckit 1979)**
-- 第一步:Probit 选择方程 P(d=1|Z) = Φ(Zγ),求 Inverse Mills Ratio λ̂ = φ(Zγ̂)/Φ(Zγ̂)
-- 第二步:对样本 d=1 做 OLS y = Xβ + ρσ·λ̂ + η,β̂ 一致
+这样计量模块达到 25 个工具,**完整覆盖经典 + 现代 + 贝叶斯三大学派**,可以正式打包发布 v3.0。
 
-**可视化**
-- 三种估计对比:OLS(有偏)/ Tobit / Heckman 系数表
-- 截断散点:y vs X 高亮被截断点(红)与观测点(金)
-- Mills ratio 曲线:λ(Zγ̂) 与样本点叠加
-- ρσ 的显著性 → 是否存在选择偏差
-
-**预设**
-- 强左截断 (40% y=0) / 工资方程经典示例 / 无选择偏差对照 / 强选择偏差
+之后再开 V2.5 高频/微观结构作为新的横向拓展。
 
 ---
 
-### 文件改动
+## 文件改动预估(以 V2.4 为例)
 
 ```text
-新建: src/components/econ/V22Tools.tsx          (~900 行,导出 3 个工具)
-修改: src/components/EconometricsTools.tsx       (注册 lasso / panel / tobit 三个 tab)
-修改: src/components/Changelog.tsx               (V2.2 条目,V2.1 转 Stable)
-修改: src/pages/Index.tsx                        (footer 版本号 → 2.2)
-修改: src/i18n/locales/{en,zh}.json              (nav.version → V2.2)
+新建: src/components/econ/V24Tools.tsx           (~1000 行,3 个工具)
+修改: src/components/EconometricsTools.tsx       (注册 dml / causal_forest / bayes)
+修改: src/components/Changelog.tsx               (V2.4 条目)
+修改: src/i18n/locales/{en,zh}.json              (版本号 → V2.4)
 ```
 
-每个工具沿用现有标准:`PresetButtons` + `EquationBlock` LaTeX 公式 + 中文教学卡 + Recharts 主题 token + 稳健性检验。
-
----
-
-### 完成后状态
-
-- 计量经济学模块:**18 → 21 个工具**
-- 学科覆盖完成度:面板因果 ✅ + 时序 ✅ + 离散选择 ✅ + 微观选择校正 ✅ + 机器学习计量 ✅
-- 仅余 V2.3 收尾 3 项:State-Space DLM / Double ML / Causal Forest
+请选择推进方向(🅰/🅱/🅲/🅳/🅴 或自定义组合)。
