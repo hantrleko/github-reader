@@ -19,6 +19,7 @@ import { QuantileRegTool } from "./econ/QuantileRegTool";
 import { PSMTool, ARIMATool, LocalProjectionTool } from "./econ/V21Tools";
 import { LassoTool, PanelTool, TobitTool } from "./econ/V22Tools";
 import { DLMTool } from "./econ/V23Tools";
+import { DoubleMLTool, CausalForestTool, BayesianRegTool } from "./econ/V24Tools";
 import { EquationBlock } from "@/components/common/EquationBlock";
 
 const CHART_GOLD = "hsl(43, 80%, 55%)";
