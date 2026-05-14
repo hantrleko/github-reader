@@ -19,6 +19,7 @@ import { QuantileRegTool } from "./econ/QuantileRegTool";
 import { PSMTool, ARIMATool, LocalProjectionTool } from "./econ/V21Tools";
 import { LassoTool, PanelTool, TobitTool } from "./econ/V22Tools";
 import { DLMTool } from "./econ/V23Tools";
+import { DoubleMLTool, CausalForestTool, BayesianRegTool } from "./econ/V24Tools";
 import { EquationBlock } from "@/components/common/EquationBlock";
 
 const CHART_GOLD = "hsl(43, 80%, 55%)";
@@ -2224,7 +2225,7 @@ const ResultRow = ({ label, value, truth, se, color }: { label: string; value: n
 };
 
 /* ──────────────────  Main module  ────────────────── */
-type ToolId = "olsiv" | "did" | "sdid" | "rdd" | "synth" | "gmm" | "svar" | "garch" | "dcc" | "regime" | "coint" | "kalman" | "midas" | "logit" | "qreg" | "psm" | "arima" | "lp" | "lasso" | "panel" | "tobit" | "dlm";
+type ToolId = "olsiv" | "did" | "sdid" | "rdd" | "synth" | "gmm" | "svar" | "garch" | "dcc" | "regime" | "coint" | "kalman" | "midas" | "logit" | "qreg" | "psm" | "arima" | "lp" | "lasso" | "panel" | "tobit" | "dlm" | "dml" | "cforest" | "bayes";
 
 const TOOLS: { id: ToolId; name: string; nameEn: string; formula: string; python: string; component: React.FC }[] = [
   { id: "olsiv", name: "OLS / IV (工具变量)", nameEn: "Ordinary Least Squares & Instrumental Variables",
@@ -2694,6 +2695,66 @@ def fit_dlm(y, period=12):
         "forecast": res.get_forecast(24).predicted_mean,
     }`,
   component: DLMTool,
+});
+
+TOOLS.push({
+  id: "dml",
+  name: "Double ML (DML)",
+  nameEn: "Double / Debiased Machine Learning — Chernozhukov et al. (2018)",
+  formula: String.raw`\tilde y = y - \hat g_{-k}(X),\;\; \tilde D = D - \hat m_{-k}(X);\quad \hat\theta_{\mathrm{DML}} = \frac{\sum \tilde D\,\tilde y}{\sum \tilde D^{2}}`,
+  python: `import numpy as np
+from sklearn.model_selection import KFold
+from sklearn.linear_model import RidgeCV
+
+def dml(y, D, X, K=5):
+    n = len(y); kf = KFold(K, shuffle=True, random_state=0)
+    y_res = np.zeros(n); d_res = np.zeros(n)
+    for tr, te in kf.split(X):
+        gY = RidgeCV().fit(X[tr], y[tr])
+        gD = RidgeCV().fit(X[tr], D[tr])
+        y_res[te] = y[te] - gY.predict(X[te])
+        d_res[te] = D[te] - gD.predict(X[te])
+    theta = (d_res @ y_res) / (d_res @ d_res)
+    psi   = (y_res - theta*d_res) * d_res
+    se    = np.sqrt((psi**2).sum()) / (d_res @ d_res)
+    return theta, se`,
+  component: DoubleMLTool,
+});
+
+TOOLS.push({
+  id: "cforest",
+  name: "Causal Forest (HTE)",
+  nameEn: "Causal Forest / Generalized Random Forest — Athey, Tibshirani & Wager (2019)",
+  formula: String.raw`\hat\tau(x) \;=\; \frac{\sum_i K_h(X_i - x)\,\tilde D_i\,\tilde y_i}{\sum_i K_h(X_i - x)\,\tilde D_i^{\,2}},\quad K_h(u) = \tfrac{3}{4}\!\bigl(1 - (u/h)^{2}\bigr)_{+}`,
+  python: `import numpy as np
+from econml.grf import CausalForest          # or: from grf import causal_forest
+
+cf = CausalForest(n_estimators=2000, honest=True, random_state=0)
+cf.fit(X, D, y)
+tau_hat = cf.predict(X_grid)                 # CATE τ̂(x)
+lo, hi  = cf.predict_interval(X_grid, alpha=.05)
+`,
+  component: CausalForestTool,
+});
+
+TOOLS.push({
+  id: "bayes",
+  name: "Bayesian Linear Regression",
+  nameEn: "Bayesian Linear Regression — Normal-Inverse-Gamma Conjugate Posterior",
+  formula: String.raw`\boldsymbol\beta\mid\sigma^{2}\sim\mathcal N(\boldsymbol\beta_{0},\sigma^{2}\Lambda_{0}^{-1}),\;\; \sigma^{2}\sim\mathcal{IG}(a_{0},b_{0});\;\;\boldsymbol\beta_{n} = \Lambda_{n}^{-1}(X'y + \Lambda_{0}\boldsymbol\beta_{0})`,
+  python: `import numpy as np
+
+def bayes_linreg(X, y, b0, Lam0, a0=2., b0_=2.):
+    n, _ = X.shape
+    Lam_n = X.T @ X + Lam0
+    rhs   = X.T @ y + Lam0 @ b0
+    beta_n = np.linalg.solve(Lam_n, rhs)
+    a_n   = a0 + n/2
+    b_n   = (b0_ + 0.5*(y @ y + b0 @ Lam0 @ b0
+                        - beta_n @ Lam_n @ beta_n))
+    # posterior predictive: t_{2 a_n}( x* @ beta_n, (b_n/a_n)(1 + x*'Lam_n^{-1} x*) )
+    return beta_n, np.linalg.inv(Lam_n), a_n, b_n`,
+  component: BayesianRegTool,
 });
 
 
