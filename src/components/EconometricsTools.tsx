@@ -2758,6 +2758,107 @@ def bayes_linreg(X, y, b0, Lam0, a0=2., b0_=2.):
   component: BayesianRegTool,
 });
 
+TOOLS.push({
+  id: "harrv",
+  name: "HAR-RV (已实现波动率)",
+  nameEn: "Realized Volatility & HAR Model — Andersen-Bollerslev (1998), Corsi (2009), Barndorff-Nielsen & Shephard (2004)",
+  formula: String.raw`\mathrm{RV}_t=\sum_{j=1}^{N}r_{t,j}^{2},\;\;\mathrm{BV}_t=\tfrac{\pi}{2}\!\sum_{j=2}^{N}|r_{t,j}||r_{t,j-1}|,\;\;\mathrm{RV}_{t+1}=\beta_0+\beta_d\mathrm{RV}_t+\beta_w\overline{\mathrm{RV}}_t^{(5)}+\beta_m\overline{\mathrm{RV}}_t^{(22)}+\varepsilon_{t+1}`,
+  python: `import numpy as np
+
+def realized_measures(intraday_returns):
+    """intraday_returns: (N_days, M_intraday) log-returns."""
+    RV = (intraday_returns ** 2).sum(axis=1)
+    BV = (np.pi / 2) * (np.abs(intraday_returns[:, 1:]) *
+                        np.abs(intraday_returns[:, :-1])).sum(axis=1)
+    JV = np.maximum(RV - BV, 0.0)
+    return RV, BV, JV
+
+def har_rv(rv):
+    """Corsi (2009) heterogeneous AR: daily / weekly / monthly aggregates."""
+    T = len(rv)
+    Xrows, y = [], []
+    for t in range(22, T):
+        Xrows.append([1, rv[t-1], rv[t-5:t].mean(), rv[t-22:t].mean()])
+        y.append(rv[t])
+    X = np.asarray(Xrows); y = np.asarray(y)
+    beta, *_ = np.linalg.lstsq(X, y, rcond=None)
+    return {"beta0": beta[0], "beta_d": beta[1], "beta_w": beta[2], "beta_m": beta[3]}`,
+  component: HARRVTool,
+});
+
+TOOLS.push({
+  id: "hawkes",
+  name: "Hawkes 自激点过程",
+  nameEn: "Univariate Hawkes Process with Exponential Kernel — Hawkes (1971), Bowsher (2007), Bacry-Mastromatteo-Muzy (2015)",
+  formula: String.raw`\lambda(t)=\mu+\alpha\!\!\sum_{t_i<t}\!\!e^{-\beta(t-t_i)};\quad \mathcal{L}=\sum_i\log\lambda(t_i)-\!\int_0^{T}\!\lambda(s)\,ds;\quad n^{*}=\alpha/\beta<1`,
+  python: `import numpy as np
+from scipy.optimize import minimize
+
+def simulate_hawkes(T, mu, alpha, beta, rng=np.random.default_rng()):
+    """Ogata thinning algorithm for univariate Hawkes."""
+    events, t, lam_star = [], 0.0, mu
+    while t < T:
+        t += -np.log(rng.uniform()) / lam_star
+        if t >= T: break
+        lam = mu + alpha * np.sum(np.exp(-beta * (t - np.array(events))))
+        if rng.uniform() * lam_star <= lam:
+            events.append(t); lam_star = lam + alpha
+        else:
+            lam_star = lam
+    return np.array(events)
+
+def hawkes_loglik(params, events, T):
+    mu, alpha, beta = params
+    if mu <= 0 or alpha < 0 or beta <= 0 or alpha >= beta: return 1e12
+    A, prev, ll = 0.0, 0.0, 0.0
+    for i, ti in enumerate(events):
+        A = np.exp(-beta * (ti - prev)) * (1 + A) if i else 0.0
+        ll += np.log(mu + alpha * A); prev = ti
+    comp = mu * T + (alpha / beta) * np.sum(1 - np.exp(-beta * (T - events)))
+    return -(ll - comp)
+
+def fit_hawkes(events, T):
+    return minimize(hawkes_loglik, [0.5, 0.3, 1.0], args=(events, T), method="Nelder-Mead").x`,
+  component: HawkesTool,
+});
+
+TOOLS.push({
+  id: "kyle",
+  name: "Kyle λ / PIN (订单簿冲击)",
+  nameEn: "Kyle (1985) Price Impact & PIN — Easley, Kiefer, O'Hara & Paperman (1996)",
+  formula: String.raw`\Delta p_t=\lambda\,q_t+\varepsilon_t,\quad \lambda=\frac{\sqrt{\Sigma_v}}{2\sigma_u};\qquad \mathrm{PIN}=\frac{\alpha\mu}{\alpha\mu+2\varepsilon}`,
+  python: `import numpy as np
+from scipy.optimize import minimize
+
+def kyle_lambda(price_changes, signed_flow):
+    """OLS estimate of Kyle's lambda: Δp = λ q + ε."""
+    X = np.column_stack([np.ones_like(signed_flow), signed_flow])
+    beta, *_ = np.linalg.lstsq(X, price_changes, rcond=None)
+    resid = price_changes - X @ beta
+    se = np.sqrt(((resid ** 2).sum() / (len(resid) - 2)) /
+                 ((signed_flow - signed_flow.mean()) ** 2).sum())
+    return {"lambda": beta[1], "alpha": beta[0], "se": se}
+
+def pin_loglik(params, B, S):
+    """EKOP (1996) PIN likelihood on daily buys (B) and sells (S)."""
+    a, d, mu, e = params
+    if not (0 < a < 1 and 0 < d < 1 and mu > 0 and e > 0): return 1e10
+    from scipy.special import gammaln
+    def lp(b, s):
+        # mixture: no event / good news / bad news
+        no = np.exp(-2*e) * e**(b+s) / np.exp(gammaln(b+1)+gammaln(s+1))
+        good = np.exp(-(e+mu+e)) * (e+mu)**b * e**s / np.exp(gammaln(b+1)+gammaln(s+1))
+        bad  = np.exp(-(e+e+mu)) * e**b * (e+mu)**s / np.exp(gammaln(b+1)+gammaln(s+1))
+        return np.log((1-a)*no + a*(1-d)*good + a*d*bad + 1e-300)
+    return -np.sum([lp(b, s) for b, s in zip(B, S)])
+
+def fit_pin(B, S):
+    res = minimize(pin_loglik, [0.3, 0.5, np.mean(B+S), np.mean(B+S)/2], args=(B, S), method="Nelder-Mead")
+    a, d, mu, e = res.x
+    return {"PIN": a*mu / (a*mu + 2*e), "alpha": a, "delta": d, "mu": mu, "eps": e}`,
+  component: KyleLambdaTool,
+});
+
 
 /** Compact collapsible Python reference snippet — companion to the formula bar. */
 const PythonReference = ({ code }: { code: string }) => {
