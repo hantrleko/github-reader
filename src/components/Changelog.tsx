@@ -4,9 +4,54 @@ import { useTranslation } from "react-i18next";
 
 const RELEASES = [
   {
-    version: "V2.4",
+    version: "V2.5",
     date: "2026-05",
     tag: "Latest",
+    highlights: [
+      {
+        icon: Sparkles,
+        title: "HAR-RV — 已实现波动率与跳跃识别 (Corsi 2009 / BNS 2004)",
+        items: [
+          "5-min 日内仿真合成 RV_t = Σ r²_{t,j},Bipower BV_t = (π/2)·Σ|r_j||r_{j-1}| 跳跃稳健,JV = max(RV−BV, 0) 直接显示跳跃成分柱图",
+          "HAR(1,5,22) 异质性回归:β_d 日 / β_w 周 / β_m 月三尺度系数 + HC0 SE,样本内拟合 √RV 实际 vs 预测对比",
+          "AR(1) log-波动持续性 + 可调跳跃强度/幅度 DGP,平稳 / 高跳跃 / 强持续 / 近 BS 四套预设",
+        ],
+      },
+      {
+        icon: Sparkles,
+        title: "Hawkes 自激点过程 — 高频订单流/违约聚集 (Hawkes 1971)",
+        items: [
+          "Ogata thinning 精确仿真 λ(t) = μ + α·Σexp(−β(t−t_i)),强度路径 + 事件散点叠加可视化",
+          "递归 A_i 加速对数似然 L = Σlog λ(t_i) − ∫λ + 坐标搜索 MLE 估计 (μ̂, α̂, β̂),与真值对照",
+          "分支比 n* = α/β 自动判定平稳性 (次临界/临界/爆发),平均强度 E[λ] = μ/(1−n*) 同步显示",
+          "弱聚集 / 高聚集 (订单流) / 临界 / 纯 Poisson 四套预设",
+        ],
+      },
+      {
+        icon: Sparkles,
+        title: "Kyle λ + PIN — 订单簿价格冲击与知情交易 (Kyle 1985 / EKOP 1996)",
+        items: [
+          "Kyle (1985) 线性均衡 Δp = λ·q + ε,OLS 估计 λ̂ ± HC SE 与真值对比,带散点+拟合直线可视化",
+          "EKOP (1996) 三状态混合 (无事件 / 好消息 / 坏消息) DGP 仿真买卖订单,粗估 PIN̂ 与真实 αμ/(αμ+2ε) 同框对比",
+          "α (信息事件概率) / δ (坏消息条件) / μ (信息交易者强度) / ε (无知交易者强度) 全可调,显式分离信息不对称与噪声流",
+          "流动性强 / 信息驱动 / 噪声主导 / 极端冲击四套预设,演示薄市与深市下 λ 的非线性放大",
+        ],
+      },
+      {
+        icon: GraduationCap,
+        title: "版本 V2.5 — 高频与微观结构 (Microstructure)",
+        items: [
+          "Navbar / Footer / Changelog 同步至 V2.5,V2.4 标记为 Stable",
+          "计量模块:25 → 28 个工具,新增高频/微观结构维度,完整衔接经典计量 → ML 因果 → 高频微观三大体系",
+          "下一阶段路线图:V2.6 衍生品深化 (CVA/XVA · LMM · Path-dependent MC) 或 V2.7 宏观与公司金融 (DSGE · Merton · Real Options)",
+        ],
+      },
+    ],
+  },
+  {
+    version: "V2.4",
+    date: "2026-05",
+    tag: "Stable",
     highlights: [
       {
         icon: Sparkles,
