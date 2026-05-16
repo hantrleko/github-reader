@@ -4,9 +4,66 @@ import { useTranslation } from "react-i18next";
 
 const RELEASES = [
   {
-    version: "V2.5",
+    version: "V2.6",
     date: "2026-05",
     tag: "Latest",
+    highlights: [
+      {
+        icon: Sparkles,
+        title: "LMM Bermudan Swaption — Libor Market Model 蒙特卡洛 (Brace-Gatarek-Musiela 1997)",
+        items: [
+          "rank-2 因子 LMM 直接扩散前向 Libor F_i 路径,spot-libor 测度下漂移修正 + 相关结构 ρ 可调",
+          "Longstaff-Schwartz 二次回归 (1, V, V²) 估计连续价值,Bermudan vs European 行权策略一键切换",
+          "EPE 期望正暴露曲线 + 行权时刻直方图,直观显示『提前行权溢价』随 σ/ρ 的演化",
+          "ATM Bermudan / Deep ITM 长尾 / OTM European / 强相关 (≈HJM 1-fac) 四套预设",
+        ],
+      },
+      {
+        icon: Sparkles,
+        title: "路径依赖期权 — Asian / Barrier / Lookback + 控制变量法",
+        items: [
+          "四类 exotic 一键切换:亚式平均 (avg − K)⁺ · 上/下障碍 (knock-out) · 浮动行权回望 (S_T − min S)⁺",
+          "控制变量 θ̂_CV = Ȳ − β̂(C̄ − E[C]) 用 vanilla European call 的 BS 解析价作为 control,显示方差降幅 %",
+          "payoff-控制相关 ρ 与最优 β̂ 实时计算,Asian/Barrier 通常 ρ→1 → SE 降幅 60-90%",
+          "样本路径 + payoff 分布双视图,障碍线/行权线叠加,直观看到敲出时刻",
+        ],
+      },
+      {
+        icon: Sparkles,
+        title: "CVA / DVA / Bilateral XVA — Wrong-Way Risk (Hull-White 2012)",
+        items: [
+          "Gaussian 短利率 + 随机 hazard λ_C 联合仿真,WWR 通过 ρ(r, λ) 控制对手违约与暴露的相依结构",
+          "CVA = LGD·∫EPE(t)·dPD_C(t)·D(0,t) 离散逼近,同时计算 DVA、BCVA = CVA − DVA",
+          "WWR 增量 = 含相依 CVA − 独立朴素 CVA,显式量化危机情景下 CVA 低估幅度",
+          "无 WWR / 强 WWR / Right-way / 投资级对手四套预设,EPE 曲线 + XVA 组分柱图双面板",
+        ],
+      },
+      {
+        icon: Sparkles,
+        title: "信用组合 Copula — Vasicek/Li (Gaussian) + t-Copula 尾相依",
+        items: [
+          "单因子模型 X_i = √ρ·M + √(1−ρ)·ε_i,违约阈值 Φ⁻¹(PD),支持 Gaussian / Student-t 双 copula",
+          "Vasicek 大组合解析 VaR_α = n·LGD·Φ((Φ⁻¹(PD)+√ρ·Φ⁻¹(α))/√(1−ρ)) 与 MC 实证 VaR/ES 同图对比",
+          "默认相关性曲面 ρ_D(PD, ρ_asset) 通过 5×7 网格蒙特卡洛重建,演示低 PD 高 ρ_asset → 极低 ρ_D 的反直觉效应",
+          "投资级 / 高收益 / t-Copula(df=4) / Basel IRB (ρ=0.24) 四套预设,损失分布尾部高亮 > VaR 区域",
+        ],
+      },
+      {
+        icon: GraduationCap,
+        title: "版本 V2.6 — 衍生品 & 风险深化",
+        items: [
+          "Navbar / Footer / Changelog 同步至 V2.6,V2.5 标记为 Stable",
+          "衍生品模块:8 → 10 个工具 (新增 LMM Bermudan · Path-dependent Exotics)",
+          "风险模块:4 → 6 个工具 (新增 CVA/XVA WWR · 信用组合 Copula),完整覆盖『市场 · 信用 · 对手方』三大风险维度",
+          "下一阶段路线图:V2.7 宏观与公司金融 (DSGE/RBC · HANK · Real Options) 或 V2.8 平台增强 (Notebook · 跨工具对比)",
+        ],
+      },
+    ],
+  },
+  {
+    version: "V2.5",
+    date: "2026-05",
+    tag: "Stable",
     highlights: [
       {
         icon: Sparkles,

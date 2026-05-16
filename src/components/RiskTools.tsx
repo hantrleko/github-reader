@@ -12,6 +12,7 @@ import { ShareExportToolbar, useSharedState } from "@/lib/calculatorTools";
 import { HistoryDrawer } from "@/components/common/HistoryDrawer";
 import { EquationBlock } from "@/components/common/EquationBlock";
 import { ESBacktestTool } from "./risk/ESBacktestTool";
+import { CVAXVATool, CreditCopulaTool } from "./risk/V26Tools";
 
 const CHART_GOLD = "hsl(43, 80%, 55%)";
 const CHART_TEAL = "hsl(180, 50%, 40%)";
@@ -657,7 +658,7 @@ export const StressTool = () => {
 /* ════════════════════════════════════════════════════════════
    Main module
    ════════════════════════════════════════════════════════════ */
-type ToolId = "merton" | "copula" | "esback" | "stress";
+type ToolId = "merton" | "copula" | "esback" | "stress" | "cva" | "credit_copula";
 
 const TOOLS: { id: ToolId; name: string; nameEn: string; formula: string; python: string; component: React.FC }[] = [
   {
@@ -743,6 +744,39 @@ def stress_pnl(positions, scenario):
             pnl += p["notional"] * scenario["oil"] / 100
     return pnl`,
     component: StressTool,
+  },
+  {
+    id: "cva", name: "CVA / XVA + WWR", nameEn: "Credit Valuation Adjustment — Bilateral XVA & Wrong-Way Risk",
+    formula: String.raw`\mathrm{CVA} = \mathrm{LGD}\!\int_0^T\! \mathrm{EPE}(t)\, d\mathrm{PD}_C(t)\, D(0,t),\qquad \mathrm{BCVA} = \mathrm{CVA} - \mathrm{DVA}`,
+    python: `import numpy as np
+
+def cva_swap(epe, dpd_c, disc, lgd=0.6):
+    """Discrete CVA on a swap: ∑ LGD · EPE(t) · ΔPD_C(t) · D(0,t)."""
+    return lgd * np.sum(epe * dpd_c * disc)
+
+def bcva(epe, ene, dpd_c, dpd_b, disc, lgd=0.6):
+    cva = lgd * np.sum(epe * dpd_c * disc)
+    dva = lgd * np.sum(ene * dpd_b * disc)
+    return cva - dva`,
+    component: CVAXVATool,
+  },
+  {
+    id: "credit_copula", name: "信用组合 Copula (Vasicek/Li/t)", nameEn: "Credit Portfolio Copula — Vasicek / Li with Gaussian vs t Tail",
+    formula: String.raw`X_i = \sqrt{\rho}\,M + \sqrt{1-\rho}\,\varepsilon_i,\qquad \mathrm{VaR}_\alpha^{\mathrm{Vasicek}} = n\cdot \mathrm{LGD}\cdot \Phi\!\Bigl(\tfrac{\Phi^{-1}(\mathrm{PD}) + \sqrt{\rho}\,\Phi^{-1}(\alpha)}{\sqrt{1-\rho}}\Bigr)`,
+    python: `import numpy as np
+from scipy.stats import norm
+
+def vasicek_var(pd, rho, alpha=0.999, lgd=0.6):
+    """Basel II IRB / Vasicek large-portfolio VaR (loss rate)."""
+    return lgd * norm.cdf((norm.ppf(pd) + np.sqrt(rho)*norm.ppf(alpha)) / np.sqrt(1-rho))
+
+def gaussian_copula_default(n=100, pd=0.03, rho=0.2, n_sim=10000, seed=42):
+    rng = np.random.default_rng(seed)
+    M = rng.standard_normal(n_sim)
+    eps = rng.standard_normal((n_sim, n))
+    X = np.sqrt(rho)*M[:,None] + np.sqrt(1-rho)*eps
+    return (X <= norm.ppf(pd)).sum(axis=1)  # default count per scenario`,
+    component: CreditCopulaTool,
   },
 ];
 
