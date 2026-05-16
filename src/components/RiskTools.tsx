@@ -12,6 +12,7 @@ import { ShareExportToolbar, useSharedState } from "@/lib/calculatorTools";
 import { HistoryDrawer } from "@/components/common/HistoryDrawer";
 import { EquationBlock } from "@/components/common/EquationBlock";
 import { ESBacktestTool } from "./risk/ESBacktestTool";
+import { CVAXVATool, CreditCopulaTool } from "./risk/V26Tools";
 
 const CHART_GOLD = "hsl(43, 80%, 55%)";
 const CHART_TEAL = "hsl(180, 50%, 40%)";
@@ -657,7 +658,7 @@ export const StressTool = () => {
 /* ════════════════════════════════════════════════════════════
    Main module
    ════════════════════════════════════════════════════════════ */
-type ToolId = "merton" | "copula" | "esback" | "stress";
+type ToolId = "merton" | "copula" | "esback" | "stress" | "cva" | "credit_copula";
 
 const TOOLS: { id: ToolId; name: string; nameEn: string; formula: string; python: string; component: React.FC }[] = [
   {

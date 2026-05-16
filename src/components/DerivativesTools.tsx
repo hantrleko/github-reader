@@ -10,9 +10,10 @@ import { SABRTool } from "./deriv/SABRTool";
 import { LocalVolTool } from "./deriv/LocalVolTool";
 import { GreeksDeskTool } from "./deriv/GreeksDeskTool";
 import { SABRvsHestonTool } from "./deriv/SABRvsHestonTool";
+import { LMMSwaptionTool, ExoticOptionsTool } from "./deriv/V26Tools";
 import { EquationBlock } from "@/components/common/EquationBlock";
 
-type ToolId = "vol" | "heston" | "sabr" | "sabr_heston" | "localvol" | "greeks" | "amer" | "rates";
+type ToolId = "vol" | "heston" | "sabr" | "sabr_heston" | "localvol" | "greeks" | "amer" | "rates" | "lmm" | "exotic";
 
 const TOOLS: { id: ToolId; name: string; nameEn: string; formula: string; component: React.FC }[] = [
   {
@@ -54,6 +55,16 @@ const TOOLS: { id: ToolId; name: string; nameEn: string; formula: string; compon
     id: "rates", name: "利率衍生品 (Cap/Floor/Swaption)", nameEn: "Interest Rate Derivatives — Black-76 Pricing",
     formula: String.raw`\text{Caplet} = \tau\,P(0,T_{i+1})\bigl[F_i\Phi(d_1) - K\Phi(d_2)\bigr],\qquad \text{Swaption} = A_{\text{ann}}\bigl[S_0\Phi(d_1) - K\Phi(d_2)\bigr]`,
     component: RatesDerivativesTool,
+  },
+  {
+    id: "lmm", name: "LMM Bermudan Swaption", nameEn: "Libor Market Model — Bermudan Swaption (Longstaff-Schwartz MC)",
+    formula: String.raw`dF_i(t) = \sigma_i\,F_i(t)\,dW_i^{T_{i+1}},\qquad V_0 = \sup_{\tau \in \mathcal{T}}\;\mathbb{E}^{Q}\!\Bigl[\tfrac{(\text{Swap}_\tau)^+}{B_\tau}\Bigr]`,
+    component: LMMSwaptionTool,
+  },
+  {
+    id: "exotic", name: "路径依赖期权 (亚式/障碍/回望)", nameEn: "Path-Dependent Exotics — Asian / Barrier / Lookback with Control Variate",
+    formula: String.raw`\hat C_{\text{CV}} = \bar Y - \hat\beta\bigl(\bar C - \mathbb{E}[C]\bigr),\qquad \hat\beta = \tfrac{\mathrm{Cov}(Y,C)}{\mathrm{Var}(C)},\quad \mathbb{E}[C] = e^{rT}\,C^{\text{BS}}`,
+    component: ExoticOptionsTool,
   },
 ];
 
