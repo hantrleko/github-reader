@@ -276,7 +276,7 @@ export const LMMSwaptionTool = () => {
           <Stat label="提前行权溢价" value={((result.price - result.blackPayer)*10000).toFixed(2)+" bp"} color={CHART_BLUE} sub="Bermudan vs European" />
           <Stat label="行权频率" value={`${(result.nEx/Math.max(1,1000)).toFixed(0)} / 1000`} sub={`总路径 ${1000}`} />
           <div className="text-xs font-mono text-muted-foreground p-3 rounded-lg bg-secondary/40 border border-border leading-relaxed">
-            <p><span className="text-gold">LMM (Brace-Gatarek-Musiela 1997)：</span>直接对前向 Libor 建模 dF_i = σ_i F_i dW_i^{i+1}。本工具用 rank-2 因子近似全相关结构。</p>
+            <p><span className="text-gold">LMM (Brace-Gatarek-Musiela 1997)：</span>直接对前向 Libor 建模 dF_i = σ_i F_i dW_i 在 T_(i+1) 测度下。本工具用 rank-2 因子近似全相关结构。</p>
             <p>Bermudan 行权权利通过 <strong>Longstaff-Schwartz</strong> 二次回归近似连续价值,在每个 T_k 比较立即行权与持有。</p>
           </div>
         </div>
