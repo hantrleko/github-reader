@@ -537,7 +537,7 @@ export const RealOptionsTool = () => {
             <Stat label="决策" value={V0 >= (isFinite(vStarPerp) ? vStarPerp : 1e9) ? "投资" : "等待"} color={V0 >= vStarPerp ? CHART_TEAL : CHART_RED} sub={`V₀/I=${(V0/I).toFixed(2)}`} />
           </div>
           <div className="text-xs font-mono text-muted-foreground p-3 rounded-lg bg-secondary/40 border border-border leading-relaxed space-y-1">
-            <p><span className="text-gold">Dixit-Pindyck (1994):</span> 投资具有期权性,σ↑ → 等待价值↑ → 触发阈值 V* > I。</p>
+            <p><span className="text-gold">Dixit-Pindyck (1994):</span> 投资具有期权性,σ↑ → 等待价值↑ → 触发阈值 V* &gt; I。</p>
             <p>朴素 NPV 规则 (V≥I 投资) 系统性低估期权溢价,导致过度投资。</p>
             <p>永久解析:V* = β/(β−1)·I,其中 β 满足二次方程根式。</p>
           </div>
