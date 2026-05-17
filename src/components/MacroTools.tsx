@@ -3,15 +3,31 @@ import { motion } from "framer-motion";
 import "katex/dist/katex.min.css";
 import { ShareExportToolbar, useSharedState } from "@/lib/calculatorTools";
 import { SolowTool } from "./macro/SolowTool";
+import { DSGENKTool, HANKTool, RealOptionsTool } from "./macro/V27Tools";
 import { EquationBlock } from "@/components/common/EquationBlock";
 
-type ToolId = "solow";
+type ToolId = "solow" | "dsge" | "hank" | "realopt";
 
 const TOOLS: { id: ToolId; name: string; nameEn: string; formula: string; component: React.FC }[] = [
   {
     id: "solow", name: "Solow 增长模型", nameEn: "Solow-Swan Growth Model — Capital Accumulation & Golden Rule",
     formula: String.raw`\dot{\tilde k} \;=\; s\,\tilde k^{\alpha} \;-\; (n + g + \delta)\,\tilde k,\qquad \tilde k^{*} = \left(\dfrac{s}{n+g+\delta}\right)^{\!1/(1-\alpha)},\qquad s_{\text{gold}} = \alpha`,
     component: SolowTool,
+  },
+  {
+    id: "dsge", name: "3 方程 NK DSGE", nameEn: "3-Equation New Keynesian DSGE — Clarida-Galí-Gertler IRF",
+    formula: String.raw`x_t = \mathbb{E}_t x_{t+1} - \tfrac{1}{\sigma}(i_t - \mathbb{E}_t \pi_{t+1}),\quad \pi_t = \beta\,\mathbb{E}_t \pi_{t+1} + \kappa\, x_t,\quad i_t = \phi_\pi \pi_t + \phi_x x_t`,
+    component: DSGENKTool,
+  },
+  {
+    id: "hank", name: "HANK / TANK 教学版", nameEn: "Heterogeneous Agent NK — HTM Share & Aggregate MPC",
+    formula: String.raw`x_t = \mathbb{E}_t x_{t+1} - \tfrac{1-\lambda}{\sigma}(i_t - \mathbb{E}_t \pi_{t+1}),\qquad \mathrm{MPC}^{\mathrm{agg}} = \lambda + (1-\lambda)\,\mathrm{MPC}^{R}`,
+    component: HANKTool,
+  },
+  {
+    id: "realopt", name: "实物期权 (投资递延)", nameEn: "Real Options — Investment Deferral à la Dixit-Pindyck",
+    formula: String.raw`F(V) = \max\!\bigl\{V - I,\; e^{-r\,dt}\,\mathbb{E}[F(V_{t+dt})]\bigr\},\qquad V^{*} = \tfrac{\beta}{\beta-1}\,I,\quad \beta>1`,
+    component: RealOptionsTool,
   },
 ];
 
@@ -27,10 +43,10 @@ const MacroTools = () => {
       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-card/20 to-transparent pointer-events-none" />
       <div className="container relative z-10 max-w-5xl">
         <motion.div className="text-center mb-12" initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}>
-          <p className="text-xs font-mono uppercase tracking-[0.3em] text-gold mb-3">Macroeconomics</p>
+          <p className="text-xs font-mono uppercase tracking-[0.3em] text-gold mb-3">Macroeconomics &amp; Corporate Finance</p>
           <h2 className="text-3xl md:text-5xl font-display font-bold text-foreground">宏观经济学</h2>
           <p className="text-sm text-muted-foreground mt-3 max-w-2xl mx-auto">
-            从增长理论起步：交互式数值动力学,可视化稳态收敛与黄金率消费最大化
+            Solow 增长 · NK DSGE 脉冲响应 · HANK 异质代理 · Dixit-Pindyck 实物期权 — 横跨长期增长、短期波动与投资决策
           </p>
         </motion.div>
 
