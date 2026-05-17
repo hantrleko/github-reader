@@ -4,9 +4,53 @@ import { useTranslation } from "react-i18next";
 
 const RELEASES = [
   {
-    version: "V2.6",
+    version: "V2.7",
     date: "2026-05",
     tag: "Latest",
+    highlights: [
+      {
+        icon: Sparkles,
+        title: "3 方程 NK DSGE — Clarida-Galí-Gertler 脉冲响应",
+        items: [
+          "IS + NKPC + Taylor Rule 三方程,在 AR(1) 冲击下用 MSV 解 z_t = Ψ_z · ε_t 闭式求解 3×3 系统",
+          "需求 ε_d / 成本推动 ε_s / 货币 ε_m 三类冲击一键切换,IRF 同图叠加产出缺口 / 通胀 / 名义利率",
+          "Taylor 原则 (φ_π > 1) 实时判定,鸽派 / 鹰派 / 刚性价格 / 持续冲击四套校准预设",
+        ],
+      },
+      {
+        icon: Sparkles,
+        title: "HANK / TANK 教学版 — 异质代理与加总 MPC",
+        items: [
+          "Galí-López-Salido-Vallés (2007) TANK 近似:HTM 家庭 MPC≈1,Ricardian 平滑消费,有效跨期斜率 (1−λ)/σ",
+          "10 分位财富分布 (帕累托右尾 + HTM 零财富) + 分位 MPC 异质柱状图,加总 MPC / 财政乘数实时显示",
+          "RANK vs HANK 货币 IRF 并行对比,可视化间接收入效应对货币传导的放大",
+        ],
+      },
+      {
+        icon: Sparkles,
+        title: "实物期权 — Dixit-Pindyck 投资递延决策",
+        items: [
+          "GBM 项目价值 V_t + 二叉树 (CRR) 反向归纳,每节点比较 max(V−I) vs e^(−r·dt) E[F(V')] 求等待价值",
+          "F(V) vs 朴素 NPV 对比图,等待溢价阴影区显式标出过度投资偏差,V*(t) 触发阈值时间路径",
+          "永久解析基准 V*_∞ = β/(β−1)·I (β 二次方程根) 同图叠加,验证有限窗口收敛性",
+        ],
+      },
+      {
+        icon: GraduationCap,
+        title: "版本 V2.7 — 宏观与公司金融横向拓展",
+        items: [
+          "Navbar / Footer / Changelog 同步至 V2.7,V2.6 标记为 Stable",
+          "宏观模块:1 → 4 个工具 (Solow + DSGE-NK + HANK + Real Options),覆盖长期增长 · 短期波动 · 异质代理 · 投资决策",
+          "Merton 结构化违约模型已在 V1 风险模块提供 (DD / 信用利差 / PD vs 杠杆),本次未重复实现",
+          "下一阶段路线图:V2.8 平台增强 (Notebook 组合工具 · 跨工具对比 · LLM 解读助手) 或 V2.9 真实数据集成",
+        ],
+      },
+    ],
+  },
+  {
+    version: "V2.6",
+    date: "2026-05",
+    tag: "Stable",
     highlights: [
       {
         icon: Sparkles,
