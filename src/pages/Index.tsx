@@ -22,6 +22,7 @@ const QuantStrategyTools = lazy(() => import("@/components/QuantStrategyTools"))
 const MacroTools = lazy(() => import("@/components/MacroTools"));
 const QuizSection = lazy(() => import("@/components/QuizSection"));
 const LearningPath = lazy(() => import("@/components/LearningPath"));
+const V28Platform = lazy(() => import("@/components/platform/V28Platform"));
 
 const SectionFallback = () => (
   <div className="py-20 px-6">
@@ -192,6 +193,14 @@ const Index = () => {
       </Suspense>
       </SectionErrorBoundary>
 
+      {/* ─── 8. 平台增强 ─── */}
+      <SectionDivider kicker="Chapter 8" label="平台增强 · Notebook、真实数据与跨工具对比" />
+      <SectionErrorBoundary name="平台增强">
+      <Suspense fallback={<SectionFallback />}>
+        <div id="platform" className="scroll-mt-12"><DeferMount><V28Platform /></DeferMount></div>
+      </Suspense>
+      </SectionErrorBoundary>
+
       {/* ─── 8. 测验与路径 ─── */}
       <SectionDivider kicker="Capstone" label="知识检验与学习路径" />
       <SectionErrorBoundary name="测验与学习路径">
@@ -253,7 +262,7 @@ const Index = () => {
               © 2026 Econ &amp; Finance Lab · 仅供学习研究 · 不构成投资建议
             </p>
             <p className="text-[10px] font-mono text-gold/80 tracking-[0.2em] uppercase">
-              Version 2.7
+              Version 2.8
             </p>
           </div>
         </div>
