@@ -4,9 +4,52 @@ import { useTranslation } from "react-i18next";
 
 const RELEASES = [
   {
-    version: "V2.7",
+    version: "V2.8",
     date: "2026-05",
     tag: "Latest",
+    highlights: [
+      {
+        icon: Layout,
+        title: "Notebook 模式 — 自由组合 · 一键导出 PDF 报告",
+        items: [
+          "四类单元格 (Markdown / KaTeX 公式 / Pipe 表格 / 代码) 可任意增删 · 上下移动重排,所见即所得",
+          "导出弹窗使用打印样式 (Playfair 标题 / 金色分隔线 / 表格栅格),触发 window.print() 可保存为 PDF 或纸质打印",
+          "公式块实时 KaTeX 渲染,表格按 | 分隔自动生成 thead/tbody,代码块单色等宽以暗色卡片呈现",
+        ],
+      },
+      {
+        icon: Sparkles,
+        title: "真实数据基准库 — FRED + Yahoo 17 序列一键拉取",
+        items: [
+          "FRED 9 个序列 (GDPC1 / CPIAUCSL / UNRATE / DGS10 / DGS2 / T10Y2Y / FEDFUNDS / DEXUSEU / VIXCLS)",
+          "Yahoo 8 个标的 (SPY / QQQ / AAPL / MSFT / NVDA / TLT / GLD / BTC-USD),展示 close / 年化 σ̂ / 年化 μ̂ / n",
+          "每张卡片内嵌迷你折线,React-Query 5 分钟缓存避免重复请求 supabase edge function",
+        ],
+      },
+      {
+        icon: Wrench,
+        title: "跨工具对比仪表盘 — 一份数据并行跑 OLS / IV / FE / DID",
+        items: [
+          "面板 DGP:40 单位 × T 期,U 同时影响 D 与 Y 制造内生性,Z 作为 IV,treated × post 为 DID 信号",
+          "高斯-约旦法手写多元 OLS 求解 X'X 与 SE,2SLS 第一阶段拟合 D̂ → 第二阶段替换,TWFE 通过单位+时间哑变量实现",
+          "结果表 + Forest Plot(τ̂ ± 1.96·SE),绿/金/红三色按偏差自动着色,真实 τ 红色参考线对齐",
+        ],
+      },
+      {
+        icon: GraduationCap,
+        title: "版本 V2.8 — 平台与体验增强层",
+        items: [
+          "新增第 8 章 「平台增强」 章节,Navbar / Footer / Changelog 同步至 V2.8,V2.7 标记为 Stable",
+          "项目能力栈完成横向闭环:36 个建模工具 + 报告产出 + 数据接入 + 识别策略并联诊断",
+          "下一阶段路线图:V2.9 LLM 解读助手 (调用 Lovable AI 自动解释系数与诊断) 或 V3.0 正式发布版",
+        ],
+      },
+    ],
+  },
+  {
+    version: "V2.7",
+    date: "2026-05",
+    tag: "Stable",
     highlights: [
       {
         icon: Sparkles,
