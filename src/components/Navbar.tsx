@@ -292,6 +292,17 @@ const Navbar = () => {
 
         <div className="flex items-center gap-1">
           <Link
+            to="/tools"
+            className={cn(
+              "hidden sm:inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-mono transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/60",
+              location.pathname === "/tools"
+                ? "bg-primary/10 text-primary font-semibold"
+                : "text-muted-foreground hover:text-foreground hover:bg-accent"
+            )}
+          >
+            全部工具
+          </Link>
+          <Link
             to="/changelog"
             className={cn(
               "hidden sm:inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-mono transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/60",
