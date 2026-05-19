@@ -7,6 +7,7 @@ import ModelShowcase from "@/components/ModelShowcase";
 import ScrollUtilities from "@/components/ScrollUtilities";
 import SectionErrorBoundary from "@/components/SectionErrorBoundary";
 import KeyboardHelp from "@/components/KeyboardHelp";
+import TodaysPick from "@/components/TodaysPick";
 
 // Heavy interactive sections — code-split to relieve homepage bundle & scroll lag
 const CalculatorSection = lazy(() => import("@/components/CalculatorSection"));
@@ -130,6 +131,7 @@ const Index = () => {
 
       {/* ─── 0. 导览 ─── */}
       <div id="hero" className="scroll-mt-12"><HeroSection /></div>
+      <TodaysPick />
       <div id="topics" className="scroll-mt-12"><TopicCards /></div>
       <div id="models" className="scroll-mt-12"><ModelShowcase /></div>
 
@@ -262,7 +264,7 @@ const Index = () => {
               © 2026 Econ &amp; Finance Lab · 仅供学习研究 · 不构成投资建议
             </p>
             <p className="text-[10px] font-mono text-gold/80 tracking-[0.2em] uppercase">
-              Version 2.8
+              Version 2.9
             </p>
           </div>
         </div>
