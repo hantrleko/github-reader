@@ -25,6 +25,8 @@ import {
 } from "recharts";
 import { EquationBlock } from "@/components/common/EquationBlock";
 import { RatesTermStructure } from "./bond/RatesTermStructure";
+import BenchmarkDrawer from "./common/BenchmarkDrawer";
+import { bondPrice as bondPriceVerified, bondDuration as bondDurationVerified } from "@/lib/quant/bond";
 
 const CHART_GOLD = "hsl(43, 80%, 55%)";
 const CHART_TEAL = "hsl(180, 50%, 40%)";
@@ -399,6 +401,33 @@ const BondCalculator = () => {
                     <p className="text-base font-mono font-bold text-foreground">{m.value}</p>
                   </div>
                 ))}
+              </div>
+
+              {/* Verified benchmark drawer */}
+              <div className="mb-8 flex justify-end">
+                {(() => {
+                  const refInputs = {
+                    face,
+                    coupon: couponRate / 100,
+                    years: maturity,
+                    freq,
+                    ytm: ytm / 100,
+                  };
+                  const refPrice = bondPriceVerified(refInputs);
+                  const refDur = bondDurationVerified(refInputs);
+                  return (
+                    <BenchmarkDrawer
+                      label="Bond Math"
+                      title="债券定价 · 闭式解对照"
+                      description={`当前输入: F=${face}, c=${couponRate}%, y=${ytm}%, T=${maturity}y, m=${freq}。参考值来自 src/lib/quant/bond.ts(已通过 vitest 单元测试,对照 Fabozzi 教科书算例)。`}
+                      rows={[
+                        { metric: "债券价格 P", ours: metrics.price, reference: refPrice, source: "DCF 闭式解", digits: 4, tol: 1e-6 },
+                        { metric: "Macaulay 久期", ours: metrics.dMac, reference: refDur.macaulay, source: "加权平均回收时间", digits: 4, tol: 1e-6 },
+                        { metric: "修正久期", ours: metrics.dMod, reference: refDur.modified, source: "D_mod = D_mac/(1+y/m)", digits: 4, tol: 1e-6 },
+                      ]}
+                    />
+                  );
+                })()}
               </div>
 
               {/* 公式 / Python / 结果 三联视图 */}
