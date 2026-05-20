@@ -27,6 +27,7 @@ import { EquationBlock } from "@/components/common/EquationBlock";
 import { RatesTermStructure } from "./bond/RatesTermStructure";
 import BenchmarkDrawer from "./common/BenchmarkDrawer";
 import { bondPrice as bondPriceVerified, bondDuration as bondDurationVerified } from "@/lib/quant/bond";
+import CitationFooter from "./common/CitationFooter";
 
 const CHART_GOLD = "hsl(43, 80%, 55%)";
 const CHART_TEAL = "hsl(180, 50%, 40%)";
@@ -692,6 +693,8 @@ price = bond_price(face=${face}, coupon_rate=${couponRate},
 
           {/* ═══ TERM-STRUCTURE / HULL-WHITE TAB ═══ */}
           {tab === "termstruct" && <RatesTermStructure />}
+
+          <CitationFooter refs={["vasicek77", "cir85", "hp97"]} />
         </motion.div>
       </div>
     </section>
