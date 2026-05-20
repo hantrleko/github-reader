@@ -1409,6 +1409,12 @@ price = bs_call(S=${values.s ?? 100}, K=${values.k ?? 100},
               />
             </div>
           )}
+
+          {/* Per-tool citation footer with APA / BibTeX export */}
+          {active === "bs" && <CitationFooter refs={["bs73", "merton73"]} />}
+          {active === "capm" && <CitationFooter refs={["sharpe64", "markowitz52"]} />}
+          {active === "sharpe" && <CitationFooter refs={["sharpe64"]} />}
+          {active === "var" && <CitationFooter refs={["basel19"]} />}
         </motion.div>
       </div>
     </section>
