@@ -25,6 +25,9 @@ import {
   ComposedChart,
 } from "recharts";
 import { EquationBlock } from "@/components/common/EquationBlock";
+import BenchmarkDrawer from "./common/BenchmarkDrawer";
+import CitationFooter from "./common/CitationFooter";
+import { blackScholes as bsVerified } from "@/lib/quant/blackScholes";
 
 interface ParamConfig {
   key: string;
@@ -880,9 +883,37 @@ const CalculatorSection = () => {
           {/* Greeks Charts - BS only */}
           {active === "bs" && greeksData && currentGreeks && (
             <div className="mb-8">
-              <p className="text-xs font-mono text-muted-foreground uppercase tracking-wider mb-4">
-                Greeks 敏感性分析
-              </p>
+              <div className="flex items-center justify-between gap-3 flex-wrap mb-4">
+                <p className="text-xs font-mono text-muted-foreground uppercase tracking-wider">
+                  Greeks 敏感性分析
+                </p>
+                {(() => {
+                  const bsRef = bsVerified({
+                    S: values.s,
+                    K: values.k,
+                    T: values.t,
+                    r: values.r / 100,
+                    sigma: values.sigma / 100,
+                  });
+                  const r = values.r / 100, sigma = values.sigma / 100;
+                  const ourCall = bsCall(values.s, values.k, r, sigma, values.t);
+                  const ourPut = bsPut(values.s, values.k, r, sigma, values.t);
+                  return (
+                    <BenchmarkDrawer
+                      label="BS Closed-form"
+                      title="Black–Scholes · 闭式解对照"
+                      description={`S=${values.s}, K=${values.k}, T=${values.t}, r=${values.r}%, σ=${values.sigma}%。参考来自 src/lib/quant/blackScholes (Abramowitz–Stegun 7.1.26 误差 < 7.5e-8,vitest 通过)。`}
+                      rows={[
+                        { metric: "Call 价格", ours: ourCall, reference: bsRef.call, source: "Black–Scholes (1973)", digits: 6, tol: 1e-4 },
+                        { metric: "Put 价格", ours: ourPut, reference: bsRef.put, source: "Black–Scholes (1973)", digits: 6, tol: 1e-4 },
+                        { metric: "Δ Call", ours: currentGreeks.callDelta, reference: bsRef.deltaCall, source: "∂C/∂S", digits: 6, tol: 1e-4 },
+                        { metric: "Γ", ours: currentGreeks.gamma, reference: bsRef.gamma, source: "∂²C/∂S²", digits: 6, tol: 1e-4 },
+                        { metric: "Vega (per 1σ)", ours: currentGreeks.vega * 100, reference: bsRef.vega, source: "∂C/∂σ", digits: 4, tol: 1e-2 },
+                      ]}
+                    />
+                  );
+                })()}
+              </div>
 
               {/* Current Greeks values */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
@@ -1378,6 +1409,12 @@ price = bs_call(S=${values.s ?? 100}, K=${values.k ?? 100},
               />
             </div>
           )}
+
+          {/* Per-tool citation footer with APA / BibTeX export */}
+          {active === "bs" && <CitationFooter refs={["bs73", "merton73"]} />}
+          {active === "capm" && <CitationFooter refs={["sharpe64", "markowitz52"]} />}
+          {active === "sharpe" && <CitationFooter refs={["sharpe64"]} />}
+          {active === "var" && <CitationFooter refs={["basel19"]} />}
         </motion.div>
       </div>
     </section>
