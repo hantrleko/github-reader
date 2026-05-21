@@ -1,118 +1,118 @@
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Source+Sans+3:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
-    --background: 40 30% 96%;
-    --foreground: 220 20% 12%;
+    /* Emerald Prestige — Light */
+    --background: 42 47% 92%;
+    --foreground: 158 60% 12%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 220 20% 12%;
+    --card: 42 40% 96%;
+    --card-foreground: 158 60% 12%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 220 20% 12%;
+    --popover: 42 40% 96%;
+    --popover-foreground: 158 60% 12%;
 
-    --primary: 43 80% 45%;
-    --primary-foreground: 0 0% 100%;
+    --primary: 43 53% 48%;
+    --primary-foreground: 158 70% 12%;
 
-    --secondary: 220 15% 92%;
-    --secondary-foreground: 220 15% 30%;
+    --secondary: 158 25% 86%;
+    --secondary-foreground: 158 60% 18%;
 
-    --muted: 220 12% 90%;
-    --muted-foreground: 220 10% 45%;
+    --muted: 158 18% 88%;
+    --muted-foreground: 158 20% 38%;
 
-    --accent: 200 60% 45%;
-    --accent-foreground: 0 0% 100%;
+    --accent: 165 75% 22%;
+    --accent-foreground: 42 47% 94%;
 
     --destructive: 0 65% 50%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 220 12% 85%;
-    --input: 220 12% 85%;
-    --ring: 43 80% 45%;
+    --border: 158 25% 78%;
+    --input: 158 25% 78%;
+    --ring: 43 53% 48%;
 
     --radius: 0.75rem;
 
-    --gold: 43 80% 45%;
-    --gold-dim: 43 50% 30%;
-    --gold-glow: 43 90% 55%;
-    --navy-light: 220 15% 88%;
-    --teal: 180 50% 35%;
-    --teal-glow: 180 60% 45%;
+    --gold: 43 53% 48%;
+    --gold-dim: 43 45% 32%;
+    --gold-glow: 43 70% 62%;
+    --navy-light: 158 25% 86%;
+    --teal: 165 75% 22%;
+    --teal-glow: 165 60% 38%;
 
-    --font-display: 'Playfair Display', Georgia, serif;
-    --font-body: 'Source Sans 3', system-ui, sans-serif;
-    --font-mono: 'JetBrains Mono', monospace;
+    --font-display: 'Libre Baskerville', Georgia, 'Times New Roman', serif;
+    --font-body: 'IBM Plex Sans', system-ui, -apple-system, sans-serif;
+    --font-mono: 'IBM Plex Mono', ui-monospace, 'SFMono-Regular', monospace;
 
     --shadow-gold: 0 4px 30px -8px hsl(43 80% 45% / 0.2);
     --shadow-card: 0 8px 32px -12px hsl(0 0% 0% / 0.1);
 
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 220 15% 30%;
-    --sidebar-primary: 43 80% 45%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 220 15% 92%;
-    --sidebar-accent-foreground: 220 15% 30%;
-    --sidebar-border: 220 12% 85%;
-    --sidebar-ring: 43 80% 45%;
+    --sidebar-background: 42 40% 96%;
+    --sidebar-foreground: 158 60% 18%;
+    --sidebar-primary: 43 53% 48%;
+    --sidebar-primary-foreground: 158 70% 12%;
+    --sidebar-accent: 158 25% 86%;
+    --sidebar-accent-foreground: 158 60% 18%;
+    --sidebar-border: 158 25% 78%;
+    --sidebar-ring: 43 53% 48%;
   }
 
   .dark {
-    --background: 220 20% 7%;
-    --foreground: 40 20% 92%;
+    /* Emerald Prestige — Dark (terminal) */
+    --background: 158 84% 13%;
+    --foreground: 42 40% 94%;
 
-    --card: 220 18% 11%;
-    --card-foreground: 40 20% 92%;
+    --card: 158 60% 11%;
+    --card-foreground: 42 40% 94%;
 
-    --popover: 220 18% 11%;
-    --popover-foreground: 40 20% 92%;
+    --popover: 158 60% 11%;
+    --popover-foreground: 42 40% 94%;
 
-    --primary: 43 80% 55%;
-    --primary-foreground: 220 20% 7%;
+    --primary: 43 65% 58%;
+    --primary-foreground: 158 84% 12%;
 
-    --secondary: 220 15% 16%;
-    --secondary-foreground: 40 15% 80%;
+    --secondary: 158 50% 20%;
+    --secondary-foreground: 42 30% 88%;
 
-    --muted: 220 12% 14%;
-    --muted-foreground: 220 10% 50%;
+    --muted: 158 40% 16%;
+    --muted-foreground: 42 20% 65%;
 
-    --accent: 200 60% 45%;
-    --accent-foreground: 40 20% 95%;
+    --accent: 165 60% 30%;
+    --accent-foreground: 42 40% 94%;
 
     --destructive: 0 65% 50%;
     --destructive-foreground: 40 20% 95%;
 
-    --border: 220 12% 18%;
-    --input: 220 12% 18%;
-    --ring: 43 80% 55%;
+    --border: 165 45% 24%;
+    --input: 165 45% 24%;
+    --ring: 43 65% 58%;
 
     --radius: 0.75rem;
 
-    --gold: 43 80% 55%;
-    --gold-dim: 43 50% 35%;
-    --gold-glow: 43 90% 65%;
-    --navy-light: 220 15% 20%;
-    --teal: 180 50% 40%;
-    --teal-glow: 180 60% 55%;
+    --gold: 43 65% 58%;
+    --gold-dim: 43 50% 38%;
+    --gold-glow: 43 78% 68%;
+    --navy-light: 158 50% 20%;
+    --teal: 165 60% 30%;
+    --teal-glow: 165 70% 45%;
 
-    --font-display: 'Playfair Display', Georgia, serif;
-    --font-body: 'Source Sans 3', system-ui, sans-serif;
-    --font-mono: 'JetBrains Mono', monospace;
+    --font-display: 'Libre Baskerville', Georgia, 'Times New Roman', serif;
+    --font-body: 'IBM Plex Sans', system-ui, -apple-system, sans-serif;
+    --font-mono: 'IBM Plex Mono', ui-monospace, 'SFMono-Regular', monospace;
 
-    --shadow-gold: 0 4px 30px -8px hsl(43 80% 55% / 0.15);
+    --shadow-gold: 0 4px 30px -8px hsl(43 65% 58% / 0.18);
     --shadow-card: 0 8px 32px -12px hsl(0 0% 0% / 0.4);
 
-    --sidebar-background: 220 18% 9%;
-    --sidebar-foreground: 40 15% 80%;
-    --sidebar-primary: 43 80% 55%;
-    --sidebar-primary-foreground: 220 20% 7%;
-    --sidebar-accent: 220 15% 16%;
-    --sidebar-accent-foreground: 40 15% 80%;
-    --sidebar-border: 220 12% 18%;
-    --sidebar-ring: 43 80% 55%;
+    --sidebar-background: 158 70% 10%;
+    --sidebar-foreground: 42 30% 88%;
+    --sidebar-primary: 43 65% 58%;
+    --sidebar-primary-foreground: 158 84% 12%;
+    --sidebar-accent: 158 50% 20%;
+    --sidebar-accent-foreground: 42 30% 88%;
+    --sidebar-border: 165 45% 24%;
+    --sidebar-ring: 43 65% 58%;
   }
 }
 
@@ -152,9 +152,9 @@
   }
   .bg-grid-pattern {
     background-image:
-      linear-gradient(hsl(var(--border) / 0.3) 1px, transparent 1px),
-      linear-gradient(90deg, hsl(var(--border) / 0.3) 1px, transparent 1px);
-    background-size: 60px 60px;
+      radial-gradient(hsl(var(--gold) / 0.18) 0.6px, transparent 0.6px);
+    background-size: 22px 22px;
+    background-position: 0 0;
   }
   .glow-gold {
     box-shadow: 0 0 40px -10px hsl(var(--gold) / 0.25);

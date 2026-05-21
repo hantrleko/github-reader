@@ -17,47 +17,47 @@ const TopicCards = () => {
           </h2>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-0 border-t border-accent/30">
           {topicsData.map((topic, i) => (
             <div
               key={topic.id}
-              className="animate-fade-in-up hover:-translate-y-1 transition-transform duration-300"
+              className="animate-fade-in-up"
               style={{ animationDelay: `${i * 60}ms` }}
             >
               <Link
                 to={`/topic/${topic.id}`}
-                className="group relative block p-6 rounded-xl bg-card border border-border hover:border-gold/30 transition-all duration-500 overflow-hidden h-full"
+                className="group relative block p-7 bg-transparent border-b border-r border-accent/30 hover:bg-accent/15 transition-colors duration-300 overflow-hidden h-full"
               >
-                <div className="absolute inset-0 bg-gradient-to-br from-gold/[0.03] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                 <div className="relative z-10">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="w-10 h-10 rounded-lg bg-secondary flex items-center justify-center">
-                      <topic.icon className="w-5 h-5 text-gold" />
-                    </div>
-                    <div>
-                      <h3 className="text-lg font-display font-semibold text-foreground">
-                        {topic.title}
-                      </h3>
-                      <p className="text-xs font-mono text-muted-foreground">
-                        {topic.subtitle}
-                      </p>
-                    </div>
+                  <div className="flex items-center gap-2 mb-4">
+                    <span className="text-[10px] font-mono text-gold tracking-[0.2em] uppercase font-bold">
+                      {String(i + 1).padStart(2, "0")} / Topic
+                    </span>
+                    <topic.icon className="w-3.5 h-3.5 text-gold/70" />
                   </div>
-                  <p className="text-sm text-secondary-foreground leading-relaxed mb-4">
+                  <h3 className="text-2xl font-display text-foreground group-hover:text-gold transition-colors mb-1 leading-tight">
+                    {topic.title}
+                  </h3>
+                  <p className="text-[11px] font-mono text-foreground/55 mb-4 italic">
+                    {topic.subtitle}
+                  </p>
+                  <p className="text-sm text-foreground/75 leading-relaxed mb-5">
                     {topic.desc}
                   </p>
                   <div className="flex items-center justify-between">
                     <div className="flex flex-wrap gap-2">
-                      {topic.tags.map((tag) => (
+                      {topic.tags.slice(0, 3).map((tag) => (
                         <span
                           key={tag}
-                          className="px-2.5 py-1 text-[11px] font-mono rounded-md bg-secondary text-muted-foreground"
+                          className="px-2 py-0.5 text-[10px] font-mono text-foreground/60 border border-accent/40"
                         >
                           {tag}
                         </span>
                       ))}
                     </div>
-                    <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-gold transition-colors shrink-0 ml-2" />
+                    <span className="text-[10px] font-mono uppercase tracking-widest text-gold/70 group-hover:text-gold inline-flex items-center gap-1 shrink-0 ml-3">
+                      Read <ArrowRight className="w-3 h-3" />
+                    </span>
                   </div>
                 </div>
               </Link>
