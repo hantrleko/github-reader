@@ -1,6 +1,7 @@
-import { TrendingUp, BookOpen, BarChart3, ArrowDown } from "lucide-react";
+import { ArrowDown, ArrowRight } from "lucide-react";
 import { topicsData } from "@/data/topicsData";
 import { useTranslation } from "react-i18next";
+import { Link } from "react-router-dom";
 
 const scrollTo = (id: string) => {
   document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -15,100 +16,115 @@ const HeroSection = () => {
     0
   );
 
-  const stats = [
-    { icon: BookOpen, label: t("hero.stats.topics"), count: `${topicCount}`, target: "topics" },
-    { icon: BarChart3, label: t("hero.stats.formulas"), count: `${formulaCount}`, target: "models" },
-    { icon: TrendingUp, label: t("hero.stats.knowledge"), count: `${knowledgeCount}`, target: "topics" },
-  ];
-
   return (
-    <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden bg-grid-pattern">
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[400px] rounded-full bg-gold/5 blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-0 left-0 w-[400px] h-[300px] rounded-full bg-teal/5 blur-[100px] pointer-events-none" />
+    <section className="relative overflow-hidden bg-grid-pattern pt-20 pb-16 px-6">
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[420px] rounded-full bg-gold/[0.06] blur-[140px] pointer-events-none" />
 
-      {/* 抽象金融背景 — 收益率曲线 / K线 SVG, 极低透明度 */}
-      <svg
-        className="absolute inset-0 w-full h-full pointer-events-none opacity-[0.07] dark:opacity-[0.09]"
-        viewBox="0 0 1200 800"
-        preserveAspectRatio="xMidYMid slice"
-        aria-hidden
-      >
-        {/* 收益率曲线样式平滑 path */}
-        <path
-          d="M0 600 C 200 580, 300 500, 450 480 S 700 420, 850 360 S 1050 280, 1200 240"
-          stroke="hsl(var(--gold))"
-          strokeWidth="1.5"
-          fill="none"
-        />
-        <path
-          d="M0 680 C 200 660, 300 640, 450 600 S 700 520, 850 460 S 1050 400, 1200 340"
-          stroke="hsl(var(--gold))"
-          strokeWidth="1"
-          fill="none"
-          opacity="0.6"
-        />
-        {/* 抽象 K 线 */}
-        {Array.from({ length: 20 }).map((_, i) => {
-          const x = 60 + i * 56;
-          const h = 20 + ((i * 37) % 60);
-          const top = 700 - h - ((i * 13) % 80);
-          return (
-            <g key={i}>
-              <line x1={x} y1={top - 10} x2={x} y2={top + h + 10} stroke="hsl(var(--gold))" strokeWidth="0.8" />
-              <rect x={x - 4} y={top} width="8" height={h} fill="hsl(var(--gold))" opacity={i % 2 ? 0.8 : 0.4} />
-            </g>
-          );
-        })}
-      </svg>
-
-      <div className="container relative z-10 px-6 text-center">
-        <div className="animate-fade-in-up">
-          <p className="text-sm font-mono uppercase tracking-[0.3em] text-gold mb-6">
-            {t("hero.tagline")}
-          </p>
-          <h1 className="text-4xl xs:text-5xl md:text-7xl lg:text-8xl font-display font-bold leading-[1.05] mb-6">
-            <span className="text-foreground">{t("hero.title1")}</span>
-            <br />
-            <span className="text-gold-gradient">{t("hero.title2")}</span>
-          </h1>
-          <p className="max-w-2xl mx-auto text-base xs:text-lg md:text-xl text-muted-foreground font-light leading-relaxed mb-10">
-            {t("hero.subtitle")}
-          </p>
+      <div className="container max-w-7xl relative z-10">
+        {/* Top masthead rule */}
+        <div className="flex items-center justify-between border-b border-accent/40 pb-3 mb-10 text-[10px] font-mono uppercase tracking-[0.25em] text-gold/80">
+          <span>The Quantitative Report</span>
+          <span className="hidden sm:inline opacity-60">
+            Vol. II · Issue 09 · Empirical Methods
+          </span>
+          <span className="opacity-60">
+            {new Date().toLocaleDateString("en-US", { month: "short", day: "2-digit", year: "numeric" })}
+          </span>
         </div>
 
-        {/* CTA buttons */}
-        <div className="flex flex-wrap justify-center gap-3 mb-10 animate-fade-in-up animate-delay-300">
-          <button
-            onClick={() => scrollTo("calculator")}
-            className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-primary text-primary-foreground font-medium text-sm transition-transform hover:scale-105 shadow-lg"
-          >
-            {t("hero.cta1")}
-            <ArrowDown className="w-4 h-4" />
-          </button>
-          <button
-            onClick={() => scrollTo("topics")}
-            className="inline-flex items-center gap-2 px-6 py-3 rounded-lg border border-border bg-card/60 backdrop-blur-sm text-foreground font-medium text-sm transition-colors hover:border-gold/40 hover:text-gold"
-          >
-            {t("hero.cta2")}
-          </button>
-        </div>
+        <div className="grid grid-cols-12 gap-8 lg:gap-10">
+          {/* Left — Major headline */}
+          <div className="col-span-12 lg:col-span-8 flex flex-col justify-center animate-fade-in-up">
+            <div className="flex items-center gap-3 mb-6">
+              <span className="h-px w-12 bg-gold" />
+              <span className="text-gold text-[11px] uppercase font-mono font-semibold tracking-[0.25em]">
+                {t("hero.tagline")}
+              </span>
+            </div>
 
-        <div className="flex flex-wrap justify-center gap-4 animate-fade-in-up animate-delay-400">
-          {stats.map((item, i) => (
-            <button
-              key={i}
-              onClick={() => scrollTo(item.target)}
-              className="flex items-center gap-3 px-5 py-3 rounded-lg bg-card/60 border border-border backdrop-blur-sm transition-colors hover:border-gold/40"
+            <h1 className="font-display font-bold leading-[1.05] text-5xl md:text-6xl lg:text-7xl text-foreground mb-8">
+              {t("hero.title1")}{" "}
+              <span className="italic text-gold">&amp;</span>
+              <br />
+              <span className="text-gold">{t("hero.title2")}</span>
+            </h1>
+
+            <p className="max-w-xl text-base md:text-lg text-foreground/75 leading-relaxed mb-10">
+              {t("hero.subtitle")}
+            </p>
+
+            <div className="flex flex-wrap gap-3">
+              <button
+                onClick={() => scrollTo("calculator")}
+                className="inline-flex items-center gap-2 px-7 py-3.5 bg-gold text-background font-mono uppercase text-[11px] tracking-[0.2em] font-bold hover:bg-gold/85 transition-colors"
+              >
+                {t("hero.cta1")}
+                <ArrowDown className="w-3.5 h-3.5" />
+              </button>
+              <button
+                onClick={() => scrollTo("topics")}
+                className="inline-flex items-center gap-2 px-7 py-3.5 border border-foreground/25 text-foreground font-mono uppercase text-[11px] tracking-[0.2em] font-bold hover:bg-foreground/5 hover:border-gold/60 transition-colors"
+              >
+                {t("hero.cta2")}
+              </button>
+            </div>
+          </div>
+
+          {/* Right — Terminal sidebar */}
+          <aside className="col-span-12 lg:col-span-4 lg:border-l lg:border-accent/40 lg:pl-8 animate-fade-in-up animate-delay-200">
+            <h3 className="text-[10px] uppercase text-gold font-mono font-bold tracking-[0.2em] mb-4 border-b border-accent/40 pb-2">
+              Lab Performance Metrics
+            </h3>
+            <div className="space-y-4 mb-8">
+              <button
+                onClick={() => scrollTo("topics")}
+                className="w-full flex justify-between items-end group"
+              >
+                <span className="text-[11px] text-foreground/60 uppercase tracking-wider">Topics Covered</span>
+                <span className="text-2xl font-mono font-light leading-none tracking-tighter text-foreground group-hover:text-gold transition-colors">
+                  {String(topicCount).padStart(2, "0")}
+                  <span className="text-[10px] opacity-50 ml-1">SEC</span>
+                </span>
+              </button>
+              <button
+                onClick={() => scrollTo("models")}
+                className="w-full flex justify-between items-end group"
+              >
+                <span className="text-[11px] text-foreground/60 uppercase tracking-wider">Formulas Validated</span>
+                <span className="text-2xl font-mono font-light leading-none tracking-tighter text-foreground group-hover:text-gold transition-colors">
+                  {formulaCount}
+                  <span className="text-[10px] text-gold ml-1">▲</span>
+                </span>
+              </button>
+              <button
+                onClick={() => scrollTo("topics")}
+                className="w-full flex justify-between items-end group"
+              >
+                <span className="text-[11px] text-foreground/60 uppercase tracking-wider">Concepts Indexed</span>
+                <span className="text-2xl font-mono font-light leading-none tracking-tighter text-foreground group-hover:text-gold transition-colors">
+                  {knowledgeCount}
+                  <span className="text-[10px] opacity-50 ml-1">ALL</span>
+                </span>
+              </button>
+            </div>
+
+            <Link
+              to="/changelog"
+              className="block bg-accent/20 hover:bg-accent/30 transition-colors p-5 border-l-2 border-gold"
             >
-              <item.icon className="w-5 h-5 text-gold" />
-              <span className="text-sm text-foreground font-medium">{item.label}</span>
-              <span className="text-xs text-gold font-mono">{item.count}</span>
-            </button>
-          ))}
+              <h4 className="text-[10px] font-mono font-bold uppercase tracking-[0.2em] mb-2 text-foreground">
+                Latest Update · V2.9
+              </h4>
+              <p className="text-xs leading-relaxed text-foreground/75 mb-3">
+                Verified math library & benchmark drawer — closed-form references for Black-Scholes, Bond pricing & OLS.
+              </p>
+              <span className="text-[10px] text-gold uppercase font-mono font-bold inline-flex items-center gap-1">
+                View Changelog <ArrowRight className="w-3 h-3" />
+              </span>
+            </Link>
+          </aside>
         </div>
       </div>
-
-      <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-background to-transparent" />
     </section>
   );
 };

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, lazy, Suspense, type ReactNode } from "rea
 import { useLocation } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import HeroSection from "@/components/HeroSection";
+import HeroToolStrip from "@/components/HeroToolStrip";
 import TopicCards from "@/components/TopicCards";
 import ModelShowcase from "@/components/ModelShowcase";
 import ScrollUtilities from "@/components/ScrollUtilities";
@@ -100,17 +101,27 @@ const DeferMount = ({
   );
 };
 
-const SectionDivider = ({ label, kicker }: { label: string; kicker: string }) => (
-  <div className="container max-w-6xl pt-16 pb-2 px-6">
-    <div className="flex items-center gap-3">
-      <span className="text-[10px] font-mono text-gold tracking-[0.3em] uppercase">
-        {kicker}
-      </span>
-      <div className="flex-1 h-px bg-gradient-to-r from-gold/40 to-transparent" />
-    </div>
-    <h2 className="text-xl md:text-2xl font-display text-foreground mt-2">{label}</h2>
-  </div>
-);
+import SectionHeader from "@/components/common/SectionHeader";
+
+const SectionDivider = ({
+  label,
+  kicker,
+  subtitle,
+}: {
+  label: string;
+  kicker: string;
+  subtitle?: string;
+}) => {
+  const [chapter, name] = kicker.includes(" ") ? kicker.split(/\s(.+)/) : [kicker, ""];
+  return (
+    <SectionHeader
+      chapter={chapter}
+      kicker={name || kicker}
+      title={label}
+      subtitle={subtitle}
+    />
+  );
+};
 
 const Index = () => {
   const { hash } = useLocation();
@@ -131,6 +142,7 @@ const Index = () => {
 
       {/* ─── 0. 导览 ─── */}
       <div id="hero" className="scroll-mt-12"><HeroSection /></div>
+      <HeroToolStrip />
       <TodaysPick />
       <div id="topics" className="scroll-mt-12"><TopicCards /></div>
       <div id="models" className="scroll-mt-12"><ModelShowcase /></div>

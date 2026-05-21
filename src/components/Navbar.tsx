@@ -199,17 +199,19 @@ const Navbar = () => {
   return (
     <nav
       ref={navRef}
-      className="fixed top-0 left-0 right-0 z-50 bg-background/85 backdrop-blur-lg border-b border-border/50"
+      className="fixed top-0 left-0 right-0 z-50 bg-background/90 backdrop-blur-lg border-b border-accent/40"
       aria-label="Primary"
     >
-      <div className="container flex items-center justify-between h-12">
+      <div className="container flex items-center justify-between h-14">
         <button
           onClick={() => scrollTo("hero")}
-          className="text-xs font-mono font-semibold text-foreground tracking-wider flex items-center gap-2 hover:text-gold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/60 rounded"
+          className="flex flex-col items-start leading-none hover:text-gold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/60 rounded"
         >
-          {t("nav.brand")}
-          <span className="hidden xs:inline-flex text-[9px] px-1.5 py-0.5 rounded bg-gold/15 text-gold font-normal tracking-wider">
-            {t("nav.version")}
+          <span className="text-[8px] font-mono uppercase tracking-[0.25em] text-gold/80 mb-0.5">
+            The Quantitative Report
+          </span>
+          <span className="text-base font-display font-bold text-foreground tracking-tight">
+            Econ &amp; Finance <em className="not-italic text-gold">Lab</em>
           </span>
         </button>
 
@@ -291,35 +293,38 @@ const Navbar = () => {
         </ul>
 
         <div className="flex items-center gap-1">
+          <span className="hidden lg:inline-flex text-[9px] font-mono px-1.5 py-0.5 border border-gold/60 text-gold tracking-wider mr-1">
+            {t("nav.version")}
+          </span>
           <Link
             to="/tools"
             className={cn(
-              "hidden sm:inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-mono transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/60",
+              "hidden sm:inline-flex items-center px-2.5 py-1 text-[10px] font-mono uppercase tracking-wider transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/60",
               location.pathname === "/tools"
-                ? "bg-primary/10 text-primary font-semibold"
-                : "text-muted-foreground hover:text-foreground hover:bg-accent"
+                ? "text-gold border-b border-gold"
+                : "text-foreground/70 hover:text-gold"
             )}
           >
-            全部工具
+            Tools
           </Link>
           <Link
             to="/glossary"
             className={cn(
-              "hidden sm:inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-mono transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/60",
+              "hidden sm:inline-flex items-center px-2.5 py-1 text-[10px] font-mono uppercase tracking-wider transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/60",
               location.pathname === "/glossary"
-                ? "bg-primary/10 text-primary font-semibold"
-                : "text-muted-foreground hover:text-foreground hover:bg-accent"
+                ? "text-gold border-b border-gold"
+                : "text-foreground/70 hover:text-gold"
             )}
           >
-            术语
+            Glossary
           </Link>
           <Link
             to="/changelog"
             className={cn(
-              "hidden sm:inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-mono transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/60",
+              "hidden sm:inline-flex items-center px-2.5 py-1 text-[10px] font-mono uppercase tracking-wider transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/60",
               location.pathname === "/changelog"
-                ? "bg-primary/10 text-primary font-semibold"
-                : "text-muted-foreground hover:text-foreground hover:bg-accent"
+                ? "text-gold border-b border-gold"
+                : "text-foreground/70 hover:text-gold"
             )}
           >
             {t("nav.items.changelog")}
