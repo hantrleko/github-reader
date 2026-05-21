@@ -4,58 +4,59 @@
 
 @layer base {
   :root {
-    --background: 40 30% 96%;
-    --foreground: 220 20% 12%;
+    /* Emerald Prestige — Light */
+    --background: 42 47% 92%;
+    --foreground: 158 60% 12%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 220 20% 12%;
+    --card: 42 40% 96%;
+    --card-foreground: 158 60% 12%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 220 20% 12%;
+    --popover: 42 40% 96%;
+    --popover-foreground: 158 60% 12%;
 
-    --primary: 43 80% 45%;
-    --primary-foreground: 0 0% 100%;
+    --primary: 43 53% 48%;
+    --primary-foreground: 158 70% 12%;
 
-    --secondary: 220 15% 92%;
-    --secondary-foreground: 220 15% 30%;
+    --secondary: 158 25% 86%;
+    --secondary-foreground: 158 60% 18%;
 
-    --muted: 220 12% 90%;
-    --muted-foreground: 220 10% 45%;
+    --muted: 158 18% 88%;
+    --muted-foreground: 158 20% 38%;
 
-    --accent: 200 60% 45%;
-    --accent-foreground: 0 0% 100%;
+    --accent: 165 75% 22%;
+    --accent-foreground: 42 47% 94%;
 
     --destructive: 0 65% 50%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 220 12% 85%;
-    --input: 220 12% 85%;
-    --ring: 43 80% 45%;
+    --border: 158 25% 78%;
+    --input: 158 25% 78%;
+    --ring: 43 53% 48%;
 
     --radius: 0.75rem;
 
-    --gold: 43 80% 45%;
-    --gold-dim: 43 50% 30%;
-    --gold-glow: 43 90% 55%;
-    --navy-light: 220 15% 88%;
-    --teal: 180 50% 35%;
-    --teal-glow: 180 60% 45%;
+    --gold: 43 53% 48%;
+    --gold-dim: 43 45% 32%;
+    --gold-glow: 43 70% 62%;
+    --navy-light: 158 25% 86%;
+    --teal: 165 75% 22%;
+    --teal-glow: 165 60% 38%;
 
-    --font-display: 'Playfair Display', Georgia, serif;
-    --font-body: 'Source Sans 3', system-ui, sans-serif;
-    --font-mono: 'JetBrains Mono', monospace;
+    --font-display: 'Libre Baskerville', Georgia, 'Times New Roman', serif;
+    --font-body: 'IBM Plex Sans', system-ui, -apple-system, sans-serif;
+    --font-mono: 'IBM Plex Mono', ui-monospace, 'SFMono-Regular', monospace;
 
     --shadow-gold: 0 4px 30px -8px hsl(43 80% 45% / 0.2);
     --shadow-card: 0 8px 32px -12px hsl(0 0% 0% / 0.1);
 
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 220 15% 30%;
-    --sidebar-primary: 43 80% 45%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 220 15% 92%;
-    --sidebar-accent-foreground: 220 15% 30%;
-    --sidebar-border: 220 12% 85%;
-    --sidebar-ring: 43 80% 45%;
+    --sidebar-background: 42 40% 96%;
+    --sidebar-foreground: 158 60% 18%;
+    --sidebar-primary: 43 53% 48%;
+    --sidebar-primary-foreground: 158 70% 12%;
+    --sidebar-accent: 158 25% 86%;
+    --sidebar-accent-foreground: 158 60% 18%;
+    --sidebar-border: 158 25% 78%;
+    --sidebar-ring: 43 53% 48%;
   }
 
   .dark {
