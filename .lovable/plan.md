@@ -1,99 +1,110 @@
-# V2.9 — 整体优化路线图
+## 重构目标
 
-经过 V2.0 → V2.8 的快速横向扩张，平台已有 **36 个工具 + Notebook + 数据层**。当前瓶颈不再是"缺工具"，而是 **可发现性、性能、教学闭环、可信度**。下面是从整体出发的优化方案，分四个维度。
+把当前"满屏巨型标题 + 拥挤导航"的首页，重构为 **Bloomberg 终端编辑型** 杂志布局：
+深翠绿底 + 金色重音 + 衬线大标题 + 终端式右侧数据栏 + 编辑型工具网格。
 
----
+## 设计 Token 改造（全站基调，一次到位）
 
-## 一、信息架构 & 可发现性（最高优先级）
+**`src/index.css` — 替换 `:root` + `.dark` HSL 变量**
 
-**问题**：首页是一条 ~3000px 的长滚动，36 个工具靠 ⌘K 才找得到；新用户在第 5 个 section 就会迷失。
+| Token | 浅色 (米白纸) | 深色 (终端) |
+|---|---|---|
+| `--background` | `42 40% 94%` (#f5f0e0) | `158 78% 17%` (#064e3b) |
+| `--foreground` | `158 78% 12%` | `42 40% 94%` |
+| `--card` | `42 30% 97%` | `158 50% 22%` (#0d7a5f 暗) |
+| `--primary` (金) | `43 53% 54%` (#c9a84c) | `43 53% 54%` |
+| `--accent` (翠绿亮) | `158 56% 27%` (#0d7a5f) | `158 56% 33%` |
+| `--border` | `158 30% 75%` | `158 40% 28%` |
 
-1. **首页改为 Hub 模式**
-   - 保留 Hero + TopicCards + 一个"Today's Pick"轮播（随机推荐 3 个工具 + 学习路径入口）
-   - 把 Chapter 1–8 改为 **路由式子页面** `/lab/:chapter`，而不是 lazy section
-   - 当前 SPA 滚动模式留作"Print View / 全景模式"开关
-2. **全局工具索引页 `/tools`**
-   - 36 个工具按 *维度 × 难度 × 引用文献* 矩阵排列
-   - 支持按"教材章节 / 研究主题 / 输入数据类型"三种视图切换
-3. **面包屑 + 上下文导航**
-   - 每个工具页右侧加"相关工具"卡片（如 Heston → SABR、Local Vol、IV Surface）
-   - 工具底部加"下一步推荐"（学习路径接续）
+**`tailwind.config.ts`** —
+- 字体：`--font-display` → `'Libre Baskerville', Georgia, serif`；`--font-body` → `'IBM Plex Sans', system-ui`；`--font-mono` → `'IBM Plex Mono'`。
+- 保留 `gold/teal` 别名，重新指向新 token。
 
----
+**`index.html`** — 替换 Google Fonts 链接为 `Libre Baskerville` + `IBM Plex Sans` + `IBM Plex Mono`。
 
-## 二、教学闭环（把工具变成课程）
+## 顶栏重构 — `src/components/Navbar.tsx`
 
-**问题**：当前每个工具是"独立计算器"，缺少"读 → 算 → 测 → 应用"的完整闭环。
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│ THE QUANTITATIVE REPORT                              [V2.9] EN ⟳ ☀  │
+│ Econ & Finance Lab          PRICING DERIV PORTFOLIO ECONOM QUANT … │
+└─────────────────────────────────────────────────────────────────────┘
+```
+- 双层：小字眉（kicker）+ 衬线 brandmark；右侧 5 个大类一级菜单（uppercase + 字距 0.15em + hover 金色下划线）。
+- 二级（V2.x 子工具）改为 hover 抽屉/dropdown，缓解拥挤。
+- 语言/主题/Changelog 折叠到右侧小图标组。
 
-1. **每个工具补齐 4-Pane 结构**（统一模板）
-   ```text
-   ┌─────────────┬─────────────┐
-   │  Theory     │  Interactive│
-   │  (公式推导)  │  (参数面板)  │
-   ├─────────────┼─────────────┤
-   │  Reference  │  Mini-Quiz  │
-   │  (论文/教材) │  (3 题自测)  │
-   └─────────────┴─────────────┘
-   ```
-2. **学习路径升级为"课程"**
-   - 现有 LearningPath 只是链接列表 → 升级成进度跟踪 + 解锁机制（localStorage）
-   - 三条路径：*Quant 入门 / 风险管理师 / 学术研究*
-3. **统一术语词典 `/glossary`**
-   - 所有工具中的关键词（如 IV、PnL、CVaR）做成 hover 词条 + 跳转词典页
+## Hero 重构 — `src/components/HeroSection.tsx`
 
----
+12 列网格：
+```
+┌────────────────────────── 8 cols ──────────┬── 4 cols ─────────┐
+│ ── EMPIRICAL RESEARCH CORE                 │ LAB METRICS       │
+│                                            │ ───────────────── │
+│  Mastering [Economics] &                   │ Topics      07    │
+│  Empirical Finance Models                  │ Formulas   133 ▲  │
+│  (Libre Baskerville 衬线, 5xl→7xl)         │ Concepts   133    │
+│                                            │                   │
+│  正文 IBM Plex 1.5rem max-w-xl             │ │ LATEST UPDATE   │
+│                                            │ │ Black-Litterman │
+│  [LAUNCH TOOLS ↓]  [BROWSE LIBRARY]        │ │ → Changelog     │
+└────────────────────────────────────────────┴───────────────────┘
+```
+- 移除当前的"K线 SVG + blur 光斑"，换成极淡的金色点阵网格（已有 `bg-grid-pattern` 可改色）。
+- 右侧 sidebar 从现有 `topicsData` 计算 metrics；Latest Update 取 `changelog` 最近一条。
 
-## 三、性能 & 工程质量
+## 紧随其后的 4 列工具直达栏（新组件）
 
-**问题**：V28Platform.tsx 等单文件 > 1000 行；首页 lazy chunk 仍有 ~10 个；很多手写算法没有单元测试。
+`src/components/HeroToolStrip.tsx` —
+```
+┌──────────┬──────────┬──────────┬──────────┐
+│ UNIT_01  │ UNIT_02  │ UNIT_03  │ UNIT_04  │
+│ Pricing  │ Econome- │ Portfolio│ Risk     │
+│ Engine   │ trics    │ Lab      │ Metrics  │
+└──────────┴──────────┴──────────┴──────────┘
+```
+- 单像素翠绿描边，hover 整格 `bg-accent/20`；点击 scroll 到对应 section。
+- 用 `toolsCatalog` 里每个 dimension 的 featured 工具填充。
 
-1. **代码拆分**
-   - 把 V2x 巨型聚合组件拆成 `tools/{id}/index.tsx + math.ts + Panel.tsx`
-   - 数学纯函数全部抽到 `src/lib/quant/` 下，便于复用 + 测试
-2. **算法测试覆盖**
-   - 为关键定价 / 估计函数加 vitest 单元测试，对照已知闭式解（BS、Vasicek 债券、OLS β）
-   - 在 CI 标注"已验证"徽章，提升可信度
-3. **首屏性能**
-   - 移除首页的 36 个 DeferMount 占位，改为只在 hub 出现 8 张卡 + 1 张推荐
-   - 全局字体子集化（Playfair Display 仅保留 latin + 数字）
-4. **可访问性**
-   - 所有计算结果加 `aria-live="polite"`
-   - 颜色对比度复核（gold on warm white 在浅色模式下偏低）
+## 下方模块重排序与编辑型包装
 
----
+`src/pages/Index.tsx` 顺序调整：
+1. Hero（含 sidebar）
+2. HeroToolStrip
+3. **TodaysPick**（保留，但改用"今日特写"编辑卡样式：左大图右文，金色 kicker）
+4. TopicCards → 改为 3 列编辑卡（kicker + 衬线标题 + 描述 + "Read →"）
+5. CalculatorSection / DerivativesTools …（每个 Section 前加 magazine-style section header：`SECTION 01 / PRICING`）
+6. LearningPath / Changelog / Footer
 
-## 四、可信度 & 数据真实性
+新增统一 section header 组件 `src/components/common/SectionHeader.tsx`：
+```
+─────  SECTION 02 / DERIVATIVES
+Interactive Greeks & Volatility Surfaces
+```
 
-**问题**：工具产出大多是合成数据；引用了论文却没有"原文 vs 本实现"的对照。
+## 受影响文件清单
 
-1. **Benchmark 抽屉**
-   - 每个工具加 "📐 Benchmark" 按钮，弹出对照表：
-     *本实现结果 / 论文表格值 / 闭式解 / 误差%*
-2. **真实数据深度集成**
-   - V2.8 的 FRED/Yahoo loader 接入到所有工具的输入面板（"Load from market"按钮）
-   - 增加 Fama-French、CRSP 样本片段、BIS 利率曲线
-3. **导出 & 复现**
-   - 每次计算生成 *可分享的 URL*（参数编码到 querystring）
-   - "Export to Python / R" 按钮：把当前参数输出为可运行脚本（教学用途）
-4. **引用规范化**
-   - 把 `lib/citations.tsx` 升级为 BibTeX 数据库，每个工具底部生成 APA 引用块
+- 改：`src/index.css`（token + grid pattern 配色）
+- 改：`tailwind.config.ts`（字体）
+- 改：`index.html`（fonts）
+- 改：`src/components/Navbar.tsx`（双层 + dropdown）
+- 改：`src/components/HeroSection.tsx`（12 列 hero + sidebar）
+- 改：`src/components/TopicCards.tsx`（编辑卡样式）
+- 改：`src/components/TodaysPick.tsx`（特写卡样式）
+- 改：`src/pages/Index.tsx`（顺序 + section header 注入）
+- 新：`src/components/HeroToolStrip.tsx`
+- 新：`src/components/common/SectionHeader.tsx`
+- 内存更新：`mem://index.md` Core 改为 Emerald + Libre Baskerville × IBM Plex，金色 #c9a84c 保留。
 
----
+## 不在本次范围
 
-## 实施建议（建议作为 V2.9 三个 Sprint）
+- 不改任何计算器内部逻辑、公式、`src/lib/quant/*`、Supabase / edge functions、i18n 文案（只补少量新键）。
+- 不动 V2.x roadmap 功能本身，只换外观与组织方式。
 
-- **Sprint A（IA & 性能）**：路由化 + `/tools` 索引 + 代码拆分 + 字体子集化
-- **Sprint B（教学闭环）**：4-Pane 模板 + 学习路径进度 + 术语词典
-- **Sprint C（可信度）**：Benchmark 抽屉 + 真实数据深集成 + 导出 Python/R + BibTeX
+## 验收
 
----
+- `/` 首屏 1183×742 视口内：顶栏 + hero 完整可见，标题不再压满屏。
+- 全站浅/深双主题色都跑通 Emerald Prestige。
+- `vitest` 仍全绿（不动业务逻辑）。
 
-## 技术细节
-
-- 路由：在 `App.tsx` 增 `/lab/:chapter`、`/tools`、`/glossary`，保留 `/` 作为营销页
-- 进度跟踪：`useLocalStorage('lp-progress', {...})`，无需后端
-- URL 状态：用 `nuqs` 或自写 `useSearchParams` 序列化数字参数
-- 测试：`vitest` + 已有 `playwright-fixture.ts`，新增 `src/lib/quant/__tests__/`
-- BibTeX：保留现有 citations 数据，新增 `formatAPA()`、`formatBibTeX()` 辅助函数
-
-请选择想先做哪个 Sprint，或挑出最关心的 3-4 项，我按选择实现。
+确认即按此实施。
