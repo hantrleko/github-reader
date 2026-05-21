@@ -202,16 +202,16 @@ const Navbar = () => {
       className="fixed top-0 left-0 right-0 z-50 bg-background/90 backdrop-blur-lg border-b border-accent/40"
       aria-label="Primary"
     >
-      <div className="container flex items-center justify-between h-14">
+      <div className="container flex items-center justify-between h-14 gap-4">
         <button
           onClick={() => scrollTo("hero")}
-          className="flex flex-col items-start leading-none hover:text-gold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/60 rounded"
+          className="flex flex-col items-start leading-none hover:text-gold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/60 rounded shrink-0 whitespace-nowrap"
         >
-          <span className="text-[8px] font-mono uppercase tracking-[0.25em] text-gold/80 mb-0.5">
+          <span className="hidden xl:block text-[8px] font-mono uppercase tracking-[0.25em] text-gold/80 mb-0.5">
             The Quantitative Report
           </span>
-          <span className="text-base font-display font-bold text-foreground tracking-tight">
-            Econ &amp; Finance <em className="not-italic text-gold">Lab</em>
+          <span className="text-sm md:text-base font-display font-bold text-foreground tracking-tight">
+            Econ&nbsp;&amp;&nbsp;Finance <em className="not-italic text-gold">Lab</em>
           </span>
         </button>
 
@@ -237,7 +237,7 @@ const Navbar = () => {
                   className={cn(
                     "px-2.5 py-1 rounded-md text-[11px] font-mono transition-colors flex items-center gap-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/60",
                     groupActive
-                      ? "bg-primary/10 text-primary font-semibold"
+                      ? "text-gold font-semibold"
                       : "text-muted-foreground hover:text-foreground hover:bg-accent"
                   )}
                 >
