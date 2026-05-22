@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, lazy, Suspense, type ReactNode } from "react";
 import { useLocation } from "react-router-dom";
 import Navbar from "@/components/Navbar";
+import Seo from "@/components/Seo";
 import HeroSection from "@/components/HeroSection";
 import HeroToolStrip from "@/components/HeroToolStrip";
 import TopicCards from "@/components/TopicCards";
@@ -136,6 +137,22 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <Seo
+        title="EF Lab — 量化金融与计量经济学实验室"
+        description="Bloomberg 风格的交互式期权定价、风险、利率与组合模型实验室；含 Notebook、策略库与论文索引。"
+        path="/"
+        jsonLd={{
+          "@context": "https://schema.org",
+          "@type": "WebSite",
+          name: "EF Lab",
+          url: "https://my-repo-mind.lovable.app/",
+          potentialAction: {
+            "@type": "SearchAction",
+            target: "https://my-repo-mind.lovable.app/glossary?q={query}",
+            "query-input": "required name=query",
+          },
+        }}
+      />
       <Navbar />
       <ScrollUtilities />
       <KeyboardHelp />

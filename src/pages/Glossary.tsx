@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { BlockMath } from "react-katex";
 import "katex/dist/katex.min.css";
 import Navbar from "@/components/Navbar";
+import Seo from "@/components/Seo";
 import { GLOSSARY, CATEGORY_LABELS, type GlossaryTerm } from "@/data/glossary";
 import { TOOLS_BY_ID } from "@/data/toolsCatalog";
 import { REFS } from "@/lib/citations";
@@ -33,6 +34,7 @@ const Glossary = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <Seo title="术语表 · EF Lab" description="量化金融与计量经济学术语速查：含公式、相关工具与参考文献。" path="/glossary" />
       <Navbar />
       <main className="container max-w-5xl pt-20 pb-24 px-6">
         <Link

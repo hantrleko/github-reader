@@ -12,3 +12,5 @@ Allow: /
 
 User-agent: *
 Allow: /
+
+Sitemap: https://my-repo-mind.lovable.app/sitemap.xml

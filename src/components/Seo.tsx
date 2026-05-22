@@ -1,0 +1,68 @@
+import { Helmet } from "react-helmet-async";
+import { useTranslation } from "react-i18next";
+
+const SITE = "https://my-repo-mind.lovable.app";
+const DEFAULT_OG = `${SITE}/og-default.png`;
+
+interface SeoProps {
+  title: string;
+  description: string;
+  path?: string;
+  image?: string;
+  type?: "website" | "article";
+  jsonLd?: Record<string, unknown> | Record<string, unknown>[];
+  noindex?: boolean;
+}
+
+/**
+ * Per-route SEO: <title>, meta description, canonical, og/twitter, JSON-LD.
+ * Use on every top-level page. Falls back to sitewide tags in index.html.
+ */
+export function Seo({
+  title,
+  description,
+  path = "/",
+  image = DEFAULT_OG,
+  type = "website",
+  jsonLd,
+  noindex = false,
+}: SeoProps) {
+  const { i18n } = useTranslation();
+  const url = `${SITE}${path}`;
+  const lang = i18n.language?.startsWith("en") ? "en" : "zh";
+  const ldArr = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
+
+  return (
+    <Helmet>
+      <html lang={lang} />
+      <title>{title}</title>
+      <meta name="description" content={description} />
+      <link rel="canonical" href={url} />
+      {noindex && <meta name="robots" content="noindex,nofollow" />}
+
+      <meta property="og:title" content={title} />
+      <meta property="og:description" content={description} />
+      <meta property="og:url" content={url} />
+      <meta property="og:type" content={type} />
+      <meta property="og:image" content={image} />
+      <meta property="og:locale" content={lang === "zh" ? "zh_CN" : "en_US"} />
+
+      <meta name="twitter:card" content="summary_large_image" />
+      <meta name="twitter:title" content={title} />
+      <meta name="twitter:description" content={description} />
+      <meta name="twitter:image" content={image} />
+
+      <link rel="alternate" hrefLang="zh" href={url} />
+      <link rel="alternate" hrefLang="en" href={url} />
+      <link rel="alternate" hrefLang="x-default" href={url} />
+
+      {ldArr.map((ld, i) => (
+        <script key={i} type="application/ld+json">
+          {JSON.stringify(ld)}
+        </script>
+      ))}
+    </Helmet>
+  );
+}
+
+export default Seo;

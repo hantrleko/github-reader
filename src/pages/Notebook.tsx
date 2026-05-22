@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import Navbar from "@/components/Navbar";
+import Seo from "@/components/Seo";
 import SectionHeader from "@/components/common/SectionHeader";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -199,6 +200,7 @@ const Notebook = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <Seo title="Reactive Notebook · EF Lab" description="Observable 风格的反应式金融笔记本：参数滑块驱动 LaTeX 公式与图表自动重算,支持云端保存与分享。" path="/notebook" />
       <Navbar />
       <main className="pt-14">
         <SectionHeader

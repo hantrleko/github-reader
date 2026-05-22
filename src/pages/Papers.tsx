@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useLocation } from "react-router-dom";
 import Navbar from "@/components/Navbar";
+import Seo from "@/components/Seo";
 import SectionHeader from "@/components/common/SectionHeader";
 import { PAPERS, PAPER_TOPICS, type PaperTopic } from "@/data/papers";
 import { cn } from "@/lib/utils";
@@ -37,6 +38,7 @@ const Papers = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <Seo title="经典论文索引 · EF Lab" description="量化金融与计量经济学经典论文索引：Black-Scholes、Fama-French、Hull-White、GARCH 等,可按主题筛选。" path="/papers" />
       <Navbar />
       <main className="pt-14">
         <SectionHeader
