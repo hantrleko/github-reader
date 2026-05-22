@@ -2,7 +2,7 @@ import { Helmet } from "react-helmet-async";
 import { useTranslation } from "react-i18next";
 
 const SITE = "https://my-repo-mind.lovable.app";
-const DEFAULT_OG = `${SITE}/og-default.png`;
+const DEFAULT_OG = `${SITE}/og-image.jpg`;
 
 interface SeoProps {
   title: string;
