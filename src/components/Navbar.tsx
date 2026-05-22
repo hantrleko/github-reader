@@ -5,6 +5,7 @@ import { Menu, X, ChevronDown } from "lucide-react";
 import ThemeToggle from "./ThemeToggle";
 import LanguageToggle from "./LanguageToggle";
 import UserMenu from "./UserMenu";
+import TopTicker from "./TopTicker";
 import { useTranslation } from "react-i18next";
 
 type Item = { id: string; labelKey: string };
@@ -198,6 +199,7 @@ const Navbar = () => {
   };
 
   return (
+    <>
     <nav
       ref={navRef}
       className="fixed top-0 left-0 right-0 z-50 bg-background/90 backdrop-blur-lg border-b border-accent/40"
@@ -320,6 +322,28 @@ const Navbar = () => {
             Glossary
           </Link>
           <Link
+            to="/strategies"
+            className={cn(
+              "hidden md:inline-flex items-center px-2.5 py-1 text-[10px] font-mono uppercase tracking-wider transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/60",
+              location.pathname === "/strategies"
+                ? "text-gold border-b border-gold"
+                : "text-foreground/70 hover:text-gold"
+            )}
+          >
+            Strategies
+          </Link>
+          <Link
+            to="/papers"
+            className={cn(
+              "hidden md:inline-flex items-center px-2.5 py-1 text-[10px] font-mono uppercase tracking-wider transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/60",
+              location.pathname === "/papers"
+                ? "text-gold border-b border-gold"
+                : "text-foreground/70 hover:text-gold"
+            )}
+          >
+            Papers
+          </Link>
+          <Link
             to="/github"
             className={cn(
               "hidden sm:inline-flex items-center px-2.5 py-1 text-[10px] font-mono uppercase tracking-wider transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/60",
@@ -407,6 +431,10 @@ const Navbar = () => {
         </div>
       )}
     </nav>
+    <TopTicker />
+    {/* Spacer so page content clears the 28px ticker below the 56px navbar */}
+    <div aria-hidden className="h-7" />
+    </>
   );
 };
 
