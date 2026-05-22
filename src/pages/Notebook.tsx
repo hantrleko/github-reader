@@ -12,7 +12,7 @@ import {
 } from "recharts";
 import { InlineMath } from "react-katex";
 import "katex/dist/katex.min.css";
-import { Plus, Trash2, ArrowUp, ArrowDown, Save, FolderOpen, GitFork, Globe, Lock, Download, FileText, Sigma, SlidersHorizontal, BarChart3 } from "lucide-react";
+import { Plus, Trash2, ArrowUp, ArrowDown, Save, FolderOpen, GitFork, Globe, Lock, Download, FileText, Sigma, SlidersHorizontal, BarChart3, Sparkles, Loader2 } from "lucide-react";
 import DiscussionPanel from "@/components/DiscussionPanel";
 import { awardBadge, checkNotebookCount } from "@/lib/achievements";
 import { NOTEBOOK_TEMPLATES } from "@/data/notebookTemplates";
@@ -422,8 +422,11 @@ const CellBody = ({ cell, p, update }: { cell: Cell; p: Record<string,number>; u
           placeholder="JS expression — use p.S, p.K, bsCall(...), exp(), ncdf(), ..."
           className="w-full bg-background border border-border/60 px-2 py-1 text-xs font-mono focus:outline-none focus:border-gold"
         />
-        <div className="text-right text-sm font-mono text-gold tabular-nums">
-          = {isFinite(value) ? value.toFixed(6) : "NaN"}
+        <div className="flex items-center justify-between gap-2">
+          <AiExplain latex={cell.latex} expression={cell.expression} params={p} />
+          <div className="text-right text-sm font-mono text-gold tabular-nums">
+            = {isFinite(value) ? value.toFixed(6) : "NaN"}
+          </div>
         </div>
       </div>
     );
