@@ -347,12 +347,23 @@ const Navbar = () => {
             to="/notebook"
             className={cn(
               "hidden md:inline-flex items-center px-2.5 py-1 text-[10px] font-mono uppercase tracking-wider transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/60",
-              location.pathname === "/notebook"
+              location.pathname === "/notebook" && !location.search.includes("template")
                 ? "text-gold border-b border-gold"
                 : "text-foreground/70 hover:text-gold"
             )}
           >
             Notebook
+          </Link>
+          <Link
+            to="/notebook/templates"
+            className={cn(
+              "hidden md:inline-flex items-center px-2.5 py-1 text-[10px] font-mono uppercase tracking-wider transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/60",
+              location.pathname === "/notebook/templates"
+                ? "text-gold border-b border-gold"
+                : "text-foreground/70 hover:text-gold"
+            )}
+          >
+            Templates
           </Link>
           <Link
             to="/github"

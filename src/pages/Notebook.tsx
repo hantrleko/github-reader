@@ -15,6 +15,7 @@ import "katex/dist/katex.min.css";
 import { Plus, Trash2, ArrowUp, ArrowDown, Save, FolderOpen, GitFork, Globe, Lock, Download, FileText, Sigma, SlidersHorizontal, BarChart3 } from "lucide-react";
 import DiscussionPanel from "@/components/DiscussionPanel";
 import { awardBadge, checkNotebookCount } from "@/lib/achievements";
+import { NOTEBOOK_TEMPLATES } from "@/data/notebookTemplates";
 
 /* ─── Cell model ─────────────────────────────────────────── */
 type ParamCell  = { id: string; kind: "param"; name: string; value: number; min: number; max: number; step: number };
@@ -94,6 +95,19 @@ const Notebook = () => {
   /* Load by ?id=… */
   useEffect(() => {
     const id = params.get("id");
+    const tplSlug = params.get("template");
+    if (tplSlug && !id) {
+      const tpl = NOTEBOOK_TEMPLATES.find((t) => t.slug === tplSlug);
+      if (tpl) {
+        setNotebookId(null);
+        setTitle(tpl.title);
+        setCells(tpl.cells as any);
+        setIsPublic(false);
+        setForkedFrom(null);
+        toast({ title: `已加载模板:${tpl.title}`, description: "保存即可入库到我的 Notebook。" });
+      }
+      return;
+    }
     if (!id) return;
     (async () => {
       const { data } = await supabase.from("user_notebooks").select("*").eq("id", id).maybeSingle();
