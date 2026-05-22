@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowLeft, Search, BadgeCheck, ExternalLink, X } from "lucide-react";
 import Navbar from "@/components/Navbar";
+import Seo from "@/components/Seo";
 import { cn } from "@/lib/utils";
 import {
   TOOLS_CATALOG,
