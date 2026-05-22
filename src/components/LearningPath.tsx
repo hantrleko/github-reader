@@ -72,6 +72,7 @@ const LearningPath = () => {
               <button
                 onClick={reset}
                 title="重置进度"
+                aria-label="重置学习进度"
                 className="p-1 rounded text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
               >
                 <RotateCcw className="w-3.5 h-3.5" />

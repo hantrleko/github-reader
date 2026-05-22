@@ -353,7 +353,7 @@ const QuizSection = () => {
               <p className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">总尝试</p>
               <p className="text-2xl font-mono text-foreground tabular-nums">{progress.totalAttempts}</p>
             </div>
-            <button onClick={reset} title="重置进度"
+            <button onClick={reset} title="重置进度" aria-label="重置测验进度"
               className="p-2 rounded border border-border hover:border-destructive hover:text-destructive transition-colors">
               <RotateCcw className="w-4 h-4" />
             </button>
