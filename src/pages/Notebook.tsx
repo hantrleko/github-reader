@@ -12,7 +12,7 @@ import {
 } from "recharts";
 import { InlineMath } from "react-katex";
 import "katex/dist/katex.min.css";
-import { Plus, Trash2, ArrowUp, ArrowDown, Save, FolderOpen, GitFork, Globe, Lock, Download, FileText, Sigma, SlidersHorizontal, BarChart3 } from "lucide-react";
+import { Plus, Trash2, ArrowUp, ArrowDown, Save, FolderOpen, GitFork, Globe, Lock, Download, FileText, Sigma, SlidersHorizontal, BarChart3, Sparkles, Loader2 } from "lucide-react";
 import DiscussionPanel from "@/components/DiscussionPanel";
 import { awardBadge, checkNotebookCount } from "@/lib/achievements";
 import { NOTEBOOK_TEMPLATES } from "@/data/notebookTemplates";
@@ -368,6 +368,50 @@ const IconBtn = ({ children, ...rest }: React.ButtonHTMLAttributes<HTMLButtonEle
   <button {...rest} className="p-1 rounded hover:bg-accent/40 text-muted-foreground">{children}</button>
 );
 
+/* ─── AI Explain (Lovable AI Gateway) ─────────────────────── */
+const AiExplain = ({ latex, expression, params }: { latex: string; expression: string; params: Record<string, number> }) => {
+  const [loading, setLoading] = useState(false);
+  const [text, setText] = useState<string>("");
+  const [open, setOpen] = useState(false);
+
+  const ask = async () => {
+    setLoading(true);
+    setOpen(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("ai-explain", {
+        body: { latex, expression, params },
+      });
+      if (error) throw error;
+      if ((data as any)?.error) throw new Error((data as any).error);
+      setText((data as any)?.explanation || "(无返回)");
+    } catch (e: any) {
+      const msg = String(e?.message || e);
+      setText(`❌ ${msg}`);
+      toast({ title: "AI 解释失败", description: msg, variant: "destructive" });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="flex-1">
+      <button
+        onClick={ask}
+        disabled={loading}
+        className="inline-flex items-center gap-1 px-2 py-1 border border-gold/40 text-gold text-[10px] font-mono uppercase tracking-wider hover:bg-gold/10 disabled:opacity-50"
+      >
+        {loading ? <Loader2 className="w-3 h-3 animate-spin" /> : <Sparkles className="w-3 h-3" />}
+        AI 解释
+      </button>
+      {open && (text || loading) && (
+        <div className="mt-2 border-l-2 border-gold/60 bg-accent/20 px-3 py-2 text-xs text-foreground/85 font-body leading-relaxed whitespace-pre-wrap">
+          {loading ? "正在思考…" : text}
+        </div>
+      )}
+    </div>
+  );
+};
+
 /* ─── Cell body renderers ─────────────────────────────────── */
 const CellBody = ({ cell, p, update }: { cell: Cell; p: Record<string,number>; update: (id: string, patch: Partial<Cell>) => void }) => {
   if (cell.kind === "markdown") {
@@ -422,8 +466,11 @@ const CellBody = ({ cell, p, update }: { cell: Cell; p: Record<string,number>; u
           placeholder="JS expression — use p.S, p.K, bsCall(...), exp(), ncdf(), ..."
           className="w-full bg-background border border-border/60 px-2 py-1 text-xs font-mono focus:outline-none focus:border-gold"
         />
-        <div className="text-right text-sm font-mono text-gold tabular-nums">
-          = {isFinite(value) ? value.toFixed(6) : "NaN"}
+        <div className="flex items-center justify-between gap-2">
+          <AiExplain latex={cell.latex} expression={cell.expression} params={p} />
+          <div className="text-right text-sm font-mono text-gold tabular-nums">
+            = {isFinite(value) ? value.toFixed(6) : "NaN"}
+          </div>
         </div>
       </div>
     );
