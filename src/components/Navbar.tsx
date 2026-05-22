@@ -319,6 +319,17 @@ const Navbar = () => {
             Glossary
           </Link>
           <Link
+            to="/github"
+            className={cn(
+              "hidden sm:inline-flex items-center px-2.5 py-1 text-[10px] font-mono uppercase tracking-wider transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/60",
+              location.pathname === "/github"
+                ? "text-gold border-b border-gold"
+                : "text-foreground/70 hover:text-gold"
+            )}
+          >
+            GitHub
+          </Link>
+          <Link
             to="/changelog"
             className={cn(
               "hidden sm:inline-flex items-center px-2.5 py-1 text-[10px] font-mono uppercase tracking-wider transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/60",
