@@ -40,6 +40,7 @@ const TopicDetail = lazyWithRetry(() => import("./pages/TopicDetail.tsx"));
 const ChangelogPage = lazyWithRetry(() => import("./pages/ChangelogPage.tsx"));
 const ToolsCatalog = lazyWithRetry(() => import("./pages/ToolsCatalog.tsx"));
 const Glossary = lazyWithRetry(() => import("./pages/Glossary.tsx"));
+const GithubExplorer = lazyWithRetry(() => import("./pages/GithubExplorer.tsx"));
 const NotFound = lazyWithRetry(() => import("./pages/NotFound.tsx"));
 
 const RouteFallback = () => (
@@ -64,6 +65,7 @@ const App = () => (
               <Route path="/changelog" element={<ChangelogPage />} />
               <Route path="/tools" element={<ToolsCatalog />} />
               <Route path="/glossary" element={<Glossary />} />
+              <Route path="/github" element={<GithubExplorer />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
