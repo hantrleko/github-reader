@@ -11,3 +11,6 @@ verify_jwt = false
 
 [functions.ai-explain]
 verify_jwt = false
+
+[functions.client-error-log]
+verify_jwt = false
