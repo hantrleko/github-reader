@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { LogIn, LogOut, User as UserIcon } from "lucide-react";
+import { LogIn, LogOut, User as UserIcon, BookOpen } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { cn } from "@/lib/utils";
 
@@ -55,6 +55,22 @@ const UserMenu = () => {
           >
             <LogOut className="w-3 h-3" /> Sign out
           </button>
+          <Link
+            to="/account"
+            onMouseDown={(e) => e.preventDefault()}
+            onClick={() => setOpen(false)}
+            className="w-full block px-3 py-2 text-[11px] font-mono text-muted-foreground hover:text-foreground hover:bg-accent flex items-center gap-2 border-t border-border/40"
+          >
+            <UserIcon className="w-3 h-3" /> Account & Profile
+          </Link>
+          <Link
+            to="/notebook"
+            onMouseDown={(e) => e.preventDefault()}
+            onClick={() => setOpen(false)}
+            className="w-full block px-3 py-2 text-[11px] font-mono text-muted-foreground hover:text-foreground hover:bg-accent flex items-center gap-2"
+          >
+            <BookOpen className="w-3 h-3" /> My Notebooks
+          </Link>
         </div>
       )}
     </div>
