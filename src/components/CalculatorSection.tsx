@@ -688,6 +688,30 @@ const CalculatorSection = () => {
                 state={{ active, values }}
                 captureRef={captureRef}
                 filename={`calculator-${active}`}
+                notebookSeed={{
+                  title: `${calculators.find((c) => c.id === active)!.name} · ${calculators.find((c) => c.id === active)!.nameEn}`,
+                  description: `从计算器导入的参数集。修改 param 滑块即可重算下面的公式。`,
+                  params: params.map((p) => ({
+                    name: p.key,
+                    value: values[p.key] ?? p.defaultValue,
+                    min: p.min,
+                    max: p.max,
+                    step: p.step,
+                  })),
+                  formulas: [
+                    {
+                      latex: calculators.find((c) => c.id === active)!.formula,
+                      expression:
+                        active === "capm"
+                          ? "p.rf + p.beta * (p.rm - p.rf)"
+                          : active === "sharpe"
+                          ? "(p.rp - p.rf) / p.sigmap"
+                          : active === "bs"
+                          ? "bsCall(p.s, p.k, p.r/100, p.sigma/100, p.t)"
+                          : "p.W * Math.abs((p.mu/100)*p.holdingDays - (-2.326)*(p.dailySigma/100)*Math.sqrt(p.holdingDays))",
+                    },
+                  ],
+                }}
               />
             </div>
           </div>
