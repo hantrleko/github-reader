@@ -54,6 +54,7 @@ const ToolsCatalog = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <Seo title="工具目录 · EF Lab" description="完整的量化金融与计量经济学交互工具索引：按主题、难度与可验证性筛选。" path="/tools" />
       <Navbar />
       <main className="container max-w-6xl px-6 pt-20 pb-24">
         {/* Hero */}
