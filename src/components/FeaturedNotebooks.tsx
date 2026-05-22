@@ -78,7 +78,7 @@ const FeaturedNotebooks = () => {
                 return (
                   <Link
                     key={nb.id}
-                    to={`/notebook/${nb.id}`}
+                    to={`/notebook?id=${nb.id}`}
                     className="group rounded-xl border border-border/60 bg-card/40 hover:bg-card hover:border-gold/40 transition-colors p-5 flex flex-col gap-3"
                   >
                     <div className="flex items-center justify-between text-[10px] font-mono uppercase tracking-[0.18em] text-gold/80">
