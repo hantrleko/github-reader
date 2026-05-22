@@ -221,7 +221,28 @@ const Notebook = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <Seo title="Reactive Notebook · EF Lab" description="Observable 风格的反应式金融笔记本：参数滑块驱动 LaTeX 公式与图表自动重算,支持云端保存与分享。" path="/notebook" />
+      <Seo
+        title={notebookId && isPublic ? `${title} · EF Lab Notebook` : "Reactive Notebook · EF Lab"}
+        description={
+          notebookId && isPublic
+            ? `${title} — 反应式金融笔记本,${cells.length} 个 cell。一键 Fork 到你的工作区,继续推导与回测。`
+            : "Observable 风格的反应式金融笔记本：参数滑块驱动 LaTeX 公式与图表自动重算,支持云端保存与分享。"
+        }
+        path={notebookId ? `/notebook?id=${notebookId}` : "/notebook"}
+        type={notebookId && isPublic ? "article" : "website"}
+        noindex={!!notebookId && !isPublic}
+        jsonLd={
+          notebookId && isPublic
+            ? {
+                "@context": "https://schema.org",
+                "@type": "Article",
+                headline: title,
+                url: `https://my-repo-mind.lovable.app/notebook?id=${notebookId}`,
+                articleSection: "Quantitative Finance Notebook",
+              }
+            : undefined
+        }
+      />
       <Navbar />
       <main className="pt-14">
         <SectionHeader
