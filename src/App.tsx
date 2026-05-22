@@ -8,6 +8,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import CommandPalette from "@/components/CommandPalette";
 import Onboarding from "@/components/Onboarding";
 import { AuthProvider } from "@/hooks/useAuth";
+import { toast } from "sonner";
 
 /**
  * Reload-once recovery for stale chunk hashes after a new deploy.
@@ -15,26 +16,50 @@ import { AuthProvider } from "@/hooks/useAuth";
  * filenames that no longer exist and throw "error loading dynamically
  * imported module". A single reload fetches fresh hashes.
  */
+const CHUNK_ERR_RE =
+  /error loading dynamically imported module|dynamically imported module|Failed to fetch dynamically imported module|Importing a module script failed|ChunkLoadError|Loading chunk \d+ failed/i;
+
+let chunkToastShown = false;
+const notifyChunkError = () => {
+  if (chunkToastShown || typeof window === "undefined") return;
+  chunkToastShown = true;
+  toast.error("检测到新版本", {
+    description: "页面资源已更新，请刷新以加载最新内容。",
+    duration: Infinity,
+    action: {
+      label: "立即刷新",
+      onClick: () => window.location.reload(),
+    },
+    onDismiss: () => {
+      chunkToastShown = false;
+    },
+  });
+};
+
 const lazyWithRetry = <T,>(factory: () => Promise<T>) =>
   lazy(() =>
     (factory() as Promise<any>).catch((err) => {
       const msg = String(err?.message ?? err ?? "");
-      const isChunkErr =
-        /error loading dynamically imported module|dynamically imported module|Failed to fetch dynamically imported module|Importing a module script failed|ChunkLoadError|Loading chunk \d+ failed/i.test(
-          msg
-        );
-      if (isChunkErr && typeof window !== "undefined") {
-        const KEY = "__lov_chunk_reload__";
-        if (!sessionStorage.getItem(KEY)) {
-          sessionStorage.setItem(KEY, "1");
-          window.location.reload();
-          // Return a never-resolving promise so Suspense holds until reload.
-          return new Promise(() => {});
-        }
+      if (CHUNK_ERR_RE.test(msg)) {
+        notifyChunkError();
+        // Hold Suspense indefinitely so the broken route doesn't flash an
+        // error boundary — the user controls when to reload.
+        return new Promise(() => {});
       }
       throw err;
     })
   );
+
+if (typeof window !== "undefined") {
+  // Catch chunk errors that surface outside of React.lazy (e.g. prefetch).
+  window.addEventListener("error", (e) => {
+    if (CHUNK_ERR_RE.test(String(e?.message ?? ""))) notifyChunkError();
+  });
+  window.addEventListener("unhandledrejection", (e) => {
+    const msg = String((e as PromiseRejectionEvent)?.reason?.message ?? (e as PromiseRejectionEvent)?.reason ?? "");
+    if (CHUNK_ERR_RE.test(msg)) notifyChunkError();
+  });
+}
 
 const Index = lazyWithRetry(() => import("./pages/Index.tsx"));
 const TopicDetail = lazyWithRetry(() => import("./pages/TopicDetail.tsx"));
