@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { BlockMath } from "react-katex";
 import "katex/dist/katex.min.css";
 import Navbar from "@/components/Navbar";
+import Seo from "@/components/Seo";
 import { GLOSSARY, CATEGORY_LABELS, type GlossaryTerm } from "@/data/glossary";
 import { TOOLS_BY_ID } from "@/data/toolsCatalog";
 import { REFS } from "@/lib/citations";
