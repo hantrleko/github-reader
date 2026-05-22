@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
+import Seo from "@/components/Seo";
 import SectionHeader from "@/components/common/SectionHeader";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -55,6 +56,7 @@ const Account = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <Seo title="账号设置 · EF Lab" description="管理你的 EF Lab 账号、username 与公开主页可见性。" path="/account" noindex />
       <Navbar />
       <main className="pt-14">
         <SectionHeader chapter="ACCOUNT" kicker="PROFILE" title="账号与公开主页" subtitle="设置 username 后,他人可访问 /u/your-name。" />

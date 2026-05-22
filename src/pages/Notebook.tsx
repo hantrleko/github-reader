@@ -14,6 +14,7 @@ import { InlineMath } from "react-katex";
 import "katex/dist/katex.min.css";
 import { Plus, Trash2, ArrowUp, ArrowDown, Save, FolderOpen, GitFork, Globe, Lock, Download, FileText, Sigma, SlidersHorizontal, BarChart3 } from "lucide-react";
 import DiscussionPanel from "@/components/DiscussionPanel";
+import { awardBadge, checkNotebookCount } from "@/lib/achievements";
 
 /* ─── Cell model ─────────────────────────────────────────── */
 type ParamCell  = { id: string; kind: "param"; name: string; value: number; min: number; max: number; step: number };
@@ -152,6 +153,7 @@ const Notebook = () => {
       }).eq("id", notebookId);
       if (error) { toast({ title: "保存失败", description: error.message, variant: "destructive" }); return; }
       toast({ title: "已保存" });
+      if (isPublic) awardBadge("notebook-published");
     } else {
       const { data, error } = await supabase.from("user_notebooks").insert({
         user_id: user.id, title, cells: cells as any, is_public: isPublic,
@@ -159,6 +161,10 @@ const Notebook = () => {
       if (error) { toast({ title: "创建失败", description: error.message, variant: "destructive" }); return; }
       setNotebookId(data.id);
       toast({ title: "已创建" });
+      // First save + milestone badges
+      awardBadge("first-notebook");
+      if (isPublic) awardBadge("notebook-published");
+      checkNotebookCount().then((n) => { if (n >= 5) awardBadge("notebook-explorer"); });
     }
   };
   const fork = async () => {
@@ -176,6 +182,7 @@ const Notebook = () => {
     setIsPublic(false);
     setTitle(`${title} (fork)`);
     toast({ title: "已 Fork 到我的 Notebook" });
+    awardBadge("notebook-forked");
   };
   const load = async (id: string) => {
     const { data } = await supabase.from("user_notebooks").select("*").eq("id", id).maybeSingle();

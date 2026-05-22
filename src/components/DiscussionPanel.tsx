@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "@/hooks/use-toast";
 import { MessageSquare, Trash2, Send } from "lucide-react";
+import { awardBadge } from "@/lib/achievements";
 
 type Row = {
   id: string;
@@ -59,6 +60,7 @@ const DiscussionPanel = ({
     });
     if (error) { toast({ title: "发送失败", description: error.message, variant: "destructive" }); return; }
     setDraft("");
+    awardBadge("first-comment");
     load();
   };
 
