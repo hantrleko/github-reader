@@ -263,6 +263,47 @@ export type Database = {
         }
         Relationships: []
       }
+      user_notebooks: {
+        Row: {
+          cells: Json
+          created_at: string
+          forked_from: string | null
+          id: string
+          is_public: boolean
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          cells?: Json
+          created_at?: string
+          forked_from?: string | null
+          id?: string
+          is_public?: boolean
+          title?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          cells?: Json
+          created_at?: string
+          forked_from?: string | null
+          id?: string
+          is_public?: boolean
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_notebooks_forked_from_fkey"
+            columns: ["forked_from"]
+            isOneToOne: false
+            referencedRelation: "user_notebooks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
