@@ -10,6 +10,7 @@ interface FeaturedRow {
   user_id: string;
   cells: unknown;
   profile?: { username: string | null; display_name: string | null } | null;
+  comments?: number;
 }
 
 const FeaturedNotebooks = () => {
@@ -35,12 +36,28 @@ const FeaturedNotebooks = () => {
         .select("id,username,display_name")
         .in("id", userIds);
       const map = new Map((profiles ?? []).map((p) => [p.id, p]));
-      setRows(
-        nbs.map((n) => ({
-          ...n,
-          profile: map.get(n.user_id) ?? null,
-        }))
+      // Comment counts (Trending signal)
+      const { data: discs } = await supabase
+        .from("discussions")
+        .select("resource_id")
+        .eq("resource_type", "notebook")
+        .in("resource_id", nbs.map((n) => n.id));
+      const cmap = new Map<string, number>();
+      (discs ?? []).forEach((d: { resource_id: string }) => {
+        cmap.set(d.resource_id, (cmap.get(d.resource_id) ?? 0) + 1);
+      });
+      const enriched = nbs.map((n) => ({
+        ...n,
+        profile: map.get(n.user_id) ?? null,
+        comments: cmap.get(n.id) ?? 0,
+      }));
+      // Sort: comments desc, then recency
+      enriched.sort(
+        (a, b) =>
+          (b.comments ?? 0) - (a.comments ?? 0) ||
+          +new Date(b.updated_at) - +new Date(a.updated_at)
       );
+      setRows(enriched);
       setLoading(false);
     })();
     return () => {
@@ -83,7 +100,10 @@ const FeaturedNotebooks = () => {
                   >
                     <div className="flex items-center justify-between text-[10px] font-mono uppercase tracking-[0.18em] text-gold/80">
                       <span>Notebook</span>
-                      <span className="text-muted-foreground/70">
+                      <span className="text-muted-foreground/70 inline-flex items-center gap-2">
+                        {(nb.comments ?? 0) >= 3 && (
+                          <span className="text-gold">🔥 Trending</span>
+                        )}
                         {cellCount(nb.cells)} cells
                       </span>
                     </div>
@@ -105,6 +125,7 @@ const FeaturedNotebooks = () => {
                         <span>{name}</span>
                       )}
                       <span className="font-mono text-[10px]">
+                        {nb.comments ? `💬 ${nb.comments} · ` : ""}
                         {new Date(nb.updated_at).toLocaleDateString()}
                       </span>
                     </div>
