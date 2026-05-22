@@ -46,20 +46,11 @@ const UserMenu = () => {
             </p>
             <p className="text-xs text-foreground truncate">{user.email}</p>
           </div>
-          <button
-            onClick={async () => {
-              await signOut();
-              navigate("/");
-            }}
-            className="w-full text-left px-3 py-2 text-[11px] font-mono text-muted-foreground hover:text-foreground hover:bg-accent flex items-center gap-2"
-          >
-            <LogOut className="w-3 h-3" /> Sign out
-          </button>
           <Link
             to="/account"
             onMouseDown={(e) => e.preventDefault()}
             onClick={() => setOpen(false)}
-            className="w-full block px-3 py-2 text-[11px] font-mono text-muted-foreground hover:text-foreground hover:bg-accent flex items-center gap-2 border-t border-border/40"
+            className="w-full px-3 py-2 text-[11px] font-mono text-muted-foreground hover:text-foreground hover:bg-accent flex items-center gap-2"
           >
             <UserIcon className="w-3 h-3" /> Account & Profile
           </Link>
@@ -67,10 +58,19 @@ const UserMenu = () => {
             to="/notebook"
             onMouseDown={(e) => e.preventDefault()}
             onClick={() => setOpen(false)}
-            className="w-full block px-3 py-2 text-[11px] font-mono text-muted-foreground hover:text-foreground hover:bg-accent flex items-center gap-2"
+            className="w-full px-3 py-2 text-[11px] font-mono text-muted-foreground hover:text-foreground hover:bg-accent flex items-center gap-2"
           >
             <BookOpen className="w-3 h-3" /> My Notebooks
           </Link>
+          <button
+            onClick={async () => {
+              await signOut();
+              navigate("/");
+            }}
+            className="w-full text-left px-3 py-2 text-[11px] font-mono text-muted-foreground hover:text-foreground hover:bg-accent flex items-center gap-2 border-t border-border/40"
+          >
+            <LogOut className="w-3 h-3" /> Sign out
+          </button>
         </div>
       )}
     </div>
