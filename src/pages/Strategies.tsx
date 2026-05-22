@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
+import Seo from "@/components/Seo";
 import SectionHeader from "@/components/common/SectionHeader";
 import { STRATEGIES, STRATEGY_CATEGORIES, type StrategyCategory } from "@/data/strategies";
 import { PAPERS } from "@/data/papers";
@@ -34,6 +35,7 @@ const Strategies = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <Seo title="量化策略库 · EF Lab" description="经典量化策略卡片库：动量、价值、低波、配对、统计套利等，含夏普、回撤、数据频率与参考论文。" path="/strategies" />
       <Navbar />
       <main className="pt-14">
         <SectionHeader
