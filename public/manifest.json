@@ -1,0 +1,16 @@
+{
+  "name": "EF Lab — The Quantitative Report",
+  "short_name": "EF Lab",
+  "description": "Bloomberg-style interactive lab for option pricing, risk, portfolio & macro models.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#0a0f0c",
+  "theme_color": "#064e3b",
+  "lang": "zh-CN",
+  "categories": ["finance", "education", "productivity"],
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}
