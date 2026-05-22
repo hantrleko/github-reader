@@ -8,3 +8,6 @@ verify_jwt = false
 
 [functions.famafrench-factors]
 verify_jwt = false
+
+[functions.ai-explain]
+verify_jwt = false
