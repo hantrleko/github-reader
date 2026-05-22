@@ -71,6 +71,47 @@ export type Database = {
         }
         Relationships: []
       }
+      discussions: {
+        Row: {
+          body: string
+          created_at: string
+          id: string
+          parent_id: string | null
+          resource_id: string
+          resource_type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          id?: string
+          parent_id?: string | null
+          resource_id: string
+          resource_type: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          id?: string
+          parent_id?: string | null
+          resource_id?: string
+          resource_type?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "discussions_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "discussions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       github_file_notes: {
         Row: {
           branch: string
@@ -242,24 +283,54 @@ export type Database = {
       profiles: {
         Row: {
           avatar_url: string | null
+          bio: string | null
           created_at: string
           display_name: string | null
           id: string
+          is_public: boolean
           updated_at: string
+          username: string | null
         }
         Insert: {
           avatar_url?: string | null
+          bio?: string | null
           created_at?: string
           display_name?: string | null
           id: string
+          is_public?: boolean
           updated_at?: string
+          username?: string | null
         }
         Update: {
           avatar_url?: string | null
+          bio?: string | null
           created_at?: string
           display_name?: string | null
           id?: string
+          is_public?: boolean
           updated_at?: string
+          username?: string | null
+        }
+        Relationships: []
+      }
+      user_achievements: {
+        Row: {
+          awarded_at: string
+          id: string
+          slug: string
+          user_id: string
+        }
+        Insert: {
+          awarded_at?: string
+          id?: string
+          slug: string
+          user_id: string
+        }
+        Update: {
+          awarded_at?: string
+          id?: string
+          slug?: string
+          user_id?: string
         }
         Relationships: []
       }
