@@ -1,98 +1,70 @@
-## 方案概览
 
-把当前 Lab 接入 Lovable Cloud（已启用），新增邮箱+密码登录，并用 6 张数据表把用户在站内产生的所有「私有状态」从 localStorage 迁移到云端、按用户隔离。
+# 继续优化方案 — 对标国际同类站点
 
-未登录用户照常浏览、计算、查阅术语表；只有保存/收藏/历史/进度相关操作需要登录（弹出登录页）。
+## 一、对标参考
 
-## 一、认证
+| 站点 | 强项 | 我们可借鉴 |
+|---|---|---|
+| **QuantPedia** | 海量策略库 + 论文检索 + 因子分类 | 策略卡片库、论文引用层 |
+| **Hudson & Thames (MlFinLab)** | 工业级 Python 库 + 严谨文档 + Notebook | 可下载 Notebook、API 文档化 |
+| **Wilmott.com** | 高质量论坛 + 专家专栏 | 评论/讨论、专家署名文章 |
+| **QuantStart** | 教程路径 + 实战项目 | Project-based learning |
+| **Bloomberg Terminal** | 数据密度 + 快捷键 + 终端美学 | 已有 ✓，继续强化 ticker / heatmap |
+| **Observable / Pluto.jl** | Reactive notebook，公式即所得 | 单页 reactive cell |
+| **AQR / Two Sigma Insights** | 研究简报排版 + 图表叙事 | Long-form research 模板 |
+| **Macrosynergy / Koyfin** | 宏观仪表盘 + 数据可视化 | Macro dashboard 升级 |
 
-- 启用邮箱+密码登录（默认不强制邮箱验证，开发期 `auto_confirm_email=true` 让你随时注册即用；如需正式上线再切回需要验证）。
-- 新增 `/auth` 页面：登录 / 注册 两个 tab，使用 `supabase.auth.signInWithPassword` 与 `signUp({ emailRedirectTo: window.location.origin })`。
-- 新增 `useAuth` hook：先 `onAuthStateChange` 监听，再 `getSession()` 同步当前 session。
-- Navbar 右侧加用户按钮：未登录显示「Sign in」；已登录显示邮箱缩写 + 退出。
+## 二、四条优化主线
 
-## 二、数据库 schema（6 张表，全部启 RLS：用户只能 CRUD 自己的行）
+### 1. 内容深度 — 从「计算器」走向「研究平台」
+- **策略库 (Strategy Library)**：新建 `/strategies`，每个策略含：摘要 / 论文链接 / 参数 / 一键回测 / 历史绩效卡。先做 12 个经典（动量、价值、波动率风险溢价、Carry、Pairs、PEAD、Low-Vol、Quality、HRP、Risk Parity、Trend、Mean-Reversion）。
+- **论文索引层 (Paper Index)**：每个公式/计算器底部增加 `Source Papers` 区，BibTeX + DOI + 一句关键贡献。已有 `CitationFooter`，扩展为可检索的 `/papers` 页。
+- **Research Notes**：长文模板（封面图 + 摘要 + LaTeX + 嵌入计算器 + 数据图 + 引用），对标 AQR Insights / Two Sigma。
+
+### 2. 交互范式 — Reactive Notebook
+- **Notebook 模式 v2**：当前 `V28Platform` 已有 notebook 雏形，升级为：
+  - 真正的 reactive cell（修改输入参数，下游图表自动重算）
+  - 支持 Markdown + LaTeX + Code (受限沙箱 JS) + Chart
+  - 一键 Fork 到「我的 Notebook」（已有 Supabase，加 `user_notebooks` 表）
+  - 导出 `.ipynb` / `.md`
+- **跨工具数据管道**：把 BondCalculator 的收益率曲线直接喂给 RateModelSimulator；EfficientFrontier 的权重可发送到 RiskTools 做 VaR。统一 `useToolBus()` 事件总线。
+
+### 3. 社区与可信度
+- **评论 / 讨论**：每个工具 & 知识点页面底部加 Disqus 风格讨论（新表 `discussions` + RLS），对标 Wilmott。
+- **专家署名**：作者档案页 `/authors/[slug]`，文章/工具标注作者。
+- **公开个人主页**：`/u/[username]` 展示用户的公开 notebook、收藏策略、学习徽章。
+- **学习徽章 (Achievements)**：完成 LearningPath 章节解锁徽章，写入 `user_achievements` 表。
+
+### 4. 数据与可信度
+- **真实市场数据 ticker 条**：顶部 Bloomberg 风格滚动条（已有 FRED / market-quotes edge function，扩到 SPX/VIX/UST10Y/DXY/BTC）。
+- **基准对照默认开启**：所有定价工具默认显示「我们 vs 教材闭式解 vs 市场报价」三列对照（部分已有 `BenchmarkDrawer`，升级为常驻面板）。
+- **可重现性徽章**：每个计算器顶部显示 ✓ Reproducible / 单元测试覆盖率 / 闭式解校验通过。
+
+## 三、技术与体验小项（横切）
+
+- **国际化补全**：英文翻译目前覆盖率低，补齐 zh/en 双语，新增 `/en` 路由前缀，对标全球受众。
+- **SEO**：每个工具页独立 meta + JSON-LD `SoftwareApplication` schema；策略库走 `Article` schema。
+- **性能**：首页 LCP 优化（HeroSection 字体 preload、移除装饰渐变在低端机），目标 Lighthouse 95+。
+- **键盘导航增强**：`g s` 跳 strategies、`g n` 新 notebook，对标 Linear / GitHub。
+- **暗色模式微调**：金色辅色在长时间阅读时略刺眼，增加「Reading Mode」（降饱和 + 行距加大）。
+- **PWA + 离线**：核心计算器离线可用（纯客户端算法，无需后端）。
+
+## 四、建议的执行顺序（4 个迭代）
 
 ```text
-profiles                 一行/用户，登录时自动创建（trigger on auth.users）
-  id (uuid PK = auth.uid)、display_name、avatar_url、created_at、updated_at
-
-github_history           GitHub Explorer 浏览历史
-  user_id、owner、repo、branch、last_opened_at、open_count
-  UNIQUE(user_id, owner, repo, branch)
-
-github_starred           收藏的仓库 + 描述/星标数缓存
-  user_id、owner、repo、default_branch、description、stars、starred_at
-  UNIQUE(user_id, owner, repo)
-
-github_file_notes        某个文件的中文笔记/标签
-  user_id、owner、repo、branch、path、note (text)、tags (text[])、updated_at
-  UNIQUE(user_id, owner, repo, branch, path)
-
-calc_history             计算器运行历史（取代现有 localStorage 的 calcHistory）
-  user_id、tool_id (text)、inputs (jsonb)、outputs (jsonb)、created_at
-  + index(user_id, tool_id, created_at desc)
-
-calc_favorites           收藏的某次计算结果或参数预设
-  user_id、tool_id、label、inputs (jsonb)、created_at
-  UNIQUE(user_id, tool_id, label)
-
-glossary_bookmarks       术语表收藏
-  user_id、slug (text)、created_at
-  UNIQUE(user_id, slug)
-
-learning_progress        学习进度（章节阅读/小测完成）
-  user_id、topic_id (text)、section_id (text)、status ('reading'|'done')、score (int)、updated_at
-  UNIQUE(user_id, topic_id, section_id)
+Sprint A (1-2 周):  策略库 v1 (12 个策略卡) + 论文索引页 + ticker 条
+Sprint B (1-2 周):  Reactive Notebook v2 + Fork/保存到云
+Sprint C (1 周):    评论系统 + 作者主页 + 学习徽章
+Sprint D (1 周):    SEO + i18n 补齐 + Reading Mode + PWA
 ```
 
-每张表统一加：
-- `id uuid PK default gen_random_uuid()`、`created_at`、`updated_at`
-- `ENABLE ROW LEVEL SECURITY`
-- 4 条策略：SELECT / INSERT / UPDATE / DELETE，全部 `using/with check (auth.uid() = user_id)`
-- `updated_at` 自动更新 trigger（复用一个 `update_updated_at_column()` 函数）
+## 五、需要您确认
 
-`profiles` 用 `handle_new_user()` trigger 在 `auth.users` 插入时自动建一行。
+请挑选**优先做哪一条主线**（或允许我按 Sprint A → D 全量推进）：
 
-## 三、前端接入点（按现有文件最小改动）
+1. **内容深度优先** — 先做策略库 + 论文索引（差异化最大，对标 QuantPedia）
+2. **交互优先** — 先做 Reactive Notebook（最酷炫，对标 Observable）
+3. **社区优先** — 先做评论 + 作者主页（对标 Wilmott，但需要冷启动用户）
+4. **全量按 Sprint A→D 执行**
 
-| 现有功能 | 现状 | 迁移后 |
-|---|---|---|
-| `src/pages/GithubExplorer.tsx` | 仅 fetch GitHub，不持久化 | 加载成功后 upsert `github_history`；加「Star」按钮写 `github_starred`；侧栏新增「最近浏览」「我收藏的仓库」两块 |
-| 文件树每行 | 只能跳转 GitHub | 点击文件可展开「Note」抽屉，读写 `github_file_notes` |
-| `src/lib/calcHistory.ts` + `HistoryDrawer.tsx` | localStorage | 改为 Supabase 客户端；未登录则继续用 localStorage 作为兜底，提示「登录后跨设备同步」 |
-| `BondCalculator` 等计算器的「保存为预设」 | PresetButtons 内置 | 「⭐ Save as favorite」按钮写 `calc_favorites`，并在 PresetButtons 下方显示「我的收藏」 |
-| `src/pages/Glossary.tsx` | 纯静态浏览 | 每个 term 行加 ⭐ 按钮，写 `glossary_bookmarks`；顶部加「只看我收藏的」筛选 |
-| `src/components/LearningPath.tsx` | 当前进度无持久化 | 章节卡片加「标记已学」按钮，写 `learning_progress`；卡片显示已完成 ✓ |
-
-新增页面：
-- `/auth` — 登录/注册
-- `/account` — 我的资料 + 一键导出所有数据 JSON（可选）
-
-新增 hook/库文件：
-- `src/hooks/useAuth.ts`
-- `src/hooks/useRequireAuth.ts`（保护需要登录的动作，未登录时跳 `/auth?next=...`）
-- `src/lib/cloudStore/*.ts` — 每张表一个薄封装（list/upsert/remove），统一处理错误 toast
-
-## 四、不动的部分
-
-- 现有计算器算法、`src/lib/quant/*`、所有教学内容、Bloomberg 编辑型布局、Emerald Prestige 主题、字体方案、`vitest` 测试全部不动。
-- GitHub Explorer 的目录树渲染逻辑不动，只新增「收藏 / 历史 / 笔记」三层。
-
-## 五、安全要点
-
-- 全部表 user_id `NOT NULL` + RLS `auth.uid() = user_id`，杜绝越权读写。
-- 计算结果 `inputs/outputs` 用 `jsonb` 存，不含 PII；不存 token、密码。
-- 角色字段（如未来要分管理员）将单独建 `user_roles` + `has_role()` SECURITY DEFINER 函数，绝不放 `profiles`。
-
-## 六、上线步骤
-
-1. 创建 6 张表 + RLS + triggers（一个 migration）。
-2. 启用邮箱+密码（开发期 auto-confirm 开）。
-3. 实现 `/auth` 页面 + `useAuth` + Navbar 用户按钮。
-4. GitHub Explorer 接入 history / starred / file notes。
-5. 计算器接入 history / favorites（保留 localStorage 兜底）。
-6. Glossary 加 bookmark；LearningPath 加 progress。
-7. 跑 `vitest`，确保现有数学测试仍全绿。
-
-确认后我会先生成数据库 migration 让你审批，然后再实现前端代码。
+也欢迎告知您最想对标的那一个站点，我会把方案进一步聚焦。
