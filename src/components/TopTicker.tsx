@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 
 /**
@@ -40,14 +39,6 @@ const TopTicker = () => {
 
     const loadOne = async (sym: string, label: string): Promise<Quote> => {
       try {
-        const { data, error } = await supabase.functions.invoke("market-quotes", {
-          body: undefined,
-          headers: {},
-          // The function accepts query params via URL; invoke doesn't expose
-          // them directly, so fall back to a direct fetch.
-        });
-        // Direct fetch path:
-        void data; void error;
         const url = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/market-quotes?symbol=${encodeURIComponent(
           sym
         )}&range=5d&interval=1d`;
