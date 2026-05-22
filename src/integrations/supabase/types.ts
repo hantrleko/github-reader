@@ -14,7 +14,255 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      calc_favorites: {
+        Row: {
+          created_at: string
+          id: string
+          inputs: Json
+          label: string
+          tool_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          inputs?: Json
+          label: string
+          tool_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          inputs?: Json
+          label?: string
+          tool_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      calc_history: {
+        Row: {
+          created_at: string
+          id: string
+          inputs: Json
+          outputs: Json
+          tool_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          inputs?: Json
+          outputs?: Json
+          tool_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          inputs?: Json
+          outputs?: Json
+          tool_id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      github_file_notes: {
+        Row: {
+          branch: string
+          created_at: string
+          id: string
+          note: string
+          owner: string
+          path: string
+          repo: string
+          tags: string[]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          branch: string
+          created_at?: string
+          id?: string
+          note?: string
+          owner: string
+          path: string
+          repo: string
+          tags?: string[]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          branch?: string
+          created_at?: string
+          id?: string
+          note?: string
+          owner?: string
+          path?: string
+          repo?: string
+          tags?: string[]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      github_history: {
+        Row: {
+          branch: string
+          created_at: string
+          id: string
+          last_opened_at: string
+          open_count: number
+          owner: string
+          repo: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          branch: string
+          created_at?: string
+          id?: string
+          last_opened_at?: string
+          open_count?: number
+          owner: string
+          repo: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          branch?: string
+          created_at?: string
+          id?: string
+          last_opened_at?: string
+          open_count?: number
+          owner?: string
+          repo?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      github_starred: {
+        Row: {
+          created_at: string
+          default_branch: string | null
+          description: string | null
+          id: string
+          owner: string
+          repo: string
+          starred_at: string
+          stars: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          default_branch?: string | null
+          description?: string | null
+          id?: string
+          owner: string
+          repo: string
+          starred_at?: string
+          stars?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          default_branch?: string | null
+          description?: string | null
+          id?: string
+          owner?: string
+          repo?: string
+          starred_at?: string
+          stars?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      glossary_bookmarks: {
+        Row: {
+          created_at: string
+          id: string
+          slug: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          slug: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          slug?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      learning_progress: {
+        Row: {
+          created_at: string
+          id: string
+          score: number | null
+          section_id: string
+          status: string
+          topic_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          score?: number | null
+          section_id: string
+          status?: string
+          topic_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          score?: number | null
+          section_id?: string
+          status?: string
+          topic_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          display_name: string | null
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          display_name?: string | null
+          id: string
+          updated_at?: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

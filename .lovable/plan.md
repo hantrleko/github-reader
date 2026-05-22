@@ -1,110 +1,98 @@
-## 重构目标
+## 方案概览
 
-把当前"满屏巨型标题 + 拥挤导航"的首页，重构为 **Bloomberg 终端编辑型** 杂志布局：
-深翠绿底 + 金色重音 + 衬线大标题 + 终端式右侧数据栏 + 编辑型工具网格。
+把当前 Lab 接入 Lovable Cloud（已启用），新增邮箱+密码登录，并用 6 张数据表把用户在站内产生的所有「私有状态」从 localStorage 迁移到云端、按用户隔离。
 
-## 设计 Token 改造（全站基调，一次到位）
+未登录用户照常浏览、计算、查阅术语表；只有保存/收藏/历史/进度相关操作需要登录（弹出登录页）。
 
-**`src/index.css` — 替换 `:root` + `.dark` HSL 变量**
+## 一、认证
 
-| Token | 浅色 (米白纸) | 深色 (终端) |
+- 启用邮箱+密码登录（默认不强制邮箱验证，开发期 `auto_confirm_email=true` 让你随时注册即用；如需正式上线再切回需要验证）。
+- 新增 `/auth` 页面：登录 / 注册 两个 tab，使用 `supabase.auth.signInWithPassword` 与 `signUp({ emailRedirectTo: window.location.origin })`。
+- 新增 `useAuth` hook：先 `onAuthStateChange` 监听，再 `getSession()` 同步当前 session。
+- Navbar 右侧加用户按钮：未登录显示「Sign in」；已登录显示邮箱缩写 + 退出。
+
+## 二、数据库 schema（6 张表，全部启 RLS：用户只能 CRUD 自己的行）
+
+```text
+profiles                 一行/用户，登录时自动创建（trigger on auth.users）
+  id (uuid PK = auth.uid)、display_name、avatar_url、created_at、updated_at
+
+github_history           GitHub Explorer 浏览历史
+  user_id、owner、repo、branch、last_opened_at、open_count
+  UNIQUE(user_id, owner, repo, branch)
+
+github_starred           收藏的仓库 + 描述/星标数缓存
+  user_id、owner、repo、default_branch、description、stars、starred_at
+  UNIQUE(user_id, owner, repo)
+
+github_file_notes        某个文件的中文笔记/标签
+  user_id、owner、repo、branch、path、note (text)、tags (text[])、updated_at
+  UNIQUE(user_id, owner, repo, branch, path)
+
+calc_history             计算器运行历史（取代现有 localStorage 的 calcHistory）
+  user_id、tool_id (text)、inputs (jsonb)、outputs (jsonb)、created_at
+  + index(user_id, tool_id, created_at desc)
+
+calc_favorites           收藏的某次计算结果或参数预设
+  user_id、tool_id、label、inputs (jsonb)、created_at
+  UNIQUE(user_id, tool_id, label)
+
+glossary_bookmarks       术语表收藏
+  user_id、slug (text)、created_at
+  UNIQUE(user_id, slug)
+
+learning_progress        学习进度（章节阅读/小测完成）
+  user_id、topic_id (text)、section_id (text)、status ('reading'|'done')、score (int)、updated_at
+  UNIQUE(user_id, topic_id, section_id)
+```
+
+每张表统一加：
+- `id uuid PK default gen_random_uuid()`、`created_at`、`updated_at`
+- `ENABLE ROW LEVEL SECURITY`
+- 4 条策略：SELECT / INSERT / UPDATE / DELETE，全部 `using/with check (auth.uid() = user_id)`
+- `updated_at` 自动更新 trigger（复用一个 `update_updated_at_column()` 函数）
+
+`profiles` 用 `handle_new_user()` trigger 在 `auth.users` 插入时自动建一行。
+
+## 三、前端接入点（按现有文件最小改动）
+
+| 现有功能 | 现状 | 迁移后 |
 |---|---|---|
-| `--background` | `42 40% 94%` (#f5f0e0) | `158 78% 17%` (#064e3b) |
-| `--foreground` | `158 78% 12%` | `42 40% 94%` |
-| `--card` | `42 30% 97%` | `158 50% 22%` (#0d7a5f 暗) |
-| `--primary` (金) | `43 53% 54%` (#c9a84c) | `43 53% 54%` |
-| `--accent` (翠绿亮) | `158 56% 27%` (#0d7a5f) | `158 56% 33%` |
-| `--border` | `158 30% 75%` | `158 40% 28%` |
+| `src/pages/GithubExplorer.tsx` | 仅 fetch GitHub，不持久化 | 加载成功后 upsert `github_history`；加「Star」按钮写 `github_starred`；侧栏新增「最近浏览」「我收藏的仓库」两块 |
+| 文件树每行 | 只能跳转 GitHub | 点击文件可展开「Note」抽屉，读写 `github_file_notes` |
+| `src/lib/calcHistory.ts` + `HistoryDrawer.tsx` | localStorage | 改为 Supabase 客户端；未登录则继续用 localStorage 作为兜底，提示「登录后跨设备同步」 |
+| `BondCalculator` 等计算器的「保存为预设」 | PresetButtons 内置 | 「⭐ Save as favorite」按钮写 `calc_favorites`，并在 PresetButtons 下方显示「我的收藏」 |
+| `src/pages/Glossary.tsx` | 纯静态浏览 | 每个 term 行加 ⭐ 按钮，写 `glossary_bookmarks`；顶部加「只看我收藏的」筛选 |
+| `src/components/LearningPath.tsx` | 当前进度无持久化 | 章节卡片加「标记已学」按钮，写 `learning_progress`；卡片显示已完成 ✓ |
 
-**`tailwind.config.ts`** —
-- 字体：`--font-display` → `'Libre Baskerville', Georgia, serif`；`--font-body` → `'IBM Plex Sans', system-ui`；`--font-mono` → `'IBM Plex Mono'`。
-- 保留 `gold/teal` 别名，重新指向新 token。
+新增页面：
+- `/auth` — 登录/注册
+- `/account` — 我的资料 + 一键导出所有数据 JSON（可选）
 
-**`index.html`** — 替换 Google Fonts 链接为 `Libre Baskerville` + `IBM Plex Sans` + `IBM Plex Mono`。
+新增 hook/库文件：
+- `src/hooks/useAuth.ts`
+- `src/hooks/useRequireAuth.ts`（保护需要登录的动作，未登录时跳 `/auth?next=...`）
+- `src/lib/cloudStore/*.ts` — 每张表一个薄封装（list/upsert/remove），统一处理错误 toast
 
-## 顶栏重构 — `src/components/Navbar.tsx`
+## 四、不动的部分
 
-```
-┌─────────────────────────────────────────────────────────────────────┐
-│ THE QUANTITATIVE REPORT                              [V2.9] EN ⟳ ☀  │
-│ Econ & Finance Lab          PRICING DERIV PORTFOLIO ECONOM QUANT … │
-└─────────────────────────────────────────────────────────────────────┘
-```
-- 双层：小字眉（kicker）+ 衬线 brandmark；右侧 5 个大类一级菜单（uppercase + 字距 0.15em + hover 金色下划线）。
-- 二级（V2.x 子工具）改为 hover 抽屉/dropdown，缓解拥挤。
-- 语言/主题/Changelog 折叠到右侧小图标组。
+- 现有计算器算法、`src/lib/quant/*`、所有教学内容、Bloomberg 编辑型布局、Emerald Prestige 主题、字体方案、`vitest` 测试全部不动。
+- GitHub Explorer 的目录树渲染逻辑不动，只新增「收藏 / 历史 / 笔记」三层。
 
-## Hero 重构 — `src/components/HeroSection.tsx`
+## 五、安全要点
 
-12 列网格：
-```
-┌────────────────────────── 8 cols ──────────┬── 4 cols ─────────┐
-│ ── EMPIRICAL RESEARCH CORE                 │ LAB METRICS       │
-│                                            │ ───────────────── │
-│  Mastering [Economics] &                   │ Topics      07    │
-│  Empirical Finance Models                  │ Formulas   133 ▲  │
-│  (Libre Baskerville 衬线, 5xl→7xl)         │ Concepts   133    │
-│                                            │                   │
-│  正文 IBM Plex 1.5rem max-w-xl             │ │ LATEST UPDATE   │
-│                                            │ │ Black-Litterman │
-│  [LAUNCH TOOLS ↓]  [BROWSE LIBRARY]        │ │ → Changelog     │
-└────────────────────────────────────────────┴───────────────────┘
-```
-- 移除当前的"K线 SVG + blur 光斑"，换成极淡的金色点阵网格（已有 `bg-grid-pattern` 可改色）。
-- 右侧 sidebar 从现有 `topicsData` 计算 metrics；Latest Update 取 `changelog` 最近一条。
+- 全部表 user_id `NOT NULL` + RLS `auth.uid() = user_id`，杜绝越权读写。
+- 计算结果 `inputs/outputs` 用 `jsonb` 存，不含 PII；不存 token、密码。
+- 角色字段（如未来要分管理员）将单独建 `user_roles` + `has_role()` SECURITY DEFINER 函数，绝不放 `profiles`。
 
-## 紧随其后的 4 列工具直达栏（新组件）
+## 六、上线步骤
 
-`src/components/HeroToolStrip.tsx` —
-```
-┌──────────┬──────────┬──────────┬──────────┐
-│ UNIT_01  │ UNIT_02  │ UNIT_03  │ UNIT_04  │
-│ Pricing  │ Econome- │ Portfolio│ Risk     │
-│ Engine   │ trics    │ Lab      │ Metrics  │
-└──────────┴──────────┴──────────┴──────────┘
-```
-- 单像素翠绿描边，hover 整格 `bg-accent/20`；点击 scroll 到对应 section。
-- 用 `toolsCatalog` 里每个 dimension 的 featured 工具填充。
+1. 创建 6 张表 + RLS + triggers（一个 migration）。
+2. 启用邮箱+密码（开发期 auto-confirm 开）。
+3. 实现 `/auth` 页面 + `useAuth` + Navbar 用户按钮。
+4. GitHub Explorer 接入 history / starred / file notes。
+5. 计算器接入 history / favorites（保留 localStorage 兜底）。
+6. Glossary 加 bookmark；LearningPath 加 progress。
+7. 跑 `vitest`，确保现有数学测试仍全绿。
 
-## 下方模块重排序与编辑型包装
-
-`src/pages/Index.tsx` 顺序调整：
-1. Hero（含 sidebar）
-2. HeroToolStrip
-3. **TodaysPick**（保留，但改用"今日特写"编辑卡样式：左大图右文，金色 kicker）
-4. TopicCards → 改为 3 列编辑卡（kicker + 衬线标题 + 描述 + "Read →"）
-5. CalculatorSection / DerivativesTools …（每个 Section 前加 magazine-style section header：`SECTION 01 / PRICING`）
-6. LearningPath / Changelog / Footer
-
-新增统一 section header 组件 `src/components/common/SectionHeader.tsx`：
-```
-─────  SECTION 02 / DERIVATIVES
-Interactive Greeks & Volatility Surfaces
-```
-
-## 受影响文件清单
-
-- 改：`src/index.css`（token + grid pattern 配色）
-- 改：`tailwind.config.ts`（字体）
-- 改：`index.html`（fonts）
-- 改：`src/components/Navbar.tsx`（双层 + dropdown）
-- 改：`src/components/HeroSection.tsx`（12 列 hero + sidebar）
-- 改：`src/components/TopicCards.tsx`（编辑卡样式）
-- 改：`src/components/TodaysPick.tsx`（特写卡样式）
-- 改：`src/pages/Index.tsx`（顺序 + section header 注入）
-- 新：`src/components/HeroToolStrip.tsx`
-- 新：`src/components/common/SectionHeader.tsx`
-- 内存更新：`mem://index.md` Core 改为 Emerald + Libre Baskerville × IBM Plex，金色 #c9a84c 保留。
-
-## 不在本次范围
-
-- 不改任何计算器内部逻辑、公式、`src/lib/quant/*`、Supabase / edge functions、i18n 文案（只补少量新键）。
-- 不动 V2.x roadmap 功能本身，只换外观与组织方式。
-
-## 验收
-
-- `/` 首屏 1183×742 视口内：顶栏 + hero 完整可见，标题不再压满屏。
-- 全站浅/深双主题色都跑通 Emerald Prestige。
-- `vitest` 仍全绿（不动业务逻辑）。
-
-确认即按此实施。
+确认后我会先生成数据库 migration 让你审批，然后再实现前端代码。
