@@ -236,3 +236,27 @@
     100% { transform: translateX(100%); }
   }
 }
+
+/* ============================================================
+   Reading Mode — desaturates gold accents, increases line-height
+   and letter-spacing for long-form reading comfort.
+   Toggled by adding class `reading-mode` on <html>.
+   ============================================================ */
+html.reading-mode {
+  --gold: 43 28% 55%;
+  --gold-glow: 43 35% 65%;
+  --primary: 43 28% 55%;
+  --ring: 43 28% 55%;
+}
+html.reading-mode body {
+  line-height: 1.75;
+  letter-spacing: 0.012em;
+}
+html.reading-mode p,
+html.reading-mode li {
+  line-height: 1.85;
+}
+html.reading-mode .text-gold,
+html.reading-mode .text-primary {
+  filter: saturate(0.7);
+}

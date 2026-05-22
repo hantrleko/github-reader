@@ -388,6 +388,7 @@ const Navbar = () => {
             {t("nav.items.changelog")}
           </Link>
           <LanguageToggle />
+          <ReadingModeToggle />
           <ThemeToggle />
           <UserMenu />
           <button
