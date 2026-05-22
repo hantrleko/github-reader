@@ -46,6 +46,8 @@ const AuthPage = lazyWithRetry(() => import("./pages/Auth.tsx"));
 const Strategies = lazyWithRetry(() => import("./pages/Strategies.tsx"));
 const Papers = lazyWithRetry(() => import("./pages/Papers.tsx"));
 const Notebook = lazyWithRetry(() => import("./pages/Notebook.tsx"));
+const PublicProfile = lazyWithRetry(() => import("./pages/PublicProfile.tsx"));
+const Account = lazyWithRetry(() => import("./pages/Account.tsx"));
 const NotFound = lazyWithRetry(() => import("./pages/NotFound.tsx"));
 
 const RouteFallback = () => (
@@ -76,6 +78,8 @@ const App = () => (
                 <Route path="/strategies" element={<Strategies />} />
                 <Route path="/papers" element={<Papers />} />
                 <Route path="/notebook" element={<Notebook />} />
+                <Route path="/u/:username" element={<PublicProfile />} />
+                <Route path="/account" element={<Account />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
