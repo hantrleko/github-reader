@@ -6,7 +6,8 @@ import SectionHeader from "@/components/common/SectionHeader";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "@/hooks/use-toast";
-import { Globe, Lock, ExternalLink } from "lucide-react";
+import { Globe, Lock, ExternalLink, NotebookPen, Star, BookOpen } from "lucide-react";
+import { BADGES } from "@/lib/achievements";
 
 const Account = () => {
   const { user, loading } = useAuth();
@@ -16,6 +17,10 @@ const Account = () => {
   const [bio, setBio] = useState("");
   const [isPublic, setIsPublic] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [myNotebooks, setMyNotebooks] = useState<Array<{ id: string; title: string; is_public: boolean; updated_at: string }>>([]);
+  const [badges, setBadges] = useState<string[]>([]);
+  const [favs, setFavs] = useState<Array<{ id: string; tool_id: string; label: string }>>([]);
+  const [progress, setProgress] = useState<Array<{ section_id: string; topic_id: string; status: string }>>([]);
 
   useEffect(() => {
     if (!loading && !user) navigate("/auth");
@@ -24,17 +29,23 @@ const Account = () => {
   useEffect(() => {
     if (!user) return;
     (async () => {
-      const { data } = await supabase
-        .from("profiles")
-        .select("username, display_name, bio, is_public")
-        .eq("id", user.id)
-        .maybeSingle();
-      if (data) {
-        setUsername(data.username || "");
-        setDisplayName(data.display_name || "");
-        setBio(data.bio || "");
-        setIsPublic(!!data.is_public);
+      const [{ data: prof }, { data: nbs }, { data: ach }, { data: fav }, { data: lp }] = await Promise.all([
+        supabase.from("profiles").select("username, display_name, bio, is_public").eq("id", user.id).maybeSingle(),
+        supabase.from("user_notebooks").select("id,title,is_public,updated_at").eq("user_id", user.id).order("updated_at", { ascending: false }).limit(20),
+        supabase.from("user_achievements").select("slug").eq("user_id", user.id),
+        supabase.from("calc_favorites").select("id,tool_id,label").eq("user_id", user.id).order("updated_at", { ascending: false }).limit(12),
+        supabase.from("learning_progress").select("section_id,topic_id,status").eq("user_id", user.id).limit(50),
+      ]);
+      if (prof) {
+        setUsername(prof.username || "");
+        setDisplayName(prof.display_name || "");
+        setBio(prof.bio || "");
+        setIsPublic(!!prof.is_public);
       }
+      setMyNotebooks(nbs ?? []);
+      setBadges((ach ?? []).map((a: { slug: string }) => a.slug));
+      setFavs(fav ?? []);
+      setProgress(lp ?? []);
     })();
   }, [user]);
 
@@ -115,6 +126,95 @@ const Account = () => {
             </div>
           )}
         </section>
+
+        {user && (
+          <section className="container max-w-5xl px-6 pb-20 space-y-10">
+            {/* My Notebooks */}
+            <div>
+              <div className="flex items-end justify-between border-b border-accent/30 pb-2 mb-4">
+                <h2 className="font-display text-xl text-foreground inline-flex items-center gap-2">
+                  <NotebookPen className="w-4 h-4 text-gold" /> 我的 Notebooks
+                  <span className="text-[10px] font-mono text-muted-foreground/70">({myNotebooks.length})</span>
+                </h2>
+                <Link to="/notebook" className="text-[10px] font-mono uppercase tracking-wider text-gold hover:underline">+ 新建</Link>
+              </div>
+              {myNotebooks.length === 0 ? (
+                <p className="text-sm text-muted-foreground">还没有 Notebook · <Link to="/notebook/templates" className="text-gold hover:underline">浏览模板</Link></p>
+              ) : (
+                <ul className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                  {myNotebooks.map((nb) => (
+                    <li key={nb.id}>
+                      <Link to={`/notebook?id=${nb.id}`} className="flex items-center justify-between border border-border/50 hover:border-gold/50 bg-card/30 px-3 py-2 text-sm">
+                        <span className="truncate">{nb.title || "Untitled"}</span>
+                        <span className="text-[10px] font-mono text-muted-foreground inline-flex items-center gap-1">
+                          {nb.is_public ? <Globe className="w-3 h-3 text-emerald-400" /> : <Lock className="w-3 h-3" />}
+                          {new Date(nb.updated_at).toLocaleDateString()}
+                        </span>
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+
+            {/* Badges */}
+            <div>
+              <h2 className="font-display text-xl text-foreground border-b border-accent/30 pb-2 mb-4">🏅 徽章 <span className="text-[10px] font-mono text-muted-foreground/70">({badges.length}/{Object.keys(BADGES).length})</span></h2>
+              <div className="flex flex-wrap gap-2">
+                {Object.entries(BADGES).map(([slug, meta]) => {
+                  const owned = badges.includes(slug);
+                  return (
+                    <span
+                      key={slug}
+                      title={meta.description}
+                      className={`inline-flex items-center gap-1.5 px-3 py-1.5 border text-xs ${owned ? "border-gold/60 bg-gold/10 text-foreground" : "border-border/40 text-muted-foreground/50 opacity-60"}`}
+                    >
+                      <span className="text-base leading-none">{meta.emoji}</span>
+                      {meta.label}
+                    </span>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Favorite Calculators */}
+            <div>
+              <h2 className="font-display text-xl text-foreground border-b border-accent/30 pb-2 mb-4 inline-flex items-center gap-2"><Star className="w-4 h-4 text-gold" /> 收藏的计算器</h2>
+              {favs.length === 0 ? (
+                <p className="text-sm text-muted-foreground">在计算器面板上点击 ⭐ 即可保存参数预设。</p>
+              ) : (
+                <ul className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+                  {favs.map((f) => (
+                    <li key={f.id} className="border border-border/50 bg-card/30 px-3 py-2 text-sm">
+                      <p className="text-foreground truncate">{f.label}</p>
+                      <p className="text-[10px] font-mono text-muted-foreground uppercase tracking-wider">{f.tool_id}</p>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+
+            {/* Learning Progress */}
+            <div>
+              <h2 className="font-display text-xl text-foreground border-b border-accent/30 pb-2 mb-4 inline-flex items-center gap-2"><BookOpen className="w-4 h-4 text-gold" /> 学习进度 <span className="text-[10px] font-mono text-muted-foreground/70">({progress.filter(p => p.status === "completed").length}/{progress.length} completed)</span></h2>
+              {progress.length === 0 ? (
+                <p className="text-sm text-muted-foreground">浏览章节内容时会自动记录阅读与完成状态。</p>
+              ) : (
+                <div className="flex flex-wrap gap-1.5">
+                  {progress.map((p, i) => (
+                    <span
+                      key={i}
+                      title={`${p.section_id} / ${p.topic_id}`}
+                      className={`text-[10px] font-mono px-2 py-1 border ${p.status === "completed" ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-300" : "border-border/40 text-muted-foreground"}`}
+                    >
+                      {p.topic_id}
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
+          </section>
+        )}
       </main>
     </div>
   );
