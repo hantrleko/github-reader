@@ -1,7 +1,8 @@
-import { Share2, Download, Check } from "lucide-react";
+import { Share2, Download, Check, NotebookPen } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { toPng } from "html-to-image";
 import { toast } from "@/hooks/use-toast";
+import { buildNotebookSeedUrl, type CalcSeed } from "@/lib/calcToNotebook";
 
 /**
  * Read a per-calculator state object encoded in the URL hash query.
@@ -43,6 +44,8 @@ interface Props {
   captureRef: React.RefObject<HTMLElement>;
   /** filename (without ext) for the PNG download */
   filename: string;
+  /** if provided, shows an "Open in Notebook" button that seeds the Notebook editor */
+  notebookSeed?: CalcSeed;
 }
 
 export const ShareExportToolbar = ({
@@ -51,6 +54,7 @@ export const ShareExportToolbar = ({
   state,
   captureRef,
   filename,
+  notebookSeed,
 }: Props) => {
   const [copied, setCopied] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -94,6 +98,18 @@ export const ShareExportToolbar = ({
 
   return (
     <div className="flex items-center gap-2">
+      {notebookSeed && (
+        <a
+          href={buildNotebookSeedUrl(notebookSeed)}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-mono border border-border bg-card hover:border-gold/40 hover:text-gold transition-colors"
+          title="把当前参数导入到反应式 Notebook"
+        >
+          <NotebookPen className="w-3.5 h-3.5" />
+          Open in Notebook
+        </a>
+      )}
       <button
         onClick={onShare}
         className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-mono border border-border bg-card hover:border-gold/40 hover:text-gold transition-colors"

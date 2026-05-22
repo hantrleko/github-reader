@@ -16,6 +16,7 @@ import { Plus, Trash2, ArrowUp, ArrowDown, Save, FolderOpen, GitFork, Globe, Loc
 import DiscussionPanel from "@/components/DiscussionPanel";
 import { awardBadge, checkNotebookCount } from "@/lib/achievements";
 import { NOTEBOOK_TEMPLATES } from "@/data/notebookTemplates";
+import { decodeCalcSeed, seedToCells } from "@/lib/calcToNotebook";
 
 /* ─── Cell model ─────────────────────────────────────────── */
 type ParamCell  = { id: string; kind: "param"; name: string; value: number; min: number; max: number; step: number };
@@ -96,6 +97,19 @@ const Notebook = () => {
   useEffect(() => {
     const id = params.get("id");
     const tplSlug = params.get("template");
+    const seedRaw = params.get("seed");
+    if (seedRaw && !id) {
+      const seed = decodeCalcSeed(seedRaw);
+      if (seed) {
+        setNotebookId(null);
+        setTitle(seed.title);
+        setCells(seedToCells(seed) as any);
+        setIsPublic(false);
+        setForkedFrom(null);
+        toast({ title: `已从计算器导入:${seed.title}`, description: "保存到我的 Notebook 以便后续编辑。" });
+      }
+      return;
+    }
     if (tplSlug && !id) {
       const tpl = NOTEBOOK_TEMPLATES.find((t) => t.slug === tplSlug);
       if (tpl) {
