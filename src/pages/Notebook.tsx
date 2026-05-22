@@ -12,6 +12,7 @@ import {
 import { InlineMath } from "react-katex";
 import "katex/dist/katex.min.css";
 import { Plus, Trash2, ArrowUp, ArrowDown, Save, FolderOpen, GitFork, Globe, Lock, Download, FileText, Sigma, SlidersHorizontal, BarChart3 } from "lucide-react";
+import DiscussionPanel from "@/components/DiscussionPanel";
 
 /* ─── Cell model ─────────────────────────────────────────── */
 type ParamCell  = { id: string; kind: "param"; name: string; value: number; min: number; max: number; step: number };
@@ -297,6 +298,8 @@ const Notebook = () => {
               </button>
             ))}
           </div>
+
+          {notebookId && <DiscussionPanel resourceType="notebook" resourceId={notebookId} />}
         </section>
       </main>
     </div>
