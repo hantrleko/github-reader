@@ -10,6 +10,7 @@ import ScrollUtilities from "@/components/ScrollUtilities";
 import SectionErrorBoundary from "@/components/SectionErrorBoundary";
 import KeyboardHelp from "@/components/KeyboardHelp";
 import TodaysPick from "@/components/TodaysPick";
+import FeaturedNotebooks from "@/components/FeaturedNotebooks";
 
 // Heavy interactive sections — code-split to relieve homepage bundle & scroll lag
 const CalculatorSection = lazy(() => import("@/components/CalculatorSection"));
@@ -163,6 +164,7 @@ const Index = () => {
       <TodaysPick />
       <div id="topics" className="scroll-mt-12"><TopicCards /></div>
       <div id="models" className="scroll-mt-12"><ModelShowcase /></div>
+      <div id="featured-notebooks" className="scroll-mt-12"><FeaturedNotebooks /></div>
 
       {/* ─── 1. 基础定价 ─── */}
       <SectionDivider kicker="Chapter 1" label="基础定价 · 期权与隐含波动率" />
