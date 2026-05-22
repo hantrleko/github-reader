@@ -9,6 +9,7 @@ import CommandPalette from "@/components/CommandPalette";
 import Onboarding from "@/components/Onboarding";
 import { AuthProvider } from "@/hooks/useAuth";
 import { toast } from "sonner";
+import { reportClientError } from "@/lib/errorReport";
 
 /**
  * Reload-once recovery for stale chunk hashes after a new deploy.
@@ -41,11 +42,23 @@ const lazyWithRetry = <T,>(factory: () => Promise<T>) =>
     (factory() as Promise<any>).catch((err) => {
       const msg = String(err?.message ?? err ?? "");
       if (CHUNK_ERR_RE.test(msg)) {
+        reportClientError({
+          type: "chunk-load",
+          message: msg,
+          stack: (err as Error)?.stack,
+          failedAsset: (err as { url?: string })?.url,
+        });
         notifyChunkError();
         // Hold Suspense indefinitely so the broken route doesn't flash an
         // error boundary — the user controls when to reload.
         return new Promise(() => {});
       }
+      reportClientError({
+        type: "manual",
+        message: msg,
+        stack: (err as Error)?.stack,
+        extra: { source: "lazyWithRetry" },
+      });
       throw err;
     })
   );
@@ -53,11 +66,46 @@ const lazyWithRetry = <T,>(factory: () => Promise<T>) =>
 if (typeof window !== "undefined") {
   // Catch chunk errors that surface outside of React.lazy (e.g. prefetch).
   window.addEventListener("error", (e) => {
-    if (CHUNK_ERR_RE.test(String(e?.message ?? ""))) notifyChunkError();
+    const msg = String(e?.message ?? "");
+    const failedAsset =
+      (e?.target as HTMLScriptElement | HTMLLinkElement | undefined)?.tagName
+        ? ((e.target as HTMLScriptElement).src ||
+            (e.target as HTMLLinkElement).href ||
+            "")
+        : "";
+    if (CHUNK_ERR_RE.test(msg) || /\.(js|css|mjs)(\?|$)/.test(failedAsset)) {
+      reportClientError({
+        type: "chunk-load",
+        message: msg || "asset load error",
+        stack: (e?.error as Error)?.stack,
+        failedAsset,
+      });
+      notifyChunkError();
+    } else if (msg) {
+      reportClientError({
+        type: "window-error",
+        message: msg,
+        stack: (e?.error as Error)?.stack,
+      });
+    }
   });
   window.addEventListener("unhandledrejection", (e) => {
-    const msg = String((e as PromiseRejectionEvent)?.reason?.message ?? (e as PromiseRejectionEvent)?.reason ?? "");
-    if (CHUNK_ERR_RE.test(msg)) notifyChunkError();
+    const reason = (e as PromiseRejectionEvent)?.reason;
+    const msg = String(reason?.message ?? reason ?? "");
+    if (CHUNK_ERR_RE.test(msg)) {
+      reportClientError({
+        type: "chunk-load",
+        message: msg,
+        stack: (reason as Error)?.stack,
+      });
+      notifyChunkError();
+    } else if (msg) {
+      reportClientError({
+        type: "unhandled-rejection",
+        message: msg,
+        stack: (reason as Error)?.stack,
+      });
+    }
   });
 }
 
