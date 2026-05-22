@@ -14,7 +14,7 @@ Deno.serve(async (req) => {
     const range = url.searchParams.get("range") || "5y"; // 1mo,3mo,6mo,1y,2y,5y,10y,max
     const interval = url.searchParams.get("interval") || "1d";
 
-    if (!/^[A-Z0-9.\-^]{1,15}$/.test(symbol)) {
+    if (!/^[A-Z0-9.\-^=]{1,15}$/.test(symbol)) {
       return new Response(JSON.stringify({ error: "invalid symbol" }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
