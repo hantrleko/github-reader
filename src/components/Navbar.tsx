@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import { Menu, X, ChevronDown } from "lucide-react";
 import ThemeToggle from "./ThemeToggle";
 import LanguageToggle from "./LanguageToggle";
+import UserMenu from "./UserMenu";
 import { useTranslation } from "react-i18next";
 
 type Item = { id: string; labelKey: string };
@@ -342,6 +343,7 @@ const Navbar = () => {
           </Link>
           <LanguageToggle />
           <ThemeToggle />
+          <UserMenu />
           <button
             className="md:hidden p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/60"
             onClick={() => setMobileOpen(!mobileOpen)}

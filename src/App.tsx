@@ -7,6 +7,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import CommandPalette from "@/components/CommandPalette";
 import Onboarding from "@/components/Onboarding";
+import { AuthProvider } from "@/hooks/useAuth";
 
 /**
  * Reload-once recovery for stale chunk hashes after a new deploy.
@@ -41,6 +42,7 @@ const ChangelogPage = lazyWithRetry(() => import("./pages/ChangelogPage.tsx"));
 const ToolsCatalog = lazyWithRetry(() => import("./pages/ToolsCatalog.tsx"));
 const Glossary = lazyWithRetry(() => import("./pages/Glossary.tsx"));
 const GithubExplorer = lazyWithRetry(() => import("./pages/GithubExplorer.tsx"));
+const AuthPage = lazyWithRetry(() => import("./pages/Auth.tsx"));
 const NotFound = lazyWithRetry(() => import("./pages/NotFound.tsx"));
 
 const RouteFallback = () => (
@@ -58,20 +60,23 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
-          <Suspense fallback={<RouteFallback />}>
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/topic/:topicId" element={<TopicDetail />} />
-              <Route path="/changelog" element={<ChangelogPage />} />
-              <Route path="/tools" element={<ToolsCatalog />} />
-              <Route path="/glossary" element={<Glossary />} />
-              <Route path="/github" element={<GithubExplorer />} />
-              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </Suspense>
-          <CommandPalette />
-          <Onboarding />
+          <AuthProvider>
+            <Suspense fallback={<RouteFallback />}>
+              <Routes>
+                <Route path="/" element={<Index />} />
+                <Route path="/topic/:topicId" element={<TopicDetail />} />
+                <Route path="/changelog" element={<ChangelogPage />} />
+                <Route path="/tools" element={<ToolsCatalog />} />
+                <Route path="/glossary" element={<Glossary />} />
+                <Route path="/github" element={<GithubExplorer />} />
+                <Route path="/auth" element={<AuthPage />} />
+                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </Suspense>
+            <CommandPalette />
+            <Onboarding />
+          </AuthProvider>
         </BrowserRouter>
       </TooltipProvider>
     </QueryClientProvider>
