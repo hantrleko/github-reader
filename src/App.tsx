@@ -20,7 +20,7 @@ const lazyWithRetry = <T,>(factory: () => Promise<T>) =>
     (factory() as Promise<any>).catch((err) => {
       const msg = String(err?.message ?? err ?? "");
       const isChunkErr =
-        /dynamically imported module|Failed to fetch dynamically imported module|Importing a module script failed/i.test(
+        /error loading dynamically imported module|dynamically imported module|Failed to fetch dynamically imported module|Importing a module script failed|ChunkLoadError|Loading chunk \d+ failed/i.test(
           msg
         );
       if (isChunkErr && typeof window !== "undefined") {
