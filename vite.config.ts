@@ -22,7 +22,7 @@ export default defineConfig(({ mode }) => ({
     mode === "development" && componentTagger(),
     {
       name: "inject-build-version",
-      transformIndexHtml(html) {
+      transformIndexHtml(html: string) {
         return html
           .replace("%BUILD_VERSION%", BUILD_VERSION)
           .replace("%BUILD_VERSION%", BUILD_VERSION);
