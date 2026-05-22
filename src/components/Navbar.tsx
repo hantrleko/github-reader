@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { Menu, X, ChevronDown } from "lucide-react";
 import ThemeToggle from "./ThemeToggle";
+import ReadingModeToggle from "./ReadingModeToggle";
 import LanguageToggle from "./LanguageToggle";
 import UserMenu from "./UserMenu";
 import TopTicker from "./TopTicker";
