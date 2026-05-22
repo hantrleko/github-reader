@@ -4,6 +4,8 @@ import Navbar from "@/components/Navbar";
 import SectionHeader from "@/components/common/SectionHeader";
 import { supabase } from "@/integrations/supabase/client";
 import { FileText, BookOpen, Award } from "lucide-react";
+import Seo from "@/components/Seo";
+import { BADGES } from "@/lib/achievements";
 
 type Profile = { id: string; username: string; display_name: string | null; bio: string | null; is_public: boolean; created_at: string };
 type Nb = { id: string; title: string; updated_at: string };
@@ -38,6 +40,24 @@ const PublicProfile = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      {profile && (
+        <Seo
+          title={`@${profile.username} · EF Lab`}
+          description={profile.bio || `${profile.display_name || profile.username} 的公开 Notebook 与徽章。`}
+          path={`/u/${profile.username}`}
+          type="article"
+          jsonLd={{
+            "@context": "https://schema.org",
+            "@type": "ProfilePage",
+            mainEntity: {
+              "@type": "Person",
+              name: profile.display_name || profile.username,
+              alternateName: `@${profile.username}`,
+              description: profile.bio || undefined,
+            },
+          }}
+        />
+      )}
       <Navbar />
       <main className="pt-14">
         {notFound ? (
@@ -81,9 +101,9 @@ const PublicProfile = () => {
                 {achs.length === 0 && <p className="text-xs text-muted-foreground">No badges yet.</p>}
                 <ul className="space-y-1.5">
                   {achs.map((a) => (
-                    <li key={a.slug} className="text-xs font-mono text-foreground/85 flex items-center justify-between">
-                      <span>🏅 {a.slug}</span>
-                      <span className="text-muted-foreground/60 text-[10px]">{new Date(a.awarded_at).toLocaleDateString()}</span>
+                    <li key={a.slug} className="text-xs font-mono text-foreground/85 flex items-center justify-between gap-2" title={BADGES[a.slug]?.description || a.slug}>
+                      <span className="truncate">{BADGES[a.slug]?.emoji ?? "🏅"} {BADGES[a.slug]?.label ?? a.slug}</span>
+                      <span className="text-muted-foreground/60 text-[10px] shrink-0">{new Date(a.awarded_at).toLocaleDateString()}</span>
                     </li>
                   ))}
                 </ul>
