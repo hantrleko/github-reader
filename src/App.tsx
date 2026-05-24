@@ -7,6 +7,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import CommandPalette from "@/components/CommandPalette";
 import Onboarding from "@/components/Onboarding";
+import OfflineBanner from "@/components/OfflineBanner";
 import { AuthProvider } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { reportClientError } from "@/lib/errorReport";
@@ -170,6 +171,7 @@ const App = () => (
             </Suspense>
             <CommandPalette />
             <Onboarding />
+            <OfflineBanner />
           </AuthProvider>
         </BrowserRouter>
       </TooltipProvider>

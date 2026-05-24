@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowLeft, Search, BadgeCheck, ExternalLink, X } from "lucide-react";
+import { ArrowLeft, Search, BadgeCheck, ExternalLink, X, WifiOff, Wifi } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Seo from "@/components/Seo";
 import { cn } from "@/lib/utils";
@@ -231,6 +231,9 @@ const ToolsCatalog = () => {
 
 const ToolCard = ({ tool, query }: { tool: ToolEntry; query: string }) => {
   const diff = DIFFICULTY_LABEL[tool.difficulty];
+  // Pure-client categories work offline; only Platform tools (Notebook sync,
+  // real-data loaders) require the network.
+  const offlineCapable = tool.category !== "platform";
   return (
     <Link
       to={tool.anchor}
@@ -269,6 +272,21 @@ const ToolCard = ({ tool, query }: { tool: ToolEntry; query: string }) => {
             {diff.zh}
           </span>
           <span className="text-muted-foreground/60">{tool.version}</span>
+          {offlineCapable ? (
+            <span
+              className="inline-flex items-center gap-0.5 text-[hsl(var(--teal-glow))]"
+              title="纯客户端算法,离线可用"
+            >
+              <WifiOff className="w-3 h-3" /> offline
+            </span>
+          ) : (
+            <span
+              className="inline-flex items-center gap-0.5 text-muted-foreground/70"
+              title="依赖网络服务(数据源 / 云同步)"
+            >
+              <Wifi className="w-3 h-3" /> online
+            </span>
+          )}
         </div>
         {tool.verified && (
           <span
