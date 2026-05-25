@@ -1,101 +1,133 @@
-# PWA 离线 + 性能优化方案
 
-目标：让核心计算器在离线状态下可用，并把首页 Lighthouse 推到 95+。
+# Reactive Notebook v2 实施方案
 
-> ⚠️ PWA 提醒：service worker 仅在 **publish 后的正式域名** 上生效，Lovable 预览 iframe 中会被显式禁用，否则会缓存住旧版本导致预览不刷新。
-
----
-
-## 一、PWA 离线（仅纯前端计算器）
-
-### 1. 依赖与配置
-- 安装 `vite-plugin-pwa` + `workbox-window`
-- `vite.config.ts` 增加 `VitePWA({...})`：
-  - `registerType: "autoUpdate"`
-  - `devOptions.enabled: false`（开发预览不注册）
-  - `workbox.navigateFallbackDenylist: [/^\/~oauth/, /^\/auth/]`
-  - HTML 导航走 **NetworkFirst**（`networkTimeoutSeconds: 3`），避免锁死旧 shell
-  - 静态资源 `js/css/font/image` 走 **StaleWhileRevalidate**
-  - Supabase / FRED / market-quotes 等动态接口**不缓存**
-
-### 2. Manifest
-- `public/manifest.json` 已存在，补全：`name`、`short_name`、`theme_color = #064e3b`、`background_color = #0d0d0d`、`display: "standalone"`、`start_url: "/"`、`icons`（192/512 + maskable）
-- 用 imagegen 生成两张品牌 icon（深绿底 + 金色衬线 "EF"）
-
-### 3. 注册守卫（`src/main.tsx`）
-检测 iframe / `id-preview--*` / `lovableproject.com` 域名，命中则**卸载已有 SW**且不注册；只有正式域名才允许注册。与现有 `checkBuildVersion()` 协同：版本变更时主动 `caches.delete()` + `registration.unregister()` 后再 reload。
-
-### 4. 离线可用范围
-- 标记**纯客户端**计算器（Black-Scholes / Bond / OLS / Greeks / Heston / SABR 等）为离线可用
-- 在 `/tools` 列表卡片上加 ✓ Offline 徽章
-- 涉及网络（FRED、market-quotes、ai-explain、Notebook 云同步）的工具显示 ⚠ Online only，离线时禁用提交按钮并提示
-
-### 5. 离线提示 UI
-- 全局 `useOnlineStatus()` Hook，离线时顶部出现一条 emerald 细条："Offline mode · 已切换到本地缓存"
-- 新版本可用时（workbox `onNeedRefresh`）复用现有 sonner toast 风格，"新版本就绪 · 立即刷新"
+目标：把现有 Notebook 从「参数→公式/图」线性结构，升级到 **Observable 级反应式 DAG**：任意 cell 可声明变量、依赖任意上游变量、上游变化只重算受影响的下游；同时补齐 cell 类型、导出、AI 与协作能力。
 
 ---
 
-## 二、首页性能优化（Lighthouse 95+ 目标）
+## 一、核心：反应式依赖图（runtime 重写）
 
-### 1. LCP
-- 找出 `HeroSection` 的 LCP 元素，给主图加 `<link rel="preload" as="image" fetchpriority="high">`
-- 字体 preload：Libre Baskerville / IBM Plex Sans 的 woff2 子集 + `font-display: swap`
-- 移除/延迟 HeroSection 中非首屏装饰渐变与动画（低端机降级）
+### 1. Cell 模型扩展
+现有：`param / markdown / formula / chart`。新增：
 
-### 2. 图片
-- 引入 `vite-imagetools`，把 `src/assets` 下 PNG/JPG 全部产出 `.avif` + `.webp` 版本
-- 用 `<picture>` 提供 avif → webp → 原图回退
-- 所有 `<img>` 强制 `width` / `height` 属性消除 CLS，离屏图加 `loading="lazy"` + `decoding="async"`
+- `js`：受限 JS 代码 cell，可 `return` 任意值（数字/数组/对象），声明 `name` 暴露给下游
+- `table`：表格 cell，渲染数组对象（自动列推断 + 排序 + CSV 复制）
+- `data`：数据源 cell，封装 `fetch` 受限白名单（FRED / market-quotes / Fama-French，复用现有 edge functions），返回数组
+- `slider` / `select` / `checkbox` / `text`：把 `param` 拆成多种输入控件
+- `view`：声明性图表 DSL（折线/散点/直方图/热力图），底层仍 recharts
 
-### 3. 代码分割
-- 审查 `vite.config.ts` 的 `manualChunks`：`recharts`、`mathjs`、`katex`、`@radix-ui/*` 分别独立 chunk
-- 首页仅加载 `HeroSection` + `TopTicker`，其余 section（CalculatorSection、ModelShowcase、FeaturedNotebooks…）改为 `lazyWithRetry` + `IntersectionObserver` 懒挂载（已有 `lazyWithRetry`，复用）
-- KaTeX CSS 改为按需引入，仅在 EquationBlock 首次渲染时动态 `import("katex/dist/katex.min.css")`
+### 2. 依赖收集
+- 每个 cell 都有一个**变量名 `name`** 与一个**表达式/代码**
+- 通过解析表达式抓取 `p.X` 与 **全局命名 `name` 引用**（用正则 + 标识符白名单，足够 v2）
+- 构建 DAG，拓扑排序计算；任意 cell 输入变化只重算其传递闭包，结果用 `Map<cellId, value>` 缓存
+- 检测循环依赖 → cell 上红条提示
 
-### 4. INP / 长任务
-- 用 `browser--performance_profile` 跑一遍现状，定位长任务
-- 重计算的 Monte Carlo / Heston / Local Vol 用 `useDeferredValue` + `useTransition` 包装，避免输入卡顿
-- 必要时把最重的模拟挪到 Web Worker（仅 MC / Heston 两个）
+### 3. 沙箱执行
+- 复用现有 `new Function` + 白名单 helpers，扩展：
+  - `bs*`、`bond*`、`ols*`（从 `src/lib/quant/*` 注入）
+  - `d3-array` 风格 helpers：`mean / std / quantile / linspace`
+  - `fetch` **禁用**；数据只能通过 `data` cell 注入
+- 单 cell 执行 `try/catch` + 软超时（同步预算 50ms，超出标灰显示 timeout）
+- 异步 `data` cell 用 React Query，结果以 promise 解析后注入 DAG
 
-### 5. 第三方
-- 检查 `index.html` 中所有 `<script>` / 像素，全部 `defer` 或 `async`
-- 移除未使用的 Radix UI 组件 imports（用 `knip` 报表）
-
-### 6. 监控
-- 复用现有 `client-error-log` edge function，新增 `type: "web-vitals"` 上报 LCP / INP / CLS（`web-vitals` 库，<2KB），便于上线后持续观测
+### 4. UI
+- 左侧 cell 列表加 **依赖侧栏**：点 cell 高亮其上下游、显示「依赖：S, K, sigma → 被引用 3 次」
+- cell 顶部 chip：`name` 重命名、kind 切换、运行状态（fresh / stale / error）
+- 拖拽排序（dnd-kit）取代上下箭头
 
 ---
 
-## 三、技术细节
+## 二、导出 / 导入
+
+- **`.ipynb` 导出**：把 markdown / formula / js / chart 转为 Jupyter cell（公式用 Markdown $$，js 用 `code` cell 注释「JS sandbox」），下载即可在 Jupyter 中打开（视觉一致，不可执行）
+- **`.md` 导出**：已存在，补 table / js cell 渲染
+- **`.json` 导入/导出**：原始 cells 数组，便于版本管理
+- **Import .ipynb**：解析 markdown cell，code cell 转 `js`（标 unsafe，需用户手动启用）
+
+---
+
+## 三、AI 助手（复用 `ai-explain` edge function 扩展）
+
+- cell 右上角 `✨ Explain`：把当前 cell + 上游变量名快照发给 `ai-explain`
+- 新增 `ai-suggest` 路由（同一 edge function，参数化 mode）：
+  - "generate cell from prompt"：用户输入"画 S vs Call price"，返回一个 chart cell JSON
+  - "fix this cell"：发送报错 + cell 内容，返回修正建议
+- 全部走 Lovable AI Gateway（gemini-2.5-flash），无需 API key
+
+---
+
+## 四、协作 / 分享
+
+- 公开 notebook 已支持，新增：
+  - **Embed snippet**：`/notebook/embed?id=…` 仅渲染单 cell 或全 notebook，给 iframe 用
+  - **永久链接 + 参数覆盖**：`?id=…&p.S=120&p.K=110` 进入只读模式并应用覆盖参数
+  - **版本快照**：每次保存写入 `notebook_versions` 表，可在右侧抽屉中查看 diff/恢复
+
+---
+
+## 五、文件结构
 
 ```text
-vite.config.ts
-  ├── VitePWA({ registerType, devOptions, workbox })
-  ├── imagetools()
-  └── manualChunks: { recharts, mathjs, katex, radix, charts-common }
-
 src/
-  ├── main.tsx               // 注册 SW（带 iframe/preview 守卫）
-  ├── hooks/useOnlineStatus.ts
-  ├── components/
-  │   ├── OfflineBanner.tsx
-  │   └── SwUpdatePrompt.tsx  // 复用 sonner
-  ├── lib/
-  │   ├── webVitals.ts        // 上报到 client-error-log
-  │   └── buildVersion.ts     // 已有，新增 SW 清理钩子
-  └── workers/
-      └── mcSimulator.worker.ts  // 可选第二阶段
-
-public/
-  ├── manifest.json           // 补全字段
-  ├── icon-192.png / icon-512.png / icon-maskable.png
-  └── sw.js                   // workbox 自动生成
+  pages/Notebook.tsx                  // 顶层布局,委托给下面模块
+  components/notebook/
+    CellList.tsx                      // dnd-kit 排序
+    cells/
+      MarkdownCell.tsx / ParamCell.tsx / FormulaCell.tsx
+      ChartCell.tsx / JsCell.tsx / TableCell.tsx / DataCell.tsx
+    DependencyPanel.tsx               // 侧栏 DAG 视图
+    AiAssistantDrawer.tsx
+    VersionHistoryDrawer.tsx
+  lib/notebook/
+    types.ts                          // Cell / Value / Graph 类型
+    sandbox.ts                        // new Function + helpers + timeout
+    dag.ts                            // 依赖收集 + 拓扑排序 + 增量重算
+    exportIpynb.ts / exportMd.ts / importIpynb.ts
+supabase/
+  functions/ai-explain/index.ts       // 增加 mode: explain | generate | fix
+  migrations/...                      // notebook_versions 表 + RLS
 ```
 
 ---
 
-## 四、分两步交付
+## 六、数据库变更
 
-- **Step 1（本轮）**：vite-plugin-pwa 接入 + manifest + 注册守卫 + 离线徽章 + LCP/字体/图片优化 + manualChunks
-- **Step 2（下轮，按需）**：Web Worker 化 MC/Heston + web-vitals 上报 + knip 清理未用依赖
+```sql
+create table public.notebook_versions (
+  id uuid primary key default gen_random_uuid(),
+  notebook_id uuid references public.user_notebooks(id) on delete cascade not null,
+  user_id uuid not null,
+  cells jsonb not null,
+  title text not null,
+  created_at timestamptz not null default now()
+);
+alter table public.notebook_versions enable row level security;
+-- 仅 notebook 所有者可读写自己的版本
+create policy "own versions" on public.notebook_versions
+  for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+```
+
+---
+
+## 七、分阶段交付
+
+- **Step 1（本轮，可落地）**
+  1. 新 Cell 模型 + DAG runtime（替换现有 `useMemo p` 全量重算）
+  2. 新增 `js` / `table` cell + dnd-kit 排序
+  3. `.ipynb` 导出
+  4. AI Explain 接入 cell 级别
+  5. `notebook_versions` 表 + 版本抽屉
+- **Step 2（下轮，按需）**
+  - `data` cell + 数据源白名单
+  - AI Generate / Fix
+  - Embed iframe + 参数覆盖只读视图
+  - DependencyPanel 可视化（force-directed mini-graph）
+
+---
+
+## 八、风险与边界
+
+- 沙箱仍是 `new Function`，**禁止 `import` / `fetch` / `this`**；用 `with({})` 与白名单显式作用域；不要尝试做真沙箱（不在浏览器可行范围）
+- DAG 增量重算先实现简化版：任何上游变化即重算闭包内全部，不做 memo 细化（足够 60fps）
+- `.ipynb` 仅导出，不保证可重新导入执行（JS cell 在 Jupyter 中只是注释）
+- 版本表会快速膨胀，加 `保留最近 20 个` 的清理触发器

@@ -280,6 +280,41 @@ export type Database = {
         }
         Relationships: []
       }
+      notebook_versions: {
+        Row: {
+          cells: Json
+          created_at: string
+          id: string
+          notebook_id: string
+          title: string
+          user_id: string
+        }
+        Insert: {
+          cells: Json
+          created_at?: string
+          id?: string
+          notebook_id: string
+          title: string
+          user_id: string
+        }
+        Update: {
+          cells?: Json
+          created_at?: string
+          id?: string
+          notebook_id?: string
+          title?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notebook_versions_notebook_id_fkey"
+            columns: ["notebook_id"]
+            isOneToOne: false
+            referencedRelation: "user_notebooks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null

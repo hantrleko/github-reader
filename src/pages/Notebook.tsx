@@ -12,18 +12,32 @@ import {
 } from "recharts";
 import { InlineMath } from "react-katex";
 import "katex/dist/katex.min.css";
-import { Plus, Trash2, ArrowUp, ArrowDown, Save, FolderOpen, GitFork, Globe, Lock, Download, FileText, Sigma, SlidersHorizontal, BarChart3, Sparkles, Loader2 } from "lucide-react";
+import { Plus, Trash2, Save, FolderOpen, GitFork, Globe, Lock, Download, FileText, Sigma, SlidersHorizontal, BarChart3, Sparkles, Loader2, Code2, Table as TableIcon, GripVertical, History, AlertTriangle } from "lucide-react";
 import DiscussionPanel from "@/components/DiscussionPanel";
 import { awardBadge, checkNotebookCount } from "@/lib/achievements";
 import { NOTEBOOK_TEMPLATES } from "@/data/notebookTemplates";
 import { decodeCalcSeed, seedToCells } from "@/lib/calcToNotebook";
+import { evalDag, buildScope, type DagCellInput, type CellResult } from "@/lib/notebook/dag";
+import { compileExpr } from "@/lib/notebook/sandbox";
+import { exportIpynb } from "@/lib/notebook/exportIpynb";
+import {
+  DndContext, closestCenter, KeyboardSensor, PointerSensor,
+  useSensor, useSensors, type DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  arrayMove, SortableContext, sortableKeyboardCoordinates,
+  useSortable, verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
 /* ─── Cell model ─────────────────────────────────────────── */
 type ParamCell  = { id: string; kind: "param"; name: string; value: number; min: number; max: number; step: number };
 type MdCell     = { id: string; kind: "markdown"; text: string };
-type FormulaCell= { id: string; kind: "formula"; latex: string; expression: string }; // expression: JS using `p` (params)
+type FormulaCell= { id: string; kind: "formula"; name?: string; latex: string; expression: string };
 type ChartCell  = { id: string; kind: "chart"; xVar: string; xMin: number; xMax: number; n: number; expression: string };
-type Cell = ParamCell | MdCell | FormulaCell | ChartCell;
+type JsCell     = { id: string; kind: "js"; name: string; body: string };
+type TableCell  = { id: string; kind: "table"; name?: string; body: string };
+type Cell = ParamCell | MdCell | FormulaCell | ChartCell | JsCell | TableCell;
 
 const uid = () => Math.random().toString(36).slice(2, 10);
 
@@ -38,39 +52,15 @@ const DEFAULT_CELLS: Cell[] = [
   { id: uid(), kind: "chart", xVar: "S", xMin: 50, xMax: 200, n: 60, expression: "bsCall(x,p.K,p.T,p.r,p.sigma)" },
 ];
 
-/* ─── Safe expression evaluator ──────────────────────────── */
-// Only allow whitelisted names. Compile once, recompute on changes.
-const SAFE_HELPERS = `
-const exp = Math.exp, log = Math.log, sqrt = Math.sqrt, pow = Math.pow,
-      sin = Math.sin, cos = Math.cos, abs = Math.abs, max = Math.max, min = Math.min, PI = Math.PI;
-function ndf(x){ return Math.exp(-0.5*x*x)/Math.sqrt(2*Math.PI); }
-function ncdf(x){
-  // Abramowitz-Stegun 7.1.26
-  const a1=0.254829592,a2=-0.284496736,a3=1.421413741,a4=-1.453152027,a5=1.061405429,P=0.3275911;
-  const sgn = x<0?-1:1; x = Math.abs(x)/Math.SQRT2;
-  const t = 1/(1+P*x);
-  const y = 1 - (((((a5*t+a4)*t)+a3)*t+a2)*t+a1)*t*Math.exp(-x*x);
-  return 0.5*(1+sgn*y);
-}
-function bsCall(S,K,T,r,s){
-  if (T<=0||s<=0) return Math.max(S-K,0);
-  const d1 = (Math.log(S/K)+(r+0.5*s*s)*T)/(s*Math.sqrt(T));
-  const d2 = d1 - s*Math.sqrt(T);
-  return S*ncdf(d1) - K*Math.exp(-r*T)*ncdf(d2);
-}
-function bsPut(S,K,T,r,s){
-  return bsCall(S,K,T,r,s) - S + K*Math.exp(-r*T);
-}
-`;
-
-function evalSafe(expr: string, p: Record<string, number>, x?: number): number {
-  try {
-    // eslint-disable-next-line no-new-func
-    const fn = new Function("p", "x", `${SAFE_HELPERS}; return (${expr});`);
-    const v = fn(p, x);
-    return typeof v === "number" && isFinite(v) ? v : NaN;
-  } catch {
-    return NaN;
+/* ─── DAG bridge ─────────────────────────────────────────── */
+function cellToDag(c: Cell): DagCellInput {
+  switch (c.kind) {
+    case "param":   return { id: c.id, name: c.name, source: "", mode: "value", rawValue: c.value };
+    case "formula": return { id: c.id, name: c.name, source: c.expression || "0", mode: "expr" };
+    case "js":      return { id: c.id, name: c.name, source: c.body || "return null;", mode: "js" };
+    case "table":   return { id: c.id, name: c.name, source: c.body || "[]", mode: "expr" };
+    case "chart":   return { id: c.id, source: c.expression || "0", mode: "expr" };
+    default:        return { id: c.id, source: "", mode: "value", rawValue: null };
   }
 }
 
@@ -85,13 +75,24 @@ const Notebook = () => {
   const [forkedFrom, setForkedFrom] = useState<string | null>(null);
   const [myList, setMyList] = useState<{ id: string; title: string; updated_at: string }[]>([]);
   const [showList, setShowList] = useState(false);
+  const [showVersions, setShowVersions] = useState(false);
+  const [versions, setVersions] = useState<{ id: string; title: string; cells: any; created_at: string }[]>([]);
 
-  /* Build params dict from ParamCells */
+  /* Build params dict + DAG results */
   const p = useMemo(() => {
     const out: Record<string, number> = {};
     cells.forEach((c) => { if (c.kind === "param") out[c.name] = c.value; });
     return out;
   }, [cells]);
+
+  const dagResults = useMemo<Map<string, CellResult>>(
+    () => evalDag(cells.map(cellToDag)),
+    [cells]
+  );
+  const dagScope = useMemo(
+    () => buildScope(cells.map(cellToDag), dagResults),
+    [cells, dagResults]
+  );
 
   /* Load by ?id=… */
   useEffect(() => {
@@ -153,23 +154,32 @@ const Notebook = () => {
   const update = (id: string, patch: Partial<Cell>) =>
     setCells((cs) => cs.map((c) => (c.id === id ? ({ ...c, ...patch } as Cell) : c)));
   const remove = (id: string) => setCells((cs) => cs.filter((c) => c.id !== id));
-  const move = (id: string, dir: -1 | 1) =>
-    setCells((cs) => {
-      const i = cs.findIndex((c) => c.id === id);
-      const j = i + dir;
-      if (i < 0 || j < 0 || j >= cs.length) return cs;
-      const next = cs.slice();
-      [next[i], next[j]] = [next[j], next[i]];
-      return next;
-    });
   const addCell = (kind: Cell["kind"]) => {
     const blank: Record<Cell["kind"], Cell> = {
       markdown: { id: uid(), kind: "markdown", text: "新段落..." },
       param:    { id: uid(), kind: "param", name: `x${cells.filter(c=>c.kind==="param").length+1}`, value: 1, min: 0, max: 10, step: 0.1 },
-      formula:  { id: uid(), kind: "formula", latex: "y = p.x_1", expression: "p.x1" },
+      formula:  { id: uid(), kind: "formula", name: "", latex: "y = p.x_1", expression: "p.x1" },
       chart:    { id: uid(), kind: "chart", xVar: "x", xMin: 0, xMax: 10, n: 50, expression: "Math.sin(x)*p.x1" },
+      js:       { id: uid(), kind: "js",     name: `j${cells.filter(c=>c.kind==="js").length+1}`, body: "// 可用上游变量名 & p.*\nconst arr = linspace(0, 10, 50).map(x => Math.sin(x));\nreturn { mean: mean(arr), std: std(arr) };" },
+      table:    { id: uid(), kind: "table",  name: "", body: "linspace(0, 10, 11).map(x => ({ x, sin: Math.sin(x), cos: Math.cos(x) }))" },
     };
     setCells((cs) => [...cs, blank[kind]]);
+  };
+
+  /* ─── dnd sorting ─── */
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+  );
+  const onDragEnd = (e: DragEndEvent) => {
+    const { active, over } = e;
+    if (!over || active.id === over.id) return;
+    setCells((cs) => {
+      const oldIndex = cs.findIndex((c) => c.id === active.id);
+      const newIndex = cs.findIndex((c) => c.id === over.id);
+      if (oldIndex < 0 || newIndex < 0) return cs;
+      return arrayMove(cs, oldIndex, newIndex);
+    });
   };
 
   /* ─── Cloud ops ─── */
@@ -180,6 +190,10 @@ const Notebook = () => {
         title, cells: cells as any, is_public: isPublic,
       }).eq("id", notebookId);
       if (error) { toast({ title: "保存失败", description: error.message, variant: "destructive" }); return; }
+      // snapshot version (best-effort, ignore failures)
+      await supabase.from("notebook_versions").insert({
+        notebook_id: notebookId, user_id: user.id, title, cells: cells as any,
+      });
       toast({ title: "已保存" });
       if (isPublic) awardBadge("notebook-published");
     } else {
@@ -188,6 +202,9 @@ const Notebook = () => {
       }).select().single();
       if (error) { toast({ title: "创建失败", description: error.message, variant: "destructive" }); return; }
       setNotebookId(data.id);
+      await supabase.from("notebook_versions").insert({
+        notebook_id: data.id, user_id: user.id, title, cells: cells as any,
+      });
       toast({ title: "已创建" });
       // First save + milestone badges
       awardBadge("first-notebook");
@@ -225,12 +242,42 @@ const Notebook = () => {
     cells.forEach((c) => {
       if (c.kind === "markdown") lines.push(c.text + "\n");
       else if (c.kind === "param") lines.push(`- **${c.name}** = ${c.value}  *(range ${c.min}–${c.max})*`);
-      else if (c.kind === "formula") lines.push(`$$${c.latex}$$\n\n→ \`${c.expression}\` = **${evalSafe(c.expression, p).toFixed(4)}**\n`);
+      else if (c.kind === "formula") {
+        const r = dagResults.get(c.id);
+        const v = typeof r?.value === "number" ? (r.value as number).toFixed(4) : String(r?.value ?? "");
+        lines.push(`$$${c.latex}$$\n\n→ \`${c.expression}\` = **${v}**\n`);
+      }
       else if (c.kind === "chart") lines.push(`*Chart:* \`${c.expression}\` over ${c.xVar} ∈ [${c.xMin}, ${c.xMax}]\n`);
+      else if (c.kind === "js") lines.push(`\`\`\`js\n// js cell — ${c.name}\n${c.body}\n\`\`\`\n`);
+      else if (c.kind === "table") lines.push(`*Table:* \`${c.body}\`\n`);
     });
     const blob = new Blob([lines.join("\n")], { type: "text/markdown" });
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob); a.download = `${title}.md`; a.click();
+  };
+  const exportNotebook = () => {
+    const json = exportIpynb(title, cells as any);
+    const blob = new Blob([json], { type: "application/json" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob); a.download = `${title}.ipynb`; a.click();
+  };
+
+  /* ─── Versions ─── */
+  const openVersions = async () => {
+    if (!notebookId || !user) { toast({ title: "保存后才有版本历史" }); return; }
+    const { data } = await supabase
+      .from("notebook_versions")
+      .select("id,title,cells,created_at")
+      .eq("notebook_id", notebookId)
+      .order("created_at", { ascending: false });
+    setVersions((data || []) as any);
+    setShowVersions(true);
+  };
+  const restoreVersion = (v: { title: string; cells: any }) => {
+    setTitle(v.title);
+    setCells(v.cells || []);
+    setShowVersions(false);
+    toast({ title: "已恢复到所选版本,记得 Save 以覆盖当前内容。" });
   };
 
   return (
@@ -283,8 +330,14 @@ const Notebook = () => {
             <button onClick={() => setShowList((s) => !s)} className="inline-flex items-center gap-1 px-3 py-1.5 border border-border/60 text-[10px] font-mono uppercase tracking-wider hover:border-gold/60 text-foreground">
               <FolderOpen className="w-3 h-3" /> Open
             </button>
+            <button onClick={openVersions} disabled={!notebookId} className="inline-flex items-center gap-1 px-3 py-1.5 border border-border/60 text-[10px] font-mono uppercase tracking-wider hover:border-gold/60 text-foreground disabled:opacity-40">
+              <History className="w-3 h-3" /> Versions
+            </button>
             <button onClick={exportMd} className="inline-flex items-center gap-1 px-3 py-1.5 border border-border/60 text-[10px] font-mono uppercase tracking-wider hover:border-gold/60 text-foreground">
               <Download className="w-3 h-3" /> .md
+            </button>
+            <button onClick={exportNotebook} className="inline-flex items-center gap-1 px-3 py-1.5 border border-border/60 text-[10px] font-mono uppercase tracking-wider hover:border-gold/60 text-foreground">
+              <Download className="w-3 h-3" /> .ipynb
             </button>
             <button
               onClick={() => setIsPublic((v) => !v)}
@@ -319,34 +372,54 @@ const Notebook = () => {
             </div>
           )}
 
+          {showVersions && (
+            <div className="mb-6 border border-border/60 bg-card/40 p-4">
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-[10px] font-mono uppercase tracking-wider text-gold">Version history (最近 20 个)</p>
+                <button onClick={() => setShowVersions(false)} className="text-[10px] font-mono text-muted-foreground hover:text-foreground">关闭</button>
+              </div>
+              {versions.length === 0 && <p className="text-xs text-muted-foreground">暂无历史版本</p>}
+              <ul className="divide-y divide-border/40">
+                {versions.map((v) => (
+                  <li key={v.id} className="flex items-center justify-between py-2 text-sm">
+                    <div className="flex flex-col">
+                      <span className="text-foreground">{v.title}</span>
+                      <span className="text-[10px] font-mono text-muted-foreground">
+                        {new Date(v.created_at).toLocaleString()} · {Array.isArray(v.cells) ? v.cells.length : 0} cells
+                      </span>
+                    </div>
+                    <button onClick={() => restoreVersion(v)} className="px-2 py-1 border border-gold/60 text-gold text-[10px] font-mono uppercase tracking-wider hover:bg-gold/10">
+                      恢复
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
           {/* Cells */}
-          <ol className="space-y-3">
-            {cells.map((c, idx) => (
-              <li key={c.id} className="group border border-border/60 bg-card/30 hover:border-gold/40 transition-colors">
-                <div className="flex items-center justify-between border-b border-accent/20 px-3 py-1.5 bg-background/60">
-                  <span className="inline-flex items-center gap-2 text-[9px] font-mono uppercase tracking-[0.2em] text-gold/80">
-                    {c.kind === "markdown" && <FileText className="w-3 h-3" />}
-                    {c.kind === "param"    && <SlidersHorizontal className="w-3 h-3" />}
-                    {c.kind === "formula"  && <Sigma className="w-3 h-3" />}
-                    {c.kind === "chart"    && <BarChart3 className="w-3 h-3" />}
-                    [{idx + 1}] {c.kind}
-                  </span>
-                  <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <IconBtn onClick={() => move(c.id, -1)} title="上移"><ArrowUp className="w-3 h-3" /></IconBtn>
-                    <IconBtn onClick={() => move(c.id, 1)}  title="下移"><ArrowDown className="w-3 h-3" /></IconBtn>
-                    <IconBtn onClick={() => remove(c.id)}   title="删除"><Trash2 className="w-3 h-3 text-rose-400" /></IconBtn>
-                  </div>
-                </div>
-                <div className="p-4">
-                  <CellBody cell={c} p={p} update={update} />
-                </div>
-              </li>
-            ))}
-          </ol>
+          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
+            <SortableContext items={cells.map((c) => c.id)} strategy={verticalListSortingStrategy}>
+              <ol className="space-y-3">
+                {cells.map((c, idx) => (
+                  <SortableCellRow
+                    key={c.id}
+                    cell={c}
+                    idx={idx}
+                    result={dagResults.get(c.id)}
+                    scope={dagScope}
+                    p={p}
+                    update={update}
+                    remove={remove}
+                  />
+                ))}
+              </ol>
+            </SortableContext>
+          </DndContext>
 
           {/* Add cell */}
           <div className="mt-4 flex flex-wrap gap-2 border-t border-accent/30 pt-4">
-            {(["markdown","param","formula","chart"] as const).map((k) => (
+            {(["markdown","param","formula","chart","js","table"] as const).map((k) => (
               <button
                 key={k}
                 onClick={() => addCell(k)}
@@ -368,8 +441,58 @@ const IconBtn = ({ children, ...rest }: React.ButtonHTMLAttributes<HTMLButtonEle
   <button {...rest} className="p-1 rounded hover:bg-accent/40 text-muted-foreground">{children}</button>
 );
 
+/* ─── Sortable wrapper ────────────────────────────────────── */
+const SortableCellRow = ({
+  cell, idx, result, scope, p, update, remove,
+}: {
+  cell: Cell; idx: number; result: CellResult | undefined;
+  scope: Record<string, unknown>; p: Record<string, number>;
+  update: (id: string, patch: Partial<Cell>) => void;
+  remove: (id: string) => void;
+}) => {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: cell.id });
+  const style: React.CSSProperties = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.6 : 1,
+  };
+  const Icon =
+    cell.kind === "markdown" ? FileText :
+    cell.kind === "param"    ? SlidersHorizontal :
+    cell.kind === "formula"  ? Sigma :
+    cell.kind === "chart"    ? BarChart3 :
+    cell.kind === "js"       ? Code2 :
+    TableIcon;
+  const cellName = (cell as any).name as string | undefined;
+  return (
+    <li ref={setNodeRef} style={style} className="group border border-border/60 bg-card/30 hover:border-gold/40 transition-colors">
+      <div className="flex items-center justify-between border-b border-accent/20 px-3 py-1.5 bg-background/60">
+        <span className="inline-flex items-center gap-2 text-[9px] font-mono uppercase tracking-[0.2em] text-gold/80">
+          <button {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing p-0.5 hover:text-gold" aria-label="drag">
+            <GripVertical className="w-3 h-3" />
+          </button>
+          <Icon className="w-3 h-3" />
+          [{idx + 1}] {cell.kind}
+          {cellName ? <span className="text-gold/60">· {cellName}</span> : null}
+          {result?.error && (
+            <span className="inline-flex items-center gap-1 text-rose-400 normal-case tracking-normal">
+              <AlertTriangle className="w-3 h-3" /> {result.error}
+            </span>
+          )}
+        </span>
+        <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+          <IconBtn onClick={() => remove(cell.id)} title="删除"><Trash2 className="w-3 h-3 text-rose-400" /></IconBtn>
+        </div>
+      </div>
+      <div className="p-4">
+        <CellBody cell={cell} result={result} scope={scope} p={p} update={update} />
+      </div>
+    </li>
+  );
+};
+
 /* ─── AI Explain (Lovable AI Gateway) ─────────────────────── */
-const AiExplain = ({ latex, expression, params }: { latex: string; expression: string; params: Record<string, number> }) => {
+const AiExplain = ({ latex, expression, params, context }: { latex?: string; expression?: string; params: Record<string, number>; context?: string }) => {
   const [loading, setLoading] = useState(false);
   const [text, setText] = useState<string>("");
   const [open, setOpen] = useState(false);
@@ -379,7 +502,7 @@ const AiExplain = ({ latex, expression, params }: { latex: string; expression: s
     setOpen(true);
     try {
       const { data, error } = await supabase.functions.invoke("ai-explain", {
-        body: { latex, expression, params },
+        body: { latex, expression, params, context },
       });
       if (error) throw error;
       if ((data as any)?.error) throw new Error((data as any).error);
@@ -413,7 +536,13 @@ const AiExplain = ({ latex, expression, params }: { latex: string; expression: s
 };
 
 /* ─── Cell body renderers ─────────────────────────────────── */
-const CellBody = ({ cell, p, update }: { cell: Cell; p: Record<string,number>; update: (id: string, patch: Partial<Cell>) => void }) => {
+const CellBody = ({ cell, result, scope, p, update }: {
+  cell: Cell;
+  result: CellResult | undefined;
+  scope: Record<string, unknown>;
+  p: Record<string,number>;
+  update: (id: string, patch: Partial<Cell>) => void;
+}) => {
   if (cell.kind === "markdown") {
     return (
       <textarea
@@ -448,9 +577,21 @@ const CellBody = ({ cell, p, update }: { cell: Cell; p: Record<string,number>; u
     );
   }
   if (cell.kind === "formula") {
-    const value = evalSafe(cell.expression, p);
+    const value = typeof result?.value === "number" ? (result!.value as number) : NaN;
     return (
       <div className="space-y-2">
+        <div className="flex items-center gap-2">
+          <span className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">name</span>
+          <input
+            value={cell.name || ""}
+            onChange={(e) => update(cell.id, { name: e.target.value.replace(/[^a-zA-Z0-9_]/g, "") })}
+            placeholder="(optional)"
+            className="w-28 bg-background border border-border/60 px-2 py-1 text-xs font-mono text-gold focus:outline-none focus:border-gold"
+          />
+          {result?.deps && result.deps.length > 0 && (
+            <span className="text-[10px] font-mono text-muted-foreground">deps: {result.deps.join(", ")}</span>
+          )}
+        </div>
         <input
           value={cell.latex}
           onChange={(e) => update(cell.id, { latex: e.target.value })}
@@ -469,18 +610,104 @@ const CellBody = ({ cell, p, update }: { cell: Cell; p: Record<string,number>; u
         <div className="flex items-center justify-between gap-2">
           <AiExplain latex={cell.latex} expression={cell.expression} params={p} />
           <div className="text-right text-sm font-mono text-gold tabular-nums">
-            = {isFinite(value) ? value.toFixed(6) : "NaN"}
+            = {isFinite(value) ? value.toFixed(6) : (result?.error ? "—" : String(result?.value ?? "NaN"))}
           </div>
         </div>
       </div>
     );
   }
-  // chart
+  if (cell.kind === "js") {
+    const value = result?.value;
+    const display = result?.error
+      ? null
+      : (() => {
+          try { return JSON.stringify(value, null, 2); } catch { return String(value); }
+        })();
+    return (
+      <div className="space-y-2">
+        <div className="flex items-center gap-2">
+          <span className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">name</span>
+          <input
+            value={cell.name}
+            onChange={(e) => update(cell.id, { name: e.target.value.replace(/[^a-zA-Z0-9_]/g, "") })}
+            className="w-28 bg-background border border-border/60 px-2 py-1 text-xs font-mono text-gold focus:outline-none focus:border-gold"
+          />
+          {result?.deps && result.deps.length > 0 && (
+            <span className="text-[10px] font-mono text-muted-foreground">deps: {result.deps.join(", ")}</span>
+          )}
+        </div>
+        <textarea
+          value={cell.body}
+          onChange={(e) => update(cell.id, { body: e.target.value })}
+          spellCheck={false}
+          className="w-full bg-background border border-border/60 px-2 py-1 text-xs font-mono min-h-[120px] resize-y focus:outline-none focus:border-gold"
+        />
+        {display !== null && (
+          <pre className="bg-background/60 border border-border/40 px-3 py-2 text-[11px] font-mono text-foreground/85 overflow-auto max-h-48">
+{display}
+          </pre>
+        )}
+        <AiExplain expression={cell.body} params={p} context={`JS cell named "${cell.name}"`} />
+      </div>
+    );
+  }
+  if (cell.kind === "table") {
+    const value = result?.value;
+    const rows: Record<string, unknown>[] = Array.isArray(value)
+      ? (value as any[]).map((v) => (typeof v === "object" && v !== null ? v : { value: v }))
+      : [];
+    const cols = rows.length ? Object.keys(rows[0]) : [];
+    return (
+      <div className="space-y-2">
+        <input
+          value={cell.body}
+          onChange={(e) => update(cell.id, { body: e.target.value })}
+          placeholder="JS expression returning an array of objects"
+          className="w-full bg-background border border-border/60 px-2 py-1 text-xs font-mono focus:outline-none focus:border-gold"
+        />
+        {rows.length === 0 ? (
+          <p className="text-[11px] font-mono text-muted-foreground">{result?.error || "返回非数组,无法渲染表格"}</p>
+        ) : (
+          <div className="overflow-auto max-h-72 border border-border/40">
+            <table className="w-full text-[11px] font-mono">
+              <thead className="bg-background/60 text-gold/80">
+                <tr>{cols.map((c) => <th key={c} className="text-left px-2 py-1 border-b border-border/40">{c}</th>)}</tr>
+              </thead>
+              <tbody>
+                {rows.slice(0, 200).map((r, i) => (
+                  <tr key={i} className="odd:bg-background/30">
+                    {cols.map((c) => (
+                      <td key={c} className="px-2 py-1 tabular-nums text-foreground/85 border-b border-border/20">
+                        {typeof r[c] === "number" ? (r[c] as number).toFixed(4) : String(r[c])}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            {rows.length > 200 && <p className="text-[10px] font-mono text-muted-foreground px-2 py-1">… 仅显示前 200 行 (共 {rows.length})</p>}
+          </div>
+        )}
+      </div>
+    );
+  }
+  // chart — use compiled expression with scope (named cells available)
   const data: { x: number; y: number }[] = [];
-  const step = (cell.xMax - cell.xMin) / Math.max(cell.n - 1, 1);
-  for (let i = 0; i < cell.n; i++) {
-    const x = cell.xMin + i * step;
-    data.push({ x, y: evalSafe(cell.expression, p, x) });
+  let chartFn: ((s: Record<string, unknown>, x?: number) => unknown) | null = null;
+  let chartErr = "";
+  try { chartFn = compileExpr(cell.expression || "0"); }
+  catch (e) { chartErr = String((e as Error)?.message ?? e); }
+  if (chartFn) {
+    const step = (cell.xMax - cell.xMin) / Math.max(cell.n - 1, 1);
+    for (let i = 0; i < cell.n; i++) {
+      const x = cell.xMin + i * step;
+      let y: number = NaN;
+      try {
+        const v = chartFn({ ...scope, [cell.xVar || "x"]: x }, x);
+        y = typeof v === "number" && isFinite(v) ? v : NaN;
+      } catch { /* per-point error: leave NaN */ }
+      data.push({ x, y });
+    }
   }
   return (
     <div className="space-y-2">
@@ -496,6 +723,7 @@ const CellBody = ({ cell, p, update }: { cell: Cell; p: Record<string,number>; u
         placeholder="JS expression of x and p — e.g. bsCall(x,p.K,p.T,p.r,p.sigma)"
         className="w-full bg-background border border-border/60 px-2 py-1 text-xs font-mono focus:outline-none focus:border-gold"
       />
+      {chartErr && <p className="text-[11px] font-mono text-rose-400">{chartErr}</p>}
       <div className="h-64 -mx-2">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={data} margin={{ top: 8, right: 20, left: 0, bottom: 8 }}>
@@ -510,6 +738,7 @@ const CellBody = ({ cell, p, update }: { cell: Cell; p: Record<string,number>; u
           </LineChart>
         </ResponsiveContainer>
       </div>
+      <AiExplain expression={cell.expression} params={p} context={`chart over ${cell.xVar} ∈ [${cell.xMin}, ${cell.xMax}]`} />
     </div>
   );
 };
