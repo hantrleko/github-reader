@@ -42,11 +42,11 @@
   },
   "hero": {
     "tagline": "Economics & Finance Lab",
-    "title1": "Master Economics & Finance",
-    "title2": "Empirical Methods & Models",
-    "subtitle": "From classical asset pricing to modern econometrics — learn the core models, methodology and data analysis techniques of empirical finance research.",
-    "cta1": "Explore Interactive Tools",
-    "cta2": "Browse Topics",
+    "title1": "Turn Economic Theory",
+    "title2": "Into Testable Experiments",
+    "subtitle": "An interactive laboratory for empirical research, quantitative modeling and teaching: connect asset pricing, derivatives, fixed income and econometrics through real data, derivations and adjustable model parameters.",
+    "cta1": "Open the Lab Tools",
+    "cta2": "View Knowledge Map",
     "stats": { "topics": "Topics", "formulas": "Formulas", "knowledge": "Concepts" }
   },
   "realData": {
@@ -65,7 +65,7 @@
     "applyToParams": "Applied to params below"
   },
   "sections": {
-    "topics": { "tag": "Core Disciplines", "title": "Disciplines" },
+    "topics": { "tag": "Core Disciplines", "title": "From Theory to Empirical Tools" },
     "learning": { "tag": "Learning Roadmap", "title": "Learning Path", "current": "Current stage", "progress": "Completed {{done}} / {{total}}", "reset": "Reset progress", "allDone": "All done — review", "start": "Start learning", "continue": "Continue: {{title}}" },
     "bond": { "tag": "Fixed Income Tools", "title": "Bond Calculator" },
     "frontier": { "tag": "Portfolio Optimization", "title": "Efficient Frontier" },

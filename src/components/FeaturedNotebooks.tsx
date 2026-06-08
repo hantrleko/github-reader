@@ -76,7 +76,7 @@ const FeaturedNotebooks = () => {
           chapter="Community"
           kicker="Featured Notebooks"
           title="社区精选 · 公开 Notebook"
-          subtitle="探索其他研究者公开发布的可复现实验,一键 Fork 到自己的工作区。"
+          subtitle="从公开研究笔记中复用建模思路、参数设定与图表结构，把优秀案例 Fork 到自己的工作区继续迭代。"
         />
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-8">
           {loading
@@ -138,7 +138,7 @@ const FeaturedNotebooks = () => {
             to="/notebook/templates"
             className="text-xs font-mono uppercase tracking-[0.18em] text-gold hover:underline"
           >
-            浏览模板市场 →
+            浏览 Notebook 模板与研究脚手架 →
           </Link>
         </div>
       </div>

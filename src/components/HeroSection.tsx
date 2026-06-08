@@ -73,14 +73,14 @@ const HeroSection = () => {
           {/* Right — Terminal sidebar */}
           <aside className="col-span-12 lg:col-span-4 lg:border-l lg:border-accent/40 lg:pl-8 animate-fade-in-up animate-delay-200">
             <h3 className="text-[10px] uppercase text-gold font-mono font-bold tracking-[0.2em] mb-4 border-b border-accent/40 pb-2">
-              Lab Performance Metrics
+              Research Coverage Metrics
             </h3>
             <div className="space-y-4 mb-8">
               <button
                 onClick={() => scrollTo("topics")}
                 className="w-full flex justify-between items-end group"
               >
-                <span className="text-[11px] text-foreground/60 uppercase tracking-wider">Topics Covered</span>
+                <span className="text-[11px] text-foreground/60 uppercase tracking-wider">Research Domains</span>
                 <span className="text-2xl font-mono font-light leading-none tracking-tighter text-foreground group-hover:text-gold transition-colors">
                   {String(topicCount).padStart(2, "0")}
                   <span className="text-[10px] opacity-50 ml-1">SEC</span>
@@ -90,7 +90,7 @@ const HeroSection = () => {
                 onClick={() => scrollTo("models")}
                 className="w-full flex justify-between items-end group"
               >
-                <span className="text-[11px] text-foreground/60 uppercase tracking-wider">Formulas Validated</span>
+                <span className="text-[11px] text-foreground/60 uppercase tracking-wider">Formula References</span>
                 <span className="text-2xl font-mono font-light leading-none tracking-tighter text-foreground group-hover:text-gold transition-colors">
                   {formulaCount}
                   <span className="text-[10px] text-gold ml-1">▲</span>
@@ -116,7 +116,7 @@ const HeroSection = () => {
                 Latest Update · V2.9
               </h4>
               <p className="text-xs leading-relaxed text-foreground/75 mb-3">
-                Verified math library & benchmark drawer — closed-form references for Black-Scholes, Bond pricing & OLS.
+                A tighter research workflow with verified formulas, benchmark comparisons and reusable notebooks for classroom and strategy prototyping.
               </p>
               <span className="text-[10px] text-gold uppercase font-mono font-bold inline-flex items-center gap-1">
                 View Changelog <ArrowRight className="w-3 h-3" />

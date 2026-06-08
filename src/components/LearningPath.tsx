@@ -4,12 +4,12 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 const STEPS = [
-  { id: "prob", title: "概率论与数理统计基础", desc: "随机变量、分布、假设检验、大数定律与中心极限定理", target: "topics" },
-  { id: "micro", title: "微观经济学与博弈论", desc: "消费者理论、厂商理论、一般均衡、纳什均衡", target: "topics" },
-  { id: "fin", title: "金融经济学基础", desc: "无套利原理、风险中性定价、随机折现因子", target: "models" },
-  { id: "econ", title: "计量经济学方法", desc: "OLS、MLE、IV、面板数据、因果推断", target: "topics" },
-  { id: "ap", title: "实证资产定价", desc: "因子模型构建、Fama-MacBeth 回归、异象研究", target: "calculator" },
-  { id: "adv", title: "高级专题", desc: "机器学习在金融中的应用、高频数据分析、文本分析", target: "mc-pricer" },
+  { id: "prob", title: "概率论与数理统计基础", desc: "掌握随机变量、分布、假设检验、LLN 与 CLT，为估计一致性和推断有效性打底", target: "topics" },
+  { id: "micro", title: "微观经济学与博弈论", desc: "理解偏好、约束、均衡与策略互动，为资产需求和市场机制建立微观基础", target: "topics" },
+  { id: "fin", title: "金融经济学基础", desc: "串联无套利、风险中性定价、SDF 与均值-方差框架，形成金融模型的共同语言", target: "models" },
+  { id: "econ", title: "计量经济学方法", desc: "从 OLS、MLE、IV、GMM 到面板与因果推断，学会识别假设、估计参数和验证结论", target: "topics" },
+  { id: "ap", title: "实证资产定价", desc: "构建因子、执行 Fama-MacBeth 回归、检验异象，并将理论溢价转化为可复现实证流程", target: "calculator" },
+  { id: "adv", title: "高级专题与研究产出", desc: "探索机器学习、高频数据、文本分析与 Notebook 复现，把工具链沉淀为课程项目或研究原型", target: "mc-pricer" },
 ];
 
 const STORAGE_KEY = "learning-progress-v1";
@@ -26,14 +26,18 @@ const LearningPath = () => {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
       if (raw) setDone(JSON.parse(raw));
-    } catch {}
+    } catch {
+      // Ignore malformed local progress and start fresh.
+    }
   }, []);
 
   const persist = (next: Record<string, boolean>) => {
     setDone(next);
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
-    } catch {}
+    } catch {
+      // Local storage can be unavailable in private or restricted contexts.
+    }
   };
 
   const toggle = (id: string) => persist({ ...done, [id]: !done[id] });
@@ -59,6 +63,9 @@ const LearningPath = () => {
           <h2 className="text-3xl md:text-5xl font-display font-bold text-foreground">
             {t("sections.learning.title")}
           </h2>
+          <p className="mt-4 max-w-2xl mx-auto text-sm md:text-base text-foreground/65 leading-relaxed">
+            这条路线把数学基础、经济直觉、金融定价和实证研究串成连续阶梯，适合按阶段打卡，也适合快速定位当前薄弱环节。
+          </p>
         </motion.div>
 
         {/* Progress bar */}

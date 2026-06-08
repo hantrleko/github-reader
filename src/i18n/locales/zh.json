@@ -42,11 +42,11 @@
   },
   "hero": {
     "tagline": "Economics & Finance Lab",
-    "title1": "掌握经济金融",
-    "title2": "实证方法与模型",
-    "subtitle": "从经典资产定价到现代计量经济学,系统学习金融实证研究的核心模型、方法论与数据分析技术",
-    "cta1": "探索交互工具",
-    "cta2": "浏览学科",
+    "title1": "把经济金融理论",
+    "title2": "转化为可验证实验",
+    "subtitle": "面向实证研究、量化建模与课堂教学的交互式实验室：从资产定价、衍生品、固定收益到计量经济学，用真实数据、公式推导和可调参数打通从概念到研究结论的完整路径。",
+    "cta1": "进入实验工具",
+    "cta2": "查看知识地图",
     "stats": { "topics": "学科领域", "formulas": "核心公式", "knowledge": "知识点" }
   },
   "realData": {
@@ -65,7 +65,7 @@
     "applyToParams": "已应用到下方参数"
   },
   "sections": {
-    "topics": { "tag": "Core Disciplines", "title": "学科领域" },
+    "topics": { "tag": "Core Disciplines", "title": "从理论框架到实证工具" },
     "learning": { "tag": "Learning Roadmap", "title": "学习路径", "current": "当前阶段", "progress": "已完成 {{done}} / {{total}}", "reset": "重置进度", "allDone": "全部完成 — 复习一下", "start": "开始学习", "continue": "继续:{{title}}" },
     "bond": { "tag": "Fixed Income Tools", "title": "债券计算器" },
     "frontier": { "tag": "Portfolio Optimization", "title": "有效前沿可视化" },
