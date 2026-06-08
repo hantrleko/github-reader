@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Sparkles, Wrench, BookOpen, Zap, Layout, GraduationCap, Target, ClipboardCheck, FileStack } from "lucide-react";
+import { Sparkles, Wrench, BookOpen, Zap, Layout, GraduationCap, Target, ClipboardCheck, FileStack, Gauge, FileText } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 const RELEASES = [
@@ -36,10 +36,28 @@ const RELEASES = [
         ],
       },
       {
+        icon: Gauge,
+        title: "Research Ops Board — 研究交付运营看板",
+        items: [
+          "新增 Readiness / Evidence / Handoff 三项动态评分,随步骤勾选、质量门槛和冲刺周期实时更新",
+          "Current Stage 自动识别 Scoping / Evidence building / Ready for handoff,帮助判断项目所处交付阶段",
+          "Next Best Actions 自动生成下一步行动队列,把研究项目管理从静态清单升级为运营面板",
+        ],
+      },
+      {
+        icon: FileText,
+        title: "Decision Memo Studio — 决策备忘录工作室",
+        items: [
+          "新增面向导师、课堂负责人或风险委员会的 Memo Brief,自动汇总受众、立场、阶段与摘要",
+          "将运营看板、证据包与冲刺设定转译为 Decision / Evidence / Action 三段式汇报结构",
+          "支持一键复制决策备忘录,把研究工作流从执行清单推进到可沟通、可评审、可交付的管理文档",
+        ],
+      },
+      {
         icon: Layout,
         title: "工具目录 V3.0 — 平台能力进入场景化组织",
         items: [
-          "TOOLS_CATALOG 新增 Research Playbooks、Sprint Composer 与 Evidence Pack 三个 V3.0 平台条目,进入 /tools、Today's Pick 与交叉导航体系",
+          "TOOLS_CATALOG 新增 Research Playbooks、Sprint Composer、Evidence Pack、Research Ops Board 与 Decision Memo Studio 五个 V3.0 平台条目,进入 /tools、Today's Pick 与交叉导航体系",
           "工具目录标题同步升级为 Catalog · V3.0,描述扩展至金融、计量与研究工作流工具",
           "Hero 最新更新、Navbar 版本徽章、首页 Footer 与更新日志统一同步至 V3.0",
         ],
@@ -49,7 +67,7 @@ const RELEASES = [
         title: "版本 V3.0 — 研究工作流正式发布版",
         items: [
           "V3.0 将 EF Lab 从交互式计算器集合推进为『场景驱动的研究操作系统』",
-          "内容层强化研究复现、教学设计与决策简报三条主线,功能层加入剧本选择、清单评分、可复制冲刺计划与证据包审计",
+          "内容层强化研究复现、教学设计与决策简报三条主线,功能层加入剧本选择、清单评分、可复制冲刺计划、证据包审计、运营看板与决策备忘录",
           "下一阶段路线图:连接 Notebook 模板、论文索引与真实数据基准,形成从剧本 → 实验 → 报告的自动化链路",
         ],
       },
