@@ -27,7 +27,7 @@ const ChangelogPage = () => (
           Economics &amp; Finance Lab
         </p>
         <p className="text-[10px] font-mono text-gold/70 tracking-[0.2em] uppercase pt-2">
-          Version 2.0 · © 2026
+          Version 3.0 · © 2026
         </p>
       </div>
     </footer>

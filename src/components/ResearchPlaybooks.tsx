@@ -1,6 +1,15 @@
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowRight, CheckCircle2, Circle, ClipboardCheck, FlaskConical } from "lucide-react";
+import {
+  ArrowRight,
+  CalendarDays,
+  CheckCircle2,
+  Circle,
+  ClipboardCheck,
+  Copy,
+  FlaskConical,
+  Target,
+} from "lucide-react";
 
 interface Playbook {
   id: string;
@@ -12,6 +21,9 @@ interface Playbook {
   anchors: Array<{ label: string; href: string }>;
   deliverables: string[];
 }
+
+const PERSONAS = ["研究者", "授课教师", "量化分析师"];
+const SPRINT_LENGTHS = [3, 5, 10];
 
 const PLAYBOOKS: Playbook[] = [
   {
@@ -95,6 +107,9 @@ const PLAYBOOKS: Playbook[] = [
 const ResearchPlaybooks = () => {
   const [activeId, setActiveId] = useState(PLAYBOOKS[0].id);
   const [completed, setCompleted] = useState<Record<string, boolean>>({});
+  const [persona, setPersona] = useState(PERSONAS[0]);
+  const [sprintLength, setSprintLength] = useState(5);
+  const [copied, setCopied] = useState(false);
 
   const active = useMemo(
     () => PLAYBOOKS.find((item) => item.id === activeId) ?? PLAYBOOKS[0],
@@ -104,6 +119,30 @@ const ResearchPlaybooks = () => {
   const activeCompleted = active.workflow.filter((_, index) => completed[`${active.id}-${index}`]).length;
   const score = Math.round((activeCompleted / active.workflow.length) * 100);
 
+  const sprintPlan = useMemo(() => {
+    const days = Array.from({ length: sprintLength }, (_, index) => {
+      const workflow = active.workflow[index % active.workflow.length];
+      const deliverable = active.deliverables[index % active.deliverables.length];
+      return {
+        day: index + 1,
+        focus: workflow,
+        output: deliverable,
+      };
+    });
+
+    return {
+      thesis: `${persona} · ${sprintLength} 日研究冲刺：围绕「${active.title}」完成从入口选择、模型实验到交付物封装的闭环。`,
+      days,
+      brief: [
+        `目标：${active.title}`,
+        `角色：${persona}`,
+        `周期：${sprintLength} 日`,
+        `核心承诺：${active.promise}`,
+        `交付物：${active.deliverables.join(" / ")}`,
+      ].join("\n"),
+    };
+  }, [active, persona, sprintLength]);
+
   const selectPlaybook = (id: string) => {
     setActiveId(id);
   };
@@ -111,6 +150,20 @@ const ResearchPlaybooks = () => {
   const toggleStep = (index: number) => {
     const key = `${active.id}-${index}`;
     setCompleted((current) => ({ ...current, [key]: !current[key] }));
+  };
+
+  const copySprintBrief = async () => {
+    const text = `${sprintPlan.brief}\n\n${sprintPlan.days
+      .map((day) => `Day ${day.day}: ${day.focus} → ${day.output}`)
+      .join("\n")}`;
+
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 1600);
+    } catch {
+      setCopied(false);
+    }
   };
 
   return (
@@ -237,6 +290,96 @@ const ResearchPlaybooks = () => {
                   </div>
                 </div>
               </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-5 rounded-2xl border border-gold/20 bg-gradient-to-br from-gold/[0.06] via-card/45 to-card/25 p-5 md:p-6">
+          <div className="flex items-start justify-between gap-4 flex-wrap mb-5">
+            <div className="max-w-2xl">
+              <div className="flex items-center gap-2 mb-2">
+                <Target className="w-4 h-4 text-gold" />
+                <p className="text-[10px] font-mono uppercase tracking-[0.25em] text-gold">
+                  Sprint Composer
+                </p>
+              </div>
+              <h3 className="font-display text-2xl text-foreground">把剧本压缩成可执行研究冲刺</h3>
+              <p className="mt-2 text-sm text-foreground/68 leading-relaxed">
+                选择角色与周期，自动生成一份可复制的行动简报，用于课堂任务、团队分工或个人研究计划。
+              </p>
+            </div>
+            <button
+              onClick={copySprintBrief}
+              className="inline-flex items-center gap-2 rounded-lg border border-gold/35 bg-background/35 px-3 py-2 text-[11px] font-mono uppercase tracking-[0.16em] text-gold hover:bg-gold/10 transition-colors"
+            >
+              <Copy className="w-3.5 h-3.5" />
+              {copied ? "Copied" : "Copy brief"}
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-[0.8fr_1.4fr] gap-5">
+            <div className="space-y-4">
+              <div>
+                <p className="text-[10px] font-mono uppercase tracking-[0.2em] text-muted-foreground mb-2">
+                  Research Role
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {PERSONAS.map((item) => (
+                    <button
+                      key={item}
+                      onClick={() => setPersona(item)}
+                      className={`rounded-full border px-3 py-1.5 text-xs transition-colors ${
+                        persona === item
+                          ? "border-gold/50 bg-gold/10 text-gold"
+                          : "border-border/60 text-foreground/65 hover:border-gold/30"
+                      }`}
+                    >
+                      {item}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <p className="text-[10px] font-mono uppercase tracking-[0.2em] text-muted-foreground mb-2">
+                  Sprint Window
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {SPRINT_LENGTHS.map((days) => (
+                    <button
+                      key={days}
+                      onClick={() => setSprintLength(days)}
+                      className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs transition-colors ${
+                        sprintLength === days
+                          ? "border-gold/50 bg-gold/10 text-gold"
+                          : "border-border/60 text-foreground/65 hover:border-gold/30"
+                      }`}
+                    >
+                      <CalendarDays className="w-3 h-3" />
+                      {days} days
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div className="rounded-xl border border-border/50 bg-background/30 p-4">
+                <p className="text-[10px] font-mono uppercase tracking-[0.2em] text-gold/80 mb-2">
+                  Generated Thesis
+                </p>
+                <p className="text-sm text-foreground/75 leading-relaxed">{sprintPlan.thesis}</p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {sprintPlan.days.map((day) => (
+                <div key={day.day} className="rounded-xl border border-border/50 bg-background/30 p-4">
+                  <span className="text-[10px] font-mono uppercase tracking-[0.2em] text-gold">
+                    Day {day.day}
+                  </span>
+                  <p className="mt-2 text-sm text-foreground/75 leading-relaxed">{day.focus}</p>
+                  <p className="mt-3 text-[11px] text-muted-foreground">
+                    Output: <span className="text-foreground/75">{day.output}</span>
+                  </p>
+                </div>
+              ))}
             </div>
           </div>
         </div>
