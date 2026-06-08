@@ -113,10 +113,10 @@ const HeroSection = () => {
               className="block bg-accent/20 hover:bg-accent/30 transition-colors p-5 border-l-2 border-gold"
             >
               <h4 className="text-[10px] font-mono font-bold uppercase tracking-[0.2em] mb-2 text-foreground">
-                Latest Update · V2.9
+                Latest Update · V3.0
               </h4>
               <p className="text-xs leading-relaxed text-foreground/75 mb-3">
-                A tighter research workflow with verified formulas, benchmark comparisons and reusable notebooks for classroom and strategy prototyping.
+                Research Playbooks and Sprint Composer turn the lab into a scenario-driven workflow system for research replication, teaching and decision briefs.
               </p>
               <span className="text-[10px] text-gold uppercase font-mono font-bold inline-flex items-center gap-1">
                 View Changelog <ArrowRight className="w-3 h-3" />

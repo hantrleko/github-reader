@@ -35,7 +35,7 @@ export interface ToolEntry {
   related?: string[];
   /** true once unit tests vs a closed-form benchmark exist in src/lib/quant */
   verified?: boolean;
-  version: "V1.0" | "V2.0" | "V2.1" | "V2.2" | "V2.3" | "V2.4" | "V2.5" | "V2.6" | "V2.7" | "V2.8";
+  version: "V1.0" | "V2.0" | "V2.1" | "V2.2" | "V2.3" | "V2.4" | "V2.5" | "V2.6" | "V2.7" | "V2.8" | "V3.0";
 }
 
 export const CATEGORY_LABEL: Record<ToolCategory, { zh: string; en: string }> = {
@@ -58,6 +58,33 @@ export const DIFFICULTY_LABEL: Record<Difficulty, { zh: string; en: string; tone
 };
 
 export const TOOLS_CATALOG: ToolEntry[] = [
+  // ── V3.0: Scenario-driven research workflows ──
+  {
+    id: "research-playbooks",
+    name: "研究剧本工作台",
+    nameEn: "Research Playbooks",
+    category: "platform",
+    difficulty: "research",
+    anchor: "/#research-playbooks",
+    tags: ["研究工作流", "论文复现", "教学设计", "风险简报"],
+    refs: ["Cochrane (2005)", "Fama & MacBeth (1973)", "Hull (2018)"],
+    blurb: "按真实研究场景组织工具链、执行步骤、入口链接与交付物，支持从目标反推实验路径。",
+    related: ["notebook", "templates", "compare"],
+    version: "V3.0",
+  },
+  {
+    id: "sprint-composer",
+    name: "研究冲刺生成器",
+    nameEn: "Sprint Composer",
+    category: "platform",
+    difficulty: "advanced",
+    anchor: "/#research-playbooks",
+    tags: ["研究计划", "Readiness Score", "Checklist", "复制简报"],
+    refs: ["Reproducible Research", "Teaching Sprint", "Model Risk Governance"],
+    blurb: "根据角色、周期与当前剧本自动生成 3/5/10 日行动计划，并可复制为团队任务简报。",
+    related: ["research-playbooks", "notebook"],
+    version: "V3.0",
+  },
   // ── Chapter 1: Pricing ──
   {
     id: "bs",

@@ -67,7 +67,7 @@ const ToolsCatalog = () => {
           </Link>
           <div className="flex items-center gap-2 mb-3">
             <span className="text-[10px] font-mono text-gold tracking-[0.3em] uppercase">
-              Catalog · V2.9
+              Catalog · V3.0
             </span>
             <div className="flex-1 h-px bg-gradient-to-r from-gold/40 to-transparent" />
           </div>
@@ -75,7 +75,7 @@ const ToolsCatalog = () => {
             全部工具索引
           </h1>
           <p className="text-sm text-muted-foreground max-w-2xl">
-            {TOOLS_CATALOG.length} 个交互式金融与计量工具，按章节 / 难度 / 引用文献组织。
+            {TOOLS_CATALOG.length} 个交互式金融、计量与研究工作流工具，按章节 / 难度 / 引用文献组织。
             {" "}
             <span className="text-foreground/80">
               <BadgeCheck className="inline w-3.5 h-3.5 text-emerald-500 mb-0.5" />{" "}

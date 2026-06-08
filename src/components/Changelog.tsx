@@ -1,12 +1,55 @@
 import { motion } from "framer-motion";
-import { Sparkles, Wrench, BookOpen, Zap, Layout, GraduationCap } from "lucide-react";
+import { Sparkles, Wrench, BookOpen, Zap, Layout, GraduationCap, Target, ClipboardCheck } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 const RELEASES = [
   {
+    version: "V3.0",
+    date: "2026-06",
+    tag: "Current",
+    highlights: [
+      {
+        icon: Target,
+        title: "Research Playbooks — 从工具清单升级为研究剧本",
+        items: [
+          "新增论文复现、期权校准、风险委员会简报与互动课程四类真实场景,每个剧本自动组织推荐入口、执行步骤与交付物",
+          "Readiness Score 根据已完成步骤即时计算准备度,把抽象学习目标转化为可追踪的研究任务闭环",
+          "首页新增 Research Ops 快速入口,支持用户从研究目标而不是工具名称开始探索平台",
+        ],
+      },
+      {
+        icon: ClipboardCheck,
+        title: "Sprint Composer — 3/5/10 日行动简报生成器",
+        items: [
+          "支持研究者、授课教师、量化分析师三类角色与 3/5/10 日周期选择,自动生成日程化研究冲刺计划",
+          "根据当前剧本动态拼接目标、角色、周期、核心承诺和交付物,一键复制为团队任务 brief",
+          "新增 Day-by-day 输出卡片,把入口选择、模型实验、诊断检查和报告封装压缩为可执行节奏",
+        ],
+      },
+      {
+        icon: Layout,
+        title: "工具目录 V3.0 — 平台能力进入场景化组织",
+        items: [
+          "TOOLS_CATALOG 新增 Research Playbooks 与 Sprint Composer 两个 V3.0 平台条目,进入 /tools、Today's Pick 与交叉导航体系",
+          "工具目录标题同步升级为 Catalog · V3.0,描述扩展至金融、计量与研究工作流工具",
+          "Hero 最新更新、Navbar 版本徽章、首页 Footer 与更新日志统一同步至 V3.0",
+        ],
+      },
+      {
+        icon: GraduationCap,
+        title: "版本 V3.0 — 研究工作流正式发布版",
+        items: [
+          "V3.0 将 EF Lab 从交互式计算器集合推进为『场景驱动的研究操作系统』",
+          "内容层强化研究复现、教学设计与决策简报三条主线,功能层加入剧本选择、清单评分与可复制冲刺计划",
+          "下一阶段路线图:连接 Notebook 模板、论文索引与真实数据基准,形成从剧本 → 实验 → 报告的自动化链路",
+        ],
+      },
+    ],
+  },
+  {
     version: "V2.8",
     date: "2026-05",
-    tag: "Latest",
+    tag: "Stable",
     highlights: [
       {
         icon: Layout,
@@ -864,7 +907,7 @@ const Changelog = () => {
             {t("changelog.title")}
           </h2>
           <p className="text-sm text-muted-foreground font-mono">
-            {t("changelog.subtitle")} — V1.0 → V2.0
+            {t("changelog.subtitle")} — V1.0 → V3.0
           </p>
         </motion.div>
 
