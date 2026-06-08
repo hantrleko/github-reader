@@ -125,6 +125,64 @@ const SectionDivider = ({
   );
 };
 
+const editorialPillars = [
+  {
+    label: "01 / Concept",
+    title: "先建立理论语言",
+    text: "用统一的符号、假设和推导把 CAPM、SDF、Black-Scholes、OLS 等核心模型串联起来，避免只会套公式。",
+  },
+  {
+    label: "02 / Experiment",
+    title: "再进入交互实验",
+    text: "把参数、数据和情景压力测试放到同一个界面里，观察模型输出如何随假设变化，并快速识别敏感变量。",
+  },
+  {
+    label: "03 / Research",
+    title: "最后沉淀研究资产",
+    text: "通过 Notebook、模板、论文索引和可复用图表，把课堂演示、策略原型和实证作业转化为可复现工作流。",
+  },
+];
+
+const EditorialBriefing = () => (
+  <section className="px-6 py-10">
+    <div className="container max-w-6xl">
+      <div className="rounded-2xl border border-border/60 bg-card/35 p-6 md:p-8">
+        <div className="grid grid-cols-1 lg:grid-cols-[0.9fr_1.6fr] gap-8 items-start">
+          <div>
+            <p className="text-[10px] font-mono uppercase tracking-[0.3em] text-gold mb-3">
+              Editorial Briefing
+            </p>
+            <h2 className="font-display text-2xl md:text-3xl text-foreground leading-tight">
+              不只是工具集合，而是一条从理论到实证的学习链路
+            </h2>
+            <p className="mt-4 text-sm text-foreground/70 leading-relaxed">
+              主页内容已按研究者的实际路径组织：先读懂模型假设，再用交互参数验证直觉，最后把结果整理成可复现的 Notebook 与策略框架。
+            </p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            {editorialPillars.map((item) => (
+              <div
+                key={item.label}
+                className="rounded-xl border border-border/50 bg-background/35 p-4 hover:border-gold/35 transition-colors"
+              >
+                <span className="text-[9px] font-mono uppercase tracking-[0.2em] text-gold/80">
+                  {item.label}
+                </span>
+                <h3 className="mt-3 font-display text-lg text-foreground leading-snug">
+                  {item.title}
+                </h3>
+                <p className="mt-2 text-xs text-foreground/65 leading-relaxed">
+                  {item.text}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+);
+
 const Index = () => {
   const { hash } = useLocation();
   useEffect(() => {
@@ -140,7 +198,7 @@ const Index = () => {
     <div className="min-h-screen bg-background">
       <Seo
         title="EF Lab — 量化金融与计量经济学实验室"
-        description="Bloomberg 风格的交互式期权定价、风险、利率与组合模型实验室；含 Notebook、策略库与论文索引。"
+        description="面向经济金融实证研究的交互式实验室，整合资产定价、衍生品、风险管理、固定收益、计量经济学、Notebook 与论文索引。"
         path="/"
         jsonLd={{
           "@context": "https://schema.org",
@@ -161,13 +219,18 @@ const Index = () => {
       {/* ─── 0. 导览 ─── */}
       <div id="hero" className="scroll-mt-12"><HeroSection /></div>
       <HeroToolStrip />
+      <EditorialBriefing />
       <TodaysPick />
       <div id="topics" className="scroll-mt-12"><TopicCards /></div>
       <div id="models" className="scroll-mt-12"><ModelShowcase /></div>
       <div id="featured-notebooks" className="scroll-mt-12"><FeaturedNotebooks /></div>
 
       {/* ─── 1. 基础定价 ─── */}
-      <SectionDivider kicker="Chapter 1" label="基础定价 · 期权与隐含波动率" />
+      <SectionDivider
+        kicker="Chapter 1"
+        label="基础定价 · 期权与隐含波动率"
+        subtitle="从闭式解、隐含波动率反推到蒙特卡洛模拟，理解定价公式背后的复制组合与风险中性逻辑。"
+      />
       <SectionErrorBoundary name="基础定价">
       <Suspense fallback={<SectionFallback />}>
         <div id="calculator" className="scroll-mt-12"><DeferMount><CalculatorSection /></DeferMount></div>
@@ -177,7 +240,11 @@ const Index = () => {
       </SectionErrorBoundary>
 
       {/* ─── 2. 衍生品高阶 ─── */}
-      <SectionDivider kicker="Chapter 2" label="衍生品高阶 · 波动率曲面与路径依赖" />
+      <SectionDivider
+        kicker="Chapter 2"
+        label="衍生品高阶 · 波动率曲面与路径依赖"
+        subtitle="围绕 SVI、Heston、SABR、Local Vol 与 LSM，将市场微笑、随机波动和美式行权放进同一套实验框架。"
+      />
       <SectionErrorBoundary name="衍生品高阶">
       <Suspense fallback={<SectionFallback />}>
         <div id="derivatives" className="scroll-mt-12"><DeferMount><DerivativesTools /></DeferMount></div>
@@ -185,7 +252,11 @@ const Index = () => {
       </SectionErrorBoundary>
 
       {/* ─── 3. 固收与组合 ─── */}
-      <SectionDivider kicker="Chapter 3" label="固定收益 & 资产配置" />
+      <SectionDivider
+        kicker="Chapter 3"
+        label="固定收益 & 资产配置"
+        subtitle="连接债券现金流、期限结构、短率模型和均值-方差前沿，形成利率与组合风险的统一视角。"
+      />
       <SectionErrorBoundary name="固收与组合">
       <Suspense fallback={<SectionFallback />}>
         <div id="bond" className="scroll-mt-12"><DeferMount><BondCalculator /></DeferMount></div>
@@ -195,7 +266,11 @@ const Index = () => {
       </SectionErrorBoundary>
 
       {/* ─── 4. 计量经济 ─── */}
-      <SectionDivider kicker="Chapter 4" label="计量经济学 · 估计与状态空间" />
+      <SectionDivider
+        kicker="Chapter 4"
+        label="计量经济学 · 估计与状态空间"
+        subtitle="覆盖 OLS、IV、GMM、GARCH、Kalman 与因果推断，强调估计假设、诊断检验和稳健推断。"
+      />
       <SectionErrorBoundary name="计量经济">
       <Suspense fallback={<SectionFallback />}>
         <div id="econometrics" className="scroll-mt-12"><DeferMount><EconometricsTools /></DeferMount></div>
@@ -203,7 +278,11 @@ const Index = () => {
       </SectionErrorBoundary>
 
       {/* ─── 5. 风险管理 ─── */}
-      <SectionDivider kicker="Chapter 5" label="风险管理 · 信用、相依结构与压力测试" />
+      <SectionDivider
+        kicker="Chapter 5"
+        label="风险管理 · 信用、相依结构与压力测试"
+        subtitle="从 VaR/ES 到 Merton 违约距离、Copula 相依和情景冲击，建立可解释的尾部风险监控语言。"
+      />
       <SectionErrorBoundary name="风险管理">
       <Suspense fallback={<SectionFallback />}>
         <div id="risk" className="scroll-mt-12"><DeferMount><RiskTools /></DeferMount></div>
@@ -211,7 +290,11 @@ const Index = () => {
       </SectionErrorBoundary>
 
       {/* ─── 6. 量化策略 ─── */}
-      <SectionDivider kicker="Chapter 6" label="量化策略 · 回测与因子归因" />
+      <SectionDivider
+        kicker="Chapter 6"
+        label="量化策略 · 回测与因子归因"
+        subtitle="用可审计的回测、风险预算和多因子归因，把策略想法拆成信号、组合构建与风险约束。"
+      />
       <SectionErrorBoundary name="量化策略">
       <Suspense fallback={<SectionFallback />}>
         <div id="quant" className="scroll-mt-12"><DeferMount><QuantStrategyTools /></DeferMount></div>
@@ -219,7 +302,11 @@ const Index = () => {
       </SectionErrorBoundary>
 
       {/* ─── 7. 宏观经济学 ─── */}
-      <SectionDivider kicker="Chapter 7" label="宏观经济学 · 增长与动态均衡" />
+      <SectionDivider
+        kicker="Chapter 7"
+        label="宏观经济学 · 增长与动态均衡"
+        subtitle="用 Solow、RBC/DSGE 与政策冲击模拟，观察长期增长、技术进步和动态均衡的传导机制。"
+      />
       <SectionErrorBoundary name="宏观经济">
       <Suspense fallback={<SectionFallback />}>
         <div id="macro" className="scroll-mt-12"><DeferMount><MacroTools /></DeferMount></div>
@@ -227,15 +314,23 @@ const Index = () => {
       </SectionErrorBoundary>
 
       {/* ─── 8. 平台增强 ─── */}
-      <SectionDivider kicker="Chapter 8" label="平台增强 · Notebook、真实数据与跨工具对比" />
+      <SectionDivider
+        kicker="Chapter 8"
+        label="平台增强 · Notebook、真实数据与跨工具对比"
+        subtitle="围绕复现、分享和比较构建平台能力：真实数据加载、模型基准、历史记录与公开 Notebook。"
+      />
       <SectionErrorBoundary name="平台增强">
       <Suspense fallback={<SectionFallback />}>
         <div id="platform" className="scroll-mt-12"><DeferMount><V28Platform /></DeferMount></div>
       </Suspense>
       </SectionErrorBoundary>
 
-      {/* ─── 8. 测验与路径 ─── */}
-      <SectionDivider kicker="Capstone" label="知识检验与学习路径" />
+      {/* ─── 9. 测验与路径 ─── */}
+      <SectionDivider
+        kicker="Capstone"
+        label="知识检验与学习路径"
+        subtitle="通过测验、进度记录和阶段化路线，把碎片化知识整理成可持续迭代的个人研究能力。"
+      />
       <SectionErrorBoundary name="测验与学习路径">
       <Suspense fallback={<SectionFallback />}>
         <div id="quiz" className="scroll-mt-12"><DeferMount><QuizSection /></DeferMount></div>
@@ -253,7 +348,7 @@ const Index = () => {
                 Econ &amp; Finance Lab
               </p>
               <p className="text-xs text-muted-foreground leading-relaxed max-w-sm">
-                系统化的实证方法学习平台 · 12 个交互式金融计算器,把教材公式跑成可调参数的真实计算。
+                系统化的实证方法学习平台 · 将资产定价、计量经济学与量化研究拆解为可推导、可实验、可复现的工作流。
               </p>
               <p className="text-[10px] font-mono text-muted-foreground/70 mt-3 tracking-wider">
                 A systematic approach to empirical methods in economics and finance.

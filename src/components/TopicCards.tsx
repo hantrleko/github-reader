@@ -15,6 +15,9 @@ const TopicCards = () => {
           <h2 className="text-3xl md:text-5xl font-display font-bold text-foreground">
             {t("sections.topics.title")}
           </h2>
+          <p className="mt-4 max-w-2xl mx-auto text-sm md:text-base text-foreground/65 leading-relaxed">
+            每个主题都以「核心问题—关键模型—实证应用」组织内容，既适合作为课程复习提纲，也能作为研究选题和模型实现的入口。
+          </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-0 border-t border-accent/30">
@@ -56,7 +59,7 @@ const TopicCards = () => {
                       ))}
                     </div>
                     <span className="text-[10px] font-mono uppercase tracking-widest text-gold/70 group-hover:text-gold inline-flex items-center gap-1 shrink-0 ml-3">
-                      Read <ArrowRight className="w-3 h-3" />
+                      Explore <ArrowRight className="w-3 h-3" />
                     </span>
                   </div>
                 </div>

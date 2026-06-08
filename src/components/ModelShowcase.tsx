@@ -137,6 +137,9 @@ const ModelShowcase = () => {
           <h2 className="text-3xl md:text-5xl font-display font-bold text-foreground">
             经典模型详解
           </h2>
+          <p className="mt-4 max-w-2xl mx-auto text-sm md:text-base text-foreground/65 leading-relaxed">
+            用一张模型卡片同时呈现公式、变量解释、历史脉络与核心洞见，帮助你快速判断模型适用场景和边界条件。
+          </p>
         </div>
 
         {/* Model tabs */}
@@ -159,9 +162,14 @@ const ModelShowcase = () => {
         {/* Model detail */}
         <div key={model.id} className="max-w-4xl mx-auto animate-fade-in-up">
           <div className="rounded-2xl border border-border bg-card p-8 md:p-10 glow-gold">
-            <p className="text-xs font-mono text-muted-foreground mb-2">
-              {model.fullName}
-            </p>
+            <div className="flex items-center justify-between gap-3 flex-wrap mb-2">
+              <p className="text-xs font-mono text-muted-foreground">
+                {model.fullName}
+              </p>
+              <span className="text-[10px] font-mono uppercase tracking-[0.18em] text-gold/80 border border-gold/25 rounded-full px-2 py-0.5">
+                Model Card
+              </span>
+            </div>
 
             {/* Formula */}
             <div className="my-8 py-6 px-8 rounded-xl bg-secondary/50 border border-border text-center">
