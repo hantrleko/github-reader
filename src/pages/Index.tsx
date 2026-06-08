@@ -11,6 +11,7 @@ import SectionErrorBoundary from "@/components/SectionErrorBoundary";
 import KeyboardHelp from "@/components/KeyboardHelp";
 import TodaysPick from "@/components/TodaysPick";
 import FeaturedNotebooks from "@/components/FeaturedNotebooks";
+import ResearchPlaybooks from "@/components/ResearchPlaybooks";
 
 // Heavy interactive sections — code-split to relieve homepage bundle & scroll lag
 const CalculatorSection = lazy(() => import("@/components/CalculatorSection"));
@@ -220,6 +221,7 @@ const Index = () => {
       <div id="hero" className="scroll-mt-12"><HeroSection /></div>
       <HeroToolStrip />
       <EditorialBriefing />
+      <ResearchPlaybooks />
       <TodaysPick />
       <div id="topics" className="scroll-mt-12"><TopicCards /></div>
       <div id="models" className="scroll-mt-12"><ModelShowcase /></div>
