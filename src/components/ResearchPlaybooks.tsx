@@ -7,7 +7,9 @@ import {
   Circle,
   ClipboardCheck,
   Copy,
+  FileStack,
   FlaskConical,
+  ShieldCheck,
   Target,
 } from "lucide-react";
 
@@ -20,10 +22,17 @@ interface Playbook {
   workflow: string[];
   anchors: Array<{ label: string; href: string }>;
   deliverables: string[];
+  qualityGates: string[];
+  decisionQuestions: string[];
 }
 
 const PERSONAS = ["研究者", "授课教师", "量化分析师"];
 const SPRINT_LENGTHS = [3, 5, 10];
+const PACK_MODES = [
+  { id: "replication", label: "复现优先", tone: "强调数据口径、识别设定与可复验图表" },
+  { id: "teaching", label: "教学优先", tone: "强调概念脚手架、课堂提问与学生产出" },
+  { id: "decision", label: "决策优先", tone: "强调风险假设、行动建议与汇报口径" },
+];
 
 const PLAYBOOKS: Playbook[] = [
   {
@@ -44,6 +53,8 @@ const PLAYBOOKS: Playbook[] = [
       { label: "Notebook 模板", href: "/notebook/templates" },
     ],
     deliverables: ["因子定义表", "Fama-MacBeth 回归表", "稳健性清单", "可复现 Notebook"],
+    qualityGates: ["样本口径与幸存者偏差已说明", "因子构建公式可复现", "回归标准误与分组检验匹配研究问题"],
+    decisionQuestions: ["这个因子是否仍有经济含义？", "异常收益能否穿透交易成本？", "结果对样本期和行业中性化是否敏感？"],
   },
   {
     id: "options-calibration",
@@ -63,6 +74,8 @@ const PLAYBOOKS: Playbook[] = [
       { label: "衍生品高阶", href: "/#derivatives" },
     ],
     deliverables: ["Greeks 敏感性图", "IV Smile 截面", "模型误差对比", "校准假设说明"],
+    qualityGates: ["市场报价、期限与 moneyness 口径一致", "校准误差按期限和执行价分层展示", "模型参数边界与无套利约束已记录"],
+    decisionQuestions: ["哪类模型最适合当前 smile 形态？", "Greeks 对冲误差来自波动率还是跳跃风险？", "校准结果是否稳定到可用于教学或交易解释？"],
   },
   {
     id: "risk-committee",
@@ -82,6 +95,8 @@ const PLAYBOOKS: Playbook[] = [
       { label: "量化策略", href: "/#quant" },
     ],
     deliverables: ["组合基准", "尾部损失表", "压力情景矩阵", "风险缓释建议"],
+    qualityGates: ["收益分布假设与尾部样本已标注", "VaR/ES、信用风险与相关冲击口径一致", "缓释建议可映射到仓位、限额或对冲动作"],
+    decisionQuestions: ["哪个风险因子主导尾部损失？", "压力情景是否覆盖流动性与相关性断裂？", "委员会需要批准监控、降仓还是对冲？"],
   },
   {
     id: "teaching-sprint",
@@ -101,6 +116,8 @@ const PLAYBOOKS: Playbook[] = [
       { label: "知识测验", href: "/#quiz" },
     ],
     deliverables: ["课程问题", "模型演示脚本", "测验结果", "课后复现任务"],
+    qualityGates: ["课程只围绕一个核心研究问题展开", "公式、参数实验与测验问题形成闭环", "课后 Notebook 任务有明确评分口径"],
+    decisionQuestions: ["学生需要先理解哪一个假设？", "哪个参数变化最能制造直觉冲突？", "课后任务如何证明学生完成了迁移应用？"],
   },
 ];
 
@@ -109,7 +126,9 @@ const ResearchPlaybooks = () => {
   const [completed, setCompleted] = useState<Record<string, boolean>>({});
   const [persona, setPersona] = useState(PERSONAS[0]);
   const [sprintLength, setSprintLength] = useState(5);
+  const [packMode, setPackMode] = useState(PACK_MODES[0].id);
   const [copied, setCopied] = useState(false);
+  const [packCopied, setPackCopied] = useState(false);
 
   const active = useMemo(
     () => PLAYBOOKS.find((item) => item.id === activeId) ?? PLAYBOOKS[0],
@@ -118,6 +137,8 @@ const ResearchPlaybooks = () => {
 
   const activeCompleted = active.workflow.filter((_, index) => completed[`${active.id}-${index}`]).length;
   const score = Math.round((activeCompleted / active.workflow.length) * 100);
+
+  const selectedPackMode = PACK_MODES.find((item) => item.id === packMode) ?? PACK_MODES[0];
 
   const sprintPlan = useMemo(() => {
     const days = Array.from({ length: sprintLength }, (_, index) => {
@@ -143,6 +164,20 @@ const ResearchPlaybooks = () => {
     };
   }, [active, persona, sprintLength]);
 
+  const evidencePack = useMemo(() => {
+    const gates = active.qualityGates.map((gate, index) => ({
+      label: gate,
+      status: index < activeCompleted ? "Ready" : "Needs evidence",
+    }));
+
+    return {
+      title: `${selectedPackMode.label} · ${active.title}`,
+      summary: `${selectedPackMode.tone}，并将 ${active.deliverables.slice(0, 2).join("、")} 作为第一批证据资产。`,
+      gates,
+      questions: active.decisionQuestions,
+    };
+  }, [active, activeCompleted, selectedPackMode]);
+
   const selectPlaybook = (id: string) => {
     setActiveId(id);
   };
@@ -163,6 +198,27 @@ const ResearchPlaybooks = () => {
       window.setTimeout(() => setCopied(false), 1600);
     } catch {
       setCopied(false);
+    }
+  };
+
+  const copyEvidencePack = async () => {
+    const text = [
+      evidencePack.title,
+      evidencePack.summary,
+      "",
+      "Quality Gates:",
+      ...evidencePack.gates.map((gate) => `- [${gate.status}] ${gate.label}`),
+      "",
+      "Decision Questions:",
+      ...evidencePack.questions.map((question) => `- ${question}`),
+    ].join("\n");
+
+    try {
+      await navigator.clipboard.writeText(text);
+      setPackCopied(true);
+      window.setTimeout(() => setPackCopied(false), 1600);
+    } catch {
+      setPackCopied(false);
     }
   };
 
@@ -380,6 +436,106 @@ const ResearchPlaybooks = () => {
                   </p>
                 </div>
               ))}
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-5 rounded-2xl border border-border/60 bg-card/40 p-5 md:p-6">
+          <div className="flex items-start justify-between gap-4 flex-wrap mb-5">
+            <div className="max-w-2xl">
+              <div className="flex items-center gap-2 mb-2">
+                <FileStack className="w-4 h-4 text-gold" />
+                <p className="text-[10px] font-mono uppercase tracking-[0.25em] text-gold">
+                  Evidence Pack
+                </p>
+              </div>
+              <h3 className="font-display text-2xl text-foreground">把行动计划沉淀为可审计证据包</h3>
+              <p className="mt-2 text-sm text-foreground/68 leading-relaxed">
+                根据当前剧本和完成度生成质量门槛、决策问题与证据摘要，帮助团队在复现、教学和决策场景中保持同一套交付标准。
+              </p>
+            </div>
+            <button
+              onClick={copyEvidencePack}
+              className="inline-flex items-center gap-2 rounded-lg border border-border/60 bg-background/35 px-3 py-2 text-[11px] font-mono uppercase tracking-[0.16em] text-foreground/70 hover:border-gold/35 hover:text-gold transition-colors"
+            >
+              <Copy className="w-3.5 h-3.5" />
+              {packCopied ? "Copied" : "Copy pack"}
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-[0.8fr_1.4fr] gap-5">
+            <div className="space-y-4">
+              <div>
+                <p className="text-[10px] font-mono uppercase tracking-[0.2em] text-muted-foreground mb-2">
+                  Pack Mode
+                </p>
+                <div className="space-y-2">
+                  {PACK_MODES.map((mode) => (
+                    <button
+                      key={mode.id}
+                      onClick={() => setPackMode(mode.id)}
+                      className={`w-full text-left rounded-xl border p-3 transition-colors ${
+                        packMode === mode.id
+                          ? "border-gold/45 bg-gold/[0.07]"
+                          : "border-border/50 bg-background/25 hover:border-gold/30"
+                      }`}
+                    >
+                      <span className="text-xs font-medium text-foreground">{mode.label}</span>
+                      <p className="mt-1 text-[11px] text-foreground/58 leading-relaxed">{mode.tone}</p>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="rounded-xl border border-gold/20 bg-gold/[0.04] p-4">
+                <p className="text-[10px] font-mono uppercase tracking-[0.2em] text-gold/80 mb-2">
+                  Pack Summary
+                </p>
+                <h4 className="font-display text-lg text-foreground">{evidencePack.title}</h4>
+                <p className="mt-2 text-sm text-foreground/70 leading-relaxed">{evidencePack.summary}</p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="rounded-xl border border-border/50 bg-background/30 p-4">
+                <div className="flex items-center gap-2 mb-3">
+                  <ShieldCheck className="w-4 h-4 text-gold" />
+                  <p className="text-[10px] font-mono uppercase tracking-[0.2em] text-muted-foreground">
+                    Quality Gates
+                  </p>
+                </div>
+                <div className="space-y-2">
+                  {evidencePack.gates.map((gate) => (
+                    <div key={gate.label} className="rounded-lg border border-border/40 bg-card/30 p-3">
+                      <p className="text-sm text-foreground/75 leading-relaxed">{gate.label}</p>
+                      <span className={`mt-2 inline-flex rounded-full px-2 py-0.5 text-[10px] font-mono uppercase tracking-[0.12em] ${
+                        gate.status === "Ready"
+                          ? "bg-gold/10 text-gold"
+                          : "bg-muted text-muted-foreground"
+                      }`}>
+                        {gate.status}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="rounded-xl border border-border/50 bg-background/30 p-4">
+                <div className="flex items-center gap-2 mb-3">
+                  <Target className="w-4 h-4 text-gold" />
+                  <p className="text-[10px] font-mono uppercase tracking-[0.2em] text-muted-foreground">
+                    Decision Questions
+                  </p>
+                </div>
+                <div className="space-y-2">
+                  {evidencePack.questions.map((question, index) => (
+                    <div key={question} className="flex gap-3 rounded-lg border border-border/40 bg-card/30 p-3">
+                      <span className="text-[10px] font-mono text-gold mt-0.5">Q{index + 1}</span>
+                      <p className="text-sm text-foreground/72 leading-relaxed">{question}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
         </div>

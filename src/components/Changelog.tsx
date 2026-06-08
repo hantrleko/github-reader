@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Sparkles, Wrench, BookOpen, Zap, Layout, GraduationCap, Target, ClipboardCheck } from "lucide-react";
+import { Sparkles, Wrench, BookOpen, Zap, Layout, GraduationCap, Target, ClipboardCheck, FileStack } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 const RELEASES = [
@@ -27,10 +27,19 @@ const RELEASES = [
         ],
       },
       {
+        icon: FileStack,
+        title: "Evidence Pack — 可审计研究证据包",
+        items: [
+          "新增复现优先、教学优先、决策优先三种证据包模式,随当前剧本生成不同交付口径",
+          "Quality Gates 将完成度映射为 Ready / Needs evidence 状态,帮助团队识别缺失证据",
+          "Decision Questions 自动提炼关键追问,并支持一键复制为研究审计、课堂复盘或委员会备忘录",
+        ],
+      },
+      {
         icon: Layout,
         title: "工具目录 V3.0 — 平台能力进入场景化组织",
         items: [
-          "TOOLS_CATALOG 新增 Research Playbooks 与 Sprint Composer 两个 V3.0 平台条目,进入 /tools、Today's Pick 与交叉导航体系",
+          "TOOLS_CATALOG 新增 Research Playbooks、Sprint Composer 与 Evidence Pack 三个 V3.0 平台条目,进入 /tools、Today's Pick 与交叉导航体系",
           "工具目录标题同步升级为 Catalog · V3.0,描述扩展至金融、计量与研究工作流工具",
           "Hero 最新更新、Navbar 版本徽章、首页 Footer 与更新日志统一同步至 V3.0",
         ],
@@ -40,7 +49,7 @@ const RELEASES = [
         title: "版本 V3.0 — 研究工作流正式发布版",
         items: [
           "V3.0 将 EF Lab 从交互式计算器集合推进为『场景驱动的研究操作系统』",
-          "内容层强化研究复现、教学设计与决策简报三条主线,功能层加入剧本选择、清单评分与可复制冲刺计划",
+          "内容层强化研究复现、教学设计与决策简报三条主线,功能层加入剧本选择、清单评分、可复制冲刺计划与证据包审计",
           "下一阶段路线图:连接 Notebook 模板、论文索引与真实数据基准,形成从剧本 → 实验 → 报告的自动化链路",
         ],
       },
