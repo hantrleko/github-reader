@@ -85,6 +85,19 @@ export const TOOLS_CATALOG: ToolEntry[] = [
     related: ["research-playbooks", "notebook"],
     version: "V3.0",
   },
+  {
+    id: "evidence-pack",
+    name: "证据包构建器",
+    nameEn: "Evidence Pack Builder",
+    category: "platform",
+    difficulty: "research",
+    anchor: "/#research-playbooks",
+    tags: ["质量门槛", "决策问题", "证据摘要", "复制交付"],
+    refs: ["Research Audit Trail", "Model Validation", "Decision Memo"],
+    blurb: "围绕当前研究剧本生成质量门槛、决策问题与可复制证据摘要，把行动计划沉淀为可审计交付包。",
+    related: ["research-playbooks", "sprint-composer", "notebook"],
+    version: "V3.0",
+  },
   // ── Chapter 1: Pricing ──
   {
     id: "bs",
