@@ -116,7 +116,7 @@ const HeroSection = () => {
                 Latest Update · V3.0
               </h4>
               <p className="text-xs leading-relaxed text-foreground/75 mb-3">
-                Research Playbooks and Sprint Composer turn the lab into a scenario-driven workflow system for research replication, teaching and decision briefs.
+                Research Playbooks, Evidence Packs, Ops Board and Decision Memo Studio turn the lab into a scenario-driven workflow system for research replication, teaching and decision briefs.
               </p>
               <span className="text-[10px] text-gold uppercase font-mono font-bold inline-flex items-center gap-1">
                 View Changelog <ArrowRight className="w-3 h-3" />
