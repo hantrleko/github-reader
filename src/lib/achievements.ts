@@ -15,25 +15,18 @@ export type BadgeSlug = keyof typeof BADGES;
 
 /**
  * Award a badge to the current user (idempotent — duplicates are ignored).
- * Silent on error; shows a toast on success.
+ * Awarding happens server-side via the `award_badge` function, which verifies
+ * the badge was genuinely earned before inserting. Silent on error / when not
+ * earned; shows a toast only when a new badge is unlocked.
  */
 export async function awardBadge(slug: BadgeSlug | string) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return;
 
-  // De-dupe: skip if already awarded
-  const { data: existing } = await supabase
-    .from("user_achievements")
-    .select("id")
-    .eq("user_id", user.id)
-    .eq("slug", slug)
-    .maybeSingle();
-  if (existing) return;
-
-  const { error } = await supabase
-    .from("user_achievements")
-    .insert({ user_id: user.id, slug });
-  if (error) return;
+  // Server verifies the badge was earned and de-dupes; returns true only on a
+  // brand-new award.
+  const { data: awarded, error } = await supabase.rpc("award_badge", { _slug: slug });
+  if (error || awarded !== true) return;
 
   const meta = BADGES[slug];
   toast({
