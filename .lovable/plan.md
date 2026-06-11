@@ -1,133 +1,67 @@
+# 补全研报模型 — V3.1 模型扩展
 
-# Reactive Notebook v2 实施方案
+对照《经济与金融模型基础》研报，把网站缺失的经典模型补齐。范围：金融核心 + 计量核心 + 宏观 + 新增微观经济学分类；前沿章节只做概念卡片；所有新工具按**轻量版**实现（核心计算 + 1~2 张图表 + LaTeX 公式 + 参数预设），后续可迭代。
 
-目标：把现有 Notebook 从「参数→公式/图」线性结构，升级到 **Observable 级反应式 DAG**：任意 cell 可声明变量、依赖任意上游变量、上游变化只重算受影响的下游；同时补齐 cell 类型、导出、AI 与协作能力。
-
----
-
-## 一、核心：反应式依赖图（runtime 重写）
-
-### 1. Cell 模型扩展
-现有：`param / markdown / formula / chart`。新增：
-
-- `js`：受限 JS 代码 cell，可 `return` 任意值（数字/数组/对象），声明 `name` 暴露给下游
-- `table`：表格 cell，渲染数组对象（自动列推断 + 排序 + CSV 复制）
-- `data`：数据源 cell，封装 `fetch` 受限白名单（FRED / market-quotes / Fama-French，复用现有 edge functions），返回数组
-- `slider` / `select` / `checkbox` / `text`：把 `param` 拆成多种输入控件
-- `view`：声明性图表 DSL（折线/散点/直方图/热力图），底层仍 recharts
-
-### 2. 依赖收集
-- 每个 cell 都有一个**变量名 `name`** 与一个**表达式/代码**
-- 通过解析表达式抓取 `p.X` 与 **全局命名 `name` 引用**（用正则 + 标识符白名单，足够 v2）
-- 构建 DAG，拓扑排序计算；任意 cell 输入变化只重算其传递闭包，结果用 `Map<cellId, value>` 缓存
-- 检测循环依赖 → cell 上红条提示
-
-### 3. 沙箱执行
-- 复用现有 `new Function` + 白名单 helpers，扩展：
-  - `bs*`、`bond*`、`ols*`（从 `src/lib/quant/*` 注入）
-  - `d3-array` 风格 helpers：`mean / std / quantile / linspace`
-  - `fetch` **禁用**；数据只能通过 `data` cell 注入
-- 单 cell 执行 `try/catch` + 软超时（同步预算 50ms，超出标灰显示 timeout）
-- 异步 `data` cell 用 React Query，结果以 promise 解析后注入 DAG
-
-### 4. UI
-- 左侧 cell 列表加 **依赖侧栏**：点 cell 高亮其上下游、显示「依赖：S, K, sigma → 被引用 3 次」
-- cell 顶部 chip：`name` 重命名、kind 切换、运行状态（fresh / stale / error）
-- 拖拽排序（dnd-kit）取代上下箭头
+所有新工具沿用现有模式：`EquationBlock`(LaTeX) + `PresetButtons`(教材/市场预设) + `ShareExportToolbar` + recharts 图表 + 引用脚注，并登记进 `toolsCatalog.ts`(驱动 /tools 索引与 Today's Pick)。
 
 ---
 
-## 二、导出 / 导入
+## 1. 新增「微观经济学」分类（整章缺失）
 
-- **`.ipynb` 导出**：把 markdown / formula / js / chart 转为 Jupyter cell（公式用 Markdown $$，js 用 `code` cell 注释「JS sandbox」），下载即可在 Jupyter 中打开（视觉一致，不可执行）
-- **`.md` 导出**：已存在，补 table / js cell 渲染
-- **`.json` 导入/导出**：原始 cells 数组，便于版本管理
-- **Import .ipynb**：解析 markdown cell，code cell 转 `js`（标 unsafe，需用户手动启用）
+- `toolsCatalog.ts` 新增 `micro` 分类（zh: 微观经济, en: Microeconomics）。
+- 新建 `src/components/MicroTools.tsx`（tab 切换，结构同 `MacroTools.tsx`）+ `src/components/micro/` 子工具：
+  1. **供需均衡** — 线性供需曲线交点，滑杆调需求/供给斜率与截距、税收/补贴，显示均衡 P*/Q*、税收归宿与无谓损失。
+  2. **消费者选择** — Cobb-Douglas 效用，预算线 + 无差异曲线，最优点 MRS=Px/Py，价格变化分解收入/替代效应。
+  3. **生产者理论** — 等产量线 + 等成本线，成本最小化 MPL/MPK=w/r，短期成本曲线 (MC/AC/AVC)。
+  4. **市场结构博弈** — 古诺/伯特兰/斯塔克尔伯格/垄断 同屏对比均衡产量、价格与利润。
+  5. **信息经济学** — 逆向选择(柠檬市场)、道德风险、信号传递 的交互演示 + 概念表。
+- `Index.tsx` 在「基础定价」前插入新章节 `#micro`，挂 `MicroTools`(走 `DeferMount`)。
 
----
+## 2. 宏观补全（加入现有 `MacroTools` tab）
 
-## 三、AI 助手（复用 `ai-explain` edge function 扩展）
+新建 `src/components/macro/ClassicMacroTools.tsx`，新增 5 个工具并入宏观 tab：
+- **IS-LM** — IS/LM 曲线交点，财政(G)/货币(M)冲击移动曲线，显示挤出效应、流动性陷阱。
+- **AD-AS** — AD + SRAS + LRAS，需求/供给冲击下产出与价格调整路径。
+- **菲利普斯曲线** — 附加预期版与 NKPC，演示长期垂直与曲线平坦化。
+- **蒙代尔-弗莱明** — 开放经济 IS-LM-BP，固定 vs 浮动汇率下政策有效性 + 不可能三角图示。
+- **拉姆齐模型** — Euler 方程相位图，消费/资本鞍点路径。
 
-- cell 右上角 `✨ Explain`：把当前 cell + 上游变量名快照发给 `ai-explain`
-- 新增 `ai-suggest` 路由（同一 edge function，参数化 mode）：
-  - "generate cell from prompt"：用户输入"画 S vs Call price"，返回一个 chart cell JSON
-  - "fix this cell"：发送报错 + cell 内容，返回修正建议
-- 全部走 Lovable AI Gateway（gemini-2.5-flash），无需 API key
+## 3. 金融核心补全
 
----
+新建 `src/components/AssetPricingTools.tsx`（资产定价 tab 组），挂到「固收 & 资产配置」章节 `#asset-pricing`：
+- **CAPM / SML** — 证券市场线，输入 β、Rf、E(Rm)，定位资产、计算 Jensen's α。
+- **APT 多因子** — 自定义 2~3 因子载荷与溢价，线性合成预期收益。
+- **Fama-French 回归** — 对粘贴/示例收益数据跑 3 因子(可选 5 因子)OLS，输出 α 与因子载荷（复用现有 `ols.ts`，可对接已有 `famafrench-factors` 取数函数）。
 
-## 四、协作 / 分享
+风险章节 `RiskTools` 新增 tab：
+- **VaR 三法** — 参数法 / 历史模拟 / 蒙特卡洛 并排对比，叠加损失分布直方图与 VaR/ES 分位线。
 
-- 公开 notebook 已支持，新增：
-  - **Embed snippet**：`/notebook/embed?id=…` 仅渲染单 cell 或全 notebook，给 iframe 用
-  - **永久链接 + 参数覆盖**：`?id=…&p.S=120&p.K=110` 进入只读模式并应用覆盖参数
-  - **版本快照**：每次保存写入 `notebook_versions` 表，可在右侧抽屉中查看 diff/恢复
+## 4. 计量核心补全（加入现有 `EconometricsTools` tab）
 
----
+新建 `src/components/econ/ClassicEconTools.tsx`：
+- **ARIMA / Box-Jenkins** — AR/MA 项数可调，ACF/PACF 图 + 拟合与一步预测。
+- **VAR / SVAR** — 双变量 VAR，脉冲响应函数(IRF) + Granger 因果检验。
+- **面板数据 FE/RE** — 固定效应(组内去均值) vs 随机效应(GLS) + Hausman 检验。
 
-## 五、文件结构
+## 5. 前沿范式（仅概念卡片）
 
-```text
-src/
-  pages/Notebook.tsx                  // 顶层布局,委托给下面模块
-  components/notebook/
-    CellList.tsx                      // dnd-kit 排序
-    cells/
-      MarkdownCell.tsx / ParamCell.tsx / FormulaCell.tsx
-      ChartCell.tsx / JsCell.tsx / TableCell.tsx / DataCell.tsx
-    DependencyPanel.tsx               // 侧栏 DAG 视图
-    AiAssistantDrawer.tsx
-    VersionHistoryDrawer.tsx
-  lib/notebook/
-    types.ts                          // Cell / Value / Graph 类型
-    sandbox.ts                        // new Function + helpers + timeout
-    dag.ts                            // 依赖收集 + 拓扑排序 + 增量重算
-    exportIpynb.ts / exportMd.ts / importIpynb.ts
-supabase/
-  functions/ai-explain/index.ts       // 增加 mode: explain | generate | fix
-  migrations/...                      // notebook_versions 表 + RLS
-```
+新建 `src/components/FrontierConcepts.tsx`，纯展示卡片网格（无交互计算），挂到平台章节后 `#frontier`，覆盖研报第六章 7 个方向：AI/ML 资产定价(深度 SDF / LLM Agents)、ABM 智能体仿真、复杂网络与 GNN 系统性风险、气候金融(Climate VaR / ESG-CAPM)、行为与神经经济学、DeFi/AMM、宏观金融 CBDC。每张卡片含：核心思想、关键发现、代表文献(2024-2026)。
+
+## 6. 收尾
+
+- `toolsCatalog.ts`：登记全部新工具（micro/asset-pricing/新宏观/新计量/VaR），版本标 `V3.1`，类型 `version` 联合新增 `"V3.1"`。
+- `ModelShowcase.tsx`：补上 CAPM、Fama-French 等已登记但展示区可丰富的卡片（可选）。
+- `public/sitemap.xml` + `scripts/generate-sitemap.ts`：新增 `#micro`、`#asset-pricing`、`#frontier` 锚点。
+- 页脚导航补「微观经济」「资产定价」链接。
 
 ---
 
-## 六、数据库变更
+## 技术说明
 
-```sql
-create table public.notebook_versions (
-  id uuid primary key default gen_random_uuid(),
-  notebook_id uuid references public.user_notebooks(id) on delete cascade not null,
-  user_id uuid not null,
-  cells jsonb not null,
-  title text not null,
-  created_at timestamptz not null default now()
-);
-alter table public.notebook_versions enable row level security;
--- 仅 notebook 所有者可读写自己的版本
-create policy "own versions" on public.notebook_versions
-  for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
-```
+- 所有算法为纯客户端 TypeScript，标记 `offline` 可用；无需后端改动（Fama-French 取数沿用现有 edge function，不新建表）。
+- 轻量版聚焦闭式解/小规模数值（线性代数走现有 `ols.ts` 工具函数），不引入新依赖。
+- 每个工具走 `lazy` + `DeferMount`，避免拖慢首屏；沿用 `SectionErrorBoundary` 包裹。
+- 新分类 `micro` 与 `version: "V3.1"` 需同步更新 `toolsCatalog.ts` 的类型联合与 `CATEGORY_LABEL`。
+- 不改动数据库 / RLS / 认证。
 
----
-
-## 七、分阶段交付
-
-- **Step 1（本轮，可落地）**
-  1. 新 Cell 模型 + DAG runtime（替换现有 `useMemo p` 全量重算）
-  2. 新增 `js` / `table` cell + dnd-kit 排序
-  3. `.ipynb` 导出
-  4. AI Explain 接入 cell 级别
-  5. `notebook_versions` 表 + 版本抽屉
-- **Step 2（下轮，按需）**
-  - `data` cell + 数据源白名单
-  - AI Generate / Fix
-  - Embed iframe + 参数覆盖只读视图
-  - DependencyPanel 可视化（force-directed mini-graph）
-
----
-
-## 八、风险与边界
-
-- 沙箱仍是 `new Function`，**禁止 `import` / `fetch` / `this`**；用 `with({})` 与白名单显式作用域；不要尝试做真沙箱（不在浏览器可行范围）
-- DAG 增量重算先实现简化版：任何上游变化即重算闭包内全部，不做 memo 细化（足够 60fps）
-- `.ipynb` 仅导出，不保证可重新导入执行（JS cell 在 Jupyter 中只是注释）
-- 版本表会快速膨胀，加 `保留最近 20 个` 的清理触发器
+预计新增约 18 个交互工具 + 7 张前沿概念卡片，工具总数从 43 增至约 61。
