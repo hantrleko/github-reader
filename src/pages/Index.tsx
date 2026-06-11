@@ -400,8 +400,10 @@ const Index = () => {
             <div>
               <p className="text-[10px] font-mono uppercase tracking-[0.2em] text-gold mb-3">导航</p>
               <ul className="space-y-1.5 text-xs">
+                <li><a href="#micro" className="text-muted-foreground hover:text-gold transition-colors">微观经济学</a></li>
                 <li><a href="#calculator" className="text-muted-foreground hover:text-gold transition-colors">期权与隐含波动率</a></li>
                 <li><a href="#bond" className="text-muted-foreground hover:text-gold transition-colors">固收 & 组合</a></li>
+                <li><a href="#asset-pricing" className="text-muted-foreground hover:text-gold transition-colors">资产定价</a></li>
                 <li><a href="#risk" className="text-muted-foreground hover:text-gold transition-colors">风险管理</a></li>
                 <li><a href="#quant" className="text-muted-foreground hover:text-gold transition-colors">量化策略</a></li>
               </ul>
