@@ -309,7 +309,7 @@ export const MundellFlemingTool = () => {
     }
   }, [regime, policy]);
 
-  const Toggle = <T extends string>({ value, options, onChange }: { value: T; options: { id: T; label: string }[]; onChange: (v: T) => void }) => (
+  const Toggle = ({ value, options, onChange }: { value: string; options: { id: string; label: string }[]; onChange: (v: string) => void }) => (
     <div className="flex gap-2 flex-wrap">
       {options.map(o => (
         <button key={o.id} onClick={() => onChange(o.id)}
@@ -326,11 +326,11 @@ export const MundellFlemingTool = () => {
         <div className="space-y-4">
           <div>
             <p className="text-xs font-mono text-gold uppercase tracking-wider mb-2">汇率制度</p>
-            <Toggle value={regime} options={[{ id: "floating", label: "浮动汇率" }, { id: "fixed", label: "固定汇率" }]} onChange={setRegime} />
+            <Toggle value={regime} options={[{ id: "floating", label: "浮动汇率" }, { id: "fixed", label: "固定汇率" }]} onChange={(v) => setRegime(v as Regime)} />
           </div>
           <div>
             <p className="text-xs font-mono text-gold uppercase tracking-wider mb-2">政策类型</p>
-            <Toggle value={policy} options={[{ id: "fiscal", label: "财政政策" }, { id: "monetary", label: "货币政策" }]} onChange={setPolicy} />
+            <Toggle value={policy} options={[{ id: "fiscal", label: "财政政策" }, { id: "monetary", label: "货币政策" }]} onChange={(v) => setPolicy(v as Policy)} />
           </div>
           <div className={`rounded-xl border p-4 ${result.eff === "有效" ? "border-emerald-500/40 bg-emerald-500/5" : "border-rose-500/40 bg-rose-500/5"}`}>
             <p className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">政策有效性（完美资本流动）</p>
