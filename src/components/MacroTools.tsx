@@ -4,11 +4,37 @@ import "katex/dist/katex.min.css";
 import { ShareExportToolbar, useSharedState } from "@/lib/calculatorTools";
 import { SolowTool } from "./macro/SolowTool";
 import { DSGENKTool, HANKTool, RealOptionsTool } from "./macro/V27Tools";
+import { ISLMTool, ADASTool, PhillipsTool, MundellFlemingTool, RamseyTool } from "./macro/ClassicMacroTools";
 import { EquationBlock } from "@/components/common/EquationBlock";
 
-type ToolId = "solow" | "dsge" | "hank" | "realopt";
+type ToolId = "islm" | "adas" | "phillips" | "mundell" | "ramsey" | "solow" | "dsge" | "hank" | "realopt";
 
 const TOOLS: { id: ToolId; name: string; nameEn: string; formula: string; component: React.FC }[] = [
+  {
+    id: "islm", name: "IS-LM", nameEn: "IS-LM — Goods & Money Market Equilibrium, Crowding-out",
+    formula: String.raw`\text{IS}:\; R = \dfrac{A - (1-\text{mpc})Y}{b},\qquad \text{LM}:\; R = \dfrac{kY - M/P}{h}`,
+    component: ISLMTool,
+  },
+  {
+    id: "adas", name: "AD-AS", nameEn: "Aggregate Demand & Supply — Demand / Supply Shocks",
+    formula: String.raw`\text{AD}:\; P = \bar A - Y,\qquad \text{SRAS}:\; P = P^{e} + \lambda(Y - Y^{n}),\qquad \text{LRAS}:\; Y = Y^{n}`,
+    component: ADASTool,
+  },
+  {
+    id: "phillips", name: "菲利普斯曲线", nameEn: "Expectations-Augmented Phillips Curve — Friedman-Phelps",
+    formula: String.raw`\pi = \pi^{e} - \beta\,(u - u^{n}) + \varepsilon^{s},\qquad \text{长期}: u = u^{n} \Rightarrow \pi = \pi^{e}`,
+    component: PhillipsTool,
+  },
+  {
+    id: "mundell", name: "蒙代尔-弗莱明", nameEn: "Mundell-Fleming — Impossible Trinity & Policy Effectiveness",
+    formula: String.raw`\text{IS-LM-BP}:\;\; \text{固定汇率} + \text{资本自由流动} + \text{独立货币政策} \;\Rightarrow\; \text{三选二}`,
+    component: MundellFlemingTool,
+  },
+  {
+    id: "ramsey", name: "拉姆齐模型", nameEn: "Ramsey-Cass-Koopmans — Optimal Growth & Saddle Path",
+    formula: String.raw`\dfrac{\dot c}{c} = \dfrac{f'(k) - \rho - \theta g}{\theta},\qquad \dot k = f(k) - c - (n+\delta+g)\,k`,
+    component: RamseyTool,
+  },
   {
     id: "solow", name: "Solow 增长模型", nameEn: "Solow-Swan Growth Model — Capital Accumulation & Golden Rule",
     formula: String.raw`\dot{\tilde k} \;=\; s\,\tilde k^{\alpha} \;-\; (n + g + \delta)\,\tilde k,\qquad \tilde k^{*} = \left(\dfrac{s}{n+g+\delta}\right)^{\!1/(1-\alpha)},\qquad s_{\text{gold}} = \alpha`,
@@ -46,7 +72,7 @@ const MacroTools = () => {
           <p className="text-xs font-mono uppercase tracking-[0.3em] text-gold mb-3">Macroeconomics &amp; Corporate Finance</p>
           <h2 className="text-3xl md:text-5xl font-display font-bold text-foreground">宏观经济学</h2>
           <p className="text-sm text-muted-foreground mt-3 max-w-2xl mx-auto">
-            Solow 增长 · NK DSGE 脉冲响应 · HANK 异质代理 · Dixit-Pindyck 实物期权 — 横跨长期增长、短期波动与投资决策
+            IS-LM · AD-AS · 菲利普斯曲线 · 蒙代尔-弗莱明 · 拉姆齐 · Solow · NK DSGE · HANK · 实物期权 — 短期波动到长期增长的完整谱系
           </p>
         </motion.div>
 

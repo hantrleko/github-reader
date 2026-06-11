@@ -13,6 +13,7 @@ import { HistoryDrawer } from "@/components/common/HistoryDrawer";
 import { EquationBlock } from "@/components/common/EquationBlock";
 import { ESBacktestTool } from "./risk/ESBacktestTool";
 import { CVAXVATool, CreditCopulaTool } from "./risk/V26Tools";
+import { VaRTool } from "./risk/VaRTool";
 
 const CHART_GOLD = "hsl(43, 80%, 55%)";
 const CHART_TEAL = "hsl(180, 50%, 40%)";
@@ -658,9 +659,31 @@ export const StressTool = () => {
 /* ════════════════════════════════════════════════════════════
    Main module
    ════════════════════════════════════════════════════════════ */
-type ToolId = "merton" | "copula" | "esback" | "stress" | "cva" | "credit_copula";
+type ToolId = "var" | "merton" | "copula" | "esback" | "stress" | "cva" | "credit_copula";
 
 const TOOLS: { id: ToolId; name: string; nameEn: string; formula: string; python: string; component: React.FC }[] = [
+  {
+    id: "var", name: "VaR 三法对比", nameEn: "Value-at-Risk — Parametric vs Historical vs Monte Carlo",
+    formula: String.raw`\mathrm{VaR}_\alpha^{\text{param}} = V(z_\alpha\sigma_h - \mu_h),\quad \mathrm{VaR}_\alpha^{\text{hist/MC}} = Q_\alpha(L),\quad \mathrm{ES}_\alpha = \mathbb{E}[L\mid L\ge \mathrm{VaR}_\alpha]`,
+    python: `import numpy as np
+from scipy.stats import norm
+
+def var_parametric(V, mu_h, sig_h, alpha=0.99):
+    z = norm.ppf(alpha)
+    return V * (z * sig_h - mu_h)
+
+def var_historical(losses, alpha=0.99):
+    var = np.quantile(losses, alpha)
+    es = losses[losses >= var].mean()
+    return var, es
+
+def var_monte_carlo(V, mu_h, sig_h, alpha=0.99, n=100000, seed=42):
+    rng = np.random.default_rng(seed)
+    losses = -V * (mu_h + sig_h * rng.standard_normal(n))
+    var = np.quantile(losses, alpha)
+    return var, losses[losses >= var].mean()`,
+    component: VaRTool,
+  },
   {
     id: "merton", name: "Merton 信用风险", nameEn: "Merton Structural Credit Risk Model",
     formula: String.raw`E_0 = V_0\,\Phi(d_1) - D\,e^{-rT}\Phi(d_2),\qquad \mathrm{DD} = \dfrac{\ln(V_0/D) + (\mu - \tfrac{1}{2}\sigma_V^2)T}{\sigma_V\sqrt{T}},\qquad \mathrm{PD} = \Phi(-\mathrm{DD})`,
@@ -847,7 +870,7 @@ const RiskTools = () => {
             {t("sections.risk.title")}
           </h2>
           <p className="text-sm text-muted-foreground mt-3 max-w-2xl mx-auto">
-            Merton 信用违约 · Copula 尾相依 · Basel/CCAR 压力测试
+            VaR 三法 · Merton 信用违约 · Copula 尾相依 · ES 回测 · Basel/CCAR 压力测试
           </p>
         </motion.div>
 

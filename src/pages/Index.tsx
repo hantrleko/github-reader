@@ -15,16 +15,19 @@ import ResearchPlaybooks from "@/components/ResearchPlaybooks";
 
 // Heavy interactive sections — code-split to relieve homepage bundle & scroll lag
 const CalculatorSection = lazy(() => import("@/components/CalculatorSection"));
+const MicroTools = lazy(() => import("@/components/MicroTools"));
 const ImpliedVolTool = lazy(() => import("@/components/ImpliedVolTool"));
 const MCOptionPricer = lazy(() => import("@/components/MCOptionPricer"));
 const DerivativesTools = lazy(() => import("@/components/DerivativesTools"));
 const BondCalculator = lazy(() => import("@/components/BondCalculator"));
 const RateModelSimulator = lazy(() => import("@/components/RateModelSimulator"));
 const EfficientFrontier = lazy(() => import("@/components/EfficientFrontier"));
+const AssetPricingTools = lazy(() => import("@/components/AssetPricingTools"));
 const EconometricsTools = lazy(() => import("@/components/EconometricsTools"));
 const RiskTools = lazy(() => import("@/components/RiskTools"));
 const QuantStrategyTools = lazy(() => import("@/components/QuantStrategyTools"));
 const MacroTools = lazy(() => import("@/components/MacroTools"));
+const FrontierConcepts = lazy(() => import("@/components/FrontierConcepts"));
 const QuizSection = lazy(() => import("@/components/QuizSection"));
 const LearningPath = lazy(() => import("@/components/LearningPath"));
 const V28Platform = lazy(() => import("@/components/platform/V28Platform"));
@@ -227,6 +230,18 @@ const Index = () => {
       <div id="models" className="scroll-mt-12"><ModelShowcase /></div>
       <div id="featured-notebooks" className="scroll-mt-12"><FeaturedNotebooks /></div>
 
+      {/* ─── 0. 微观经济学 ─── */}
+      <SectionDivider
+        kicker="Foundations"
+        label="微观经济学 · 个体决策与市场"
+        subtitle="从供需均衡、消费者与生产者最优，到市场结构博弈与信息不对称，搭建所有经济分析的微观基石。"
+      />
+      <SectionErrorBoundary name="微观经济学">
+      <Suspense fallback={<SectionFallback />}>
+        <div id="micro" className="scroll-mt-12"><DeferMount><MicroTools /></DeferMount></div>
+      </Suspense>
+      </SectionErrorBoundary>
+
       {/* ─── 1. 基础定价 ─── */}
       <SectionDivider
         kicker="Chapter 1"
@@ -264,6 +279,18 @@ const Index = () => {
         <div id="bond" className="scroll-mt-12"><DeferMount><BondCalculator /></DeferMount></div>
         <div id="rate-model" className="scroll-mt-12"><DeferMount><RateModelSimulator /></DeferMount></div>
         <div id="frontier" className="scroll-mt-12"><DeferMount><EfficientFrontier /></DeferMount></div>
+      </Suspense>
+      </SectionErrorBoundary>
+
+      {/* ─── 3b. 资产定价 ─── */}
+      <SectionDivider
+        kicker="Asset Pricing"
+        label="资产定价 · CAPM 与多因子"
+        subtitle="从 CAPM 证券市场线到 APT 与 Fama-French 多因子归因，理解系统性风险如何被定价。"
+      />
+      <SectionErrorBoundary name="资产定价">
+      <Suspense fallback={<SectionFallback />}>
+        <div id="asset-pricing" className="scroll-mt-12"><DeferMount><AssetPricingTools /></DeferMount></div>
       </Suspense>
       </SectionErrorBoundary>
 
@@ -327,6 +354,18 @@ const Index = () => {
       </Suspense>
       </SectionErrorBoundary>
 
+      {/* ─── 9. 前沿范式 ─── */}
+      <SectionDivider
+        kicker="Frontier"
+        label="前沿模型与新兴范式 · 2024–2026"
+        subtitle="AI/ML 资产定价、多智能体仿真、复杂网络、气候金融、神经经济学、DeFi 与宏观金融的概念地图。"
+      />
+      <SectionErrorBoundary name="前沿范式">
+      <Suspense fallback={<SectionFallback />}>
+        <div id="frontier" className="scroll-mt-12"><DeferMount><FrontierConcepts /></DeferMount></div>
+      </Suspense>
+      </SectionErrorBoundary>
+
       {/* ─── 9. 测验与路径 ─── */}
       <SectionDivider
         kicker="Capstone"
@@ -361,8 +400,10 @@ const Index = () => {
             <div>
               <p className="text-[10px] font-mono uppercase tracking-[0.2em] text-gold mb-3">导航</p>
               <ul className="space-y-1.5 text-xs">
+                <li><a href="#micro" className="text-muted-foreground hover:text-gold transition-colors">微观经济学</a></li>
                 <li><a href="#calculator" className="text-muted-foreground hover:text-gold transition-colors">期权与隐含波动率</a></li>
                 <li><a href="#bond" className="text-muted-foreground hover:text-gold transition-colors">固收 & 组合</a></li>
+                <li><a href="#asset-pricing" className="text-muted-foreground hover:text-gold transition-colors">资产定价</a></li>
                 <li><a href="#risk" className="text-muted-foreground hover:text-gold transition-colors">风险管理</a></li>
                 <li><a href="#quant" className="text-muted-foreground hover:text-gold transition-colors">量化策略</a></li>
               </ul>
@@ -392,7 +433,7 @@ const Index = () => {
               © 2026 Econ &amp; Finance Lab · 仅供学习研究 · 不构成投资建议
             </p>
             <p className="text-[10px] font-mono text-gold/80 tracking-[0.2em] uppercase">
-              Version 3.0
+              Version 3.1
             </p>
           </div>
         </div>
