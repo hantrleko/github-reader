@@ -870,7 +870,7 @@ const RiskTools = () => {
             {t("sections.risk.title")}
           </h2>
           <p className="text-sm text-muted-foreground mt-3 max-w-2xl mx-auto">
-            Merton 信用违约 · Copula 尾相依 · Basel/CCAR 压力测试
+            VaR 三法 · Merton 信用违约 · Copula 尾相依 · ES 回测 · Basel/CCAR 压力测试
           </p>
         </motion.div>
 
