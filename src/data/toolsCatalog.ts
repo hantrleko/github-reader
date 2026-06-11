@@ -692,7 +692,7 @@ export const TOOLS_CATALOG: ToolEntry[] = [
     tags: ["β", "证券市场线", "Jensen α"],
     refs: ["Sharpe (1964)", "Lintner (1965)"],
     blurb: "证券市场线 + 要求收益 + Jensen's α + Treynor。",
-    related: ["apt", "famafrench", "frontier-mvo"], version: "V3.1",
+    related: ["apt", "famafrench", "frontier"], version: "V3.1",
   },
   {
     id: "apt", name: "APT 多因子", nameEn: "Arbitrage Pricing Theory",
