@@ -15,16 +15,19 @@ import ResearchPlaybooks from "@/components/ResearchPlaybooks";
 
 // Heavy interactive sections — code-split to relieve homepage bundle & scroll lag
 const CalculatorSection = lazy(() => import("@/components/CalculatorSection"));
+const MicroTools = lazy(() => import("@/components/MicroTools"));
 const ImpliedVolTool = lazy(() => import("@/components/ImpliedVolTool"));
 const MCOptionPricer = lazy(() => import("@/components/MCOptionPricer"));
 const DerivativesTools = lazy(() => import("@/components/DerivativesTools"));
 const BondCalculator = lazy(() => import("@/components/BondCalculator"));
 const RateModelSimulator = lazy(() => import("@/components/RateModelSimulator"));
 const EfficientFrontier = lazy(() => import("@/components/EfficientFrontier"));
+const AssetPricingTools = lazy(() => import("@/components/AssetPricingTools"));
 const EconometricsTools = lazy(() => import("@/components/EconometricsTools"));
 const RiskTools = lazy(() => import("@/components/RiskTools"));
 const QuantStrategyTools = lazy(() => import("@/components/QuantStrategyTools"));
 const MacroTools = lazy(() => import("@/components/MacroTools"));
+const FrontierConcepts = lazy(() => import("@/components/FrontierConcepts"));
 const QuizSection = lazy(() => import("@/components/QuizSection"));
 const LearningPath = lazy(() => import("@/components/LearningPath"));
 const V28Platform = lazy(() => import("@/components/platform/V28Platform"));
