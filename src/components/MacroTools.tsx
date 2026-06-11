@@ -72,7 +72,7 @@ const MacroTools = () => {
           <p className="text-xs font-mono uppercase tracking-[0.3em] text-gold mb-3">Macroeconomics &amp; Corporate Finance</p>
           <h2 className="text-3xl md:text-5xl font-display font-bold text-foreground">宏观经济学</h2>
           <p className="text-sm text-muted-foreground mt-3 max-w-2xl mx-auto">
-            Solow 增长 · NK DSGE 脉冲响应 · HANK 异质代理 · Dixit-Pindyck 实物期权 — 横跨长期增长、短期波动与投资决策
+            IS-LM · AD-AS · 菲利普斯曲线 · 蒙代尔-弗莱明 · 拉姆齐 · Solow · NK DSGE · HANK · 实物期权 — 短期波动到长期增长的完整谱系
           </p>
         </motion.div>
 
