@@ -354,6 +354,18 @@ const Index = () => {
       </Suspense>
       </SectionErrorBoundary>
 
+      {/* ─── 9. 前沿范式 ─── */}
+      <SectionDivider
+        kicker="Frontier"
+        label="前沿模型与新兴范式 · 2024–2026"
+        subtitle="AI/ML 资产定价、多智能体仿真、复杂网络、气候金融、神经经济学、DeFi 与宏观金融的概念地图。"
+      />
+      <SectionErrorBoundary name="前沿范式">
+      <Suspense fallback={<SectionFallback />}>
+        <div id="frontier" className="scroll-mt-12"><DeferMount><FrontierConcepts /></DeferMount></div>
+      </Suspense>
+      </SectionErrorBoundary>
+
       {/* ─── 9. 测验与路径 ─── */}
       <SectionDivider
         kicker="Capstone"
