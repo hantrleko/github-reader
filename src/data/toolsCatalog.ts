@@ -8,10 +8,12 @@
  */
 
 export type ToolCategory =
+  | "micro"
   | "pricing"
   | "derivatives"
   | "fixed-income"
   | "portfolio"
+  | "asset-pricing"
   | "econometrics"
   | "risk"
   | "quant"
@@ -35,14 +37,16 @@ export interface ToolEntry {
   related?: string[];
   /** true once unit tests vs a closed-form benchmark exist in src/lib/quant */
   verified?: boolean;
-  version: "V1.0" | "V2.0" | "V2.1" | "V2.2" | "V2.3" | "V2.4" | "V2.5" | "V2.6" | "V2.7" | "V2.8" | "V3.0";
+  version: "V1.0" | "V2.0" | "V2.1" | "V2.2" | "V2.3" | "V2.4" | "V2.5" | "V2.6" | "V2.7" | "V2.8" | "V3.0" | "V3.1";
 }
 
 export const CATEGORY_LABEL: Record<ToolCategory, { zh: string; en: string }> = {
+  micro: { zh: "微观经济", en: "Microeconomics" },
   pricing: { zh: "基础定价", en: "Pricing" },
   derivatives: { zh: "衍生品 · 高阶", en: "Derivatives" },
   "fixed-income": { zh: "固定收益", en: "Fixed Income" },
   portfolio: { zh: "资产配置", en: "Portfolio" },
+  "asset-pricing": { zh: "资产定价", en: "Asset Pricing" },
   econometrics: { zh: "计量经济", en: "Econometrics" },
   risk: { zh: "风险管理", en: "Risk" },
   quant: { zh: "量化策略", en: "Quant" },
