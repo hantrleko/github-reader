@@ -203,7 +203,7 @@ const FrontierConcepts = () => {
                   <ChevronDown className={`w-3.5 h-3.5 transition-transform ${isOpen ? "rotate-180" : ""}`} />
                 </button>
 
-                <div className="mt-auto pt-3 mt-3 border-t border-border/40 space-y-0.5">
+                <div className="mt-auto pt-3 border-t border-border/40 space-y-0.5">
                   {c.refs.map(ref => (
                     <p key={ref} className="text-[10px] font-mono text-muted-foreground/60 italic leading-snug">{ref}</p>
                   ))}
