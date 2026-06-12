@@ -362,7 +362,7 @@ const Index = () => {
       />
       <SectionErrorBoundary name="前沿范式">
       <Suspense fallback={<SectionFallback />}>
-        <div id="frontier" className="scroll-mt-12"><DeferMount><FrontierConcepts /></DeferMount></div>
+        <div id="frontier-concepts" className="scroll-mt-12"><DeferMount><FrontierConcepts /></DeferMount></div>
       </Suspense>
       </SectionErrorBoundary>
 
