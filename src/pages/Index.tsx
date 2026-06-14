@@ -27,6 +27,7 @@ const EconometricsTools = lazy(() => import("@/components/EconometricsTools"));
 const RiskTools = lazy(() => import("@/components/RiskTools"));
 const QuantStrategyTools = lazy(() => import("@/components/QuantStrategyTools"));
 const MacroTools = lazy(() => import("@/components/MacroTools"));
+const FredExplorer = lazy(() => import("@/components/data/FredExplorer"));
 const FrontierConcepts = lazy(() => import("@/components/FrontierConcepts"));
 const QuizSection = lazy(() => import("@/components/QuizSection"));
 const LearningPath = lazy(() => import("@/components/LearningPath"));
@@ -339,6 +340,13 @@ const Index = () => {
       <SectionErrorBoundary name="宏观经济">
       <Suspense fallback={<SectionFallback />}>
         <div id="macro" className="scroll-mt-12"><DeferMount><MacroTools /></DeferMount></div>
+      </Suspense>
+      </SectionErrorBoundary>
+
+      {/* ─── 数据源 · FRED ─── */}
+      <SectionErrorBoundary name="FRED 数据浏览器">
+      <Suspense fallback={<SectionFallback />}>
+        <div id="fred" className="scroll-mt-12"><DeferMount><FredExplorer /></DeferMount></div>
       </Suspense>
       </SectionErrorBoundary>
 
