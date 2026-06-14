@@ -19,7 +19,8 @@
       "deriv": "衍生品 · 高阶",
       "fixed": "固收 & 组合",
       "econ": "计量 & 风险",
-      "quant": "量化 & 学习"
+      "quant": "量化 & 学习",
+      "data": "数据源"
     },
     "items": {
       "hero": "首页",
@@ -34,6 +35,7 @@
       "frontier": "有效前沿",
       "econometrics": "OLS / GARCH / Kalman",
       "risk": "Merton / Copula / 压测",
+      "fred": "FRED 宏观数据",
       "quant": "量化策略实验室",
       "quiz": "互动测验",
       "learning": "学习路径",

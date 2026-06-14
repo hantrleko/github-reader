@@ -19,7 +19,8 @@
       "deriv": "Derivatives · Advanced",
       "fixed": "Fixed Income & Portfolio",
       "econ": "Econometrics & Risk",
-      "quant": "Quant & Learning"
+      "quant": "Quant & Learning",
+      "data": "Data Sources"
     },
     "items": {
       "hero": "Home",
@@ -34,6 +35,7 @@
       "frontier": "Efficient Frontier",
       "econometrics": "OLS / GARCH / Kalman",
       "risk": "Merton / Copula / Stress",
+      "fred": "FRED Macro Data",
       "quant": "Quant Strategy Lab",
       "quiz": "Interactive Quiz",
       "learning": "Learning Path",
