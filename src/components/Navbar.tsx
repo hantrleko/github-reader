@@ -35,6 +35,9 @@ const GROUPS: Group[] = [
     { id: "econometrics", labelKey: "nav.items.econometrics" },
     { id: "risk", labelKey: "nav.items.risk" },
   ]},
+  { labelKey: "nav.groups.data", items: [
+    { id: "fred", labelKey: "nav.items.fred" },
+  ]},
   { labelKey: "nav.groups.quant", items: [
     { id: "quant", labelKey: "nav.items.quant" },
     { id: "quiz", labelKey: "nav.items.quiz" },
