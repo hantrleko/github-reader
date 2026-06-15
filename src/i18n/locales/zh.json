@@ -36,6 +36,7 @@
       "econometrics": "OLS / GARCH / Kalman",
       "risk": "Merton / Copula / 压测",
       "fred": "FRED 宏观数据",
+      "worldbank": "World Bank 全球指标",
       "quant": "量化策略实验室",
       "quiz": "互动测验",
       "learning": "学习路径",
