@@ -351,6 +351,13 @@ const Index = () => {
       </Suspense>
       </SectionErrorBoundary>
 
+      {/* ─── 数据源 · World Bank ─── */}
+      <SectionErrorBoundary name="World Bank 数据浏览器">
+      <Suspense fallback={<SectionFallback />}>
+        <div id="worldbank" className="scroll-mt-12"><DeferMount><WorldBankExplorer /></DeferMount></div>
+      </Suspense>
+      </SectionErrorBoundary>
+
       {/* ─── 8. 平台增强 ─── */}
       <SectionDivider
         kicker="Chapter 8"
