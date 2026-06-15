@@ -28,6 +28,7 @@ const RiskTools = lazy(() => import("@/components/RiskTools"));
 const QuantStrategyTools = lazy(() => import("@/components/QuantStrategyTools"));
 const MacroTools = lazy(() => import("@/components/MacroTools"));
 const FredExplorer = lazy(() => import("@/components/data/FredExplorer"));
+const WorldBankExplorer = lazy(() => import("@/components/data/WorldBankExplorer"));
 const FrontierConcepts = lazy(() => import("@/components/FrontierConcepts"));
 const QuizSection = lazy(() => import("@/components/QuizSection"));
 const LearningPath = lazy(() => import("@/components/LearningPath"));
