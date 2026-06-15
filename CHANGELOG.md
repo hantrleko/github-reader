@@ -1,5 +1,18 @@
 # EF Lab 版本日志
 
+## 0.6.0 — 全球数据源拓展
+
+### 新增
+
+- **World Bank 全球发展指标浏览器** (`src/components/data/WorldBankExplorer.tsx`)
+  - 接入世界银行公开数据库（World Bank Open Data，免费、无需 API Key）。
+  - 15+ 精选指标按主题分组：增长产出、通胀货币、贸易外部、人口社会。
+  - 支持最多 5 个经济体的横向时间序列对比（14 个主要经济体可选）。
+  - 使用 Recharts 多线图可视化，自动对齐年份并连接缺失值。
+  - 每个指标提供直达 World Bank 官网详情页的外部链接。
+  - 新增边缘函数 `supabase/functions/worldbank-series`,代理并清洗 World Bank API 数据。
+  - 「数据源」导航分组新增 World Bank 入口及中英文本地化词条。
+
 ## 0.5.0 — 数据源与前沿拓展
 
 ### 新增

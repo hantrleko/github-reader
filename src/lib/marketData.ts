@@ -40,6 +40,18 @@ export type FredResponse = {
   values: number[];
 };
 
+export type WorldBankSeries = {
+  iso3: string;
+  name: string;
+  points: { date: string; value: number }[];
+};
+export type WorldBankResponse = {
+  indicator: string;
+  countries: string[];
+  n: number;
+  series: WorldBankSeries[];
+};
+
 export type FFRow = {
   date: string;
   mktRf: number;
@@ -74,6 +86,22 @@ export function useFredSeries(seriesId: string, start = "2015-01-01", enabled = 
     queryKey: ["fred", seriesId, start],
     queryFn: () => callFn<FredResponse>("fred-series", { series_id: seriesId, start }),
     enabled: enabled && !!seriesId,
+    staleTime: FIVE_MIN,
+    retry: 1,
+  });
+}
+
+export function useWorldBank(
+  indicator: string,
+  countries: string,
+  start = "1990",
+  enabled = true
+) {
+  return useQuery({
+    queryKey: ["worldbank", indicator, countries, start],
+    queryFn: () =>
+      callFn<WorldBankResponse>("worldbank-series", { indicator, countries, start }),
+    enabled: enabled && !!indicator && !!countries,
     staleTime: FIVE_MIN,
     retry: 1,
   });

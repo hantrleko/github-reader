@@ -36,6 +36,7 @@
       "econometrics": "OLS / GARCH / Kalman",
       "risk": "Merton / Copula / Stress",
       "fred": "FRED Macro Data",
+      "worldbank": "World Bank Indicators",
       "quant": "Quant Strategy Lab",
       "quiz": "Interactive Quiz",
       "learning": "Learning Path",
