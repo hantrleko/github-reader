@@ -29,6 +29,7 @@ const QuantStrategyTools = lazy(() => import("@/components/QuantStrategyTools"))
 const MacroTools = lazy(() => import("@/components/MacroTools"));
 const FredExplorer = lazy(() => import("@/components/data/FredExplorer"));
 const WorldBankExplorer = lazy(() => import("@/components/data/WorldBankExplorer"));
+const EcbBisExplorer = lazy(() => import("@/components/data/EcbBisExplorer"));
 const FrontierConcepts = lazy(() => import("@/components/FrontierConcepts"));
 const QuizSection = lazy(() => import("@/components/QuizSection"));
 const LearningPath = lazy(() => import("@/components/LearningPath"));
@@ -355,6 +356,13 @@ const Index = () => {
       <SectionErrorBoundary name="World Bank 数据浏览器">
       <Suspense fallback={<SectionFallback />}>
         <div id="worldbank" className="scroll-mt-12"><DeferMount><WorldBankExplorer /></DeferMount></div>
+      </Suspense>
+      </SectionErrorBoundary>
+
+      {/* ─── 数据源 · ECB / BIS ─── */}
+      <SectionErrorBoundary name="ECB / BIS 数据浏览器">
+      <Suspense fallback={<SectionFallback />}>
+        <div id="ecb-bis" className="scroll-mt-12"><DeferMount><EcbBisExplorer /></DeferMount></div>
       </Suspense>
       </SectionErrorBoundary>
 
