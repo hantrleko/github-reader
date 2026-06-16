@@ -1,5 +1,18 @@
 # EF Lab 版本日志
 
+## 0.7.0 — ECB / BIS 央行数据源
+
+### 新增
+
+- **ECB / BIS 数据浏览器** (`src/components/data/EcbBisExplorer.tsx`)
+  - 接入欧洲央行(ECB Data Portal)与国际清算银行(BIS Stats)开放数据,免费、无需 API Key。
+  - ECB:主要再融资/存款便利/边际贷款政策利率、欧元参考汇率(USD/GBP/JPY/CNY)、HICP 总体与核心通胀。
+  - BIS:美/欧/英/日/中各国政策利率、信贷/GDP 缺口、住宅地产价格指数、美元名义有效汇率。
+  - 区间窗口切换(2Y/5Y/10Y/20Y),实时显示最新值与区间涨跌。
+  - 每个序列附直达 ECB / BIS 官方页面的外部链接。
+  - 新增边缘函数 `supabase/functions/ecb-bis-series`,统一解析 ECB(SDMX-JSON v1)与 BIS(SDMX-JSON v2)。
+  - 「数据源」导航分组新增 ECB / BIS 入口及中英文本地化词条。
+
 ## 0.6.0 — 全球数据源拓展
 
 ### 新增
