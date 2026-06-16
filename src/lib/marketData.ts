@@ -69,6 +69,17 @@ export type FFResponse = {
   rows: FFRow[];
 };
 
+export type EcbBisResponse = {
+  provider: "ecb" | "bis";
+  flow: string;
+  key: string;
+  n: number;
+  latest: number | null;
+  latestDate: string | null;
+  dates: string[];
+  values: number[];
+};
+
 const FIVE_MIN = 5 * 60 * 1000;
 
 export function useMarketQuotes(symbol: string, range = "5y", enabled = true) {
@@ -112,6 +123,24 @@ export function useFamaFrench(months = 120, enabled = true) {
     queryKey: ["ff5", months],
     queryFn: () => callFn<FFResponse>("famafrench-factors", { months }),
     enabled,
+    staleTime: FIVE_MIN,
+    retry: 1,
+  });
+}
+
+export function useEcbBisSeries(
+  provider: "ecb" | "bis",
+  flow: string,
+  key: string,
+  start = "2000-01-01",
+  version = "1.0",
+  enabled = true
+) {
+  return useQuery({
+    queryKey: ["ecb-bis", provider, flow, key, start, version],
+    queryFn: () =>
+      callFn<EcbBisResponse>("ecb-bis-series", { provider, flow, key, start, version }),
+    enabled: enabled && !!flow && !!key,
     staleTime: FIVE_MIN,
     retry: 1,
   });
