@@ -1,5 +1,17 @@
 # EF Lab 版本日志
 
+## 0.8.0 — CoinGecko 加密资产数据源
+
+### 新增
+
+- **CoinGecko 加密市场浏览器** (`src/components/data/CoinGeckoExplorer.tsx`)
+  - 接入 CoinGecko 公共 API,免费、无需 API Key,提供历史价格、市值与成交量。
+  - 精选币种按主题分组:主流币(BTC/ETH/BNB/SOL)、稳定币(USDT/USDC)、生态与应用(XRP/ADA/DOGE/LINK)。
+  - 区间窗口切换(1M/3M/6M/1Y/MAX),自动计算年化波动率与区间涨跌。
+  - 每个币种附直达 CoinGecko 官方详情页的外部链接。
+  - 新增边缘函数 `supabase/functions/coingecko-series`,代理并清洗 CoinGecko market_chart 数据。
+  - 「数据源」导航分组新增 CoinGecko 入口及中英文本地化词条。
+
 ## 0.7.0 — ECB / BIS 央行数据源
 
 ### 新增
