@@ -80,6 +80,20 @@ export type EcbBisResponse = {
   values: number[];
 };
 
+export type CoinGeckoResponse = {
+  id: string;
+  vs: string;
+  n: number;
+  lastPrice: number | null;
+  latestDate: string | null;
+  marketCap: number | null;
+  totalVolume: number | null;
+  annualVol: number;
+  annualReturn: number;
+  dates: string[];
+  prices: number[];
+};
+
 const FIVE_MIN = 5 * 60 * 1000;
 
 export function useMarketQuotes(symbol: string, range = "5y", enabled = true) {
@@ -141,6 +155,16 @@ export function useEcbBisSeries(
     queryFn: () =>
       callFn<EcbBisResponse>("ecb-bis-series", { provider, flow, key, start, version }),
     enabled: enabled && !!flow && !!key,
+    staleTime: FIVE_MIN,
+    retry: 1,
+  });
+}
+
+export function useCoinGecko(id: string, vs = "usd", days = "365", enabled = true) {
+  return useQuery({
+    queryKey: ["coingecko", id, vs, days],
+    queryFn: () => callFn<CoinGeckoResponse>("coingecko-series", { id, vs, days }),
+    enabled: enabled && !!id,
     staleTime: FIVE_MIN,
     retry: 1,
   });

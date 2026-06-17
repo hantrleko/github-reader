@@ -12,6 +12,9 @@ verify_jwt = false
 [functions.ecb-bis-series]
 verify_jwt = false
 
+[functions.coingecko-series]
+verify_jwt = false
+
 [functions.famafrench-factors]
 verify_jwt = false
 
