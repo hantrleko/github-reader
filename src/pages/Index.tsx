@@ -30,6 +30,7 @@ const MacroTools = lazy(() => import("@/components/MacroTools"));
 const FredExplorer = lazy(() => import("@/components/data/FredExplorer"));
 const WorldBankExplorer = lazy(() => import("@/components/data/WorldBankExplorer"));
 const EcbBisExplorer = lazy(() => import("@/components/data/EcbBisExplorer"));
+const CoinGeckoExplorer = lazy(() => import("@/components/data/CoinGeckoExplorer"));
 const FrontierConcepts = lazy(() => import("@/components/FrontierConcepts"));
 const QuizSection = lazy(() => import("@/components/QuizSection"));
 const LearningPath = lazy(() => import("@/components/LearningPath"));
@@ -363,6 +364,13 @@ const Index = () => {
       <SectionErrorBoundary name="ECB / BIS 数据浏览器">
       <Suspense fallback={<SectionFallback />}>
         <div id="ecb-bis" className="scroll-mt-12"><DeferMount><EcbBisExplorer /></DeferMount></div>
+      </Suspense>
+      </SectionErrorBoundary>
+
+      {/* ─── 数据源 · CoinGecko ─── */}
+      <SectionErrorBoundary name="CoinGecko 数据浏览器">
+      <Suspense fallback={<SectionFallback />}>
+        <div id="coingecko" className="scroll-mt-12"><DeferMount><CoinGeckoExplorer /></DeferMount></div>
       </Suspense>
       </SectionErrorBoundary>
 

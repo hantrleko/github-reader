@@ -38,6 +38,7 @@
       "fred": "FRED 宏观数据",
       "worldbank": "World Bank 全球指标",
       "ecb-bis": "ECB / BIS 数据",
+      "coingecko": "CoinGecko 加密",
       "quant": "量化策略实验室",
       "quiz": "互动测验",
       "learning": "学习路径",
