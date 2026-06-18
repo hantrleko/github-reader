@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, useCallback } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   ArrowLeft,
@@ -43,6 +43,16 @@ type TreeNode = {
   type: "blob" | "tree";
   size?: number;
   children: TreeNode[];
+};
+
+type HistoryRow = { id: string; owner: string; repo: string; branch: string; last_opened_at: string };
+type StarRow = {
+  id: string;
+  owner: string;
+  repo: string;
+  default_branch: string | null;
+  description: string | null;
+  stars: number | null;
 };
 
 function parseRepoUrl(input: string): { owner: string; repo: string; branch?: string } | null {
@@ -103,6 +113,28 @@ function formatBytes(n?: number) {
   return `${(n / 1024 / 1024).toFixed(2)} MB`;
 }
 
+const GH_HEADERS: HeadersInit = {
+  Accept: "application/vnd.github+json",
+};
+
+if (import.meta.env.VITE_GITHUB_TOKEN) {
+  (GH_HEADERS as Record<string, string>).Authorization = `Bearer ${import.meta.env.VITE_GITHUB_TOKEN}`;
+}
+
+const getRepoError = (res: Response, op: string) => {
+  if (res.status === 404) return `${op}不存在或不可访问`;
+  if (res.status === 403) {
+    const reset = res.headers.get("x-ratelimit-reset");
+    if (reset) {
+      const resetAt = Number(reset) * 1000;
+      const mins = Math.max(0, Math.ceil((resetAt - Date.now()) / 60000));
+      return `GitHub API 访问受限，约 ${mins} 分钟后恢复`;
+    }
+    return "GitHub API 请求受限，请稍后重试";
+  }
+  return `加载失败 (${res.status})`;
+};
+
 const TreeRow = ({
   node,
   depth,
@@ -151,7 +183,8 @@ const TreeRow = ({
               {formatBytes(node.size)}
             </span>
             <a
-              href={`${repoUrl}/blob/${branch}/${node.path}`}
+              href={`${repoUrl}/blob/${branch}/${node.path}`
+}
               target="_blank"
               rel="noreferrer"
               onClick={(e) => e.stopPropagation()}
@@ -182,16 +215,6 @@ const TreeRow = ({
   );
 };
 
-type HistoryRow = { id: string; owner: string; repo: string; branch: string; last_opened_at: string };
-type StarRow = {
-  id: string;
-  owner: string;
-  repo: string;
-  default_branch: string | null;
-  description: string | null;
-  stars: number | null;
-};
-
 const GithubExplorer = () => {
   const { user } = useAuth();
   const [input, setInput] = useState("");
@@ -220,10 +243,22 @@ const GithubExplorer = () => {
   const [noteTags, setNoteTags] = useState("");
   const [noteBusy, setNoteBusy] = useState(false);
 
+  const requestId = useRef(0);
+  const pendingRequest = useRef<AbortController | null>(null);
+  const mounted = useRef(true);
+  const latestNoteRequest = useRef("");
+
   const repoUrl = useMemo(
     () => (meta ? `https://github.com/${meta.owner}/${meta.repo}` : ""),
     [meta]
   );
+
+  useEffect(() => {
+    return () => {
+      mounted.current = false;
+      pendingRequest.current?.abort();
+    };
+  }, []);
 
   const refreshSidebar = useCallback(async () => {
     if (!user) {
@@ -235,6 +270,7 @@ const GithubExplorer = () => {
       listGithubHistory(user.id, 10),
       listGithubStars(user.id),
     ]);
+    if (!mounted.current) return;
     setHistory(h as HistoryRow[]);
     setStars(s as StarRow[]);
   }, [user]);
@@ -271,39 +307,50 @@ const GithubExplorer = () => {
       setError("无法解析仓库地址。请输入 https://github.com/owner/repo 或 owner/repo");
       return;
     }
+
+    const nextRequestId = requestId.current + 1;
+    requestId.current = nextRequestId;
+
+    const prevRequest = pendingRequest.current;
+    prevRequest?.abort();
+    const controller = new AbortController();
+    pendingRequest.current = controller;
+
     setLoading(true);
     setError(null);
     setTree(null);
     setMeta(null);
     setStarred(false);
     setNotedPaths(new Set());
+
     try {
-      const headers: HeadersInit = { Accept: "application/vnd.github+json" };
       const repoRes = await fetch(
         `https://api.github.com/repos/${parsed.owner}/${parsed.repo}`,
-        { headers }
+        { headers: GH_HEADERS, signal: controller.signal }
       );
       if (!repoRes.ok) {
-        throw new Error(
-          repoRes.status === 404
-            ? "仓库不存在或为私有仓库"
-            : repoRes.status === 403
-            ? "GitHub API 速率限制，请稍后重试"
-            : `加载失败 (${repoRes.status})`
-        );
+        throw new Error(getRepoError(repoRes, "仓库");)
       }
       const repoData = await repoRes.json();
+
+      if (nextRequestId !== requestId.current || !mounted.current) return;
+
       const branch = parsed.branch || repoData.default_branch || "main";
       const treeRes = await fetch(
         `https://api.github.com/repos/${parsed.owner}/${parsed.repo}/git/trees/${branch}?recursive=1`,
-        { headers }
+        { headers: GH_HEADERS, signal: controller.signal }
       );
-      if (!treeRes.ok) throw new Error(`无法读取分支 ${branch}`);
+      if (!treeRes.ok) {
+        throw new Error(getRepoError(treeRes, `分支 ${branch}`));
+      }
       const treeData = await treeRes.json();
+      if (nextRequestId !== requestId.current || !mounted.current) return;
+
       const entries: GhEntry[] = (treeData.tree || []).filter(
         (e: GhEntry) => e.type === "blob" || e.type === "tree"
       );
       const built = buildTree(entries);
+
       setTree(built);
       setMeta({
         owner: parsed.owner,
@@ -316,7 +363,6 @@ const GithubExplorer = () => {
       });
       setExpanded(new Set([""]));
 
-      // Cloud sync (only when logged in)
       if (user) {
         try {
           await recordGithubVisit(user.id, parsed.owner, parsed.repo, branch);
@@ -324,6 +370,7 @@ const GithubExplorer = () => {
             isGithubStarred(user.id, parsed.owner, parsed.repo),
             listFileNotesForRepo(user.id, parsed.owner, parsed.repo, branch),
           ]);
+          if (nextRequestId !== requestId.current || !mounted.current) return;
           setStarred(isStar);
           setNotedPaths(new Set(notes.map((n) => n.path)));
           refreshSidebar();
@@ -333,9 +380,15 @@ const GithubExplorer = () => {
         }
       }
     } catch (e) {
+      if (e instanceof DOMException && e.name === "AbortError") {
+        return;
+      }
+      if (nextRequestId !== requestId.current || !mounted.current) return;
       setError(e instanceof Error ? e.message : "加载失败");
     } finally {
-      setLoading(false);
+      if (nextRequestId === requestId.current && mounted.current) {
+        setLoading(false);
+      }
     }
   };
 
@@ -363,12 +416,18 @@ const GithubExplorer = () => {
       return;
     }
     if (!meta) return;
+    const k: FileNoteKey = { owner: meta.owner, repo: meta.repo, branch: meta.branch, path };
+    const requestKey = `${k.owner}/${k.repo}:${k.branch}:${k.path}`;
+    latestNoteRequest.current = requestKey;
+
     setActivePath(path);
     setNoteText("");
     setNoteTags("");
     setNoteOpen(true);
-    const k: FileNoteKey = { owner: meta.owner, repo: meta.repo, branch: meta.branch, path };
+
     const existing = await getFileNote(user.id, k);
+    if (latestNoteRequest.current !== requestKey) return;
+
     if (existing) {
       setNoteText(existing.note ?? "");
       setNoteTags((existing.tags ?? []).join(", "));
