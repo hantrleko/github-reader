@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { cn } from "@/lib/utils";
 
 /**
@@ -26,7 +26,15 @@ const SYMBOLS: { sym: string; label: string }[] = [
 ];
 
 const fmt = (n: number | null, digits = 2) =>
-  n == null || !isFinite(n) ? "—" : n.toLocaleString("en-US", { maximumFractionDigits: digits, minimumFractionDigits: digits });
+  n == null || !isFinite(n)
+    ? "—"
+    : n.toLocaleString("en-US", { maximumFractionDigits: digits, minimumFractionDigits: digits });
+
+const ENDPOINT =
+  typeof import.meta.env.VITE_SUPABASE_URL === "string" && import.meta.env.VITE_SUPABASE_URL
+    ? `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/market-quotes`
+    : "";
+const SUPABASE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY as string | undefined;
 
 const TopTicker = () => {
   const [quotes, setQuotes] = useState<Quote[]>(
@@ -36,26 +44,32 @@ const TopTicker = () => {
 
   useEffect(() => {
     let cancelled = false;
+    const controller = new AbortController();
 
     const loadOne = async (sym: string, label: string): Promise<Quote> => {
+      if (!ENDPOINT) return { symbol: sym, label, price: null, change: null };
       try {
-        const url = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/market-quotes?symbol=${encodeURIComponent(
-          sym
-        )}&range=5d&interval=1d`;
+        const url = `${ENDPOINT}?symbol=${encodeURIComponent(sym)}&range=5d&interval=1d`;
         const resp = await fetch(url, {
-          headers: {
-            apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY ?? "",
-            Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY ?? ""}`,
-          },
+          signal: controller.signal,
+          headers: SUPABASE_KEY
+            ? {
+                apikey: SUPABASE_KEY,
+                Authorization: `Bearer ${SUPABASE_KEY}`,
+              }
+            : undefined,
         });
-        if (!resp.ok) throw new Error(String(resp.status));
+        if (!resp.ok) return { symbol: sym, label, price: null, change: null };
         const j = await resp.json();
-        const closes: number[] = j.closes || [];
+        const closes: number[] = Array.isArray(j?.closes) ? j.closes : [];
         const last = closes[closes.length - 1] ?? null;
         const prev = closes[closes.length - 2] ?? null;
-        const chg = last != null && prev != null ? Math.log(last / prev) : null;
+        const chg = last != null && prev != null && prev > 0 ? Math.log(last / prev) : null;
         return { symbol: sym, label, price: last, change: chg };
-      } catch {
+      } catch (err) {
+        if ((err as DOMException)?.name === "AbortError") {
+          return { symbol: sym, label, price: null, change: null };
+        }
         return { symbol: sym, label, price: null, change: null };
       }
     };
@@ -70,10 +84,11 @@ const TopTicker = () => {
 
     return () => {
       cancelled = true;
+      controller.abort();
     };
   }, []);
 
-  const items = [...quotes, ...quotes]; // duplicate for seamless loop
+  const items = useMemo(() => [...quotes, ...quotes], [quotes]); // duplicate for seamless loop
 
   return (
     <div
@@ -84,9 +99,9 @@ const TopTicker = () => {
       <div
         className={cn(
           "flex items-center gap-8 h-full whitespace-nowrap will-change-transform",
-          ready ? "animate-[ticker_60s_linear_infinite]" : "opacity-60"
+          !ready && "opacity-60"
         )}
-        style={{ animationName: "ticker" }}
+        style={{ animation: ready ? "ticker 60s linear infinite" : "none" }}
       >
         {items.map((q, i) => {
           const up = (q.change ?? 0) > 0;
