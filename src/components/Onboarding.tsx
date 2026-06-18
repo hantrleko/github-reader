@@ -1,6 +1,11 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, ArrowRight, Sparkles, Command, Compass } from "lucide-react";
+import {
+  safeLocalStorage,
+  getStorageItem,
+  setStorageItem,
+} from "@/lib/storage";
 
 const STORAGE_KEY = "lov.onboarded.v1";
 
@@ -28,17 +33,19 @@ const Onboarding = () => {
 
   useEffect(() => {
     try {
-      if (!localStorage.getItem(STORAGE_KEY)) {
+      if (!getStorageItem(safeLocalStorage, STORAGE_KEY)) {
         // 延后一拍,等首屏渲染稳定再弹
         const t = setTimeout(() => setOpen(true), 800);
         return () => clearTimeout(t);
       }
-    } catch { /* private mode */ }
+    } catch {
+      /* private mode */
+    }
   }, []);
 
   const close = () => {
     setOpen(false);
-    try { localStorage.setItem(STORAGE_KEY, String(Date.now())); } catch {}
+    setStorageItem(safeLocalStorage, STORAGE_KEY, String(Date.now()));
   };
 
   const next = () => {
