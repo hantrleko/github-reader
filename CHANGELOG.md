@@ -1,5 +1,19 @@
 # EF Lab 版本日志
 
+## 0.9.0 — Alpha Vantage 个股与外汇数据源
+
+### 新增
+
+- **Alpha Vantage 数据浏览器** (`src/components/data/AlphaVantageExplorer.tsx`)
+  - 接入 Alpha Vantage API,覆盖美股日线行情与外汇汇率两大维度。
+  - 精选标的按主题分组:美股科技(AAPL/MSFT/NVDA/GOOGL)、宽基与蓝筹(SPY/QQQ/JPM/BRK.A)、外汇货币对(EUR/USD、GBP/USD、USD/JPY、USD/CNY)。
+  - 支持自定义股票代码查询(回车或搜索按钮)。
+  - 区间窗口切换(3M/6M/1Y/MAX),自动计算年化波动率与区间涨跌。
+  - 每个序列附直达 Alpha Vantage 官方文档的外部链接。
+  - 新增边缘函数 `supabase/functions/alphavantage-series`,统一代理并清洗 `TIME_SERIES_DAILY`(个股)与 `FX_DAILY`(外汇),并显式处理免费版限流(5 次/分钟、25 次/天)与错误响应。
+  - API Key 经 `ALPHAVANTAGE_API_KEY` 密钥安全存储,仅在后端边缘函数中使用,不暴露给前端。
+  - 「数据源」导航分组新增 Alpha Vantage 入口及中英文本地化词条。
+
 ## 0.8.0 — CoinGecko 加密资产数据源
 
 ### 新增
