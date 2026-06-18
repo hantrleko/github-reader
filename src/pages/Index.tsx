@@ -31,6 +31,7 @@ const FredExplorer = lazy(() => import("@/components/data/FredExplorer"));
 const WorldBankExplorer = lazy(() => import("@/components/data/WorldBankExplorer"));
 const EcbBisExplorer = lazy(() => import("@/components/data/EcbBisExplorer"));
 const CoinGeckoExplorer = lazy(() => import("@/components/data/CoinGeckoExplorer"));
+const AlphaVantageExplorer = lazy(() => import("@/components/data/AlphaVantageExplorer"));
 const FrontierConcepts = lazy(() => import("@/components/FrontierConcepts"));
 const QuizSection = lazy(() => import("@/components/QuizSection"));
 const LearningPath = lazy(() => import("@/components/LearningPath"));
@@ -371,6 +372,13 @@ const Index = () => {
       <SectionErrorBoundary name="CoinGecko 数据浏览器">
       <Suspense fallback={<SectionFallback />}>
         <div id="coingecko" className="scroll-mt-12"><DeferMount><CoinGeckoExplorer /></DeferMount></div>
+      </Suspense>
+      </SectionErrorBoundary>
+
+      {/* ─── 数据源 · Alpha Vantage ─── */}
+      <SectionErrorBoundary name="Alpha Vantage 数据浏览器">
+      <Suspense fallback={<SectionFallback />}>
+        <div id="alphavantage" className="scroll-mt-12"><DeferMount><AlphaVantageExplorer /></DeferMount></div>
       </Suspense>
       </SectionErrorBoundary>
 

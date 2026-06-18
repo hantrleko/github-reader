@@ -40,6 +40,7 @@ const GROUPS: Group[] = [
     { id: "worldbank", labelKey: "nav.items.worldbank" },
     { id: "ecb-bis", labelKey: "nav.items.ecb-bis" },
     { id: "coingecko", labelKey: "nav.items.coingecko" },
+    { id: "alphavantage", labelKey: "nav.items.alphavantage" },
   ]},
   { labelKey: "nav.groups.quant", items: [
     { id: "quant", labelKey: "nav.items.quant" },
