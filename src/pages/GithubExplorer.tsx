@@ -183,8 +183,7 @@ const TreeRow = ({
               {formatBytes(node.size)}
             </span>
             <a
-              href={`${repoUrl}/blob/${branch}/${node.path}`
-}
+              href={`${repoUrl}/blob/${branch}/${node.path}`}
               target="_blank"
               rel="noreferrer"
               onClick={(e) => e.stopPropagation()}
@@ -329,7 +328,7 @@ const GithubExplorer = () => {
         { headers: GH_HEADERS, signal: controller.signal }
       );
       if (!repoRes.ok) {
-        throw new Error(getRepoError(repoRes, "仓库");)
+        throw new Error(getRepoError(repoRes, "仓库"));
       }
       const repoData = await repoRes.json();
 
@@ -531,7 +530,6 @@ const GithubExplorer = () => {
         )}
 
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-6">
-          {/* MAIN */}
           <div>
             {meta && tree && (
               <section className="border border-accent rounded-md bg-card">
@@ -625,7 +623,6 @@ const GithubExplorer = () => {
             )}
           </div>
 
-          {/* SIDEBAR */}
           <aside className="space-y-4">
             {!user ? (
               <div className="border border-accent rounded-md bg-card p-4">
@@ -666,9 +663,7 @@ const GithubExplorer = () => {
                           <p className="text-[11px] font-mono text-foreground truncate">
                             {s.owner}/{s.repo}
                           </p>
-                          {s.description && (
-                            <p className="text-[10px] text-muted-foreground truncate">{s.description}</p>
-                          )}
+                          {s.description && <p className="text-[10px] text-muted-foreground truncate">{s.description}</p>}
                         </button>
                       ))
                     )}
