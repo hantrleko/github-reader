@@ -19,11 +19,13 @@ type ReportInput = {
   extra?: Record<string, unknown>;
 };
 
-const ENDPOINT = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/client-error-log`;
-const APIKEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY as string;
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL as string | undefined;
+const APIKEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY as string | undefined;
+const ENDPOINT = SUPABASE_URL ? `${SUPABASE_URL}/functions/v1/client-error-log` : "";
 
 const recent = new Map<string, number>();
 const DEDUP_MS = 10_000;
+const DEDUP_MAX = 200;
 
 // Pull the index.html hash out of the bootstrap script so we can correlate
 // a stale tab with a specific deploy. Vite emits `/assets/index-<hash>.js`.
@@ -43,13 +45,31 @@ const getIndexHtmlHash = (): string => {
   return "";
 };
 
+const pruneRecent = () => {
+  if (recent.size <= DEDUP_MAX) return;
+  const now = Date.now();
+  for (const [key, seenAt] of recent.entries()) {
+    if (now - seenAt > DEDUP_MS * 3) {
+      recent.delete(key);
+    }
+  }
+  if (recent.size > DEDUP_MAX) {
+    const removeCount = recent.size - DEDUP_MAX;
+    const keys = Array.from(recent.keys());
+    for (let i = 0; i < removeCount; i++) {
+      recent.delete(keys[i]);
+    }
+  }
+};
+
 export function reportClientError(input: ReportInput): void {
-  if (typeof window === "undefined") return;
+  if (typeof window === "undefined" || !ENDPOINT) return;
   try {
     const key = `${input.type}::${input.message ?? ""}::${input.failedAsset ?? ""}`;
     const now = Date.now();
     const last = recent.get(key) ?? 0;
     if (now - last < DEDUP_MS) return;
+    pruneRecent();
     recent.set(key, now);
 
     const payload = {
@@ -71,14 +91,18 @@ export function reportClientError(input: ReportInput): void {
       if (navigator.sendBeacon(ENDPOINT, blob)) return;
     }
 
+    const headers: HeadersInit = {
+      "Content-Type": "application/json",
+    };
+    if (APIKEY) {
+      headers.apikey = APIKEY;
+      headers.Authorization = `Bearer ${APIKEY}`;
+    }
+
     void fetch(ENDPOINT, {
       method: "POST",
       keepalive: true,
-      headers: {
-        "Content-Type": "application/json",
-        apikey: APIKEY,
-        Authorization: `Bearer ${APIKEY}`,
-      },
+      headers,
       body,
     }).catch(() => {});
   } catch {
