@@ -39,6 +39,7 @@
       "worldbank": "World Bank Indicators",
       "ecb-bis": "ECB / BIS Data",
       "coingecko": "CoinGecko Crypto",
+      "alphavantage": "Alpha Vantage Stocks/FX",
       "quant": "Quant Strategy Lab",
       "quiz": "Interactive Quiz",
       "learning": "Learning Path",
