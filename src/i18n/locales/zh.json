@@ -39,6 +39,7 @@
       "worldbank": "World Bank 全球指标",
       "ecb-bis": "ECB / BIS 数据",
       "coingecko": "CoinGecko 加密",
+      "alphavantage": "Alpha Vantage 股票/外汇",
       "quant": "量化策略实验室",
       "quiz": "互动测验",
       "learning": "学习路径",
