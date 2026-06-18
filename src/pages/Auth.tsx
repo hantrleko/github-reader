@@ -15,6 +15,18 @@ const schema = z.object({
   password: z.string().min(6, "密码至少 6 位"),
 });
 
+const sanitizeRedirect = (raw: string): string => {
+  try {
+    const parsed = new URL(raw || "/", window.location.origin);
+    if (parsed.origin !== window.location.origin) return "/";
+    if (!parsed.pathname.startsWith("/")) return "/";
+    if (parsed.pathname === "/auth") return "/";
+    return `${parsed.pathname}${parsed.search}${parsed.hash}`;
+  } catch {
+    return "/";
+  }
+};
+
 const AuthPage = () => {
   const [params] = useSearchParams();
   const navigate = useNavigate();
@@ -25,7 +37,7 @@ const AuthPage = () => {
   const [busy, setBusy] = useState(false);
   const [oauthBusy, setOauthBusy] = useState(false);
 
-  const next = params.get("next") || "/";
+  const next = sanitizeRedirect(params.get("next") || "/");
 
   const signInWithGoogle = async () => {
     setOauthBusy(true);
@@ -61,7 +73,7 @@ const AuthPage = () => {
         const { error } = await supabase.auth.signUp({
           email,
           password,
-          options: { emailRedirectTo: window.location.origin },
+          options: { emailRedirectTo: `${window.location.origin}${next}` },
         });
         if (error) throw error;
         toast({ title: "注册成功", description: "正在为你登录..." });
