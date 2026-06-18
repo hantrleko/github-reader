@@ -5,6 +5,8 @@
  * - If it changed (new deploy), we clear Cache Storage + unregister service
  *   workers and reload once so the user is never stuck on stale assets.
  */
+import { safeLocalStorage, safeSessionStorage, getStorageItem, setStorageItem } from "@/lib/storage";
+
 declare const __BUILD_VERSION__: string;
 
 const STORAGE_KEY = "app-build-version";
@@ -20,21 +22,22 @@ export async function checkBuildVersion(): Promise<void> {
   (window as unknown as { __BUILD_VERSION__: string }).__BUILD_VERSION__ =
     BUILD_VERSION;
 
-  const previous = localStorage.getItem(STORAGE_KEY);
+  const previous = getStorageItem(safeLocalStorage, STORAGE_KEY, null);
 
   if (!previous) {
-    localStorage.setItem(STORAGE_KEY, BUILD_VERSION);
+    setStorageItem(safeLocalStorage, STORAGE_KEY, BUILD_VERSION);
     return;
   }
 
   if (previous === BUILD_VERSION) return;
 
   // Guard against reload loops if the cache clear didn't take effect.
-  if (sessionStorage.getItem(RELOAD_FLAG) === BUILD_VERSION) {
-    localStorage.setItem(STORAGE_KEY, BUILD_VERSION);
+  if (getStorageItem(safeSessionStorage, RELOAD_FLAG, null) === BUILD_VERSION) {
+    setStorageItem(safeLocalStorage, STORAGE_KEY, BUILD_VERSION);
     return;
   }
-  sessionStorage.setItem(RELOAD_FLAG, BUILD_VERSION);
+
+  setStorageItem(safeSessionStorage, RELOAD_FLAG, BUILD_VERSION);
 
   try {
     if ("caches" in window) {
@@ -49,7 +52,7 @@ export async function checkBuildVersion(): Promise<void> {
     // Ignore — proceed to reload anyway.
   }
 
-  localStorage.setItem(STORAGE_KEY, BUILD_VERSION);
+  setStorageItem(safeLocalStorage, STORAGE_KEY, BUILD_VERSION);
   // Bypass HTTP cache.
   window.location.reload();
 }
