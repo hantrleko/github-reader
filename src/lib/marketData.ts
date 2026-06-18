@@ -94,6 +94,18 @@ export type CoinGeckoResponse = {
   prices: number[];
 };
 
+export type AlphaVantageResponse = {
+  kind: "equity" | "fx";
+  symbol: string;
+  n: number;
+  lastPrice: number | null;
+  latestDate: string | null;
+  annualVol: number;
+  annualReturn: number;
+  dates: string[];
+  closes: number[];
+};
+
 const FIVE_MIN = 5 * 60 * 1000;
 
 export function useMarketQuotes(symbol: string, range = "5y", enabled = true) {
@@ -165,6 +177,26 @@ export function useCoinGecko(id: string, vs = "usd", days = "365", enabled = tru
     queryKey: ["coingecko", id, vs, days],
     queryFn: () => callFn<CoinGeckoResponse>("coingecko-series", { id, vs, days }),
     enabled: enabled && !!id,
+    staleTime: FIVE_MIN,
+    retry: 1,
+  });
+}
+
+export function useAlphaVantage(
+  kind: "equity" | "fx",
+  params: { symbol?: string; from?: string; to?: string; output?: "compact" | "full" },
+  enabled = true
+) {
+  const query: Record<string, string> = { kind, output: params.output || "compact" };
+  if (kind === "equity") query.symbol = params.symbol || "AAPL";
+  else {
+    query.from = params.from || "EUR";
+    query.to = params.to || "USD";
+  }
+  return useQuery({
+    queryKey: ["alphavantage", kind, query.symbol, query.from, query.to, query.output],
+    queryFn: () => callFn<AlphaVantageResponse>("alphavantage-series", query),
+    enabled: enabled && (kind === "equity" ? !!query.symbol : !!query.from && !!query.to),
     staleTime: FIVE_MIN,
     retry: 1,
   });
