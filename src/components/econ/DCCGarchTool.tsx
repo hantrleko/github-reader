@@ -1290,7 +1290,7 @@ export const DCCGarchTool = () => {
                   <YAxis tick={{ fill: CHART_TEXT, fontSize: 10 }} />
                   <Tooltip
                     contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", fontSize: 11 }}
-                    formatter={(v: number | null) => v == null ? "—" : `${v.toFixed(3)}%`} />
+                    formatter={(v) => v == null ? "—" : `${Number(v).toFixed(3)}%`} />
                   <Legend wrapperStyle={{ fontSize: 11 }} />
                   <ReferenceLine y={0} stroke={CHART_TEXT} strokeDasharray="3 3" />
                   <Line dataKey="ret" type="monotone" stroke={CHART_TEAL} dot={false}
