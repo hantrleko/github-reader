@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { Link } from "react-router-dom";
+import { sectionHref } from "@/lib/sections";
 import { Sparkles, ArrowRight, BadgeCheck, LayoutGrid } from "lucide-react";
 import {
   TOOLS_CATALOG,
@@ -73,7 +74,7 @@ const TodaysPick = () => {
               return (
                 <Link
                   key={t.id}
-                  to={t.anchor}
+                  to={sectionHref(t.anchor)}
                   className="group block rounded-xl border border-border/60 bg-background/40 hover:bg-background/80 hover:border-gold/50 p-4 transition-all hover:-translate-y-0.5"
                 >
                   <div className="flex items-center justify-between mb-2">

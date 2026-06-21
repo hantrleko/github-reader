@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
+import { sectionHref } from "@/lib/sections";
 import {
   ArrowRight,
   CalendarDays,
@@ -461,7 +462,7 @@ const ResearchPlaybooks = () => {
                     {active.anchors.map((anchor) => (
                       <Link
                         key={anchor.href}
-                        to={anchor.href}
+                        to={sectionHref(anchor.href)}
                         className="flex items-center justify-between gap-2 rounded-lg border border-border/50 bg-background/30 px-3 py-2 text-xs text-foreground/75 hover:text-gold hover:border-gold/35 transition-colors"
                       >
                         <span>{anchor.label}</span>
