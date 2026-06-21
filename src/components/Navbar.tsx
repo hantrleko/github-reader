@@ -108,19 +108,9 @@ const Navbar = () => {
   }, [openGroup]);
 
   const scrollTo = (id: string) => {
-    if (!onHome) {
-      navigate(`/#${id}`);
-      setMobileOpen(false);
-      setOpenGroup(null);
-      return;
-    }
-    const el = document.getElementById(id);
-    if (el) {
-      el.scrollIntoView({ behavior: "smooth", block: "start" });
-      setActive(id);
-      setMobileOpen(false);
-      setOpenGroup(null);
-    }
+    setMobileOpen(false);
+    setOpenGroup(null);
+    navigate(sectionHref(id));
   };
 
   const isGroupActive = (g: Group) => g.items.some((i) => i.id === active);
