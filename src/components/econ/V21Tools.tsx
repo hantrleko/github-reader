@@ -157,7 +157,6 @@ export const PSMTool = () => {
     const rng = mulberry32(seed);
     // X ~ N(0,1); T ~ Bern( σ(γ X) ); Y = α + τT + βX + ε
     const X = new Array(n).fill(0).map(() => randn(rng));
-    const T = X.map(x => (Math.random ? null : null) as any);
     // Use rng for treatment too
     const rng2 = mulberry32(seed + 1);
     const Tvec: number[] = X.map(x => (rng2() < 1 / (1 + Math.exp(-gamma * x)) ? 1 : 0));

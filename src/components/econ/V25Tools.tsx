@@ -462,7 +462,7 @@ export const KyleLambdaTool = () => {
 
     // Scatter (subsample for speed)
     const step = Math.max(1, Math.floor(flows.length / 600));
-    const scatter = [];
+    const scatter: { q: number; dp: number }[] = [];
     for (let i = 0; i < flows.length; i += step) {
       scatter.push({ q: +flows[i].toFixed(2), dp: +dPs[i].toFixed(4) });
     }
