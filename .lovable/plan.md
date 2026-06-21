@@ -1,67 +1,55 @@
-# 补全研报模型 — V3.1 模型扩展
+## 目标
 
-对照《经济与金融模型基础》研报，把网站缺失的经典模型补齐。范围：金融核心 + 计量核心 + 宏观 + 新增微观经济学分类；前沿章节只做概念卡片；所有新工具按**轻量版**实现（核心计算 + 1~2 张图表 + LaTeX 公式 + 参数预设），后续可迭代。
+把当前"单一超长页面 + 锚点滚动"改为"每个页签 = 一个独立、有边界的功能页面"。点击导航不再滚动到长页面的某个位置，而是跳转到该功能的专属路由，页面只渲染那一个板块（含标题头 + 工具 + 页脚）。
 
-所有新工具沿用现有模式：`EquationBlock`(LaTeX) + `PresetButtons`(教材/市场预设) + `ShareExportToolbar` + recharts 图表 + 引用脚注，并登记进 `toolsCatalog.ts`(驱动 /tools 索引与 Today's Pick)。
+## 路由设计
 
----
+新增一个动态路由承载所有功能板块：
 
-## 1. 新增「微观经济学」分类（整章缺失）
+```text
+/                     → 着陆页（Hero / 简介 / 主题 / 模型 / 精选 Notebook + 板块目录）
+/s/:sectionId         → 单个功能页面（只渲染该板块）
+```
 
-- `toolsCatalog.ts` 新增 `micro` 分类（zh: 微观经济, en: Microeconomics）。
-- 新建 `src/components/MicroTools.tsx`（tab 切换，结构同 `MacroTools.tsx`）+ `src/components/micro/` 子工具：
-  1. **供需均衡** — 线性供需曲线交点，滑杆调需求/供给斜率与截距、税收/补贴，显示均衡 P*/Q*、税收归宿与无谓损失。
-  2. **消费者选择** — Cobb-Douglas 效用，预算线 + 无差异曲线，最优点 MRS=Px/Py，价格变化分解收入/替代效应。
-  3. **生产者理论** — 等产量线 + 等成本线，成本最小化 MPL/MPK=w/r，短期成本曲线 (MC/AC/AVC)。
-  4. **市场结构博弈** — 古诺/伯特兰/斯塔克尔伯格/垄断 同屏对比均衡产量、价格与利润。
-  5. **信息经济学** — 逆向选择(柠檬市场)、道德风险、信号传递 的交互演示 + 概念表。
-- `Index.tsx` 在「基础定价」前插入新章节 `#micro`，挂 `MicroTools`(走 `DeferMount`)。
+`sectionId` 取现有锚点 id：micro, calculator, implied-vol, mc-pricer, derivatives, bond, rate-model, frontier, asset-pricing, econometrics, risk, quant, macro, fred, worldbank, ecb-bis, coingecko, alphavantage, platform, frontier-concepts, quiz, learning。
 
-## 2. 宏观补全（加入现有 `MacroTools` tab）
+保留 hero / topics / models 作为着陆页内容（不单独成页）。
 
-新建 `src/components/macro/ClassicMacroTools.tsx`，新增 5 个工具并入宏观 tab：
-- **IS-LM** — IS/LM 曲线交点，财政(G)/货币(M)冲击移动曲线，显示挤出效应、流动性陷阱。
-- **AD-AS** — AD + SRAS + LRAS，需求/供给冲击下产出与价格调整路径。
-- **菲利普斯曲线** — 附加预期版与 NKPC，演示长期垂直与曲线平坦化。
-- **蒙代尔-弗莱明** — 开放经济 IS-LM-BP，固定 vs 浮动汇率下政策有效性 + 不可能三角图示。
-- **拉姆齐模型** — Euler 方程相位图，消费/资本鞍点路径。
+## 实施步骤
 
-## 3. 金融核心补全
+1. **新建板块注册表** `src/lib/sections.ts`
+   - 数组 `SECTIONS`：每项含 `{ id, kicker, label, subtitle, Component(lazy) }`，从现有 Index.tsx 的分节文案迁移。
+   - `SECTION_MAP`、`HOME_IDS = ["hero","topics","models"]`。
+   - 工具函数 `sectionHref(idOrAnchor)`：把 `id` 或旧的 `/#id` 统一解析为正确路由（home 三项 → `/#id`，其余 → `/s/id`）。
 
-新建 `src/components/AssetPricingTools.tsx`（资产定价 tab 组），挂到「固收 & 资产配置」章节 `#asset-pricing`：
-- **CAPM / SML** — 证券市场线，输入 β、Rf、E(Rm)，定位资产、计算 Jensen's α。
-- **APT 多因子** — 自定义 2~3 因子载荷与溢价，线性合成预期收益。
-- **Fama-French 回归** — 对粘贴/示例收益数据跑 3 因子(可选 5 因子)OLS，输出 α 与因子载荷（复用现有 `ols.ts`，可对接已有 `famafrench-factors` 取数函数）。
+2. **新建** `src/pages/SectionPage.tsx`
+   - 读取 `:sectionId`，无效则重定向回 `/`。
+   - 渲染 Navbar + 板块标题头（复用 SectionHeader）+ Suspense/ErrorBoundary 包裹的对应组件 + 页脚。
+   - 路由切换时滚动到顶部。每个页面独立 SEO 标题。
 
-风险章节 `RiskTools` 新增 tab：
-- **VaR 三法** — 参数法 / 历史模拟 / 蒙特卡洛 并排对比，叠加损失分布直方图与 VaR/ES 分位线。
+3. **改造** `src/App.tsx`：新增 `/s/:sectionId` 路由。
 
-## 4. 计量核心补全（加入现有 `EconometricsTools` tab）
+4. **精简** `src/pages/Index.tsx` 为着陆页
+   - 保留：Hero、Editorial Briefing、ResearchPlaybooks、TodaysPick、TopicCards、ModelShowcase、FeaturedNotebooks、Footer。
+   - 移除所有重型板块的内联挂载（迁移到 SectionPage）。
+   - 新增"板块目录"网格：用 `SECTIONS` 渲染卡片，链接到各 `/s/:id`，方便总览。
 
-新建 `src/components/econ/ClassicEconTools.tsx`：
-- **ARIMA / Box-Jenkins** — AR/MA 项数可调，ACF/PACF 图 + 拟合与一步预测。
-- **VAR / SVAR** — 双变量 VAR，脉冲响应函数(IRF) + Granger 因果检验。
-- **面板数据 FE/RE** — 固定效应(组内去均值) vs 随机效应(GLS) + Hausman 检验。
+5. **改造导航** `src/components/Navbar.tsx`
+   - `scrollTo` 改为路由跳转：home 项 → `/` 或 `/#id`，其余 → `/s/id`。
+   - active 高亮基于 `location.pathname`（`/s/:id`）而非滚动监听；移除 scrollspy 滚动计算逻辑。
 
-## 5. 前沿范式（仅概念卡片）
-
-新建 `src/components/FrontierConcepts.tsx`，纯展示卡片网格（无交互计算），挂到平台章节后 `#frontier`，覆盖研报第六章 7 个方向：AI/ML 资产定价(深度 SDF / LLM Agents)、ABM 智能体仿真、复杂网络与 GNN 系统性风险、气候金融(Climate VaR / ESG-CAPM)、行为与神经经济学、DeFi/AMM、宏观金融 CBDC。每张卡片含：核心思想、关键发现、代表文献(2024-2026)。
-
-## 6. 收尾
-
-- `toolsCatalog.ts`：登记全部新工具（micro/asset-pricing/新宏观/新计量/VaR），版本标 `V3.1`，类型 `version` 联合新增 `"V3.1"`。
-- `ModelShowcase.tsx`：补上 CAPM、Fama-French 等已登记但展示区可丰富的卡片（可选）。
-- `public/sitemap.xml` + `scripts/generate-sitemap.ts`：新增 `#micro`、`#asset-pricing`、`#frontier` 锚点。
-- 页脚导航补「微观经济」「资产定价」链接。
-
----
+6. **更新锚点消费方**（统一改用 `sectionHref`）
+   - `HeroToolStrip.tsx`、`ResearchPlaybooks.tsx`、`TodaysPick.tsx`、`HeroSection.tsx`、`LearningPath.tsx`、`CommandPalette.tsx`、`TopicDetail.tsx`。
+   - `toolsCatalog.ts` 的 `/#xxx` 锚点保持不变，由 `sectionHref` 在消费时转换，避免逐条改动。
 
 ## 技术说明
 
-- 所有算法为纯客户端 TypeScript，标记 `offline` 可用；无需后端改动（Fama-French 取数沿用现有 edge function，不新建表）。
-- 轻量版聚焦闭式解/小规模数值（线性代数走现有 `ols.ts` 工具函数），不引入新依赖。
-- 每个工具走 `lazy` + `DeferMount`，避免拖慢首屏；沿用 `SectionErrorBoundary` 包裹。
-- 新分类 `micro` 与 `version: "V3.1"` 需同步更新 `toolsCatalog.ts` 的类型联合与 `CATEGORY_LABEL`。
-- 不改动数据库 / RLS / 认证。
+- 每个 SectionPage 只挂载一个板块，天然解决"长页面卡顿/迷失定位"，也不再需要 `DeferMount` 懒挂载（单板块直接 Suspense 即可）。
+- 旧的 `/#id` 深链仍可用：着陆页保留 hash 滚动用于 home 三项；其余通过 `sectionHref` 指向新页。
+- BrowserRouter + Lovable SPA 回退已支持 `/s/:id` 深链刷新。
 
-预计新增约 18 个交互工具 + 7 张前沿概念卡片，工具总数从 43 增至约 61。
+## 验证
+
+- 逐一点击导航各组，确认跳转到对应独立页面且只显示该板块。
+- 着陆页目录、HeroToolStrip、Playbooks、命令面板（⌘K）跳转正确。
+- 移动端菜单跳转正确，active 高亮正确。
