@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { sectionHref } from "@/lib/sections";
 import {
   CommandDialog,
   CommandEmpty,
@@ -75,12 +76,7 @@ const CommandPalette = () => {
       return;
     }
     if (item.hash) {
-      if (location.pathname !== "/") {
-        navigate(`/#${item.hash}`);
-      } else {
-        document.getElementById(item.hash)?.scrollIntoView({ behavior: "smooth", block: "start" });
-        history.replaceState(null, "", `#${item.hash}`);
-      }
+      navigate(sectionHref(item.hash));
     }
   };
 

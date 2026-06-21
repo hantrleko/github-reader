@@ -8,6 +8,7 @@ import LanguageToggle from "./LanguageToggle";
 import UserMenu from "./UserMenu";
 import TopTicker from "./TopTicker";
 import { useTranslation } from "react-i18next";
+import { sectionHref } from "@/lib/sections";
 
 type Item = { id: string; labelKey: string };
 type Group = { labelKey: string; items: Item[] };
@@ -57,55 +58,20 @@ const Navbar = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const onHome = location.pathname === "/";
-  const [active, setActive] = useState("hero");
   const [mobileOpen, setMobileOpen] = useState(false);
   const [openGroup, setOpenGroup] = useState<string | null>(null);
   const navRef = useRef<HTMLElement>(null);
   const itemRefs = useRef<Record<string, HTMLButtonElement | null>>({});
   const groupBtnRefs = useRef<Record<string, HTMLButtonElement | null>>({});
 
-  /* ─── Scroll-position based active detection (fires on scroll & resize) ───
-     Picks the section whose top is closest above the offset line — robust for
-     short sections where IntersectionObserver flips between neighbours. */
-  const recomputeActive = useCallback(() => {
-    if (!onHome) return;
-    let bestId = ALL_IDS[0];
-    let bestTop = -Infinity;
-    const line = NAV_OFFSET + 1;
-    for (const id of ALL_IDS) {
-      const el = document.getElementById(id);
-      if (!el) continue;
-      const top = el.getBoundingClientRect().top;
-      if (top <= line && top > bestTop) {
-        bestTop = top;
-        bestId = id;
-      }
-    }
-    // Bottom of page — force-mark last section
-    if (window.innerHeight + window.scrollY >= document.body.scrollHeight - 2) {
-      bestId = ALL_IDS[ALL_IDS.length - 1];
-    }
-    setActive((prev) => (prev === bestId ? prev : bestId));
-  }, [onHome]);
-
-  useEffect(() => {
-    let ticking = false;
-    const onScroll = () => {
-      if (ticking) return;
-      ticking = true;
-      requestAnimationFrame(() => {
-        recomputeActive();
-        ticking = false;
-      });
-    };
-    recomputeActive();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll);
-    return () => {
-      window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onScroll);
-    };
-  }, [recomputeActive]);
+  /* ─── Active section derived from the current route ─── */
+  const active = location.pathname.startsWith("/s/")
+    ? location.pathname.slice(3)
+    : location.hash
+      ? location.hash.slice(1)
+      : onHome
+        ? "hero"
+        : "";
 
   /* ─── Outside click closes dropdown ─── */
   useEffect(() => {
@@ -142,19 +108,9 @@ const Navbar = () => {
   }, [openGroup]);
 
   const scrollTo = (id: string) => {
-    if (!onHome) {
-      navigate(`/#${id}`);
-      setMobileOpen(false);
-      setOpenGroup(null);
-      return;
-    }
-    const el = document.getElementById(id);
-    if (el) {
-      el.scrollIntoView({ behavior: "smooth", block: "start" });
-      setActive(id);
-      setMobileOpen(false);
-      setOpenGroup(null);
-    }
+    setMobileOpen(false);
+    setOpenGroup(null);
+    navigate(sectionHref(id));
   };
 
   const isGroupActive = (g: Group) => g.items.some((i) => i.id === active);

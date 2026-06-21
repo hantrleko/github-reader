@@ -1,14 +1,13 @@
 import { ArrowDown, ArrowRight } from "lucide-react";
 import { topicsData } from "@/data/topicsData";
 import { useTranslation } from "react-i18next";
-import { Link } from "react-router-dom";
-
-const scrollTo = (id: string) => {
-  document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
-};
+import { Link, useNavigate } from "react-router-dom";
+import { sectionHref } from "@/lib/sections";
 
 const HeroSection = () => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
+  const go = (id: string) => navigate(sectionHref(id));
   const topicCount = topicsData.length;
   const knowledgeCount = topicsData.reduce((s, t) => s + t.knowledgePoints.length, 0);
   const formulaCount = topicsData.reduce(
@@ -55,14 +54,14 @@ const HeroSection = () => {
 
             <div className="flex flex-wrap gap-3">
               <button
-                onClick={() => scrollTo("calculator")}
+                onClick={() => go("calculator")}
                 className="inline-flex items-center gap-2 px-7 py-3.5 bg-gold text-background font-mono uppercase text-[11px] tracking-[0.2em] font-bold hover:bg-gold/85 transition-colors"
               >
                 {t("hero.cta1")}
                 <ArrowDown className="w-3.5 h-3.5" />
               </button>
               <button
-                onClick={() => scrollTo("topics")}
+                onClick={() => go("topics")}
                 className="inline-flex items-center gap-2 px-7 py-3.5 border border-foreground/25 text-foreground font-mono uppercase text-[11px] tracking-[0.2em] font-bold hover:bg-foreground/5 hover:border-gold/60 transition-colors"
               >
                 {t("hero.cta2")}
@@ -77,7 +76,7 @@ const HeroSection = () => {
             </h3>
             <div className="space-y-4 mb-8">
               <button
-                onClick={() => scrollTo("topics")}
+                onClick={() => go("topics")}
                 className="w-full flex justify-between items-end group"
               >
                 <span className="text-[11px] text-foreground/60 uppercase tracking-wider">Research Domains</span>
@@ -87,7 +86,7 @@ const HeroSection = () => {
                 </span>
               </button>
               <button
-                onClick={() => scrollTo("models")}
+                onClick={() => go("models")}
                 className="w-full flex justify-between items-end group"
               >
                 <span className="text-[11px] text-foreground/60 uppercase tracking-wider">Formula References</span>
@@ -97,7 +96,7 @@ const HeroSection = () => {
                 </span>
               </button>
               <button
-                onClick={() => scrollTo("topics")}
+                onClick={() => go("topics")}
                 className="w-full flex justify-between items-end group"
               >
                 <span className="text-[11px] text-foreground/60 uppercase tracking-wider">Concepts Indexed</span>

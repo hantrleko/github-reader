@@ -2,7 +2,8 @@ import { motion } from "framer-motion";
 import { CheckCircle2, Circle, ArrowRight, RotateCcw } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-
+import { useNavigate } from "react-router-dom";
+import { sectionHref } from "@/lib/sections";
 const STEPS = [
   { id: "prob", title: "概率论与数理统计基础", desc: "掌握随机变量、分布、假设检验、LLN 与 CLT，为估计一致性和推断有效性打底", target: "topics" },
   { id: "micro", title: "微观经济学与博弈论", desc: "理解偏好、约束、均衡与策略互动，为资产需求和市场机制建立微观基础", target: "topics" },
@@ -14,12 +15,9 @@ const STEPS = [
 
 const STORAGE_KEY = "learning-progress-v1";
 
-const scrollTo = (id: string) => {
-  document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
-};
-
 const LearningPath = () => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const [done, setDone] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
@@ -158,7 +156,7 @@ const LearningPath = () => {
           viewport={{ once: true }}
         >
           <button
-            onClick={() => scrollTo(allDone ? "topics" : firstUndone.target)}
+            onClick={() => navigate(sectionHref(allDone ? "topics" : firstUndone.target))}
             className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-primary text-primary-foreground font-medium text-sm transition-transform hover:scale-105"
           >
             {allDone ? "全部完成 — 复习一下" : completed === 0 ? "开始学习" : "继续：" + firstUndone.title}

@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { sectionHref } from "@/lib/sections";
 
 const UNITS = [
   { code: "UNIT_00", name: "Research Ops", desc: "Playbooks · Steps · Deliverables", anchor: "/#research-playbooks" },
@@ -13,13 +14,6 @@ const UNITS = [
 ];
 
 const HeroToolStrip = () => {
-  const handle = (anchor: string) => (e: React.MouseEvent) => {
-    if (!anchor.startsWith("/#")) return;
-    e.preventDefault();
-    const id = anchor.slice(2);
-    document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
-  };
-
   return (
     <section className="px-6 -mt-2 pb-12">
       <div className="container max-w-7xl">
@@ -27,8 +21,7 @@ const HeroToolStrip = () => {
           {UNITS.map((u, i) => (
             <Link
               key={u.code}
-              to={u.anchor}
-              onClick={handle(u.anchor)}
+              to={sectionHref(u.anchor)}
               className={`group p-4 transition-colors hover:bg-accent/25 ${
                 i < UNITS.length - 1 ? "border-r border-accent/30" : ""
               } ${i < 6 ? "border-b lg:border-b-0 border-accent/30" : ""}`}

@@ -1,5 +1,17 @@
 # EF Lab 版本日志
 
+## 0.10.0 — 多页面架构重构
+
+### 变更
+
+- **每个功能板块独立成页**:原本的"单一超长页面 + 锚点滚动"改为按路由分页。点击导航直接进入该功能的专属页面(`/s/:sectionId`),只渲染单一板块,不再定位到长页面的某个位置。
+  - 新增板块注册表 `src/lib/sections.ts`(板块元数据 + `sectionHref` 路由解析工具)。
+  - 新增单板块页面 `src/pages/SectionPage.tsx`:含返回首页链接、章节标题头、上一/下一板块导航与独立 SEO。
+  - 新增可复用页脚 `src/components/SiteFooter.tsx`。
+  - 着陆页(`/`)精简为 Hero / 简介 / 主题 / 模型 / 精选 Notebook,并新增"功能板块目录"网格。
+  - 导航栏改为路由跳转,active 高亮基于当前路由(移除滚动监听 scrollspy)。
+  - 同步更新 HeroToolStrip、ResearchPlaybooks、TodaysPick、HeroSection、LearningPath、CommandPalette、TopicDetail 的入口链接,统一指向新页面路由。
+
 ## 0.9.0 — Alpha Vantage 个股与外汇数据源
 
 ### 新增
