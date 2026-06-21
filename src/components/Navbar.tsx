@@ -8,6 +8,7 @@ import LanguageToggle from "./LanguageToggle";
 import UserMenu from "./UserMenu";
 import TopTicker from "./TopTicker";
 import { useTranslation } from "react-i18next";
+import { sectionHref } from "@/lib/sections";
 
 type Item = { id: string; labelKey: string };
 type Group = { labelKey: string; items: Item[] };
