@@ -21,7 +21,9 @@ Deno.serve(async (req) => {
 
     const url = new URL(req.url);
     const kind = (url.searchParams.get("kind") || "equity").trim().toLowerCase();
-    const output = url.searchParams.get("output") === "full" ? "full" : "compact";
+    // NOTE: outputsize=full is a premium-only feature on Alpha Vantage's free tier,
+    // so we always request "compact" (latest ~100 data points) to avoid 429 errors.
+    const output = "compact";
 
     let target = "";
     let seriesKey = "";
