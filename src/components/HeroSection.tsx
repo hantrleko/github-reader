@@ -1,14 +1,13 @@
 import { ArrowDown, ArrowRight } from "lucide-react";
 import { topicsData } from "@/data/topicsData";
 import { useTranslation } from "react-i18next";
-import { Link } from "react-router-dom";
-
-const scrollTo = (id: string) => {
-  document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
-};
+import { Link, useNavigate } from "react-router-dom";
+import { sectionHref } from "@/lib/sections";
 
 const HeroSection = () => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
+  const go = (id: string) => navigate(sectionHref(id));
   const topicCount = topicsData.length;
   const knowledgeCount = topicsData.reduce((s, t) => s + t.knowledgePoints.length, 0);
   const formulaCount = topicsData.reduce(
