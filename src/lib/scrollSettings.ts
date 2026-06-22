@@ -1,4 +1,4 @@
-const KEY = "ef:smooth-scroll";
+export const KEY = "ef:smooth-scroll";
 
 export const getSmoothScrollEnabled = () => {
   if (typeof window === "undefined") return false;
