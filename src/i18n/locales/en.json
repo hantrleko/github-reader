@@ -13,6 +13,10 @@
     "brand": "Econ & Finance Lab",
     "version": "V3.0",
     "lang": "Language",
+    "smoothScroll": {
+      "on": "Disable smooth scroll",
+      "off": "Enable smooth scroll"
+    },
     "groups": {
       "guide": "Overview",
       "basics": "Basic Pricing",
