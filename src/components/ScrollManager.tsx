@@ -9,6 +9,9 @@ import { getSmoothScrollEnabled } from "@/lib/scrollSettings";
  *   target if present) so each section page starts cleanly at its own boundary.
  * - On POP (browser back/forward): restore the scroll position the user had on
  *   that history entry, retrying briefly while lazy content streams in.
+ * - Smooth scrolling is opt-in via the navbar toggle (localStorage key
+ *   ef:smooth-scroll); when disabled, all restored scrolls use "auto" for
+ *   instant, predictable positioning.
  * - Moves keyboard/screen-reader focus to <main> on every navigation so users
  *   don't stay focused on the previous page's controls.
  *
