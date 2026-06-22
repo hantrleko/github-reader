@@ -13,6 +13,10 @@
     "brand": "Econ & Finance Lab",
     "version": "V3.0",
     "lang": "语言",
+    "smoothScroll": {
+      "on": "关闭平滑滚动",
+      "off": "开启平滑滚动"
+    },
     "groups": {
       "guide": "导览",
       "basics": "基础定价",
