@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import { useLocation, useNavigationType } from "react-router-dom";
+import { getSmoothScrollEnabled } from "@/lib/scrollSettings";
 
 /**
  * Global scroll-position restoration + focus management for client-side routing.

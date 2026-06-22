@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import { Menu, X, ChevronDown } from "lucide-react";
 import ThemeToggle from "./ThemeToggle";
 import ReadingModeToggle from "./ReadingModeToggle";
+import SmoothScrollToggle from "./SmoothScrollToggle";
 import LanguageToggle from "./LanguageToggle";
 import UserMenu from "./UserMenu";
 import TopTicker from "./TopTicker";
@@ -353,6 +354,7 @@ const Navbar = () => {
           </Link>
           <LanguageToggle />
           <ReadingModeToggle />
+          <SmoothScrollToggle />
           <ThemeToggle />
           <UserMenu />
           <button
