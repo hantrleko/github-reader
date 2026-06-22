@@ -8,6 +8,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import CommandPalette from "@/components/CommandPalette";
 import Onboarding from "@/components/Onboarding";
 import OfflineBanner from "@/components/OfflineBanner";
+import ScrollManager from "@/components/ScrollManager";
 import { AuthProvider } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { reportClientError } from "@/lib/errorReport";
@@ -151,6 +152,7 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <AuthProvider>
+            <ScrollManager />
             <Suspense fallback={<RouteFallback />}>
               <Routes>
                 <Route path="/" element={<Index />} />

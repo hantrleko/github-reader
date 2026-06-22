@@ -1,4 +1,4 @@
-import { Suspense, useEffect } from "react";
+import { Suspense } from "react";
 import { Navigate, useParams, Link } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import Navbar from "@/components/Navbar";
@@ -49,11 +49,6 @@ const SectionFallback = () => (
 const SectionPage = () => {
   const { sectionId } = useParams<{ sectionId: string }>();
   const def = sectionId ? SECTION_MAP[sectionId] : undefined;
-
-  // Scroll to top whenever the section changes.
-  useEffect(() => {
-    window.scrollTo({ top: 0, behavior: "auto" });
-  }, [sectionId]);
 
   if (!def) return <Navigate to="/" replace />;
 
