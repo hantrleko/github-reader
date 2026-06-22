@@ -1,9 +1,7 @@
 import { useEffect, useState } from "react";
 import { MoveVertical } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { getSmoothScrollEnabled } from "@/lib/scrollSettings";
-
-const KEY = "ef:smooth-scroll";
+import { KEY, getSmoothScrollEnabled } from "@/lib/scrollSettings";
 
 const SmoothScrollToggle = () => {
   const { t } = useTranslation();
