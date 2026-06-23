@@ -19,12 +19,13 @@
     },
     "groups": {
       "guide": "Overview",
-      "basics": "Basic Pricing",
-      "deriv": "Derivatives · Advanced",
-      "fixed": "Fixed Income & Portfolio",
-      "econ": "Econometrics & Risk",
-      "quant": "Quant & Learning",
-      "data": "Data Sources"
+      "basics": "Pricing",
+      "deriv": "Derivatives",
+      "fixed": "Fixed Income",
+      "econ": "Econ & Risk",
+      "quant": "Quant",
+      "data": "Data",
+      "theory": "Economics"
     },
     "items": {
       "hero": "Home",
@@ -47,7 +48,12 @@
       "quant": "Quant Strategy Lab",
       "quiz": "Interactive Quiz",
       "learning": "Learning Path",
-      "changelog": "Changelog"
+      "changelog": "Changelog",
+      "micro": "Microeconomics",
+      "macro": "Macroeconomics",
+      "asset-pricing": "Asset Pricing (CAPM)",
+      "platform": "Platform Tools",
+      "frontier-concepts": "Frontier Models"
     }
   },
   "hero": {
@@ -57,7 +63,11 @@
     "subtitle": "An interactive laboratory for empirical research, quantitative modeling and teaching: connect asset pricing, derivatives, fixed income and econometrics through real data, derivations and adjustable model parameters.",
     "cta1": "Open the Lab Tools",
     "cta2": "View Knowledge Map",
-    "stats": { "topics": "Topics", "formulas": "Formulas", "knowledge": "Concepts" }
+    "stats": {
+      "topics": "Topics",
+      "formulas": "Formulas",
+      "knowledge": "Concepts"
+    }
   },
   "realData": {
     "title": "Real Data",
@@ -75,15 +85,58 @@
     "applyToParams": "Applied to params below"
   },
   "sections": {
-    "topics": { "tag": "Core Disciplines", "title": "From Theory to Empirical Tools" },
-    "learning": { "tag": "Learning Roadmap", "title": "Learning Path", "current": "Current stage", "progress": "Completed {{done}} / {{total}}", "reset": "Reset progress", "allDone": "All done — review", "start": "Start learning", "continue": "Continue: {{title}}" },
-    "bond": { "tag": "Fixed Income Tools", "title": "Bond Calculator" },
-    "frontier": { "tag": "Portfolio Optimization", "title": "Efficient Frontier" },
-    "deriv": { "tag": "Derivatives Lab", "title": "Advanced Derivatives", "subtitle": "SVI vol surface · American LSM · Black-76 rate derivatives" },
-    "quant": { "tag": "Quant Strategy Lab", "title": "Quant Strategy Lab", "subtitle": "Backtesting · Bayesian portfolio · Factor attribution" },
-    "econ": { "tag": "Advanced Econometrics", "title": "Econometrics Toolkit" },
-    "risk": { "tag": "Risk Management", "title": "Risk Management Toolkit" },
-    "quiz": { "tag": "Knowledge Check", "title": "Interactive Quiz Center", "subtitle": "17 core questions · instant feedback · progress saved locally", "all": "All", "answered": "Answered", "correct": "Correct", "accuracy": "Accuracy", "attempts": "Attempts", "question": "Q {{i}} / {{n}}", "next": "Next" }
+    "topics": {
+      "tag": "Core Disciplines",
+      "title": "From Theory to Empirical Tools"
+    },
+    "learning": {
+      "tag": "Learning Roadmap",
+      "title": "Learning Path",
+      "current": "Current stage",
+      "progress": "Completed {{done}} / {{total}}",
+      "reset": "Reset progress",
+      "allDone": "All done — review",
+      "start": "Start learning",
+      "continue": "Continue: {{title}}"
+    },
+    "bond": {
+      "tag": "Fixed Income Tools",
+      "title": "Bond Calculator"
+    },
+    "frontier": {
+      "tag": "Portfolio Optimization",
+      "title": "Efficient Frontier"
+    },
+    "deriv": {
+      "tag": "Derivatives Lab",
+      "title": "Advanced Derivatives",
+      "subtitle": "SVI vol surface · American LSM · Black-76 rate derivatives"
+    },
+    "quant": {
+      "tag": "Quant Strategy Lab",
+      "title": "Quant Strategy Lab",
+      "subtitle": "Backtesting · Bayesian portfolio · Factor attribution"
+    },
+    "econ": {
+      "tag": "Advanced Econometrics",
+      "title": "Econometrics Toolkit"
+    },
+    "risk": {
+      "tag": "Risk Management",
+      "title": "Risk Management Toolkit"
+    },
+    "quiz": {
+      "tag": "Knowledge Check",
+      "title": "Interactive Quiz Center",
+      "subtitle": "17 core questions · instant feedback · progress saved locally",
+      "all": "All",
+      "answered": "Answered",
+      "correct": "Correct",
+      "accuracy": "Accuracy",
+      "attempts": "Attempts",
+      "question": "Q {{i}} / {{n}}",
+      "next": "Next"
+    }
   },
   "changelog": {
     "title": "Changelog",

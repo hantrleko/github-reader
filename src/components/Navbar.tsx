@@ -20,6 +20,10 @@ const GROUPS: Group[] = [
     { id: "topics", labelKey: "nav.items.topics" },
     { id: "models", labelKey: "nav.items.models" },
   ]},
+  { labelKey: "nav.groups.theory", items: [
+    { id: "micro", labelKey: "nav.items.micro" },
+    { id: "macro", labelKey: "nav.items.macro" },
+  ]},
   { labelKey: "nav.groups.basics", items: [
     { id: "calculator", labelKey: "nav.items.calculator" },
     { id: "implied-vol", labelKey: "nav.items.implied-vol" },
@@ -32,6 +36,7 @@ const GROUPS: Group[] = [
     { id: "bond", labelKey: "nav.items.bond" },
     { id: "rate-model", labelKey: "nav.items.rate-model" },
     { id: "frontier", labelKey: "nav.items.frontier" },
+    { id: "asset-pricing", labelKey: "nav.items.asset-pricing" },
   ]},
   { labelKey: "nav.groups.econ", items: [
     { id: "econometrics", labelKey: "nav.items.econometrics" },
@@ -46,9 +51,24 @@ const GROUPS: Group[] = [
   ]},
   { labelKey: "nav.groups.quant", items: [
     { id: "quant", labelKey: "nav.items.quant" },
+    { id: "platform", labelKey: "nav.items.platform" },
+    { id: "frontier-concepts", labelKey: "nav.items.frontier-concepts" },
     { id: "quiz", labelKey: "nav.items.quiz" },
     { id: "learning", labelKey: "nav.items.learning" },
   ]},
+];
+
+/** Standalone page links (their own routes) — consolidated into a "More" menu */
+type PageLink = { to: string; label: string; match: (path: string, search: string) => boolean };
+const PAGE_LINKS: PageLink[] = [
+  { to: "/tools", label: "Tools", match: (p) => p === "/tools" },
+  { to: "/glossary", label: "Glossary", match: (p) => p === "/glossary" },
+  { to: "/strategies", label: "Strategies", match: (p) => p === "/strategies" },
+  { to: "/papers", label: "Papers", match: (p) => p === "/papers" },
+  { to: "/notebook", label: "Notebook", match: (p, s) => p === "/notebook" && !s.includes("template") },
+  { to: "/notebook/templates", label: "Templates", match: (p) => p === "/notebook/templates" },
+  { to: "/github", label: "GitHub", match: (p) => p === "/github" },
+  { to: "/changelog", label: "Changelog", match: (p) => p === "/changelog" },
 ];
 
 const ALL_IDS = GROUPS.flatMap((g) => g.items.map((i) => i.id));
@@ -61,6 +81,7 @@ const Navbar = () => {
   const onHome = location.pathname === "/";
   const [mobileOpen, setMobileOpen] = useState(false);
   const [openGroup, setOpenGroup] = useState<string | null>(null);
+  const [pagesOpen, setPagesOpen] = useState(false);
   const navRef = useRef<HTMLElement>(null);
   const itemRefs = useRef<Record<string, HTMLButtonElement | null>>({});
   const groupBtnRefs = useRef<Record<string, HTMLButtonElement | null>>({});
@@ -79,6 +100,7 @@ const Navbar = () => {
     const onClick = (e: MouseEvent) => {
       if (navRef.current && !navRef.current.contains(e.target as Node)) {
         setOpenGroup(null);
+        setPagesOpen(false);
       }
     };
     document.addEventListener("click", onClick);
@@ -184,7 +206,7 @@ const Navbar = () => {
         </button>
 
         {/* Desktop grouped */}
-        <ul className="hidden md:flex items-center gap-0.5" role="menubar">
+        <ul className="hidden xl:flex flex-nowrap items-center gap-0.5 min-w-0" role="menubar">
           {GROUPS.map((g, gIdx) => {
             const groupActive = isGroupActive(g);
             const open = openGroup === g.labelKey;
@@ -203,7 +225,7 @@ const Navbar = () => {
                   aria-expanded={open}
                   aria-controls={menuId}
                   className={cn(
-                    "px-2.5 py-1 rounded-md text-[11px] font-mono transition-colors flex items-center gap-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/60",
+                    "px-2 py-1 rounded-md text-[11px] font-mono whitespace-nowrap shrink-0 transition-colors flex items-center gap-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/60",
                     groupActive
                       ? "text-gold font-semibold"
                       : "text-muted-foreground hover:text-foreground hover:bg-accent"
@@ -260,105 +282,66 @@ const Navbar = () => {
           })}
         </ul>
 
-        <div className="flex items-center gap-1">
-          <span className="hidden lg:inline-flex text-[9px] font-mono px-1.5 py-0.5 border border-gold/60 text-gold tracking-wider mr-1">
+        <div className="flex items-center gap-1 shrink-0">
+          <span className="hidden 2xl:inline-flex text-[9px] font-mono px-1.5 py-0.5 border border-gold/60 text-gold tracking-wider mr-1 whitespace-nowrap">
             {t("nav.version")}
           </span>
-          <Link
-            to="/tools"
-            className={cn(
-              "hidden sm:inline-flex items-center px-2.5 py-1 text-[10px] font-mono uppercase tracking-wider transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/60",
-              location.pathname === "/tools"
-                ? "text-gold border-b border-gold"
-                : "text-foreground/70 hover:text-gold"
+
+          {/* Consolidated "More" pages dropdown (desktop) */}
+          <div className="relative hidden xl:block">
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setPagesOpen((v) => !v);
+              }}
+              aria-haspopup="true"
+              aria-expanded={pagesOpen}
+              className={cn(
+                "inline-flex items-center gap-1 px-2.5 py-1 text-[10px] font-mono uppercase tracking-wider whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/60",
+                PAGE_LINKS.some((l) => l.match(location.pathname, location.search))
+                  ? "text-gold"
+                  : "text-foreground/70 hover:text-gold"
+              )}
+            >
+              More
+              <ChevronDown className={cn("w-3 h-3 transition-transform", pagesOpen && "rotate-180")} aria-hidden />
+            </button>
+            {pagesOpen && (
+              <ul
+                role="menu"
+                className="absolute right-0 top-full mt-1 min-w-[180px] rounded-md border border-border/70 bg-popover/95 backdrop-blur-lg shadow-lg overflow-hidden py-1"
+              >
+                {PAGE_LINKS.map((l) => {
+                  const isActive = l.match(location.pathname, location.search);
+                  return (
+                    <li key={l.to} role="none">
+                      <Link
+                        to={l.to}
+                        role="menuitem"
+                        onClick={() => setPagesOpen(false)}
+                        className={cn(
+                          "block px-3 py-2 text-[11px] font-mono uppercase tracking-wider transition-colors",
+                          isActive
+                            ? "bg-gold/10 text-gold"
+                            : "text-muted-foreground hover:text-foreground hover:bg-accent"
+                        )}
+                      >
+                        {l.to === "/changelog" ? t("nav.items.changelog") : l.label}
+                      </Link>
+                    </li>
+                  );
+                })}
+              </ul>
             )}
-          >
-            Tools
-          </Link>
-          <Link
-            to="/glossary"
-            className={cn(
-              "hidden sm:inline-flex items-center px-2.5 py-1 text-[10px] font-mono uppercase tracking-wider transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/60",
-              location.pathname === "/glossary"
-                ? "text-gold border-b border-gold"
-                : "text-foreground/70 hover:text-gold"
-            )}
-          >
-            Glossary
-          </Link>
-          <Link
-            to="/strategies"
-            className={cn(
-              "hidden md:inline-flex items-center px-2.5 py-1 text-[10px] font-mono uppercase tracking-wider transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/60",
-              location.pathname === "/strategies"
-                ? "text-gold border-b border-gold"
-                : "text-foreground/70 hover:text-gold"
-            )}
-          >
-            Strategies
-          </Link>
-          <Link
-            to="/papers"
-            className={cn(
-              "hidden md:inline-flex items-center px-2.5 py-1 text-[10px] font-mono uppercase tracking-wider transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/60",
-              location.pathname === "/papers"
-                ? "text-gold border-b border-gold"
-                : "text-foreground/70 hover:text-gold"
-            )}
-          >
-            Papers
-          </Link>
-          <Link
-            to="/notebook"
-            className={cn(
-              "hidden md:inline-flex items-center px-2.5 py-1 text-[10px] font-mono uppercase tracking-wider transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/60",
-              location.pathname === "/notebook" && !location.search.includes("template")
-                ? "text-gold border-b border-gold"
-                : "text-foreground/70 hover:text-gold"
-            )}
-          >
-            Notebook
-          </Link>
-          <Link
-            to="/notebook/templates"
-            className={cn(
-              "hidden md:inline-flex items-center px-2.5 py-1 text-[10px] font-mono uppercase tracking-wider transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/60",
-              location.pathname === "/notebook/templates"
-                ? "text-gold border-b border-gold"
-                : "text-foreground/70 hover:text-gold"
-            )}
-          >
-            Templates
-          </Link>
-          <Link
-            to="/github"
-            className={cn(
-              "hidden sm:inline-flex items-center px-2.5 py-1 text-[10px] font-mono uppercase tracking-wider transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/60",
-              location.pathname === "/github"
-                ? "text-gold border-b border-gold"
-                : "text-foreground/70 hover:text-gold"
-            )}
-          >
-            GitHub
-          </Link>
-          <Link
-            to="/changelog"
-            className={cn(
-              "hidden sm:inline-flex items-center px-2.5 py-1 text-[10px] font-mono uppercase tracking-wider transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/60",
-              location.pathname === "/changelog"
-                ? "text-gold border-b border-gold"
-                : "text-foreground/70 hover:text-gold"
-            )}
-          >
-            {t("nav.items.changelog")}
-          </Link>
+          </div>
+
           <LanguageToggle />
           <ReadingModeToggle />
           <SmoothScrollToggle />
           <ThemeToggle />
           <UserMenu />
           <button
-            className="md:hidden p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/60"
+            className="xl:hidden p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/60"
             onClick={() => setMobileOpen(!mobileOpen)}
             aria-label="Toggle menu"
             aria-expanded={mobileOpen}
@@ -370,7 +353,7 @@ const Navbar = () => {
 
       {/* Mobile menu */}
       {mobileOpen && (
-        <div className="md:hidden border-t border-border/50 bg-background/95 backdrop-blur-lg max-h-[70vh] overflow-y-auto">
+        <div className="xl:hidden border-t border-border/50 bg-background/95 backdrop-blur-lg max-h-[70vh] overflow-y-auto">
           <div className="container py-3 space-y-3">
             {GROUPS.map((g) => (
               <div key={g.labelKey}>
@@ -401,20 +384,29 @@ const Navbar = () => {
             ))}
             <div>
               <p className="text-[10px] font-mono text-gold/80 tracking-wider uppercase mb-1.5 px-1">
-                {t("nav.items.changelog")}
+                More
               </p>
-              <Link
-                to="/changelog"
-                onClick={() => setMobileOpen(false)}
-                className={cn(
-                  "block px-3 py-2 rounded-md text-xs font-mono transition-colors",
-                  location.pathname === "/changelog"
-                    ? "bg-primary/10 text-primary font-semibold"
-                    : "text-muted-foreground hover:text-foreground hover:bg-accent"
-                )}
-              >
-                {t("nav.items.changelog")}
-              </Link>
+              <div className="grid grid-cols-2 gap-1">
+                {PAGE_LINKS.map((l) => {
+                  const isActive = l.match(location.pathname, location.search);
+                  return (
+                    <Link
+                      key={l.to}
+                      to={l.to}
+                      onClick={() => setMobileOpen(false)}
+                      aria-current={isActive ? "page" : undefined}
+                      className={cn(
+                        "block px-3 py-2 rounded-md text-xs font-mono transition-colors",
+                        isActive
+                          ? "bg-primary/10 text-primary font-semibold"
+                          : "text-muted-foreground hover:text-foreground hover:bg-accent"
+                      )}
+                    >
+                      {l.to === "/changelog" ? t("nav.items.changelog") : l.label}
+                    </Link>
+                  );
+                })}
+              </div>
             </div>
           </div>
         </div>
