@@ -100,6 +100,7 @@ const Navbar = () => {
     const onClick = (e: MouseEvent) => {
       if (navRef.current && !navRef.current.contains(e.target as Node)) {
         setOpenGroup(null);
+        setPagesOpen(false);
       }
     };
     document.addEventListener("click", onClick);
