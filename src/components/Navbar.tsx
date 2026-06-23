@@ -353,7 +353,7 @@ const Navbar = () => {
 
       {/* Mobile menu */}
       {mobileOpen && (
-        <div className="lg:hidden border-t border-border/50 bg-background/95 backdrop-blur-lg max-h-[70vh] overflow-y-auto">
+        <div className="xl:hidden border-t border-border/50 bg-background/95 backdrop-blur-lg max-h-[70vh] overflow-y-auto">
           <div className="container py-3 space-y-3">
             {GROUPS.map((g) => (
               <div key={g.labelKey}>
