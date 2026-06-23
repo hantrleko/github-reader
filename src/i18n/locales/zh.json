@@ -20,10 +20,10 @@
     "groups": {
       "guide": "导览",
       "basics": "基础定价",
-      "deriv": "衍生品 · 高阶",
-      "fixed": "固收 & 组合",
-      "econ": "计量 & 风险",
-      "quant": "量化与前沿",
+      "deriv": "衍生品",
+      "fixed": "固收组合",
+      "econ": "计量风险",
+      "quant": "量化前沿",
       "data": "数据源",
       "theory": "经济学"
     },

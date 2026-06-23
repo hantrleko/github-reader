@@ -19,12 +19,12 @@
     },
     "groups": {
       "guide": "Overview",
-      "basics": "Basic Pricing",
-      "deriv": "Derivatives · Advanced",
-      "fixed": "Fixed Income & Portfolio",
-      "econ": "Econometrics & Risk",
-      "quant": "Quant & Frontier",
-      "data": "Data Sources",
+      "basics": "Pricing",
+      "deriv": "Derivatives",
+      "fixed": "Fixed Income",
+      "econ": "Econ & Risk",
+      "quant": "Quant",
+      "data": "Data",
       "theory": "Economics"
     },
     "items": {
