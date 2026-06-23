@@ -20,6 +20,10 @@ const GROUPS: Group[] = [
     { id: "topics", labelKey: "nav.items.topics" },
     { id: "models", labelKey: "nav.items.models" },
   ]},
+  { labelKey: "nav.groups.theory", items: [
+    { id: "micro", labelKey: "nav.items.micro" },
+    { id: "macro", labelKey: "nav.items.macro" },
+  ]},
   { labelKey: "nav.groups.basics", items: [
     { id: "calculator", labelKey: "nav.items.calculator" },
     { id: "implied-vol", labelKey: "nav.items.implied-vol" },
@@ -32,6 +36,7 @@ const GROUPS: Group[] = [
     { id: "bond", labelKey: "nav.items.bond" },
     { id: "rate-model", labelKey: "nav.items.rate-model" },
     { id: "frontier", labelKey: "nav.items.frontier" },
+    { id: "asset-pricing", labelKey: "nav.items.asset-pricing" },
   ]},
   { labelKey: "nav.groups.econ", items: [
     { id: "econometrics", labelKey: "nav.items.econometrics" },
@@ -46,9 +51,24 @@ const GROUPS: Group[] = [
   ]},
   { labelKey: "nav.groups.quant", items: [
     { id: "quant", labelKey: "nav.items.quant" },
+    { id: "platform", labelKey: "nav.items.platform" },
+    { id: "frontier-concepts", labelKey: "nav.items.frontier-concepts" },
     { id: "quiz", labelKey: "nav.items.quiz" },
     { id: "learning", labelKey: "nav.items.learning" },
   ]},
+];
+
+/** Standalone page links (their own routes) — consolidated into a "More" menu */
+type PageLink = { to: string; label: string; match: (path: string, search: string) => boolean };
+const PAGE_LINKS: PageLink[] = [
+  { to: "/tools", label: "Tools", match: (p) => p === "/tools" },
+  { to: "/glossary", label: "Glossary", match: (p) => p === "/glossary" },
+  { to: "/strategies", label: "Strategies", match: (p) => p === "/strategies" },
+  { to: "/papers", label: "Papers", match: (p) => p === "/papers" },
+  { to: "/notebook", label: "Notebook", match: (p, s) => p === "/notebook" && !s.includes("template") },
+  { to: "/notebook/templates", label: "Templates", match: (p) => p === "/notebook/templates" },
+  { to: "/github", label: "GitHub", match: (p) => p === "/github" },
+  { to: "/changelog", label: "Changelog", match: (p) => p === "/changelog" },
 ];
 
 const ALL_IDS = GROUPS.flatMap((g) => g.items.map((i) => i.id));
