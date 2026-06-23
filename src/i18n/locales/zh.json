@@ -23,8 +23,9 @@
       "deriv": "衍生品 · 高阶",
       "fixed": "固收 & 组合",
       "econ": "计量 & 风险",
-      "quant": "量化 & 学习",
-      "data": "数据源"
+      "quant": "量化与前沿",
+      "data": "数据源",
+      "theory": "经济学"
     },
     "items": {
       "hero": "首页",
@@ -47,7 +48,12 @@
       "quant": "量化策略实验室",
       "quiz": "互动测验",
       "learning": "学习路径",
-      "changelog": "更新日志"
+      "changelog": "更新日志",
+      "micro": "微观经济学",
+      "macro": "宏观经济学",
+      "asset-pricing": "资产定价 CAPM",
+      "platform": "平台增强",
+      "frontier-concepts": "前沿模型"
     }
   },
   "hero": {
@@ -57,7 +63,11 @@
     "subtitle": "面向实证研究、量化建模与课堂教学的交互式实验室：从资产定价、衍生品、固定收益到计量经济学，用真实数据、公式推导和可调参数打通从概念到研究结论的完整路径。",
     "cta1": "进入实验工具",
     "cta2": "查看知识地图",
-    "stats": { "topics": "学科领域", "formulas": "核心公式", "knowledge": "知识点" }
+    "stats": {
+      "topics": "学科领域",
+      "formulas": "核心公式",
+      "knowledge": "知识点"
+    }
   },
   "realData": {
     "title": "真实数据",
@@ -75,15 +85,58 @@
     "applyToParams": "已应用到下方参数"
   },
   "sections": {
-    "topics": { "tag": "Core Disciplines", "title": "从理论框架到实证工具" },
-    "learning": { "tag": "Learning Roadmap", "title": "学习路径", "current": "当前阶段", "progress": "已完成 {{done}} / {{total}}", "reset": "重置进度", "allDone": "全部完成 — 复习一下", "start": "开始学习", "continue": "继续:{{title}}" },
-    "bond": { "tag": "Fixed Income Tools", "title": "债券计算器" },
-    "frontier": { "tag": "Portfolio Optimization", "title": "有效前沿可视化" },
-    "deriv": { "tag": "Derivatives Lab", "title": "衍生品高阶工具", "subtitle": "SVI 波动率曲面 · 美式期权 LSM · Black-76 利率衍生品" },
-    "quant": { "tag": "Quant Strategy Lab", "title": "量化策略实验室", "subtitle": "策略回测 · 贝叶斯组合 · 多因子归因" },
-    "econ": { "tag": "Advanced Econometrics", "title": "计量经济学工具集" },
-    "risk": { "tag": "Risk Management", "title": "风险管理工具集" },
-    "quiz": { "tag": "Knowledge Check", "title": "交互测验中心", "subtitle": "17 道核心金融与计量题 · 即时反馈 · 进度本地保存", "all": "全部", "answered": "已答题", "correct": "答对", "accuracy": "准确率", "attempts": "总尝试", "question": "题 {{i}} / {{n}}", "next": "下一题" }
+    "topics": {
+      "tag": "Core Disciplines",
+      "title": "从理论框架到实证工具"
+    },
+    "learning": {
+      "tag": "Learning Roadmap",
+      "title": "学习路径",
+      "current": "当前阶段",
+      "progress": "已完成 {{done}} / {{total}}",
+      "reset": "重置进度",
+      "allDone": "全部完成 — 复习一下",
+      "start": "开始学习",
+      "continue": "继续:{{title}}"
+    },
+    "bond": {
+      "tag": "Fixed Income Tools",
+      "title": "债券计算器"
+    },
+    "frontier": {
+      "tag": "Portfolio Optimization",
+      "title": "有效前沿可视化"
+    },
+    "deriv": {
+      "tag": "Derivatives Lab",
+      "title": "衍生品高阶工具",
+      "subtitle": "SVI 波动率曲面 · 美式期权 LSM · Black-76 利率衍生品"
+    },
+    "quant": {
+      "tag": "Quant Strategy Lab",
+      "title": "量化策略实验室",
+      "subtitle": "策略回测 · 贝叶斯组合 · 多因子归因"
+    },
+    "econ": {
+      "tag": "Advanced Econometrics",
+      "title": "计量经济学工具集"
+    },
+    "risk": {
+      "tag": "Risk Management",
+      "title": "风险管理工具集"
+    },
+    "quiz": {
+      "tag": "Knowledge Check",
+      "title": "交互测验中心",
+      "subtitle": "17 道核心金融与计量题 · 即时反馈 · 进度本地保存",
+      "all": "全部",
+      "answered": "已答题",
+      "correct": "答对",
+      "accuracy": "准确率",
+      "attempts": "总尝试",
+      "question": "题 {{i}} / {{n}}",
+      "next": "下一题"
+    }
   },
   "changelog": {
     "title": "Changelog",
