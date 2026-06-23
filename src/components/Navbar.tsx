@@ -384,20 +384,29 @@ const Navbar = () => {
             ))}
             <div>
               <p className="text-[10px] font-mono text-gold/80 tracking-wider uppercase mb-1.5 px-1">
-                {t("nav.items.changelog")}
+                More
               </p>
-              <Link
-                to="/changelog"
-                onClick={() => setMobileOpen(false)}
-                className={cn(
-                  "block px-3 py-2 rounded-md text-xs font-mono transition-colors",
-                  location.pathname === "/changelog"
-                    ? "bg-primary/10 text-primary font-semibold"
-                    : "text-muted-foreground hover:text-foreground hover:bg-accent"
-                )}
-              >
-                {t("nav.items.changelog")}
-              </Link>
+              <div className="grid grid-cols-2 gap-1">
+                {PAGE_LINKS.map((l) => {
+                  const isActive = l.match(location.pathname, location.search);
+                  return (
+                    <Link
+                      key={l.to}
+                      to={l.to}
+                      onClick={() => setMobileOpen(false)}
+                      aria-current={isActive ? "page" : undefined}
+                      className={cn(
+                        "block px-3 py-2 rounded-md text-xs font-mono transition-colors",
+                        isActive
+                          ? "bg-primary/10 text-primary font-semibold"
+                          : "text-muted-foreground hover:text-foreground hover:bg-accent"
+                      )}
+                    >
+                      {l.to === "/changelog" ? t("nav.items.changelog") : l.label}
+                    </Link>
+                  );
+                })}
+              </div>
             </div>
           </div>
         </div>
