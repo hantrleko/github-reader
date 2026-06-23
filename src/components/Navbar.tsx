@@ -206,7 +206,7 @@ const Navbar = () => {
         </button>
 
         {/* Desktop grouped */}
-        <ul className="hidden lg:flex flex-nowrap items-center gap-0.5 min-w-0" role="menubar">
+        <ul className="hidden xl:flex flex-nowrap items-center gap-0.5 min-w-0" role="menubar">
           {GROUPS.map((g, gIdx) => {
             const groupActive = isGroupActive(g);
             const open = openGroup === g.labelKey;
@@ -283,12 +283,12 @@ const Navbar = () => {
         </ul>
 
         <div className="flex items-center gap-1 shrink-0">
-          <span className="hidden xl:inline-flex text-[9px] font-mono px-1.5 py-0.5 border border-gold/60 text-gold tracking-wider mr-1 whitespace-nowrap">
+          <span className="hidden 2xl:inline-flex text-[9px] font-mono px-1.5 py-0.5 border border-gold/60 text-gold tracking-wider mr-1 whitespace-nowrap">
             {t("nav.version")}
           </span>
 
           {/* Consolidated "More" pages dropdown (desktop) */}
-          <div className="relative hidden lg:block">
+          <div className="relative hidden xl:block">
             <button
               onClick={(e) => {
                 e.stopPropagation();
@@ -341,7 +341,7 @@ const Navbar = () => {
           <ThemeToggle />
           <UserMenu />
           <button
-            className="lg:hidden p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/60"
+            className="xl:hidden p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/60"
             onClick={() => setMobileOpen(!mobileOpen)}
             aria-label="Toggle menu"
             aria-expanded={mobileOpen}
