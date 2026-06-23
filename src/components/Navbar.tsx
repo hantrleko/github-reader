@@ -81,6 +81,7 @@ const Navbar = () => {
   const onHome = location.pathname === "/";
   const [mobileOpen, setMobileOpen] = useState(false);
   const [openGroup, setOpenGroup] = useState<string | null>(null);
+  const [pagesOpen, setPagesOpen] = useState(false);
   const navRef = useRef<HTMLElement>(null);
   const itemRefs = useRef<Record<string, HTMLButtonElement | null>>({});
   const groupBtnRefs = useRef<Record<string, HTMLButtonElement | null>>({});
