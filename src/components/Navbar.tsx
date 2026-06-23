@@ -280,98 +280,59 @@ const Navbar = () => {
           })}
         </ul>
 
-        <div className="flex items-center gap-1">
-          <span className="hidden lg:inline-flex text-[9px] font-mono px-1.5 py-0.5 border border-gold/60 text-gold tracking-wider mr-1">
+        <div className="flex items-center gap-1 shrink-0">
+          <span className="hidden xl:inline-flex text-[9px] font-mono px-1.5 py-0.5 border border-gold/60 text-gold tracking-wider mr-1 whitespace-nowrap">
             {t("nav.version")}
           </span>
-          <Link
-            to="/tools"
-            className={cn(
-              "hidden sm:inline-flex items-center px-2.5 py-1 text-[10px] font-mono uppercase tracking-wider transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/60",
-              location.pathname === "/tools"
-                ? "text-gold border-b border-gold"
-                : "text-foreground/70 hover:text-gold"
+
+          {/* Consolidated "More" pages dropdown (desktop) */}
+          <div className="relative hidden md:block">
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setPagesOpen((v) => !v);
+              }}
+              aria-haspopup="true"
+              aria-expanded={pagesOpen}
+              className={cn(
+                "inline-flex items-center gap-1 px-2.5 py-1 text-[10px] font-mono uppercase tracking-wider whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/60",
+                PAGE_LINKS.some((l) => l.match(location.pathname, location.search))
+                  ? "text-gold"
+                  : "text-foreground/70 hover:text-gold"
+              )}
+            >
+              More
+              <ChevronDown className={cn("w-3 h-3 transition-transform", pagesOpen && "rotate-180")} aria-hidden />
+            </button>
+            {pagesOpen && (
+              <ul
+                role="menu"
+                className="absolute right-0 top-full mt-1 min-w-[180px] rounded-md border border-border/70 bg-popover/95 backdrop-blur-lg shadow-lg overflow-hidden py-1"
+              >
+                {PAGE_LINKS.map((l) => {
+                  const isActive = l.match(location.pathname, location.search);
+                  return (
+                    <li key={l.to} role="none">
+                      <Link
+                        to={l.to}
+                        role="menuitem"
+                        onClick={() => setPagesOpen(false)}
+                        className={cn(
+                          "block px-3 py-2 text-[11px] font-mono uppercase tracking-wider transition-colors",
+                          isActive
+                            ? "bg-gold/10 text-gold"
+                            : "text-muted-foreground hover:text-foreground hover:bg-accent"
+                        )}
+                      >
+                        {l.to === "/changelog" ? t("nav.items.changelog") : l.label}
+                      </Link>
+                    </li>
+                  );
+                })}
+              </ul>
             )}
-          >
-            Tools
-          </Link>
-          <Link
-            to="/glossary"
-            className={cn(
-              "hidden sm:inline-flex items-center px-2.5 py-1 text-[10px] font-mono uppercase tracking-wider transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/60",
-              location.pathname === "/glossary"
-                ? "text-gold border-b border-gold"
-                : "text-foreground/70 hover:text-gold"
-            )}
-          >
-            Glossary
-          </Link>
-          <Link
-            to="/strategies"
-            className={cn(
-              "hidden md:inline-flex items-center px-2.5 py-1 text-[10px] font-mono uppercase tracking-wider transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/60",
-              location.pathname === "/strategies"
-                ? "text-gold border-b border-gold"
-                : "text-foreground/70 hover:text-gold"
-            )}
-          >
-            Strategies
-          </Link>
-          <Link
-            to="/papers"
-            className={cn(
-              "hidden md:inline-flex items-center px-2.5 py-1 text-[10px] font-mono uppercase tracking-wider transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/60",
-              location.pathname === "/papers"
-                ? "text-gold border-b border-gold"
-                : "text-foreground/70 hover:text-gold"
-            )}
-          >
-            Papers
-          </Link>
-          <Link
-            to="/notebook"
-            className={cn(
-              "hidden md:inline-flex items-center px-2.5 py-1 text-[10px] font-mono uppercase tracking-wider transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/60",
-              location.pathname === "/notebook" && !location.search.includes("template")
-                ? "text-gold border-b border-gold"
-                : "text-foreground/70 hover:text-gold"
-            )}
-          >
-            Notebook
-          </Link>
-          <Link
-            to="/notebook/templates"
-            className={cn(
-              "hidden md:inline-flex items-center px-2.5 py-1 text-[10px] font-mono uppercase tracking-wider transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/60",
-              location.pathname === "/notebook/templates"
-                ? "text-gold border-b border-gold"
-                : "text-foreground/70 hover:text-gold"
-            )}
-          >
-            Templates
-          </Link>
-          <Link
-            to="/github"
-            className={cn(
-              "hidden sm:inline-flex items-center px-2.5 py-1 text-[10px] font-mono uppercase tracking-wider transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/60",
-              location.pathname === "/github"
-                ? "text-gold border-b border-gold"
-                : "text-foreground/70 hover:text-gold"
-            )}
-          >
-            GitHub
-          </Link>
-          <Link
-            to="/changelog"
-            className={cn(
-              "hidden sm:inline-flex items-center px-2.5 py-1 text-[10px] font-mono uppercase tracking-wider transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/60",
-              location.pathname === "/changelog"
-                ? "text-gold border-b border-gold"
-                : "text-foreground/70 hover:text-gold"
-            )}
-          >
-            {t("nav.items.changelog")}
-          </Link>
+          </div>
+
           <LanguageToggle />
           <ReadingModeToggle />
           <SmoothScrollToggle />
