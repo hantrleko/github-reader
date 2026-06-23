@@ -204,7 +204,7 @@ const Navbar = () => {
         </button>
 
         {/* Desktop grouped */}
-        <ul className="hidden md:flex items-center gap-0.5" role="menubar">
+        <ul className="hidden md:flex items-center gap-0.5 min-w-0 flex-wrap-none" role="menubar">
           {GROUPS.map((g, gIdx) => {
             const groupActive = isGroupActive(g);
             const open = openGroup === g.labelKey;
@@ -223,7 +223,7 @@ const Navbar = () => {
                   aria-expanded={open}
                   aria-controls={menuId}
                   className={cn(
-                    "px-2.5 py-1 rounded-md text-[11px] font-mono transition-colors flex items-center gap-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/60",
+                    "px-2 py-1 rounded-md text-[11px] font-mono whitespace-nowrap shrink-0 transition-colors flex items-center gap-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/60",
                     groupActive
                       ? "text-gold font-semibold"
                       : "text-muted-foreground hover:text-foreground hover:bg-accent"
