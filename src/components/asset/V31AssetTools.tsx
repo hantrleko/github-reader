@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-  Legend, ReferenceDot, ComposedChart, Scatter, BarChart, Bar, Cell,
+  Legend, ReferenceDot, ReferenceLine, ComposedChart, Scatter, BarChart, Bar, Cell,
 } from "recharts";
 import PresetButtons from "../PresetButtons";
 import { ols } from "@/lib/quant/ols";
