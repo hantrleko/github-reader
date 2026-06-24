@@ -224,6 +224,19 @@ const ModelShowcase = () => {
                 </p>
               </div>
             </div>
+
+            {/* CTA: jump to the interactive tool */}
+            {TOOL_HREF[model.id] && (
+              <div className="mt-6 flex justify-end">
+                <Link
+                  to={sectionHref(TOOL_HREF[model.id].href)}
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-mono border border-gold/30 bg-gold/[0.04] text-gold hover:bg-gold/10 transition-colors"
+                >
+                  {TOOL_HREF[model.id].label}
+                  <ArrowUpRight className="w-4 h-4" />
+                </Link>
+              </div>
+            )}
           </div>
         </div>
       </div>
