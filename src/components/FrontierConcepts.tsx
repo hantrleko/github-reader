@@ -1,9 +1,21 @@
-import { useState } from "react";
+import { lazy, Suspense, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Brain, Network, Users, Leaf, Activity, Coins, Landmark,
-  ChevronDown, Sigma, Wrench, AlertTriangle,
+  ChevronDown, Sigma, Wrench, AlertTriangle, FlaskConical,
 } from "lucide-react";
+
+const AmmTool = lazy(() => import("./frontier/AmmTool"));
+const ContagionTool = lazy(() => import("./frontier/ContagionTool"));
+const ClimateVaRTool = lazy(() => import("./frontier/ClimateVaRTool"));
+const ProspectTheoryTool = lazy(() => import("./frontier/ProspectTheoryTool"));
+
+const LAB_TOOLS = [
+  { id: "amm", icon: Coins, name: "DeFi · AMM", desc: "恒积做市商滑点与无常损失", Tool: AmmTool },
+  { id: "contagion", icon: Network, name: "网络 · 传染", desc: "DebtRank 违约级联", Tool: ContagionTool },
+  { id: "climate", icon: Leaf, name: "气候 · Climate VaR", desc: "NGFS 情景重估损失", Tool: ClimateVaRTool },
+  { id: "prospect", icon: Activity, name: "神经 · 前景理论", desc: "价值函数与概率加权", Tool: ProspectTheoryTool },
+] as const;
 
 interface Concept {
   icon: React.FC<{ className?: string }>;
@@ -115,6 +127,8 @@ const CONCEPTS: Concept[] = [
 
 const FrontierConcepts = () => {
   const [open, setOpen] = useState<string | null>(null);
+  const [activeLab, setActiveLab] = useState<string>("amm");
+  const ActiveTool = LAB_TOOLS.find((t) => t.id === activeLab)?.Tool ?? AmmTool;
   return (
     <section className="py-24 px-6 relative">
       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-card/20 to-transparent pointer-events-none" />
@@ -214,8 +228,42 @@ const FrontierConcepts = () => {
         </div>
 
         <p className="text-center text-[11px] font-mono text-muted-foreground/60 mt-8">
-          每张卡片可展开方法论、数学直觉与局限；交互式实现将在后续版本逐步上线。
+          每张卡片可展开方法论、数学直觉与局限；下方互动实验室已上线 AMM、网络传染、Climate VaR 与前景理论四个可交互模型。
         </p>
+
+        {/* Interactive lab */}
+        <div className="mt-16">
+          <div className="flex items-center justify-center gap-2 mb-6">
+            <FlaskConical className="w-4 h-4 text-gold" />
+            <h3 className="text-xl md:text-2xl font-display font-bold text-foreground">前沿模型 · 互动实验室</h3>
+          </div>
+          <div className="flex flex-wrap justify-center gap-2 mb-6">
+            {LAB_TOOLS.map((t) => {
+              const Icon = t.icon;
+              const active = activeLab === t.id;
+              return (
+                <button
+                  key={t.id}
+                  onClick={() => setActiveLab(t.id)}
+                  className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-mono transition-all ${
+                    active
+                      ? "bg-gold/15 border border-gold/40 text-gold"
+                      : "bg-secondary/50 border border-border text-muted-foreground hover:text-gold hover:border-gold/30"
+                  }`}
+                  title={t.desc}
+                >
+                  <Icon className="w-3.5 h-3.5" />
+                  {t.name}
+                </button>
+              );
+            })}
+          </div>
+          <div className="rounded-2xl border border-border bg-card/40 p-5 md:p-7">
+            <Suspense fallback={<div className="text-center text-xs font-mono text-muted-foreground py-12">加载交互工具…</div>}>
+              <ActiveTool />
+            </Suspense>
+          </div>
+        </div>
       </div>
     </section>
   );

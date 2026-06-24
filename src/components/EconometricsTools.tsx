@@ -21,6 +21,7 @@ import { LassoTool, PanelTool, TobitTool } from "./econ/V22Tools";
 import { DLMTool } from "./econ/V23Tools";
 import { DoubleMLTool, CausalForestTool, BayesianRegTool } from "./econ/V24Tools";
 import { HARRVTool, HawkesTool, KyleLambdaTool } from "./econ/V25Tools";
+import { UnitRootTool } from "./econ/UnitRootTool";
 import { EquationBlock } from "@/components/common/EquationBlock";
 
 const CHART_GOLD = "hsl(43, 80%, 55%)";
@@ -2226,7 +2227,7 @@ const ResultRow = ({ label, value, truth, se, color }: { label: string; value: n
 };
 
 /* ──────────────────  Main module  ────────────────── */
-type ToolId = "olsiv" | "did" | "sdid" | "rdd" | "synth" | "gmm" | "svar" | "garch" | "dcc" | "regime" | "coint" | "kalman" | "midas" | "logit" | "qreg" | "psm" | "arima" | "lp" | "lasso" | "panel" | "tobit" | "dlm" | "dml" | "cforest" | "bayes" | "harrv" | "hawkes" | "kyle";
+type ToolId = "olsiv" | "did" | "sdid" | "rdd" | "synth" | "gmm" | "svar" | "garch" | "dcc" | "regime" | "coint" | "unitroot" | "kalman" | "midas" | "logit" | "qreg" | "psm" | "arima" | "lp" | "lasso" | "panel" | "tobit" | "dlm" | "dml" | "cforest" | "bayes" | "harrv" | "hawkes" | "kyle";
 
 const TOOLS: { id: ToolId; name: string; nameEn: string; formula: string; python: string; component: React.FC }[] = [
   { id: "olsiv", name: "OLS / IV (工具变量)", nameEn: "Ordinary Least Squares & Instrumental Variables",
@@ -2418,6 +2419,18 @@ def engle_granger(y, x):
             "adf": adf_stat, "p": p_value,
             "cointegrated": p_value < 0.05}`,
     component: CointTool },
+  { id: "unitroot", name: "单位根检验 (ADF / KPSS)", nameEn: "Unit Root Tests — Augmented Dickey-Fuller & KPSS",
+    formula: String.raw`\text{ADF: }\Delta y_t = \alpha + \gamma\,y_{t-1} + \textstyle\sum_i \delta_i \Delta y_{t-i} + \varepsilon_t,\;\; H_0:\gamma=0;\qquad \text{KPSS: } \eta = \tfrac{1}{T^2}\textstyle\sum_t S_t^2 / \hat\sigma^2`,
+    python: `import numpy as np
+from statsmodels.tsa.stattools import adfuller, kpss
+
+def unit_root_tests(y, trend="c"):
+    """ADF (H0: unit root) and KPSS (H0: stationary) — complementary."""
+    adf_stat, adf_p, *_ = adfuller(y, regression=trend)
+    kpss_stat, kpss_p, *_ = kpss(y, regression=trend, nlags="auto")
+    return {"adf": adf_stat, "adf_p": adf_p,
+            "kpss": kpss_stat, "kpss_p": kpss_p}`,
+    component: UnitRootTool },
   { id: "kalman", name: "Kalman / HP 滤波", nameEn: "Kalman Filter & Hodrick-Prescott Decomposition",
     formula: String.raw`\hat\beta_{t|t} = \hat\beta_{t|t-1} + K_t\bigl(y_t - x_t\hat\beta_{t|t-1}\bigr),\quad K_t = \dfrac{P_{t|t-1}\,x_t}{x_t^2 P_{t|t-1} + R}`,
     python: `import numpy as np

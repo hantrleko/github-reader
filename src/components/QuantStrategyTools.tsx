@@ -7,15 +7,21 @@ import { ShareExportToolbar, useSharedState } from "@/lib/calculatorTools";
 import { HistoryDrawer } from "@/components/common/HistoryDrawer";
 import { BacktestTool, BlackLittermanTool, FamaFrenchTool } from "./quant/Sprint4Tools";
 import { RiskParityTool } from "./quant/RiskParityTool";
+import { WalkForwardTool } from "./quant/WalkForwardTool";
 import { EquationBlock } from "@/components/common/EquationBlock";
 
-type ToolId = "backtest" | "bl" | "rp" | "ff5";
+type ToolId = "backtest" | "walkforward" | "bl" | "rp" | "ff5";
 
 const TOOLS: { id: ToolId; name: string; nameEn: string; formula: string; component: React.FC }[] = [
   {
     id: "backtest", name: "策略回测引擎", nameEn: "Strategy Backtester — Momentum / Mean-Reversion / Pairs",
     formula: String.raw`\mathrm{PnL}_t = w_t \cdot r_t - |w_t - w_{t-1}|\cdot c,\qquad \text{Sharpe} = \dfrac{\bar r_p \cdot 252}{\sigma_p \sqrt{252}},\qquad \text{Calmar} = \dfrac{R_{\text{ann}}}{\mathrm{MaxDD}}`,
     component: BacktestTool,
+  },
+  {
+    id: "walkforward", name: "Walk-Forward 样本外检验", nameEn: "Walk-Forward Analysis — Rolling Out-of-Sample Validation & Overfitting",
+    formula: String.raw`\text{IS: } k^*=\arg\max_k \mathrm{Sharpe}_{\text{train}}(k),\qquad \text{OOS: apply } k^* \text{ on next window},\qquad \text{Gap}=\mathrm{Sharpe}_{\text{IS}}-\mathrm{Sharpe}_{\text{OOS}}`,
+    component: WalkForwardTool,
   },
   {
     id: "bl", name: "Black-Litterman 贝叶斯组合", nameEn: "Black-Litterman Bayesian Portfolio Construction",

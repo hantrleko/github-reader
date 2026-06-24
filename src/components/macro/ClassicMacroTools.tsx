@@ -322,6 +322,12 @@ export const MundellFlemingTool = () => {
 
   return (
     <div className="space-y-6">
+      <PresetButtons presets={[
+        { name: "浮动+货币 (有效)", description: "货币政策有效", apply: () => { setRegime("floating"); setPolicy("monetary"); } },
+        { name: "浮动+财政 (无效)", description: "被汇率抵消", apply: () => { setRegime("floating"); setPolicy("fiscal"); } },
+        { name: "固定+财政 (有效)", description: "外汇干预强化", apply: () => { setRegime("fixed"); setPolicy("fiscal"); } },
+        { name: "固定+货币 (无效)", description: "货币供给回流", apply: () => { setRegime("fixed"); setPolicy("monetary"); } },
+      ]} />
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="space-y-4">
           <div>

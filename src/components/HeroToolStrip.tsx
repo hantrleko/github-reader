@@ -2,7 +2,6 @@ import { Link } from "react-router-dom";
 import { sectionHref } from "@/lib/sections";
 
 const UNITS = [
-  { code: "UNIT_00", name: "Research Ops", desc: "Playbooks · Steps · Deliverables", anchor: "/#research-playbooks" },
   { code: "UNIT_01", name: "Pricing Engine", desc: "Black-Scholes · IV · Monte Carlo", anchor: "/#calculator" },
   { code: "UNIT_02", name: "Derivatives Lab", desc: "SVI · Heston · SABR · Local Vol", anchor: "/#derivatives" },
   { code: "UNIT_03", name: "Fixed Income", desc: "Bonds · Term structure · Frontier", anchor: "/#bond" },
@@ -17,14 +16,14 @@ const HeroToolStrip = () => {
   return (
     <section className="px-6 -mt-2 pb-12">
       <div className="container max-w-7xl">
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-9 gap-0 border border-accent/40 bg-card/30">
+        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-0 border border-accent/40 bg-card/30">
           {UNITS.map((u, i) => (
             <Link
               key={u.code}
               to={sectionHref(u.anchor)}
               className={`group p-4 transition-colors hover:bg-accent/25 ${
                 i < UNITS.length - 1 ? "border-r border-accent/30" : ""
-              } ${i < 6 ? "border-b lg:border-b-0 border-accent/30" : ""}`}
+              } ${i < UNITS.length - 4 ? "border-b lg:border-b-0 border-accent/30" : ""}`}
             >
               <span className="block text-[9px] font-mono text-gold tracking-[0.18em] mb-2">
                 {u.code}

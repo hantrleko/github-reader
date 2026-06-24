@@ -1,4 +1,19 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
+import { ArrowUpRight } from "lucide-react";
+import { sectionHref } from "@/lib/sections";
+
+/** Map each model card to the interactive tool that implements it. */
+const TOOL_HREF: Record<string, { href: string; label: string }> = {
+  capm: { href: "/s/asset-pricing", label: "打开 CAPM / SML 计算器" },
+  ff3: { href: "/s/asset-pricing", label: "打开 Fama-French 回归" },
+  bs: { href: "/s/calculator", label: "打开 Black-Scholes 计算器" },
+  garch: { href: "/s/econometrics", label: "打开 GARCH 波动率工具" },
+  markowitz: { href: "/s/frontier", label: "打开有效前沿优化器" },
+  vasicek: { href: "/s/rate-model", label: "打开短率模型模拟" },
+  cir: { href: "/s/rate-model", label: "打开短率模型模拟" },
+  mc: { href: "/s/mc-pricer", label: "打开蒙特卡洛定价器" },
+};
 
 const models = [
   {
@@ -209,6 +224,19 @@ const ModelShowcase = () => {
                 </p>
               </div>
             </div>
+
+            {/* CTA: jump to the interactive tool */}
+            {TOOL_HREF[model.id] && (
+              <div className="mt-6 flex justify-end">
+                <Link
+                  to={sectionHref(TOOL_HREF[model.id].href)}
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-mono border border-gold/30 bg-gold/[0.04] text-gold hover:bg-gold/10 transition-colors"
+                >
+                  {TOOL_HREF[model.id].label}
+                  <ArrowUpRight className="w-4 h-4" />
+                </Link>
+              </div>
+            )}
           </div>
         </div>
       </div>

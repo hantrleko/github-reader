@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-  Legend, ReferenceDot, ComposedChart, Scatter, BarChart, Bar, Cell,
+  Legend, ReferenceDot, ReferenceLine, ComposedChart, Scatter, BarChart, Bar, Cell,
 } from "recharts";
 import PresetButtons from "../PresetButtons";
 import { ols } from "@/lib/quant/ols";
@@ -320,6 +320,129 @@ export const FamaFrenchTool = () => {
           </tbody>
         </table>
       </div>
+    </div>
+  );
+};
+
+/* ════════════════════════════════════════════════════════════
+   4. Fama-MacBeth — two-pass cross-sectional regression
+   Pass 1 (time series):  R_it - Rf = a_i + β_i·F_t + ε_it  → β_i
+   Pass 2 (cross section, each t):  R_it = λ0_t + λ_t·β_i + u_it
+   λ̂ = mean_t(λ_t),  SE_FM = std(λ_t)/√T,  + Shanken correction
+   ════════════════════════════════════════════════════════════ */
+export const FamaMacBethTool = () => {
+  const [nAssets, setNAssets] = useState(40);
+  const [T, setT] = useState(120);
+  const [lambdaTrue, setLambdaTrue] = useState(0.6); // true factor premium (% per period)
+  const [noise, setNoise] = useState(3); // idiosyncratic vol
+  const [seed, setSeed] = useState(11);
+
+  const res = useMemo(() => {
+    const rng = mulberry32(seed);
+    const N = Math.round(nAssets);
+    const periods = Math.round(T);
+    // true betas spread across assets
+    const betaTrue = Array.from({ length: N }, () => 0.3 + rng() * 1.6);
+    // factor realizations: mean = lambdaTrue, some vol
+    const factor = Array.from({ length: periods }, () => lambdaTrue + randn(rng) * 4);
+    // returns panel R[i][t] = betaTrue_i * factor_t + idiosyncratic
+    const R: number[][] = betaTrue.map((b) =>
+      factor.map((f) => b * f + randn(rng) * noise)
+    );
+
+    // Pass 1: estimate beta_i from time-series regression on factor
+    const betaHat = R.map((ri) => {
+      const X = factor.map((f) => [f]);
+      return ols(X, ri).beta[1];
+    });
+
+    // Pass 2: each period, cross-sectional regression R_it ~ betaHat
+    const lamSeries: { t: number; lambda: number; gamma0: number }[] = [];
+    const lambdas: number[] = [];
+    const gamma0s: number[] = [];
+    for (let t = 0; t < periods; t++) {
+      const y = R.map((ri) => ri[t]);
+      const X = betaHat.map((b) => [b]);
+      const cs = ols(X, y);
+      gamma0s.push(cs.beta[0]);
+      lambdas.push(cs.beta[1]);
+      lamSeries.push({ t, lambda: +cs.beta[1].toFixed(3), gamma0: +cs.beta[0].toFixed(3) });
+    }
+
+    const mean = (a: number[]) => a.reduce((s, v) => s + v, 0) / a.length;
+    const std = (a: number[], m: number) => Math.sqrt(a.reduce((s, v) => s + (v - m) ** 2, 0) / (a.length - 1));
+    const lamHat = mean(lambdas);
+    const lamStd = std(lambdas, lamHat);
+    const seFM = lamStd / Math.sqrt(periods);
+    const tFM = lamHat / seFM;
+    // Shanken correction factor c = (1 + λ̂²/σ_f²)
+    const fMean = mean(factor);
+    const fVar = std(factor, fMean) ** 2;
+    const shanken = 1 + (lamHat * lamHat) / fVar;
+    const seShanken = seFM * Math.sqrt(shanken);
+    const tShanken = lamHat / seShanken;
+
+    const g0Hat = mean(gamma0s);
+    const seG0 = std(gamma0s, g0Hat) / Math.sqrt(periods);
+
+    return {
+      lamHat, seFM, tFM, seShanken, tShanken, shanken,
+      g0Hat, seG0, tG0: g0Hat / seG0,
+      lamSeries, lambdaTrue,
+    };
+  }, [nAssets, T, lambdaTrue, noise, seed]);
+
+  return (
+    <div className="space-y-6">
+      <PresetButtons presets={[
+        { name: "经典面板", description: "N=40,T=120", apply: () => { setNAssets(40); setT(120); setLambdaTrue(0.6); setNoise(3); } },
+        { name: "强因子溢价", description: "λ=1.2", apply: () => { setLambdaTrue(1.2); setNoise(3); } },
+        { name: "零溢价 (无定价)", description: "λ=0", apply: () => { setLambdaTrue(0); } },
+        { name: "短样本噪声大", description: "T=36, noise=6", apply: () => { setT(36); setNoise(6); } },
+        { name: "大横截面", description: "N=100", apply: () => { setNAssets(100); setT(180); } },
+      ]} />
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="space-y-3">
+          <p className="text-xs font-mono text-gold uppercase tracking-wider">面板与因子参数</p>
+          <div className="grid grid-cols-2 gap-3">
+            <Slider label="N (资产数)" value={nAssets} min={15} max={120} step={5} onChange={setNAssets} />
+            <Slider label="T (期数)" value={T} min={24} max={240} step={6} onChange={setT} />
+            <Slider label="λ 真实溢价" sub="%/期" value={lambdaTrue} min={0} max={1.5} step={0.05} onChange={setLambdaTrue} />
+            <Slider label="特异波动" value={noise} min={0.5} max={8} step={0.5} onChange={setNoise} />
+          </div>
+          <Slider label="随机种子" value={seed} min={1} max={99} step={1} onChange={setSeed} />
+        </div>
+        <div className="grid grid-cols-2 gap-2 content-start">
+          <Stat label="λ̂ (估计溢价)" value={res.lamHat.toFixed(3)} sub={`真实 ${res.lambdaTrue.toFixed(2)}`} />
+          <Stat label="FM 标准误" value={res.seFM.toFixed(3)} color={CHART_BLUE} sub={`t=${res.tFM.toFixed(2)}`} />
+          <Stat label="Shanken 标准误" value={res.seShanken.toFixed(3)} color={CHART_RED} sub={`t=${res.tShanken.toFixed(2)}`} />
+          <Stat label="Shanken 因子" value={res.shanken.toFixed(3)} color={CHART_TEAL} sub="EIV 修正放大" />
+          <Stat label="γ₀ (零β截距)" value={res.g0Hat.toFixed(3)} sub={`t=${res.tG0.toFixed(2)}`} color={Math.abs(res.tG0) > 2 ? CHART_RED : undefined} />
+          <Stat label="定价结论" value={Math.abs(res.tShanken) > 2 ? "显著" : "不显著"} color={Math.abs(res.tShanken) > 2 ? CHART_GOLD : undefined} />
+        </div>
+      </div>
+
+      <ChartCard title="每期横截面溢价 λ_t 时间序列" hint="Fama-MacBeth 取各期 λ_t 的时间均值；其时序波动给出标准误。Shanken 修正纠正第一阶段 β 估计误差 (EIV) 导致的过度自信。">
+        <ResponsiveContainer width="100%" height="100%">
+          <LineChart data={res.lamSeries}>
+            <CartesianGrid stroke={CHART_GRID} strokeDasharray="3 3" />
+            <XAxis dataKey="t" stroke={CHART_TEXT} tick={{ fontSize: 10 }} />
+            <YAxis stroke={CHART_TEXT} tick={{ fontSize: 10 }} />
+            <Tooltip contentStyle={{ background: "hsl(var(--card))", border: `1px solid ${CHART_GRID}`, fontSize: 11 }} />
+            <Legend wrapperStyle={{ fontSize: 11 }} />
+            <Line type="monotone" dataKey="lambda" name="λ_t" stroke={CHART_GOLD} strokeWidth={1.8} dot={false} />
+            <ReferenceLine y={res.lamHat} stroke={CHART_RED} strokeDasharray="4 3" label={{ value: "λ̂", fill: CHART_RED, fontSize: 10 }} />
+            <ReferenceLine y={res.lambdaTrue} stroke={CHART_BLUE} strokeDasharray="2 2" label={{ value: "真实", fill: CHART_BLUE, fontSize: 10 }} />
+          </LineChart>
+        </ResponsiveContainer>
+      </ChartCard>
+
+      <Note>
+        <p><span className="text-gold">Fama-MacBeth (1973)：</span>两阶段横截面回归——先时序估 β，再逐期横截面回归得风险溢价 λ_t。</p>
+        <p><span className="text-gold">FM 标准误：</span>SE(λ̂)=std(λ_t)/√T，自动稳健于横截面相关。</p>
+        <p><span className="text-gold">Shanken 修正：</span>第一阶段 β 含估计误差 (errors-in-variables)，使 t 值偏大；乘以 √(1+λ̂²/σ_f²) 修正。</p>
+      </Note>
     </div>
   );
 };
