@@ -25,6 +25,7 @@ import {
 } from "recharts";
 import { EquationBlock } from "@/components/common/EquationBlock";
 import { RatesTermStructure } from "./bond/RatesTermStructure";
+import { KeyRateDurationTool } from "./bond/KeyRateDurationTool";
 import BenchmarkDrawer from "./common/BenchmarkDrawer";
 import { bondPrice as bondPriceVerified, bondDuration as bondDurationVerified } from "@/lib/quant/bond";
 import CitationFooter from "./common/CitationFooter";
@@ -36,7 +37,7 @@ const CHART_BLUE = "hsl(220, 70%, 55%)";
 const CHART_GRID = "hsl(var(--border))";
 const CHART_TEXT = "hsl(var(--muted-foreground))";
 
-type TabId = "pricing" | "duration" | "curve" | "termstruct";
+type TabId = "pricing" | "duration" | "curve" | "krd" | "termstruct";
 
 // ─── Bond Pricing ───
 function bondPrice(face: number, coupon: number, ytm: number, n: number, freq: number) {
@@ -222,6 +223,8 @@ const BondCalculator = () => {
       formula: String.raw`D_{\mathrm{mod}} = \dfrac{D_{\mathrm{Mac}}}{1+y},\quad \dfrac{\Delta P}{P} \approx -D_{\mathrm{mod}}\,\Delta y + \tfrac{1}{2}\,\mathrm{Conv}\,(\Delta y)^2` },
     { id: "curve", name: "收益率曲线", nameEn: "Nelson-Siegel Yield Curve",
       formula: String.raw`y(\tau) = \beta_0 + \beta_1\,\dfrac{1-e^{-\tau/\lambda}}{\tau/\lambda} + \beta_2\,\Bigl[\dfrac{1-e^{-\tau/\lambda}}{\tau/\lambda} - e^{-\tau/\lambda}\Bigr]` },
+    { id: "krd", name: "关键利率久期", nameEn: "Key-Rate Duration — Non-Parallel Curve Risk Decomposition",
+      formula: String.raw`\mathrm{KRD}_k = -\dfrac{1}{P}\dfrac{\Delta P}{\Delta y_k},\qquad \sum_k \mathrm{KRD}_k \approx D_{\mathrm{eff}}` },
     { id: "termstruct", name: "Hull-White & Bootstrapping", nameEn: "Term Structure — Bootstrapping & Hull-White (1990)",
       formula: String.raw`\text{Bootstrap: }P(0,T_i)=\dfrac{1-c\sum_{j<i}P(0,T_j)}{1+c}\quad\Big|\quad \text{HW: }dr_t=(\theta(t)-a\,r_t)\,dt+\sigma\,dW_t` },
   ];
