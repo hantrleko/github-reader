@@ -694,6 +694,9 @@ price = bond_price(face=${face}, coupon_rate=${couponRate},
             </>
           )}
 
+          {/* ═══ KEY-RATE DURATION TAB ═══ */}
+          {tab === "krd" && <KeyRateDurationTool />}
+
           {/* ═══ TERM-STRUCTURE / HULL-WHITE TAB ═══ */}
           {tab === "termstruct" && <RatesTermStructure />}
 
