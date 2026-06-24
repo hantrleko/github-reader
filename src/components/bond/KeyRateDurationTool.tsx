@@ -99,7 +99,7 @@ export const KeyRateDurationTool = () => {
           <Stat label="债券价格 P" value={res.P0.toFixed(3)} />
           <Stat label="有效久期 (平行)" value={res.effDur.toFixed(3)} color={C.teal} sub="平行 ±1bp" />
           <Stat label="Σ KRD" value={res.sumKrd.toFixed(3)} color={C.gold} sub="≈ 有效久期" />
-          <Stat label="一致性误差" value={Math.abs(res.sumKrd - res.effDur).toFixed(4)} color={C.red} sup="" sub="Σ KRD − 有效久期" />
+          <Stat label="一致性误差" value={Math.abs(res.sumKrd - res.effDur).toFixed(4)} color={C.red} sub="Σ KRD − 有效久期" />
         </div>
       </div>
 
