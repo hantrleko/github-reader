@@ -11,9 +11,10 @@ import { LocalVolTool } from "./deriv/LocalVolTool";
 import { GreeksDeskTool } from "./deriv/GreeksDeskTool";
 import { SABRvsHestonTool } from "./deriv/SABRvsHestonTool";
 import { LMMSwaptionTool, ExoticOptionsTool } from "./deriv/V26Tools";
+import { BinomialTreeTool } from "./deriv/BinomialTreeTool";
 import { EquationBlock } from "@/components/common/EquationBlock";
 
-type ToolId = "vol" | "heston" | "sabr" | "sabr_heston" | "localvol" | "greeks" | "amer" | "rates" | "lmm" | "exotic";
+type ToolId = "vol" | "heston" | "sabr" | "sabr_heston" | "localvol" | "greeks" | "binomial" | "amer" | "rates" | "lmm" | "exotic";
 
 const TOOLS: { id: ToolId; name: string; nameEn: string; formula: string; component: React.FC }[] = [
   {
@@ -45,6 +46,11 @@ const TOOLS: { id: ToolId; name: string; nameEn: string; formula: string; compon
     id: "greeks", name: "Greeks 完整工作台", nameEn: "Black-Scholes Greeks Desk — Δ Γ Vega Θ ρ Vanna Volga",
     formula: String.raw`\Delta = e^{-qT} N(d_1),\quad \Gamma = \dfrac{e^{-qT} n(d_1)}{S\sigma\sqrt{T}},\quad \mathrm{Vega} = S e^{-qT} n(d_1)\sqrt{T},\quad \mathrm{Vanna} = -\dfrac{e^{-qT} n(d_1)\, d_2}{\sigma}`,
     component: GreeksDeskTool,
+  },
+  {
+    id: "binomial", name: "二叉树 (CRR 收敛)", nameEn: "Cox-Ross-Rubinstein Binomial Tree — Convergence to Black-Scholes",
+    formula: String.raw`u = e^{\sigma\sqrt{\Delta t}},\; d = 1/u,\; p = \dfrac{e^{(r-q)\Delta t} - d}{u - d},\qquad V_t = e^{-r\Delta t}\bigl[p\,V_{t+1}^{u} + (1-p)\,V_{t+1}^{d}\bigr]`,
+    component: BinomialTreeTool,
   },
   {
     id: "amer", name: "美式期权 (LSM)", nameEn: "American Option — Longstaff-Schwartz Least-Squares Monte Carlo",
