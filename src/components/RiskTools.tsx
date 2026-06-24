@@ -14,6 +14,7 @@ import { EquationBlock } from "@/components/common/EquationBlock";
 import { ESBacktestTool } from "./risk/ESBacktestTool";
 import { CVAXVATool, CreditCopulaTool } from "./risk/V26Tools";
 import { VaRTool } from "./risk/VaRTool";
+import { EvtPotTool } from "./risk/EvtPotTool";
 
 const CHART_GOLD = "hsl(43, 80%, 55%)";
 const CHART_TEAL = "hsl(180, 50%, 40%)";
@@ -659,7 +660,7 @@ export const StressTool = () => {
 /* ════════════════════════════════════════════════════════════
    Main module
    ════════════════════════════════════════════════════════════ */
-type ToolId = "var" | "merton" | "copula" | "esback" | "stress" | "cva" | "credit_copula";
+type ToolId = "var" | "merton" | "copula" | "evt" | "esback" | "stress" | "cva" | "credit_copula";
 
 const TOOLS: { id: ToolId; name: string; nameEn: string; formula: string; python: string; component: React.FC }[] = [
   {
@@ -721,6 +722,25 @@ def t_copula_sample(rho, df=4, n=10000, seed=42):
     t = z / np.sqrt(chi2)[:, None]
     return student_t.cdf(t, df)`,
     component: CopulaTool,
+  },
+  {
+    id: "evt", name: "极值理论 (EVT/POT)", nameEn: "Extreme Value Theory — Peaks-over-Threshold & Generalized Pareto Tail",
+    formula: String.raw`P(X-u \le y \mid X>u) \to G_{\xi,\beta}(y) = 1 - \bigl(1+\tfrac{\xi y}{\beta}\bigr)^{-1/\xi},\quad \mathrm{VaR}_\alpha = u + \tfrac{\beta}{\xi}\Bigl[\bigl(\tfrac{n}{N_u}(1-\alpha)\bigr)^{-\xi}-1\Bigr]`,
+    python: `import numpy as np
+from scipy.stats import genpareto
+
+def pot_var_es(losses, u_pct=0.95, alpha=0.999):
+    """Peaks-over-threshold VaR/ES via GPD fit (MLE)."""
+    losses = np.asarray(losses)
+    u = np.quantile(losses, u_pct)
+    exc = losses[losses > u] - u
+    n, Nu = len(losses), len(exc)
+    xi, _, beta = genpareto.fit(exc, floc=0)
+    ratio = (n / Nu) * (1 - alpha)
+    var = u + (beta / xi) * (ratio ** (-xi) - 1)
+    es = (var + beta - xi * u) / (1 - xi)
+    return xi, beta, var, es`,
+    component: EvtPotTool,
   },
   {
     id: "esback", name: "ES + VaR 回测", nameEn: "Expected Shortfall & VaR Backtesting (Kupiec / Christoffersen)",
