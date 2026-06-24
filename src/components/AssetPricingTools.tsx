@@ -3,9 +3,9 @@ import { motion } from "framer-motion";
 import "katex/dist/katex.min.css";
 import { ShareExportToolbar, useSharedState } from "@/lib/calculatorTools";
 import { EquationBlock } from "@/components/common/EquationBlock";
-import { CAPMTool, APTTool, FamaFrenchTool } from "./asset/V31AssetTools";
+import { CAPMTool, APTTool, FamaFrenchTool, FamaMacBethTool } from "./asset/V31AssetTools";
 
-type ToolId = "capm" | "apt" | "famafrench";
+type ToolId = "capm" | "apt" | "famafrench" | "famamacbeth";
 
 const TOOLS: { id: ToolId; name: string; nameEn: string; formula: string; component: React.FC }[] = [
   {
@@ -22,6 +22,11 @@ const TOOLS: { id: ToolId; name: string; nameEn: string; formula: string; compon
     id: "famafrench", name: "Fama-French 回归", nameEn: "Fama-French 3 / 5-Factor Regression — Performance Attribution",
     formula: String.raw`R_i - R_f = \alpha + \beta_1(R_m - R_f) + \beta_2\,\mathrm{SMB} + \beta_3\,\mathrm{HML} + \beta_4\,\mathrm{RMW} + \beta_5\,\mathrm{CMA} + \varepsilon`,
     component: FamaFrenchTool,
+  },
+  {
+    id: "famamacbeth", name: "Fama-MacBeth", nameEn: "Fama-MacBeth Two-Pass Cross-Sectional Regression (Shanken-corrected)",
+    formula: String.raw`\text{Pass 1: } R_{it}-R_f=\alpha_i+\beta_i F_t+\varepsilon_{it};\quad \text{Pass 2: } R_{it}=\gamma_0+\lambda_t\beta_i+u_{it},\ \hat\lambda=\tfrac1T\textstyle\sum_t\lambda_t`,
+    component: FamaMacBethTool,
   },
 ];
 
