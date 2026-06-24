@@ -11,7 +11,6 @@ import ScrollUtilities from "@/components/ScrollUtilities";
 import KeyboardHelp from "@/components/KeyboardHelp";
 import TodaysPick from "@/components/TodaysPick";
 import FeaturedNotebooks from "@/components/FeaturedNotebooks";
-import ResearchPlaybooks from "@/components/ResearchPlaybooks";
 import SiteFooter from "@/components/SiteFooter";
 import SectionHeader from "@/components/common/SectionHeader";
 import { SECTIONS, type SectionDef } from "@/lib/sections";
@@ -163,7 +162,6 @@ const Index = () => {
       <div id="hero" className="scroll-mt-12"><HeroSection /></div>
       <HeroToolStrip />
       <EditorialBriefing />
-      <ResearchPlaybooks />
       <TodaysPick />
       <div id="topics" className="scroll-mt-12"><TopicCards /></div>
       <div id="models" className="scroll-mt-12"><ModelShowcase /></div>
