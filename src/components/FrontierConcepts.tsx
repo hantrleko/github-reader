@@ -127,6 +127,8 @@ const CONCEPTS: Concept[] = [
 
 const FrontierConcepts = () => {
   const [open, setOpen] = useState<string | null>(null);
+  const [activeLab, setActiveLab] = useState<string>("amm");
+  const ActiveTool = LAB_TOOLS.find((t) => t.id === activeLab)?.Tool ?? AmmTool;
   return (
     <section className="py-24 px-6 relative">
       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-card/20 to-transparent pointer-events-none" />
