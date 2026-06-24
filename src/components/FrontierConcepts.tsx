@@ -1,9 +1,21 @@
-import { useState } from "react";
+import { lazy, Suspense, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Brain, Network, Users, Leaf, Activity, Coins, Landmark,
-  ChevronDown, Sigma, Wrench, AlertTriangle,
+  ChevronDown, Sigma, Wrench, AlertTriangle, FlaskConical,
 } from "lucide-react";
+
+const AmmTool = lazy(() => import("./frontier/AmmTool"));
+const ContagionTool = lazy(() => import("./frontier/ContagionTool"));
+const ClimateVaRTool = lazy(() => import("./frontier/ClimateVaRTool"));
+const ProspectTheoryTool = lazy(() => import("./frontier/ProspectTheoryTool"));
+
+const LAB_TOOLS = [
+  { id: "amm", icon: Coins, name: "DeFi · AMM", desc: "恒积做市商滑点与无常损失", Tool: AmmTool },
+  { id: "contagion", icon: Network, name: "网络 · 传染", desc: "DebtRank 违约级联", Tool: ContagionTool },
+  { id: "climate", icon: Leaf, name: "气候 · Climate VaR", desc: "NGFS 情景重估损失", Tool: ClimateVaRTool },
+  { id: "prospect", icon: Activity, name: "神经 · 前景理论", desc: "价值函数与概率加权", Tool: ProspectTheoryTool },
+] as const;
 
 interface Concept {
   icon: React.FC<{ className?: string }>;
