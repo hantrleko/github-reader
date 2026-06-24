@@ -142,7 +142,7 @@ export const UnitRootTool = () => {
       </div>
 
       <div className="text-xs font-mono text-muted-foreground p-3 rounded-lg bg-secondary/40 border border-border leading-relaxed">
-        <p><span className="text-gold">ADF (Dickey-Fuller)：</span>H₀ = 存在单位根 (非平稳)；统计量越负越拒绝。检验 γ=0 于 Δy_t = α+γy_{t-1}+Σδᵢ Δy_{t-i}。</p>
+        <p><span className="text-gold">ADF (Dickey-Fuller)：</span>H₀ = 存在单位根 (非平稳)；统计量越负越拒绝。检验 γ=0 于 Δyₜ = α + γyₜ₋₁ + Σδᵢ·Δyₜ₋ᵢ。</p>
         <p><span className="text-gold">KPSS：</span>H₀ = 平稳；统计量越大越拒绝。两者互补——ADF 与 KPSS 结论一致时判断更稳健。</p>
         <p><span className="text-gold">近单位根：</span>ρ=0.95 时两检验都可能失效，反映单位根检验的低功效问题。</p>
       </div>
