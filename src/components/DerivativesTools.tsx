@@ -13,8 +13,15 @@ import { SABRvsHestonTool } from "./deriv/SABRvsHestonTool";
 import { LMMSwaptionTool, ExoticOptionsTool } from "./deriv/V26Tools";
 import { BinomialTreeTool } from "./deriv/BinomialTreeTool";
 import { EquationBlock } from "@/components/common/EquationBlock";
+import CategorizedToolNav, { type ToolCategory } from "@/components/common/CategorizedToolNav";
 
 type ToolId = "vol" | "heston" | "sabr" | "sabr_heston" | "localvol" | "greeks" | "binomial" | "amer" | "rates" | "lmm" | "exotic";
+
+const DERIV_CATEGORIES: ToolCategory[] = [
+  { id: "surface", label: "波动率曲面", toolIds: ["vol", "heston", "sabr", "sabr_heston", "localvol"] },
+  { id: "greeks", label: "希腊字母与格点", toolIds: ["greeks", "binomial", "amer"] },
+  { id: "rates", label: "利率与奇异", toolIds: ["rates", "lmm", "exotic"] },
+];
 
 const TOOLS: { id: ToolId; name: string; nameEn: string; formula: string; component: React.FC }[] = [
   {
@@ -92,16 +99,12 @@ const DerivativesTools = () => {
           <p className="text-sm text-muted-foreground mt-3 max-w-2xl mx-auto">{t("sections.deriv.subtitle")}</p>
         </motion.div>
 
-        <div className="flex flex-wrap justify-center gap-2 mb-8">
-          {TOOLS.map(t => (
-            <button key={t.id} onClick={() => setTool(t.id)}
-              className={`px-5 py-2.5 rounded-lg text-sm font-mono transition-all duration-300 ${
-                tool === t.id ? "bg-primary text-primary-foreground shadow-lg" : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
-              }`}>
-              {t.name}
-            </button>
-          ))}
-        </div>
+        <CategorizedToolNav
+          tools={TOOLS.map(({ id, name, nameEn }) => ({ id, name, nameEn }))}
+          categories={DERIV_CATEGORIES}
+          activeId={tool}
+          onSelect={(id) => setTool(id as ToolId)}
+        />
 
         <motion.div key={tool} ref={captureRef} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35 }}
           className="rounded-2xl border border-border bg-card p-6 md:p-10 glow-gold">
