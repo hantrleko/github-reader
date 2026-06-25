@@ -23,6 +23,7 @@ import { DoubleMLTool, CausalForestTool, BayesianRegTool } from "./econ/V24Tools
 import { HARRVTool, HawkesTool, KyleLambdaTool } from "./econ/V25Tools";
 import { UnitRootTool } from "./econ/UnitRootTool";
 import { EquationBlock } from "@/components/common/EquationBlock";
+import CategorizedToolNav, { type ToolCategory } from "@/components/common/CategorizedToolNav";
 
 const CHART_GOLD = "hsl(43, 80%, 55%)";
 const CHART_TEAL = "hsl(180, 50%, 40%)";
