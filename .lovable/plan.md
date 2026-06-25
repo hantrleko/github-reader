@@ -1,57 +1,77 @@
-# 优化计划 · 功能修复 + 模型补足（广覆盖）
+# 结构 / 布局 / 导航优化方案
 
-目标：先清掉删除「研究剧本」后留下的失效链接，再围绕"模型补足"在多个板块各补一批高价值标准模型，把前沿概念卡升级为可交互工具，并统一缺失的工具元能力（预设 / Notebook 导出 / 验证测试）。本轮以广覆盖为主，每个板块补 1–2 个最关键缺口。
+## 问题诊断（基于代码）
 
----
+每个板块（计量、风险、衍生品、宏观…）都用同一套模式渲染工具：一行 `flex flex-wrap justify-center gap-2` 的扁平按钮墙，外加 `useState<ToolId>` 单选。各板块工具数量：
 
-## 阶段 1 · 清理失效链接与发现死路（先做，低风险）
+```text
+计量经济学  29 个   ← 严重拥挤，按钮墙占满整屏，难找
+衍生品高阶  11 个   ← 偏多
+宏观经济    9 个
+风险管理    8 个
+其余        ≤ 5 个   ← 正常
+```
 
-1. `src/data/toolsCatalog.ts` — 删除 5 个指向已删除 `/#research-playbooks` 的条目：研究剧本工作台 / 研究冲刺生成器 / 证据包构建器 / 研究运营看板 / 决策备忘录工作室（行 66–130）。
-2. `src/components/HeroToolStrip.tsx` — 删除 `UNIT_00 "Research Ops"` 死链格子，并把网格从 9 列回退为 8 列重新排布。
-3. `src/components/ModelShowcase.tsx` — 当前 8 张模型卡是"展示死路"，没有任何入口。为每张卡加一个「打开计算器」链接，跳转到对应交互工具（CAPM/FF→`/s/asset-pricing`，BS/MC→`/s/calculator`、`/s/mc-pricer`，GARCH→`/s/econometrics`，Markowitz→`/s/frontier`，Vasicek/CIR→`/s/rate-model`），用 `sectionHref` 统一生成。
+29 个按钮平铺无分组、无层级、无搜索，是「很多很杂」的根源。其它板块尚可接受，但缺少统一的可扩展导航骨架。
 
-## 阶段 2 · 前沿模型互动化（FrontierConcepts）
+## 方案总览
 
-把 `FrontierConcepts.tsx` 中可计算的 4 个范式从静态卡升级为带滑杆的迷你交互工具（其余 3 个 AI-SDF / ABM / CBDC-DSGE 保留为概念卡，因实现成本过高）：
+引入「**两级工具导航**」：先按学科主题分类（一级 chip），再在所选分类内展示具体工具（二级 tab），并加入即时搜索过滤。优先解决计量经济学，同时做成可复用组件，让所有板块共享同一骨架。
 
-- **DeFi · AMM**：恒积做市商 `x·y=k`，输入交易规模 → 输出滑点、成交均价与无常损失曲线。
-- **复杂网络 · 传染**：小型银行间网络上的 DebtRank / 违约级联模拟，可调网络密度与冲击规模，展示级联失效数。
-- **气候金融 · Climate VaR**：在 NGFS 情景（有序 / 无序 / 温室世界）下重估贴现现金流，输出分位损失。
-- **神经经济学 · 前景理论**：价值函数 `v(x)` 与概率加权 `π(p)` 可视化，可调 α/β/λ/γ。
+```text
+┌─────────────────────────────────────────────┐
+│  [因果推断] [时间序列] [波动率/高频] [离散/面板] [机器学习计量]   ← 一级分类 chips
+├─────────────────────────────────────────────┤
+│  🔍 搜索工具…                                  ← 即时过滤
+├─────────────────────────────────────────────┤
+│  OLS/IV  DID  SDID  RDD  合成控制  PSM           ← 二级 tab（当前分类内）
+├─────────────────────────────────────────────┤
+│  公式条 + Python 参考 + 交互工具                  ← 不变
+└─────────────────────────────────────────────┘
+```
 
-每个迷你工具复用现有 `PresetButtons` 与 `EquationBlock` 约定。
+## 计量经济学 29 工具分类
 
-## 阶段 3 · 补足经典模型（各板块各 1–2 个高价值缺口）
+| 分类 | 工具 |
+|---|---|
+| **因果推断** | OLS/IV、DID、交错 DID、RDD、合成控制、PSM/IPW/AIPW |
+| **时间序列** | SVAR、协整/VECM、单位根 (ADF/KPSS)、Kalman/HP、MIDAS、ARIMA、Local Projections、DLM |
+| **波动率 / 高频** | GARCH、DCC-GARCH、Regime-Switching、HAR-RV、Hawkes、Kyle λ |
+| **离散选择 / 面板** | GMM、Logit/Probit、分位数回归、面板 (FE/RE)、Tobit |
+| **机器学习计量** | LASSO/Ridge/ElasticNet、Double ML、Causal Forest、贝叶斯回归 |
 
-- **衍生品**：CRR 二叉树收敛可视化（对比 BS 闭式解）；为奇异期权工具新增解析「障碍 / 数字期权」闭式解标签（Rubinstein-Reiner）。
-- **固定收益**：在 `BondCalculator` 增加关键利率久期（KRD）分解标签。
-- **风险**：为 Copula 工具新增 Archimedean 族（Clayton / Gumbel）；新增 EVT / POT（GPD 尾部拟合）工具；VaR 工具增加边际 VaR / 成分 VaR。
-- **资产定价**：新增 Fama-MacBeth 两阶段横截面回归（含 Shanken 修正）。
-- **计量经济**：把协整工具补成 Johansen 迹 / 最大特征值检验；新增独立的单位根检验（ADF / KPSS）标签。
-- **量化**：回测工具增加 walk-forward / 样本外滚动重估拆分。
+## 实施步骤
 
-## 阶段 4 · 统一工具元能力与验证
+### 1. 新建可复用组件 `src/components/common/CategorizedToolNav.tsx`
+- 输入：`categories`（分类 → 工具 id 列表）、当前 `toolId`、`onSelect`、可选 `enableSearch`。
+- 渲染一级分类 chip、分类内二级 tab、搜索框；选中工具属于哪个分类自动高亮对应 chip。
+- 保留现有键盘可达性与 `font-mono` / gold 选中态视觉，沿用设计 token（不硬编码颜色）。
+- 工具数 ≤ 6 时自动退化为单层扁平 tab（衍生品/宏观/风险等无需强行分类）。
 
-- `MundellFlemingTool`（`ClassicMacroTools.tsx`）补上缺失的 `PresetButtons`（全站唯一缺预设的交互工具）。
-- 把 `notebookSeed`（"Open in Notebook"）从仅 `CalculatorSection` 推广到其余板块的 `ShareExportToolbar` 调用。
-- 为本轮新增模型与若干现有工具补充对照闭式解的单元测试，并把通过的工具在 `toolsCatalog.ts` 标记 `verified: true`（当前仅 4/63）。
+### 2. 接入计量经济学 `EconometricsTools.tsx`
+- 在 `TOOLS` 旁新增 `ECON_CATEGORIES`（上表映射，纯数据）。
+- 用 `CategorizedToolNav` 替换第 2946–2961 行的扁平按钮墙。
+- `useState<ToolId>` / `useSharedState` / 分享导出 / 公式条逻辑全部保持不变（深链 `?tool=` 仍可用）。
 
----
+### 3. 顺带应用到衍生品（11 个）
+- 衍生品分 3 组：波动率曲面 (SVI/Heston/SABR/SABR-Heston/Local Vol)、希腊字母与格点 (Greeks/Binomial/American)、利率与奇异 (Rates/LMM/Exotic)。
+- 其余 ≤9 工具的板块仅接入组件（自动单层模式），获得搜索能力但不强制分类。
+
+### 4. 板块内「概览/锚点」轻量增强（可选）
+- 在 `SectionPage` 顶部分类切换后平滑滚动定位，配合既有 ScrollManager，不改动其行为。
 
 ## 技术说明
+- 纯前端 / 展示层改动：新增一个组件 + 各板块的分类数据数组，不触碰任何计算逻辑、`src/lib/quant`、状态分享或路由。
+- 复用现有 `PresetButtons`、`EquationBlock`、`ShareExportToolbar` 样式语言，保持 Bloomberg 终端编辑风。
+- i18n：分类名加入 `en.json` / `zh.json` 的 `sections.econ.categories.*`（及衍生品对应键）。
+- 不改全局顶部导航 `Navbar`（其分组下拉已合理）；本次聚焦「板块内部」工具查找体验。
 
-- 所有新计算放在 TypeScript 前端，沿用现有 `src/lib/quant`、`PresetButtons`、`EquationBlock`、`ShareExportToolbar` 模式，不引入后端。
-- 新交互工具按现有 `TOOLS` 数组模式挂到对应容器组件（如 `DerivativesTools.tsx`、`RiskTools.tsx`、`EconometricsTools.tsx` 的 tab 注册）。
-- 新增的目录条目用真实 `/s/<section>` 锚点；前沿迷你工具留在前沿板块内部 tab。
-- 数学实现要点：
-  - KRD：对各关键期限做局部 ±Δ 冲击重估并归一。
-  - Johansen：构造 VECM 残差矩阵 S00/S11/S01，解广义特征值得到迹与最大特征值统计量，配 MacKinnon-Haug-Michelis 临界值表。
-  - EVT/POT：阈值以上超额拟合 GPD（极大似然），输出 VaR/ES 尾部估计。
-  - Fama-MacBeth：第一阶段时序回归得 β，第二阶段逐期横截面回归取均值，标准误加 Shanken 修正。
-  - AMM 无常损失：`IL = 2√r/(1+r) − 1`，r 为价格比变化。
-- LaTeX 推导与 Newton-Raphson / 离散化等沿用项目既有约定。
-- 验证：构建通过 + 关键新算法对照闭式解/已知基准的单元测试（`bunx vitest run`）。
+## 不在本次范围
+- 不新增 / 删除任何计量或其它工具模型。
+- 不改后端、数据源板块、认证或路由结构。
+- 不重做全局顶部导航栏（除非后续要求）。
 
-## 范围之外（本轮不做，后续可续）
-
-AI/ML 神经 SDF 训练、多智能体 ABM 仿真、CBDC-DSGE 求解、系统 GMM（Arellano-Bond）、BEKK 多元 GARCH、OLG / ZLB 宏观、交易成本 Almgren-Chriss 模型。
+## 涉及文件
+- 新建：`src/components/common/CategorizedToolNav.tsx`
+- 修改：`src/components/EconometricsTools.tsx`、`src/components/DerivativesTools.tsx`（接入），其余板块按需接入单层模式
+- 修改：`src/i18n/locales/en.json`、`src/i18n/locales/zh.json`（分类名）
