@@ -2952,22 +2952,13 @@ const EconometricsTools = () => {
           </p>
         </motion.div>
 
-        {/* Tool tabs */}
-        <div className="flex flex-wrap justify-center gap-2 mb-8">
-          {TOOLS.map(t => (
-            <button
-              key={t.id}
-              onClick={() => setTool(t.id)}
-              className={`px-5 py-2.5 rounded-lg text-sm font-mono transition-all duration-300 ${
-                tool === t.id
-                  ? "bg-primary text-primary-foreground shadow-lg"
-                  : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
-              }`}
-            >
-              {t.name}
-            </button>
-          ))}
-        </div>
+        {/* Tool tabs — categorized + searchable */}
+        <CategorizedToolNav
+          tools={TOOLS.map(({ id, name, nameEn }) => ({ id, name, nameEn }))}
+          categories={ECON_CATEGORIES}
+          activeId={tool}
+          onSelect={(id) => setTool(id as ToolId)}
+        />
 
         <motion.div
           key={tool}
