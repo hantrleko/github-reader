@@ -3,6 +3,14 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "overrides": {
+    "ws": "^8.18.3",
+    "lodash": "^4.17.21"
+  },
+  "resolutions": {
+    "ws": "^8.18.3",
+    "lodash": "^4.17.21"
+  },
   "scripts": {
     "dev": "vite",
     "build": "vite build",
