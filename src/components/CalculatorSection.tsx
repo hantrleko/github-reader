@@ -5,6 +5,8 @@ import { ShareExportToolbar, useSharedState } from "@/lib/calculatorTools";
 import { HistoryDrawer } from "./common/HistoryDrawer";
 import { FormulaCodeView } from "./common/FormulaCodeView";
 import RealDataLoader from "./RealDataLoader";
+import SendToTool from "./common/SendToTool";
+import { useBusConsume } from "@/lib/toolBus";
 
 import "katex/dist/katex.min.css";
 import {
@@ -515,6 +517,21 @@ const CalculatorSection = () => {
     setValues((prev) => ({ ...prev, ...s.values }));
   }, []);
   useSharedState<{ active: CalcId; values: Record<string, number> }>("calc", apply);
+
+  // Tool Bus: receive σ / S₀ / K / r / T from upstream tools and pre-fill the BS pricer.
+  useBusConsume(["sigma", "S0", "K", "r", "T"], (vals) => {
+    setActive("bs");
+    setValues((prev) => ({
+      ...prev,
+      ...(vals.S0 != null ? { s: Math.max(1, Math.min(500, Math.round(vals.S0))) } : {}),
+      ...(vals.K != null ? { k: Math.max(1, Math.min(500, Math.round(vals.K))) } : {}),
+      ...(vals.sigma != null
+        ? { sigma: Math.max(1, Math.min(200, Math.round(vals.sigma * 1000) / 10)) }
+        : {}),
+      ...(vals.r != null ? { r: Math.round(vals.r * 1000) / 10 } : {}),
+      ...(vals.T != null ? { t: vals.T } : {}),
+    }));
+  });
 
   const presets: Record<CalcId, Preset[]> = {
     capm: [
