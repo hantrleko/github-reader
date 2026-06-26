@@ -361,6 +361,29 @@ const MCOptionPricer = () => {
                 state={{ optionType, putCall, s0, k, r, sigma, T, nPaths, seed, barrierType, barrierLevel }}
                 captureRef={captureRef}
                 filename={`mc-${optionType}`}
+                markdown={() =>
+                  [
+                    `### 蒙特卡洛期权定价 (${optionNames[optionType]})`,
+                    ``,
+                    `| 参数 | 值 |`,
+                    `| --- | --- |`,
+                    `| 方向 | ${putCall === "call" ? "Call" : "Put"} |`,
+                    `| S₀ | ${s0} |`,
+                    `| K | ${k} |`,
+                    `| r | ${r}% |`,
+                    `| σ | ${sigma}% |`,
+                    `| T | ${T} 年 |`,
+                    `| 路径数 | ${nPaths.toLocaleString()} |`,
+                    `| **MC 价格** | **${result.price.toFixed(4)}** |`,
+                    `| 标准误 | ${result.stdError.toFixed(4)} |`,
+                  ].join("\n")
+                }
+              />
+              <SendToTool
+                fromId="mc"
+                label="Monte Carlo"
+                outputs={{ sigma: sigma / 100, S0: s0, K: k, r: r / 100, T }}
+                targets={["bs", "iv", "svi"]}
               />
             </div>
           </div>
