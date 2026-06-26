@@ -375,7 +375,7 @@ const MCOptionPricer = () => {
                     `| T | ${T} 年 |`,
                     `| 路径数 | ${nPaths.toLocaleString()} |`,
                     `| **MC 价格** | **${result.price.toFixed(4)}** |`,
-                    `| 标准误 | ${result.stdError.toFixed(4)} |`,
+                    `| 标准误 | ${result.stdErr.toFixed(4)} |`,
                   ].join("\n")
                 }
               />
