@@ -732,6 +732,22 @@ const CalculatorSection = () => {
               />
             </div>
           </div>
+          {active === "bs" && (
+            <div className="flex justify-end -mt-2 mb-4">
+              <SendToTool
+                fromId="bs"
+                label="Black-Scholes"
+                outputs={{
+                  sigma: (values.sigma ?? 0) / 100,
+                  S0: values.s,
+                  K: values.k,
+                  r: (values.r ?? 0) / 100,
+                  T: values.t,
+                }}
+                targets={["mc", "iv", "svi"]}
+              />
+            </div>
+          )}
           {/* Formula */}
           <div className="text-center mb-8 py-5 px-6 rounded-xl bg-gradient-to-br from-secondary/60 to-secondary/30 border border-gold/20 shadow-inner">
             <p className="text-[10px] font-mono uppercase tracking-[0.25em] text-gold/80 mb-2">
