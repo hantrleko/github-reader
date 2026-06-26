@@ -6,6 +6,8 @@ import { HistoryDrawer } from "./common/HistoryDrawer";
 import PresetButtons, { Preset } from "./PresetButtons";
 import { FormulaCodeView } from "./common/FormulaCodeView";
 import RealDataLoader from "./RealDataLoader";
+import SendToTool from "./common/SendToTool";
+import { useBusConsume } from "@/lib/toolBus";
 import { motion } from "framer-motion";
 import {
   LineChart,
@@ -247,6 +249,15 @@ const MCOptionPricer = () => {
   }, []);
   useSharedState("mc", apply);
 
+  // Tool Bus: receive σ / S₀ / K / r / T from upstream tools (IV, BS) and pre-fill.
+  useBusConsume(["sigma", "S0", "K", "r", "T"], (vals) => {
+    if (vals.S0 != null) setS0(Math.round(vals.S0));
+    if (vals.K != null) setK(Math.round(vals.K));
+    if (vals.sigma != null) setSigma(Math.max(1, Math.round(vals.sigma * 1000) / 10));
+    if (vals.r != null) setR(Math.round(vals.r * 1000) / 10);
+    if (vals.T != null) setT(vals.T);
+  });
+
   const nSteps = 252;
 
   const result = useMemo(() => {
@@ -350,6 +361,29 @@ const MCOptionPricer = () => {
                 state={{ optionType, putCall, s0, k, r, sigma, T, nPaths, seed, barrierType, barrierLevel }}
                 captureRef={captureRef}
                 filename={`mc-${optionType}`}
+                markdown={() =>
+                  [
+                    `### 蒙特卡洛期权定价 (${optionNames[optionType]})`,
+                    ``,
+                    `| 参数 | 值 |`,
+                    `| --- | --- |`,
+                    `| 方向 | ${putCall === "call" ? "Call" : "Put"} |`,
+                    `| S₀ | ${s0} |`,
+                    `| K | ${k} |`,
+                    `| r | ${r}% |`,
+                    `| σ | ${sigma}% |`,
+                    `| T | ${T} 年 |`,
+                    `| 路径数 | ${nPaths.toLocaleString()} |`,
+                    `| **MC 价格** | **${result.price.toFixed(4)}** |`,
+                    `| 标准误 | ${result.stdErr.toFixed(4)} |`,
+                  ].join("\n")
+                }
+              />
+              <SendToTool
+                fromId="mc"
+                label="Monte Carlo"
+                outputs={{ sigma: sigma / 100, S0: s0, K: k, r: r / 100, T }}
+                targets={["bs", "iv", "svi"]}
               />
             </div>
           </div>

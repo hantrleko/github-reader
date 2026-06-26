@@ -5,6 +5,8 @@ import { ShareExportToolbar, useSharedState } from "@/lib/calculatorTools";
 import { HistoryDrawer } from "./common/HistoryDrawer";
 import { FormulaCodeView } from "./common/FormulaCodeView";
 import RealDataLoader from "./RealDataLoader";
+import SendToTool from "./common/SendToTool";
+import { useBusConsume } from "@/lib/toolBus";
 
 import "katex/dist/katex.min.css";
 import {
@@ -516,6 +518,21 @@ const CalculatorSection = () => {
   }, []);
   useSharedState<{ active: CalcId; values: Record<string, number> }>("calc", apply);
 
+  // Tool Bus: receive σ / S₀ / K / r / T from upstream tools and pre-fill the BS pricer.
+  useBusConsume(["sigma", "S0", "K", "r", "T"], (vals) => {
+    setActive("bs");
+    setValues((prev) => ({
+      ...prev,
+      ...(vals.S0 != null ? { s: Math.max(1, Math.min(500, Math.round(vals.S0))) } : {}),
+      ...(vals.K != null ? { k: Math.max(1, Math.min(500, Math.round(vals.K))) } : {}),
+      ...(vals.sigma != null
+        ? { sigma: Math.max(1, Math.min(200, Math.round(vals.sigma * 1000) / 10)) }
+        : {}),
+      ...(vals.r != null ? { r: Math.round(vals.r * 1000) / 10 } : {}),
+      ...(vals.T != null ? { t: vals.T } : {}),
+    }));
+  });
+
   const presets: Record<CalcId, Preset[]> = {
     capm: [
       { name: "教科书标准", description: "Rf=3%, β=1.2, Rm=10%", apply: () => setMulti({ rf: 3, beta: 1.2, rm: 10 }) },
@@ -715,6 +732,22 @@ const CalculatorSection = () => {
               />
             </div>
           </div>
+          {active === "bs" && (
+            <div className="flex justify-end -mt-2 mb-4">
+              <SendToTool
+                fromId="bs"
+                label="Black-Scholes"
+                outputs={{
+                  sigma: (values.sigma ?? 0) / 100,
+                  S0: values.s,
+                  K: values.k,
+                  r: (values.r ?? 0) / 100,
+                  T: values.t,
+                }}
+                targets={["mc", "iv", "svi"]}
+              />
+            </div>
+          )}
           {/* Formula */}
           <div className="text-center mb-8 py-5 px-6 rounded-xl bg-gradient-to-br from-secondary/60 to-secondary/30 border border-gold/20 shadow-inner">
             <p className="text-[10px] font-mono uppercase tracking-[0.25em] text-gold/80 mb-2">

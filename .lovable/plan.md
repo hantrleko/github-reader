@@ -1,77 +1,97 @@
-# 结构 / 布局 / 导航优化方案
+# 功能强化方案
 
-## 问题诊断（基于代码）
+围绕你选定的三个方向落地:**工具深度与互联**、**真实数据与场景**、**工程优化**。已对齐现有模式(`RealDataLoader`、`calcToNotebook`、`calcHistory`、`CategorizedToolNav`、`marketData` 边缘函数)。
 
-每个板块（计量、风险、衍生品、宏观…）都用同一套模式渲染工具：一行 `flex flex-wrap justify-center gap-2` 的扁平按钮墙，外加 `useState<ToolId>` 单选。各板块工具数量：
+---
+
+## 方向一:工具深度与互联
+
+让 50+ 工具从「孤岛」变成「工作流」。
+
+### 1. 跨工具数据总线(Tool Bus)
+现状:`RealDataLoader` 能把 `{S0, σ, μ}` 注入单个计算器,但工具之间无法传值。
+
+- 新建轻量全局 store(`src/lib/toolBus.ts`,Zustand 或 Context),保存「最近一次关键输出」:如 BS 的 σ、IV 的隐含波动率、GARCH 的预测波动率、债券的收益率曲线、有效前沿的协方差矩阵。
+- 每个工具结果区加一枚 **「↗ 发送到…」** 按钮:把当前输出推入总线并跳转到目标工具,目标工具开场即预填。
+- 典型链路:`IV → SVI 曲面`、`GARCH 预测 σ → BS/MC 定价`、`有效前沿协方差 → Risk Parity`、`利率模型曲线 → 债券定价`、`Merton PD → 信用组合 Copula`。
+- 复用 `toolsCatalog.ts` 已有的 `related` 字段驱动「可发送目标」列表。
+
+### 2. 对比模式(Compare Mode)
+- 通用 `CompareTray` 组件:同一工具不同参数集并排对比(2–3 列),指标差异高亮(↑↓ 色标)。
+- 数据源直接复用 `calcHistory` 的收藏项 —— 勾选两条历史即可对比。
+
+### 3. 结果导出增强
+- 扩展 `calcToNotebook`:把总线传入的真实数据序列一并写入 Notebook seed(目前只带参数滑块)。
+- 每个工具增加 **「复制为 Markdown / 截图」**:输出结果表 + 公式 + 引用(复用 `citations.tsx`),便于贴入报告。
+
+### 4. 「场景剧本」串联
+- 在 `toolsCatalog` 之上新增 `workflows.ts`:把若干工具按教学/实务顺序串成一条剧本(如「期权做市台:IV→SVI→Greeks Desk→对冲」)。
+- `/tools` 页新增「工作流」标签页,点击逐步走查。
+
+---
+
+## 方向二:真实数据与场景
+
+把现有 Yahoo/FRED/World Bank 数据源做深。
+
+### 1. 数据源扩展与统一
+- 现有边缘函数:行情(Yahoo)、FRED、World Bank;已配置 `ALPHAVANTAGE_API_KEY`、`FRED_API_KEY`。
+- 新增/增强边缘函数:基本面(AlphaVantage overview/财报)、多资产批量行情(组合类工具用)、收益率曲线(FRED 多期限国债一次拉取喂给利率/债券工具)。
+- `RealDataLoader` 升级为 `DataPanel`:支持多标的、显示数据质量(样本数/区间/缺失)、一键切换数据源。
+
+### 2. 自选清单 / 组合持久化
+- 新表 `watchlists`(`user_id, symbols[], name`)+ 完整 RLS + GRANT。
+- 组合类工具(有效前沿、Risk Parity、回测、压测)可保存/载入组合,登录后云端同步(复用现有 `cloudStore`)。
+
+### 3. 实时校准
+- 「用真实数据校准模型」:GARCH/Heston/SABR/Vasicek 直接以拉取的历史序列估参,并展示拟合优度。
+- 校准结果可经**方向一的数据总线**直送定价工具。
+
+### 4. 案例数据集库
+- `src/data/datasets/` 内置精选数据集(2008 危机、2020 疫情、2022 加息),离线可用、可复现教学。
+- 工具的预设系统(记忆要求的 textbook/market 预设)增加「历史场景」预设组。
+
+---
+
+## 方向三:工程优化
+
+### 性能
+- 审计首屏 LCP:`index.html` 预加载关键资源;Hero 图走 `vite-imagetools` 转 AVIF/WebP。
+- recharts 已升级到 3.x —— 复核大图表的 `ResponsiveContainer` 与重渲染,重计算用 `useMemo` + 必要时 web worker(MC/LSM 路径模拟)。
+- 路由已 lazy;补充 `toolsCatalog`/`sections` 的按需预取(hover 预取下一节)。
+
+### 可访问性(a11y)
+- 工具 tab/滑块补 `aria-label`、键盘可达;焦点环统一走设计 token。
+- 图表加文本替代(数据表 `<caption>` / `aria-describedby`)。
+
+### SEO
+- 每个 `/s/:sectionId`、`/tools`、`/glossary` 用 `Seo.tsx` 补齐 title(<60)/desc(<160)/canonical + JSON-LD(`LearningResource` / `SoftwareApplication`)。
+- 复核 `sitemap.xml` 覆盖全部 section 路由。
+
+### 测试
+- 现有 `src/lib/quant/__tests__` 已有数值基准测试;补充 `toolBus`、`calcToNotebook`、`watchlists` 序列化的单测。
+- 关键工具加 1–2 个渲染冒烟测试(vitest + RTL)。
+
+### 移动端
+- 两级 `CategorizedToolNav` 在窄屏改为横向滚动 chips + 下拉;终端式侧栏指标在移动端折叠为可展开面板。
+
+---
+
+## 实施顺序(建议)
 
 ```text
-计量经济学  29 个   ← 严重拥挤，按钮墙占满整屏，难找
-衍生品高阶  11 个   ← 偏多
-宏观经济    9 个
-风险管理    8 个
-其余        ≤ 5 个   ← 正常
+阶段 1  工具总线 + 对比模式 + 导出增强   ← 互联立刻见效,纯前端
+阶段 2  数据面板升级 + 自选/组合持久化(建表+RLS) + 实时校准
+阶段 3  案例数据集库 + 场景剧本/工作流页
+阶段 4  工程优化:性能审计 / a11y / SEO / 测试 / 移动端
 ```
 
-29 个按钮平铺无分组、无层级、无搜索，是「很多很杂」的根源。其它板块尚可接受，但缺少统一的可扩展导航骨架。
+## 技术要点
+- 数据总线:`src/lib/toolBus.ts`(Zustand,已在依赖中)+ 各工具结果区 hook 注入。
+- 持久化:新增 `public.watchlists`,迁移内含 `GRANT` + RLS(`auth.uid()` 作用域);云同步复用 `cloudStore.ts`。
+- 边缘函数:沿用现有 `marketData.ts` 调用约定与 CORS;新增函数 `verify_jwt=false` 默认即可。
+- 不改动自动生成文件(`client.ts`/`types.ts`/`.env`/`config.toml`)。
 
-## 方案总览
+---
 
-引入「**两级工具导航**」：先按学科主题分类（一级 chip），再在所选分类内展示具体工具（二级 tab），并加入即时搜索过滤。优先解决计量经济学，同时做成可复用组件，让所有板块共享同一骨架。
-
-```text
-┌─────────────────────────────────────────────┐
-│  [因果推断] [时间序列] [波动率/高频] [离散/面板] [机器学习计量]   ← 一级分类 chips
-├─────────────────────────────────────────────┤
-│  🔍 搜索工具…                                  ← 即时过滤
-├─────────────────────────────────────────────┤
-│  OLS/IV  DID  SDID  RDD  合成控制  PSM           ← 二级 tab（当前分类内）
-├─────────────────────────────────────────────┤
-│  公式条 + Python 参考 + 交互工具                  ← 不变
-└─────────────────────────────────────────────┘
-```
-
-## 计量经济学 29 工具分类
-
-| 分类 | 工具 |
-|---|---|
-| **因果推断** | OLS/IV、DID、交错 DID、RDD、合成控制、PSM/IPW/AIPW |
-| **时间序列** | SVAR、协整/VECM、单位根 (ADF/KPSS)、Kalman/HP、MIDAS、ARIMA、Local Projections、DLM |
-| **波动率 / 高频** | GARCH、DCC-GARCH、Regime-Switching、HAR-RV、Hawkes、Kyle λ |
-| **离散选择 / 面板** | GMM、Logit/Probit、分位数回归、面板 (FE/RE)、Tobit |
-| **机器学习计量** | LASSO/Ridge/ElasticNet、Double ML、Causal Forest、贝叶斯回归 |
-
-## 实施步骤
-
-### 1. 新建可复用组件 `src/components/common/CategorizedToolNav.tsx`
-- 输入：`categories`（分类 → 工具 id 列表）、当前 `toolId`、`onSelect`、可选 `enableSearch`。
-- 渲染一级分类 chip、分类内二级 tab、搜索框；选中工具属于哪个分类自动高亮对应 chip。
-- 保留现有键盘可达性与 `font-mono` / gold 选中态视觉，沿用设计 token（不硬编码颜色）。
-- 工具数 ≤ 6 时自动退化为单层扁平 tab（衍生品/宏观/风险等无需强行分类）。
-
-### 2. 接入计量经济学 `EconometricsTools.tsx`
-- 在 `TOOLS` 旁新增 `ECON_CATEGORIES`（上表映射，纯数据）。
-- 用 `CategorizedToolNav` 替换第 2946–2961 行的扁平按钮墙。
-- `useState<ToolId>` / `useSharedState` / 分享导出 / 公式条逻辑全部保持不变（深链 `?tool=` 仍可用）。
-
-### 3. 顺带应用到衍生品（11 个）
-- 衍生品分 3 组：波动率曲面 (SVI/Heston/SABR/SABR-Heston/Local Vol)、希腊字母与格点 (Greeks/Binomial/American)、利率与奇异 (Rates/LMM/Exotic)。
-- 其余 ≤9 工具的板块仅接入组件（自动单层模式），获得搜索能力但不强制分类。
-
-### 4. 板块内「概览/锚点」轻量增强（可选）
-- 在 `SectionPage` 顶部分类切换后平滑滚动定位，配合既有 ScrollManager，不改动其行为。
-
-## 技术说明
-- 纯前端 / 展示层改动：新增一个组件 + 各板块的分类数据数组，不触碰任何计算逻辑、`src/lib/quant`、状态分享或路由。
-- 复用现有 `PresetButtons`、`EquationBlock`、`ShareExportToolbar` 样式语言，保持 Bloomberg 终端编辑风。
-- i18n：分类名加入 `en.json` / `zh.json` 的 `sections.econ.categories.*`（及衍生品对应键）。
-- 不改全局顶部导航 `Navbar`（其分组下拉已合理）；本次聚焦「板块内部」工具查找体验。
-
-## 不在本次范围
-- 不新增 / 删除任何计量或其它工具模型。
-- 不改后端、数据源板块、认证或路由结构。
-- 不重做全局顶部导航栏（除非后续要求）。
-
-## 涉及文件
-- 新建：`src/components/common/CategorizedToolNav.tsx`
-- 修改：`src/components/EconometricsTools.tsx`、`src/components/DerivativesTools.tsx`（接入），其余板块按需接入单层模式
-- 修改：`src/i18n/locales/en.json`、`src/i18n/locales/zh.json`（分类名）
+先确认范围与优先级,我建议从**阶段 1(工具互联,纯前端、风险低、体验提升最直接)**开始落地。你也可以指定先做某一阶段或某条具体链路。
