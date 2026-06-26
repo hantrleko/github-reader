@@ -1,4 +1,4 @@
-import { Share2, Download, Check, NotebookPen } from "lucide-react";
+import { Share2, Download, Check, NotebookPen, ClipboardCopy } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { toPng } from "html-to-image";
 import { toast } from "@/hooks/use-toast";
@@ -46,6 +46,8 @@ interface Props {
   filename: string;
   /** if provided, shows an "Open in Notebook" button that seeds the Notebook editor */
   notebookSeed?: CalcSeed;
+  /** if provided, shows a "复制 MD" button that copies a Markdown report */
+  markdown?: () => string;
 }
 
 export const ShareExportToolbar = ({
@@ -55,8 +57,10 @@ export const ShareExportToolbar = ({
   captureRef,
   filename,
   notebookSeed,
+  markdown,
 }: Props) => {
   const [copied, setCopied] = useState(false);
+  const [mdCopied, setMdCopied] = useState(false);
   const [busy, setBusy] = useState(false);
 
   const onShare = async () => {
@@ -68,6 +72,18 @@ export const ShareExportToolbar = ({
       setTimeout(() => setCopied(false), 1800);
     } catch {
       toast({ title: "复制失败", description: url, variant: "destructive" });
+    }
+  };
+
+  const onCopyMarkdown = async () => {
+    if (!markdown) return;
+    try {
+      await navigator.clipboard.writeText(markdown());
+      setMdCopied(true);
+      toast({ title: "已复制 Markdown", description: "可直接粘贴进报告 / Notebook" });
+      setTimeout(() => setMdCopied(false), 1800);
+    } catch {
+      toast({ title: "复制失败", variant: "destructive" });
     }
   };
 
@@ -109,6 +125,16 @@ export const ShareExportToolbar = ({
           <NotebookPen className="w-3.5 h-3.5" />
           Open in Notebook
         </a>
+      )}
+      {markdown && (
+        <button
+          onClick={onCopyMarkdown}
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-mono border border-border bg-card hover:border-gold/40 hover:text-gold transition-colors"
+          title="复制结果为 Markdown(表格 + 公式)"
+        >
+          {mdCopied ? <Check className="w-3.5 h-3.5" /> : <ClipboardCopy className="w-3.5 h-3.5" />}
+          {mdCopied ? "已复制" : "复制 MD"}
+        </button>
       )}
       <button
         onClick={onShare}
