@@ -37,7 +37,7 @@ export interface ToolEntry {
   related?: string[];
   /** true once unit tests vs a closed-form benchmark exist in src/lib/quant */
   verified?: boolean;
-  version: "V1.0" | "V2.0" | "V2.1" | "V2.2" | "V2.3" | "V2.4" | "V2.5" | "V2.6" | "V2.7" | "V2.8" | "V3.0" | "V3.1";
+  version: "V1.0" | "V2.0" | "V2.1" | "V2.2" | "V2.3" | "V2.4" | "V2.5" | "V2.6" | "V2.7" | "V2.8" | "V3.0" | "V3.1" | "V3.2";
 }
 
 export const CATEGORY_LABEL: Record<ToolCategory, { zh: string; en: string }> = {
@@ -73,7 +73,7 @@ export const TOOLS_CATALOG: ToolEntry[] = [
     tags: ["欧式期权", "Greeks", "闭式解"],
     refs: ["Black & Scholes (1973)", "Merton (1973)"],
     blurb: "欧式期权定价 + 全套 Greeks（Δ Γ ν Θ ρ），含 ITM 概率。",
-    related: ["iv", "mc"],
+    related: ["iv", "mc", "greeks-desk"],
     verified: true,
     version: "V1.0",
   },
@@ -87,7 +87,7 @@ export const TOOLS_CATALOG: ToolEntry[] = [
     tags: ["Newton-Raphson", "反演", "波动率微笑"],
     refs: ["Manaster & Koehler (1982)"],
     blurb: "Newton-Raphson 反演 BS 公式求 σ，含初值启发式 & 收敛诊断。",
-    related: ["bs", "svi", "heston"],
+    related: ["bs", "svi", "heston", "greeks-desk"],
     verified: true,
     version: "V1.0",
   },
