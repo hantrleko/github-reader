@@ -247,6 +247,15 @@ const MCOptionPricer = () => {
   }, []);
   useSharedState("mc", apply);
 
+  // Tool Bus: receive σ / S₀ / K / r / T from upstream tools (IV, BS) and pre-fill.
+  useBusConsume(["sigma", "S0", "K", "r", "T"], (vals) => {
+    if (vals.S0 != null) setS0(Math.round(vals.S0));
+    if (vals.K != null) setK(Math.round(vals.K));
+    if (vals.sigma != null) setSigma(Math.max(1, Math.round(vals.sigma * 1000) / 10));
+    if (vals.r != null) setR(Math.round(vals.r * 1000) / 10);
+    if (vals.T != null) setT(vals.T);
+  });
+
   const nSteps = 252;
 
   const result = useMemo(() => {
