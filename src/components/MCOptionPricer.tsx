@@ -6,6 +6,8 @@ import { HistoryDrawer } from "./common/HistoryDrawer";
 import PresetButtons, { Preset } from "./PresetButtons";
 import { FormulaCodeView } from "./common/FormulaCodeView";
 import RealDataLoader from "./RealDataLoader";
+import SendToTool from "./common/SendToTool";
+import { useBusConsume } from "@/lib/toolBus";
 import { motion } from "framer-motion";
 import {
   LineChart,
