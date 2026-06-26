@@ -383,7 +383,7 @@ const MCOptionPricer = () => {
                 fromId="mc"
                 label="Monte Carlo"
                 outputs={{ sigma: sigma / 100, S0: s0, K: k, r: r / 100, T }}
-                targets={["bs", "iv", "svi"]}
+                targets={["bs", "iv", "greeks-desk", "svi"]}
               />
             </div>
           </div>

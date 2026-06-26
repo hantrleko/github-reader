@@ -1,12 +1,80 @@
 import { motion } from "framer-motion";
-import { Sparkles, Wrench, BookOpen, Zap, Layout, GraduationCap, Target, ClipboardCheck, FileStack, Gauge, FileText } from "lucide-react";
+import { Sparkles, Wrench, BookOpen, Zap, Layout, GraduationCap, Target, ClipboardCheck, FileStack, Gauge, FileText, Share2, Shield, FolderTree } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 const RELEASES = [
   {
-    version: "V3.0",
+    version: "V3.2",
     date: "2026-06",
     tag: "Current",
+    highlights: [
+      {
+        icon: Share2,
+        title: "Tool Bus — 工具间参数直传 (IV → BS → MC → Greeks)",
+        items: [
+          "新增依赖无关的 Tool Bus (src/lib/toolBus.ts),用 useSyncExternalStore 维护 S₀/σ/r/T/K/μ 等规范变量,并镜像到 sessionStorage 以承受中途刷新",
+          "新增「发送到…」下拉 (SendToTool):隐含波动率求解的 σ̂、Black-Scholes 标的价、蒙特卡洛参数可一键传入相关工具并自动预填,接收端落地后即时弹出确认 toast",
+          "已打通 隐含波动率 ↔ Black-Scholes ↔ 蒙特卡洛 ↔ Greeks Desk 四工具回路;打开衍生品页若总线携带期权参数会自动定位到 Greeks 工作台",
+        ],
+      },
+      {
+        icon: FileText,
+        title: "Markdown 报告导出 — 计算结果一键成稿",
+        items: [
+          "ShareExportToolbar 新增「复制 MD」按钮,把当前工具输入与关键输出整理为 Markdown 片段,可直接粘贴进 Notebook、论文笔记或团队简报",
+          "隐含波动率工具率先接入结构化 MD 报告,后续工具将逐步补齐",
+        ],
+      },
+      {
+        icon: GraduationCap,
+        title: "版本 V3.2 — 工具互联层 (Interconnection)",
+        items: [
+          "Navbar 版本徽章、Hero 最新更新、首页与更新日志 Footer 统一同步至 V3.2,V3.1 标记为 Stable",
+          "本阶段把『一堆独立计算器』升级为『可串联的研究工作流』:一个工具的输出可以成为下一个工具的输入",
+          "下一阶段路线图:Compare Mode 多工具并排对比 · 工作流入口页 · 真实数据校准与自选清单持久化",
+        ],
+      },
+    ],
+  },
+  {
+    version: "V3.1",
+    date: "2026-06",
+    tag: "Stable",
+    highlights: [
+      {
+        icon: FolderTree,
+        title: "两级分类导航 — 复杂工具集一目了然",
+        items: [
+          "新增可复用 CategorizedToolNav:高层分类 (chips) + 子项 (tabs) + 内嵌搜索,Bloomberg 终端式金色激活态",
+          "计量经济学 29 个工具归入 因果推断 / 时间序列 / 波动率高频 / 离散面板 / ML 计量 五类;衍生品 11 个工具归入 曲面 / 希腊与格点 / 利率与奇异 三类",
+          "首页导航子菜单同步更新 (计量:因果/时序/波动/面板/ML;风险:VaR·ES/Merton/Copula/压测)",
+        ],
+      },
+      {
+        icon: Sparkles,
+        title: "模型补足 — 经典空白与前沿实验台",
+        items: [
+          "资产定价新增 Fama-MacBeth 两步回归 (Shanken 修正);衍生品新增 CRR 二叉树收敛;风险新增极值理论 EVT/POT (GPD 重尾拟合)",
+          "固收新增关键利率久期 KRD 曲线分解;计量新增单位根检验 (ADF & KPSS);量化新增 Walk-Forward 滚动样本外检验",
+          "前沿实验室把四张静态概念卡升级为互动工具:DeFi AMM 滑点/无常损失 · 网络传染 DebtRank · 气候 VaR (NGFS) · 前景理论价值函数",
+          "核心算法抽取至 src/lib/quant/extraModels.ts 并配套单元测试,新增 10 个工具标记为 verified",
+        ],
+      },
+      {
+        icon: Shield,
+        title: "安全加固 & 依赖升级",
+        items: [
+          "升级 @supabase/supabase-js、react-router-dom;recharts 升至 v3 (移除 lodash 依赖改用 es-toolkit)",
+          "新增 package.json overrides 锁定 ws / lodash,依赖扫描归零高危项",
+          "精简研究运营类冗余板块 (Research Ops Board / Playbooks / Decision Memo),聚焦建模与数据工具",
+        ],
+      },
+    ],
+  },
+  {
+    version: "V3.0",
+    date: "2026-06",
+    tag: "Archived",
     highlights: [
       {
         icon: Target,
@@ -934,7 +1002,7 @@ const Changelog = () => {
             {t("changelog.title")}
           </h2>
           <p className="text-sm text-muted-foreground font-mono">
-            {t("changelog.subtitle")} — V1.0 → V3.0
+            {t("changelog.subtitle")} — V1.0 → V3.2
           </p>
         </motion.div>
 

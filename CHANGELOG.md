@@ -1,5 +1,27 @@
 # EF Lab 版本日志
 
+## V3.2 — 工具互联层 (Tool Bus)
+
+### 新增
+
+- **Tool Bus 跨工具参数直传** (`src/lib/toolBus.ts`):依赖无关的全局总线,以 `useSyncExternalStore` 维护 S₀/σ/r/T/K/μ 等规范变量,并镜像到 sessionStorage。
+- **「发送到…」下拉** (`src/components/common/SendToTool.tsx`):把当前工具输出推上总线并跳转到相关工具自动预填,接收端落地后弹出确认 toast。
+- 已打通 **隐含波动率 ↔ Black-Scholes ↔ 蒙特卡洛 ↔ Greeks Desk** 四工具回路;打开衍生品页若总线携带期权参数会自动定位到 Greeks 工作台。
+- **Markdown 报告导出**:`ShareExportToolbar` 新增「复制 MD」,把工具输入与关键输出整理为可直接粘贴的 Markdown 片段(隐含波动率工具率先接入)。
+
+## V3.1 — 分类导航 · 模型补足 · 安全加固
+
+### 新增
+
+- **两级分类导航** (`CategorizedToolNav`):计量经济学 29 个工具分 5 类,衍生品 11 个工具分 3 类,内嵌搜索;首页导航子菜单同步更新。
+- **模型补足**:Fama-MacBeth(Shanken 修正)、CRR 二叉树收敛、极值理论 EVT/POT、关键利率久期 KRD、单位根检验 (ADF/KPSS)、Walk-Forward 样本外检验;前沿实验室四张概念卡升级为互动工具。
+- 核心算法抽取至 `src/lib/quant/extraModels.ts` 并配套单元测试,新增 10 个工具标记 `verified`。
+
+### 变更
+
+- 升级 `@supabase/supabase-js`、`react-router-dom`;`recharts` 升至 v3(移除 lodash);`package.json` overrides 锁定 ws/lodash,依赖扫描归零高危项。
+- 精简研究运营类冗余板块 (Research Ops Board / Playbooks / Decision Memo)。
+
 ## 0.10.0 — 多页面架构重构
 
 ### 变更

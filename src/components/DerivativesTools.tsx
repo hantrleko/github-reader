@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 
 import "katex/dist/katex.min.css";
 import { ShareExportToolbar, useSharedState } from "@/lib/calculatorTools";
+import { getBus } from "@/lib/toolBus";
 import { VolSurfaceTool, AmericanOptionTool, RatesDerivativesTool } from "./deriv/Sprint3Tools";
 import { HestonTool } from "./deriv/HestonTool";
 import { SABRTool } from "./deriv/SABRTool";
@@ -83,7 +84,12 @@ const TOOLS: { id: ToolId; name: string; nameEn: string; formula: string; compon
 
 const DerivativesTools = () => {
   const { t } = useTranslation();
-  const [tool, setTool] = useState<ToolId>("vol");
+  // If another tool handed off option parameters via the Tool Bus, land on the
+  // Greeks Desk so it can consume them; otherwise default to the vol surface.
+  const [tool, setTool] = useState<ToolId>(() => {
+    const bus = getBus();
+    return bus.sigma || bus.S0 || bus.K ? "greeks" : "vol";
+  });
   const captureRef = useRef<HTMLDivElement>(null);
   const apply = useCallback((s: { tool: ToolId }) => { if (s?.tool) setTool(s.tool); }, []);
   useSharedState<{ tool: ToolId }>("deriv", apply);

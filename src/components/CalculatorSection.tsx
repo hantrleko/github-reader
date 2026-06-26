@@ -744,7 +744,7 @@ const CalculatorSection = () => {
                   r: (values.r ?? 0) / 100,
                   T: values.t,
                 }}
-                targets={["mc", "iv", "svi"]}
+                targets={["mc", "iv", "greeks-desk", "svi"]}
               />
             </div>
           )}

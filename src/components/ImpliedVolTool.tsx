@@ -284,7 +284,7 @@ const ImpliedVolTool = () => {
                   fromId="iv"
                   label="隐含波动率"
                   outputs={{ sigma: ivResult.iv / 100, S0: ivS, K: ivK, r: ivR / 100, T: ivT }}
-                  targets={["bs", "mc", "svi", "heston"]}
+                  targets={["bs", "mc", "greeks-desk", "svi", "heston"]}
                 />
               )}
             </div>
