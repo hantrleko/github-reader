@@ -4,6 +4,7 @@ import { HistoryDrawer } from "./common/HistoryDrawer";
 import PresetButtons, { Preset } from "./PresetButtons";
 import { FormulaCodeView } from "./common/FormulaCodeView";
 import RealDataLoader from "./RealDataLoader";
+import SendToTool from "./common/SendToTool";
 import { motion } from "framer-motion";
 
 import "katex/dist/katex.min.css";
@@ -260,7 +261,32 @@ const ImpliedVolTool = () => {
                 state={{ optType, mktPrice, ivS, ivK, ivR, ivT, baseVol, skew, smile }}
                 captureRef={captureRef}
                 filename="implied-vol"
+                markdown={() =>
+                  [
+                    `### 隐含波动率 (Newton-Raphson)`,
+                    ``,
+                    `| 参数 | 值 |`,
+                    `| --- | --- |`,
+                    `| 期权类型 | ${optType === "call" ? "Call" : "Put"} |`,
+                    `| 标的 S | ${ivS} |`,
+                    `| 行权 K | ${ivK} |`,
+                    `| 利率 r | ${ivR}% |`,
+                    `| 到期 T | ${ivT} 年 |`,
+                    `| 市场价 | ${mktPrice} |`,
+                    `| **σ_iv** | **${ivResult ? ivResult.iv.toFixed(2) + "%" : "无解"}** |`,
+                    ``,
+                    `$$C_{BS}(S,K,r,\\sigma_{iv},T)=C_{mkt}$$`,
+                  ].join("\n")
+                }
               />
+              {ivResult && (
+                <SendToTool
+                  fromId="iv"
+                  label="隐含波动率"
+                  outputs={{ sigma: ivResult.iv / 100, S0: ivS, K: ivK, r: ivR / 100, T: ivT }}
+                  targets={["bs", "mc", "svi", "heston"]}
+                />
+              )}
             </div>
           </div>
           {/* Formula */}
