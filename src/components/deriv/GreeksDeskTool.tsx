@@ -1,6 +1,8 @@
 import { useState, useMemo } from "react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, ReferenceLine } from "recharts";
 import PresetButtons from "../PresetButtons";
+import SendToTool from "@/components/common/SendToTool";
+import { useBusConsume } from "@/lib/toolBus";
 
 const CHART_GOLD = "hsl(43, 80%, 55%)";
 const CHART_TEAL = "hsl(180, 50%, 40%)";
@@ -71,6 +73,15 @@ export const GreeksDeskTool = () => {
   const [type, setType] = useState<"call" | "put">("call");
   const [scan, setScan] = useState<"S" | "T">("S");
 
+  // Receive canonical parameters handed off from another tool (IV / BS / MC).
+  useBusConsume(["S0", "K", "sigma", "r", "T"], (v) => {
+    if (v.S0 != null) setS(v.S0);
+    if (v.K != null) setK(v.K);
+    if (v.sigma != null) setSigma(v.sigma);
+    if (v.r != null) setR(v.r);
+    if (v.T != null) setT(v.T);
+  });
+
   const greeks = useMemo(() => bsGreeks(S, K, r, q, sigma, T, type), [S, K, r, q, sigma, T, type]);
 
   const profile = useMemo(() => {
@@ -102,6 +113,14 @@ export const GreeksDeskTool = () => {
 
   return (
     <div className="space-y-6">
+      <div className="flex justify-end">
+        <SendToTool
+          fromId="greeks-desk"
+          label="Greeks Desk"
+          outputs={{ S0: S, K, sigma, r, T }}
+          targets={["bs", "iv", "mc"]}
+        />
+      </div>
       <PresetButtons presets={[
         { name: "ATM 看涨", description: "标准 ATM 教学", apply: () => { setS(100); setK(100); setSigma(0.2); setT(0.5); setType("call"); } },
         { name: "深虚值 put", description: "Δ→0, Γ→0", apply: () => { setS(100); setK(70); setType("put"); } },
