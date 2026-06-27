@@ -1538,3 +1538,92 @@ price = bs_call(S=${values.s ?? 100}, K=${values.k ?? 100},
 };
 
 export default CalculatorSection;
+
+/**
+ * ComparePanel — self-contained A/B comparison for the active calculator.
+ * A = the live tool parameters; B = an editable second parameter set.
+ * Default collapsed; zero impact on existing behavior when off.
+ */
+function ComparePanel({
+  active,
+  valuesA,
+  params,
+}: {
+  active: CalcId;
+  valuesA: Record<string, number>;
+  params: ParamConfig[];
+}) {
+  const [enabled, setEnabled] = useState(false);
+  const [valuesB, setValuesB] = useState<Record<string, number>>(valuesA);
+
+  const toggle = useCallback(() => {
+    setEnabled((prev) => {
+      if (!prev) setValuesB({ ...valuesA });
+      return !prev;
+    });
+  }, [valuesA]);
+  const syncBfromA = useCallback(() => setValuesB({ ...valuesA }), [valuesA]);
+  const resetB = useCallback(() => setValuesB({ ...valuesA }), [valuesA]);
+
+  const metricsA = calcMetrics(active, valuesA);
+  const metricsB = calcMetrics(active, valuesB);
+  const merged: CompareMetric[] = metricsA.map((m, i) => ({
+    ...m,
+    a: m.a,
+    b: metricsB[i]?.a ?? m.a,
+  }));
+
+  return (
+    <div className="mb-8 rounded-xl border border-border/60 bg-secondary/20 p-5">
+      <div className="flex items-center justify-between gap-3 flex-wrap mb-3">
+        <p className="text-xs font-mono text-muted-foreground uppercase tracking-wider">
+          A/B 参数对比
+        </p>
+        <CompareToolbar
+          enabled={enabled}
+          onToggle={toggle}
+          onSync={syncBfromA}
+          onReset={resetB}
+        />
+      </div>
+      {enabled && (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+          <div className="space-y-2.5">
+            <p className="text-[11px] font-mono text-gold uppercase tracking-wider">
+              情形 B · 参数
+            </p>
+            {params.map((p) => (
+              <label key={p.key} className="flex items-center justify-between gap-3 text-xs font-mono">
+                <span className="text-muted-foreground">
+                  {p.shortLabel}
+                  {p.unit ? ` (${p.unit})` : ""}
+                </span>
+                <input
+                  type="number"
+                  value={valuesB[p.key] ?? p.defaultValue}
+                  min={p.min}
+                  max={p.max}
+                  step={p.step}
+                  onChange={(e) => {
+                    const n = parseFloat(e.target.value);
+                    setValuesB((prev) => ({ ...prev, [p.key]: Number.isFinite(n) ? n : prev[p.key] }));
+                  }}
+                  className="w-28 px-2 py-1 rounded bg-background border border-border focus:border-gold/60 outline-none text-right text-foreground"
+                />
+              </label>
+            ))}
+          </div>
+          <div>
+            <p className="text-[11px] font-mono text-gold uppercase tracking-wider mb-2.5">
+              结果差异
+            </p>
+            <CompareDiff metrics={merged} />
+            <p className="text-[10px] text-muted-foreground font-mono mt-2">
+              A = 上方实时参数 · B = 本面板参数 · Δ 为 B 相对 A 的变化
+            </p>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
