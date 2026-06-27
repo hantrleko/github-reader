@@ -4,9 +4,41 @@ import { useTranslation } from "react-i18next";
 
 const RELEASES = [
   {
-    version: "V3.2",
+    version: "V3.3",
     date: "2026-06",
     tag: "Current",
+    highlights: [
+      {
+        icon: Layout,
+        title: "A/B 对比模式 — 同一工具两套参数并排对比",
+        items: [
+          "模型计算器 (Black-Scholes / VaR·ES / CAPM / Sharpe) 新增 A/B 对比面板:A 为实时参数,B 可独立编辑,底部差异表用 ↑↓ 与色标标注 B 相对 A 的变化",
+          "通用 CompareDiff / CompareToolbar 组件 (src/components/common/CompareToggle.tsx) 支持 A→B 同步与重置,默认折叠、对既有体验零影响",
+        ],
+      },
+      {
+        icon: Share2,
+        title: "研究工作流页 — 把多个工具串成剧本",
+        items: [
+          "新增 /workflows 页与 4 条剧本:期权做市台 (IV→SVI→Greeks→MC)、利率到债券、组合构建、信用风险链",
+          "每步展示工具说明与经 Tool Bus 传递的规范变量徽章,「打开」直达对应工具,「从第一步开始」一键进入链路",
+          "工具目录页与导航 More 菜单新增工作流入口,sitemap 同步收录",
+        ],
+      },
+      {
+        icon: GraduationCap,
+        title: "版本 V3.3 — 互联层收尾 (Compare + Workflows)",
+        items: [
+          "Navbar 徽章、Hero、Footer、更新日志统一同步至 V3.3,V3.2 标记为 Stable",
+          "至此 Phase 1『工具互联』完成:Tool Bus 参数直传 + A/B 对比 + 工作流剧本",
+        ],
+      },
+    ],
+  },
+  {
+    version: "V3.2",
+    date: "2026-06",
+    tag: "Stable",
     highlights: [
       {
         icon: Share2,
