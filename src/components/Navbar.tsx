@@ -62,6 +62,7 @@ const GROUPS: Group[] = [
 type PageLink = { to: string; label: string; match: (path: string, search: string) => boolean };
 const PAGE_LINKS: PageLink[] = [
   { to: "/tools", label: "Tools", match: (p) => p === "/tools" },
+  { to: "/workflows", label: "Workflows", match: (p) => p === "/workflows" },
   { to: "/glossary", label: "Glossary", match: (p) => p === "/glossary" },
   { to: "/strategies", label: "Strategies", match: (p) => p === "/strategies" },
   { to: "/papers", label: "Papers", match: (p) => p === "/papers" },
