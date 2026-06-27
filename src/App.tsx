@@ -116,6 +116,7 @@ const SectionPage = lazyWithRetry(() => import("./pages/SectionPage.tsx"));
 const TopicDetail = lazyWithRetry(() => import("./pages/TopicDetail.tsx"));
 const ChangelogPage = lazyWithRetry(() => import("./pages/ChangelogPage.tsx"));
 const ToolsCatalog = lazyWithRetry(() => import("./pages/ToolsCatalog.tsx"));
+const Workflows = lazyWithRetry(() => import("./pages/Workflows.tsx"));
 const Glossary = lazyWithRetry(() => import("./pages/Glossary.tsx"));
 const GithubExplorer = lazyWithRetry(() => import("./pages/GithubExplorer.tsx"));
 const AuthPage = lazyWithRetry(() => import("./pages/Auth.tsx"));
@@ -160,6 +161,7 @@ const App = () => (
                 <Route path="/topic/:topicId" element={<TopicDetail />} />
                 <Route path="/changelog" element={<ChangelogPage />} />
                 <Route path="/tools" element={<ToolsCatalog />} />
+                <Route path="/workflows" element={<Workflows />} />
                 <Route path="/glossary" element={<Glossary />} />
                 <Route path="/github" element={<GithubExplorer />} />
                 <Route path="/auth" element={<AuthPage />} />
