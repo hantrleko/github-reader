@@ -473,9 +473,10 @@ function calcMetrics(active: CalcId, v: Record<string, number>): CompareMetric[]
   const pct = (n: number) => `${n.toFixed(2)}%`;
   if (active === "capm") {
     const er = v.rf + v.beta * (v.rm - v.rf);
+    const rp = v.beta * (v.rm - v.rf);
     return [
       { label: "E(Rᵢ)", a: er, b: er, fmt: pct },
-      { label: "风险溢价", a: v.beta * (v.rm - v.rf), b: 0, fmt: pct },
+      { label: "风险溢价", a: rp, b: rp, fmt: pct },
     ];
   }
   if (active === "bs") {
@@ -493,9 +494,10 @@ function calcMetrics(active: CalcId, v: Record<string, number>): CompareMetric[]
   }
   if (active === "sharpe") {
     const sr = (v.rp - v.rf) / v.sigmap;
+    const ex = v.rp - v.rf;
     return [
       { label: "夏普比率", a: sr, b: sr, fmt: num4, higherIsBetter: true },
-      { label: "超额收益", a: v.rp - v.rf, b: 0, fmt: pct },
+      { label: "超额收益", a: ex, b: ex, fmt: pct, higherIsBetter: true },
     ];
   }
   // VaR
