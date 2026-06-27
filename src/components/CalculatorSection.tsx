@@ -7,6 +7,7 @@ import { FormulaCodeView } from "./common/FormulaCodeView";
 import RealDataLoader from "./RealDataLoader";
 import SendToTool from "./common/SendToTool";
 import { useBusConsume } from "@/lib/toolBus";
+import { CompareToolbar, CompareDiff, type CompareMetric } from "./common/CompareToggle";
 
 import "katex/dist/katex.min.css";
 import {
@@ -459,6 +460,59 @@ function generateBacktestData(values: Record<string, number>) {
 }
 
 const CustomTooltip = ({ active: isActive, payload, label, unit }: any) => {
+  return CustomTooltipImpl({ active: isActive, payload, label, unit });
+};
+
+/**
+ * calcMetrics — pure numeric metrics for each calculator, used by the A/B
+ * compare panel. Mirrors the inline `result` computation but returns numbers.
+ */
+function calcMetrics(active: CalcId, v: Record<string, number>): CompareMetric[] {
+  const money = (n: number) => n.toFixed(2);
+  const num4 = (n: number) => n.toFixed(4);
+  const pct = (n: number) => `${n.toFixed(2)}%`;
+  if (active === "capm") {
+    const er = v.rf + v.beta * (v.rm - v.rf);
+    return [
+      { label: "E(Rᵢ)", a: er, b: er, fmt: pct },
+      { label: "风险溢价", a: v.beta * (v.rm - v.rf), b: 0, fmt: pct },
+    ];
+  }
+  if (active === "bs") {
+    const r = v.r / 100, sig = v.sigma / 100;
+    const call = bsCall(v.s, v.k, r, sig, v.t);
+    const put = bsPut(v.s, v.k, r, sig, v.t);
+    const g = bsGreeks(v.s, v.k, r, sig, v.t);
+    return [
+      { label: "Call", a: call, b: call, fmt: num4 },
+      { label: "Put", a: put, b: put, fmt: num4 },
+      { label: "Δ (call)", a: g.callDelta, b: g.callDelta, fmt: num4 },
+      { label: "Γ", a: g.gamma, b: g.gamma, fmt: num4 },
+      { label: "ν (vega)", a: g.vega, b: g.vega, fmt: num4 },
+    ];
+  }
+  if (active === "sharpe") {
+    const sr = (v.rp - v.rf) / v.sigmap;
+    return [
+      { label: "夏普比率", a: sr, b: sr, fmt: num4, higherIsBetter: true },
+      { label: "超额收益", a: v.rp - v.rf, b: 0, fmt: pct },
+    ];
+  }
+  // VaR
+  const mu = v.mu / 100;
+  const sigma = v.dailySigma / 100;
+  const T = v.holdingDays;
+  const W = v.portfolio;
+  const z = normInv(v.confidence / 100);
+  const VaR = W * Math.abs(mu * T - z * sigma * Math.sqrt(T));
+  const ES = W * Math.abs(mu * T - sigma * Math.sqrt(T) * normPdf(z) / (1 - v.confidence / 100));
+  return [
+    { label: "VaR (万)", a: VaR, b: VaR, fmt: money, higherIsBetter: false },
+    { label: "ES (万)", a: ES, b: ES, fmt: money, higherIsBetter: false },
+  ];
+}
+
+const CustomTooltipImpl = ({ active: isActive, payload, label, unit }: any) => {
   if (!isActive || !payload?.length) return null;
   return (
     <div className="rounded-lg bg-card border border-border px-3 py-2 shadow-lg">
