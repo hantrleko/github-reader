@@ -993,6 +993,9 @@ const CalculatorSection = () => {
             </div>
           </div>
 
+          {/* A/B Compare panel */}
+          <ComparePanel active={active} valuesA={values} params={params} />
+
           {/* Greeks Charts - BS only */}
           {active === "bs" && greeksData && currentGreeks && (
             <div className="mb-8">
