@@ -12,6 +12,7 @@ interface Entry {
 const entries: Entry[] = [
   { path: "/",           changefreq: "weekly",  priority: "1.0" },
   { path: "/tools",      changefreq: "weekly",  priority: "0.9" },
+  { path: "/workflows",  changefreq: "weekly",  priority: "0.85" },
   { path: "/notebook",   changefreq: "weekly",  priority: "0.9" },
   { path: "/notebook/templates", changefreq: "weekly", priority: "0.95" },
   { path: "/strategies", changefreq: "weekly",  priority: "0.8" },

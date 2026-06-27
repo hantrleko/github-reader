@@ -7,6 +7,7 @@ import { FormulaCodeView } from "./common/FormulaCodeView";
 import RealDataLoader from "./RealDataLoader";
 import SendToTool from "./common/SendToTool";
 import { useBusConsume } from "@/lib/toolBus";
+import { CompareToolbar, CompareDiff, type CompareMetric } from "./common/CompareToggle";
 
 import "katex/dist/katex.min.css";
 import {
@@ -459,6 +460,61 @@ function generateBacktestData(values: Record<string, number>) {
 }
 
 const CustomTooltip = ({ active: isActive, payload, label, unit }: any) => {
+  return CustomTooltipImpl({ active: isActive, payload, label, unit });
+};
+
+/**
+ * calcMetrics — pure numeric metrics for each calculator, used by the A/B
+ * compare panel. Mirrors the inline `result` computation but returns numbers.
+ */
+function calcMetrics(active: CalcId, v: Record<string, number>): CompareMetric[] {
+  const money = (n: number) => n.toFixed(2);
+  const num4 = (n: number) => n.toFixed(4);
+  const pct = (n: number) => `${n.toFixed(2)}%`;
+  if (active === "capm") {
+    const er = v.rf + v.beta * (v.rm - v.rf);
+    const rp = v.beta * (v.rm - v.rf);
+    return [
+      { label: "E(Rᵢ)", a: er, b: er, fmt: pct },
+      { label: "风险溢价", a: rp, b: rp, fmt: pct },
+    ];
+  }
+  if (active === "bs") {
+    const r = v.r / 100, sig = v.sigma / 100;
+    const call = bsCall(v.s, v.k, r, sig, v.t);
+    const put = bsPut(v.s, v.k, r, sig, v.t);
+    const g = bsGreeks(v.s, v.k, r, sig, v.t);
+    return [
+      { label: "Call", a: call, b: call, fmt: num4 },
+      { label: "Put", a: put, b: put, fmt: num4 },
+      { label: "Δ (call)", a: g.callDelta, b: g.callDelta, fmt: num4 },
+      { label: "Γ", a: g.gamma, b: g.gamma, fmt: num4 },
+      { label: "ν (vega)", a: g.vega, b: g.vega, fmt: num4 },
+    ];
+  }
+  if (active === "sharpe") {
+    const sr = (v.rp - v.rf) / v.sigmap;
+    const ex = v.rp - v.rf;
+    return [
+      { label: "夏普比率", a: sr, b: sr, fmt: num4, higherIsBetter: true },
+      { label: "超额收益", a: ex, b: ex, fmt: pct, higherIsBetter: true },
+    ];
+  }
+  // VaR
+  const mu = v.mu / 100;
+  const sigma = v.dailySigma / 100;
+  const T = v.holdingDays;
+  const W = v.portfolio;
+  const z = normInv(v.confidence / 100);
+  const VaR = W * Math.abs(mu * T - z * sigma * Math.sqrt(T));
+  const ES = W * Math.abs(mu * T - sigma * Math.sqrt(T) * normPdf(z) / (1 - v.confidence / 100));
+  return [
+    { label: "VaR (万)", a: VaR, b: VaR, fmt: money, higherIsBetter: false },
+    { label: "ES (万)", a: ES, b: ES, fmt: money, higherIsBetter: false },
+  ];
+}
+
+const CustomTooltipImpl = ({ active: isActive, payload, label, unit }: any) => {
   if (!isActive || !payload?.length) return null;
   return (
     <div className="rounded-lg bg-card border border-border px-3 py-2 shadow-lg">
@@ -936,6 +992,9 @@ const CalculatorSection = () => {
               )}
             </div>
           </div>
+
+          {/* A/B Compare panel */}
+          <ComparePanel active={active} valuesA={values} params={params} />
 
           {/* Greeks Charts - BS only */}
           {active === "bs" && greeksData && currentGreeks && (
@@ -1479,3 +1538,92 @@ price = bs_call(S=${values.s ?? 100}, K=${values.k ?? 100},
 };
 
 export default CalculatorSection;
+
+/**
+ * ComparePanel — self-contained A/B comparison for the active calculator.
+ * A = the live tool parameters; B = an editable second parameter set.
+ * Default collapsed; zero impact on existing behavior when off.
+ */
+function ComparePanel({
+  active,
+  valuesA,
+  params,
+}: {
+  active: CalcId;
+  valuesA: Record<string, number>;
+  params: ParamConfig[];
+}) {
+  const [enabled, setEnabled] = useState(false);
+  const [valuesB, setValuesB] = useState<Record<string, number>>(valuesA);
+
+  const toggle = useCallback(() => {
+    setEnabled((prev) => {
+      if (!prev) setValuesB({ ...valuesA });
+      return !prev;
+    });
+  }, [valuesA]);
+  const syncBfromA = useCallback(() => setValuesB({ ...valuesA }), [valuesA]);
+  const resetB = useCallback(() => setValuesB({ ...valuesA }), [valuesA]);
+
+  const metricsA = calcMetrics(active, valuesA);
+  const metricsB = calcMetrics(active, valuesB);
+  const merged: CompareMetric[] = metricsA.map((m, i) => ({
+    ...m,
+    a: m.a,
+    b: metricsB[i]?.a ?? m.a,
+  }));
+
+  return (
+    <div className="mb-8 rounded-xl border border-border/60 bg-secondary/20 p-5">
+      <div className="flex items-center justify-between gap-3 flex-wrap mb-3">
+        <p className="text-xs font-mono text-muted-foreground uppercase tracking-wider">
+          A/B 参数对比
+        </p>
+        <CompareToolbar
+          enabled={enabled}
+          onToggle={toggle}
+          onSync={syncBfromA}
+          onReset={resetB}
+        />
+      </div>
+      {enabled && (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+          <div className="space-y-2.5">
+            <p className="text-[11px] font-mono text-gold uppercase tracking-wider">
+              情形 B · 参数
+            </p>
+            {params.map((p) => (
+              <label key={p.key} className="flex items-center justify-between gap-3 text-xs font-mono">
+                <span className="text-muted-foreground">
+                  {p.shortLabel}
+                  {p.unit ? ` (${p.unit})` : ""}
+                </span>
+                <input
+                  type="number"
+                  value={valuesB[p.key] ?? p.defaultValue}
+                  min={p.min}
+                  max={p.max}
+                  step={p.step}
+                  onChange={(e) => {
+                    const n = parseFloat(e.target.value);
+                    setValuesB((prev) => ({ ...prev, [p.key]: Number.isFinite(n) ? n : prev[p.key] }));
+                  }}
+                  className="w-28 px-2 py-1 rounded bg-background border border-border focus:border-gold/60 outline-none text-right text-foreground"
+                />
+              </label>
+            ))}
+          </div>
+          <div>
+            <p className="text-[11px] font-mono text-gold uppercase tracking-wider mb-2.5">
+              结果差异
+            </p>
+            <CompareDiff metrics={merged} />
+            <p className="text-[10px] text-muted-foreground font-mono mt-2">
+              A = 上方实时参数 · B = 本面板参数 · Δ 为 B 相对 A 的变化
+            </p>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

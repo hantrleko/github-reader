@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowLeft, Search, BadgeCheck, ExternalLink, X, WifiOff, Wifi } from "lucide-react";
+import { ArrowLeft, Search, BadgeCheck, ExternalLink, X, WifiOff, Wifi, Workflow as WorkflowIcon, ArrowRight } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Seo from "@/components/Seo";
 import { cn } from "@/lib/utils";
@@ -83,6 +83,14 @@ const ToolsCatalog = () => {
             </span>
             。
           </p>
+          <Link
+            to="/workflows"
+            className="group inline-flex items-center gap-2 mt-5 px-4 py-2 rounded-lg border border-gold/30 bg-gold/5 hover:bg-gold/10 hover:border-gold/50 transition-colors text-sm font-mono text-gold"
+          >
+            <WorkflowIcon className="w-4 h-4" />
+            研究工作流 · 把多个工具串成剧本
+            <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+          </Link>
         </header>
 
         {/* Filters */}
