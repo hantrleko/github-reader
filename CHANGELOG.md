@@ -1,5 +1,17 @@
 # EF Lab 版本日志
 
+## V3.3 — 互联层收尾 (对比模式 + 工作流)
+
+### 新增
+
+- **A/B 对比模式**:模型计算器 (Black-Scholes / VaR·ES / CAPM / Sharpe) 新增对比面板,A 为实时参数、B 可独立编辑,差异表用 ↑↓ 与色标标注变化;通用组件 `CompareDiff` / `CompareToolbar` (`src/components/common/CompareToggle.tsx`),默认折叠零影响。
+- **研究工作流页** (`/workflows`, `src/data/workflows.ts`):4 条剧本——期权做市台 (IV→SVI→Greeks→MC)、利率到债券、组合构建、信用风险链;每步含工具说明与 Tool Bus 变量徽章,支持「打开」直达与「从第一步开始」。
+- 工具目录页、导航 More 菜单与 sitemap 同步收录工作流入口。
+
+### 变更
+
+- 全站版本号同步至 **V3.3**,V3.2 标记为 Stable。至此 Phase 1『工具互联』完成。
+
 ## V3.2 — 工具互联层 (Tool Bus)
 
 ### 新增
