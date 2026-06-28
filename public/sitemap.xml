@@ -19,6 +19,18 @@
     <priority>0.85</priority>
   </url>
   <url>
+    <loc>https://my-repo-mind.lovable.app/s/backtest</loc>
+    <lastmod>2026-06-28</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://my-repo-mind.lovable.app/s/calibration</loc>
+    <lastmod>2026-06-28</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://my-repo-mind.lovable.app/notebook</loc>
     <lastmod>2026-06-28</lastmod>
     <changefreq>weekly</changefreq>
