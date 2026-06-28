@@ -216,6 +216,24 @@ export const SECTIONS: SectionDef[] = [
     group: "量化与学习",
     Component: lazy(() => import("@/components/LearningPath")),
   },
+  {
+    id: "backtest",
+    chapter: "Lab",
+    kicker: "Backtest Engine",
+    label: "真实数据回测引擎",
+    subtitle: "用真实历史价格回测单标的策略,输出净值、回撤与完整绩效指标,信号 T+1 执行规避前视偏差。",
+    group: "量化与学习",
+    Component: lazy(() => import("@/components/quant/BacktestLab")),
+  },
+  {
+    id: "calibration",
+    chapter: "Lab",
+    kicker: "Model Calibration",
+    label: "模型校准实验室",
+    subtitle: "把 GARCH / EWMA / Merton 跳跃扩散拟合到真实行情,校准波动率并一键发送到定价工具。",
+    group: "量化与学习",
+    Component: lazy(() => import("@/components/quant/CalibrationLab")),
+  },
 ];
 
 export const SECTION_MAP: Record<string, SectionDef> = Object.fromEntries(
