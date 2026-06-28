@@ -38,9 +38,16 @@ describe("runBacktest", () => {
   });
 
   it("vol-target scales position inversely with realized vol", () => {
-    const calm = trendingPrices(120, 0.0002);
-    const posCalm = strategyPositions(calm, "voltarget", { targetVol: 0.1, volWindow: 20, maxLeverage: 10 });
-    // very low realized vol -> leverage hits the cap
-    expect(posCalm[posCalm.length - 1]).toBeGreaterThan(1);
+    // low-vol series -> high leverage; high-vol series -> lower leverage
+    const calm = [100];
+    const wild = [100];
+    for (let i = 1; i < 160; i++) {
+      const o = (i % 2 === 0 ? 1 : -1);
+      calm.push(calm[i - 1] * (1 + o * 0.001)); // ±0.1% chop
+      wild.push(wild[i - 1] * (1 + o * 0.03)); // ±3% chop
+    }
+    const posCalm = strategyPositions(calm, "voltarget", { targetVol: 0.15, volWindow: 20, maxLeverage: 10 });
+    const posWild = strategyPositions(wild, "voltarget", { targetVol: 0.15, volWindow: 20, maxLeverage: 10 });
+    expect(posCalm[posCalm.length - 1]).toBeGreaterThan(posWild[posWild.length - 1]);
   });
 });
