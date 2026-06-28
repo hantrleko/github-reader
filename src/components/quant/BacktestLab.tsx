@@ -176,7 +176,7 @@ export default function BacktestLab() {
                       fromId="backtest"
                       label="回测引擎"
                       outputs={{ sigma: m!.annVol, mu: m!.annReturn }}
-                      targets={["calculator", "mc-pricer", "calibration"]}
+                      targets={["bs", "mc", "greeks-desk"]}
                     />
                   </div>
                   <ResponsiveContainer width="100%" height={300}>
