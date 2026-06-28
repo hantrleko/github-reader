@@ -137,7 +137,7 @@ export default function CalibrationLab() {
                     fromId="calibration"
                     label="模型校准"
                     outputs={{ sigma: busSigma, mu: garch ? garch.mu * 252 : undefined }}
-                    targets={["calculator", "mc-pricer", "derivatives", "implied-vol"]}
+                    targets={["bs", "mc", "greeks-desk", "iv"]}
                   />
                 </div>
 
