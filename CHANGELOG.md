@@ -1,5 +1,18 @@
 # EF Lab 版本日志
 
+## V3.4 — 回测与校准实验室 (Backtest & Calibration Lab)
+
+### 新增
+
+- **真实数据回测引擎** (`/s/backtest`, `src/lib/quant/backtest.ts`):用 Yahoo / CoinGecko / Alpha Vantage 真实历史价格回测单标的策略(买入持有 / 双均线 / 时序动量 / 均值回归 / 波动率目标),信号 T+1 执行规避前视偏差,输出净值曲线、回撤序列与 CAGR/年化波动/夏普/索提诺/卡玛/胜率/换手/暴露等完整指标(含单元测试)。
+- **模型校准实验室** (`/s/calibration`, `src/lib/quant/calibration.ts`):GARCH(1,1) 高斯极大似然(自研 Nelder-Mead 优化)、EWMA/RiskMetrics 衰减因子网格搜索、Merton 跳跃扩散阈值分解,输出条件波动率、持续性、最优 λ、跳跃强度/幅度等参数(含模拟数据回收测试)。
+- **统一价格数据层** (`src/lib/priceSeries.ts`):三大免费数据源一键切换并归一化为 `{dates, prices}`,支持示例数据离线演示。
+- 两个实验室的拟合波动率 σ 与收益 μ 均可经「发送到…」一键传入 Black-Scholes / 蒙特卡洛 / Greeks / 隐含波动率工具。
+
+### 变更
+
+- 全站版本号同步至 **V3.4**,V3.3 标记为 Stable。Phase 2『功能深度』开篇:工具从『算单点』升级为『测策略 / 拟合真实数据』。
+
 ## V3.3 — 互联层收尾 (对比模式 + 工作流)
 
 ### 新增

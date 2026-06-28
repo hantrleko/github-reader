@@ -1,12 +1,46 @@
 import { motion } from "framer-motion";
-import { Sparkles, Wrench, BookOpen, Zap, Layout, GraduationCap, Target, ClipboardCheck, FileStack, Gauge, FileText, Share2, Shield, FolderTree } from "lucide-react";
+import { Sparkles, Wrench, BookOpen, Zap, Layout, GraduationCap, Target, ClipboardCheck, FileStack, Gauge, FileText, Share2, Shield, FolderTree, Activity } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 const RELEASES = [
   {
+    version: "V3.4",
+    date: "2026-07",
+    tag: "Current",
+    highlights: [
+      {
+        icon: Activity,
+        title: "真实数据回测引擎 — /s/backtest",
+        items: [
+          "新增回测实验室:用 Yahoo / CoinGecko / Alpha Vantage 真实历史价格回测单标的策略 (买入持有 / 双均线 / 时序动量 / 均值回归 / 波动率目标)",
+          "纯函数引擎 src/lib/quant/backtest.ts:信号 T+1 执行规避前视偏差,输出净值曲线、回撤序列与 CAGR/年化波动/夏普/索提诺/卡玛/胜率/换手/暴露等完整指标 (含单元测试)",
+          "回测得到的年化波动 σ 与收益 μ 可经「发送到…」一键传入 Black-Scholes / 蒙特卡洛 / Greeks 工作台",
+        ],
+      },
+      {
+        icon: Gauge,
+        title: "模型校准实验室 — /s/calibration",
+        items: [
+          "把教学模型直接拟合到真实行情:GARCH(1,1) 高斯极大似然 (自研 Nelder-Mead 优化)、EWMA/RiskMetrics 衰减因子网格搜索、Merton 跳跃扩散阈值分解",
+          "纯函数库 src/lib/quant/calibration.ts 输出 ω/α/β、持续性、长期与条件波动率、最优 λ、跳跃强度/幅度等参数 (含模拟数据回收测试)",
+          "校准得到的波动率可一键发送到 BS / 蒙特卡洛 / Greeks / 隐含波动率工具,打通『拟合真实数据 → 定价』回路",
+        ],
+      },
+      {
+        icon: GraduationCap,
+        title: "版本 V3.4 — 回测与校准实验室 (Backtest & Calibration Lab)",
+        items: [
+          "Hero、Footer、版本徽章、更新日志统一同步至 V3.4,V3.3 标记为 Stable",
+          "新增统一价格数据加载层 src/lib/priceSeries.ts,三大免费数据源一键切换,支持示例数据离线演示",
+          "Phase 2『功能深度』开篇:工具从『算单点』升级为『测策略 / 拟合真实数据』",
+        ],
+      },
+    ],
+  },
+  {
     version: "V3.3",
     date: "2026-06",
-    tag: "Current",
+    tag: "Stable",
     highlights: [
       {
         icon: Layout,

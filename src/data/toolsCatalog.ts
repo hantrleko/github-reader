@@ -37,7 +37,7 @@ export interface ToolEntry {
   related?: string[];
   /** true once unit tests vs a closed-form benchmark exist in src/lib/quant */
   verified?: boolean;
-  version: "V1.0" | "V2.0" | "V2.1" | "V2.2" | "V2.3" | "V2.4" | "V2.5" | "V2.6" | "V2.7" | "V2.8" | "V3.0" | "V3.1" | "V3.2" | "V3.3";
+  version: "V1.0" | "V2.0" | "V2.1" | "V2.2" | "V2.3" | "V2.4" | "V2.5" | "V2.6" | "V2.7" | "V2.8" | "V3.0" | "V3.1" | "V3.2" | "V3.3" | "V3.4";
 }
 
 export const CATEGORY_LABEL: Record<ToolCategory, { zh: string; en: string }> = {
@@ -815,6 +815,22 @@ export const TOOLS_CATALOG: ToolEntry[] = [
     refs: ["Kahneman & Tversky (1979)", "Tversky & Kahneman (1992)"],
     blurb: "价值函数与概率加权可视化，含示例赌局的确定性等值与风险溢价。",
     related: [], verified: true, version: "V3.1",
+  },
+  {
+    id: "backtest", name: "回测引擎", nameEn: "Backtest Engine — Real-Data Strategy Lab",
+    category: "quant", difficulty: "advanced", anchor: "/#backtest",
+    tags: ["回测", "策略", "夏普", "最大回撤", "真实数据"],
+    refs: ["Bailey et al. (2014)", "Pardo (2008)"],
+    blurb: "用真实历史价格回测双均线/动量/均值回归/波动率目标策略，信号 T+1 执行，输出净值、回撤与完整绩效指标。",
+    related: ["walkforward", "calibration", "bs", "mc"], verified: true, version: "V3.4",
+  },
+  {
+    id: "calibration", name: "模型校准实验室", nameEn: "Model Calibration — Fit to Real Data",
+    category: "quant", difficulty: "research", anchor: "/#calibration",
+    tags: ["GARCH", "EWMA", "Merton 跳跃", "极大似然", "校准"],
+    refs: ["Bollerslev (1986)", "Merton (1976)", "RiskMetrics (1996)"],
+    blurb: "把 GARCH(1,1)/EWMA/Merton 跳跃扩散用 MLE 与网格搜索拟合到真实行情，校准波动率并发送到定价工具。",
+    related: ["garch", "bs", "mc", "backtest"], verified: true, version: "V3.4",
   },
 ];
 
