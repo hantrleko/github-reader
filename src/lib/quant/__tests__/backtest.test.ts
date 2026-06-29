@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { runBacktest, strategyPositions } from "../backtest";
+import { runBacktest, strategyPositions, gridScan, monthlyReturns } from "../backtest";
 
 /** Deterministic geometric series with a constant up-drift. */
 function trendingPrices(n: number, dailyDrift = 0.001, start = 100): number[] {
@@ -49,5 +49,50 @@ describe("runBacktest", () => {
     const posCalm = strategyPositions(calm, "voltarget", { targetVol: 0.15, volWindow: 20, maxLeverage: 10 });
     const posWild = strategyPositions(wild, "voltarget", { targetVol: 0.15, volWindow: 20, maxLeverage: 10 });
     expect(posCalm[posCalm.length - 1]).toBeGreaterThan(posWild[posWild.length - 1]);
+  });
+
+  it("transaction costs are monotone: more cost never improves net return", () => {
+    // choppy series so the SMA strategy trades a lot
+    const prices = [100];
+    for (let i = 1; i < 300; i++) prices.push(prices[i - 1] * (1 + (i % 3 === 0 ? 0.02 : -0.015)));
+    const free = runBacktest(prices, undefined, "sma", { fast: 5, slow: 15, costBps: 0 });
+    const costly = runBacktest(prices, undefined, "sma", { fast: 5, slow: 15, costBps: 30, slippageBps: 20 });
+    expect(costly.metrics.totalReturn).toBeLessThanOrEqual(free.metrics.totalReturn + 1e-12);
+    expect(costly.metrics.costDrag).toBeGreaterThanOrEqual(0);
+    expect(free.equityGross.length).toBe(free.equity.length);
+  });
+});
+
+describe("gridScan", () => {
+  it("returns a grid matching the sweep dimensions and a best cell inside it", () => {
+    const prices = trendingPrices(400, 0.0006);
+    const res = gridScan(prices, undefined, "sma", {
+      xParam: "fast", xValues: [5, 10, 20],
+      yParam: "slow", yValues: [40, 80, 120, 200],
+      metric: "sharpe",
+    });
+    expect(res.grid.length).toBe(4); // rows = yValues
+    expect(res.grid[0].length).toBe(3); // cols = xValues
+    expect(res.xValues).toContain(res.best.x);
+    expect(res.yValues).toContain(res.best.y);
+  });
+});
+
+describe("monthlyReturns", () => {
+  it("aggregates an equity curve into a year×month matrix", () => {
+    const dates: string[] = [];
+    const equity: number[] = [];
+    const start = new Date(Date.UTC(2021, 0, 1));
+    for (let i = 0; i < 400; i++) {
+      const d = new Date(start); d.setUTCDate(start.getUTCDate() + i);
+      dates.push(d.toISOString().slice(0, 10));
+      equity.push(1 * Math.pow(1.0005, i));
+    }
+    const mr = monthlyReturns(dates, equity);
+    expect(mr.years.length).toBeGreaterThan(0);
+    expect(mr.matrix[0].length).toBe(12);
+    // a rising curve should have mostly positive monthly returns
+    const flat = mr.matrix.flat().filter((v): v is number => v != null);
+    expect(flat.filter((v) => v > 0).length).toBeGreaterThan(flat.length / 2);
   });
 });
