@@ -28,6 +28,10 @@ export interface BacktestParams {
   maxLeverage?: number;
   /** allow short positions where the strategy supports it */
   allowShort?: boolean;
+  /** one-way transaction cost in basis points (charged on |Δposition|) */
+  costBps?: number;
+  /** one-way slippage in basis points (added to the cost) */
+  slippageBps?: number;
 }
 
 export interface BacktestMetrics {
@@ -43,11 +47,13 @@ export interface BacktestMetrics {
   turnover: number; // annualised average |Δposition|
   exposure: number; // fraction of days with a non-zero position
   nDays: number;
+  costDrag: number; // gross CAGR − net CAGR (annualised cost bleed)
 }
 
 export interface BacktestResult {
   dates: string[];
   equity: number[];
+  equityGross: number[];
   benchmark: number[];
   position: number[];
   drawdown: number[];
