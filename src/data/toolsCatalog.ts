@@ -37,7 +37,7 @@ export interface ToolEntry {
   related?: string[];
   /** true once unit tests vs a closed-form benchmark exist in src/lib/quant */
   verified?: boolean;
-  version: "V1.0" | "V2.0" | "V2.1" | "V2.2" | "V2.3" | "V2.4" | "V2.5" | "V2.6" | "V2.7" | "V2.8" | "V3.0" | "V3.1" | "V3.2" | "V3.3" | "V3.4";
+  version: "V1.0" | "V2.0" | "V2.1" | "V2.2" | "V2.3" | "V2.4" | "V2.5" | "V2.6" | "V2.7" | "V2.8" | "V3.0" | "V3.1" | "V3.2" | "V3.3" | "V3.4" | "V3.5";
 }
 
 export const CATEGORY_LABEL: Record<ToolCategory, { zh: string; en: string }> = {
@@ -817,20 +817,20 @@ export const TOOLS_CATALOG: ToolEntry[] = [
     related: [], verified: true, version: "V3.1",
   },
   {
-    id: "backtest", name: "回测引擎", nameEn: "Backtest Engine — Real-Data Strategy Lab",
+    id: "backtest", name: "组合回测与优化引擎", nameEn: "Backtest & Portfolio Optimization Engine",
     category: "quant", difficulty: "advanced", anchor: "/#backtest",
-    tags: ["回测", "策略", "夏普", "最大回撤", "真实数据"],
-    refs: ["Bailey et al. (2014)", "Pardo (2008)"],
-    blurb: "用真实历史价格回测双均线/动量/均值回归/波动率目标策略，信号 T+1 执行，输出净值、回撤与完整绩效指标。",
-    related: ["walkforward", "calibration", "bs", "mc"], verified: true, version: "V3.4",
+    tags: ["回测", "组合优化", "风险平价", "交易成本", "参数扫描", "真实数据"],
+    refs: ["Bailey et al. (2014)", "Pardo (2008)", "Maillard et al. (2010)"],
+    blurb: "单标的策略回测(计入交易成本/滑点、多策略对比、参数网格热力图、月度收益热图)+ 多资产组合回测(等权/风险平价/最小方差/均值方差,周期再平衡与风险贡献分解)。",
+    related: ["walkforward", "calibration", "risk-parity", "frontier", "bs", "mc"], verified: true, version: "V3.5",
   },
   {
     id: "calibration", name: "模型校准实验室", nameEn: "Model Calibration — Fit to Real Data",
     category: "quant", difficulty: "research", anchor: "/#calibration",
-    tags: ["GARCH", "EWMA", "Merton 跳跃", "极大似然", "校准"],
-    refs: ["Bollerslev (1986)", "Merton (1976)", "RiskMetrics (1996)"],
-    blurb: "把 GARCH(1,1)/EWMA/Merton 跳跃扩散用 MLE 与网格搜索拟合到真实行情，校准波动率并发送到定价工具。",
-    related: ["garch", "bs", "mc", "backtest"], verified: true, version: "V3.4",
+    tags: ["GARCH", "EWMA", "Merton 跳跃", "Vasicek", "CIR", "QQ图", "校准"],
+    refs: ["Bollerslev (1986)", "Merton (1976)", "Vasicek (1977)", "Cox-Ingersoll-Ross (1985)"],
+    blurb: "把 GARCH/EWMA/Merton 拟合到价格收益、Vasicek/CIR 拟合到 FRED 真实利率,附标准化残差 QQ 图与 ACF 诊断,校准的 σ/r 一键发送到定价工具。",
+    related: ["garch", "rate-model", "bond", "bs", "mc", "backtest"], verified: true, version: "V3.5",
   },
 ];
 
