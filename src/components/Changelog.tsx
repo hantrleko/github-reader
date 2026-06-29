@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next";
 const RELEASES = [
   {
     version: "V3.5",
-    date: "2026-06",
+    date: "2026-07",
     tag: "Current",
     highlights: [
       {
