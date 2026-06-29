@@ -28,6 +28,10 @@ export interface BacktestParams {
   maxLeverage?: number;
   /** allow short positions where the strategy supports it */
   allowShort?: boolean;
+  /** one-way transaction cost in basis points (charged on |Δposition|) */
+  costBps?: number;
+  /** one-way slippage in basis points (added to the cost) */
+  slippageBps?: number;
 }
 
 export interface BacktestMetrics {
@@ -43,11 +47,13 @@ export interface BacktestMetrics {
   turnover: number; // annualised average |Δposition|
   exposure: number; // fraction of days with a non-zero position
   nDays: number;
+  costDrag: number; // gross CAGR − net CAGR (annualised cost bleed)
 }
 
 export interface BacktestResult {
   dates: string[];
   equity: number[];
+  equityGross: number[];
   benchmark: number[];
   position: number[];
   drawdown: number[];
@@ -191,21 +197,24 @@ export function runBacktest(
     return {
       dates: dates ?? [],
       equity: [1],
+      equityGross: [1],
       benchmark: [1],
       position: [0],
       drawdown: [0],
       metrics: {
         totalReturn: 0, cagr: 0, annReturn: 0, annVol: 0, sharpe: 0,
         sortino: 0, maxDrawdown: 0, calmar: 0, winRate: 0, turnover: 0,
-        exposure: 0, nDays: n,
+        exposure: 0, nDays: n, costDrag: 0,
       },
     };
   }
 
   const pos = strategyPositions(prices, strategy, params);
   const rets = simpleReturns(prices); // length n-1; rets[t-1] is return from t-1→t
+  const rate = ((params.costBps ?? 0) + (params.slippageBps ?? 0)) / 1e4;
 
   const equity: number[] = [1];
+  const equityGross: number[] = [1];
   const benchmark: number[] = [1];
   const stratRets: number[] = [];
   let turnoverSum = 0;
@@ -214,9 +223,13 @@ export function runBacktest(
   for (let t = 1; t < n; t++) {
     const used = pos[t - 1] ?? 0; // execution lag
     const r = rets[t - 1];
-    const sr = used * r;
+    const dPos = Math.abs((pos[t - 1] ?? 0) - (pos[t - 2] ?? 0));
+    const tcost = dPos * rate;
+    const srGross = used * r;
+    const sr = srGross - tcost;
     stratRets.push(sr);
     equity.push(equity[equity.length - 1] * (1 + sr));
+    equityGross.push(equityGross[equityGross.length - 1] * (1 + srGross));
     benchmark.push(benchmark[benchmark.length - 1] * (1 + r));
     turnoverSum += Math.abs((pos[t - 1] ?? 0) - (pos[t - 2] ?? 0));
     if (Math.abs(used) > 1e-9) exposedDays++;
@@ -225,8 +238,10 @@ export function runBacktest(
   const { dd, maxDD } = drawdownSeries(equity);
   const years = (n - 1) / TRADING_DAYS;
   const last = equity[equity.length - 1];
+  const lastGross = equityGross[equityGross.length - 1];
   const totalReturn = last - 1;
   const cagr = years > 0 && last > 0 ? Math.pow(last, 1 / years) - 1 : 0;
+  const cagrGross = years > 0 && lastGross > 0 ? Math.pow(lastGross, 1 / years) - 1 : 0;
   const annVol = std(stratRets) * Math.sqrt(TRADING_DAYS);
   const annReturn = mean(stratRets) * TRADING_DAYS;
   const sharpe = annVol > 1e-9 ? annReturn / annVol : 0;
@@ -242,12 +257,102 @@ export function runBacktest(
   return {
     dates: dates ?? prices.map((_, i) => String(i)),
     equity,
+    equityGross,
     benchmark,
     position: pos,
     drawdown: dd,
     metrics: {
       totalReturn, cagr, annReturn, annVol, sharpe, sortino,
       maxDrawdown: maxDD, calmar, winRate, turnover, exposure, nDays: n,
+      costDrag: cagrGross - cagr,
     },
   };
+}
+
+/* ───────────────────────── parameter grid scan ───────────────────────── */
+export type ScanMetric = "sharpe" | "cagr" | "calmar" | "maxDrawdown" | "annVol" | "sortino";
+
+export interface GridScanOpts {
+  xParam: keyof BacktestParams;
+  xValues: number[];
+  yParam: keyof BacktestParams;
+  yValues: number[];
+  metric: ScanMetric;
+  base?: BacktestParams;
+}
+
+export interface GridScanResult {
+  xParam: keyof BacktestParams;
+  yParam: keyof BacktestParams;
+  xValues: number[];
+  yValues: number[];
+  metric: ScanMetric;
+  grid: number[][]; // grid[yi][xi]
+  best: { x: number; y: number; value: number };
+}
+
+/**
+ * Sweep two strategy parameters over a grid and record one performance metric
+ * per cell — used to visualise robustness / over-fitting as a heatmap.
+ */
+export function gridScan(
+  prices: number[],
+  dates: string[] | undefined,
+  strategy: StrategyId,
+  opts: GridScanOpts
+): GridScanResult {
+  const grid: number[][] = [];
+  let best = { x: opts.xValues[0], y: opts.yValues[0], value: -Infinity };
+  for (const yv of opts.yValues) {
+    const row: number[] = [];
+    for (const xv of opts.xValues) {
+      const p: BacktestParams = { ...(opts.base ?? {}), [opts.xParam]: xv, [opts.yParam]: yv };
+      const res = runBacktest(prices, dates, strategy, p);
+      const value = res.metrics[opts.metric];
+      row.push(value);
+      // maxDrawdown is negative: "best" = closest to zero (handled by max since values <= 0)
+      if (value > best.value) best = { x: xv, y: yv, value };
+    }
+    grid.push(row);
+  }
+  return { xParam: opts.xParam, yParam: opts.yParam, xValues: opts.xValues, yValues: opts.yValues, metric: opts.metric, grid, best };
+}
+
+/* ───────────────────────── monthly returns ───────────────────────── */
+export interface MonthlyReturnsResult {
+  years: number[]; // descending
+  /** matrix[yearIdx][month 0..11] = monthly return, or null when missing */
+  matrix: (number | null)[][];
+}
+
+/**
+ * Aggregate an equity curve into a year×month return matrix. `dates` must align
+ * 1:1 with `equity`; months are bucketed by the last available equity value.
+ */
+export function monthlyReturns(dates: string[], equity: number[]): MonthlyReturnsResult {
+  if (dates.length !== equity.length || equity.length < 2) return { years: [], matrix: [] };
+  // last equity value per (year, month)
+  const lastByKey = new Map<string, { e: number; year: number; month: number; order: number }>();
+  for (let i = 0; i < dates.length; i++) {
+    const d = new Date(dates[i]);
+    const year = d.getUTCFullYear();
+    const month = d.getUTCMonth();
+    const key = year + "-" + month;
+    lastByKey.set(key, { e: equity[i], year, month, order: year * 12 + month });
+  }
+  const buckets = [...lastByKey.values()].sort((a, b) => a.order - b.order);
+  const yearsSet = new Set<number>();
+  const monthRet = new Map<string, number>();
+  let prevE = equity[0];
+  for (const b of buckets) {
+    const ret = prevE > 0 ? b.e / prevE - 1 : 0;
+    monthRet.set(b.year + "-" + b.month, ret);
+    yearsSet.add(b.year);
+    prevE = b.e;
+  }
+  const years = [...yearsSet].sort((a, b) => b - a);
+  const matrix = years.map((y) =>
+    Array.from({ length: 12 }, (_, mo) => (monthRet.has(y + "-" + mo) ? (monthRet.get(y + "-" + mo) as number) : null))
+  );
+  return { years, matrix };
 }

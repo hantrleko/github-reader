@@ -4,9 +4,43 @@ import { useTranslation } from "react-i18next";
 
 const RELEASES = [
   {
-    version: "V3.4",
+    version: "V3.5",
     date: "2026-07",
     tag: "Current",
+    highlights: [
+      {
+        icon: Activity,
+        title: "组合回测与优化引擎 — /s/backtest",
+        items: [
+          "单标的回测进阶:计入交易成本与滑点 (毛/净双曲线 + 成本拖累),多策略同数据对比表,参数网格扫描热力图 (点选即应用),年×月收益热力图",
+          "新增多资产组合回测 src/lib/quant/portfolio.ts:等权 / 风险平价(ERC) / 最小方差 / 均值方差四种配置,周期再平衡 + 交易成本,输出净值、权重演化、风险贡献分解 (MCR/PCR) 与相关矩阵",
+          "组合年化波动 σ 与收益 μ 可经「发送到…」一键传入 BS / 蒙特卡洛 / Greeks",
+        ],
+      },
+      {
+        icon: Gauge,
+        title: "校准实验室扩展 — /s/calibration",
+        items: [
+          "新增 Vasicek / CIR 短率校准:对 FRED 真实国债收益率做离散 OLS/MLE,估计 κ/θ/σ 与半衰期,含 SDE LaTeX 公式与推导",
+          "GARCH/EWMA 新增拟合诊断:标准化残差 Q-Q 图 (检验正态/厚尾) 与残差平方 ACF (检验剩余 ARCH,带 ±1.96/√n 置信带)",
+          "校准的 σ / r 可发送到 BS / 蒙特卡洛 / Greeks / 债券工具,延续『真实数据 → 校准 → 定价 → 回测』闭环",
+        ],
+      },
+      {
+        icon: GraduationCap,
+        title: "版本 V3.5 — 组合回测与优化引擎 (旗舰深化)",
+        items: [
+          "Hero、Footer、版本徽章、更新日志统一同步至 V3.5,V3.4 标记为 Stable",
+          "新增剧本『真实数据 → 校准 → 定价 → 组合回测』,纯函数库 portfolio.ts/backtest.ts/calibration.ts 均带通过的单元测试",
+          "Phase 2『功能深度』续作:回测从『单标的』升级为『可审计、可对比、可优化的组合引擎』",
+        ],
+      },
+    ],
+  },
+  {
+    version: "V3.4",
+    date: "2026-07",
+    tag: "Stable",
     highlights: [
       {
         icon: Activity,

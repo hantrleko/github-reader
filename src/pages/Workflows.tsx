@@ -65,7 +65,7 @@ const WorkflowList = ({ onSelect }: { onSelect: (id: string) => void }) => (
       </Link>
       <div className="flex items-center gap-2 mb-3">
         <span className="text-[10px] font-mono text-gold tracking-[0.3em] uppercase">
-          Workflows · V3.4
+          Workflows · V3.5
         </span>
         <div className="flex-1 h-px bg-gradient-to-r from-gold/40 to-transparent" />
       </div>

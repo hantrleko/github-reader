@@ -300,3 +300,72 @@ export function fitMertonJump(
     threshold,
   };
 }
+/* ─────────────────────────── Fit diagnostics ─────────────────────────── */
+
+/**
+ * Standardised residuals zₜ = (rₜ − μ) / σₜ. `dailyVol` is the daily (not
+ * annualised) conditional σ aligned to the tail of `returns`.
+ */
+export function standardizedResiduals(returns: number[], dailyVol: number[]): number[] {
+  const mu = mean(returns);
+  const offset = returns.length - dailyVol.length;
+  const out: number[] = [];
+  for (let i = 0; i < dailyVol.length; i++) {
+    const r = returns[offset + i];
+    if (dailyVol[i] > 1e-12 && Number.isFinite(r)) out.push((r - mu) / dailyVol[i]);
+  }
+  return out;
+}
+
+/** Sample autocorrelation function for lags 1..maxLag. */
+export function acf(x: number[], maxLag = 20): number[] {
+  const n = x.length;
+  if (n < 2) return [];
+  const m = mean(x);
+  let c0 = 0;
+  for (let i = 0; i < n; i++) c0 += (x[i] - m) * (x[i] - m);
+  c0 /= n;
+  const out: number[] = [];
+  for (let k = 1; k <= Math.min(maxLag, n - 1); k++) {
+    let ck = 0;
+    for (let i = 0; i < n - k; i++) ck += (x[i] - m) * (x[i + k] - m);
+    ck /= n;
+    out.push(c0 > 1e-12 ? ck / c0 : 0);
+  }
+  return out;
+}
+
+/** Inverse standard-normal CDF (Acklam's rational approximation). */
+export function normalQuantile(p: number): number {
+  if (p <= 0) return -Infinity;
+  if (p >= 1) return Infinity;
+  const a = [-3.969683028665376e1, 2.209460984245205e2, -2.759285104469687e2, 1.383577518672690e2, -3.066479806614716e1, 2.506628277459239];
+  const b = [-5.447609879822406e1, 1.615858368580409e2, -1.556989798598866e2, 6.680131188771972e1, -1.328068155288572e1];
+  const c = [-7.784894002430293e-3, -3.223964580411365e-1, -2.400758277161838, -2.549732539343734, 4.374664141464968, 2.938163982698783];
+  const d = [7.784695709041462e-3, 3.224671290700398e-1, 2.445134137142996, 3.754408661907416];
+  const plow = 0.02425, phigh = 1 - plow;
+  let q: number, r: number;
+  if (p < plow) {
+    q = Math.sqrt(-2 * Math.log(p));
+    return (((((c[0] * q + c[1]) * q + c[2]) * q + c[3]) * q + c[4]) * q + c[5]) /
+      ((((d[0] * q + d[1]) * q + d[2]) * q + d[3]) * q + 1);
+  }
+  if (p > phigh) {
+    q = Math.sqrt(-2 * Math.log(1 - p));
+    return -(((((c[0] * q + c[1]) * q + c[2]) * q + c[3]) * q + c[4]) * q + c[5]) /
+      ((((d[0] * q + d[1]) * q + d[2]) * q + d[3]) * q + 1);
+  }
+  q = p - 0.5;
+  r = q * q;
+  return (((((a[0] * r + a[1]) * r + a[2]) * r + a[3]) * r + a[4]) * r + a[5]) * q /
+    (((((b[0] * r + b[1]) * r + b[2]) * r + b[3]) * r + b[4]) * r + 1);
+}
+
+export interface QQPoint { theoretical: number; sample: number }
+
+/** Normal Q-Q pairs: sorted sample quantiles vs theoretical normal quantiles. */
+export function qqNormal(sample: number[]): QQPoint[] {
+  const s = [...sample].filter(Number.isFinite).sort((a, b) => a - b);
+  const n = s.length;
+  return s.map((v, i) => ({ theoretical: normalQuantile((i + 0.5) / n), sample: v }));
+}

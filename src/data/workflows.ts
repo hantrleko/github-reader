@@ -77,6 +77,18 @@ export const WORKFLOWS: Workflow[] = [
       { toolId: "stress", note: "施加宏观冲击情景，分解组合 PnL 与尾部损失。" },
     ],
   },
+  {
+    id: "calib-to-portfolio",
+    title: "真实数据 → 校准 → 定价 → 组合回测",
+    titleEn: "Real Data → Calibration → Pricing → Portfolio Backtest",
+    blurb: "用真实行情校准波动率,把 σ 喂给定价工具,再到组合回测引擎用风险平价/最小方差构建并检验多资产组合——一条端到端的实证闭环。",
+    difficulty: "advanced",
+    steps: [
+      { toolId: "calibration", note: "用 GARCH/EWMA 拟合真实收益,导出长期/条件波动率 σ。", passes: ["sigma", "mu"] },
+      { toolId: "bs", note: "用校准的 σ 给期权定价并核对 Greeks。", passes: ["sigma", "S0", "K", "r", "T"] },
+      { toolId: "backtest", note: "多资产组合回测:风险平价/最小方差配置,周期再平衡并计入交易成本。", passes: ["sigma", "mu"] },
+    ],
+  },
 ];
 
 export const WORKFLOW_MAP: Record<string, Workflow> = Object.fromEntries(
