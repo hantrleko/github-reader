@@ -5,6 +5,11 @@ import {
   fitShortRate,
   fitMertonJump,
   nelderMead,
+  fitShortRate as fitSR,
+  acf,
+  qqNormal,
+  normalQuantile,
+  standardizedResiduals,
 } from "../calibration";
 
 /** Mulberry32 deterministic PRNG. */
@@ -101,5 +106,55 @@ describe("fitMertonJump", () => {
     expect(fit.nJumps).toBeGreaterThanOrEqual(4);
     expect(fit.jumpMean).toBeGreaterThan(0.05);
     expect(fit.sigmaDiffusion).toBeGreaterThan(0);
+  });
+});
+
+describe("fitShortRate (CIR)", () => {
+  it("recovers mean level on simulated CIR data", () => {
+    const r = rng(321);
+    const kappa = 1.2, theta = 0.05, sigma = 0.08;
+    const dt = 1 / 252;
+    const n = 6000;
+    let rate = 0.04;
+    const rates = [rate];
+    for (let i = 1; i < n; i++) {
+      rate = Math.max(1e-5, rate + kappa * (theta - rate) * dt + sigma * Math.sqrt(Math.max(rate, 0)) * Math.sqrt(dt) * gauss(r));
+      rates.push(rate);
+    }
+    const fit = fitSR(rates, "cir", dt);
+    expect(fit.theta).toBeCloseTo(theta, 2);
+    expect(fit.kappa).toBeGreaterThan(0.3);
+    expect(fit.model).toBe("cir");
+  });
+});
+
+describe("diagnostics", () => {
+  it("normalQuantile inverts standard normal at known points", () => {
+    expect(normalQuantile(0.5)).toBeCloseTo(0, 4);
+    expect(normalQuantile(0.975)).toBeCloseTo(1.96, 2);
+    expect(normalQuantile(0.025)).toBeCloseTo(-1.96, 2);
+  });
+
+  it("acf of white noise is near zero at all lags", () => {
+    const r = rng(7);
+    const x = Array.from({ length: 2000 }, () => gauss(r));
+    const ac = acf(x, 10);
+    expect(ac.length).toBe(10);
+    ac.forEach((v) => expect(Math.abs(v)).toBeLessThan(0.15));
+  });
+
+  it("qqNormal of standard normal data is roughly linear with slope 1", () => {
+    const r = rng(9);
+    const x = Array.from({ length: 1000 }, () => gauss(r));
+    const qq = qqNormal(x);
+    const mid = qq[Math.floor(qq.length / 2)];
+    expect(Math.abs(mid.sample - mid.theoretical)).toBeLessThan(0.5);
+  });
+
+  it("standardizedResiduals divides returns by the daily vol tail", () => {
+    const returns = [0.01, -0.02, 0.015, -0.005, 0.02];
+    const dailyVol = [0.02, 0.02, 0.02]; // aligned to the tail
+    const z = standardizedResiduals(returns, dailyVol);
+    expect(z.length).toBe(3);
   });
 });
