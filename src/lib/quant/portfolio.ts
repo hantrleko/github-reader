@@ -111,10 +111,12 @@ export function equalWeight(n: number): number[] {
 /** Long-only Equal-Risk-Contribution (risk parity) via fixed-point iteration. */
 export function riskParityWeights(cov: number[][], iters = 500): number[] {
   const n = cov.length;
+  const budget = 1 / n; // equal risk budget bᵢ
   let w = equalWeight(n);
   for (let it = 0; it < iters; it++) {
     const mrc = matVec(cov, w); // marginal (Σw)_i
-    const next = w.map((wi, i) => (mrc[i] > 1e-12 ? wi / mrc[i] : wi));
+    // fixed point: at the ERC solution wᵢ·(Σw)ᵢ = bᵢ ⇒ wᵢ ← bᵢ / (Σw)ᵢ
+    const next = w.map((wi, i) => (mrc[i] > 1e-12 ? budget / mrc[i] : wi));
     const nw = normalize(next);
     let diff = 0;
     for (let i = 0; i < n; i++) diff += Math.abs(nw[i] - w[i]);
