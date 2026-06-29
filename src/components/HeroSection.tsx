@@ -112,7 +112,7 @@ const HeroSection = () => {
               className="block bg-accent/20 hover:bg-accent/30 transition-colors p-5 border-l-2 border-gold"
             >
               <h4 className="text-[10px] font-mono font-bold uppercase tracking-[0.2em] mb-2 text-foreground">
-                Latest Update · V3.4
+                Latest Update · V3.5
               </h4>
               <p className="text-xs leading-relaxed text-foreground/75 mb-3">
                 Research Playbooks, Evidence Packs, Ops Board and Decision Memo Studio turn the lab into a scenario-driven workflow system for research replication, teaching and decision briefs.
