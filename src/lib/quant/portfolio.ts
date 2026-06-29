@@ -112,18 +112,21 @@ export function equalWeight(n: number): number[] {
 export function riskParityWeights(cov: number[][], iters = 500): number[] {
   const n = cov.length;
   const budget = 1 / n; // equal risk budget bᵢ
-  let w = equalWeight(n);
-  for (let it = 0; it < iters; it++) {
-    const mrc = matVec(cov, w); // marginal (Σw)_i
-    // fixed point: at the ERC solution wᵢ·(Σw)ᵢ = bᵢ ⇒ wᵢ ← bᵢ / (Σw)ᵢ
-    const next = w.map((wi, i) => (mrc[i] > 1e-12 ? budget / mrc[i] : wi));
-    const nw = normalize(next);
+  // Damped multiplicative fixed point on un-normalised x (Spinu 2013):
+  //   xᵢ ← √( xᵢ · bᵢ / (Σx)ᵢ )  →  converges to xᵢ·(Σx)ᵢ = bᵢ (equal risk).
+  let x = new Array<number>(n).fill(1);
+  for (let it = 0; it < iters * 4; it++) {
+    const mrc = matVec(cov, x);
     let diff = 0;
-    for (let i = 0; i < n; i++) diff += Math.abs(nw[i] - w[i]);
-    w = nw;
-    if (diff < 1e-10) break;
+    const nx = x.map((xi, i) => {
+      const v = mrc[i] > 1e-14 ? Math.sqrt(Math.max(xi * budget / mrc[i], 0)) : xi;
+      diff += Math.abs(v - xi);
+      return v;
+    });
+    x = nx;
+    if (diff < 1e-13) break;
   }
-  return w;
+  return normalize(x);
 }
 
 /** Long-only minimum-variance via projected-gradient descent. */
