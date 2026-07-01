@@ -318,7 +318,7 @@ export default function BacktestLab() {
                         <SendToTool
                           fromId="backtest"
                           label="回测引擎"
-                          outputs={{ sigma: m!.annVol, mu: m!.annReturn }}
+                          outputs={busOutputs}
                           targets={["bs", "mc", "greeks-desk"]}
                         />
                       </div>
