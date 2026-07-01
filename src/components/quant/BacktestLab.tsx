@@ -145,6 +145,13 @@ export default function BacktestLab() {
   const m = result?.metrics;
   const fmtScan = (v: number) => (scanMetric === "cagr" || scanMetric === "maxDrawdown" ? pct(v) : num(v));
 
+  // Last real price → S0 for pricing tools; annualised vol/return as σ/μ handoff.
+  const lastPrice = series && series.prices.length ? series.prices[series.prices.length - 1] : undefined;
+  const busOutputs = {
+    ...(lastPrice != null && Number.isFinite(lastPrice) ? { S0: lastPrice } : {}),
+    ...(m ? { sigma: m.annVol, mu: m.annReturn } : {}),
+  };
+
   return (
     <section className="pb-12">
       <SectionHeader
@@ -311,7 +318,7 @@ export default function BacktestLab() {
                         <SendToTool
                           fromId="backtest"
                           label="回测引擎"
-                          outputs={{ sigma: m!.annVol, mu: m!.annReturn }}
+                          outputs={busOutputs}
                           targets={["bs", "mc", "greeks-desk"]}
                         />
                       </div>
