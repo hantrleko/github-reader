@@ -8,8 +8,6 @@ interface RevealProps {
   /** Vertical travel distance in px (defaults to 14). */
   y?: number;
   className?: string;
-  /** Render as a specific element via motion factory. Defaults to div. */
-  as?: "div" | "section" | "li" | "span";
   once?: boolean;
 }
 
@@ -23,19 +21,16 @@ export const Reveal = ({
   delay = 0,
   y = 14,
   className,
-  as = "div",
   once = true,
 }: RevealProps) => {
   const reduce = useReducedMotion();
-  const MotionTag = motion[as];
 
   if (reduce) {
-    const Tag = as as keyof JSX.IntrinsicElements;
-    return <Tag className={className}>{children}</Tag>;
+    return <div className={className}>{children}</div>;
   }
 
   return (
-    <MotionTag
+    <motion.div
       className={className}
       initial={{ opacity: 0, y }}
       whileInView={{ opacity: 1, y: 0 }}
@@ -43,7 +38,7 @@ export const Reveal = ({
       transition={{ duration: 0.55, delay, ease: [0.22, 1, 0.36, 1] }}
     >
       {children}
-    </MotionTag>
+    </motion.div>
   );
 };
 
