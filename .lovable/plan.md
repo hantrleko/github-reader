@@ -1,70 +1,45 @@
-# V3.5 — 组合回测与优化引擎(旗舰深化)
+# 主页美观升级方案
 
-把现有 `/s/backtest` 回测实验室从「单标的、无成本」升级为可审计、可对比、可优化的**组合级回测与优化引擎**,作为本轮唯一旗舰功能做透;同时顺带补全校准实验室缺失的短率校准与诊断图。所有数值算法仍提炼为带单元测试的纯函数,完全复用已接入的三大免费数据源与 Tool Bus。
+在不改变已锁定的 Bloomberg 编辑风格(Emerald Prestige 配色、Libre Baskerville × IBM Plex 字体)前提下,为首页四个维度做精致化升级。动效强度按你选择的「3 / 适中」执行,并全程尊重系统的「减少动态效果」偏好。
 
----
+## 1. 进场与滚动动效(新增可复用组件)
 
-## 一、回测引擎进阶(单标的)
+新增 `src/components/common/Reveal.tsx`:基于 framer-motion 的轻量包装组件,元素进入视口时做「淡入 + 轻微上移」,支持 `delay` 与 `stagger`。自动读取 `prefers-reduced-motion`,开启时直接静态显示(无动画),保证可访问性与现有 ScrollManager 不冲突。
 
-在 `src/lib/quant/backtest.ts` 与 `BacktestLab.tsx` 上扩展:
+应用到首页各区块:
+- Hero 标题、副标题、CTA 按钮做交错进场(masthead → 大标题 → 副文 → 按钮 → 侧栏指标依次淡入)。
+- HeroToolStrip 的 8 个单元格按索引轻微交错浮现。
+- EditorialBriefing / TodaysPick / TopicCards / ModelShowcase / FeaturedNotebooks / SectionDirectory 各自在滚动到视口时整体淡入。
 
-- **交易成本 / 滑点建模**:新增按换手计费的成本模型——单边手续费(bps)+ 滑点(bps),在每次仓位变动 `|Δposition|` 上扣减,净值同时给出毛/净两条曲线与成本拖累(cost drag)指标。
-- **多策略对比**:同一标的/区间下并排跑多个策略(买入持有 / 双均线 / 动量 / 均值回归 / 波动目标),输出净值叠加图 + 指标对比表(夏普/卡玛/最大回撤排序),复用 V3.3 的对比表样式。
-- **参数网格扫描 + 热力图**:对所选策略的 2 个参数(如双均线快/慢、动量回看/持有期)做网格扫描,以颜色热力图展示某一指标(夏普/CAGR/卡玛),点选格子即把该参数应用到主回测——直观看过拟合与稳健区。
-- **月度收益热力图**:把净值日收益聚合成「年×月」收益矩阵,色标渲染,辅助识别季节性与回撤集中期。
+## 2. Hero 区域强化(`HeroSection.tsx`)
 
-## 二、组合级回测 / 优化(核心新增)
+- 顶部金色光晕改为极缓慢的呼吸式明暗动画(低振幅,减少动态时关闭)。
+- 三个覆盖指标(Domains / Formulas / Concepts)加入「数字滚动计数」进场效果,并强化 hover:数值放大发光、加下划线扫光。
+- 两个 CTA 按钮增加 hover 微交互:主按钮箭头位移、描边按钮金色描边渐显。
+- 底部 masthead 规则线加入细微的从左到右描线动画。
 
-新增纯函数库 `src/lib/quant/portfolio.ts` + 新组件区块「组合回测」:
+## 3. 卡片与网格精修(统一视觉语言)
 
-- **多资产载入**:在 PriceSourceBar 基础上支持加多个标的(同源),按交易日对齐取交集、构建收益矩阵。
-- **配置方法**(全部可调,带 textbook/market 预设):
-  - 等权(Equal Weight)
-  - 风险平价 / 等风险贡献(复用 `RiskParityTool` 逻辑迁入纯函数)
-  - 最小方差(Min-Variance,带无空头约束的投影梯度)
-  - 均值方差 / 切点组合(Mean-Variance,目标收益或最大夏普)
-- **再平衡**:按周期(月/季/年)或阈值再平衡,叠加第一部分的交易成本模型。
-- **输出**:组合净值 vs 等权基准、权重随时间堆叠面积图、各资产**风险贡献分解**(MCR/PCR)、协方差/相关热力图,以及完整指标(年化收益/波动/夏普/最大回撤/换手)。
-- **互联**:组合年化波动 σ、收益 μ 一键经「发送到…」推送 Tool Bus 给 BS/MC/Greeks。
+统一以下区块卡片的边框 / 圆角 / 阴影 / 间距 / hover 态,消除当前深浅不一:
+- `EditorialBriefing` 的三张 pillar 卡片
+- `TopicCards`、`SectionDirectory`、`FeaturedNotebooks`、`HeroToolStrip`
 
-## 三、校准器扩展(支撑性补全)
+统一规范:
+- hover 时轻微上浮(`-translate-y-0.5`)+ 金色边框渐显 + 柔和阴影(用现有语义 token,不硬编码颜色)。
+- 统一圆角与内边距节奏,箭头图标 hover 位移一致。
+- HeroToolStrip 单元格 hover 增加顶部金色指示线。
 
-在 `src/lib/quant/calibration.ts` 与 `CalibrationLab.tsx` 补全 plan 里遗留项:
+## 4. 节奏与留白
 
-- **Vasicek / CIR 短率校准**:对真实短率序列(FRED 数据源)做离散 OLS/MLE 估计 κ、θ、σ,输出均值回复速度与长期均值;含 LaTeX 公式与推导。
-- **拟合诊断图**:为 GARCH/EWMA 加入残差标准化 QQ 图、ACF(自相关)柱状图与对数似然收敛轨迹,提升「拟合可信度」可视化。
-- **互联**:校准出的 σ / r 推送 Tool Bus,延续「真实数据 → 校准 → 定价 → 回测」闭环。
+- 统一各 section 的纵向间距(收敛当前忽大忽小的 padding),让首页从 Hero 到 Footer 的呼吸更均匀。
+- 优化章节分隔:SectionHeader 的 kicker 规则线与目录分组标题对齐,分组之间留白一致。
 
----
+## 技术要点
 
-## 技术实现细节
+- 仅前端/展示层改动,不触碰业务逻辑、数据或路由。
+- 动效统一走新 `Reveal` 组件 + 少量 Tailwind `animate-*` 工具类;framer-motion(v12,已安装)负责交错与计数。
+- 所有颜色继续使用语义 token(gold / border / card / foreground 等),不新增硬编码颜色。
+- 尊重 `prefers-reduced-motion`;不影响滚动位置恢复(ScrollManager)。
+- 完成后用 Playwright 截图核对首页各区块进场与 hover 表现。
 
-**纯函数库(均带单测)**
-- `src/lib/quant/backtest.ts`:`runBacktest` 增加 `costBps`、`slippageBps` 参数并返回 gross/net + costDrag;新增 `gridScan(prices, strategy, sweep)` 与 `monthlyReturns(dates, equity)`。
-- `src/lib/quant/portfolio.ts`(新):`alignSeries`、`covMatrix`、`equalWeight`/`riskParityWeights`/`minVarianceWeights`/`meanVarianceWeights`、`runPortfolioBacktest`(再平衡 + 成本)、`riskContributions`(MCR/PCR)。
-- `src/lib/quant/calibration.ts`:新增 `fitVasicek`、`fitCIR`、`standardizedResiduals`、`acf`。
-- 测试:`portfolio.test.ts`(合成已知协方差验证权重)、扩展 `backtest.test.ts`(成本单调性、网格维度)、`calibration.test.ts`(合成 OU 过程回收 κ/θ/σ)。
-
-**UI**
-- 扩展 `src/components/quant/BacktestLab.tsx`:Tab 化为「单标的 / 组合 / 参数扫描」三视图,复用 `frontier/ui.tsx` 的 Slider/Stat、`common/SectionHeader`、`common/SendToTool`、`PresetButtons`、ChartTheme、`EquationBlock`。
-- 新增轻量 `HeatmapGrid` 展示组件(参数扫描 + 月度收益 + 相关矩阵共用)。
-- 扩展 `CalibrationLab.tsx`:新增 Vasicek/CIR 卡片与诊断图区。
-
-**注册 / 导航 / 文案**
-- `src/data/workflows.ts`:新增剧本「组合构建 → 校准 → 定价 → 组合回测」。
-- `src/i18n/locales/en.json` & `zh.json`:补全新参数、策略、配置方法标签。
-- sitemap 无新增路由(沿用 `/s/backtest`、`/s/calibration`),如新增 catalog 条目则同步 `toolsCatalog.ts`。
-
-**版本与日志**
-- 升级到 **V3.5**,同步 `buildVersion.ts`、`HeroSection`、`toolsCatalog.ts`、`Workflows.tsx`、`Changelog.tsx`、`CHANGELOG.md`,记录三块升级,V3.4 标记为 Stable。
-
-```text
-多标的真实价格 ─> [组合回测/优化] ─> 权重·净值·风险贡献 ─┐
-单标的 ─> [回测进阶: 成本/网格/月度热图] ─> σ, μ ─────────┤─ Tool Bus ─> BS/MC/Greeks
-真实短率 ─> [校准: Vasicek/CIR + 诊断] ─> κ,θ,σ,r ─────────┘
-```
-
-## 范围之外(本次不做)
-- 期权链曲面校准(Heston/SABR,免费数据不足)。
-- 多因子组合归因(Brinson)与做空融券成本精细建模。
-- 回测结果云端持久化(先用 sessionStorage / 导出)。
+范围内文件:`Index.tsx`、`HeroSection.tsx`、`HeroToolStrip.tsx`、`TopicCards.tsx`、`SectionDirectory`(在 Index 内)、`FeaturedNotebooks.tsx`、`common/SectionHeader.tsx`,以及新增 `common/Reveal.tsx`。

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { motion, useReducedMotion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import SectionHeader from "@/components/common/SectionHeader";
 
@@ -16,6 +17,7 @@ interface FeaturedRow {
 const FeaturedNotebooks = () => {
   const [rows, setRows] = useState<FeaturedRow[]>([]);
   const [loading, setLoading] = useState(true);
+  const reduce = useReducedMotion();
 
   useEffect(() => {
     let cancelled = false;
@@ -86,18 +88,24 @@ const FeaturedNotebooks = () => {
                   className="h-32 rounded-xl border border-border/60 bg-card/40 animate-pulse"
                 />
               ))
-            : rows.map((nb) => {
+            : rows.map((nb, i) => {
                 const name =
                   nb.profile?.display_name ||
                   nb.profile?.username ||
                   "Anonymous";
                 const handle = nb.profile?.username;
                 return (
-                  <Link
+                  <motion.div
                     key={nb.id}
-                    to={`/notebook?id=${nb.id}`}
-                    className="group rounded-xl border border-border/60 bg-card/40 hover:bg-card hover:border-gold/40 transition-colors p-5 flex flex-col gap-3"
+                    initial={reduce ? undefined : { opacity: 0, y: 16 }}
+                    whileInView={reduce ? undefined : { opacity: 1, y: 0 }}
+                    viewport={{ once: true, amount: 0.2 }}
+                    transition={{ duration: 0.4, delay: (i % 3) * 0.08, ease: [0.22, 1, 0.36, 1] }}
                   >
+                    <Link
+                      to={`/notebook?id=${nb.id}`}
+                      className="group h-full rounded-xl border border-border/60 bg-card/40 hover:bg-card hover:border-gold/40 hover:-translate-y-0.5 hover:shadow-[0_16px_40px_-20px_hsl(var(--gold)/0.35)] transition-all duration-300 p-5 flex flex-col gap-3"
+                    >
                     <div className="flex items-center justify-between text-[10px] font-mono uppercase tracking-[0.18em] text-gold/80">
                       <span>Notebook</span>
                       <span className="text-muted-foreground/70 inline-flex items-center gap-2">
@@ -129,7 +137,8 @@ const FeaturedNotebooks = () => {
                         {new Date(nb.updated_at).toLocaleDateString()}
                       </span>
                     </div>
-                  </Link>
+                    </Link>
+                  </motion.div>
                 );
               })}
         </div>
