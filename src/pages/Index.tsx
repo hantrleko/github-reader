@@ -169,16 +169,18 @@ const Index = () => {
       <KeyboardHelp />
 
       {/* ─── 导览 ─── */}
-      <div id="hero" className="scroll-mt-12"><HeroSection /></div>
-      <HeroToolStrip />
-      <EditorialBriefing />
-      <TodaysPick />
-      <div id="topics" className="scroll-mt-12"><TopicCards /></div>
-      <div id="models" className="scroll-mt-12"><ModelShowcase /></div>
-      <div id="featured-notebooks" className="scroll-mt-12"><FeaturedNotebooks /></div>
+      <main id="main-content">
+        <div id="hero" className="scroll-mt-12"><HeroSection /></div>
+        <HeroToolStrip />
+        <EditorialBriefing />
+        <TodaysPick />
+        <div id="topics" className="scroll-mt-12"><TopicCards /></div>
+        <div id="models" className="scroll-mt-12"><ModelShowcase /></div>
+        <div id="featured-notebooks" className="scroll-mt-12"><FeaturedNotebooks /></div>
 
-      {/* ─── 板块目录 ─── */}
-      <SectionDirectory />
+        {/* ─── 板块目录 ─── */}
+        <SectionDirectory />
+      </main>
 
       <SiteFooter />
     </div>
