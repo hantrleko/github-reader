@@ -4,9 +4,9 @@ import Navbar from "@/components/Navbar";
 const Changelog = lazy(() => import("@/components/Changelog"));
 
 const ChangelogPage = () => (
-  <div className="min-h-screen bg-background">
-    <Navbar />
-    <div className="pt-16">
+    <div className="min-h-screen bg-background">
+      <Navbar />
+      <main id="main-content" className="pt-16">
       <Suspense
         fallback={
           <div className="py-20 px-6">
