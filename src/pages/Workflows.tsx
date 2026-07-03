@@ -42,7 +42,7 @@ const WorkflowsPage = () => {
         path="/workflows"
       />
       <Navbar />
-      <main className="flex-1 container max-w-5xl px-6 pt-20 pb-20">
+      <main id="main-content" className="flex-1 container max-w-5xl px-6 pt-20 pb-20">
         {active ? (
           <WorkflowDetail workflow={active} onBack={() => setParams({})} />
         ) : (

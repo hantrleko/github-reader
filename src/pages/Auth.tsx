@@ -100,7 +100,7 @@ const AuthPage = () => {
           <ArrowLeft className="w-3 h-3" /> BACK
         </Link>
       </header>
-      <main className="flex-1 flex items-center justify-center px-6 pb-20">
+      <main id="main-content" className="flex-1 flex items-center justify-center px-6 pb-20">
         <div className="w-full max-w-md">
           <div className="mb-8 text-center">
             <p className="text-[10px] font-mono uppercase tracking-[0.3em] text-gold mb-2">

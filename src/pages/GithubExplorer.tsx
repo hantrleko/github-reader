@@ -486,7 +486,7 @@ const GithubExplorer = () => {
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
-      <main className="container max-w-6xl pt-20 pb-24 px-6">
+      <main id="main-content" className="container max-w-6xl pt-20 pb-24 px-6">
         <Link
           to="/"
           className="inline-flex items-center gap-1.5 text-xs font-mono text-muted-foreground hover:text-gold transition-colors mb-4"
