@@ -20,7 +20,7 @@ const ChangelogPage = () => (
       >
         <Changelog />
       </Suspense>
-    </div>
+    </main>
     <footer className="py-12 px-6 border-t border-border">
       <div className="container text-center space-y-2">
         <p className="text-xs font-mono text-muted-foreground tracking-wider">
