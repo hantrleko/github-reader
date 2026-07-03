@@ -305,7 +305,7 @@ const Notebook = () => {
         }
       />
       <Navbar />
-      <main className="pt-14">
+      <main id="main-content" className="pt-14">
         <SectionHeader
           chapter="Chapter N"
           kicker="REACTIVE NOTEBOOK"

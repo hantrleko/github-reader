@@ -37,7 +37,7 @@ const Strategies = () => {
     <div className="min-h-screen bg-background">
       <Seo title="量化策略库 · EF Lab" description="经典量化策略卡片库：动量、价值、低波、配对、统计套利等，含夏普、回撤、数据频率与参考论文。" path="/strategies" />
       <Navbar />
-      <main className="pt-14">
+      <main id="main-content" className="pt-14">
         <SectionHeader
           chapter="Chapter R"
           kicker="STRATEGY LIBRARY"

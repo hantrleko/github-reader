@@ -36,7 +36,7 @@ const Glossary = () => {
     <div className="min-h-screen bg-background">
       <Seo title="术语表 · EF Lab" description="量化金融与计量经济学术语速查：含公式、相关工具与参考文献。" path="/glossary" />
       <Navbar />
-      <main className="container max-w-5xl pt-20 pb-24 px-6">
+      <main id="main-content" className="container max-w-5xl pt-20 pb-24 px-6">
         <Link
           to="/"
           className="inline-flex items-center gap-1.5 text-xs font-mono text-muted-foreground hover:text-gold transition-colors mb-4"

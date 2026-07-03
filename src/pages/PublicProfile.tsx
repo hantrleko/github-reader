@@ -59,7 +59,7 @@ const PublicProfile = () => {
         />
       )}
       <Navbar />
-      <main className="pt-14">
+      <main id="main-content" className="pt-14">
         {notFound ? (
           <div className="container max-w-3xl px-6 py-24 text-center">
             <h1 className="font-display text-2xl text-foreground mb-2">用户不存在或未公开</h1>
