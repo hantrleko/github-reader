@@ -137,6 +137,44 @@ const Navbar = () => {
     requestAnimationFrame(() => first?.focus());
   }, [mobileOpen]);
 
+  /* ─── Focus trap: keep Tab cycling inside the open mobile menu ─── */
+  useEffect(() => {
+    if (!mobileOpen) return;
+    const onKeyDown = (e: globalThis.KeyboardEvent) => {
+      if (e.key !== "Tab") return;
+      const container = mobileMenuRef.current;
+      if (!container) return;
+      const focusables = Array.from(
+        container.querySelectorAll<HTMLElement>(
+          'button, a[href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        )
+      ).filter((el) => !el.hasAttribute("disabled") && el.offsetParent !== null);
+      if (focusables.length === 0) return;
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
+      const activeEl = document.activeElement as HTMLElement | null;
+      // If focus somehow escaped the menu, pull it back in.
+      if (activeEl && !container.contains(activeEl)) {
+        e.preventDefault();
+        first.focus();
+        return;
+      }
+      if (e.shiftKey) {
+        if (activeEl === first) {
+          e.preventDefault();
+          last.focus();
+        }
+      } else {
+        if (activeEl === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
+    };
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [mobileOpen]);
+
   /* ─── Auto-focus first item when dropdown opens ─── */
   useEffect(() => {
     if (!openGroup) return;
