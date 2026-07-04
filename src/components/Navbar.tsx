@@ -86,6 +86,8 @@ const Navbar = () => {
   const navRef = useRef<HTMLElement>(null);
   const itemRefs = useRef<Record<string, HTMLButtonElement | null>>({});
   const groupBtnRefs = useRef<Record<string, HTMLButtonElement | null>>({});
+  const mobileBtnRef = useRef<HTMLButtonElement>(null);
+  const mobileMenuRef = useRef<HTMLDivElement>(null);
 
   /* ─── Active section derived from the current route ─── */
   const active = location.pathname.startsWith("/s/")
@@ -111,15 +113,29 @@ const Navbar = () => {
   /* ─── Global Esc closes any open menu and returns focus ─── */
   useEffect(() => {
     const onKey = (e: globalThis.KeyboardEvent) => {
-      if (e.key === "Escape" && openGroup) {
+      if (e.key !== "Escape") return;
+      if (openGroup) {
         const btn = groupBtnRefs.current[openGroup];
         setOpenGroup(null);
         btn?.focus();
+      } else if (mobileOpen) {
+        setMobileOpen(false);
+        // return focus to the toggle button that opened the menu
+        requestAnimationFrame(() => mobileBtnRef.current?.focus());
       }
     };
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
-  }, [openGroup]);
+  }, [openGroup, mobileOpen]);
+
+  /* ─── Move focus into the mobile menu when it opens ─── */
+  useEffect(() => {
+    if (!mobileOpen) return;
+    const first = mobileMenuRef.current?.querySelector<HTMLElement>(
+      "button, a[href]"
+    );
+    requestAnimationFrame(() => first?.focus());
+  }, [mobileOpen]);
 
   /* ─── Auto-focus first item when dropdown opens ─── */
   useEffect(() => {
