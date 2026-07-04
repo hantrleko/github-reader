@@ -364,9 +364,12 @@ const Navbar = () => {
           <ThemeToggle />
           <UserMenu />
           <button
+            ref={mobileBtnRef}
             className="xl:hidden p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/60"
             onClick={() => setMobileOpen(!mobileOpen)}
             aria-label="Toggle menu"
+            aria-haspopup="true"
+            aria-controls="mobile-menu"
             aria-expanded={mobileOpen}
           >
             {mobileOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
@@ -376,7 +379,13 @@ const Navbar = () => {
 
       {/* Mobile menu */}
       {mobileOpen && (
-        <div className="xl:hidden border-t border-border/50 bg-background/95 backdrop-blur-lg max-h-[70vh] overflow-y-auto">
+        <div
+          ref={mobileMenuRef}
+          id="mobile-menu"
+          role="menu"
+          aria-label="Mobile navigation"
+          className="xl:hidden border-t border-border/50 bg-background/95 backdrop-blur-lg max-h-[70vh] overflow-y-auto"
+        >
           <div className="container py-3 space-y-3">
             {GROUPS.map((g) => (
               <div key={g.labelKey}>
