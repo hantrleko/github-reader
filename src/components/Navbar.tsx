@@ -185,6 +185,32 @@ const Navbar = () => {
     requestAnimationFrame(() => first?.focus());
   }, [openGroup]);
 
+  /* ─── Lock background scroll while the mobile menu is open ─── */
+  useEffect(() => {
+    if (!mobileOpen) return;
+    const { body } = document;
+    const prevOverflow = body.style.overflow;
+    body.style.overflow = "hidden";
+    return () => {
+      body.style.overflow = prevOverflow;
+    };
+  }, [mobileOpen]);
+
+  /* ─── Auto-close the mobile menu when switching to desktop / on resize ─── */
+  useEffect(() => {
+    // xl breakpoint (1280px) is where the desktop nav takes over
+    const mql = window.matchMedia("(min-width: 1280px)");
+    const onChange = (e: MediaQueryListEvent) => {
+      if (e.matches) {
+        setMobileOpen(false);
+        setOpenGroup(null);
+        setPagesOpen(false);
+      }
+    };
+    mql.addEventListener("change", onChange);
+    return () => mql.removeEventListener("change", onChange);
+  }, []);
+
   const scrollTo = (id: string) => {
     setMobileOpen(false);
     setOpenGroup(null);
