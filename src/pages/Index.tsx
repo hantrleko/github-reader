@@ -12,6 +12,7 @@ import ScrollUtilities from "@/components/ScrollUtilities";
 import KeyboardHelp from "@/components/KeyboardHelp";
 import TodaysPick from "@/components/TodaysPick";
 import FeaturedNotebooks from "@/components/FeaturedNotebooks";
+import WorkflowStrip from "@/components/WorkflowStrip";
 import SiteFooter from "@/components/SiteFooter";
 import SectionHeader from "@/components/common/SectionHeader";
 import Reveal from "@/components/common/Reveal";
@@ -36,7 +37,7 @@ const editorialPillars = [
 ];
 
 const EditorialBriefing = () => (
-  <section className="px-6 py-10">
+  <section className="px-6 py-10" aria-label="编辑导读">
     <div className="container max-w-6xl">
       <Reveal className="rounded-2xl border border-border/60 bg-card/35 p-6 md:p-8">
         <div className="grid grid-cols-1 lg:grid-cols-[0.9fr_1.6fr] gap-8 items-start">
@@ -108,6 +109,7 @@ const SectionDirectory = () => {
                 >
                   <Link
                     to={`/s/${s.id}`}
+                    aria-label={`${s.label}${s.subtitle ? ` — ${s.subtitle}` : ""}`}
                     className="group block h-full rounded-xl border border-border/60 bg-card/35 p-4 hover:border-gold/40 hover:bg-card/55 hover:-translate-y-0.5 hover:shadow-[0_14px_36px_-20px_hsl(var(--gold)/0.35)] transition-all duration-300"
                   >
                     <div className="flex items-start justify-between gap-2">
@@ -177,6 +179,9 @@ const Index = () => {
         <div id="topics" className="scroll-mt-12"><TopicCards /></div>
         <div id="models" className="scroll-mt-12"><ModelShowcase /></div>
         <div id="featured-notebooks" className="scroll-mt-12"><FeaturedNotebooks /></div>
+
+        {/* ─── 研究工作流速览 ─── */}
+        <WorkflowStrip />
 
         {/* ─── 板块目录 ─── */}
         <SectionDirectory />

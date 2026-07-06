@@ -39,6 +39,7 @@ const TopicCards = () => {
             >
               <Link
                 to={`/topic/${topic.id}`}
+                aria-label={`查看主题：${topic.title} — ${topic.subtitle}`}
                 className="group relative block p-7 bg-transparent border-b border-r border-accent/30 hover:bg-accent/15 hover:z-10 hover:shadow-[0_16px_40px_-20px_hsl(var(--gold)/0.35)] transition-all duration-300 overflow-hidden h-full"
               >
                 <span className="absolute top-0 left-0 h-0.5 w-0 bg-gold transition-all duration-300 group-hover:w-full" />
