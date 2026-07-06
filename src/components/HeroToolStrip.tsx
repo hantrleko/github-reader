@@ -32,7 +32,8 @@ const HeroToolStrip = () => {
             >
               <Link
                 to={sectionHref(u.anchor)}
-                className="group relative block p-4 h-full transition-colors hover:bg-accent/25"
+                aria-label={`${u.name} — ${u.desc}`}
+                className="group relative block p-4 h-full transition-all duration-300 hover:bg-accent/25 hover:shadow-[0_14px_36px_-24px_hsl(var(--gold)/0.4)]"
               >
                 <span className="absolute top-0 left-0 h-0.5 w-0 bg-gold transition-all duration-300 group-hover:w-full" />
                 <span className="block text-[9px] font-mono text-gold tracking-[0.18em] mb-2">
