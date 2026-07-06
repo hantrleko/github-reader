@@ -180,6 +180,9 @@ const Index = () => {
         <div id="models" className="scroll-mt-12"><ModelShowcase /></div>
         <div id="featured-notebooks" className="scroll-mt-12"><FeaturedNotebooks /></div>
 
+        {/* ─── 研究工作流速览 ─── */}
+        <WorkflowStrip />
+
         {/* ─── 板块目录 ─── */}
         <SectionDirectory />
       </main>
