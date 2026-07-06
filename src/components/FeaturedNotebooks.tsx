@@ -80,7 +80,11 @@ const FeaturedNotebooks = () => {
           title="社区精选 · 公开 Notebook"
           subtitle="从公开研究笔记中复用建模思路、参数设定与图表结构，把优秀案例 Fork 到自己的工作区继续迭代。"
         />
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-8">
+        <div
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-8"
+          aria-busy={loading}
+          aria-live="polite"
+        >
           {loading
             ? Array.from({ length: 6 }).map((_, i) => (
                 <div
@@ -102,42 +106,39 @@ const FeaturedNotebooks = () => {
                     viewport={{ once: true, amount: 0.2 }}
                     transition={{ duration: 0.4, delay: (i % 3) * 0.08, ease: [0.22, 1, 0.36, 1] }}
                   >
-                    <Link
-                      to={`/notebook?id=${nb.id}`}
-                      className="group h-full rounded-xl border border-border/60 bg-card/40 hover:bg-card hover:border-gold/40 hover:-translate-y-0.5 hover:shadow-[0_16px_40px_-20px_hsl(var(--gold)/0.35)] transition-all duration-300 p-5 flex flex-col gap-3"
-                    >
-                    <div className="flex items-center justify-between text-[10px] font-mono uppercase tracking-[0.18em] text-gold/80">
-                      <span>Notebook</span>
-                      <span className="text-muted-foreground/70 inline-flex items-center gap-2">
-                        {(nb.comments ?? 0) >= 3 && (
-                          <span className="text-gold">🔥 Trending</span>
+                    <div className="group h-full rounded-xl border border-border/60 bg-card/40 hover:bg-card hover:border-gold/40 hover:-translate-y-0.5 hover:shadow-[0_16px_40px_-20px_hsl(var(--gold)/0.35)] transition-all duration-300 p-5 flex flex-col gap-3">
+                      <Link
+                        to={`/notebook?id=${nb.id}`}
+                        aria-label={`打开 Notebook：${nb.title || "Untitled Notebook"}`}
+                        className="flex flex-col gap-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/60 rounded-md"
+                      >
+                        <div className="flex items-center justify-between text-[10px] font-mono uppercase tracking-[0.18em] text-gold/80">
+                          <span>Notebook</span>
+                          <span className="text-muted-foreground/70 inline-flex items-center gap-2">
+                            {(nb.comments ?? 0) >= 3 && (
+                              <span className="text-gold">🔥 Trending</span>
+                            )}
+                            {cellCount(nb.cells)} cells
+                          </span>
+                        </div>
+                        <h3 className="font-display text-lg leading-snug text-foreground group-hover:text-gold transition-colors line-clamp-2">
+                          {nb.title || "Untitled Notebook"}
+                        </h3>
+                      </Link>
+                      <div className="mt-auto flex items-center justify-between text-xs text-muted-foreground">
+                        {handle ? (
+                          <Link to={`/u/${handle}`} className="hover:text-gold">
+                            @{handle}
+                          </Link>
+                        ) : (
+                          <span>{name}</span>
                         )}
-                        {cellCount(nb.cells)} cells
-                      </span>
-                    </div>
-                    <h3 className="font-display text-lg leading-snug text-foreground group-hover:text-gold transition-colors line-clamp-2">
-                      {nb.title || "Untitled Notebook"}
-                    </h3>
-                    <div className="mt-auto flex items-center justify-between text-xs text-muted-foreground">
-                      {handle ? (
-                        <span
-                          className="hover:text-gold"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            window.location.href = `/u/${handle}`;
-                          }}
-                        >
-                          @{handle}
+                        <span className="font-mono text-[10px]">
+                          {nb.comments ? `💬 ${nb.comments} · ` : ""}
+                          {new Date(nb.updated_at).toLocaleDateString()}
                         </span>
-                      ) : (
-                        <span>{name}</span>
-                      )}
-                      <span className="font-mono text-[10px]">
-                        {nb.comments ? `💬 ${nb.comments} · ` : ""}
-                        {new Date(nb.updated_at).toLocaleDateString()}
-                      </span>
+                      </div>
                     </div>
-                    </Link>
                   </motion.div>
                 );
               })}
