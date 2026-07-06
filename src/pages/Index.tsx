@@ -109,6 +109,7 @@ const SectionDirectory = () => {
                 >
                   <Link
                     to={`/s/${s.id}`}
+                    aria-label={`${s.label}${s.subtitle ? ` — ${s.subtitle}` : ""}`}
                     className="group block h-full rounded-xl border border-border/60 bg-card/35 p-4 hover:border-gold/40 hover:bg-card/55 hover:-translate-y-0.5 hover:shadow-[0_14px_36px_-20px_hsl(var(--gold)/0.35)] transition-all duration-300"
                   >
                     <div className="flex items-start justify-between gap-2">
