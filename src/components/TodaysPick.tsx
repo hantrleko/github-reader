@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import { Link } from "react-router-dom";
 import { sectionHref } from "@/lib/sections";
 import { Sparkles, ArrowRight, BadgeCheck, LayoutGrid } from "lucide-react";
+import Reveal from "@/components/common/Reveal";
 import {
   TOOLS_CATALOG,
   CATEGORY_LABEL,
@@ -42,7 +43,7 @@ const TodaysPick = () => {
   return (
     <section className="py-16 px-6">
       <div className="container max-w-6xl">
-        <div className="rounded-2xl border border-gold/25 bg-gradient-to-br from-card/60 via-card/40 to-card/20 p-6 md:p-8 shadow-[var(--shadow-gold)]">
+        <Reveal className="rounded-2xl border border-gold/25 bg-gradient-to-br from-card/60 via-card/40 to-card/20 p-6 md:p-8 shadow-[var(--shadow-gold)]">
           <div className="flex items-start justify-between gap-4 mb-6 flex-wrap">
             <div>
               <div className="flex items-center gap-2 mb-2">
@@ -75,6 +76,7 @@ const TodaysPick = () => {
                 <Link
                   key={t.id}
                   to={sectionHref(t.anchor)}
+                  aria-label={`打开工具：${t.name}（${diff.zh}）`}
                   className="group block rounded-xl border border-border/60 bg-background/40 hover:bg-background/80 hover:border-gold/50 p-4 transition-all hover:-translate-y-0.5"
                 >
                   <div className="flex items-center justify-between mb-2">
@@ -109,7 +111,7 @@ const TodaysPick = () => {
               );
             })}
           </div>
-        </div>
+        </Reveal>
       </div>
     </section>
   );
