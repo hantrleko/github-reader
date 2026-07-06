@@ -12,6 +12,7 @@ import ScrollUtilities from "@/components/ScrollUtilities";
 import KeyboardHelp from "@/components/KeyboardHelp";
 import TodaysPick from "@/components/TodaysPick";
 import FeaturedNotebooks from "@/components/FeaturedNotebooks";
+import WorkflowStrip from "@/components/WorkflowStrip";
 import SiteFooter from "@/components/SiteFooter";
 import SectionHeader from "@/components/common/SectionHeader";
 import Reveal from "@/components/common/Reveal";
@@ -36,7 +37,7 @@ const editorialPillars = [
 ];
 
 const EditorialBriefing = () => (
-  <section className="px-6 py-10">
+  <section className="px-6 py-10" aria-label="编辑导读">
     <div className="container max-w-6xl">
       <Reveal className="rounded-2xl border border-border/60 bg-card/35 p-6 md:p-8">
         <div className="grid grid-cols-1 lg:grid-cols-[0.9fr_1.6fr] gap-8 items-start">
