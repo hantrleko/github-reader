@@ -20,7 +20,7 @@ const WorkflowStrip = () => (
         chapter="Playbooks"
         kicker="Research Workflows"
         title="研究工作流速览"
-        subtitle="每条工作流把多个工具串成一条端到端链路 — 从数据、校准到定价与回测，可直接照着做实证复现。"
+        subtitle="每条工作流把多个工具串成端到端链路——从数据、校准到定价与回测，照着做即可完成一次实证复现。"
       />
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-8">
         {FEATURED.map((w, i) => {

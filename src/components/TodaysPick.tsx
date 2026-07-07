@@ -53,10 +53,10 @@ const TodaysPick = () => {
                 </span>
               </div>
               <h2 className="text-xl md:text-2xl font-display text-foreground">
-                今天我们推荐三个工具
+                每日三选 · 一件入门、一件核心、一件前沿
               </h2>
               <p className="text-xs text-muted-foreground mt-1">
-                按入门 → 核心 → 研究 三档自动轮换 · 每天 UTC 0:00 刷新
+                按入门 → 核心 → 研究 三档自动轮换，每日 UTC 00:00 刷新。
               </p>
             </div>
             <Link
