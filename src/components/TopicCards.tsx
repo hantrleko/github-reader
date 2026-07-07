@@ -24,7 +24,7 @@ const TopicCards = () => {
             {t("sections.topics.title")}
           </h2>
           <p className="mt-4 max-w-2xl mx-auto text-sm md:text-base text-foreground/65 leading-relaxed">
-            每个主题都以「核心问题—关键模型—实证应用」组织内容，既适合作为课程复习提纲，也能作为研究选题和模型实现的入口。
+            每个主题以「核心问题 · 关键模型 · 实证应用」三段式组织，既是课程复习提纲，也是研究选题与模型实现的入口。
           </p>
         </motion.div>
 
