@@ -22,17 +22,17 @@ const editorialPillars = [
   {
     label: "01 / Concept",
     title: "先建立理论语言",
-    text: "用统一的符号、假设和推导把 CAPM、SDF、Black-Scholes、OLS 等核心模型串联起来，避免只会套公式。",
+    text: "用统一的符号、假设与推导，把 CAPM、SDF、Black–Scholes、OLS 串成同一套语言，而非零散的公式。",
   },
   {
     label: "02 / Experiment",
     title: "再进入交互实验",
-    text: "把参数、数据和情景压力测试放到同一个界面里，观察模型输出如何随假设变化，并快速识别敏感变量。",
+    text: "把参数、数据与情景压力放进同一界面，观察输出如何随假设变化，快速识别敏感变量。",
   },
   {
     label: "03 / Research",
     title: "最后沉淀研究资产",
-    text: "通过 Notebook、模板、论文索引和可复用图表，把课堂演示、策略原型和实证作业转化为可复现工作流。",
+    text: "用 Notebook、模板、论文索引与可复用图表，把课堂演示、策略原型与实证作业转化为可复现工作流。",
   },
 ];
 
@@ -46,10 +46,10 @@ const EditorialBriefing = () => (
               Editorial Briefing
             </p>
             <h2 className="font-display text-2xl md:text-3xl text-foreground leading-tight">
-              不只是工具集合，而是一条从理论到实证的学习链路
+              不是工具的堆叠，而是一条从理论到实证的研究链路
             </h2>
             <p className="mt-4 text-sm text-foreground/70 leading-relaxed">
-              每个板块现在都是独立页面：点击导航直接进入对应功能，专注单一主题，无需在超长页面里上下查找定位。
+              每个板块都是独立页面：从导航直达对应工作区，专注单一主题，无需在长页面里反复定位。
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
@@ -90,7 +90,7 @@ const SectionDirectory = () => {
         chapter="Directory"
         kicker="All Sections"
         title="功能板块目录"
-        subtitle="每个板块都是一个独立页面 — 选择一个主题进入专属工作区。"
+        subtitle="每个板块都是独立工作区——选择一个主题，进入其专属实验环境。"
       />
       <div className="container max-w-6xl mt-4 space-y-8">
         {Object.entries(groups).map(([group, items]) => (
