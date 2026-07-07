@@ -153,7 +153,7 @@ const ModelShowcase = () => {
             经典模型详解
           </h2>
           <p className="mt-4 max-w-2xl mx-auto text-sm md:text-base text-foreground/65 leading-relaxed">
-            用一张模型卡片同时呈现公式、变量解释、历史脉络与核心洞见，帮助你快速判断模型适用场景和边界条件。
+            一张模型卡片同时给出公式、变量释义、历史脉络与核心洞见，帮助你快速判断适用场景与边界条件。
           </p>
         </div>
 
