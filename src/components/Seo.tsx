@@ -12,6 +12,9 @@ interface SeoProps {
   type?: "website" | "article";
   jsonLd?: Record<string, unknown> | Record<string, unknown>[];
   noindex?: boolean;
+  /** Optional OpenGraph overrides (default to title/description). */
+  ogTitle?: string;
+  ogDescription?: string;
 }
 
 /**
@@ -26,11 +29,15 @@ export function Seo({
   type = "website",
   jsonLd,
   noindex = false,
+  ogTitle,
+  ogDescription,
 }: SeoProps) {
   const { i18n } = useTranslation();
   const url = `${SITE}${path}`;
   const lang = i18n.language?.startsWith("en") ? "en" : "zh";
   const ldArr = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
+  const ogT = ogTitle ?? title;
+  const ogD = ogDescription ?? description;
 
   return (
     <Helmet>
@@ -40,16 +47,16 @@ export function Seo({
       <link rel="canonical" href={url} />
       {noindex && <meta name="robots" content="noindex,nofollow" />}
 
-      <meta property="og:title" content={title} />
-      <meta property="og:description" content={description} />
+      <meta property="og:title" content={ogT} />
+      <meta property="og:description" content={ogD} />
       <meta property="og:url" content={url} />
       <meta property="og:type" content={type} />
       <meta property="og:image" content={image} />
       <meta property="og:locale" content={lang === "zh" ? "zh_CN" : "en_US"} />
 
       <meta name="twitter:card" content="summary_large_image" />
-      <meta name="twitter:title" content={title} />
-      <meta name="twitter:description" content={description} />
+      <meta name="twitter:title" content={ogT} />
+      <meta name="twitter:description" content={ogD} />
       <meta name="twitter:image" content={image} />
 
       <link rel="alternate" hrefLang="zh" href={url} />
