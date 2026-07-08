@@ -65,6 +65,8 @@ const SectionPage = () => {
         title={seo.title}
         description={seo.description}
         path={`/s/${def.id}`}
+        ogTitle={seo.ogTitle}
+        ogDescription={seo.ogDescription}
       />
       <Navbar />
       <ScrollUtilities />
