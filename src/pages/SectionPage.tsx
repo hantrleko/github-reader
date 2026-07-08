@@ -9,6 +9,7 @@ import SectionErrorBoundary from "@/components/SectionErrorBoundary";
 import SectionHeader from "@/components/common/SectionHeader";
 import SiteFooter from "@/components/SiteFooter";
 import { SECTION_MAP, SECTIONS } from "@/lib/sections";
+import { sectionSeo } from "@/lib/seoCopy";
 
 const SectionFallback = () => (
   <div className="py-20 px-6">
@@ -53,6 +54,7 @@ const SectionPage = () => {
   if (!def) return <Navigate to="/" replace />;
 
   const { Component } = def;
+  const seo = sectionSeo(def);
   const idx = SECTIONS.findIndex((s) => s.id === def.id);
   const prev = idx > 0 ? SECTIONS[idx - 1] : null;
   const next = idx < SECTIONS.length - 1 ? SECTIONS[idx + 1] : null;
@@ -60,9 +62,11 @@ const SectionPage = () => {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <Seo
-        title={`${def.label.split(" · ")[0]} — EF Lab`}
-        description={def.subtitle ?? def.label}
+        title={seo.title}
+        description={seo.description}
         path={`/s/${def.id}`}
+        ogTitle={seo.ogTitle}
+        ogDescription={seo.ogDescription}
       />
       <Navbar />
       <ScrollUtilities />
