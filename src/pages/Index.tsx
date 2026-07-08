@@ -17,6 +17,7 @@ import SiteFooter from "@/components/SiteFooter";
 import SectionHeader from "@/components/common/SectionHeader";
 import Reveal from "@/components/common/Reveal";
 import { SECTIONS, type SectionDef } from "@/lib/sections";
+import { HOME_SEO } from "@/lib/seoCopy";
 
 const editorialPillars = [
   {
@@ -151,9 +152,11 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       <Seo
-        title="EF Lab — 量化金融与计量经济学实验室"
-        description="面向经济金融实证研究的交互式实验室，整合资产定价、衍生品、风险管理、固定收益、计量经济学、Notebook 与论文索引。"
+        title={HOME_SEO.title}
+        description={HOME_SEO.description}
         path="/"
+        ogTitle={HOME_SEO.ogTitle}
+        ogDescription={HOME_SEO.ogDescription}
         jsonLd={{
           "@context": "https://schema.org",
           "@type": "WebSite",
