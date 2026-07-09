@@ -37,7 +37,7 @@ export interface ToolEntry {
   related?: string[];
   /** true once unit tests vs a closed-form benchmark exist in src/lib/quant */
   verified?: boolean;
-  version: "V1.0" | "V2.0" | "V2.1" | "V2.2" | "V2.3" | "V2.4" | "V2.5" | "V2.6" | "V2.7" | "V2.8" | "V3.0" | "V3.1" | "V3.2" | "V3.3" | "V3.4" | "V3.5";
+  version: "V1.0" | "V2.0" | "V2.1" | "V2.2" | "V2.3" | "V2.4" | "V2.5" | "V2.6" | "V2.7" | "V2.8" | "V3.0" | "V3.1" | "V3.2" | "V3.3" | "V3.4" | "V3.5" | "V3.6";
 }
 
 export const CATEGORY_LABEL: Record<ToolCategory, { zh: string; en: string }> = {
@@ -643,6 +643,63 @@ export const TOOLS_CATALOG: ToolEntry[] = [
     refs: ["Fama & French (1993)", "Fama & French (2015)"],
     blurb: "三/五因子 OLS 回归 + α 显著性 + 载荷归因。",
     related: ["capm", "apt", "ols"], version: "V3.1",
+  },
+  // ── V3.6: Asset Pricing expansion ──
+  {
+    id: "zerobeta", name: "Zero-Beta CAPM", nameEn: "Black (1972) Zero-Beta CAPM",
+    category: "asset-pricing", difficulty: "advanced", anchor: "/#asset-pricing",
+    tags: ["零β组合", "无无风险资产", "平坦 SML"],
+    refs: ["Black (1972)", "Black-Jensen-Scholes (1972)"],
+    blurb: "放松无风险资产假设，用零β组合收益替代 Rf，解释更平坦的 SML。",
+    related: ["capm", "icapm"], verified: true, version: "V3.6",
+  },
+  {
+    id: "icapm", name: "ICAPM 跨期", nameEn: "Merton (1973) Intertemporal CAPM",
+    category: "asset-pricing", difficulty: "research", anchor: "/#asset-pricing",
+    tags: ["多期", "状态变量", "对冲需求"],
+    refs: ["Merton (1973)"],
+    blurb: "多期设定引入状态变量对冲因子，为多因子模型提供理论根基。",
+    related: ["capm", "famafrench", "sdf"], version: "V3.6",
+  },
+  {
+    id: "anomaly", name: "异象排序组合", nameEn: "Anomaly Quantile-Sort Long-Short",
+    category: "asset-pricing", difficulty: "research", anchor: "/#asset-pricing",
+    tags: ["规模", "价值", "动量", "低波动", "多空"],
+    refs: ["Banz (1981)", "Jegadeesh-Titman (1993)", "Ang et al. (2006)"],
+    blurb: "按特征分位排序构建多空组合，复现 SMB/HML/UMD 的因子构建逻辑。",
+    related: ["famafrench", "grs"], verified: true, version: "V3.6",
+  },
+  {
+    id: "grs", name: "GRS 联合检验", nameEn: "Gibbons-Ross-Shanken Joint α Test",
+    category: "asset-pricing", difficulty: "research", anchor: "/#asset-pricing",
+    tags: ["联合检验", "定价误差", "F 统计量"],
+    refs: ["Gibbons, Ross & Shanken (1989)"],
+    blurb: "联合检验一组测试组合的 α 是否全为零，判断因子模型是否被拒绝。",
+    related: ["famafrench", "anomaly", "ols"], verified: true, version: "V3.6",
+  },
+  {
+    id: "sdf", name: "随机折现因子 SDF", nameEn: "Stochastic Discount Factor p=E[MX]",
+    category: "asset-pricing", difficulty: "research", anchor: "/#asset-pricing",
+    tags: ["定价核", "beta 表示", "统一框架"],
+    refs: ["Cochrane (2005)", "Hansen-Richard (1987)"],
+    blurb: "统一定价框架 p=E[MX]；CAPM、CCAPM 均为线性/消费 SDF 的特例。",
+    related: ["ccapm", "hj", "capm"], verified: true, version: "V3.6",
+  },
+  {
+    id: "ccapm", name: "CCAPM + 股权溢价之谜", nameEn: "Consumption CAPM & Equity Premium Puzzle",
+    category: "asset-pricing", difficulty: "research", anchor: "/#asset-pricing",
+    tags: ["幂效用", "消费增长", "股权溢价之谜"],
+    refs: ["Breeden (1979)", "Lucas (1978)", "Mehra-Prescott (1985)"],
+    blurb: "幂效用消费 SDF；演示需要极大风险厌恶才能匹配历史股权溢价。",
+    related: ["sdf", "hj"], verified: true, version: "V3.6",
+  },
+  {
+    id: "hj", name: "Hansen-Jagannathan 边界", nameEn: "Hansen-Jagannathan SDF Bound",
+    category: "asset-pricing", difficulty: "research", anchor: "/#asset-pricing",
+    tags: ["SDF 波动率下界", "Sharpe", "诊断"],
+    refs: ["Hansen & Jagannathan (1991)"],
+    blurb: "σ(M)/E(M) ≥ 最大 Sharpe；给合法定价核设定波动率下界。",
+    related: ["sdf", "ccapm"], verified: true, version: "V3.6",
   },
   // ── V3.1: Macro classics ──
   {

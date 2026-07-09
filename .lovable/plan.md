@@ -1,55 +1,55 @@
-# 继续升级方案（四方向合并 · 分阶段）
+# 资产定价模块内容拓展方案
 
-在锁定风格（Emerald Prestige 配色、Libre Baskerville × IBM Plex 字体、编辑部式排版）内，把你勾选的四个方向合并为四个阶段推进。全程仅动前端/展示层，尊重 `prefers-reduced-motion`，颜色继续用语义 token，不硬编码。
+将「资产定价」板块从 4 个工具扩展到 11 个，覆盖你选中的全部四个方向，全部采用「完整」深度（LaTeX 公式 + 推导步骤 + 预设场景 + 交互图表 + 结论解读），与现有工具风格完全一致。工具变多后，把顶部平铺按钮升级为**两级分类导航**（复用 `CategorizedToolNav`，与计量/衍生品板块一致）。
 
----
+纯前端与数学模拟工作，不涉及数据库或后端。新工具沿用现有 `V31AssetTools.tsx` 的组件基元（`Slider` / `Stat` / `Note` / `ChartCard` / `PresetButtons` / `mulberry32` 随机数）与 `@/lib/quant/ols`。
 
-## 阶段 1 · 无障碍可达性（延续之前工作）
+## 分类结构（两级导航）
 
-延续键盘/屏幕阅读器改造，把之前只覆盖到 Navbar 的能力扩展到卡片与动态内容：
+```text
+均衡定价 (Equilibrium)      因子与实证 (Factors & Empirics)
+  · CAPM / SML                 · APT 多因子
+  · Zero-Beta / Black CAPM     · Fama-French 3/5
+  · ICAPM 跨期                  · Fama-MacBeth 两步法
+                               · 异象排序组合
+现代框架 (Modern / SDF)        · GRS 联合检验
+  · 随机折现因子 SDF
+  · CCAPM + 股权溢价之谜
+  · Hansen-Jagannathan 边界
+```
 
-- **修复嵌套交互 bug**：`FeaturedNotebooks.tsx` 中 `@handle` 是放在 `<Link>` 内部、用 `<span onClick>` + `window.location.href` 触发跳转的非语义交互元素（键盘不可达、interactive-in-interactive）。改为把作者句柄移出主链接、用真正的 `<Link to={/u/handle}>`，避免链接嵌套并恢复键盘可达。
-- **卡片链接可达性**：为 `TopicCards` / `HeroToolStrip` / `SectionDirectory` / `FeaturedNotebooks` 的卡片链接补充清晰的 `aria-label`（含板块名/主题名），让屏幕阅读器逐条播报不再只念图标或“Explore”。
-- **首页地标与标题层级**：检查 `Index.tsx` 各 section 的标题层级是否从 h2 连续（不跳级），必要时为无标题的 section 补 `aria-labelledby` 或 `aria-label`。
-- **动态区域**：`FeaturedNotebooks` 加载态用 `aria-busy` / `aria-live="polite"`，让加载完成对屏幕阅读器可感知。
+## 方向一：现代 SDF 统一框架（3 个新工具）
 
-## 阶段 2 · 首页视觉与动效精修（按 `.lovable/plan.md` 收尾，动效强度 3）
+1. **随机折现因子 SDF** — `p = E[MX]`，以 `M = a − b·R_m` 参数化定价核；输入若干资产的收益/协方差，输出定价、隐含风险溢价 `−cov(M,R)/E[M]`、无风险利率 `1/E[M]`。图表展示定价核 M 随市场收益变化，并演示 CAPM / CCAPM 都是 SDF 的特例。
+2. **CCAPM + 股权溢价之谜** — 幂效用 `M = δ(C_{t+1}/C_t)^{−γ}`；滑动风险厌恶 γ 与消费增长波动，输出模型隐含股权溢价与无风险利率，对比历史 ERP≈6%，直观呈现需要 γ≈50 才能匹配的「谜题」。
+3. **Hansen-Jagannathan 边界** — 绘制 `σ(M)/E[M] ≥ max Sharpe` 的下界；用户拖动市场 Sharpe / 资产集，看合法定价核所需最小波动，叠加 CCAPM 校准点是否落在边界内。
 
-对照已存在的 `.lovable/plan.md`，把尚未完全统一的卡片视觉与节奏收敛：
+## 方向二：CAPM 家族扩展（2 个新工具）
 
-- **统一卡片语言**：`EditorialBriefing` / `TopicCards` / `SectionDirectory` / `FeaturedNotebooks` / `HeroToolStrip` 的圆角、内边距、边框与 hover 态（轻微上浮 + 金色边框渐显 + 柔和阴影）统一到同一规范，消除当前深浅/圆角不一。
-- **纵向节奏**：收敛各 section 的 `py-*` 间距，让首页从 Hero 到 Footer 呼吸均匀。
-- **进场动效补齐**：`EditorialBriefing`、`TodaysPick`、`ModelShowcase` 等仍缺进场动效的区块统一走 `Reveal` 组件（已存在），交错淡入；`HeroToolStrip` hover 顶部金色指示线保留并统一时序。
-- 全部动效在减少动态偏好开启时静态显示。
+4. **Zero-Beta / Black CAPM** — 放松无风险资产假设，用零 β 组合收益 `E(R_z)` 替代 `R_f`；双 SML 对比图，展示实证中「更平坦的 SML」如何被零 β CAPM 解释。
+5. **ICAPM 跨期** — Merton 多期设定，加入一个状态变量（投资机会集）风险因子；展示两因子定价线与对冲需求，说明多因子模型的理论来源。
 
-## 阶段 3 · 内容与文案扩充
+## 方向三：实证异象与因子检验（2 个新工具）
 
-在不改数据结构的前提下润色/补充展示文案：
+6. **异象多空组合排序** — 模拟横截面股票池，按规模/价值/动量/低波动排序做 2×3 或十分位分组，构建多空组合，输出各分位平均收益、多空价差与 t 值（复现 SMB/HML/UMD 的构建逻辑）。
+7. **GRS 联合检验** — 对一组测试组合回归因子模型，计算 Gibbons-Ross-Shanken F 统计量联合检验所有 α=0，输出 F 值、p 值与结论（因子模型是否被拒绝），配 α 散点图。
 
-- **首页文案**：精修 `EditorialBriefing`、`TopicCards`、各 `SectionHeader` 的副标题，使中英文表述更一致、专业、可读。
-- **板块目录说明**：为 `SECTIONS`（`src/lib/sections.ts`）中缺 `subtitle` 的板块补一句到位的中文导语，让目录卡片信息更完整。
-- 保持既有的 LaTeX/公式讲解与教育内容风格一致（记忆中的知识库要求）。
+## 方向四：深化现有 4 个工具
 
-## 阶段 4 · 新增功能板块（首页）
+- **CAPM**：增加**滚动 β 估计**演示（时变 β 的估计不确定性）与 β 的置信区间。
+- **Fama-French / Fama-MacBeth**：为估计系数补上 95% 置信区间条形图；新增更多预设场景（弱因子、多重共线）。
+- **APT**：增加因子数从 3 扩到最多 5 的可配置暴露，并显示无套利残差。
+- 统一为所有工具补充 `EquationBlock` LaTeX 公式头与推导 `Note`（部分现有工具仅有纯文本公式）。
 
-新增一个契合定位的首页展示板块（二选一，实施时确认）：
+## 技术实现
 
-- 方案 A · **“研究工作流速览”**：从现有 `src/data/workflows.ts` 读取，做一个横向卡片带，展示 3–4 条推荐工作流并链接到 `/workflows`。
-- 方案 B · **“术语速查入口”**：从 `src/data/glossary.ts` 抽取高频术语，做一个紧凑的 chips 网格并链接到 `/glossary`。
+- 新建 `src/components/asset/SDFTools.tsx`（SDF / CCAPM / HJ）、`src/components/asset/CapmFamilyTools.tsx`（Zero-Beta / ICAPM）、`src/components/asset/AnomalyTools.tsx`（异象排序 / GRS）；深化改动落在现有 `V31AssetTools.tsx`。
+- 所需数学（GRS F 统计、幂效用矩、HJ 边界、多空分组）作为纯函数放入 `src/lib/quant/assetPricing.ts` 并加 `__tests__` 单测（沿用现有 vitest 约定）。
+- 改造 `src/components/AssetPricingTools.tsx`：`TOOLS` 数组扩到 11 项并加 `category` 字段，用 `CategorizedToolNav` 渲染两级导航；保留 `ShareExportToolbar` / `useSharedState` 分享与状态同步。
+- 更新 `src/data/toolsCatalog.ts` 补 7 条新工具卡片；`src/data/topicsData.ts` 里把已有理论知识点通过 `tool` 字段链接到对应新工具（SDF / CCAPM / HJ / 异象等目前无链接）。
+- 版本号：升到 **V3.6**，同步更新 `HeroSection.tsx`、`i18n` 语言包、`Changelog.tsx` 与 `CHANGELOG.md`（条目：资产定价深化——SDF 统一框架 / CAPM 家族 / 实证异象）。
+- 校验：`tsgo` 类型检查 + vitest 跑新单测；Playwright 截图核对新分类导航与各工具图表渲染。
 
-新板块沿用阶段 2 的统一卡片规范与 `Reveal` 进场动效。
+## 范围说明
 
----
-
-## 技术要点与范围
-
-- 涉及文件（展示层）：`src/pages/Index.tsx`、`src/components/HeroSection.tsx`、`HeroToolStrip.tsx`、`TopicCards.tsx`、`FeaturedNotebooks.tsx`、`common/SectionHeader.tsx`、`common/Reveal.tsx`、`src/lib/sections.ts`，以及阶段 4 新增的板块组件。
-- 不触碰业务逻辑、数据获取契约、路由与后端；不改 `supabase/client.ts` 等自动生成文件。
-- 完成后用 Playwright 截图核对首页各区块视觉与进场表现，并做一次 Tab 键盘走查验证可达性。
-
-## 建议确认项
-
-1. 阶段 4 想要哪个新板块（工作流速览 / 术语速查 / 两者都要）？
-2. 是否希望我按 1→2→3→4 顺序一次性全部实现，还是先做其中某一两个阶段？
-
-（未确认时我将默认：四阶段全做，阶段 4 采用“研究工作流速览”。）
+全部为模拟/理论交互工具（与现有 CAPM/FF/FM 一致，用可控 DGP 演示原理），不接入实时行情，保证数值可复现、教学结论清晰。
