@@ -3,15 +3,32 @@ import { motion } from "framer-motion";
 import "katex/dist/katex.min.css";
 import { ShareExportToolbar, useSharedState } from "@/lib/calculatorTools";
 import { EquationBlock } from "@/components/common/EquationBlock";
+import CategorizedToolNav, { type ToolCategory } from "@/components/common/CategorizedToolNav";
 import { CAPMTool, APTTool, FamaFrenchTool, FamaMacBethTool } from "./asset/V31AssetTools";
+import { SDFTool, CCAPMTool, HJBoundTool } from "./asset/SDFTools";
+import { ZeroBetaTool, ICAPMTool } from "./asset/CapmFamilyTools";
+import { AnomalySortTool, GRSTool } from "./asset/AnomalyTools";
 
-type ToolId = "capm" | "apt" | "famafrench" | "famamacbeth";
+type ToolId =
+  | "capm" | "zerobeta" | "icapm"
+  | "apt" | "famafrench" | "famamacbeth" | "anomaly" | "grs"
+  | "sdf" | "ccapm" | "hj";
 
 const TOOLS: { id: ToolId; name: string; nameEn: string; formula: string; component: React.FC }[] = [
   {
     id: "capm", name: "CAPM / SML", nameEn: "Capital Asset Pricing Model — Security Market Line & Jensen's Alpha",
     formula: String.raw`E(R_i) = R_f + \beta_i\,[E(R_m) - R_f],\qquad \alpha_i = R_i - [R_f + \beta_i(E(R_m)-R_f)]`,
     component: CAPMTool,
+  },
+  {
+    id: "zerobeta", name: "Zero-Beta CAPM", nameEn: "Black (1972) Zero-Beta CAPM — No Risk-Free Asset",
+    formula: String.raw`E(R_i) = E(R_z) + \beta_i\,[E(R_m) - E(R_z)],\qquad \mathrm{cov}(R_z, R_m) = 0`,
+    component: ZeroBetaTool,
+  },
+  {
+    id: "icapm", name: "ICAPM 跨期", nameEn: "Merton (1973) Intertemporal CAPM — State-Variable Hedging",
+    formula: String.raw`E(R_i) - R_f = \beta_{i,m}\,\lambda_m + \sum_{h}\beta_{i,h}\,\lambda_h`,
+    component: ICAPMTool,
   },
   {
     id: "apt", name: "APT 多因子", nameEn: "Arbitrage Pricing Theory — Multi-Factor Linear Pricing",
@@ -28,6 +45,37 @@ const TOOLS: { id: ToolId; name: string; nameEn: string; formula: string; compon
     formula: String.raw`\text{Pass 1: } R_{it}-R_f=\alpha_i+\beta_i F_t+\varepsilon_{it};\quad \text{Pass 2: } R_{it}=\gamma_0+\lambda_t\beta_i+u_{it},\ \hat\lambda=\tfrac1T\textstyle\sum_t\lambda_t`,
     component: FamaMacBethTool,
   },
+  {
+    id: "anomaly", name: "异象排序组合", nameEn: "Anomaly Quantile-Sort Long-Short Portfolio — Size / Value / Momentum / Low-Vol",
+    formula: String.raw`R_{LS} = \bar R_{Q_{\text{high}}} - \bar R_{Q_{\text{low}}},\qquad t = \dfrac{\bar R_{LS}}{\sigma(R_{LS})/\sqrt{T}}`,
+    component: AnomalySortTool,
+  },
+  {
+    id: "grs", name: "GRS 联合检验", nameEn: "Gibbons-Ross-Shanken (1989) Joint α = 0 Test",
+    formula: String.raw`\mathrm{GRS} = \dfrac{T}{N}\cdot\dfrac{T-N-K}{T-K-1}\cdot\dfrac{\alpha'\Sigma^{-1}\alpha}{1+\mu_f'\Omega^{-1}\mu_f}\ \sim\ F(N,\,T-N-K)`,
+    component: GRSTool,
+  },
+  {
+    id: "sdf", name: "随机折现因子 SDF", nameEn: "Stochastic Discount Factor — p = E[M X], Beta Representation",
+    formula: String.raw`p = E[M\,X],\qquad E(R_i) - R_f = -\,(1+R_f)\,\mathrm{cov}(M, R_i),\qquad M = a - b\,R_m`,
+    component: SDFTool,
+  },
+  {
+    id: "ccapm", name: "CCAPM + 股权溢价之谜", nameEn: "Consumption CAPM & the Equity Premium Puzzle",
+    formula: String.raw`M = \delta\left(\tfrac{C_{t+1}}{C_t}\right)^{-\gamma},\qquad R_f = -\ln\delta + \gamma\mu_c - \tfrac12\gamma^2\sigma_c^2,\qquad \text{ERP} \approx \gamma\,\rho\,\sigma_c\,\sigma_m`,
+    component: CCAPMTool,
+  },
+  {
+    id: "hj", name: "Hansen-Jagannathan 边界", nameEn: "Hansen-Jagannathan Volatility Bound on the SDF",
+    formula: String.raw`\dfrac{\sigma(M)}{E(M)} \ \geq\ \dfrac{|E(R^e)|}{\sigma(R^e)} = \max\text{ Sharpe},\qquad E(M) = \dfrac{1}{1+R_f}`,
+    component: HJBoundTool,
+  },
+];
+
+const CATEGORIES: ToolCategory[] = [
+  { id: "equilibrium", label: "均衡定价", toolIds: ["capm", "zerobeta", "icapm"] },
+  { id: "factors", label: "因子与实证", toolIds: ["apt", "famafrench", "famamacbeth", "anomaly", "grs"] },
+  { id: "sdf", label: "现代框架 · SDF", toolIds: ["sdf", "ccapm", "hj"] },
 ];
 
 const AssetPricingTools = () => {
@@ -45,20 +93,16 @@ const AssetPricingTools = () => {
           <p className="text-xs font-mono uppercase tracking-[0.3em] text-gold mb-3">Asset Pricing</p>
           <h2 className="text-3xl md:text-5xl font-display font-bold text-foreground">资产定价</h2>
           <p className="text-sm text-muted-foreground mt-3 max-w-2xl mx-auto">
-            CAPM 证券市场线 · APT 多因子 · Fama-French 三/五因子归因 — 从单因子均衡到多因子横截面
+            11 个交互工具，覆盖均衡定价 (CAPM · 零β · ICAPM)、因子与实证 (APT · Fama-French · Fama-MacBeth · 异象排序 · GRS) 与现代 SDF 框架 (随机折现因子 · CCAPM 股权溢价之谜 · Hansen-Jagannathan 边界)。
           </p>
         </motion.div>
 
-        <div className="flex flex-wrap justify-center gap-2 mb-8">
-          {TOOLS.map(t => (
-            <button key={t.id} onClick={() => setTool(t.id)}
-              className={`px-5 py-2.5 rounded-lg text-sm font-mono transition-all duration-300 ${
-                tool === t.id ? "bg-primary text-primary-foreground shadow-lg" : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
-              }`}>
-              {t.name}
-            </button>
-          ))}
-        </div>
+        <CategorizedToolNav
+          tools={TOOLS.map(t => ({ id: t.id, name: t.name, nameEn: t.nameEn }))}
+          categories={CATEGORIES}
+          activeId={tool}
+          onSelect={(id) => setTool(id as ToolId)}
+        />
 
         <motion.div key={tool} ref={captureRef} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35 }}
           className="rounded-2xl border border-border bg-card p-6 md:p-10 glow-gold">

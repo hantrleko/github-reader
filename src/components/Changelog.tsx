@@ -4,9 +4,35 @@ import { useTranslation } from "react-i18next";
 
 const RELEASES = [
   {
-    version: "V3.5",
+    version: "V3.6",
     date: "2026-07",
     tag: "Current",
+    highlights: [
+      {
+        icon: Sparkles,
+        title: "资产定价模块深化 — /s/asset-pricing",
+        items: [
+          "从 4 个工具扩展到 11 个,升级为两级分类导航 (均衡定价 / 因子与实证 / 现代 SDF 框架)",
+          "现代 SDF 统一框架:随机折现因子 p=E[MX] (定价核 + beta 表示)、CCAPM + 股权溢价之谜 (幂效用,演示需 γ≈50)、Hansen-Jagannathan 波动率下界",
+          "CAPM 家族:零β/Black CAPM (无无风险资产,平坦 SML)、Merton 跨期 ICAPM (状态变量对冲需求)",
+          "实证异象与因子检验:规模/价值/动量/低波动分位排序多空组合、GRS (1989) 联合 α=0 检验 (F 统计量 + p 值)",
+        ],
+      },
+      {
+        icon: BookOpen,
+        title: "现有工具深化与工程",
+        items: [
+          "CAPM 新增滚动 β 估计演示 (时变 β 与估计不确定性)",
+          "新增纯函数库 src/lib/quant/assetPricing.ts (SDF/CCAPM/HJ/异象排序/GRS/滚动β) 并配 11 项通过的单元测试",
+          "工具目录 (/tools) 补 7 条新卡片;知识库理论知识点链接到对应交互工具",
+        ],
+      },
+    ],
+  },
+  {
+    version: "V3.5",
+    date: "2026-07",
+    tag: "Stable",
     highlights: [
       {
         icon: Activity,

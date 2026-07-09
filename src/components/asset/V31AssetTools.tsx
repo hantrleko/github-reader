@@ -5,6 +5,7 @@ import {
 } from "recharts";
 import PresetButtons from "../PresetButtons";
 import { ols } from "@/lib/quant/ols";
+import { rollingBeta } from "@/lib/quant/assetPricing";
 
 const CHART_GOLD = "hsl(43, 80%, 55%)";
 const CHART_TEAL = "hsl(180, 50%, 40%)";
@@ -87,6 +88,27 @@ export const CAPMTool = () => {
     return out;
   }, [rf, r]);
 
+  // Time-varying β demo: simulate returns whose true β drifts, then estimate
+  // rolling-window β to show estimation uncertainty around the input β.
+  const rolling = useMemo(() => {
+    const rng = mulberry32(7);
+    const T = 180;
+    const window = 36;
+    const mkt: number[] = [];
+    const asset: number[] = [];
+    for (let t = 0; t < T; t++) {
+      const trueBeta = beta * (0.7 + 0.6 * (t / T)); // drift 0.7β → 1.3β
+      const m = randn(rng) * 4.5;
+      mkt.push(m);
+      asset.push(trueBeta * m + randn(rng) * 3);
+    }
+    return rollingBeta(asset, mkt, window).map((p) => ({
+      t: p.t,
+      beta: +p.beta.toFixed(3),
+      input: +beta.toFixed(3),
+    }));
+  }, [beta]);
+
   return (
     <div className="space-y-6">
       <PresetButtons presets={[
@@ -128,6 +150,20 @@ export const CAPMTool = () => {
             <ReferenceDot x={beta} y={r.required} r={4} fill={CHART_TEAL} stroke="none" />
             <ReferenceDot x={beta} y={actual} r={5} fill={r.alpha >= 0 ? CHART_TEAL : CHART_RED} stroke="hsl(var(--background))" strokeWidth={1} />
           </ComposedChart>
+        </ResponsiveContainer>
+      </ChartCard>
+
+      <ChartCard title="滚动 β 估计 (36 期窗口)" hint="真实 β 在样本内从 0.7β 漂移到 1.3β。滚动窗口回归的 β̂ 围绕真实值波动——说明 β 并非常数、估计存在不确定性，静态 CAPM 需谨慎解读。">
+        <ResponsiveContainer width="100%" height="100%">
+          <LineChart data={rolling}>
+            <CartesianGrid stroke={CHART_GRID} strokeDasharray="3 3" />
+            <XAxis dataKey="t" stroke={CHART_TEXT} tick={{ fontSize: 10 }} />
+            <YAxis stroke={CHART_TEXT} tick={{ fontSize: 10 }} />
+            <Tooltip contentStyle={{ background: "hsl(var(--card))", border: `1px solid ${CHART_GRID}`, fontSize: 11 }} />
+            <Legend wrapperStyle={{ fontSize: 11 }} />
+            <Line type="monotone" dataKey="beta" name="滚动 β̂" stroke={CHART_GOLD} strokeWidth={1.8} dot={false} />
+            <Line type="monotone" dataKey="input" name="输入 β" stroke={CHART_BLUE} strokeWidth={1.2} strokeDasharray="4 3" dot={false} />
+          </LineChart>
         </ResponsiveContainer>
       </ChartCard>
     </div>

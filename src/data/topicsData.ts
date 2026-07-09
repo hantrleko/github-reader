@@ -146,6 +146,7 @@ export const topicsData: TopicData[] = [
         formula: "E(Rᵢ) = E(Rz) + βᵢ [E(Rₘ) − E(Rz)]",
         formulaExplain:
           "E(Rz) 为零 Beta 组合收益，一般 E(Rz) > Rᶠ，这解释了为什么实证中 SML 截距偏高。",
+        tool: { id: "asset-pricing", label: "Zero-Beta CAPM 交互工具" },
       },
       {
         title: "跨期 CAPM (ICAPM)",
@@ -154,6 +155,7 @@ export const topicsData: TopicData[] = [
         formula: "E(Rᵢ) − Rᶠ = βᵢₘλₘ + Σⱼ βᵢⱼλⱼ",
         formulaExplain:
           "βᵢⱼ 为资产对状态变量 j 的暴露，λⱼ 为对冲需求产生的风险溢价。状态变量可以是利率、波动率、消费增长率等。",
+        tool: { id: "asset-pricing", label: "ICAPM 跨期定价工具" },
       },
       {
         title: "消费 CAPM (CCAPM)",
@@ -169,6 +171,7 @@ export const topicsData: TopicData[] = [
           "4. 对数线性化，假设联合正态分布",
           "5. 得到 E(Rᵢ) − Rᶠ ≈ γ · Cov(Rᵢ, Δc)",
         ],
+        tool: { id: "asset-pricing", label: "CCAPM + 股权溢价之谜工具" },
       },
       // ===== 第五部分：APT 与因子模型 =====
       {
@@ -185,6 +188,7 @@ export const topicsData: TopicData[] = [
           "4. 因此 a 必须是 β 的线性函数：aᵢ = Rᶠ + Σ βᵢⱼλⱼ",
           "5. 即 E(Rᵢ) − Rᶠ = Σ βᵢⱼλⱼ（精确对大量资产近似成立）",
         ],
+        tool: { id: "asset-pricing", label: "APT 多因子工具" },
       },
       {
         title: "Fama-French 三因子模型",
@@ -234,6 +238,7 @@ export const topicsData: TopicData[] = [
           "5. 代入得：E(Rᵢ) − Rᶠ = −Rᶠ · Cov(M, Rᵢ)",
           "6. CAPM 对应 M = a − b·Rₘ；CCAPM 对应 M = δ·U'(Cₜ₊₁)/U'(Cₜ)",
         ],
+        tool: { id: "asset-pricing", label: "随机折现因子 SDF 工具" },
       },
       {
         title: "Hansen-Jagannathan 界",
@@ -242,6 +247,7 @@ export const topicsData: TopicData[] = [
         formula: "σ(M)/E(M) ≥ |E(Rᵢ) − Rᶠ| / σ(Rᵢ) = |SRᵢ|",
         formulaExplain:
           "SDF 的变异系数（σ(M)/E(M)）必须至少等于所有资产中最大的 Sharpe Ratio。",
+        tool: { id: "asset-pricing", label: "Hansen-Jagannathan 边界工具" },
       },
       // ===== 第七部分：异象与行为金融 =====
       {
@@ -251,6 +257,7 @@ export const topicsData: TopicData[] = [
         formula: "E(Rₘ) − Rᶠ ≈ γ · σ²(Δc) ≈ 0.24%  ≪  6%（实际观测）",
         formulaExplain:
           "消费增长标准差约 2%，γ = 6 时理论溢价仅 0.24%，远低于 6% 的实际溢价。",
+        tool: { id: "asset-pricing", label: "股权溢价之谜工具" },
       },
       {
         title: "经典市场异象",
@@ -259,6 +266,7 @@ export const topicsData: TopicData[] = [
         formula: "αᵢ ≠ 0（相对于 CAPM 或多因子模型的定价误差）",
         formulaExplain:
           "异象 = 在控制已知风险因子后仍存在的显著超额收益。关键争论：风险补偿 vs. 行为偏差 vs. 数据挖掘。",
+        tool: { id: "asset-pricing", label: "异象排序组合工具" },
       },
       {
         title: "行为资产定价",
