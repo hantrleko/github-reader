@@ -69,8 +69,8 @@
       "knowledge": "知识点"
     },
     "latestUpdate": {
-      "label": "最新更新 · V3.6",
-      "description": "资产定价模块深化：从 4 个工具扩展到 11 个，覆盖 SDF 随机折现因子、CCAPM 股权溢价之谜、Hansen-Jagannathan 边界、零β CAPM、ICAPM、异象分位排序与 GRS 联合 α=0 检验。",
+      "label": "最新更新 · V3.7",
+      "description": "固定收益新增 Nelson-Siegel / Svensson 收益率曲线拟合器：OLS 求 β + λ 网格搜索，支持从 FRED 真实美国国债 CMT 一键拟合，导出即期与瞬时远期曲线，并把短端 r 发送到短率模型与债券工具，串起「真实利率→曲线拟合→短率→债券」闭环。",
       "cta": "查看更新日志"
     }
   },
