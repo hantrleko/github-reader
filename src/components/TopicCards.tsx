@@ -1,12 +1,24 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { motion, useReducedMotion } from "framer-motion";
 import { topicsData } from "@/data/topicsData";
 import { ArrowRight } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { getSeenCount, subscribeProgress } from "@/lib/topicProgress";
 
 const TopicCards = () => {
   const { t } = useTranslation();
   const reduce = useReducedMotion();
+  const [progress, setProgress] = useState<Record<string, number>>({});
+
+  useEffect(() => {
+    const refresh = () =>
+      setProgress(
+        Object.fromEntries(topicsData.map((tp) => [tp.id, getSeenCount(tp.id)]))
+      );
+    refresh();
+    return subscribeProgress(refresh);
+  }, []);
   return (
     <section className="py-20 px-6">
       <div className="container">
@@ -74,6 +86,21 @@ const TopicCards = () => {
                       Explore <ArrowRight className="w-3 h-3 transition-transform group-hover:translate-x-1" />
                     </span>
                   </div>
+                  {(progress[topic.id] ?? 0) > 0 && (
+                    <div className="mt-4" aria-label={`已阅读 ${progress[topic.id]} / ${topic.knowledgePoints.length} 个知识点`}>
+                      <div className="h-0.5 rounded-full bg-accent/40 overflow-hidden">
+                        <div
+                          className="h-full bg-gold/70 rounded-full transition-all duration-500"
+                          style={{
+                            width: `${Math.min(100, Math.round(((progress[topic.id] ?? 0) / topic.knowledgePoints.length) * 100))}%`,
+                          }}
+                        />
+                      </div>
+                      <p className="mt-1 text-[9px] font-mono text-muted-foreground">
+                        已阅读 {Math.min(progress[topic.id] ?? 0, topic.knowledgePoints.length)}/{topic.knowledgePoints.length}
+                      </p>
+                    </div>
+                  )}
                 </div>
               </Link>
             </motion.div>

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, useLocation, Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
   ArrowLeft,
@@ -11,8 +11,10 @@ import {
 import Navbar from "@/components/Navbar";
 import Seo from "@/components/Seo";
 import SiteFooter from "@/components/SiteFooter";
+import TopicRelated from "@/components/TopicRelated";
 import { topicsData } from "@/data/topicsData";
 import { sectionHref } from "@/lib/sections";
+import { markKpSeen, getSeenSet, subscribeProgress } from "@/lib/topicProgress";
 
 /** slugify a knowledge point title into a stable anchor id */
 const kpId = (i: number) => `kp-${i + 1}`;
@@ -25,8 +27,30 @@ const TopicDetail = () => {
   const next = idx >= 0 && idx < topicsData.length - 1 ? topicsData[idx + 1] : undefined;
 
   const [activeKp, setActiveKp] = useState(0);
+  const [seen, setSeen] = useState<Set<number>>(() => new Set());
+  const { hash } = useLocation();
 
-  // Scroll-spy: highlight the TOC entry of the knowledge point in view.
+  // Deep-link support: /topic/:id#kp-N (e.g. from global search).
+  useEffect(() => {
+    if (!topic || !hash) return;
+    const t = setTimeout(() => {
+      document
+        .getElementById(hash.slice(1))
+        ?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 250);
+    return () => clearTimeout(t);
+  }, [topic, hash]);
+
+  // Load + subscribe to reading progress for this topic.
+  useEffect(() => {
+    if (!topic) return;
+    const refresh = () => setSeen(getSeenSet(topic.id));
+    refresh();
+    return subscribeProgress(refresh);
+  }, [topic]);
+
+  // Scroll-spy: highlight the TOC entry of the knowledge point in view and
+  // mark it as read for the persistent progress tracker.
   useEffect(() => {
     if (!topic) return;
     const observer = new IntersectionObserver(
@@ -34,7 +58,10 @@ const TopicDetail = () => {
         for (const e of entries) {
           if (e.isIntersecting) {
             const n = Number(e.target.id.replace("kp-", "")) - 1;
-            if (!Number.isNaN(n)) setActiveKp(n);
+            if (!Number.isNaN(n)) {
+              setActiveKp(n);
+              markKpSeen(topic.id, n);
+            }
           }
         }
       },
@@ -149,9 +176,21 @@ const TopicDetail = () => {
           {/* TOC — sticky on desktop */}
           <aside className="hidden lg:block sticky top-24" aria-label="知识点目录">
             <div className="rounded-xl border border-border/60 bg-card/40 p-4">
-              <p className="flex items-center gap-1.5 text-[10px] font-mono uppercase tracking-[0.2em] text-gold mb-3">
+              <p className="flex items-center gap-1.5 text-[10px] font-mono uppercase tracking-[0.2em] text-gold mb-2">
                 <ListOrdered className="w-3.5 h-3.5" /> Contents
               </p>
+              {/* reading progress */}
+              <div className="mb-3">
+                <div className="h-1 rounded-full bg-secondary overflow-hidden">
+                  <div
+                    className="h-full bg-gold/70 rounded-full transition-all duration-500"
+                    style={{ width: `${Math.round((seen.size / topic.knowledgePoints.length) * 100)}%` }}
+                  />
+                </div>
+                <p className="mt-1.5 text-[10px] font-mono text-muted-foreground">
+                  已阅读 {seen.size} / {topic.knowledgePoints.length}
+                </p>
+              </div>
               <ol className="space-y-1 max-h-[65vh] overflow-y-auto pr-1">
                 {topic.knowledgePoints.map((kp, i) => (
                   <li key={i}>
@@ -170,7 +209,7 @@ const TopicDetail = () => {
                       }`}
                     >
                       <span className="font-mono text-[10px] mr-1.5 opacity-70">
-                        {String(i + 1).padStart(2, "0")}
+                        {seen.has(i) ? "✓" : String(i + 1).padStart(2, "0")}
                       </span>
                       {kp.title}
                     </a>
@@ -255,6 +294,9 @@ const TopicDetail = () => {
           </div>
         </div>
       </section>
+
+      {/* Knowledge network: related glossary / papers / workflows / strategies */}
+      <TopicRelated topicId={topic.id} />
 
       {/* Prev / Next topic navigation */}
       <section className="px-6 pb-16">
