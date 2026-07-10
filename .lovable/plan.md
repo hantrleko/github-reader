@@ -1,55 +1,45 @@
-# 资产定价模块内容拓展方案
+## V3.7 提升方案 · 四线并进（深广均衡）
 
-将「资产定价」板块从 4 个工具扩展到 11 个，覆盖你选中的全部四个方向，全部采用「完整」深度（LaTeX 公式 + 推导步骤 + 预设场景 + 交互图表 + 结论解读），与现有工具风格完全一致。工具变多后，把顶部平铺按钮升级为**两级分类导航**（复用 `CategorizedToolNav`，与计量/衍生品板块一致）。
+你选了全部四个方向、深广度居中(3/5)。下面是一份四条线各取一个高价值切口、彼此还能串成闭环的 V3.7 方案，不涉及破坏性后端改动。
 
-纯前端与数学模拟工作，不涉及数据库或后端。新工具沿用现有 `V31AssetTools.tsx` 的组件基元（`Slider` / `Stat` / `Note` / `ChartCard` / `PresetButtons` / `mulberry32` 随机数）与 `@/lib/quant/ols`。
+---
 
-## 分类结构（两级导航）
+### 线 1 · 新增模型/工具深度 —— 期限结构建模
 
-```text
-均衡定价 (Equilibrium)      因子与实证 (Factors & Empirics)
-  · CAPM / SML                 · APT 多因子
-  · Zero-Beta / Black CAPM     · Fama-French 3/5
-  · ICAPM 跨期                  · Fama-MacBeth 两步法
-                               · 异象排序组合
-现代框架 (Modern / SDF)        · GRS 联合检验
-  · 随机折现因子 SDF
-  · CCAPM + 股权溢价之谜
-  · Hansen-Jagannathan 边界
-```
+新增 **Nelson-Siegel / Svensson 收益率曲线拟合器**，补上目前固收板块缺失的"曲线建模"一环。
 
-## 方向一：现代 SDF 统一框架（3 个新工具）
+- 新纯函数库 `src/lib/quant/termStructure.ts`：NS/NSS 参数化(β0/β1/β2/λ)、对给定期限-收益率点做最小二乘拟合、导出瞬时远期曲线与拟合残差。配 `__tests__` 单测(用已知参数生成→回收)。
+- 新组件 `src/components/bond/NelsonSiegelTool.tsx`：滑杆调 β/λ 观察水平/斜率/曲率三因子对曲线形状的贡献；可粘贴或从 FRED 真实国债利率拟合；输出拟合优度与远期曲线图。
+- 挂到 `bond` 板块(或 `rate-model`)的两级导航中。
 
-1. **随机折现因子 SDF** — `p = E[MX]`，以 `M = a − b·R_m` 参数化定价核；输入若干资产的收益/协方差，输出定价、隐含风险溢价 `−cov(M,R)/E[M]`、无风险利率 `1/E[M]`。图表展示定价核 M 随市场收益变化，并演示 CAPM / CCAPM 都是 SDF 的特例。
-2. **CCAPM + 股权溢价之谜** — 幂效用 `M = δ(C_{t+1}/C_t)^{−γ}`；滑动风险厌恶 γ 与消费增长波动，输出模型隐含股权溢价与无风险利率，对比历史 ERP≈6%，直观呈现需要 γ≈50 才能匹配的「谜题」。
-3. **Hansen-Jagannathan 边界** — 绘制 `σ(M)/E[M] ≥ max Sharpe` 的下界；用户拖动市场 Sharpe / 资产集，看合法定价核所需最小波动，叠加 CCAPM 校准点是否落在边界内。
+### 线 2 · 跨工具工作流与联动 —— 打通"曲线→短率→债券"闭环
 
-## 方向二：CAPM 家族扩展（2 个新工具）
+- 让 NS 拟合出的曲线通过既有 **Tool Bus**「发送到…」把关键利率/短端 r 传给短率模型模拟与债券定价工具。
+- 新增一条 **Workflow 剧本**(`src/data/workflows.ts`)：`FRED 真实利率 → NS/Svensson 拟合 → 短率校准 → 债券久期/凸性定价`，与现有"数据→校准→定价→回测"剧本对齐。
 
-4. **Zero-Beta / Black CAPM** — 放松无风险资产假设，用零 β 组合收益 `E(R_z)` 替代 `R_f`；双 SML 对比图，展示实证中「更平坦的 SML」如何被零 β CAPM 解释。
-5. **ICAPM 跨期** — Merton 多期设定，加入一个状态变量（投资机会集）风险因子；展示两因子定价线与对冲需求，说明多因子模型的理论来源。
+### 线 3 · 数据源与真实数据 —— 让真实数据贯穿工具
 
-## 方向三：实证异象与因子检验（2 个新工具）
+- 复用已配置的 `FRED_API_KEY`，在 NS 工具内直接拉取多条国债期限利率(DGS1/2/5/10/30 等)一键填充拟合，而不仅停留在数据浏览器里看图。
+- 在 `RatesTermStructure` / `KeyRateDurationTool` 中也接受来自 Tool Bus 的真实曲线输入，形成"真实数据穿透多个工具"的体验。
 
-6. **异象多空组合排序** — 模拟横截面股票池，按规模/价值/动量/低波动排序做 2×3 或十分位分组，构建多空组合，输出各分位平均收益、多空价差与 t 值（复现 SMB/HML/UMD 的构建逻辑）。
-7. **GRS 联合检验** — 对一组测试组合回归因子模型，计算 Gibbons-Ross-Shanken F 统计量联合检验所有 α=0，输出 F 值、p 值与结论（因子模型是否被拒绝），配 α 散点图。
+### 线 4 · UX/性能/可发现性 —— 命令面板与目录补全
 
-## 方向四：深化现有 4 个工具
+- 把新工具与新剧本登记进 `src/data/toolsCatalog.ts`、`CommandPalette.tsx` 搜索索引与 `sections.ts`，确保 ⌘K 与 `/tools` 能发现。
+- 小幅性能项：确认新组件走 `lazy` 懒加载，图表复用 `ChartTheme`，避免首屏体积增长。
 
-- **CAPM**：增加**滚动 β 估计**演示（时变 β 的估计不确定性）与 β 的置信区间。
-- **Fama-French / Fama-MacBeth**：为估计系数补上 95% 置信区间条形图；新增更多预设场景（弱因子、多重共线）。
-- **APT**：增加因子数从 3 扩到最多 5 的可配置暴露，并显示无套利残差。
-- 统一为所有工具补充 `EquationBlock` LaTeX 公式头与推导 `Note`（部分现有工具仅有纯文本公式）。
+### 收尾 · 版本与日志
 
-## 技术实现
+- 全站版本号升到 **V3.7**(`HeroSection.tsx`、i18n `en.json`/`zh.json` 的 `hero.latestUpdate`、`buildVersion.ts`、`toolsCatalog.ts` 的 version 联合类型)。
+- 更新 `CHANGELOG.md` 与 `Changelog.tsx` 写入 V3.7 条目，V3.6 标记 Stable。
 
-- 新建 `src/components/asset/SDFTools.tsx`（SDF / CCAPM / HJ）、`src/components/asset/CapmFamilyTools.tsx`（Zero-Beta / ICAPM）、`src/components/asset/AnomalyTools.tsx`（异象排序 / GRS）；深化改动落在现有 `V31AssetTools.tsx`。
-- 所需数学（GRS F 统计、幂效用矩、HJ 边界、多空分组）作为纯函数放入 `src/lib/quant/assetPricing.ts` 并加 `__tests__` 单测（沿用现有 vitest 约定）。
-- 改造 `src/components/AssetPricingTools.tsx`：`TOOLS` 数组扩到 11 项并加 `category` 字段，用 `CategorizedToolNav` 渲染两级导航；保留 `ShareExportToolbar` / `useSharedState` 分享与状态同步。
-- 更新 `src/data/toolsCatalog.ts` 补 7 条新工具卡片；`src/data/topicsData.ts` 里把已有理论知识点通过 `tool` 字段链接到对应新工具（SDF / CCAPM / HJ / 异象等目前无链接）。
-- 版本号：升到 **V3.6**，同步更新 `HeroSection.tsx`、`i18n` 语言包、`Changelog.tsx` 与 `CHANGELOG.md`（条目：资产定价深化——SDF 统一框架 / CAPM 家族 / 实证异象）。
-- 校验：`tsgo` 类型检查 + vitest 跑新单测；Playwright 截图核对新分类导航与各工具图表渲染。
+---
 
-## 范围说明
+### 技术要点(可跳过)
 
-全部为模拟/理论交互工具（与现有 CAPM/FF/FM 一致，用可控 DGP 演示原理），不接入实时行情，保证数值可复现、教学结论清晰。
+- 纯前端 + 数学模拟，无数据库/RLS 改动；FRED 拉取走既有 `fred-series` edge function,不新增密钥。
+- NSS 拟合用现有 `src/lib/quant/ols.ts` 思路做线性化最小二乘(给定 λ 时 β 为线性),λ 用一维网格搜索,保持数值可复现。
+- 校验：`tsgo` 类型检查 + `vitest` 跑 `termStructure` 新单测 + Playwright 截图核对曲线渲染与两级导航。
+
+### 范围说明
+
+本轮聚焦"期限结构"这一主题作为四条线的公共载体——既补模型深度,又天然串起数据→拟合→校准→定价的联动闭环,同时带动目录/命令面板的可发现性。若你更想把某条线单独做重(例如线 1 一次补 3 个模型),告诉我我再调整配比。

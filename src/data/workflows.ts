@@ -54,6 +54,18 @@ export const WORKFLOWS: Workflow[] = [
     ],
   },
   {
+    id: "curve-to-bond",
+    title: "真实利率 → 曲线拟合 → 短率 → 债券",
+    titleEn: "Real Rates → Curve Fitting → Short Rate → Bond",
+    blurb: "从 FRED 真实国债收益率出发,用 Nelson-Siegel/Svensson 拟合期限结构,把短端 r 发送到短率模型校准动态,再进入债券工具做久期/凸性定价——一条从数据到定价的期限结构闭环。",
+    difficulty: "core",
+    steps: [
+      { toolId: "ns-curve", note: "拉取 FRED 美国国债 CMT,OLS+λ 网格拟合 NS/Svensson 曲线,导出即期与瞬时远期。", passes: ["r"] },
+      { toolId: "rate-model", note: "用拟合短端 r 作为 r₀,模拟 Vasicek/CIR/Hull-White 短率路径与零息曲线。", passes: ["r"] },
+      { toolId: "bond", note: "用得到的利率给债券定价,计算 YTM、久期、凸性与关键利率久期。" },
+    ],
+  },
+  {
     id: "portfolio-build",
     title: "组合构建",
     titleEn: "Portfolio Construction",

@@ -4,9 +4,34 @@ import { useTranslation } from "react-i18next";
 
 const RELEASES = [
   {
-    version: "V3.6",
+    version: "V3.7",
     date: "2026-07",
     tag: "Current",
+    highlights: [
+      {
+        icon: Sparkles,
+        title: "收益率曲线拟合器 — /s/bond · 曲线拟合器",
+        items: [
+          "新增 Nelson-Siegel (3 因子) 与 Svensson (4 因子) 期限结构拟合:给定衰减 λ 时对 β 线性,由 OLS 求解,λ 用一维/二维网格搜索取残差最小者",
+          "支持从 FRED 真实美国国债 CMT (1M–30Y) 一键拉取并拟合,内置正常/倒挂/驼峰示例与可编辑期限-收益率表",
+          "输出即期曲线、瞬时远期曲线 (闭式解)、拟合残差 (bp)、RMSE 与 R²,并把 3M 短端 r 经「发送到…」传给短率模型 (自动填入 r₀) 与债券工具",
+        ],
+      },
+      {
+        icon: BookOpen,
+        title: "跨工具闭环与工程",
+        items: [
+          "新增工作流剧本「真实利率 → 曲线拟合 → 短率 → 债券」,与命令面板/工具目录联动可发现",
+          "新增纯函数库 src/lib/quant/termStructure.ts (NS/NSS 载荷、拟合、即期/远期采样) 并配 7 项通过的单元测试",
+          "短率模型接入 Tool Bus 消费短端 r;marketData 新增 FRED 收益率曲线批量拉取 hook",
+        ],
+      },
+    ],
+  },
+  {
+    version: "V3.6",
+    date: "2026-07",
+    tag: "Stable",
     highlights: [
       {
         icon: Sparkles,
