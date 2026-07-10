@@ -24,6 +24,22 @@ const entries: Entry[] = [
   { path: "/changelog",  changefreq: "monthly", priority: "0.4" },
 ];
 
+// Topic knowledge pages (/topic/:id) — keep in sync with src/data/topicsData.ts
+const TOPIC_IDS = [
+  "asset-pricing",
+  "econometrics",
+  "time-series",
+  "portfolio",
+  "derivatives",
+  "risk-management",
+  "fixed-income",
+  "macroeconomics",
+  "behavioral-micro",
+];
+for (const id of TOPIC_IDS) {
+  entries.push({ path: `/topic/${id}`, changefreq: "monthly", priority: "0.75" });
+}
+
 const today = new Date().toISOString().slice(0, 10);
 
 const urls = entries
