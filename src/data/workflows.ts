@@ -89,6 +89,45 @@ export const WORKFLOWS: Workflow[] = [
       { toolId: "backtest", note: "多资产组合回测:风险平价/最小方差配置,周期再平衡并计入交易成本。", passes: ["sigma", "mu"] },
     ],
   },
+  {
+    id: "causal-inference",
+    title: "因果推断实证链",
+    titleEn: "Causal Inference Pipeline",
+    blurb: "从 OLS 基准出发,诊断内生性,再用 IV / DID / RDD 等识别策略估计因果效应——一条完整的实证论文工作流。",
+    difficulty: "core",
+    steps: [
+      { toolId: "ols", note: "OLS 基准回归:检查系数符号、显著性与残差诊断,识别遗漏变量的可能方向。" },
+      { toolId: "causal", note: "选择识别策略:IV 排除限制、DID 平行趋势或 RDD 局部随机化,估计因果参数。" },
+      { toolId: "gmm", note: "GMM 稳健化:过度识别 J 检验、弱工具诊断,比较不同矩条件下估计的稳定性。" },
+      { toolId: "compare", note: "把 OLS / IV / GMM 估计放进同一比较视图,评估内生性偏差的大小与方向。" },
+    ],
+  },
+  {
+    id: "macro-policy-lab",
+    title: "宏观政策实验室",
+    titleEn: "Macro Policy Laboratory",
+    blurb: "从 IS-LM 静态直觉到 DSGE 动态传导,再用真实 FRED 数据检验泰勒规则——把政策分析从黑板推到数据。",
+    difficulty: "core",
+    steps: [
+      { toolId: "islm", note: "IS-LM / AD-AS 静态比较:财政与货币冲击如何移动均衡,建立第一层直觉。" },
+      { toolId: "dsge", note: "三方程 NK-DSGE:观察同样的政策冲击在动态一般均衡中的脉冲响应路径。" },
+      { toolId: "hank", note: "切换到 HANK 异质性代理人:比较 MPC 分布如何放大财政转移的乘数。" },
+      { toolId: "svar", note: "用结构 VAR 从数据中识别货币政策冲击,对照模型 IRF 与实证 IRF 的差异。" },
+    ],
+  },
+  {
+    id: "vol-research",
+    title: "波动率研究全景",
+    titleEn: "Volatility Research Panorama",
+    blurb: "历史 GARCH → 高频 RV → 期权隐含,三个信息集下的波动率互相校验,最后用 DCC 推广到多资产相关。",
+    difficulty: "advanced",
+    steps: [
+      { toolId: "garch", note: "GARCH 族拟合日度收益:波动率聚集、杠杆效应与长期方差。", passes: ["sigma"] },
+      { toolId: "rv-har", note: "高频已实现波动率 + HAR 预测,对比 GARCH 的条件方差路径。" },
+      { toolId: "iv", note: "从期权市场反推隐含波动率,检验 IV 对未来 RV 的预测溢价 (VRP)。", passes: ["sigma"] },
+      { toolId: "dcc-garch", note: "DCC-GARCH 把单资产波动率推广到时变相关矩阵,服务组合风险。" },
+    ],
+  },
 ];
 
 export const WORKFLOW_MAP: Record<string, Workflow> = Object.fromEntries(
