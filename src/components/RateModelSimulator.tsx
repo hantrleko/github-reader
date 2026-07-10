@@ -2,6 +2,8 @@ import { useState, useMemo, useRef, useCallback } from "react";
 
 import "katex/dist/katex.min.css";
 import { ShareExportToolbar, useSharedState } from "@/lib/calculatorTools";
+import { useBusConsume } from "@/lib/toolBus";
+import { toast } from "@/hooks/use-toast";
 import { HistoryDrawer } from "./common/HistoryDrawer";
 import PresetButtons, { Preset } from "./PresetButtons";
 import { FormulaCodeView } from "./common/FormulaCodeView";
@@ -196,6 +198,14 @@ const RateModelSimulator = () => {
     if (s.seed != null) setSeed(s.seed);
   }, []);
   useSharedState("rate", apply);
+
+  // Consume a short rate handed over the Tool Bus (e.g. from the curve fitter).
+  useBusConsume(["r"], (vals, source) => {
+    if (vals.r != null) {
+      setR0(+(vals.r * 100).toFixed(3));
+      toast({ title: "已接收短端利率", description: `r₀ = ${(vals.r * 100).toFixed(2)}% · 来自 ${source}` });
+    }
+  });
 
   const nSteps = 200;
   const displayPaths = Math.min(nPaths, 10); // show max 10 on chart
