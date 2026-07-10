@@ -37,7 +37,7 @@ export interface ToolEntry {
   related?: string[];
   /** true once unit tests vs a closed-form benchmark exist in src/lib/quant */
   verified?: boolean;
-  version: "V1.0" | "V2.0" | "V2.1" | "V2.2" | "V2.3" | "V2.4" | "V2.5" | "V2.6" | "V2.7" | "V2.8" | "V3.0" | "V3.1" | "V3.2" | "V3.3" | "V3.4" | "V3.5" | "V3.6";
+  version: "V1.0" | "V2.0" | "V2.1" | "V2.2" | "V2.3" | "V2.4" | "V2.5" | "V2.6" | "V2.7" | "V2.8" | "V3.0" | "V3.1" | "V3.2" | "V3.3" | "V3.4" | "V3.5" | "V3.6" | "V3.7";
 }
 
 export const CATEGORY_LABEL: Record<ToolCategory, { zh: string; en: string }> = {
@@ -223,6 +223,20 @@ export const TOOLS_CATALOG: ToolEntry[] = [
     blurb: "Vasicek / CIR / Hull-White 短期利率模拟与零息曲线。",
     related: ["bond"],
     version: "V1.0",
+  },
+  {
+    id: "ns-curve",
+    name: "收益率曲线拟合器",
+    nameEn: "Nelson-Siegel / Svensson Curve Fitting",
+    category: "fixed-income",
+    difficulty: "advanced",
+    anchor: "/#bond",
+    tags: ["Nelson-Siegel", "Svensson", "Term Structure", "OLS"],
+    refs: ["Nelson-Siegel (1987)", "Svensson (1994)"],
+    blurb: "把观测/FRED 真实国债收益率拟合成 NS/Svensson 曲线,导出即期与瞬时远期,可将短端 r 发送到利率模型与债券工具。",
+    related: ["rate-model", "bond"],
+    verified: true,
+    version: "V3.7",
   },
   {
     id: "frontier",
