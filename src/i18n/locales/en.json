@@ -69,8 +69,8 @@
       "knowledge": "Concepts"
     },
     "latestUpdate": {
-      "label": "Latest Update · V3.6",
-      "description": "Asset Pricing module deepened: from 4 tools to 11 across SDF, CCAPM + equity premium puzzle, Hansen-Jagannathan bound, zero-beta CAPM, ICAPM, anomaly sorts and the GRS joint α=0 test.",
+      "label": "Latest Update · V3.7",
+      "description": "New Nelson-Siegel / Svensson yield-curve fitter in Fixed Income: OLS β with a λ grid search, one-click fitting to live FRED Treasury CMT data, spot and instantaneous-forward curves, and a Tool-Bus handoff of the short rate to the rate model and bond tools — closing a Real Rates → Curve → Short Rate → Bond loop.",
       "cta": "View Changelog"
     }
   },
