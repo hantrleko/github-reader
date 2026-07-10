@@ -67,6 +67,11 @@
       "topics": "Topics",
       "formulas": "Formulas",
       "knowledge": "Concepts"
+    },
+    "latestUpdate": {
+      "label": "Latest Update · V3.6",
+      "description": "Asset Pricing module deepened: from 4 tools to 11 across SDF, CCAPM + equity premium puzzle, Hansen-Jagannathan bound, zero-beta CAPM, ICAPM, anomaly sorts and the GRS joint α=0 test.",
+      "cta": "View Changelog"
     }
   },
   "realData": {
