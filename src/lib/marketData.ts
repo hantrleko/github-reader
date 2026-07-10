@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueries } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
 const FUNCTIONS_URL = `https://oshfqmmhxaaevucfdunk.supabase.co/functions/v1`;
@@ -200,4 +200,63 @@ export function useAlphaVantage(
     staleTime: FIVE_MIN,
     retry: 1,
   });
+}
+
+/**
+ * FRED constant-maturity Treasury (CMT) series → a snapshot yield curve.
+ * Fetches each maturity's latest observation in parallel and returns the
+ * points ready for Nelson-Siegel / Svensson fitting.
+ */
+export const FRED_CMT_SERIES: { id: string; tau: number; label: string }[] = [
+  { id: "DGS1MO", tau: 1 / 12, label: "1M" },
+  { id: "DGS3MO", tau: 0.25, label: "3M" },
+  { id: "DGS6MO", tau: 0.5, label: "6M" },
+  { id: "DGS1", tau: 1, label: "1Y" },
+  { id: "DGS2", tau: 2, label: "2Y" },
+  { id: "DGS3", tau: 3, label: "3Y" },
+  { id: "DGS5", tau: 5, label: "5Y" },
+  { id: "DGS7", tau: 7, label: "7Y" },
+  { id: "DGS10", tau: 10, label: "10Y" },
+  { id: "DGS20", tau: 20, label: "20Y" },
+  { id: "DGS30", tau: 30, label: "30Y" },
+];
+
+export interface FredCurvePoint {
+  tau: number;
+  label: string;
+  yield: number;
+  date: string | null;
+}
+
+export function useFredYieldCurve(enabled = true) {
+  const start = new Date(Date.now() - 60 * 24 * 3600 * 1000)
+    .toISOString()
+    .slice(0, 10);
+  const results = useQueries({
+    queries: FRED_CMT_SERIES.map((s) => ({
+      queryKey: ["fred-cmt", s.id, start],
+      queryFn: () => callFn<FredResponse>("fred-series", { series_id: s.id, start }),
+      enabled,
+      staleTime: FIVE_MIN,
+      retry: 1,
+    })),
+  });
+
+  const isLoading = results.some((r) => r.isLoading);
+  const isError = results.every((r) => r.isError);
+  const points: FredCurvePoint[] = results
+    .map((r, i) => {
+      const meta = FRED_CMT_SERIES[i];
+      const v = r.data?.latest;
+      if (v == null || !Number.isFinite(v)) return null;
+      return { tau: meta.tau, label: meta.label, yield: v, date: r.data?.latestDate ?? null };
+    })
+    .filter((p): p is FredCurvePoint => p !== null);
+
+  const latestDate = points.reduce<string | null>(
+    (acc, p) => (p.date && (!acc || p.date > acc) ? p.date : acc),
+    null
+  );
+
+  return { points, isLoading, isError, latestDate, refetch: () => results.forEach((r) => r.refetch()) };
 }
