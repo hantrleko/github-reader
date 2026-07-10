@@ -3,7 +3,6 @@ import { useState, useMemo, useRef, useCallback } from "react";
 import "katex/dist/katex.min.css";
 import { ShareExportToolbar, useSharedState } from "@/lib/calculatorTools";
 import { useBusConsume } from "@/lib/toolBus";
-import { toast } from "@/hooks/use-toast";
 import { HistoryDrawer } from "./common/HistoryDrawer";
 import PresetButtons, { Preset } from "./PresetButtons";
 import { FormulaCodeView } from "./common/FormulaCodeView";
