@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   ComposedChart, Line, Scatter, XAxis, YAxis, CartesianGrid, Tooltip,
   ResponsiveContainer, Legend, ReferenceLine, BarChart, Bar, Cell,
@@ -58,7 +58,6 @@ export function NelsonSiegelTool() {
     SAMPLE_NORMAL.map((p) => `${p.tau}, ${p.yield}`).join("\n")
   );
   const [srcNote, setSrcNote] = useState<string>("示例数据 · 正常向上曲线");
-  const fred = useFredYieldCurve(false);
   const [fredEnabled, setFredEnabled] = useState(false);
   const liveFred = useFredYieldCurve(fredEnabled);
 
@@ -83,7 +82,7 @@ export function NelsonSiegelTool() {
   };
 
   // When live FRED data arrives, push it into the editable table.
-  useMemo(() => {
+  useEffect(() => {
     if (fredEnabled && liveFred.points.length >= 4) {
       const p = liveFred.points.map((q) => ({ tau: q.tau, yield: q.yield }));
       setPoints(p);
