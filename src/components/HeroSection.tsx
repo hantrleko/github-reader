@@ -160,13 +160,13 @@ const HeroSection = () => {
               className="group block bg-accent/20 hover:bg-accent/30 transition-all p-5 border-l-2 border-gold hover:shadow-[0_10px_30px_-12px_hsl(var(--gold)/0.4)] hover:-translate-y-0.5"
             >
               <h4 className="text-[10px] font-mono font-bold uppercase tracking-[0.2em] mb-2 text-foreground">
-                Latest Update · V3.6
+                {t("hero.latestUpdate.label")}
               </h4>
               <p className="text-xs leading-relaxed text-foreground/75 mb-3">
-                Research Playbooks, Evidence Packs, Ops Board and Decision Memo Studio turn the lab into a scenario-driven workflow system for research replication, teaching and decision briefs.
+                {t("hero.latestUpdate.description")}
               </p>
               <span className="text-[10px] text-gold uppercase font-mono font-bold inline-flex items-center gap-1">
-                View Changelog <ArrowRight className="w-3 h-3 transition-transform group-hover:translate-x-1" />
+                {t("hero.latestUpdate.cta")} <ArrowRight className="w-3 h-3 transition-transform group-hover:translate-x-1" />
               </span>
             </Link>
           </motion.aside>
