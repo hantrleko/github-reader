@@ -37,7 +37,7 @@ export interface ToolEntry {
   related?: string[];
   /** true once unit tests vs a closed-form benchmark exist in src/lib/quant */
   verified?: boolean;
-  version: "V1.0" | "V2.0" | "V2.1" | "V2.2" | "V2.3" | "V2.4" | "V2.5" | "V2.6" | "V2.7" | "V2.8" | "V3.0" | "V3.1" | "V3.2" | "V3.3" | "V3.4" | "V3.5" | "V3.6" | "V3.7";
+  version: "V1.0" | "V2.0" | "V2.1" | "V2.2" | "V2.3" | "V2.4" | "V2.5" | "V2.6" | "V2.7" | "V2.8" | "V3.0" | "V3.1" | "V3.2" | "V3.3" | "V3.4" | "V3.5" | "V3.6" | "V3.7" | "V3.8";
 }
 
 export const CATEGORY_LABEL: Record<ToolCategory, { zh: string; en: string }> = {
@@ -237,6 +237,63 @@ export const TOOLS_CATALOG: ToolEntry[] = [
     related: ["rate-model", "bond"],
     verified: true,
     version: "V3.7",
+  },
+  // ── V3.8: Econometrics diagnostics & inference ──
+  {
+    id: "diagnostics",
+    name: "回归诊断台",
+    nameEn: "Regression Diagnostics & Robust Inference",
+    category: "econometrics",
+    difficulty: "core",
+    anchor: "/#econometrics",
+    tags: ["Breusch-Pagan", "White", "Durbin-Watson", "VIF", "RESET", "HC3", "Newey-West"],
+    refs: ["Breusch & Pagan (1979)", "White (1980)", "Newey & West (1987)", "Ramsey (1969)"],
+    blurb: "一站式诊断 OLS 回归：异方差 (BP/White)、自相关 (DW/BG)、多重共线 (VIF/条件数)、设定 (RESET)，并对比 OLS/HC3/HAC 稳健标准误。",
+    related: ["olsiv", "panel"],
+    verified: true,
+    version: "V3.8",
+  },
+  {
+    id: "dynpanel",
+    name: "动态面板 GMM",
+    nameEn: "Dynamic Panel Difference-GMM (Arellano-Bond)",
+    category: "econometrics",
+    difficulty: "research",
+    anchor: "/#econometrics",
+    tags: ["动态面板", "Arellano-Bond", "差分 GMM", "Nickell 偏误", "Hansen J"],
+    refs: ["Arellano & Bond (1991)", "Nickell (1981)"],
+    blurb: "含滞后被解释变量的动态面板：对比 Pooled OLS 高估、FE 的 Nickell 偏误与差分 GMM 纠偏，含 Hansen J 与 AR(2) 检验。",
+    related: ["panel", "gmm"],
+    verified: true,
+    version: "V3.8",
+  },
+  {
+    id: "dmtest",
+    name: "预测精度对比 (DM)",
+    nameEn: "Diebold-Mariano Forecast Accuracy Test",
+    category: "econometrics",
+    difficulty: "advanced",
+    anchor: "/#econometrics",
+    tags: ["预测比较", "Diebold-Mariano", "Harvey 修正", "样本外"],
+    refs: ["Diebold & Mariano (1995)", "Harvey, Leybourne & Newbold (1997)"],
+    blurb: "对两套预测的样本外精度做显著性检验：损失差分序列、HAC 修正 DM 统计量与 Harvey 小样本修正，判定谁显著更优。",
+    related: ["arima", "svar"],
+    verified: true,
+    version: "V3.8",
+  },
+  {
+    id: "kernelreg",
+    name: "核回归 / 局部多项式",
+    nameEn: "Kernel Regression — Nadaraya-Watson & Local-Linear",
+    category: "econometrics",
+    difficulty: "advanced",
+    anchor: "/#econometrics",
+    tags: ["非参数", "核回归", "LOESS", "带宽", "交叉验证"],
+    refs: ["Nadaraya (1964)", "Watson (1964)", "Fan (1992)"],
+    blurb: "Nadaraya-Watson 与局部线性平滑，带宽含 Silverman ROT 与留一交叉验证最优 h，可视化偏差-方差权衡与置信带。",
+    related: ["olsiv", "qreg"],
+    verified: true,
+    version: "V3.8",
   },
   {
     id: "frontier",

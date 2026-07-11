@@ -4,9 +4,35 @@ import { useTranslation } from "react-i18next";
 
 const RELEASES = [
   {
-    version: "V3.7",
+    version: "V3.8",
     date: "2026-07",
     tag: "Current",
+    highlights: [
+      {
+        icon: Sparkles,
+        title: "计量经济学强化 — /s/econometrics · 诊断/非参数",
+        items: [
+          "回归诊断台:异方差 (Breusch-Pagan / White)、自相关 (Durbin-Watson / Breusch-Godfrey)、多重共线 (VIF / 条件数)、设定 (Ramsey RESET),并对比 OLS / HC3 / Newey-West 稳健标准误",
+          "动态面板 GMM:含滞后被解释变量场景下对比 Pooled OLS 高估、固定效应的 Nickell 偏误与 Arellano-Bond 差分 GMM 纠偏 (Hansen J / AR(2))",
+          "Diebold-Mariano 预测精度检验:随机游走 / AR(1) / EMA 样本外损失差分,HAC 修正与 Harvey 小样本修正",
+          "核回归 / 局部多项式 (LOESS):Nadaraya-Watson 与局部线性,带宽含 Silverman 经验法则与留一交叉验证最优 h,含 95% 置信带",
+        ],
+      },
+      {
+        icon: BookOpen,
+        title: "工程",
+        items: [
+          "新增纯函数库 src/lib/quant/econometrics.ts (OLS 诊断、稳健/HAC 标准误、动态面板 GMM、DM 检验、核回归) 并配 17 项通过的单元测试",
+          "稳健统计分布 (erf、正态、卡方、t、F 的 p 值) 采用 Numerical Recipes 连分数实现以保证数值稳定",
+          "工具目录 (/tools) 补 4 条新卡片,计量导航新增「诊断 / 非参数」分类,命令面板 ⌘K 自动可发现",
+        ],
+      },
+    ],
+  },
+  {
+    version: "V3.7",
+    date: "2026-07",
+    tag: "Stable",
     highlights: [
       {
         icon: Sparkles,

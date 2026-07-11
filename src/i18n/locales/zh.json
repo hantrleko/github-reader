@@ -11,7 +11,7 @@
   },
   "nav": {
     "brand": "Econ & Finance Lab",
-    "version": "V3.7",
+    "version": "V3.8",
     "lang": "语言",
     "smoothScroll": {
       "on": "关闭平滑滚动",
@@ -69,8 +69,8 @@
       "knowledge": "知识点"
     },
     "latestUpdate": {
-      "label": "最新更新 · V3.7",
-      "description": "固定收益新增 Nelson-Siegel / Svensson 收益率曲线拟合器：OLS 求 β + λ 网格搜索，支持从 FRED 真实美国国债 CMT 一键拟合，导出即期与瞬时远期曲线，并把短端 r 发送到短率模型与债券工具，串起「真实利率→曲线拟合→短率→债券」闭环。",
+      "label": "最新更新 · V3.8",
+      "description": "计量经济学模块新增四件套：回归诊断台 (Breusch-Pagan/White 异方差、Durbin-Watson/Breusch-Godfrey 自相关、VIF/条件数、Ramsey RESET，并对比 OLS/HC3/Newey-West 稳健标准误)、动态面板 GMM (Arellano-Bond 差分 GMM 纠正 Nickell 偏误)、Diebold-Mariano 预测精度检验、以及核回归/局部多项式 (含交叉验证最优带宽)。",
       "cta": "查看更新日志"
     }
   },

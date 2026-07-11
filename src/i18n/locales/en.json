@@ -11,7 +11,7 @@
   },
   "nav": {
     "brand": "Econ & Finance Lab",
-    "version": "V3.7",
+    "version": "V3.8",
     "lang": "Language",
     "smoothScroll": {
       "on": "Disable smooth scroll",
@@ -69,8 +69,8 @@
       "knowledge": "Concepts"
     },
     "latestUpdate": {
-      "label": "Latest Update · V3.7",
-      "description": "New Nelson-Siegel / Svensson yield-curve fitter in Fixed Income: OLS β with a λ grid search, one-click fitting to live FRED Treasury CMT data, spot and instantaneous-forward curves, and a Tool-Bus handoff of the short rate to the rate model and bond tools — closing a Real Rates → Curve → Short Rate → Bond loop.",
+      "label": "Latest Update · V3.8",
+      "description": "Four new econometrics tools: a Regression Diagnostics bench (Breusch-Pagan/White heteroskedasticity, Durbin-Watson/Breusch-Godfrey autocorrelation, VIF/condition number, Ramsey RESET, plus OLS/HC3/Newey-West robust SE), Dynamic Panel Difference-GMM (Arellano-Bond correcting Nickell bias), the Diebold-Mariano forecast-accuracy test, and Kernel/Local-Polynomial regression with CV-optimal bandwidth.",
       "cta": "View Changelog"
     }
   },

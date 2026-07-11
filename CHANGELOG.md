@@ -1,5 +1,19 @@
 # EF Lab 版本日志
 
+## V3.8 — 计量经济学强化 (回归诊断 · 动态面板 GMM · 预测检验 · 非参数)
+
+### 新增
+
+- **回归诊断台**(`/s/econometrics` → 诊断/非参数):一站式诊断 OLS 回归——异方差 (Breusch-Pagan / White)、自相关 (Durbin-Watson / Breusch-Godfrey)、多重共线 (VIF / 条件数)、设定 (Ramsey RESET),并并排对比 OLS / HC3 / Newey-West (HAC) 稳健标准误,配残差图与 ACF 图。
+- **动态面板 GMM**:含滞后被解释变量的动态面板下,可视化 Pooled OLS 高估、固定效应的 Nickell 偏误与 Arellano-Bond 差分 GMM 纠偏;含 Hansen J 过度识别与 AR(2) 检验,N/T 滑杆调节。
+- **Diebold-Mariano 预测精度检验**:对随机游走 / AR(1) / EMA 的样本外预测做损失差分显著性检验,含 HAC 方差修正与 Harvey (1997) 小样本修正。
+- **核回归 / 局部多项式 (LOESS)**:Nadaraya-Watson 与局部线性平滑,带宽提供 Silverman 经验法则与留一交叉验证 (LOOCV) 最优 h,可视化偏差-方差权衡与 95% 置信带。
+- **工程**:新增纯函数库 `src/lib/quant/econometrics.ts`(OLS 诊断、稳健/HAC 标准误、动态面板 GMM、DM 检验、核回归)配 17 项通过单测;稳健分布 (erf、正态、卡方、t、F 的 p 值) 采用 Numerical Recipes 连分数实现;工具目录补 4 条卡片,计量导航新增「诊断 / 非参数」分类。
+
+### 变更
+
+- 全站版本号同步至 **V3.8**,V3.7 标记为 Stable。
+
 ## V3.7 — 期限结构建模 (Nelson-Siegel / Svensson 收益率曲线拟合)
 
 ### 新增
