@@ -2874,6 +2874,113 @@ def fit_pin(B, S):
   component: KyleLambdaTool,
 });
 
+TOOLS.push({
+  id: "diagnostics",
+  name: "回归诊断台 (异方差/自相关/共线/RESET)",
+  nameEn: "Regression Diagnostics & Robust Inference — BP, White, DW, BG, VIF, RESET, HC3, Newey-West",
+  formula: String.raw`\text{BP}=nR^2_{e^2},\quad \text{DW}=\frac{\sum(e_t-e_{t-1})^2}{\sum e_t^2},\quad \widehat{\mathrm{Var}}_{HC3}(\hat\beta)=(X'X)^{-1}\Big(\sum\frac{e_i^2}{(1-h_{ii})^2}x_ix_i'\Big)(X'X)^{-1}`,
+  python: `import numpy as np
+import statsmodels.api as sm
+from statsmodels.stats.diagnostic import het_breuschpagan, het_white, acorr_breusch_godfrey, linear_reset
+from statsmodels.stats.outliers_influence import variance_inflation_factor
+
+X = sm.add_constant(Xmat)
+res = sm.OLS(y, X).fit()
+
+# Heteroskedasticity
+bp = het_breuschpagan(res.resid, X)        # (LM, LM_p, F, F_p)
+white = het_white(res.resid, X)
+# Serial correlation
+dw = sm.stats.durbin_watson(res.resid)
+bg = acorr_breusch_godfrey(res, nlags=2)
+# Multicollinearity
+vif = [variance_inflation_factor(X, i) for i in range(X.shape[1])]
+# Specification
+reset = linear_reset(res, power=3, use_f=True)
+# Robust SE
+hc3 = res.get_robustcov_results(cov_type="HC3")
+hac = res.get_robustcov_results(cov_type="HAC", maxlags=5)`,
+  component: RegressionDiagnosticsTool,
+});
+
+TOOLS.push({
+  id: "dynpanel",
+  name: "动态面板 GMM (Arellano-Bond)",
+  nameEn: "Dynamic Panel Difference-GMM — Arellano & Bond (1991)",
+  formula: String.raw`y_{it}=\rho\,y_{i,t-1}+\mu_i+\varepsilon_{it};\qquad \Delta y_{it}=\rho\,\Delta y_{i,t-1}+\Delta\varepsilon_{it},\quad \mathbb{E}[y_{i,t-s}\,\Delta\varepsilon_{it}]=0,\ s\ge 2`,
+  python: `import numpy as np
+
+def diff_gmm_ar1(Y):
+    """One-step difference GMM for y_it = rho y_i,t-1 + mu_i + e_it.
+    Y: array [N, T]; instruments = lagged levels y_{t-2}, y_{t-3}, ..."""
+    N, T = Y.shape
+    m = T - 2
+    ZtX = np.zeros(m); Zty = np.zeros(m); ZtZ = np.zeros((m, m))
+    for i in range(N):
+        for t in range(2, T):
+            dy = Y[i, t] - Y[i, t-1]
+            dx = Y[i, t-1] - Y[i, t-2]
+            z = np.zeros(m)
+            for l in range(2, t+1):
+                if l-2 < m: z[l-2] = Y[i, t-l]
+            ZtX += z*dx; Zty += z*dy; ZtZ += np.outer(z, z)
+    W = np.linalg.pinv(ZtZ)
+    rho = (ZtX @ W @ Zty) / (ZtX @ W @ ZtX)
+    g = Zty - rho*ZtX
+    hansen_J = g @ W @ g          # ~ chi2(m-1)
+    return rho, hansen_J`,
+  component: DynamicPanelTool,
+});
+
+TOOLS.push({
+  id: "dmtest",
+  name: "预测精度对比 (Diebold-Mariano)",
+  nameEn: "Diebold-Mariano Forecast Accuracy Test — Diebold & Mariano (1995), Harvey et al. (1997)",
+  formula: String.raw`d_t=L(e_{1t})-L(e_{2t}),\qquad \mathrm{DM}=\frac{\bar d}{\sqrt{\widehat{\mathrm{Var}}(\bar d)}}\ \xrightarrow{d}\ \mathcal N(0,1)`,
+  python: `import numpy as np
+
+def diebold_mariano(e1, e2, power=2, h=1):
+    d = np.abs(e1)**power - np.abs(e2)**power
+    n = len(d); dbar = d.mean()
+    gamma0 = np.var(d)
+    var = gamma0
+    for k in range(1, h):
+        g = np.cov(d[k:], d[:-k])[0, 1]
+        var += 2*(1 - k/h)*g
+    dm = dbar / np.sqrt(var/n)
+    corr = np.sqrt((n + 1 - 2*h + h*(h-1)/n) / n)   # Harvey correction
+    return dm, dm*corr`,
+  component: DieboldMarianoTool,
+});
+
+TOOLS.push({
+  id: "kernelreg",
+  name: "核回归 / 局部多项式 (LOESS)",
+  nameEn: "Kernel Regression — Nadaraya-Watson & Local-Linear with CV Bandwidth",
+  formula: String.raw`\hat m(x_0)=\frac{\sum_i K\!\big(\tfrac{x_i-x_0}{h}\big)y_i}{\sum_i K\!\big(\tfrac{x_i-x_0}{h}\big)},\qquad h^\star=\arg\min_h \mathrm{CV}(h)=\tfrac1n\sum_i\big(y_i-\hat m_{-i}(x_i)\big)^2`,
+  python: `import numpy as np
+
+def kernel(u, name="gaussian"):
+    if name == "epanechnikov":
+        return np.where(np.abs(u) <= 1, 0.75*(1 - u**2), 0.0)
+    return np.exp(-0.5*u**2)/np.sqrt(2*np.pi)
+
+def local_linear(x, y, x0, h, name="gaussian"):
+    w = kernel((x - x0)/h, name)
+    dx = x - x0
+    S = np.array([[w.sum(), (w*dx).sum()], [(w*dx).sum(), (w*dx*dx).sum()]])
+    t = np.array([(w*y).sum(), (w*dx*y).sum()])
+    return np.linalg.solve(S, t)[0]
+
+def loocv(x, y, h, name="gaussian"):
+    err = 0.0
+    for i in range(len(x)):
+        w = kernel((np.delete(x, i) - x[i])/h, name)
+        err += (y[i] - (w @ np.delete(y, i))/w.sum())**2
+    return err/len(x)`,
+  component: KernelRegressionTool,
+});
+
 
 /** Compact collapsible Python reference snippet — companion to the formula bar. */
 const PythonReference = ({ code }: { code: string }) => {
