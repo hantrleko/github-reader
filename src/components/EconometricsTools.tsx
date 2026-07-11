@@ -3022,10 +3022,11 @@ const PythonReference = ({ code }: { code: string }) => {
 
 const ECON_CATEGORIES: ToolCategory[] = [
   { id: "causal", label: "因果推断", toolIds: ["olsiv", "did", "sdid", "rdd", "synth", "psm"] },
-  { id: "timeseries", label: "时间序列", toolIds: ["svar", "coint", "unitroot", "kalman", "midas", "arima", "lp", "dlm"] },
+  { id: "timeseries", label: "时间序列", toolIds: ["svar", "coint", "unitroot", "kalman", "midas", "arima", "lp", "dlm", "dmtest"] },
   { id: "vol", label: "波动率 / 高频", toolIds: ["garch", "dcc", "regime", "harrv", "hawkes", "kyle"] },
-  { id: "discrete", label: "离散选择 / 面板", toolIds: ["gmm", "logit", "qreg", "panel", "tobit"] },
+  { id: "discrete", label: "离散选择 / 面板", toolIds: ["gmm", "logit", "qreg", "panel", "tobit", "dynpanel"] },
   { id: "ml", label: "机器学习计量", toolIds: ["lasso", "dml", "cforest", "bayes"] },
+  { id: "diag", label: "诊断 / 非参数", toolIds: ["diagnostics", "kernelreg"] },
 ];
 
 const EconometricsTools = () => {
