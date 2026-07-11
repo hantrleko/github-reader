@@ -321,7 +321,7 @@ export const DynamicPanelTool = () => {
               <ReferenceLine y={rho} stroke={CHART_TEAL} strokeDasharray="4 4" label={{ value: "真值", fill: CHART_TEAL, fontSize: 10 }} />
               <Tooltip {...tip} />
               <Bar dataKey="value" radius={[4, 4, 0, 0]} isAnimationActive={false}>
-                {data.bars.map((b) => <ReferenceLine key={b.name} />)}
+                {data.bars.map((b) => <Cell key={b.name} fill={b.fill} />)}
               </Bar>
             </BarChart>
           </ResponsiveContainer>
