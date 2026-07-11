@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-  Legend, Area, ComposedChart, BarChart, Bar, ScatterChart, Scatter, ReferenceLine,
+  Legend, Area, ComposedChart, BarChart, Bar, Cell, ScatterChart, Scatter, ReferenceLine,
 } from "recharts";
 import "katex/dist/katex.min.css";
 import PresetButtons from "../PresetButtons";
