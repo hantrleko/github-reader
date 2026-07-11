@@ -140,6 +140,19 @@ export const WORKFLOWS: Workflow[] = [
       { toolId: "dcc-garch", note: "DCC-GARCH 把单资产波动率推广到时变相关矩阵,服务组合风险。" },
     ],
   },
+  {
+    id: "regression-inference",
+    title: "回归诊断与稳健推断",
+    titleEn: "Regression Diagnostics & Robust Inference",
+    blurb: "从 OLS 基准出发,系统诊断异方差/自相关/共线/设定,再用稳健标准误纠正推断,最后做样本外预测比较——一条严谨的实证推断链。",
+    difficulty: "core",
+    steps: [
+      { toolId: "olsiv", note: "OLS 基准回归:估计系数、检查符号与拟合优度,作为诊断的起点。" },
+      { toolId: "diagnostics", note: "回归诊断台:BP/White 异方差、DW/BG 自相关、VIF 共线、RESET 设定,并对比 HC3/Newey-West 稳健标准误。" },
+      { toolId: "kernelreg", note: "核回归/局部多项式:若 RESET 提示非线性,用非参数平滑刻画真实的条件均值形状。" },
+      { toolId: "dmtest", note: "Diebold-Mariano:对参数模型与非参数/替代模型的样本外预测做精度显著性检验。" },
+    ],
+  },
 ];
 
 export const WORKFLOW_MAP: Record<string, Workflow> = Object.fromEntries(
