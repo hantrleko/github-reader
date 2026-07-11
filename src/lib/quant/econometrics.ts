@@ -100,31 +100,41 @@ function betaInc(x: number, a: number, b: number): number {
   if (x <= 0) return 0;
   if (x >= 1) return 1;
   const lbeta = logGamma(a) + logGamma(b) - logGamma(a + b);
-  const front = Math.exp(Math.log(x) * a + Math.log(1 - x) * b - lbeta) / a;
-  const cf = (xx: number, aa: number, bb: number) => {
+  // Numerical Recipes betacf continued fraction.
+  const betacf = (aa: number, bb: number, xx: number) => {
+    const FPMIN = 1e-30;
+    const qab = aa + bb;
+    const qap = aa + 1;
+    const qam = aa - 1;
     let c = 1;
-    let d = 1 - ((aa + bb) * xx) / (aa + 1);
-    if (Math.abs(d) < 1e-30) d = 1e-30;
+    let d = 1 - (qab * xx) / qap;
+    if (Math.abs(d) < FPMIN) d = FPMIN;
     d = 1 / d;
     let h = d;
-    for (let i = 1; i < 300; i++) {
-      const m = Math.floor(i / 2);
-      let num: number;
-      if (i % 2 === 0) num = (m * (bb - m) * xx) / ((aa + 2 * m - 1) * (aa + 2 * m));
-      else num = (-(aa + m) * (aa + bb + m) * xx) / ((aa + 2 * m) * (aa + 2 * m + 1));
-      d = 1 + num * d;
-      if (Math.abs(d) < 1e-30) d = 1e-30;
+    for (let m = 1; m <= 200; m++) {
+      const m2 = 2 * m;
+      let aaa = (m * (bb - m) * xx) / ((qam + m2) * (aa + m2));
+      d = 1 + aaa * d;
+      if (Math.abs(d) < FPMIN) d = FPMIN;
+      c = 1 + aaa / c;
+      if (Math.abs(c) < FPMIN) c = FPMIN;
       d = 1 / d;
-      c = 1 + num / c;
-      if (Math.abs(c) < 1e-30) c = 1e-30;
-      const del = c * d;
+      h *= d * c;
+      aaa = (-(aa + m) * (qab + m) * xx) / ((aa + m2) * (qap + m2));
+      d = 1 + aaa * d;
+      if (Math.abs(d) < FPMIN) d = FPMIN;
+      c = 1 + aaa / c;
+      if (Math.abs(c) < FPMIN) c = FPMIN;
+      d = 1 / d;
+      const del = d * c;
       h *= del;
-      if (Math.abs(del - 1) < 1e-12) break;
+      if (Math.abs(del - 1) < 1e-14) break;
     }
     return h;
   };
-  if (x < (a + 1) / (a + b + 2)) return front * cf(x, a, b);
-  return 1 - (Math.exp(Math.log(1 - x) * b + Math.log(x) * a - lbeta) / b) * cf(1 - x, b, a);
+  const bt = Math.exp(a * Math.log(x) + b * Math.log(1 - x) - lbeta);
+  if (x < (a + 1) / (a + b + 2)) return (bt * betacf(a, b, x)) / a;
+  return 1 - (bt * betacf(b, a, 1 - x)) / b;
 }
 
 /** Two-tailed p-value of a t statistic. */
