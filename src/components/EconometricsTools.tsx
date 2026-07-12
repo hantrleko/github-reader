@@ -3080,12 +3080,12 @@ const PythonReference = ({ code }: { code: string }) => {
 };
 
 const ECON_CATEGORIES: ToolCategory[] = [
-  { id: "causal", label: "因果推断", toolIds: ["olsiv", "did", "sdid", "rdd", "synth", "psm"] },
-  { id: "timeseries", label: "时间序列", toolIds: ["svar", "coint", "unitroot", "kalman", "midas", "arima", "lp", "dlm", "dmtest"] },
+  { id: "causal", label: "因果推断", toolIds: ["olsiv", "did", "eventdid", "sdid", "rdd", "synth", "psm"] },
+  { id: "timeseries", label: "时间序列", toolIds: ["svar", "coint", "unitroot", "panelroot", "kalman", "midas", "arima", "lp", "dlm", "dmtest"] },
   { id: "vol", label: "波动率 / 高频", toolIds: ["garch", "dcc", "regime", "harrv", "hawkes", "kyle"] },
-  { id: "discrete", label: "离散选择 / 面板", toolIds: ["gmm", "logit", "qreg", "panel", "tobit", "dynpanel"] },
+  { id: "discrete", label: "离散选择 / 面板", toolIds: ["gmm", "logit", "qreg", "qreglab", "panel", "tobit", "dynpanel"] },
   { id: "ml", label: "机器学习计量", toolIds: ["lasso", "dml", "cforest", "bayes"] },
-  { id: "diag", label: "诊断 / 非参数", toolIds: ["diagnostics", "kernelreg"] },
+  { id: "diag", label: "诊断 / 非参数", toolIds: ["diagnostics", "diagreport", "kernelreg"] },
 ];
 
 const EconometricsTools = () => {
