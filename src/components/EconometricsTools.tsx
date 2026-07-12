@@ -23,6 +23,7 @@ import { DoubleMLTool, CausalForestTool, BayesianRegTool } from "./econ/V24Tools
 import { HARRVTool, HawkesTool, KyleLambdaTool } from "./econ/V25Tools";
 import { UnitRootTool } from "./econ/UnitRootTool";
 import { RegressionDiagnosticsTool, DynamicPanelTool, DieboldMarianoTool, KernelRegressionTool } from "./econ/V38Tools";
+import { EventStudyDIDTool, PanelRootTool, QuantileMfxTool, DiagnosticReportTool } from "./econ/V39Tools";
 import { EquationBlock } from "@/components/common/EquationBlock";
 import CategorizedToolNav, { type ToolCategory } from "@/components/common/CategorizedToolNav";
 
