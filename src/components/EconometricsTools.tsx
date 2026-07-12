@@ -2982,6 +2982,64 @@ def loocv(x, y, h, name="gaussian"):
   component: KernelRegressionTool,
 });
 
+TOOLS.push({
+  id: "eventdid",
+  name: "事件研究 DID (平行趋势 + 动态效应)",
+  nameEn: "Event-Study Difference-in-Differences — Parallel-Trends Test & Dynamic ATT",
+  formula: String.raw`y_{it}=\alpha_i+\gamma_t+\sum_{k\neq -1}\delta_k\,\mathbf 1\{t-g_i=k\}+\varepsilon_{it};\quad H_0^{PT}:\ \delta_k=0\ \forall k<-1`,
+  python: `import pandas as pd, numpy as np, statsmodels.formula.api as smf
+
+df["rel"] = df["t"] - df["g"]           # event time (Inf for never-treated)
+for k in sorted(df["rel"].dropna().unique()):
+    if k != -1: df[f"D_{k}"] = ((df["rel"]==k)).astype(int)
+m = smf.ols("y ~ C(i) + C(t) + " + " + ".join(dks), data=df).fit(
+        cov_type="cluster", cov_kwds={"groups": df["i"]})
+# joint Wald test on pre-period dummies -> parallel-trends`,
+  component: EventStudyDIDTool,
+});
+
+TOOLS.push({
+  id: "panelroot",
+  name: "面板单位根 / 协整 (LLC · IPS · Pedroni)",
+  nameEn: "Panel Unit-Root & Cointegration — Levin-Lin-Chu, Im-Pesaran-Shin, Pedroni",
+  formula: String.raw`\text{IPS: }\ W_{\bar t}=\frac{\sqrt N\,(\bar t-\mathbb E[t])}{\sqrt{\mathrm{Var}[t]}}\xrightarrow{d}\mathcal N(0,1);\quad \bar t=\tfrac1N\sum_i t_{ADF,i}`,
+  python: `import numpy as np
+from statsmodels.tsa.stattools import adfuller
+
+def ips(panel, lags=1):
+    ts = [adfuller(y, maxlag=lags, regression="c")[0] for y in panel]
+    tbar = np.mean(ts)
+    return np.sqrt(len(ts))*(tbar + 1.533)/np.sqrt(0.706)   # left-tailed N(0,1)`,
+  component: PanelRootTool,
+});
+
+TOOLS.push({
+  id: "qreglab",
+  name: "分位数回归实验室 (Bootstrap 边际效应)",
+  nameEn: "Quantile Regression Lab — Marginal Effects with Bootstrap Confidence Bands",
+  formula: String.raw`\hat\beta(\tau)=\arg\min_\beta\sum_i\rho_\tau(y_i-x_i'\beta),\quad \frac{\partial Q_\tau(y|x)}{\partial x}=\beta_1(\tau)`,
+  python: `import numpy as np, statsmodels.formula.api as smf
+
+taus = np.linspace(0.1, 0.9, 9)
+coefs = {t: smf.quantreg("y ~ x", df).fit(q=t).params["x"] for t in taus}
+# pairs bootstrap for CI
+def boot_ci(df, t, B=300):
+    b = [smf.quantreg("y ~ x", df.sample(len(df), replace=True)).fit(q=t).params["x"] for _ in range(B)]
+    return np.percentile(b, [2.5, 97.5])`,
+  component: QuantileMfxTool,
+});
+
+TOOLS.push({
+  id: "diagreport",
+  name: "一键诊断报告 (PDF 导出)",
+  nameEn: "One-Click Diagnostic Report — Tests, Coefficients, Charts & PDF Export",
+  formula: String.raw`\text{Report}=\{\hat\beta,\ \text{SE}_{OLS/HC3/NW},\ \text{BP, White, DW, BG, VIF, RESET},\ \text{plots}\}\to\text{PDF}`,
+  python: `# Aggregate all OLS diagnostics into a single exportable report.
+# See the "回归诊断台" tool for the underlying test implementations;
+# this tool bundles them with a conclusion summary and PDF export.`,
+  component: DiagnosticReportTool,
+});
+
 
 /** Compact collapsible Python reference snippet — companion to the formula bar. */
 const PythonReference = ({ code }: { code: string }) => {
