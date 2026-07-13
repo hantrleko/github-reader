@@ -19,7 +19,6 @@ const isPreviewHost = () => {
     h.includes("preview--") ||
     h.endsWith("lovableproject.com") ||
     h.endsWith("lovableproject-dev.com") ||
-    h.endsWith("lovable.app") || // Lovable preview / project domains
     h === "localhost" ||
     h === "127.0.0.1"
   );

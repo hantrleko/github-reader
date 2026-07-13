@@ -1,7 +1,7 @@
 import { useQuery, useQueries } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
-const FUNCTIONS_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1`;
-const ANON_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY as string;
+const FUNCTIONS_URL = `https://oshfqmmhxaaevucfdunk.supabase.co/functions/v1`;
 
 async function callFn<T>(name: string, params: Record<string, string | number>): Promise<T> {
   const qs = new URLSearchParams(
@@ -9,7 +9,7 @@ async function callFn<T>(name: string, params: Record<string, string | number>):
   ).toString();
   const resp = await fetch(`${FUNCTIONS_URL}/${name}?${qs}`, {
     headers: {
-      apikey: ANON_KEY,
+      apikey: (supabase as any).supabaseKey ?? "",
     },
   });
   if (!resp.ok) {
@@ -179,18 +179,6 @@ export function useCoinGecko(id: string, vs = "usd", days = "365", enabled = tru
     enabled: enabled && !!id,
     staleTime: FIVE_MIN,
     retry: 1,
-  });
-}
-
-export function useWatchlistQuotes(symbols: string[]) {
-  return useQueries({
-    queries: symbols.map((symbol) => ({
-      queryKey: ["market-quotes", symbol, "1y"],
-      queryFn: () => callFn<QuotesResponse>("market-quotes", { symbol, range: "1y" }),
-      enabled: symbols.length > 0 && !!symbol,
-      staleTime: FIVE_MIN,
-      retry: 1,
-    })),
   });
 }
 

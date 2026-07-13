@@ -1,59 +1,17 @@
-// Yahoo Finance v8 chart proxy with server-side Supabase cache.
-// Cache TTL: 20 minutes. Shared across all users — the first request for a
-// symbol+range populates the cache; subsequent requests within the TTL window
-// return the cached payload without hitting Yahoo Finance.
+// Yahoo Finance v8 chart proxy — fetches historical daily prices for a symbol.
+// Public endpoint, no API key required. Returns {symbol, currency, dates[], closes[], returns[]}.
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Client-Info, Apikey",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
-const SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
-const CACHE_TTL_MS = 20 * 60 * 1000; // 20 minutes
-
-async function readCache(symbol: string, range: string): Promise<unknown | null> {
-  if (!SUPABASE_URL || !SERVICE_KEY) return null;
-  try {
-    const resp = await fetch(
-      `${SUPABASE_URL}/rest/v1/market_quotes_cache?symbol=eq.${encodeURIComponent(symbol)}&range=eq.${encodeURIComponent(range)}&select=payload,cached_at`,
-      { headers: { apikey: SERVICE_KEY, Authorization: `Bearer ${SERVICE_KEY}` } }
-    );
-    if (!resp.ok) return null;
-    const rows: { payload: unknown; cached_at: string }[] = await resp.json();
-    if (!rows?.length) return null;
-    if (Date.now() - new Date(rows[0].cached_at).getTime() > CACHE_TTL_MS) return null;
-    return rows[0].payload;
-  } catch {
-    return null;
-  }
-}
-
-async function writeCache(symbol: string, range: string, payload: unknown): Promise<void> {
-  if (!SUPABASE_URL || !SERVICE_KEY) return;
-  try {
-    await fetch(`${SUPABASE_URL}/rest/v1/market_quotes_cache`, {
-      method: "POST",
-      headers: {
-        apikey: SERVICE_KEY,
-        Authorization: `Bearer ${SERVICE_KEY}`,
-        "Content-Type": "application/json",
-        "Prefer": "resolution=merge-duplicates,return=minimal",
-      },
-      body: JSON.stringify({ symbol, range, payload, cached_at: new Date().toISOString() }),
-    });
-  } catch {
-    // Cache write failure is non-fatal; the response is still returned to the client.
-  }
-}
-
 Deno.serve(async (req) => {
-  if (req.method === "OPTIONS") return new Response(null, { status: 200, headers: corsHeaders });
+  if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
     const url = new URL(req.url);
     const symbol = (url.searchParams.get("symbol") || "AAPL").toUpperCase();
-    const range = url.searchParams.get("range") || "5y";
+    const range = url.searchParams.get("range") || "5y"; // 1mo,3mo,6mo,1y,2y,5y,10y,max
     const interval = url.searchParams.get("interval") || "1d";
 
     if (!/^[A-Z0-9.\-^=]{1,15}$/.test(symbol)) {
@@ -61,16 +19,6 @@ Deno.serve(async (req) => {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
-    }
-
-    // Cache lookup (skip for intraday intervals)
-    if (interval === "1d") {
-      const cached = await readCache(symbol, range);
-      if (cached) {
-        return new Response(JSON.stringify(cached), {
-          headers: { ...corsHeaders, "Content-Type": "application/json", "X-Cache": "HIT" },
-        });
-      }
     }
 
     const yahooUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(
@@ -116,32 +64,27 @@ Deno.serve(async (req) => {
       returns.push(Math.log(closes[i] / closes[i - 1]));
     }
 
+    // Annualised vol from daily log returns
     const mean = returns.reduce((a, b) => a + b, 0) / Math.max(returns.length, 1);
     const variance =
       returns.reduce((a, b) => a + (b - mean) ** 2, 0) / Math.max(returns.length - 1, 1);
     const annualVol = Math.sqrt(variance * 252);
     const annualReturn = mean * 252;
 
-    const payload = {
-      symbol,
-      currency: result.meta?.currency || "USD",
-      lastPrice: closes[closes.length - 1] ?? null,
-      annualVol,
-      annualReturn,
-      n: closes.length,
-      dates,
-      closes,
-      returns,
-    };
-
-    // Fire-and-forget cache write for daily data
-    if (interval === "1d") {
-      writeCache(symbol, range, payload);
-    }
-
-    return new Response(JSON.stringify(payload), {
-      headers: { ...corsHeaders, "Content-Type": "application/json", "X-Cache": "MISS" },
-    });
+    return new Response(
+      JSON.stringify({
+        symbol,
+        currency: result.meta?.currency || "USD",
+        lastPrice: closes[closes.length - 1] ?? null,
+        annualVol,
+        annualReturn,
+        n: closes.length,
+        dates,
+        closes,
+        returns,
+      }),
+      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
   } catch (e) {
     return new Response(
       JSON.stringify({ error: e instanceof Error ? e.message : "unknown" }),

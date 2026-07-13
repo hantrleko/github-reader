@@ -1,4 +1,4 @@
-import { lazy, Suspense, Component, type ReactNode } from "react";
+import { lazy, Suspense } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { ThemeProvider } from "next-themes";
@@ -9,7 +9,6 @@ import CommandPalette from "@/components/CommandPalette";
 import Onboarding from "@/components/Onboarding";
 import OfflineBanner from "@/components/OfflineBanner";
 import ScrollManager from "@/components/ScrollManager";
-import AppErrorBoundary from "@/components/AppErrorBoundary";
 import { AuthProvider } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { reportClientError } from "@/lib/errorReport";
@@ -19,16 +18,9 @@ import { reportClientError } from "@/lib/errorReport";
  * When the browser holds an old index.html, dynamic imports point at
  * filenames that no longer exist and throw "error loading dynamically
  * imported module". A single reload fetches fresh hashes.
- *
- * IMPORTANT: we must NEVER return a permanently-pending Promise without a
- * timeout — that freezes Suspense on a solid-colour spinner forever (the
- * classic "pure colour blank page" after a failed deploy / bad SW cache).
  */
 const CHUNK_ERR_RE =
   /error loading dynamically imported module|dynamically imported module|Failed to fetch dynamically imported module|Importing a module script failed|ChunkLoadError|Loading chunk \d+ failed/i;
-
-const CHUNK_RELOAD_KEY = "__lov_chunk_reload__";
-const CHUNK_HOLD_MS = 4_000;
 
 let chunkToastShown = false;
 const notifyChunkError = () => {
@@ -47,14 +39,10 @@ const notifyChunkError = () => {
   });
 };
 
-const lazyWithRetry = <T extends { default: React.ComponentType<any> }>(
-  factory: () => Promise<T>
-) =>
-  lazy(async () => {
-    try {
-      return await factory();
-    } catch (err) {
-      const msg = String((err as Error)?.message ?? err ?? "");
+const lazyWithRetry = <T,>(factory: () => Promise<T>) =>
+  lazy(() =>
+    (factory() as Promise<any>).catch((err) => {
+      const msg = String(err?.message ?? err ?? "");
       if (CHUNK_ERR_RE.test(msg)) {
         reportClientError({
           type: "chunk-load",
@@ -62,41 +50,20 @@ const lazyWithRetry = <T extends { default: React.ComponentType<any> }>(
           stack: (err as Error)?.stack,
           failedAsset: (err as { url?: string })?.url,
         });
-
-        // One automatic reload per session — then fall through to a real error
-        // so Suspense / ErrorBoundary can recover instead of hanging forever.
-        try {
-          if (typeof window !== "undefined" && !sessionStorage.getItem(CHUNK_RELOAD_KEY)) {
-            sessionStorage.setItem(CHUNK_RELOAD_KEY, "1");
-            // Hold Suspense briefly so the user doesn't flash an error, then reload.
-            await new Promise<void>((resolve) => {
-              window.setTimeout(() => {
-                try {
-                  window.location.reload();
-                } catch {
-                  /* ignore */
-                }
-                // If reload is blocked (e.g. iframe policy), surface the error.
-                window.setTimeout(() => resolve(), CHUNK_HOLD_MS);
-              }, 250);
-            });
-          }
-        } catch {
-          /* sessionStorage may be blocked */
-        }
-
         notifyChunkError();
-      } else {
-        reportClientError({
-          type: "manual",
-          message: msg,
-          stack: (err as Error)?.stack,
-          extra: { source: "lazyWithRetry" },
-        });
+        // Hold Suspense indefinitely so the broken route doesn't flash an
+        // error boundary — the user controls when to reload.
+        return new Promise(() => {});
       }
+      reportClientError({
+        type: "manual",
+        message: msg,
+        stack: (err as Error)?.stack,
+        extra: { source: "lazyWithRetry" },
+      });
       throw err;
-    }
-  });
+    })
+  );
 
 if (typeof window !== "undefined") {
   // Catch chunk errors that surface outside of React.lazy (e.g. prefetch).
@@ -159,64 +126,13 @@ const Notebook = lazyWithRetry(() => import("./pages/Notebook.tsx"));
 const NotebookTemplates = lazyWithRetry(() => import("./pages/NotebookTemplates.tsx"));
 const PublicProfile = lazyWithRetry(() => import("./pages/PublicProfile.tsx"));
 const Account = lazyWithRetry(() => import("./pages/Account.tsx"));
-const Watchlist = lazyWithRetry(() => import("./pages/Watchlist.tsx"));
 const NotFound = lazyWithRetry(() => import("./pages/NotFound.tsx"));
 
 const RouteFallback = () => (
   <div className="min-h-screen bg-background flex items-center justify-center">
-    <div
-      className="h-8 w-8 rounded-full border-2 border-gold border-t-transparent animate-spin"
-      role="status"
-      aria-label="Loading"
-    />
+    <div className="h-8 w-8 rounded-full border-2 border-gold border-t-transparent animate-spin" />
   </div>
 );
-
-/** Catches lazy-route load failures so a single broken chunk can't blank the shell. */
-class RouteErrorBoundary extends Component<
-  { children: ReactNode },
-  { error: Error | null }
-> {
-  state: { error: Error | null } = { error: null };
-
-  static getDerivedStateFromError(error: Error) {
-    return { error };
-  }
-
-  componentDidCatch(error: Error) {
-    console.error("[RouteErrorBoundary]", error);
-    reportClientError({
-      type: "manual",
-      message: error?.message ?? String(error),
-      stack: error?.stack,
-      extra: { source: "RouteErrorBoundary" },
-    });
-  }
-
-  render() {
-    if (!this.state.error) return this.props.children;
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center p-6">
-        <div className="max-w-md text-center space-y-4">
-          <p className="text-[10px] font-mono uppercase tracking-[0.25em] text-gold">
-            Route Load Error
-          </p>
-          <h1 className="font-display text-2xl text-foreground">页面加载失败</h1>
-          <p className="text-sm text-muted-foreground">
-            该路由的代码包无法加载（常见于部署后缓存过期）。请刷新页面。
-          </p>
-          <button
-            type="button"
-            onClick={() => window.location.reload()}
-            className="px-5 py-2.5 bg-gold text-background text-xs font-mono uppercase tracking-wider font-bold"
-          >
-            立即刷新
-          </button>
-        </div>
-      </div>
-    );
-  }
-}
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -230,48 +146,43 @@ const queryClient = new QueryClient({
 });
 
 const App = () => (
-  <AppErrorBoundary>
-    <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
-      <QueryClientProvider client={queryClient}>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <AuthProvider>
-              <ScrollManager />
-              <RouteErrorBoundary>
-                <Suspense fallback={<RouteFallback />}>
-                  <Routes>
-                    <Route path="/" element={<Index />} />
-                    <Route path="/s/:sectionId" element={<SectionPage />} />
-                    <Route path="/topic/:topicId" element={<TopicDetail />} />
-                    <Route path="/changelog" element={<ChangelogPage />} />
-                    <Route path="/tools" element={<ToolsCatalog />} />
-                    <Route path="/workflows" element={<Workflows />} />
-                    <Route path="/glossary" element={<Glossary />} />
-                    <Route path="/github" element={<GithubExplorer />} />
-                    <Route path="/auth" element={<AuthPage />} />
-                    <Route path="/strategies" element={<Strategies />} />
-                    <Route path="/papers" element={<Papers />} />
-                    <Route path="/notebook" element={<Notebook />} />
-                    <Route path="/notebook/templates" element={<NotebookTemplates />} />
-                    <Route path="/u/:username" element={<PublicProfile />} />
-                    <Route path="/account" element={<Account />} />
-                    <Route path="/watchlist" element={<Watchlist />} />
-                    {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-                    <Route path="*" element={<NotFound />} />
-                  </Routes>
-                </Suspense>
-              </RouteErrorBoundary>
-              <CommandPalette />
-              <Onboarding />
-              <OfflineBanner />
-            </AuthProvider>
-          </BrowserRouter>
-        </TooltipProvider>
-      </QueryClientProvider>
-    </ThemeProvider>
-  </AppErrorBoundary>
+  <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <AuthProvider>
+            <ScrollManager />
+            <Suspense fallback={<RouteFallback />}>
+              <Routes>
+                <Route path="/" element={<Index />} />
+                <Route path="/s/:sectionId" element={<SectionPage />} />
+                <Route path="/topic/:topicId" element={<TopicDetail />} />
+                <Route path="/changelog" element={<ChangelogPage />} />
+                <Route path="/tools" element={<ToolsCatalog />} />
+                <Route path="/workflows" element={<Workflows />} />
+                <Route path="/glossary" element={<Glossary />} />
+                <Route path="/github" element={<GithubExplorer />} />
+                <Route path="/auth" element={<AuthPage />} />
+                <Route path="/strategies" element={<Strategies />} />
+                <Route path="/papers" element={<Papers />} />
+                <Route path="/notebook" element={<Notebook />} />
+                <Route path="/notebook/templates" element={<NotebookTemplates />} />
+                <Route path="/u/:username" element={<PublicProfile />} />
+                <Route path="/account" element={<Account />} />
+                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </Suspense>
+            <CommandPalette />
+            <Onboarding />
+            <OfflineBanner />
+          </AuthProvider>
+        </BrowserRouter>
+      </TooltipProvider>
+    </QueryClientProvider>
+  </ThemeProvider>
 );
 
 export default App;
