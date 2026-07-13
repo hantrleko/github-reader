@@ -125,10 +125,10 @@ export const GrangerTYTool = () => {
   return (
     <div className="space-y-6">
       <PresetButtons presets={[
-        { id: "xy", label: "X → Y 单向", onClick: () => { setMode("xy"); setStrength(0.6); setPersist(0.6); } },
-        { id: "bi", label: "双向反馈", onClick: () => { setMode("bi"); setStrength(0.6); } },
-        { id: "none", label: "无因果", onClick: () => { setMode("none"); } },
-        { id: "unit", label: "近单位根 (TY 稳健)", onClick: () => { setMode("xy"); setPersist(0.98); setDmax(1); } },
+        { name: "X → Y 单向", apply: () => { setMode("xy"); setStrength(0.6); setPersist(0.6); } },
+        { name: "双向反馈", apply: () => { setMode("bi"); setStrength(0.6); } },
+        { name: "无因果", apply: () => { setMode("none"); } },
+        { name: "近单位根 (TY 稳健)", apply: () => { setMode("xy"); setPersist(0.98); setDmax(1); } },
       ]} />
       <div className="grid md:grid-cols-2 gap-4">
         <Slider label="样本量 n" value={n} min={80} max={600} step={20} onChange={setN} />
@@ -226,10 +226,10 @@ export const SpectralTool = () => {
   return (
     <div className="space-y-6">
       <PresetButtons presets={[
-        { id: "seasonal", label: "季节周期", onClick: () => { setMode("seasonal"); setAmp(1); } },
-        { id: "break", label: "结构突变", onClick: () => { setMode("break"); } },
-        { id: "nonlinear", label: "非线性 (ARCH)", onClick: () => { setMode("nonlinear"); } },
-        { id: "noise", label: "纯白噪声", onClick: () => { setMode("noise"); } },
+        { name: "季节周期", apply: () => { setMode("seasonal"); setAmp(1); } },
+        { name: "结构突变", apply: () => { setMode("break"); } },
+        { name: "非线性 (ARCH)", apply: () => { setMode("nonlinear"); } },
+        { name: "纯白噪声", apply: () => { setMode("noise"); } },
       ]} />
       <div className="grid md:grid-cols-2 gap-4">
         <Slider label="样本量 n" value={n} min={80} max={480} step={20} onChange={setN} />
@@ -364,10 +364,10 @@ export const ExpSmoothTool = () => {
   return (
     <div className="space-y-6">
       <PresetButtons presets={[
-        { id: "hwadd", label: "Holt-Winters 加法", onClick: () => { setMethod("hw"); setSeasonal("additive"); } },
-        { id: "hwmul", label: "HW 乘法", onClick: () => { setMethod("hw"); setSeasonal("multiplicative"); } },
-        { id: "theta", label: "Theta 方法", onClick: () => setMethod("theta") },
-        { id: "quarter", label: "季度 (m=4)", onClick: () => setM(4) },
+        { name: "Holt-Winters 加法", apply: () => { setMethod("hw"); setSeasonal("additive"); } },
+        { name: "HW 乘法", apply: () => { setMethod("hw"); setSeasonal("multiplicative"); } },
+        { name: "Theta 方法", apply: () => setMethod("theta") },
+        { name: "季度 (m=4)", apply: () => setM(4) },
       ]} />
       <div className="grid md:grid-cols-2 gap-4">
         <Slider label="样本量 n" value={n} min={48} max={240} step={12} onChange={setN} />
@@ -460,10 +460,10 @@ export const LongMemoryTool = () => {
   return (
     <div className="space-y-6">
       <PresetButtons presets={[
-        { id: "short", label: "短记忆 (d≈0)", onClick: () => setD(0.02) },
-        { id: "long", label: "长记忆 (d=0.35)", onClick: () => setD(0.35) },
-        { id: "nonstat", label: "非平稳 (d=0.55)", onClick: () => setD(0.55) },
-        { id: "neg", label: "反持续 (d=-0.3)", onClick: () => setD(-0.3) },
+        { name: "短记忆 (d≈0)", apply: () => setD(0.02) },
+        { name: "长记忆 (d=0.35)", apply: () => setD(0.35) },
+        { name: "非平稳 (d=0.55)", apply: () => setD(0.55) },
+        { name: "反持续 (d=-0.3)", apply: () => setD(-0.3) },
       ]} />
       <div className="grid md:grid-cols-2 gap-4">
         <Slider label="样本量 n" value={n} min={200} max={1200} step={100} onChange={setN} />
