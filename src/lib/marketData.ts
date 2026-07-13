@@ -182,6 +182,18 @@ export function useCoinGecko(id: string, vs = "usd", days = "365", enabled = tru
   });
 }
 
+export function useWatchlistQuotes(symbols: string[]) {
+  return useQueries({
+    queries: symbols.map((symbol) => ({
+      queryKey: ["market-quotes", symbol, "1y"],
+      queryFn: () => callFn<QuotesResponse>("market-quotes", { symbol, range: "1y" }),
+      enabled: symbols.length > 0 && !!symbol,
+      staleTime: FIVE_MIN,
+      retry: 1,
+    })),
+  });
+}
+
 export function useAlphaVantage(
   kind: "equity" | "fx",
   params: { symbol?: string; from?: string; to?: string; output?: "compact" | "full" },

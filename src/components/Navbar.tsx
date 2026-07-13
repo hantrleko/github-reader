@@ -69,6 +69,7 @@ const PAGE_LINKS: PageLink[] = [
   { to: "/notebook", label: "Notebook", match: (p, s) => p === "/notebook" && !s.includes("template") },
   { to: "/notebook/templates", label: "Templates", match: (p) => p === "/notebook/templates" },
   { to: "/github", label: "GitHub", match: (p) => p === "/github" },
+  { to: "/watchlist", label: "Watchlist", match: (p) => p === "/watchlist" },
   { to: "/changelog", label: "Changelog", match: (p) => p === "/changelog" },
 ];
 
