@@ -37,7 +37,7 @@ export interface ToolEntry {
   related?: string[];
   /** true once unit tests vs a closed-form benchmark exist in src/lib/quant */
   verified?: boolean;
-  version: "V1.0" | "V2.0" | "V2.1" | "V2.2" | "V2.3" | "V2.4" | "V2.5" | "V2.6" | "V2.7" | "V2.8" | "V3.0" | "V3.1" | "V3.2" | "V3.3" | "V3.4" | "V3.5" | "V3.6" | "V3.7" | "V3.8";
+  version: "V1.0" | "V2.0" | "V2.1" | "V2.2" | "V2.3" | "V2.4" | "V2.5" | "V2.6" | "V2.7" | "V2.8" | "V3.0" | "V3.1" | "V3.2" | "V3.3" | "V3.4" | "V3.5" | "V3.6" | "V3.7" | "V3.8" | "V3.9" | "V4.0";
 }
 
 export const CATEGORY_LABEL: Record<ToolCategory, { zh: string; en: string }> = {
@@ -959,6 +959,38 @@ export const TOOLS_CATALOG: ToolEntry[] = [
     refs: ["Bollerslev (1986)", "Merton (1976)", "Vasicek (1977)", "Cox-Ingersoll-Ross (1985)"],
     blurb: "把 GARCH/EWMA/Merton 拟合到价格收益、Vasicek/CIR 拟合到 FRED 真实利率,附标准化残差 QQ 图与 ACF 诊断,校准的 σ/r 一键发送到定价工具。",
     related: ["garch", "rate-model", "bond", "bs", "mc", "backtest"], verified: true, version: "V3.5",
+  },
+  {
+    id: "granger", name: "Granger 因果 / Toda-Yamamoto", nameEn: "Granger Causality & Toda-Yamamoto",
+    category: "econometrics", difficulty: "advanced", anchor: "/#econometrics",
+    tags: ["Granger 因果", "Toda-Yamamoto", "VAR", "滞后选择", "Wald"],
+    refs: ["Granger (1969)", "Toda & Yamamoto (1995)"],
+    blurb: "AIC/BIC 选滞后阶，双向 Granger F 检验；Toda-Yamamoto 增广 VAR Wald 检验对单位根/协整序列稳健。",
+    related: ["svar", "coint", "unitroot"], verified: true, version: "V4.0",
+  },
+  {
+    id: "spectral", name: "谱分析 / 结构突变 / 非线性", nameEn: "Spectral Density, Breaks & Non-linearity",
+    category: "econometrics", difficulty: "advanced", anchor: "/#econometrics",
+    tags: ["周期图", "谱密度", "Bai-Perron", "CUSUM", "McLeod-Li", "Keenan"],
+    refs: ["Bai & Perron (1998)", "Brown et al. (1975)", "McLeod & Li (1983)"],
+    blurb: "平滑周期图辨识主导周期，sup-F 断点搜索与 OLS-CUSUM 稳定性，McLeod-Li/Keenan 非线性检验。",
+    related: ["arima", "garch", "unitroot"], verified: true, version: "V4.0",
+  },
+  {
+    id: "expsmooth", name: "指数平滑预测 (Holt-Winters · Theta)", nameEn: "Exponential Smoothing — Holt-Winters & Theta",
+    category: "econometrics", difficulty: "core", anchor: "/#econometrics",
+    tags: ["Holt-Winters", "Theta", "季节分解", "滚动回测", "MASE"],
+    refs: ["Holt (1957)", "Winters (1960)", "Assimakopoulos & Nikolopoulos (2000)"],
+    blurb: "三重指数平滑(加/乘季节)与 Theta 方法预测，含置信区间、经典分解与 MASE/RMSSE 滚动回测。",
+    related: ["arima", "midas"], verified: true, version: "V4.0",
+  },
+  {
+    id: "longmem", name: "长记忆 / ARFIMA (GPH · Hurst)", nameEn: "Long Memory & Fractional Integration",
+    category: "econometrics", difficulty: "research", anchor: "/#econometrics",
+    tags: ["长记忆", "ARFIMA", "分数积分", "GPH", "Hurst", "R/S"],
+    refs: ["Geweke & Porter-Hudak (1983)", "Hurst (1951)", "Granger & Joyeux (1980)"],
+    blurb: "GPH log-周期图回归与 R/S Hurst 估计分数阶 d，ACF 缓慢衰减可视化，含 ARFIMA 模拟对照。",
+    related: ["unitroot", "arima"], verified: true, version: "V4.0",
   },
 ];
 

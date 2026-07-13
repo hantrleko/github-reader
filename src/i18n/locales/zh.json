@@ -69,8 +69,8 @@
       "knowledge": "知识点"
     },
     "latestUpdate": {
-      "label": "最新更新 · V3.8",
-      "description": "计量经济学模块新增四件套：回归诊断台 (Breusch-Pagan/White 异方差、Durbin-Watson/Breusch-Godfrey 自相关、VIF/条件数、Ramsey RESET，并对比 OLS/HC3/Newey-West 稳健标准误)、动态面板 GMM (Arellano-Bond 差分 GMM 纠正 Nickell 偏误)、Diebold-Mariano 预测精度检验、以及核回归/局部多项式 (含交叉验证最优带宽)。",
+      "label": "最新更新 · V4.0",
+      "description": "时间序列扩充四件套：Granger 因果 + Toda-Yamamoto Wald 检验(对单位根/协整稳健)、谱分析 (平滑周期图、Bai-Perron 结构突变、CUSUM 稳定性、McLeod-Li/Keenan 非线性)、指数平滑预测 (Holt-Winters 与 Theta，含经典分解与 MASE/RMSSE 滚动回测)、以及长记忆/ARFIMA (GPH 与 R/S Hurst 估计分数阶 d)。",
       "cta": "查看更新日志"
     }
   },

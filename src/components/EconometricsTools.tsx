@@ -24,6 +24,7 @@ import { HARRVTool, HawkesTool, KyleLambdaTool } from "./econ/V25Tools";
 import { UnitRootTool } from "./econ/UnitRootTool";
 import { RegressionDiagnosticsTool, DynamicPanelTool, DieboldMarianoTool, KernelRegressionTool } from "./econ/V38Tools";
 import { EventStudyDIDTool, PanelRootTool, QuantileMfxTool, DiagnosticReportTool } from "./econ/V39Tools";
+import { GrangerTYTool, SpectralTool, ExpSmoothTool, LongMemoryTool } from "./econ/V40Tools";
 import { EquationBlock } from "@/components/common/EquationBlock";
 import CategorizedToolNav, { type ToolCategory } from "@/components/common/CategorizedToolNav";
 
@@ -2230,7 +2231,7 @@ const ResultRow = ({ label, value, truth, se, color }: { label: string; value: n
 };
 
 /* ──────────────────  Main module  ────────────────── */
-type ToolId = "olsiv" | "did" | "sdid" | "rdd" | "synth" | "gmm" | "svar" | "garch" | "dcc" | "regime" | "coint" | "unitroot" | "kalman" | "midas" | "logit" | "qreg" | "psm" | "arima" | "lp" | "lasso" | "panel" | "tobit" | "dlm" | "dml" | "cforest" | "bayes" | "harrv" | "hawkes" | "kyle" | "diagnostics" | "dynpanel" | "dmtest" | "kernelreg" | "eventdid" | "panelroot" | "qreglab" | "diagreport";
+type ToolId = "olsiv" | "did" | "sdid" | "rdd" | "synth" | "gmm" | "svar" | "garch" | "dcc" | "regime" | "coint" | "unitroot" | "kalman" | "midas" | "logit" | "qreg" | "psm" | "arima" | "lp" | "lasso" | "panel" | "tobit" | "dlm" | "dml" | "cforest" | "bayes" | "harrv" | "hawkes" | "kyle" | "diagnostics" | "dynpanel" | "dmtest" | "kernelreg" | "eventdid" | "panelroot" | "qreglab" | "diagreport" | "granger" | "spectral" | "expsmooth" | "longmem";
 
 const TOOLS: { id: ToolId; name: string; nameEn: string; formula: string; python: string; component: React.FC }[] = [
   { id: "olsiv", name: "OLS / IV (工具变量)", nameEn: "Ordinary Least Squares & Instrumental Variables",
@@ -3040,6 +3041,50 @@ TOOLS.push({
   component: DiagnosticReportTool,
 });
 
+TOOLS.push({
+  id: "granger",
+  name: "Granger 因果 / Toda-Yamamoto",
+  nameEn: "Granger Causality & Toda-Yamamoto — Lag Selection + Wald Test",
+  formula: String.raw`y_t=\sum_{i=1}^{p}\alpha_i y_{t-i}+\sum_{i=1}^{p}\beta_i x_{t-i}+\varepsilon_t;\ H_0:\beta_1=\dots=\beta_p=0.\ \text{TY: VAR}(p+d_{max}),\ \text{Wald on first }p`,
+  python: `from statsmodels.tsa.stattools import grangercausalitytests
+from statsmodels.tsa.api import VAR
+grangercausalitytests(df[["y","x"]], maxlag=p)   # standard Granger
+# Toda-Yamamoto: fit VAR(p+dmax), Wald test on the first p lags only`,
+  component: GrangerTYTool,
+});
+
+TOOLS.push({
+  id: "spectral",
+  name: "谱分析 / 结构突变 / 非线性",
+  nameEn: "Spectral Density, Structural Breaks & Non-linearity Tests",
+  formula: String.raw`I(\omega_j)=\tfrac1{2\pi n}\left|\sum_t x_t e^{-i\omega_j t}\right|^2;\ \sup F\text{ (Bai-Perron)},\ \text{OLS-CUSUM},\ \text{McLeod-Li}`,
+  python: `import numpy as np
+f = np.abs(np.fft.rfft(x - x.mean()))**2      # periodogram
+# Bai-Perron supF break search, OLS-CUSUM stability, McLeod-Li on residual^2 ACF`,
+  component: SpectralTool,
+});
+
+TOOLS.push({
+  id: "expsmooth",
+  name: "指数平滑预测 (Holt-Winters · Theta)",
+  nameEn: "Exponential Smoothing Forecasting — Holt-Winters, Theta & Backtest",
+  formula: String.raw`\ell_t=\alpha(y_t-s_{t-m})+(1-\alpha)(\ell_{t-1}+b_{t-1});\ \hat y_{t+h}=\ell_t+hb_t+s_{t-m+h};\ \text{MASE}=\tfrac{\text{MAE}}{\text{MAE}_{naive}}`,
+  python: `from statsmodels.tsa.holtwinters import ExponentialSmoothing
+ExponentialSmoothing(y, seasonal="add", seasonal_periods=m, trend="add").fit().forecast(h)`,
+  component: ExpSmoothTool,
+});
+
+TOOLS.push({
+  id: "longmem",
+  name: "长记忆 / ARFIMA (GPH · Hurst)",
+  nameEn: "Long Memory & Fractional Integration — GPH, R/S Hurst, ARFIMA",
+  formula: String.raw`(1-L)^d x_t=\varepsilon_t;\ \ln I(\omega_j)=c-d\ln\!\big(4\sin^2(\omega_j/2)\big)+u_j;\ H=d+\tfrac12`,
+  python: `import numpy as np
+# GPH: regress log-periodogram on log(4 sin^2(w/2)) over lowest m frequencies; slope = -d
+# R/S Hurst: rescaled range power law across window sizes -> H, d = H - 0.5`,
+  component: LongMemoryTool,
+});
+
 
 /** Compact collapsible Python reference snippet — companion to the formula bar. */
 const PythonReference = ({ code }: { code: string }) => {
@@ -3081,7 +3126,7 @@ const PythonReference = ({ code }: { code: string }) => {
 
 const ECON_CATEGORIES: ToolCategory[] = [
   { id: "causal", label: "因果推断", toolIds: ["olsiv", "did", "eventdid", "sdid", "rdd", "synth", "psm"] },
-  { id: "timeseries", label: "时间序列", toolIds: ["svar", "coint", "unitroot", "panelroot", "kalman", "midas", "arima", "lp", "dlm", "dmtest"] },
+  { id: "timeseries", label: "时间序列", toolIds: ["svar", "coint", "unitroot", "panelroot", "kalman", "midas", "arima", "lp", "dlm", "dmtest", "granger", "spectral", "expsmooth", "longmem"] },
   { id: "vol", label: "波动率 / 高频", toolIds: ["garch", "dcc", "regime", "harrv", "hawkes", "kyle"] },
   { id: "discrete", label: "离散选择 / 面板", toolIds: ["gmm", "logit", "qreg", "qreglab", "panel", "tobit", "dynpanel"] },
   { id: "ml", label: "机器学习计量", toolIds: ["lasso", "dml", "cforest", "bayes"] },
