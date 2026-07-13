@@ -290,15 +290,13 @@ export interface BreakResult {
 export function structuralBreak(series: number[], trim = 0.15): BreakResult {
   const n = series.length;
   const t = Array.from({ length: n }, (_, i) => i);
-  const full = olsRaw(t.map((ti) => [1, ti]).map((r) => r), series); // note intercept already in row
-  // build proper design [1, t]
   const Xfull = t.map((ti) => [1, ti]);
   const f0 = olsRaw(Xfull, series);
   const lo = Math.max(3, Math.floor(n * trim));
   const hi = Math.min(n - 3, Math.floor(n * (1 - trim)));
   let best = { idx: lo, rss: Infinity, F: 0 };
   for (let m = lo; m <= hi; m++) {
-    const X1 = [], y1 = [], X2 = [], y2 = [];
+    const X1: number[][] = [], y1: number[] = [], X2: number[][] = [], y2: number[] = [];
     for (let i = 0; i < n; i++) {
       if (i < m) { X1.push([1, i]); y1.push(series[i]); }
       else { X2.push([1, i]); y2.push(series[i]); }
@@ -309,7 +307,6 @@ export function structuralBreak(series: number[], trim = 0.15): BreakResult {
     const F = ((f0.rss - rss) / q) / (rss / (n - 2 * q));
     if (rss < best.rss) best = { idx: m, rss, F };
   }
-  void full;
   const q = 2;
   return {
     breakIndex: best.idx,
