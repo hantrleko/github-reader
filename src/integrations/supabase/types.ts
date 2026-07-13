@@ -410,6 +410,51 @@ export type Database = {
           },
         ]
       }
+      watchlist: {
+        Row: {
+          created_at: string
+          id: string
+          label: string | null
+          symbol: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          label?: string | null
+          symbol: string
+          user_id?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          label?: string | null
+          symbol?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      market_quotes_cache: {
+        Row: {
+          cached_at: string
+          payload: Json
+          range: string
+          symbol: string
+        }
+        Insert: {
+          cached_at?: string
+          payload: Json
+          range: string
+          symbol: string
+        }
+        Update: {
+          cached_at?: string
+          payload?: Json
+          range?: string
+          symbol?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

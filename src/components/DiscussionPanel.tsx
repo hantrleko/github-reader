@@ -51,7 +51,9 @@ const DiscussionPanel = ({
       const byId = Object.fromEntries((profs || []).map((p) => [p.id, p]));
       list.forEach((r) => (r.profile = byId[r.user_id]));
     }
-    setRows(pageIndex === 0 ? list : (prev) => [...prev, ...list]);
+    // Always use the functional updater form — clearer and avoids the
+    // "ternary returns array OR updater" ambiguity that confuses readers.
+    setRows((prev) => (pageIndex === 0 ? list : [...prev, ...list]));
     setHasMore((count ?? 0) > from + list.length);
     setPage(pageIndex);
     setLoading(false);
