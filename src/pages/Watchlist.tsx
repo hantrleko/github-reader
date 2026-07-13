@@ -45,7 +45,9 @@ const Watchlist = () => {
   const { data: items = [], isLoading: listLoading } = useQuery<WatchlistRow[]>({
     queryKey: ["watchlist", user?.id],
     queryFn: async () => {
-      const { data, error } = await supabase
+      // Typed as any-friendly after types.ts includes `watchlist`; cast keeps
+      // the page resilient if the generated types lag a migration.
+      const { data, error } = await (supabase as any)
         .from("watchlist")
         .select("id, symbol, label")
         .order("created_at", { ascending: true });
@@ -69,7 +71,7 @@ const Watchlist = () => {
       return;
     }
     setAdding(true);
-    const { error } = await supabase.from("watchlist").insert({ symbol: raw });
+    const { error } = await (supabase as any).from("watchlist").insert({ symbol: raw });
     setAdding(false);
     if (error) {
       toast({ title: "添加失败", description: error.message, variant: "destructive" });
@@ -82,7 +84,7 @@ const Watchlist = () => {
   // ── Remove symbol ────────────────────────────────────────────────
   const removeSymbol = async (id: string) => {
     setRemoving(id);
-    const { error } = await supabase.from("watchlist").delete().eq("id", id);
+    const { error } = await (supabase as any).from("watchlist").delete().eq("id", id);
     setRemoving(null);
     if (error) {
       toast({ title: "删除失败", description: error.message, variant: "destructive" });

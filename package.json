@@ -19,9 +19,10 @@
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest",
-    "check:copy": "bunx tsx scripts/check-copy-consistency.ts",
-    "predev": "bunx tsx scripts/generate-sitemap.ts",
-    "prebuild": "bunx tsx scripts/generate-sitemap.ts"
+    "check:copy": "node --import tsx scripts/check-copy-consistency.ts",
+    "predev": "node scripts/generate-sitemap.mjs",
+    "prebuild": "node scripts/generate-sitemap.mjs",
+    "sitemap": "node scripts/generate-sitemap.mjs"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
