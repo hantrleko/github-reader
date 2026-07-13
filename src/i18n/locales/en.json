@@ -69,8 +69,8 @@
       "knowledge": "Concepts"
     },
     "latestUpdate": {
-      "label": "Latest Update · V3.8",
-      "description": "Four new econometrics tools: a Regression Diagnostics bench (Breusch-Pagan/White heteroskedasticity, Durbin-Watson/Breusch-Godfrey autocorrelation, VIF/condition number, Ramsey RESET, plus OLS/HC3/Newey-West robust SE), Dynamic Panel Difference-GMM (Arellano-Bond correcting Nickell bias), the Diebold-Mariano forecast-accuracy test, and Kernel/Local-Polynomial regression with CV-optimal bandwidth.",
+      "label": "Latest Update · V4.0",
+      "description": "Time-series expansion — four new labs: Granger causality with Toda-Yamamoto Wald tests (robust to unit roots), Spectral analysis with Bai-Perron structural breaks, CUSUM stability and McLeod-Li/Keenan non-linearity tests, Exponential Smoothing forecasting (Holt-Winters & Theta) with decomposition and MASE/RMSSE backtests, and Long-Memory/ARFIMA estimation via GPH and R/S Hurst.",
       "cta": "View Changelog"
     }
   },
