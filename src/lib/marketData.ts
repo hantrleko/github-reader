@@ -1,7 +1,7 @@
 import { useQuery, useQueries } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
 
-const FUNCTIONS_URL = `https://oshfqmmhxaaevucfdunk.supabase.co/functions/v1`;
+const FUNCTIONS_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1`;
+const ANON_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY as string;
 
 async function callFn<T>(name: string, params: Record<string, string | number>): Promise<T> {
   const qs = new URLSearchParams(
@@ -9,7 +9,7 @@ async function callFn<T>(name: string, params: Record<string, string | number>):
   ).toString();
   const resp = await fetch(`${FUNCTIONS_URL}/${name}?${qs}`, {
     headers: {
-      apikey: (supabase as any).supabaseKey ?? "",
+      apikey: ANON_KEY,
     },
   });
   if (!resp.ok) {

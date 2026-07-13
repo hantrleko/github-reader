@@ -192,6 +192,10 @@ export function runBacktest(
   strategy: StrategyId,
   params: BacktestParams = {}
 ): BacktestResult {
+  const cleanPrices = prices.filter((p) => Number.isFinite(p) && p > 0);
+  const cleanDates = dates?.filter((_, i) => Number.isFinite(prices[i]) && prices[i] > 0);
+  prices = cleanPrices;
+  dates = cleanDates;
   const n = prices.length;
   if (n < 3) {
     return {

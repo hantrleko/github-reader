@@ -69,6 +69,16 @@ let CACHE: SearchDoc[] | null = null;
 const norm = (...parts: Array<string | undefined>) =>
   parts.filter(Boolean).join(" ").toLowerCase();
 
+/** Pre-warm the index during browser idle time to avoid blocking first interaction. */
+export function prewarmSearchIndex(): void {
+  if (CACHE) return;
+  if (typeof window === "undefined") return;
+  const schedule =
+    (window as any).requestIdleCallback ??
+    ((cb: () => void) => setTimeout(cb, 200));
+  schedule(() => buildSearchIndex());
+}
+
 export function buildSearchIndex(): SearchDoc[] {
   if (CACHE) return CACHE;
   const docs: SearchDoc[] = [];

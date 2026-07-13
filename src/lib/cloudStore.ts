@@ -1,4 +1,10 @@
 import { supabase } from "@/integrations/supabase/client";
+import { reportClientError } from "@/lib/errorReport";
+
+function logDbError(op: string, error: unknown) {
+  const msg = (error as { message?: string })?.message ?? String(error);
+  reportClientError({ type: "manual", message: `cloudStore ${op}: ${msg}` });
+}
 
 /* ------------------------------------------------------------------ */
 /*  GitHub: history                                                    */
@@ -9,7 +15,7 @@ export async function recordGithubVisit(
   repo: string,
   branch: string
 ) {
-  const { data: existing } = await supabase
+  const { data: existing, error: selErr } = await supabase
     .from("github_history")
     .select("id, open_count")
     .eq("user_id", userId)
@@ -17,15 +23,18 @@ export async function recordGithubVisit(
     .eq("repo", repo)
     .eq("branch", branch)
     .maybeSingle();
+  if (selErr) logDbError("recordGithubVisit/select", selErr);
   if (existing) {
-    await supabase
+    const { error } = await supabase
       .from("github_history")
       .update({ open_count: existing.open_count + 1, last_opened_at: new Date().toISOString() })
       .eq("id", existing.id);
+    if (error) logDbError("recordGithubVisit/update", error);
   } else {
-    await supabase
+    const { error } = await supabase
       .from("github_history")
       .insert({ user_id: userId, owner, repo, branch });
+    if (error) logDbError("recordGithubVisit/insert", error);
   }
 }
 
@@ -176,17 +185,20 @@ export async function listGlossaryBookmarks(userId: string) {
 }
 
 export async function toggleGlossaryBookmark(userId: string, slug: string) {
-  const { data: existing } = await supabase
+  const { data: existing, error: selErr } = await supabase
     .from("glossary_bookmarks")
     .select("id")
     .eq("user_id", userId)
     .eq("slug", slug)
     .maybeSingle();
+  if (selErr) logDbError("toggleGlossaryBookmark/select", selErr);
   if (existing) {
-    await supabase.from("glossary_bookmarks").delete().eq("id", existing.id);
+    const { error } = await supabase.from("glossary_bookmarks").delete().eq("id", existing.id);
+    if (error) logDbError("toggleGlossaryBookmark/delete", error);
     return false;
   }
-  await supabase.from("glossary_bookmarks").insert({ user_id: userId, slug });
+  const { error } = await supabase.from("glossary_bookmarks").insert({ user_id: userId, slug });
+  if (error) logDbError("toggleGlossaryBookmark/insert", error);
   return true;
 }
 
@@ -208,12 +220,13 @@ export async function setLearningProgress(
   sectionId: string,
   status: "reading" | "done"
 ) {
-  await supabase
+  const { error } = await supabase
     .from("learning_progress")
     .upsert(
       { user_id: userId, topic_id: topicId, section_id: sectionId, status },
       { onConflict: "user_id,topic_id,section_id" }
     );
+  if (error) logDbError("setLearningProgress", error);
 }
 
 export async function clearLearningProgress(userId: string, topicId = "main") {
