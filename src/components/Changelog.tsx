@@ -4,9 +4,35 @@ import { useTranslation } from "react-i18next";
 
 const RELEASES = [
   {
-    version: "V3.8",
+    version: "V4.0",
     date: "2026-07",
     tag: "Current",
+    highlights: [
+      {
+        icon: Sparkles,
+        title: "时间序列扩充 — /s/econometrics · 时间序列",
+        items: [
+          "Granger 因果 / Toda-Yamamoto:AIC/BIC 自动选滞后阶,双向 Granger F 检验,TY 增广 VAR Wald 检验对单位根/协整序列稳健",
+          "谱分析:Daniell 平滑周期图辨识主导周期,Bai-Perron sup-F 结构突变搜索,OLS-CUSUM 稳定性,McLeod-Li / Keenan 非线性检验",
+          "指数平滑预测:Holt-Winters (加法/乘法季节) 与 Theta 方法,含 95% 预测区间、经典趋势/季节/残差分解与 MASE / RMSSE 滚动回测",
+          "长记忆 / ARFIMA:GPH log-周期图回归与 R/S Hurst 估计分数阶 d,ACF 双曲衰减可视化,含 ARFIMA(0,d,0) 模拟对照",
+        ],
+      },
+      {
+        icon: BookOpen,
+        title: "工程",
+        items: [
+          "新增纯函数库 src/lib/quant/tsAdvanced.ts (VAR/Granger/TY、周期图、结构突变、CUSUM、Holt-Winters/Theta、经典分解、滚动回测、GPH/Hurst/ARFIMA)",
+          "构造 DGP 验证:X→Y 因果 p<0.0001、季节主导周期回收、断点定位、HW 回测 MASE≈0.25,长记忆 d̂ 与白噪声显著区分",
+          "工具目录 (/tools) 补 4 条新卡片,计量「时间序列」分类扩至 14 个工具,命令面板 ⌘K 自动可发现",
+        ],
+      },
+    ],
+  },
+  {
+    version: "V3.8",
+    date: "2026-07",
+    tag: "Stable",
     highlights: [
       {
         icon: Sparkles,
