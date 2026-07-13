@@ -24,6 +24,7 @@ import { HARRVTool, HawkesTool, KyleLambdaTool } from "./econ/V25Tools";
 import { UnitRootTool } from "./econ/UnitRootTool";
 import { RegressionDiagnosticsTool, DynamicPanelTool, DieboldMarianoTool, KernelRegressionTool } from "./econ/V38Tools";
 import { EventStudyDIDTool, PanelRootTool, QuantileMfxTool, DiagnosticReportTool } from "./econ/V39Tools";
+import { GrangerTYTool, SpectralTool, ExpSmoothTool, LongMemoryTool } from "./econ/V40Tools";
 import { EquationBlock } from "@/components/common/EquationBlock";
 import CategorizedToolNav, { type ToolCategory } from "@/components/common/CategorizedToolNav";
 
