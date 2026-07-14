@@ -4,9 +4,37 @@ import { useTranslation } from "react-i18next";
 
 const RELEASES = [
   {
-    version: "V4.0",
+    version: "V4.1",
     date: "2026-07",
     tag: "Current",
+    highlights: [
+      {
+        icon: Sparkles,
+        title: "投资组合理论强化 — /s/quant",
+        items: [
+          "Black-Litterman 完整版:市场隐含 π + 绝对/相对观点 P/Q + Idzorek 信心 c → Ω,展示先验/后验 μ 与权重差异",
+          "Mean-CVaR 尾部优化 (Rockafellar-Uryasev):投影次梯度长仓求解,损失分布 + VaR/CVaR + 等权对比",
+          "稳健协方差收缩:Ledoit-Wolf 常相关目标 + OAS,展示 λ*、条件数改善与对角方差对比",
+          "Michaud 重采样有效前沿:B 次 bootstrap (μ̂,Σ̂) 求平均权重,消解经典 MV 的角解与不稳定",
+          "因子风险预算:Var(w)=wᵀBFBᵀw+wᵀDw 分解,匹配 MKT/HML/RMW 目标预算或因子中性",
+          "Kelly & 破产风险实验室:多资产 k*=Σ⁻¹(μ−rf)、分数 Kelly 终值分布与破产概率蒙特卡洛",
+        ],
+      },
+      {
+        icon: BookOpen,
+        title: "工程",
+        items: [
+          "新增纯函数库 src/lib/quant/portfolioAdvanced.ts (BL/Idzorek、CVaR、LW/OAS、Michaon、因子分解、Kelly 模拟)",
+          "6 项单元测试全部通过:BL 极限一致性、LW 条件数改善、CVaR 长仓、因子分解方差守恒、半 Kelly 更低破产率",
+          "工具目录扩至 27 类,QuantStrategyTools 采用两级分类导航 (经典/贝叶斯/下行) 与命令面板自动可发现",
+        ],
+      },
+    ],
+  },
+  {
+    version: "V4.0",
+    date: "2026-07",
+    tag: "Stable",
     highlights: [
       {
         icon: Sparkles,
