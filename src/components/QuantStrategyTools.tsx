@@ -9,8 +9,15 @@ import { BacktestTool, BlackLittermanTool, FamaFrenchTool } from "./quant/Sprint
 import { RiskParityTool } from "./quant/RiskParityTool";
 import { WalkForwardTool } from "./quant/WalkForwardTool";
 import { EquationBlock } from "@/components/common/EquationBlock";
+import CategorizedToolNav, { type ToolCategory } from "@/components/common/CategorizedToolNav";
+import {
+  BlackLittermanFullTool, MeanCVaRTool, ShrinkageTool,
+  ResampledFrontierTool, FactorBudgetTool, KellyRuinTool,
+} from "./quant/V41PortfolioTools";
 
-type ToolId = "backtest" | "walkforward" | "bl" | "rp" | "ff5";
+type ToolId =
+  | "backtest" | "walkforward" | "bl" | "rp" | "ff5"
+  | "bl-full" | "cvar" | "shrinkage" | "resampled" | "factor-budget" | "kelly";
 
 const TOOLS: { id: ToolId; name: string; nameEn: string; formula: string; component: React.FC }[] = [
   {
@@ -38,6 +45,42 @@ const TOOLS: { id: ToolId; name: string; nameEn: string; formula: string; compon
     formula: String.raw`R_{p,t} - R_{f,t} = \alpha + \beta_{\mathrm{MKT}}\,\mathrm{MKT}_t + \beta_{\mathrm{SMB}}\,\mathrm{SMB}_t + \beta_{\mathrm{HML}}\,\mathrm{HML}_t + \beta_{\mathrm{RMW}}\,\mathrm{RMW}_t + \beta_{\mathrm{CMA}}\,\mathrm{CMA}_t + \varepsilon_t`,
     component: FamaFrenchTool,
   },
+  {
+    id: "bl-full", name: "Black-Litterman 完整版", nameEn: "Black-Litterman (Full) with Idzorek Confidence → Ω",
+    formula: String.raw`\pi = \delta\,\Sigma\,w_{\text{mkt}},\quad \tilde\mu = \pi + \tau\Sigma P^{\!\top}(P\tau\Sigma P^{\!\top}+\Omega)^{-1}(Q-P\pi),\quad \omega_k = \tfrac{1-c_k}{c_k}\,p_k\tau\Sigma p_k^{\!\top}`,
+    component: BlackLittermanFullTool,
+  },
+  {
+    id: "cvar", name: "Mean-CVaR 尾部优化", nameEn: "Mean-CVaR Optimisation — Rockafellar-Uryasev",
+    formula: String.raw`\min_{w,\zeta}\ \zeta + \tfrac{1}{(1-\alpha)S}\sum_{s=1}^{S}\bigl(-r_s^{\!\top}w-\zeta\bigr)^{\!+},\quad \text{s.t. } \mathbf{1}^{\!\top}w=1,\ w\geq 0`,
+    component: MeanCVaRTool,
+  },
+  {
+    id: "shrinkage", name: "稳健协方差收缩", nameEn: "Ledoit-Wolf & OAS Covariance Shrinkage",
+    formula: String.raw`\hat\Sigma = \lambda F + (1-\lambda) S,\quad \lambda^{*} = \dfrac{\sum_{i,j}\widehat{\mathrm{Var}}(s_{ij})}{T\sum_{i,j}(s_{ij}-f_{ij})^{2}}`,
+    component: ShrinkageTool,
+  },
+  {
+    id: "resampled", name: "Michaud 重采样前沿", nameEn: "Michaud Resampled Efficient Frontier",
+    formula: String.raw`\bar w(\text{target}_g) = \tfrac{1}{B}\sum_{b=1}^{B} w^{(b)}\!\bigl(\hat\mu^{(b)},\hat\Sigma^{(b)};\text{target}_g\bigr)`,
+    component: ResampledFrontierTool,
+  },
+  {
+    id: "factor-budget", name: "因子风险预算", nameEn: "Factor Risk Budgeting — B F Bᵀ + Specific",
+    formula: String.raw`\mathrm{Var}(w) = w^{\!\top} B\,F\,B^{\!\top} w + w^{\!\top} D\,w,\quad \dfrac{(\!B^{\!\top}w)_k\,(F B^{\!\top}w)_k}{\mathrm{Var}(w)} = \text{target}_k`,
+    component: FactorBudgetTool,
+  },
+  {
+    id: "kelly", name: "Kelly & 破产风险", nameEn: "Kelly Criterion & Ruin Probability Lab",
+    formula: String.raw`k^{*} = \Sigma^{-1}(\mu-r_f),\quad g(f) = f\,(\mu_p - r_f) + r_f - \tfrac{1}{2}f^{2}\sigma_p^{2},\quad \Pr\!\bigl(\min_t W_t < \theta\bigr)`,
+    component: KellyRuinTool,
+  },
+];
+
+const CATEGORIES: ToolCategory[] = [
+  { id: "classic", label: "经典与稳健", toolIds: ["backtest", "walkforward", "shrinkage", "resampled"] },
+  { id: "bayes", label: "贝叶斯与因子", toolIds: ["bl", "bl-full", "ff5", "factor-budget"] },
+  { id: "downside", label: "下行与增长", toolIds: ["rp", "cvar", "kelly"] },
 ];
 
 const QuantStrategyTools = () => {
@@ -58,16 +101,12 @@ const QuantStrategyTools = () => {
           <p className="text-sm text-muted-foreground mt-3 max-w-2xl mx-auto">{t("sections.quant.subtitle")}</p>
         </motion.div>
 
-        <div className="flex flex-wrap justify-center gap-2 mb-8">
-          {TOOLS.map(t => (
-            <button key={t.id} onClick={() => setTool(t.id)}
-              className={`px-5 py-2.5 rounded-lg text-sm font-mono transition-all duration-300 ${
-                tool === t.id ? "bg-primary text-primary-foreground shadow-lg" : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
-              }`}>
-              {t.name}
-            </button>
-          ))}
-        </div>
+        <CategorizedToolNav
+          tools={TOOLS.map((tt) => ({ id: tt.id, name: tt.name, nameEn: tt.nameEn }))}
+          categories={CATEGORIES}
+          activeId={tool}
+          onSelect={(id) => setTool(id as ToolId)}
+        />
 
         <motion.div key={tool} ref={captureRef} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35 }}
           className="rounded-2xl border border-border bg-card p-6 md:p-10 glow-gold">

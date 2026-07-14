@@ -37,7 +37,7 @@ export interface ToolEntry {
   related?: string[];
   /** true once unit tests vs a closed-form benchmark exist in src/lib/quant */
   verified?: boolean;
-  version: "V1.0" | "V2.0" | "V2.1" | "V2.2" | "V2.3" | "V2.4" | "V2.5" | "V2.6" | "V2.7" | "V2.8" | "V3.0" | "V3.1" | "V3.2" | "V3.3" | "V3.4" | "V3.5" | "V3.6" | "V3.7" | "V3.8" | "V3.9" | "V4.0";
+  version: "V1.0" | "V2.0" | "V2.1" | "V2.2" | "V2.3" | "V2.4" | "V2.5" | "V2.6" | "V2.7" | "V2.8" | "V3.0" | "V3.1" | "V3.2" | "V3.3" | "V3.4" | "V3.5" | "V3.6" | "V3.7" | "V3.8" | "V3.9" | "V4.0" | "V4.1";
 }
 
 export const CATEGORY_LABEL: Record<ToolCategory, { zh: string; en: string }> = {
@@ -307,6 +307,60 @@ export const TOOLS_CATALOG: ToolEntry[] = [
     blurb: "Markowitz MV 优化 + 切线组合 + CML 可视化。",
     related: ["risk-parity"],
     version: "V1.0",
+  },
+  {
+    id: "bl-full", name: "Black-Litterman 完整版",
+    nameEn: "Black-Litterman (Full) with Idzorek Confidence",
+    category: "portfolio", difficulty: "advanced", anchor: "/s/quant",
+    tags: ["贝叶斯", "先验", "观点", "Idzorek", "τ"],
+    refs: ["Black & Litterman (1992)", "He & Litterman (1999)", "Idzorek (2005)"],
+    blurb: "市场隐含 π + 绝对/相对观点 P/Q + Idzorek 信心反解 Ω，输出后验 μ̃、Σ̃ 与前后权重对比。",
+    related: ["frontier", "resampled"], verified: true, version: "V4.1",
+  },
+  {
+    id: "cvar", name: "Mean-CVaR 尾部优化",
+    nameEn: "Mean-CVaR Optimisation — Rockafellar-Uryasev",
+    category: "portfolio", difficulty: "advanced", anchor: "/s/quant",
+    tags: ["CVaR", "尾部风险", "投影次梯度"],
+    refs: ["Rockafellar & Uryasev (2000)"],
+    blurb: "R-U 线性化 CVaR@α 长仓优化：VaR/CVaR、损失分布与等权对比。",
+    related: ["risk-parity", "es-backtest"], verified: true, version: "V4.1",
+  },
+  {
+    id: "shrinkage", name: "稳健协方差收缩",
+    nameEn: "Ledoit-Wolf & OAS Covariance Shrinkage",
+    category: "portfolio", difficulty: "core", anchor: "/s/quant",
+    tags: ["Ledoit-Wolf", "OAS", "条件数", "样本外"],
+    refs: ["Ledoit & Wolf (2003)", "Chen et al. (2010)"],
+    blurb: "常相关目标 + Schäfer-Strimmer λ*：收缩强度、条件数改善与对角方差对比。",
+    related: ["frontier", "risk-parity"], verified: true, version: "V4.1",
+  },
+  {
+    id: "resampled", name: "Michaud 重采样前沿",
+    nameEn: "Michaud Resampled Efficient Frontier",
+    category: "portfolio", difficulty: "advanced", anchor: "/s/quant",
+    tags: ["Bootstrap", "参数不确定性", "权重稳定性"],
+    refs: ["Michaud (1998)"],
+    blurb: "B 次 bootstrap 抽样 (μ̂,Σ̂)，对齐分位求平均权重，缓解角解与过度集中。",
+    related: ["frontier", "bl-full"], verified: true, version: "V4.1",
+  },
+  {
+    id: "factor-budget", name: "因子风险预算",
+    nameEn: "Factor Risk Budgeting",
+    category: "portfolio", difficulty: "advanced", anchor: "/s/quant",
+    tags: ["因子", "MKT/HML/RMW", "风险分解", "预算"],
+    refs: ["Roncalli (2013)"],
+    blurb: "Var(w) = wᵀBFBᵀw + wᵀDw；目标因子风险贡献匹配 → 因子倾斜/中性组合。",
+    related: ["ff5", "risk-parity"], verified: true, version: "V4.1",
+  },
+  {
+    id: "kelly", name: "Kelly & 破产风险",
+    nameEn: "Kelly Criterion & Ruin Probability",
+    category: "portfolio", difficulty: "research", anchor: "/s/quant",
+    tags: ["Kelly", "log-utility", "破产", "蒙特卡洛"],
+    refs: ["Kelly (1956)", "Thorp (1971)"],
+    blurb: "多资产 Kelly k*=Σ⁻¹(μ−rf)、分数 Kelly 终值分布与破产概率蒙特卡洛。",
+    related: ["cvar", "risk-parity"], verified: true, version: "V4.1",
   },
   // ── Chapter 4: Econometrics ──
   {
