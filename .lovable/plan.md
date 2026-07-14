@@ -1,58 +1,91 @@
-# V4.0 时间序列升级扩充 · 四线并进（深广 3/5）
+# V4.1 投资组合理论模块强化
 
-按你选的四个方向各补一个高价值工具，深度居中：每个工具都配可复现的纯函数、合成/真实数据双入口与 Tool Bus 联动，并统一登记到目录、命令面板、两级导航与版本日志。全部前端 + 数学实现，无后端/RLS 改动。
+## 现状盘点
 
----
+现有工具集中在 `src/components/EfficientFrontier.tsx`、`src/components/quant/{PortfolioBacktest, RiskParityTool, Sprint4Tools, BacktestLab, WalkForwardTool}`，底层数学在 `src/lib/quant/portfolio.ts`：
 
-## 线 1 · 因果与滞后关系 —— 「Granger 因果 / Toda-Yamamoto」(`granger`)
+- 已有：等权 / 最小方差 / 均值方差 / 风险平价 / HRP / Black-Litterman（简化） / 回测与再平衡 / 交易成本 / 走前向。
+- 缺口：稳健优化、下行风险、参数不确定性、因子层面的风险预算、增长率视角、约束优化。
 
-- 双变量（可扩展至多变量）VAR，按 AIC/BIC 自动选滞后阶。
-- 标准 Granger 因果 F/χ² 检验（双向：X→Y 与 Y→X）。
-- **Toda-Yamamoto** 滞后增广法（VAR(p+d)，对前 p 阶做 Wald），对非平稳/协整序列稳健，规避先做单位根/协整的陷阱。
-- 输出：双向因果判定表（统计量 + p 值 + 结论）、滞后阶选择曲线、两序列叠加图。
+## 目标（选 6 个新工具，覆盖"稳健、下行、因子、增长"四类前沿主题）
 
-## 线 2 · 频谱与非线性 —— 「频谱分析与非线性检验」(`spectral`)
+### 1. Black-Litterman 完整版（升级现有简化实现）
+- 提供市场隐含超额收益 π = δΣw_mkt、绝对/相对观点矩阵 P、观点不确定性 Ω（可选 Idzorek 置信度反解）
+- 输出：后验 μ̃、Σ̃、以及最优权重与"仅先验/仅观点/融合"三条前沿对比
 
-- 周期图（periodogram）与平滑谱密度（Bartlett/Parzen 窗），自动标注主导周期（如年度/季度节律）。
-- 结构突变：Bai-Perron 型单断点搜索 + CUSUM 稳定性图。
-- 非线性检验徽章：Tsay 门限非线性检验 / McLeod-Li（残差平方 ACF）。
-- 输出：谱密度曲线（含峰值周期标注）、CUSUM 边界图、非线性检验结论摘要。
+### 2. Mean-CVaR / Mean-Semi-Variance 优化
+- 用历史或蒙特卡洛情景，最小化 CVaR@α（Rockafellar-Uryasev 线性化的凸投影梯度求解）
+- 输出：CVaR 前沿 vs 均值方差前沿叠加、尾部对齐后的权重差异
 
-## 线 3 · 预测与评估 —— 「指数平滑预测实验室」(`expsmooth`)
+### 3. 稳健协方差与收缩估计
+- Ledoit-Wolf 常相关目标收缩、Oracle 近似收缩（OAS）、Minimum Covariance Determinant 稳健估计
+- 展示：条件数、样本外方差预测误差、收缩强度 λ* 网格
+- 直接改善 min-var / MV / RP 的样本外表现
 
-- Holt-Winters / ETS（含加法/乘法季节）与 Theta 方法，季节周期可调。
-- STL 型趋势-季节-残差分解可视化。
-- **滚动样本外回测**：与季节朴素基准对比，输出 RMSE/MAE/MASE，并画预测区间。
-- 输出：拟合+外推预测带图、分解三面板、滚动回测精度对比表。
+### 4. Michaud 重采样有效前沿（参数不确定性）
+- 对 (μ, Σ) 做 B 次 bootstrap，求每次前沿上等风险分位点，求平均权重
+- 输出：经典前沿 vs 重采样前沿、权重稳定性热力图（B 次分布）
 
-## 线 4 · 长记忆与分数积分 —— 「长记忆 / ARFIMA」(`longmem`)
+### 5. 因子风险预算 / 因子中性组合
+- 给定因子暴露矩阵 B（MKT/SMB/HML/RMW/CMA 或用户自定义），分解组合风险为因子风险 + 特异风险
+- 支持：因子风险预算目标（例如 60% MKT / 20% Value / 20% Quality）、因子中性约束（β_f = 0）
+- 输出：因子风险贡献瀑布图、因子暴露条形图
 
-- 长记忆估计：GPH（log-periodogram 回归估 d）与 R/S 重标极差（Hurst 指数）。
-- ARFIMA(0,d,0) 分数差分示范，展示 d∈(0,0.5) 长记忆、d≥0.5 非平稳。
-- 合成数据生成器可造纯短记忆 vs 长记忆序列，直观对比 ACF 缓慢衰减。
-- 输出：d 与 Hurst 估计（含置信区间）、log-periodogram 回归散点、ACF 衰减对比图。
+### 6. Kelly & 破产风险实验室
+- 完整 Kelly：f\* = Σ⁻¹(μ − r) 组合形式；分数 Kelly 曲线
+- 蒙特卡洛终值分布 + 破产概率 P(min W_t < 阈值)
+- 与 log-utility / 均值方差最优点在增长率-风险空间的对比
 
----
+## 落地结构
 
-## 共享逻辑与联动
+### 新增数学库 `src/lib/quant/portfolioAdvanced.ts`
+- `blackLittermanFull(pi, tau, Sigma, P, Q, Omega)` → { muPost, SigmaPost }
+- `idzorekOmega(P, Sigma, tau, confidences)` → Omega
+- `meanCVaROptimize(scenarios, alpha, targetReturn?)` → weights, CVaR, VaR
+- `ledoitWolfShrink(returns)` / `oasShrink(returns)` / `mcdEstimate(returns)`
+- `resampledFrontier(mu, Sigma, B, gridPts)` → { classic, resampled, weightDist }
+- `factorRiskDecomp(w, B, factorCov, specificVar)` → { total, factorRC[], specificRC }
+- `factorBudgetWeights(B, factorCov, specificVar, targets)` → weights
+- `kellyWeights(mu, Sigma, rf)` / `kellySimulate(weights, mu, Sigma, N, T)` → { terminal, ruinProb }
 
-- 新纯函数库 `src/lib/quant/tsAdvanced.ts`：集中放 VAR 拟合与滞后选择、Granger/Toda-Yamamoto Wald、周期图/平滑谱、Bai-Perron 单断点 + CUSUM、Holt-Winters/ETS/Theta 与滚动回测指标、GPH/R-S/分数差分。复用 `econometrics.ts` 的矩阵/OLS/p 值工具（`matInvert`、`olsDetail`、卡方/F/正态 CDF），避免重复实现。
-- 配 `src/lib/quant/__tests__/tsAdvanced.test.ts`：用已知构造的 DGP 回收结论方向（Granger 有向↔无向、主导周期定位、季节序列 Holt-Winters 优于朴素、长记忆 d 显著>0）。
-- Tool Bus：`granger`/`spectral`/`longmem` 可接收其他时间序列工具（ARIMA、单位根、GARCH）的序列输入；`expsmooth` 可把预测序列/分解结果发送到下游工具。
-- 新增一条 Workflow 剧本：`真实序列 → 单位根 → Toda-Yamamoto 因果 → 指数平滑预测回测`，与既有剧本风格一致。
+### 新增 UI `src/components/quant/V41PortfolioTools.tsx`
+六个 Tool 组件，复用现有 `PresetButtons` / `Slider` / `Stat` / `ShareExportToolbar` / `EquationBlock` 样式。所有工具使用 Recharts + gold 主题，遵循 Bloomberg-editorial 记忆规范。
 
-## 集成与登记
+### 挂载
+- 在 `src/components/QuantStrategyTools.tsx` 引入 `CategorizedToolNav`（复用资产定价的分类导航），将现有 5 个工具 + 新 6 个工具划分为 3 类：
+  ```
+  经典与稳健：backtest, walkforward, minvar-shrink*, resampled*
+  贝叶斯与因子：bl-full*, ff5, factor-budget*
+  下行与增长：rp, cvar*, kelly*
+  ```
+- `src/data/toolsCatalog.ts` 追加 6 条元数据（zh/en + category = "portfolio"）
+- Command palette 与 workflows 自动接入（读 catalog）
 
-- 组件：新增 `src/components/econ/V40Tools.tsx`（四个工具集中实现，沿用现有 Slider/Chart 配色、PresetButtons 与 TestBadge 风格）。
-- `EconometricsTools.tsx`：在 `TOOLS` 注册四个新工具，并全部归入 `ECON_CATEGORIES` 的 `timeseries` 类。
-- `src/data/toolsCatalog.ts`：新增四个条目，并把全站版本升到 **V4.0**（含 version 联合类型）。
-- 可发现性：登记进 `CommandPalette.tsx` 搜索索引与 `src/lib/sections.ts`（如涉及），确保 ⌘K 与 `/tools` 可搜到。
-- 版本与日志：更新 `HeroSection.tsx` / i18n `en.json`·`zh.json` 的 `hero.latestUpdate`、`CHANGELOG.md` 与 `Changelog.tsx` 写入 V4.0 条目、V3.9 标记 Stable。
+### 测试
+- 新增 `src/lib/quant/__tests__/portfolioAdvanced.test.ts`：
+  - BL 后验在 Ω→∞ 时回到先验、Ω→0 时回到观点
+  - Ledoit-Wolf 收缩后条件数下降
+  - Mean-CVaR 前沿单调性：更高目标收益 ⇒ 更高 CVaR
+  - 因子分解总和 = 组合方差
+  - Kelly 全额 vs 半 Kelly：半 Kelly 破产概率严格更低
 
-## 校验
+### 版本与文档
+- `package.json` bump → `4.1.0`
+- `src/components/Changelog.tsx` + `CHANGELOG.md`：V4.1 条目
+- `src/lib/buildVersion.ts` 更新
+- i18n：`en.json` / `zh.json` 增加 `sections.quant.subtitle` 更新 + 6 个工具名/描述键
 
-`tsgo` 类型检查 + `vitest` 跑新 `tsAdvanced` 单测 + `check-copy-consistency` 文案一致性 + Playwright 截图核对四个新页签渲染与时间序列两级导航分类。
+## 技术细节
 
-## 范围说明
+- Mean-CVaR 用 Rockafellar-Uryasev 表述：min VaR + (1/((1-α)N))Σ max(−r_s·w − VaR, 0)，用投影次梯度（长仓单纯形）+ VaR 内点更新收敛，避免引入 LP 求解器依赖。
+- Ledoit-Wolf 用 Schäfer-Strimmer 简化：λ* = min(1, ΣVar(s_ij)/Σ(s_ij − t_ij)²)，目标 t = 常相关 × 样本方差。
+- Michaud 重采样：对每个 bootstrap 样本重新估 (μ̂,Σ̂) → 20 点均值方差前沿 → 按 σ 分位对齐后平均权重。
+- 因子协方差假设块对角（因子间协方差 + 特异残差协方差对角化）。
+- Kelly 蒙特卡洛使用几何布朗运动近似，log 收益服从 N(μ − σ²/2, σ²)。
 
-本轮四条线各补一个工具、共用一个纯函数库，深广居中。如果你想把某条线做重（例如线 4 一次补 GPH+ARFIMA 全流程+TVP-VAR+BVAR），告诉我我再调整配比。
+## 交付顺序（一次实现）
+
+1. `portfolioAdvanced.ts` + 测试
+2. 六个 UI 工具组件 + `QuantStrategyTools.tsx` 分类导航接入
+3. `toolsCatalog.ts` / i18n / changelog / buildVersion / package.json
+4. `tsgo` 类型校验 + `vitest run` 通过
