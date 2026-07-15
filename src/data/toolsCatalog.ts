@@ -37,7 +37,7 @@ export interface ToolEntry {
   related?: string[];
   /** true once unit tests vs a closed-form benchmark exist in src/lib/quant */
   verified?: boolean;
-  version: "V1.0" | "V2.0" | "V2.1" | "V2.2" | "V2.3" | "V2.4" | "V2.5" | "V2.6" | "V2.7" | "V2.8" | "V3.0" | "V3.1" | "V3.2" | "V3.3" | "V3.4" | "V3.5" | "V3.6" | "V3.7" | "V3.8" | "V3.9" | "V4.0" | "V4.1";
+  version: "V1.0" | "V2.0" | "V2.1" | "V2.2" | "V2.3" | "V2.4" | "V2.5" | "V2.6" | "V2.7" | "V2.8" | "V3.0" | "V3.1" | "V3.2" | "V3.3" | "V3.4" | "V3.5" | "V3.6" | "V3.7" | "V3.8" | "V3.9" | "V4.0" | "V4.1" | "V4.2";
 }
 
 export const CATEGORY_LABEL: Record<ToolCategory, { zh: string; en: string }> = {
@@ -1045,6 +1045,61 @@ export const TOOLS_CATALOG: ToolEntry[] = [
     refs: ["Geweke & Porter-Hudak (1983)", "Hurst (1951)", "Granger & Joyeux (1980)"],
     blurb: "GPH log-周期图回归与 R/S Hurst 估计分数阶 d，ACF 缓慢衰减可视化，含 ARFIMA 模拟对照。",
     related: ["unitroot", "arima"], verified: true, version: "V4.0",
+  },
+  // ── V4.2 Derivatives Reinforcement ──
+  {
+    id: "jump", name: "跳跃扩散 (Merton & Kou)",
+    nameEn: "Jump-Diffusion — Merton & Kou",
+    category: "derivatives", difficulty: "advanced", anchor: "/s/deriv",
+    tags: ["跳跃", "Merton", "Kou", "崩盘风险", "微笑"],
+    refs: ["Merton (1976)", "Kou (2002)"],
+    blurb: "Merton 对数正态跳跃级数闭式解 + Kou 双指数跳跃 Monte Carlo，与 BS 平滑对比揭示短期 OTM 溢价与偏度。",
+    related: ["bs", "heston", "bates_var"], verified: true, version: "V4.2",
+  },
+  {
+    id: "bates_var", name: "Bates + 方差互换",
+    nameEn: "Bates SVJ & Variance Swap Replication",
+    category: "derivatives", difficulty: "research", anchor: "/s/deriv",
+    tags: ["Bates", "方差互换", "VIX", "静态复制", "方差风险溢价"],
+    refs: ["Bates (1996)", "Demeterfi et al. (1999)"],
+    blurb: "Bates 随机波+跳跃 MC 定价，模型自由方差互换复制得 VIX 与 Realized Vol 的方差风险溢价。",
+    related: ["heston", "jump", "vol-surface"], verified: true, version: "V4.2",
+  },
+  {
+    id: "pde", name: "Crank-Nicolson PDE 求解",
+    nameEn: "Crank-Nicolson PDE Solver",
+    category: "derivatives", difficulty: "advanced", anchor: "/s/deriv",
+    tags: ["有限差分", "Crank-Nicolson", "PSOR", "美式", "障碍"],
+    refs: ["Crank & Nicolson (1947)", "Wilmott (1998)"],
+    blurb: "二阶隐式 θ=0.5 差分，Thomas 三对角求解；PSOR 处理美式期权早行权，边界处理支持敲出障碍。",
+    related: ["binomial", "amer"], verified: true, version: "V4.2",
+  },
+  {
+    id: "hedge_pnl", name: "Delta 对冲 P&L 归因",
+    nameEn: "Delta-Hedge P&L Attribution",
+    category: "derivatives", difficulty: "advanced", anchor: "/s/deriv",
+    tags: ["对冲", "Gamma", "Vega", "Volga", "交易成本"],
+    refs: ["Wilmott (2006)"],
+    blurb: "蒙特卡洛离散重新对冲下 P&L 分解为 Γ·Θ 平衡、Vega·Δσ、离散误差与交易成本，含分布与瀑布图。",
+    related: ["greeks", "bs"], verified: true, version: "V4.2",
+  },
+  {
+    id: "autocall", name: "Autocallable 结构化票据",
+    nameEn: "Autocallable / Phoenix Note",
+    category: "derivatives", difficulty: "research", anchor: "/s/deriv",
+    tags: ["结构化", "自动赎回", "敲入", "Phoenix", "票息"],
+    refs: ["Bouzoubaa & Osseiran (2010)"],
+    blurb: "Phoenix 结构：每期观察 AC 提前赎回、KI 保护到期条款；输出公允价、期望存续期、赎回概率分布与 KI 命中率。",
+    related: ["exotic", "bates_var"], verified: true, version: "V4.2",
+  },
+  {
+    id: "xva", name: "XVA (CVA / DVA / FVA)",
+    nameEn: "Counterparty Credit XVA",
+    category: "derivatives", difficulty: "research", anchor: "/s/deriv",
+    tags: ["CVA", "DVA", "FVA", "EE", "PFE", "对手风险"],
+    refs: ["Gregory (2015)", "Green (2015)"],
+    blurb: "利率互换暴露蒙特卡洛 → EE/NE/PFE95 曲线，结合双边违约强度、回收率与融资利差计算 CVA/DVA/FVA。",
+    related: ["rates", "lmm"], verified: true, version: "V4.2",
   },
 ];
 

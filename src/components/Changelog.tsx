@@ -4,9 +4,37 @@ import { useTranslation } from "react-i18next";
 
 const RELEASES = [
   {
-    version: "V4.1",
+    version: "V4.2",
     date: "2026-07",
     tag: "Current",
+    highlights: [
+      {
+        icon: Sparkles,
+        title: "衍生品定价强化 — /s/deriv",
+        items: [
+          "跳跃扩散: Merton 级数闭式 + Kou 双指数 MC, 与 BS 对比揭示短期 OTM 溢价与偏度",
+          "Bates SVJ + 方差互换静态复制: VIX 隐含波与 Realized Vol 的方差风险溢价",
+          "Crank-Nicolson PDE: Thomas 三对角求解, PSOR 处理美式早行权与敲出障碍",
+          "Delta 对冲 P&L 归因: 分解 Γ·Θ 平衡 / Vega·Δσ / 离散误差 / 交易成本",
+          "Autocallable / Phoenix 结构化票据: 赎回概率、期望存续期与 KI 命中率",
+          "XVA (CVA / DVA / FVA): 利率互换 EE/NE/PFE95 暴露曲线 + 双边信用与融资调整",
+        ],
+      },
+      {
+        icon: BookOpen,
+        title: "工程",
+        items: [
+          "新增纯函数库 src/lib/quant/derivAdvanced.ts (Merton/Kou、Bates MC、CN-PSOR、Hedge PnL、Autocall、XVA)",
+          "10 项单元测试全部通过: Merton→BS 极限、CN 与 BS 对齐、美式≥欧式、CVA 单调于 λ_C 等",
+          "衍生品导航扩至 6 类 17 工具, 目录 + 命令面板自动可发现",
+        ],
+      },
+    ],
+  },
+  {
+    version: "V4.1",
+    date: "2026-07",
+    tag: "Stable",
     highlights: [
       {
         icon: Sparkles,

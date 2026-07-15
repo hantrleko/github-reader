@@ -13,15 +13,23 @@ import { GreeksDeskTool } from "./deriv/GreeksDeskTool";
 import { SABRvsHestonTool } from "./deriv/SABRvsHestonTool";
 import { LMMSwaptionTool, ExoticOptionsTool } from "./deriv/V26Tools";
 import { BinomialTreeTool } from "./deriv/BinomialTreeTool";
+import {
+  JumpDiffusionTool, BatesVarSwapTool, PdeTool,
+  HedgePnLTool, AutocallableTool, XvaTool,
+} from "./deriv/V42Tools";
 import { EquationBlock } from "@/components/common/EquationBlock";
 import CategorizedToolNav, { type ToolCategory } from "@/components/common/CategorizedToolNav";
 
-type ToolId = "vol" | "heston" | "sabr" | "sabr_heston" | "localvol" | "greeks" | "binomial" | "amer" | "rates" | "lmm" | "exotic";
+type ToolId = "vol" | "heston" | "sabr" | "sabr_heston" | "localvol" | "greeks" | "binomial" | "amer" | "rates" | "lmm" | "exotic"
+  | "jump" | "bates_var" | "pde" | "hedge_pnl" | "autocall" | "xva";
 
 const DERIV_CATEGORIES: ToolCategory[] = [
   { id: "surface", label: "波动率曲面", toolIds: ["vol", "heston", "sabr", "sabr_heston", "localvol"] },
   { id: "greeks", label: "希腊字母与格点", toolIds: ["greeks", "binomial", "amer"] },
   { id: "rates", label: "利率与奇异", toolIds: ["rates", "lmm", "exotic"] },
+  { id: "jumps", label: "跳跃与方差", toolIds: ["jump", "bates_var"] },
+  { id: "numerics", label: "数值方法", toolIds: ["pde"] },
+  { id: "structured", label: "交易与结构", toolIds: ["hedge_pnl", "autocall", "xva"] },
 ];
 
 const TOOLS: { id: ToolId; name: string; nameEn: string; formula: string; component: React.FC }[] = [
@@ -79,6 +87,36 @@ const TOOLS: { id: ToolId; name: string; nameEn: string; formula: string; compon
     id: "exotic", name: "路径依赖期权 (亚式/障碍/回望)", nameEn: "Path-Dependent Exotics — Asian / Barrier / Lookback with Control Variate",
     formula: String.raw`\hat C_{\text{CV}} = \bar Y - \hat\beta\bigl(\bar C - \mathbb{E}[C]\bigr),\qquad \hat\beta = \tfrac{\mathrm{Cov}(Y,C)}{\mathrm{Var}(C)},\quad \mathbb{E}[C] = e^{rT}\,C^{\text{BS}}`,
     component: ExoticOptionsTool,
+  },
+  {
+    id: "jump", name: "跳跃扩散 (Merton & Kou)", nameEn: "Jump-Diffusion — Merton (1976) & Kou (2002)",
+    formula: String.raw`dS_t/S_t = (r - \lambda m)\,dt + \sigma\,dW_t + (e^{J}-1)\,dN_t,\qquad C^{\text{Merton}} = \sum_{n=0}^{\infty} \dfrac{e^{-\lambda' T}(\lambda' T)^n}{n!}\,C^{\text{BS}}(S,K,T,r_n,\sigma_n)`,
+    component: JumpDiffusionTool,
+  },
+  {
+    id: "bates_var", name: "Bates + 方差互换", nameEn: "Bates SVJ Monte Carlo & Variance Swap Replication",
+    formula: String.raw`\text{Bates}:\; dS_t/S_t = r\,dt + \sqrt{v_t}\,dW_1 + (e^{J}-1)\,dN,\quad K_{\text{var}} = \dfrac{2}{T}\!\int \dfrac{P(K)\,\mathbf 1_{K\le S^*} + C(K)\,\mathbf 1_{K\ge S^*}}{K^2}\,dK`,
+    component: BatesVarSwapTool,
+  },
+  {
+    id: "pde", name: "Crank-Nicolson PDE", nameEn: "Crank-Nicolson Finite Difference (Euro / American PSOR / Barrier)",
+    formula: String.raw`\dfrac{\partial V}{\partial t} + \tfrac12 \sigma^2 S^2 \dfrac{\partial^2 V}{\partial S^2} + (r-q)S\dfrac{\partial V}{\partial S} - rV = 0,\qquad V_i^{n} = \max\!\bigl(V_i^{\text{CN}},\; \text{Payoff}(S_i)\bigr)\;\text{(PSOR)}`,
+    component: PdeTool,
+  },
+  {
+    id: "hedge_pnl", name: "Delta 对冲 P&L 归因", nameEn: "Dynamic Delta-Hedge P&L Attribution",
+    formula: String.raw`\Pi_T \approx \tfrac12 \Gamma (\Delta S)^2 + \Theta\,\Delta t + \mathrm{Vega}\cdot (\sigma_{\text{real}} - \sigma_{\text{price}}) - \text{cost}`,
+    component: HedgePnLTool,
+  },
+  {
+    id: "autocall", name: "Autocallable 结构化票据", nameEn: "Autocallable / Phoenix Note — Monte Carlo",
+    formula: String.raw`\text{Payoff}_k = N(1 + k\cdot c)\;\text{if}\; S_{t_k} \ge B_{AC};\quad \text{else at }T:\; N\min(S_T/S_0, 1)\;\text{if KI hit},\; N(1+n c)\;\text{otherwise}`,
+    component: AutocallableTool,
+  },
+  {
+    id: "xva", name: "XVA (CVA / DVA / FVA)", nameEn: "Counterparty Credit XVA — Exposure, PFE & Adjustments",
+    formula: String.raw`\text{CVA} = (1-R)\!\int_0^T\! D(0,t)\,\mathrm{EE}(t)\,dPD_C(t),\quad \text{DVA} = (1-R)\!\int_0^T\! D(0,t)\,\mathrm{NE}(t)\,dPD_B(t),\quad \text{FVA} = s_F\!\int_0^T\! D(0,t)\,\mathrm{EE}(t)\,dt`,
+    component: XvaTool,
   },
 ];
 

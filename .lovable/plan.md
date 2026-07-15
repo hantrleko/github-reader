@@ -1,91 +1,99 @@
-# V4.1 投资组合理论模块强化
+
+# V4.2 衍生品定价模块强化
 
 ## 现状盘点
 
-现有工具集中在 `src/components/EfficientFrontier.tsx`、`src/components/quant/{PortfolioBacktest, RiskParityTool, Sprint4Tools, BacktestLab, WalkForwardTool}`，底层数学在 `src/lib/quant/portfolio.ts`：
+`src/components/deriv/` 已覆盖：SVI 曲面、Heston、SABR、SABR-Heston 对比、Dupire 局部波动、Greeks Desk、CRR 二叉树、LSM 美式、Black-76 利率衍生品、LMM Bermudan、路径依赖奇异（亚式/障碍/回望）。
 
-- 已有：等权 / 最小方差 / 均值方差 / 风险平价 / HRP / Black-Litterman（简化） / 回测与再平衡 / 交易成本 / 走前向。
-- 缺口：稳健优化、下行风险、参数不确定性、因子层面的风险预算、增长率视角、约束优化。
+**缺口**：跳跃扩散 / 方差衍生品 / 有限差分 PDE / 对冲 P&L 归因 / 结构化票据 / 交易对手信用估值 (XVA)。
 
-## 目标（选 6 个新工具，覆盖"稳健、下行、因子、增长"四类前沿主题）
+## 目标：新增 6 个前沿工具
 
-### 1. Black-Litterman 完整版（升级现有简化实现）
-- 提供市场隐含超额收益 π = δΣw_mkt、绝对/相对观点矩阵 P、观点不确定性 Ω（可选 Idzorek 置信度反解）
-- 输出：后验 μ̃、Σ̃、以及最优权重与"仅先验/仅观点/融合"三条前沿对比
+### 1. Merton & Kou 跳跃扩散模型
+- Merton 对数正态跳跃 + Kou 双指数跳跃闭式解（级数收敛）
+- 与 BS 平滑对比：短期深度 OTM smile 显著抬升
+- 输出：跳跃前后 IV smile 曲线、跳跃分量 λ、μ_J、σ_J 敏感度
 
-### 2. Mean-CVaR / Mean-Semi-Variance 优化
-- 用历史或蒙特卡洛情景，最小化 CVaR@α（Rockafellar-Uryasev 线性化的凸投影梯度求解）
-- 输出：CVaR 前沿 vs 均值方差前沿叠加、尾部对齐后的权重差异
+### 2. Bates（Heston + Jumps）+ Variance/Volatility Swaps
+- Bates SVJ Monte Carlo 定价
+- Variance Swap 公允方差 K_var = 2·∫(1/K²)·[Put+Call] 的模型自由复制公式
+- VIX 风格：30 天前瞻方差与 realized 方差对比
+- 输出：波动率期限结构 + 方差风险溢价 (VRP)
 
-### 3. 稳健协方差与收缩估计
-- Ledoit-Wolf 常相关目标收缩、Oracle 近似收缩（OAS）、Minimum Covariance Determinant 稳健估计
-- 展示：条件数、样本外方差预测误差、收缩强度 λ* 网格
-- 直接改善 min-var / MV / RP 的样本外表现
+### 3. 有限差分 PDE 求解器 (Crank-Nicolson)
+- 求解 Black-Scholes PDE：∂V/∂t + ½σ²S²∂²V/∂S² + rS∂V/∂S − rV = 0
+- 支持欧式/美式（PSOR 投影 SOR）与障碍期权 (Down-and-Out)
+- 输出：价格网格热力图、与解析解误差收敛阶
+- 验证：CN 二阶收敛，与 BS 闭式解对齐至 4 位小数
 
-### 4. Michaud 重采样有效前沿（参数不确定性）
-- 对 (μ, Σ) 做 B 次 bootstrap，求每次前沿上等风险分位点，求平均权重
-- 输出：经典前沿 vs 重采样前沿、权重稳定性热力图（B 次分布）
+### 4. 动态 Delta-对冲 P&L 归因实验室
+- 蒙特卡洛路径下按 Δt 重新对冲
+- P&L 分解：Gamma-Theta 平衡 (½Γ(dS)² + Θdt)、Vega × dσ、离散对冲误差
+- 交互：对冲频率、真实波动率 vs 定价隐波、交易成本
+- 输出：P&L 分布直方图、归因瀑布图
 
-### 5. 因子风险预算 / 因子中性组合
-- 给定因子暴露矩阵 B（MKT/SMB/HML/RMW/CMA 或用户自定义），分解组合风险为因子风险 + 特异风险
-- 支持：因子风险预算目标（例如 60% MKT / 20% Value / 20% Quality）、因子中性约束（β_f = 0）
-- 输出：因子风险贡献瀑布图、因子暴露条形图
+### 5. Autocallable / 可赎回结构化票据
+- 每次观察日：若 S ≥ 自动赎回障碍 → 提前赎回赔付
+- 到期若 S < 敲入障碍 → 承担下行；否则票息
+- Monte Carlo + 提前赎回概率曲线、期望存续期
+- 敏感度：观察频率、票息水平、敲入/自动赎回位置
 
-### 6. Kelly & 破产风险实验室
-- 完整 Kelly：f\* = Σ⁻¹(μ − r) 组合形式；分数 Kelly 曲线
-- 蒙特卡洛终值分布 + 破产概率 P(min W_t < 阈值)
-- 与 log-utility / 均值方差最优点在增长率-风险空间的对比
+### 6. XVA 计算器 (CVA / DVA / FVA)
+- 简化 Merton-based 违约强度 λ(t) = −ln(1−PD)/T
+- CVA = (1−R)·∫ EE(t)·dPD(t)·D(0,t)
+- 双边 DVA + 资金成本 FVA (借贷利差)
+- 应用于利率互换/远期组合的暴露曲线
+- 输出：EE / PFE (Potential Future Exposure 95%) 曲线 + CVA 分解条形图
 
 ## 落地结构
 
-### 新增数学库 `src/lib/quant/portfolioAdvanced.ts`
-- `blackLittermanFull(pi, tau, Sigma, P, Q, Omega)` → { muPost, SigmaPost }
-- `idzorekOmega(P, Sigma, tau, confidences)` → Omega
-- `meanCVaROptimize(scenarios, alpha, targetReturn?)` → weights, CVaR, VaR
-- `ledoitWolfShrink(returns)` / `oasShrink(returns)` / `mcdEstimate(returns)`
-- `resampledFrontier(mu, Sigma, B, gridPts)` → { classic, resampled, weightDist }
-- `factorRiskDecomp(w, B, factorCov, specificVar)` → { total, factorRC[], specificRC }
-- `factorBudgetWeights(B, factorCov, specificVar, targets)` → weights
-- `kellyWeights(mu, Sigma, rf)` / `kellySimulate(weights, mu, Sigma, N, T)` → { terminal, ruinProb }
+### 新增数学库 `src/lib/quant/derivAdvanced.ts`
+- `mertonJumpPrice(...)` / `kouJumpPrice(...)` → 级数求和闭式
+- `batesMCPrice(...)` / `varianceSwapFairStrike(...)`
+- `crankNicolsonBS(...)` / `psorAmerican(...)` / `pdeBarrier(...)`
+- `hedgePnLSimulate(...)` → { paths, attribution }
+- `autocallablePrice(...)` → { price, callProb[], expectedLife }
+- `cvaCompute(...)` / `dvaCompute(...)` / `fvaCompute(...)`
 
-### 新增 UI `src/components/quant/V41PortfolioTools.tsx`
-六个 Tool 组件，复用现有 `PresetButtons` / `Slider` / `Stat` / `ShareExportToolbar` / `EquationBlock` 样式。所有工具使用 Recharts + gold 主题，遵循 Bloomberg-editorial 记忆规范。
+### 新增 UI `src/components/deriv/V42Tools.tsx`
+六个 Tool 组件，复用 `PresetButtons` / `Slider` / `Stat` / `EquationBlock` / `ShareExportToolbar`，Recharts + gold 主题，遵循 Bloomberg-editorial 记忆规范。
 
 ### 挂载
-- 在 `src/components/QuantStrategyTools.tsx` 引入 `CategorizedToolNav`（复用资产定价的分类导航），将现有 5 个工具 + 新 6 个工具划分为 3 类：
+- `src/components/DerivativesTools.tsx`：`TOOLS` 追加 6 条，`DERIV_CATEGORIES` 新增分类：
   ```
-  经典与稳健：backtest, walkforward, minvar-shrink*, resampled*
-  贝叶斯与因子：bl-full*, ff5, factor-budget*
-  下行与增长：rp, cvar*, kelly*
+  跳跃与方差： jump, bates_var
+  数值方法：   pde
+  交易与结构： hedge_pnl, autocall, xva
   ```
-- `src/data/toolsCatalog.ts` 追加 6 条元数据（zh/en + category = "portfolio"）
-- Command palette 与 workflows 自动接入（读 catalog）
+- `src/data/toolsCatalog.ts` 追加 6 条元数据（zh/en, category = "derivatives"）
+- Command palette / workflows 自动接入（读 catalog）
 
-### 测试
-- 新增 `src/lib/quant/__tests__/portfolioAdvanced.test.ts`：
-  - BL 后验在 Ω→∞ 时回到先验、Ω→0 时回到观点
-  - Ledoit-Wolf 收缩后条件数下降
-  - Mean-CVaR 前沿单调性：更高目标收益 ⇒ 更高 CVaR
-  - 因子分解总和 = 组合方差
-  - Kelly 全额 vs 半 Kelly：半 Kelly 破产概率严格更低
+### 测试 `src/lib/quant/__tests__/derivAdvanced.test.ts`
+- Merton 在 λ→0 时收敛到 BS
+- Crank-Nicolson 欧式看涨与 BS 差异 < 1e-3
+- PSOR 美式看跌 ≥ 欧式看跌（早行权溢价 ≥ 0）
+- Variance swap 复制价 vs Heston 理论方差一致性
+- Autocallable：提前赎回概率随敲出障碍下降而上升
+- CVA 随违约概率单调增
 
 ### 版本与文档
-- `package.json` bump → `4.1.0`
-- `src/components/Changelog.tsx` + `CHANGELOG.md`：V4.1 条目
+- `package.json` bump → `4.2.0`
+- `src/components/Changelog.tsx` + `CHANGELOG.md`：V4.2 条目
 - `src/lib/buildVersion.ts` 更新
-- i18n：`en.json` / `zh.json` 增加 `sections.quant.subtitle` 更新 + 6 个工具名/描述键
+- i18n `en.json` / `zh.json` 新增 6 个工具名/描述键
 
 ## 技术细节
 
-- Mean-CVaR 用 Rockafellar-Uryasev 表述：min VaR + (1/((1-α)N))Σ max(−r_s·w − VaR, 0)，用投影次梯度（长仓单纯形）+ VaR 内点更新收敛，避免引入 LP 求解器依赖。
-- Ledoit-Wolf 用 Schäfer-Strimmer 简化：λ* = min(1, ΣVar(s_ij)/Σ(s_ij − t_ij)²)，目标 t = 常相关 × 样本方差。
-- Michaud 重采样：对每个 bootstrap 样本重新估 (μ̂,Σ̂) → 20 点均值方差前沿 → 按 σ 分位对齐后平均权重。
-- 因子协方差假设块对角（因子间协方差 + 特异残差协方差对角化）。
-- Kelly 蒙特卡洛使用几何布朗运动近似，log 收益服从 N(μ − σ²/2, σ²)。
+- **Merton 级数**：C = Σ e^{-λ'T}(λ'T)^n/n! · BS(S, K, T, r_n, σ_n)，其中 λ' = λ(1+m)，r_n = r − λm + n·ln(1+m)/T，σ_n² = σ² + n·δ²/T。截断至 n=40。
+- **CN 稳定性**：θ = 0.5 无条件稳定；网格 S ∈ [0, 4S₀]，NS=200，NT=200。
+- **PSOR**：ω = 1.2，容忍 1e-8，每步投影 V ≥ payoff。
+- **Bates MC**：Milstein 方差正性截断 + 泊松跳跃复合，10⁴ 路径。
+- **Autocallable**：反向遍历观察日，未赎回路径累积票息，敲入触发时到期按 min(S_T/S_0, 1) 结算。
+- **CVA/DVA/FVA**：暴露从利率互换 MTM 蒙特卡洛得出，PD 通过 λ(t) hazard 模型指数化，折现使用 OIS 曲线。
 
 ## 交付顺序（一次实现）
 
-1. `portfolioAdvanced.ts` + 测试
-2. 六个 UI 工具组件 + `QuantStrategyTools.tsx` 分类导航接入
+1. `derivAdvanced.ts` + 测试
+2. 六个 UI 工具组件 + `DerivativesTools.tsx` 分类导航更新
 3. `toolsCatalog.ts` / i18n / changelog / buildVersion / package.json
 4. `tsgo` 类型校验 + `vitest run` 通过
