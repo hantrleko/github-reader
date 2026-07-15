@@ -131,9 +131,9 @@ export function batesMCPrice(o: BatesInputs): BatesResult {
 
 /**
  * Model-free variance swap fair strike via static replication:
- *   K_var = (2/T) · [ rT − (S0/S* − 1) − ln(S*/S0) + e^{rT}·∫put + e^{rT}·∫call ]
+ *   K_var = (2/T) * [ rT - (S0/S* - 1) - ln(S*/S0) + e^{rT}*intput + e^{rT}*intcall ]
  * We use trapezoidal quadrature on a strike grid and Black-Scholes prices
- * as the option surface (constant IV → benchmarks equal σ²).
+ * as the option surface (constant IV -> benchmarks equal sigma^2).
  */
 export interface VarSwapInputs {
   S0: number; T: number; r: number;
@@ -143,7 +143,7 @@ export function varianceSwapFairStrike(o: VarSwapInputs): number {
   const { S0, T, r, strikes, ivs } = o;
   if (strikes.length !== ivs.length || strikes.length < 3) return NaN;
   const Sstar = S0; // ATM cutoff
-  // integrand: put(K)/K² for K ≤ S*, call(K)/K² for K ≥ S*
+  // integrand: put(K)/K^2 for K <= S*, call(K)/K^2 for K >= S*
   let integral = 0;
   for (let i = 0; i < strikes.length - 1; i++) {
     const K1 = strikes[i], K2 = strikes[i + 1];
@@ -198,7 +198,7 @@ export function crankNicolsonBS(o: PdeInputs): PdeResult {
   const payoff = (s: number) => isCall ? Math.max(s - K, 0) : Math.max(K - s, 0);
   let V = grid.map(payoff);
 
-  // barrier: knock-out ⇒ value at/beyond barrier is 0
+  // barrier: knock-out => value at/beyond barrier is 0
   const applyBarrier = (arr: number[]) => {
     if (!barrier) return;
     for (let i = 0; i <= NS; i++) {
@@ -208,7 +208,7 @@ export function crankNicolsonBS(o: PdeInputs): PdeResult {
   };
   applyBarrier(V);
 
-  // build tridiagonal coefficients (θ = 0.5)
+  // build tridiagonal coefficients (theta = 0.5)
   const alpha = new Array(NS + 1), beta = new Array(NS + 1), gamma = new Array(NS + 1);
   for (let i = 1; i < NS; i++) {
     const sig2 = sigma * sigma * i * i;
@@ -223,14 +223,14 @@ export function crankNicolsonBS(o: PdeInputs): PdeResult {
     for (let i = 1; i < NS; i++) {
       rhs[i - 1] = alpha[i] * V[i - 1] + (1 + beta[i]) * V[i] + gamma[i] * V[i + 1];
     }
-    // boundary at t = n·dt
+    // boundary at t = n*dt
     const tRem = T - n * dt;
     const V0 = isCall ? 0 : K * Math.exp(-r * tRem);
     const Vmax = isCall ? Smax - K * Math.exp(-r * tRem) : 0;
     rhs[0] += alpha[1] * V0;
     rhs[NS - 2] += gamma[NS - 1] * Vmax;
 
-    // A matrix: (1-β_i) center, -α diag-low, -γ diag-up
+    // A matrix: (1-beta_i) center, -alpha diag-low, -gamma diag-up
     const a = new Array(NS - 1), b = new Array(NS - 1), c = new Array(NS - 1);
     for (let i = 1; i < NS; i++) {
       a[i - 1] = -alpha[i];
@@ -338,7 +338,7 @@ export function hedgePnLSimulate(o: HedgeInputs): HedgeResult {
   const variance = pnls.reduce((s, x) => s + (x - mean) ** 2, 0) / nPaths;
   const std = Math.sqrt(variance);
 
-  // Vega × (σ_real − σ_pricing) × price0 vega
+  // Vega x (sigma_real - sigma_pricing) x price0 vega
   const vegaComp = initBS.vega * (sigmaReal - sigmaPricing);
 
   // histogram (30 buckets)
@@ -439,8 +439,8 @@ export interface XvaInputs {
   sigma: number;          // rate volatility (bp-vol proxy)
   fixedRate: number;
   floatRate0: number;
-  cptyHazard: number;     // λ_C
-  ownHazard: number;      // λ_B
+  cptyHazard: number;     // lambda_C
+  ownHazard: number;      // lambda_B
   recovery: number;       // R
   fundingSpread: number;  // s_F
   nPaths?: number; seed?: number;
@@ -463,7 +463,7 @@ export function xvaCompute(o: XvaInputs): XvaResult {
   for (let p = 0; p < nPaths; p++) {
     let rt = floatRate0;
     for (let k = 0; k <= steps; k++) {
-      // stylised MTM of a payer swap: (rate − fixed) × remainingTenor × notional
+      // stylised MTM of a payer swap: (rate - fixed) x remainingTenor x notional
       const remain = T - k * dt;
       mtms[p][k] = (rt - fixedRate) * remain * notional;
       if (k < steps) rt = rt + sigma * Math.sqrt(dt) * randn(rng); // Bachelier
