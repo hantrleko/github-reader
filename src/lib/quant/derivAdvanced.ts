@@ -130,10 +130,9 @@ export function batesMCPrice(o: BatesInputs): BatesResult {
 }
 
 /**
- * Model-free variance swap fair strike via static replication:
- *   K_var = (2/T) * [ rT - (S0/S* - 1) - ln(S*/S0) + e^{rT}*intput + e^{rT}*intcall ]
- * We use trapezoidal quadrature on a strike grid and Black-Scholes prices
- * as the option surface (constant IV -> benchmarks equal sigma^2).
+ * Model-free variance swap fair strike via static replication of
+ * log-contract using OTM puts (K <= S*) and OTM calls (K >= S*),
+ * trapezoidal integration on the given strike grid.
  */
 export interface VarSwapInputs {
   S0: number; T: number; r: number;
