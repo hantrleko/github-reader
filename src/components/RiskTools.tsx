@@ -15,6 +15,10 @@ import { ESBacktestTool } from "./risk/ESBacktestTool";
 import { CVAXVATool, CreditCopulaTool } from "./risk/V26Tools";
 import { VaRTool } from "./risk/VaRTool";
 import { EvtPotTool } from "./risk/EvtPotTool";
+import {
+  SystemicRiskTool, LiquidityVaRTool, FRTBTool,
+  OpRiskLDATool, ReverseStressTool, ConcentrationTool,
+} from "./risk/V43Tools";
 
 const CHART_GOLD = "hsl(43, 80%, 55%)";
 const CHART_TEAL = "hsl(180, 50%, 40%)";
@@ -660,7 +664,9 @@ export const StressTool = () => {
 /* ════════════════════════════════════════════════════════════
    Main module
    ════════════════════════════════════════════════════════════ */
-type ToolId = "var" | "merton" | "copula" | "evt" | "esback" | "stress" | "cva" | "credit_copula";
+type ToolId =
+  | "var" | "merton" | "copula" | "evt" | "esback" | "stress" | "cva" | "credit_copula"
+  | "systemic" | "lvar" | "frtb" | "opvar" | "reverse_stress" | "concentration";
 
 const TOOLS: { id: ToolId; name: string; nameEn: string; formula: string; python: string; component: React.FC }[] = [
   {
@@ -822,6 +828,121 @@ def gaussian_copula_default(n=100, pd=0.03, rho=0.2, n_sim=10000, seed=42):
     component: CreditCopulaTool,
   },
 ];
+
+// ── V4.3 Risk Reinforcement ──
+TOOLS.push(
+  {
+    id: "systemic", name: "系统性风险 (CoVaR/MES/SRISK)",
+    nameEn: "Systemic Risk — CoVaR, ΔCoVaR, MES & SRISK",
+    formula: String.raw`\mathrm{CoVaR}^{\text{sys}|i}_{\alpha}=a+b\cdot\mathrm{VaR}^{i}_{\alpha},\quad \mathrm{MES}^{i}=\mathbb{E}[R_i\mid R_{\text{sys}}\le\mathrm{VaR}^{\text{sys}}_{\alpha}],\quad \mathrm{SRISK}=k\cdot D-(1-k)(1-\mathrm{LRMES})\cdot E`,
+    python: `import numpy as np
+from statsmodels.regression.quantile_regression import QuantReg
+
+def covar(r_sys, r_i, alpha=0.05):
+    q_i = np.quantile(r_i, alpha)
+    mod = QuantReg(r_sys, np.c_[np.ones_like(r_i), r_i]).fit(q=alpha)
+    a, b = mod.params
+    co = a + b * q_i
+    co_med = a + b * np.quantile(r_i, 0.5)
+    return co, co - co_med  # CoVaR, ΔCoVaR
+
+def mes_srisk(r_sys, r_i, mkt_cap, debt, k=0.08, alpha=0.05):
+    q = np.quantile(r_sys, alpha)
+    mes = r_i[r_sys <= q].mean()
+    lrmes = 1 - np.exp(18 * mes)
+    srisk = k * debt - (1 - k) * (1 - lrmes) * mkt_cap
+    return mes, lrmes, srisk`,
+    component: SystemicRiskTool,
+  },
+  {
+    id: "lvar", name: "流动性调整 VaR + 最优清算",
+    nameEn: "Liquidity-Adjusted VaR + Almgren-Chriss Execution",
+    formula: String.raw`\mathrm{LVaR}=\mathrm{VaR}+\tfrac12|V|\cdot s,\qquad x_k=X\,\dfrac{\sinh\bigl(\kappa(T-t_k)\bigr)}{\sinh(\kappa T)},\quad \kappa=\sqrt{\lambda\sigma^{2}/\bar{\eta}}`,
+    python: `import numpy as np
+
+def lvar(V, sigma, alpha=0.99, spread_bp=15):
+    from scipy.stats import norm
+    var = V * norm.ppf(alpha) * sigma
+    return var + 0.5 * V * spread_bp / 10000
+
+def almgren_chriss(X, T, N, sigma, eta, lam, gamma=0):
+    tau = T / N
+    eta_bar = eta - 0.5 * gamma * tau
+    kappa = np.sqrt(lam * sigma**2 / eta_bar)
+    t = np.linspace(0, T, N + 1)
+    x = X * np.sinh(kappa * (T - t)) / np.sinh(kappa * T)
+    return t, x`,
+    component: LiquidityVaRTool,
+  },
+  {
+    id: "frtb", name: "FRTB IMA (ES97.5 + 交通灯)",
+    nameEn: "FRTB IMA — 97.5% ES with Liquidity-Horizon Scaling & Basel Traffic Light",
+    formula: String.raw`\mathrm{ES}_{97.5\%}=\mathbb{E}[L\mid L\ge \mathrm{VaR}_{97.5\%}],\quad \mathrm{ES}_{\text{liq}}=\sqrt{\sum_j \mathrm{ES}_j^{2}\cdot\tfrac{\mathrm{LH}_j-\mathrm{LH}_{j-1}}{10}},\quad \mathrm{K}=m\cdot\mathrm{ES}_{\text{liq}}`,
+    python: `import numpy as np
+
+def es_frtb(pnl, alpha=0.975):
+    L = -np.asarray(pnl)
+    var = np.quantile(L, alpha)
+    return L[L >= var].mean()
+
+def lh_scaling(es_by_bucket, lh=[10, 20, 40, 60, 120]):
+    diffs = np.diff([10] + list(lh))
+    return np.sqrt(sum(e**2 * d / 10 for e, d in zip(es_by_bucket, diffs)))
+
+def traffic_light(exceptions):
+    if exceptions <= 4: return "green", 1.5
+    if exceptions <= 9: return "yellow", 1.5 + 0.1 * (exceptions - 4)
+    return "red", 2.0`,
+    component: FRTBTool,
+  },
+  {
+    id: "opvar", name: "操作风险 LDA (OpVaR)",
+    nameEn: "Operational Risk — Loss Distribution Approach (Poisson × Lognormal)",
+    formula: String.raw`L=\sum_{i=1}^{N}X_i,\; N\sim\mathrm{Poisson}(\lambda),\; X_i\sim\mathrm{LogN}(\mu,\sigma^{2}),\qquad \mathrm{OpVaR}_{99.9\%}=F_L^{-1}(0.999)`,
+    python: `import numpy as np
+
+def lda_opvar(lam, mu, sigma, n_sims=10000, seed=42):
+    rng = np.random.default_rng(seed)
+    N = rng.poisson(lam, size=n_sims)
+    totals = np.array([np.exp(mu + sigma * rng.standard_normal(n)).sum() for n in N])
+    return {
+        "mean": totals.mean(),
+        "var_999": np.quantile(totals, 0.999),
+        "es_999": totals[totals >= np.quantile(totals, 0.999)].mean(),
+    }`,
+    component: OpRiskLDATool,
+  },
+  {
+    id: "reverse_stress", name: "反向压力测试",
+    nameEn: "Reverse Stress Testing — Mahalanobis-Minimal Factor Shock",
+    formula: String.raw`\min_{\delta}\;\delta^{\top}\Sigma^{-1}\delta \quad\text{s.t.}\quad b^{\top}\delta = L^{*}\;\Longrightarrow\; \delta^{*}=\dfrac{L^{*}}{b^{\top}\Sigma b}\,\Sigma\, b`,
+    python: `import numpy as np
+
+def reverse_stress(Sigma, b, L_star):
+    Sb = Sigma @ b
+    delta = (L_star / (b @ Sb)) * Sb
+    plausibility = L_star**2 / (b @ Sb)   # δ' Σ⁻¹ δ
+    return delta, plausibility`,
+    component: ReverseStressTool,
+  },
+  {
+    id: "concentration", name: "集中度 & Component VaR",
+    nameEn: "Concentration Risk & Component VaR (Euler Allocation)",
+    formula: String.raw`\mathrm{VaR}_{\alpha}=z_{\alpha}\sqrt{w^{\top}\Sigma w},\quad \mathrm{CVaR}_i=w_i\cdot\dfrac{z_{\alpha}(\Sigma w)_i}{\sigma_p},\quad \sum_i \mathrm{CVaR}_i=\mathrm{VaR}_{\alpha},\quad \mathrm{HHI}=\sum_i w_i^{2}`,
+    python: `import numpy as np
+from scipy.stats import norm
+
+def component_var(w, Sigma, alpha=0.99):
+    w = np.asarray(w); Sw = Sigma @ w
+    sigma_p = np.sqrt(w @ Sw); z = norm.ppf(alpha)
+    var = z * sigma_p
+    marginal = z * Sw / sigma_p
+    component = w * marginal
+    hhi = (w**2).sum()
+    return var, component, component / var, hhi, 1 / hhi`,
+    component: ConcentrationTool,
+  },
+);
 
 
 /** Compact collapsible Python reference snippet — companion to the formula bar. */

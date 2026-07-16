@@ -37,7 +37,7 @@ export interface ToolEntry {
   related?: string[];
   /** true once unit tests vs a closed-form benchmark exist in src/lib/quant */
   verified?: boolean;
-  version: "V1.0" | "V2.0" | "V2.1" | "V2.2" | "V2.3" | "V2.4" | "V2.5" | "V2.6" | "V2.7" | "V2.8" | "V3.0" | "V3.1" | "V3.2" | "V3.3" | "V3.4" | "V3.5" | "V3.6" | "V3.7" | "V3.8" | "V3.9" | "V4.0" | "V4.1" | "V4.2";
+  version: "V1.0" | "V2.0" | "V2.1" | "V2.2" | "V2.3" | "V2.4" | "V2.5" | "V2.6" | "V2.7" | "V2.8" | "V3.0" | "V3.1" | "V3.2" | "V3.3" | "V3.4" | "V3.5" | "V3.6" | "V3.7" | "V3.8" | "V3.9" | "V4.0" | "V4.1" | "V4.2" | "V4.3";
 }
 
 export const CATEGORY_LABEL: Record<ToolCategory, { zh: string; en: string }> = {
@@ -1100,6 +1100,55 @@ export const TOOLS_CATALOG: ToolEntry[] = [
     refs: ["Gregory (2015)", "Green (2015)"],
     blurb: "利率互换暴露蒙特卡洛 → EE/NE/PFE95 曲线，结合双边违约强度、回收率与融资利差计算 CVA/DVA/FVA。",
     related: ["rates", "lmm"], verified: true, version: "V4.2",
+  },
+  // ── V4.3 Risk Reinforcement ──
+  {
+    id: "systemic", name: "系统性风险 (CoVaR/MES/SRISK)", nameEn: "Systemic Risk — CoVaR & SRISK",
+    category: "risk", difficulty: "research", anchor: "/s/risk",
+    tags: ["系统性", "CoVaR", "MES", "SRISK", "分位数回归"],
+    refs: ["Adrian & Brunnermeier (2016)", "Acharya et al. (2017)", "Brownlees & Engle (2017)"],
+    blurb: "分位数回归求 CoVaR/ΔCoVaR，MES 尾部条件均值，SRISK=k·D−(1−k)(1−LRMES)·E 识别系统性重要机构。",
+    related: ["copula", "credit_copula"], verified: true, version: "V4.3",
+  },
+  {
+    id: "lvar", name: "流动性 VaR + Almgren-Chriss", nameEn: "Liquidity-Adjusted VaR & Optimal Execution",
+    category: "risk", difficulty: "advanced", anchor: "/s/risk",
+    tags: ["流动性", "LVaR", "最优清算", "Almgren-Chriss", "冲击成本"],
+    refs: ["Almgren & Chriss (2000)", "Bangia et al. (1999)"],
+    blurb: "外生 spread LVaR + 内生 Almgren-Chriss 最优清算轨迹，成本-风险有效前沿与 λ 敏感度。",
+    related: ["var"], verified: true, version: "V4.3",
+  },
+  {
+    id: "frtb", name: "FRTB IMA ES97.5 + 交通灯", nameEn: "FRTB IMA — Expected Shortfall & Basel Traffic Light",
+    category: "risk", difficulty: "research", anchor: "/s/risk",
+    tags: ["FRTB", "ES", "监管资本", "Basel", "Kupiec"],
+    refs: ["BCBS d457 (2019)", "Kupiec (1995)", "Christoffersen (1998)"],
+    blurb: "97.5% Expected Shortfall + 流动性区间加权 (10/20/40/60/120天)，Kupiec/Christoffersen 回测与 Basel 交通灯资本乘数。",
+    related: ["var", "esback"], verified: true, version: "V4.3",
+  },
+  {
+    id: "opvar", name: "操作风险 LDA (OpVaR 99.9%)", nameEn: "Operational Risk — LDA Poisson × Lognormal",
+    category: "risk", difficulty: "advanced", anchor: "/s/risk",
+    tags: ["操作风险", "LDA", "Poisson", "Lognormal", "AMA"],
+    refs: ["Frachot et al. (2001)", "Basel III AMA"],
+    blurb: "Poisson 频率 × Lognormal 严重度蒙特卡洛卷积得年度总损失分布，输出 99.9% OpVaR/ES。",
+    related: ["evt"], verified: true, version: "V4.3",
+  },
+  {
+    id: "reverse_stress", name: "反向压力测试", nameEn: "Reverse Stress Testing",
+    category: "risk", difficulty: "research", anchor: "/s/risk",
+    tags: ["反向压测", "Mahalanobis", "情景", "监管"],
+    refs: ["Grundke (2011)", "EBA Guidelines"],
+    blurb: "闭式 δ*=(L*/bᵀΣb)·Σb：给定目标损失 L*，求最不利但仍可信 (Mahalanobis 最小) 的因子冲击。",
+    related: ["stress"], verified: true, version: "V4.3",
+  },
+  {
+    id: "concentration", name: "集中度 & Component VaR", nameEn: "Concentration Risk & Euler Component VaR",
+    category: "risk", difficulty: "core", anchor: "/s/risk",
+    tags: ["集中度", "HHI", "Component VaR", "Euler", "边际"],
+    refs: ["Tasche (2007)", "Litterman (1996)"],
+    blurb: "HHI 与有效资产数 1/HHI + Euler 分解 Component VaR (∑=VaR)，识别单一资产尾部贡献。",
+    related: ["var", "risk-parity"], verified: true, version: "V4.3",
   },
 ];
 

@@ -1,99 +1,105 @@
 
-# V4.2 衍生品定价模块强化
+# V4.3 风险管理模块强化
 
 ## 现状盘点
 
-`src/components/deriv/` 已覆盖：SVI 曲面、Heston、SABR、SABR-Heston 对比、Dupire 局部波动、Greeks Desk、CRR 二叉树、LSM 美式、Black-76 利率衍生品、LMM Bermudan、路径依赖奇异（亚式/障碍/回望）。
+`src/components/risk/` 与 `RiskTools.tsx` 已实现：VaR (Hist/Param/MC)、Merton 结构违约、Copula 依赖、EVT-POT、ES Backtest、Stress、CVA/XVA、Credit Copula。
 
-**缺口**：跳跃扩散 / 方差衍生品 / 有限差分 PDE / 对冲 P&L 归因 / 结构化票据 / 交易对手信用估值 (XVA)。
+**缺口**：系统性风险、流动性风险、监管资本 (FRTB)、操作风险、反向压力测试、集中度/风险贡献。
 
 ## 目标：新增 6 个前沿工具
 
-### 1. Merton & Kou 跳跃扩散模型
-- Merton 对数正态跳跃 + Kou 双指数跳跃闭式解（级数收敛）
-- 与 BS 平滑对比：短期深度 OTM smile 显著抬升
-- 输出：跳跃前后 IV smile 曲线、跳跃分量 λ、μ_J、σ_J 敏感度
+### 1. 系统性风险 (CoVaR / ΔCoVaR / MES / SRISK)
+- Adrian & Brunnermeier CoVaR — 分位数回归求条件 VaR
+- Acharya et al. MES (Marginal Expected Shortfall) 与 SRISK = k·Debt − (1−k)·(1−LRMES)·Equity
+- 输入：机构与市场收益序列 (合成或用户上传)
+- 输出：CoVaR / ΔCoVaR 柱状图、SRISK 排名、系统性重要性排序
 
-### 2. Bates（Heston + Jumps）+ Variance/Volatility Swaps
-- Bates SVJ Monte Carlo 定价
-- Variance Swap 公允方差 K_var = 2·∫(1/K²)·[Put+Call] 的模型自由复制公式
-- VIX 风格：30 天前瞻方差与 realized 方差对比
-- 输出：波动率期限结构 + 方差风险溢价 (VRP)
+### 2. 流动性调整 VaR (LVaR + Almgren-Chriss 最优清算)
+- 外生流动性成本：LVaR = VaR + ½·|Position|·bid-ask spread
+- 内生：Almgren-Chriss 最优清算轨迹，最小化 E[Cost] + λ·Var[Cost]
+- 输出：清算路径曲线、成本-风险有效前沿、λ 敏感度
 
-### 3. 有限差分 PDE 求解器 (Crank-Nicolson)
-- 求解 Black-Scholes PDE：∂V/∂t + ½σ²S²∂²V/∂S² + rS∂V/∂S − rV = 0
-- 支持欧式/美式（PSOR 投影 SOR）与障碍期权 (Down-and-Out)
-- 输出：价格网格热力图、与解析解误差收敛阶
-- 验证：CN 二阶收敛，与 BS 闭式解对齐至 4 位小数
+### 3. FRTB 监管资本 (IMA Expected Shortfall + DRC)
+- 97.5% ES on stressed period，跨流动性区间 (10/20/40/60/120d) scaling
+- IMCC = ρ·IMCC(全)  + (1−ρ)·Σ IMCC(bucket)
+- P&L attribution test (Spearman + KS) 和 backtesting (Kupiec + Christoffersen 综合灯)
+- 输出：ES 分解、Basel 交通灯、资本占用
 
-### 4. 动态 Delta-对冲 P&L 归因实验室
-- 蒙特卡洛路径下按 Δt 重新对冲
-- P&L 分解：Gamma-Theta 平衡 (½Γ(dS)² + Θdt)、Vega × dσ、离散对冲误差
-- 交互：对冲频率、真实波动率 vs 定价隐波、交易成本
-- 输出：P&L 分布直方图、归因瀑布图
+### 4. 操作风险 LDA (Loss Distribution Approach)
+- 频率：Poisson(λ)；严重度：Lognormal 或 GPD
+- Monte Carlo 卷积得年度总损失分布 → 99.9% OpVaR (Basel III AMA)
+- 输出：分布直方图、VaR/ES 分位、按业务线聚合
 
-### 5. Autocallable / 可赎回结构化票据
-- 每次观察日：若 S ≥ 自动赎回障碍 → 提前赎回赔付
-- 到期若 S < 敲入障碍 → 承担下行；否则票息
-- Monte Carlo + 提前赎回概率曲线、期望存续期
-- 敏感度：观察频率、票息水平、敲入/自动赎回位置
+### 5. 反向压力测试 (Reverse Stress Testing)
+- 给定目标损失 L*，求最不利但仍可信的因子冲击 (Mahalanobis 距离最小)
+- 因子协方差 Σ，冲击 δ = argmin δᵀΣ⁻¹δ  s.t.  bᵀδ = L*
+- 闭式解：δ* = (L*/bᵀΣb)·Σb；可信度得分 = δ*ᵀΣ⁻¹δ*
+- 输出：因子冲击表 + 情景可信度
 
-### 6. XVA 计算器 (CVA / DVA / FVA)
-- 简化 Merton-based 违约强度 λ(t) = −ln(1−PD)/T
-- CVA = (1−R)·∫ EE(t)·dPD(t)·D(0,t)
-- 双边 DVA + 资金成本 FVA (借贷利差)
-- 应用于利率互换/远期组合的暴露曲线
-- 输出：EE / PFE (Potential Future Exposure 95%) 曲线 + CVA 分解条形图
+### 6. 集中度风险 & 风险贡献 (HHI + Component VaR + Euler)
+- Herfindahl-Hirschman Index 与有效分散度 1/Σwᵢ²
+- Component VaR：CVaRᵢ = wᵢ·∂VaR/∂wᵢ = wᵢ·(Σw)ᵢ/σₚ·zα
+- Euler 分配：Σ CVaRᵢ = VaR
+- 输出：贡献瀑布图、边际 VaR 热力图
 
 ## 落地结构
 
-### 新增数学库 `src/lib/quant/derivAdvanced.ts`
-- `mertonJumpPrice(...)` / `kouJumpPrice(...)` → 级数求和闭式
-- `batesMCPrice(...)` / `varianceSwapFairStrike(...)`
-- `crankNicolsonBS(...)` / `psorAmerican(...)` / `pdeBarrier(...)`
-- `hedgePnLSimulate(...)` → { paths, attribution }
-- `autocallablePrice(...)` → { price, callProb[], expectedLife }
-- `cvaCompute(...)` / `dvaCompute(...)` / `fvaCompute(...)`
+### 新数学库 `src/lib/quant/riskAdvanced.ts`
+- `computeCoVaR(returnsMkt, returnsI, alpha)` — 分位数回归
+- `computeMES_SRISK(retsMkt, retsI, marketCap, debt, k)`
+- `almgrenChriss(X, T, N, sigma, eta, lambda)` — 最优清算轨迹
+- `frtbES(pnl, alpha=0.975, liquidityBuckets)` + `basel Traffic Light`
+- `ldaOpVaR(lambda, mu, sigma, nSims)` — 卷积模拟
+- `reverseStressTest(Sigma, b, Lstar)`
+- `componentVaR(weights, Sigma, alpha)` — Euler 分解
 
-### 新增 UI `src/components/deriv/V42Tools.tsx`
-六个 Tool 组件，复用 `PresetButtons` / `Slider` / `Stat` / `EquationBlock` / `ShareExportToolbar`，Recharts + gold 主题，遵循 Bloomberg-editorial 记忆规范。
+### 新 UI `src/components/risk/V43Tools.tsx`
+六个 Tool 组件，复用 `Slider` / `Stat` / `PresetButtons` / `ShareExportToolbar`，Recharts + gold 主题。
 
 ### 挂载
-- `src/components/DerivativesTools.tsx`：`TOOLS` 追加 6 条，`DERIV_CATEGORIES` 新增分类：
+- `RiskTools.tsx`：`ToolId` 追加 6 条；引入两级分类导航 (`CategorizedToolNav`)：
   ```
-  跳跃与方差： jump, bates_var
-  数值方法：   pde
-  交易与结构： hedge_pnl, autocall, xva
+  信用风险：   merton, cva, credit_copula
+  市场风险：   var, evt, esback, frtb
+  依赖与尾部： copula
+  流动性：     lvar
+  系统性：     systemic
+  操作风险：   opvar
+  情景与集中： stress, reverse_stress, concentration
   ```
-- `src/data/toolsCatalog.ts` 追加 6 条元数据（zh/en, category = "derivatives"）
-- Command palette / workflows 自动接入（读 catalog）
+- `src/data/toolsCatalog.ts` 追加 6 条元数据 (zh/en, category="risk", version="V4.3")
 
-### 测试 `src/lib/quant/__tests__/derivAdvanced.test.ts`
-- Merton 在 λ→0 时收敛到 BS
-- Crank-Nicolson 欧式看涨与 BS 差异 < 1e-3
-- PSOR 美式看跌 ≥ 欧式看跌（早行权溢价 ≥ 0）
-- Variance swap 复制价 vs Heston 理论方差一致性
-- Autocallable：提前赎回概率随敲出障碍下降而上升
-- CVA 随违约概率单调增
+### 测试 `src/lib/quant/__tests__/riskAdvanced.test.ts`
+- CoVaR 随 ρ 单调
+- MES ≥ Unconditional ES
+- Almgren-Chriss：λ→0 退化为 TWAP；λ↑ 收敛于立即清算
+- Reverse stress: δ*ᵀΣ⁻¹δ* 与 L*² 成正比
+- Component VaR 求和等于总 VaR
+- LDA 均值 ≈ λ·E[X]
 
 ### 版本与文档
-- `package.json` bump → `4.2.0`
-- `src/components/Changelog.tsx` + `CHANGELOG.md`：V4.2 条目
-- `src/lib/buildVersion.ts` 更新
-- i18n `en.json` / `zh.json` 新增 6 个工具名/描述键
-
-## 技术细节
-
-- **Merton 级数**：C = Σ e^{-λ'T}(λ'T)^n/n! · BS(S, K, T, r_n, σ_n)，其中 λ' = λ(1+m)，r_n = r − λm + n·ln(1+m)/T，σ_n² = σ² + n·δ²/T。截断至 n=40。
-- **CN 稳定性**：θ = 0.5 无条件稳定；网格 S ∈ [0, 4S₀]，NS=200，NT=200。
-- **PSOR**：ω = 1.2，容忍 1e-8，每步投影 V ≥ payoff。
-- **Bates MC**：Milstein 方差正性截断 + 泊松跳跃复合，10⁴ 路径。
-- **Autocallable**：反向遍历观察日，未赎回路径累积票息，敲入触发时到期按 min(S_T/S_0, 1) 结算。
-- **CVA/DVA/FVA**：暴露从利率互换 MTM 蒙特卡洛得出，PD 通过 λ(t) hazard 模型指数化，折现使用 OIS 曲线。
+- `package.json` bump → `4.3.0`；`src/lib/buildVersion.ts` 更新
+- `CHANGELOG.md` + `src/components/Changelog.tsx` 新增 V4.3 条目
+- `src/i18n/locales/{en,zh}.json`：
+  - `hero.latestUpdate.label` → "Latest Update · V4.3"
+  - `hero.latestUpdate.description` 改写为六大风险工具摘要
+  - `nav.version` → "V4.3"
+  - 6 个新工具 nav 键 (可选)
 
 ## 交付顺序（一次实现）
 
-1. `derivAdvanced.ts` + 测试
-2. 六个 UI 工具组件 + `DerivativesTools.tsx` 分类导航更新
-3. `toolsCatalog.ts` / i18n / changelog / buildVersion / package.json
-4. `tsgo` 类型校验 + `vitest run` 通过
+1. `riskAdvanced.ts` + 单元测试
+2. `V43Tools.tsx` 六个 UI 组件
+3. `RiskTools.tsx` 分类导航 & 注册
+4. `toolsCatalog.ts` / i18n / changelog / buildVersion / package.json
+5. `tsgo` + `vitest run` 通过
+
+## 技术细节
+
+- **CoVaR**：对 R_sys 关于 R_i 分位数回归，取 α=5% 分位截距+斜率·VaR_i(α)。ΔCoVaR = CoVaR|distress − CoVaR|median。
+- **SRISK**：LRMES ≈ 1 − exp(−18·MES)（Brownlees-Engle 近似）。
+- **Almgren-Chriss 闭式**：x_k = X·sinh(κ(T−t_k))/sinh(κT)，κ = √(λσ²/η)。
+- **FRTB ES**：ES_{97.5} 用左尾 2.5% 均值；LH scaling: ES_liq = √(Σ (ES_j)²·(LH_j−LH_{j−1})/10)。
+- **Reverse Stress 闭式**：拉格朗日 → δ* = (L*/bᵀΣb)·Σb。
+- **Component VaR**：假设正态，VaR = z_α·√(wᵀΣw)；MCᵢ = z_α·(Σw)ᵢ/σₚ。

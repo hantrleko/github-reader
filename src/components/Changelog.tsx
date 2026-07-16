@@ -4,9 +4,37 @@ import { useTranslation } from "react-i18next";
 
 const RELEASES = [
   {
-    version: "V4.2",
+    version: "V4.3",
     date: "2026-07",
     tag: "Current",
+    highlights: [
+      {
+        icon: Sparkles,
+        title: "风险管理强化 — /s/risk",
+        items: [
+          "系统性风险: Adrian-Brunnermeier CoVaR/ΔCoVaR (分位数回归) + Acharya MES + SRISK 资本短缺",
+          "流动性 VaR: 外生 spread LVaR + Almgren-Chriss 最优清算轨迹与成本-风险有效前沿",
+          "FRTB IMA: 97.5% Expected Shortfall + 10/20/40/60/120 天流动性区间加权 + Kupiec/Christoffersen 回测与 Basel 交通灯",
+          "操作风险 LDA: Poisson × Lognormal 蒙特卡洛卷积 → 99.9% OpVaR/ES (Basel III AMA)",
+          "反向压力测试: 闭式 δ*=(L*/bᵀΣb)·Σb, Mahalanobis 最小的可信情景",
+          "集中度 & Component VaR: HHI + Euler 分解 ∑CVaRᵢ=VaR, 识别单一资产尾部贡献",
+        ],
+      },
+      {
+        icon: BookOpen,
+        title: "工程",
+        items: [
+          "新增纯函数库 src/lib/quant/riskAdvanced.ts (CoVaR/MES/SRISK, Almgren-Chriss, FRTB LH scaling, Kupiec/Christoffersen, LDA, 反向压测, Component VaR)",
+          "9 项单元测试全部通过: CoVaR 单调于 ρ、MES ≤ 无条件均值、AC λ→0 → TWAP、Euler 求和守恒等",
+          "风险模块扩至 14 工具，目录 + 命令面板自动可发现",
+        ],
+      },
+    ],
+  },
+  {
+    version: "V4.2",
+    date: "2026-07",
+    tag: "Stable",
     highlights: [
       {
         icon: Sparkles,
