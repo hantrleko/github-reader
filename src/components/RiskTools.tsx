@@ -15,6 +15,10 @@ import { ESBacktestTool } from "./risk/ESBacktestTool";
 import { CVAXVATool, CreditCopulaTool } from "./risk/V26Tools";
 import { VaRTool } from "./risk/VaRTool";
 import { EvtPotTool } from "./risk/EvtPotTool";
+import {
+  SystemicRiskTool, LiquidityVaRTool, FRTBTool,
+  OpRiskLDATool, ReverseStressTool, ConcentrationTool,
+} from "./risk/V43Tools";
 
 const CHART_GOLD = "hsl(43, 80%, 55%)";
 const CHART_TEAL = "hsl(180, 50%, 40%)";
@@ -660,7 +664,9 @@ export const StressTool = () => {
 /* ════════════════════════════════════════════════════════════
    Main module
    ════════════════════════════════════════════════════════════ */
-type ToolId = "var" | "merton" | "copula" | "evt" | "esback" | "stress" | "cva" | "credit_copula";
+type ToolId =
+  | "var" | "merton" | "copula" | "evt" | "esback" | "stress" | "cva" | "credit_copula"
+  | "systemic" | "lvar" | "frtb" | "opvar" | "reverse_stress" | "concentration";
 
 const TOOLS: { id: ToolId; name: string; nameEn: string; formula: string; python: string; component: React.FC }[] = [
   {
