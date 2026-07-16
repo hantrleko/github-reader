@@ -69,8 +69,8 @@
       "knowledge": "知识点"
     },
     "latestUpdate": {
-      "label": "最新更新 · V4.0",
-      "description": "时间序列扩充四件套：Granger 因果 + Toda-Yamamoto Wald 检验(对单位根/协整稳健)、谱分析 (平滑周期图、Bai-Perron 结构突变、CUSUM 稳定性、McLeod-Li/Keenan 非线性)、指数平滑预测 (Holt-Winters 与 Theta，含经典分解与 MASE/RMSSE 滚动回测)、以及长记忆/ARFIMA (GPH 与 R/S Hurst 估计分数阶 d)。",
+      "label": "最新更新 · V4.3",
+      "description": "风险管理强化六件套：系统性风险 (CoVaR/ΔCoVaR/MES/SRISK)、流动性 VaR + Almgren-Chriss 最优清算、FRTB IMA (97.5% ES + 流动性区间加权 + Basel 交通灯)、操作风险 LDA (Poisson × Lognormal → 99.9% OpVaR)、反向压力测试 (Mahalanobis 最小可信冲击) 与集中度 + Euler Component VaR 分解。",
       "cta": "查看更新日志"
     }
   },
