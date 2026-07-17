@@ -1,105 +1,91 @@
 
-# V4.3 风险管理模块强化
+# V4.4 · External Data Ecosystem Integration
 
-## 现状盘点
+把用户列出的 10 个外部资源按"可否直接取数"分成三层，全部收敛进 `/s/data`（Data Hub），既有可交互的数据浏览器，也有精选的外链工作台，避免堆砌无用超链接。
 
-`src/components/risk/` 与 `RiskTools.tsx` 已实现：VaR (Hist/Param/MC)、Merton 结构违约、Copula 依赖、EVT-POT、ES Backtest、Stress、CVA/XVA、Credit Copula。
+## 分层策略
 
-**缺口**：系统性风险、流动性风险、监管资本 (FRTB)、操作风险、反向压力测试、集中度/风险贡献。
+### Tier A — 直接接数据 API（新增 Edge Function + Explorer）
+这些站点提供公开/半公开 API，可以做成和现有 `FredExplorer / CoinGeckoExplorer / AlphaVantageExplorer` 同款的交互卡片。
 
-## 目标：新增 6 个前沿工具
+1. **FRED（已存在）** — 复用 `FredExplorer`，在新的"宏观数据宝库"分组中作为锚点。
+2. **Cboe 市场情绪** — 通过既有 `market-quotes` (Yahoo) 拉 `^VIX / ^VIX9D / ^VVIX / ^SKEW`，新建 `CboeSentimentExplorer.tsx`：
+   - VIX Term Structure（9D vs 30D 曲线，判断 contango/backwardation）
+   - VIX vs SKEW 双轴时序
+   - Put/Call Ratio：Cboe 无免费实时 API，用 FRED 代理序列 `CPCE`（Equity Put/Call）+ 静态外链回落
+3. **Trading Economics 日历** — 免费 API 只允许 guest key 查 `country=mexico,sweden`。方案：
+   - 新建 `econ-calendar` Edge Function：优先尝试 TE guest 端点，失败/受限时回退到 `nfp.fyi` 的 ICS 或 `investpy` 静态列表
+   - `EconCalendarPanel.tsx`：本周 7 日 CPI/NFP/GDP/FOMC 事件表，含重要性星级、上次值、预期值
+   - 若限流则显示"下一次 FOMC/CPI 公布倒计时"+ TE 外链
+4. **Quiver Quantitative** — 有免费层但需登录 key。方案：先做 **只读概览**（Congress trading top-10、WSB mentions top-10），通过 `quiver-signals` Edge Function 请求；若用户后续提供 key 存 `QUIVER_API_KEY`，否则组件降级为"需要配置 API Key"占位 + 外链。
 
-### 1. 系统性风险 (CoVaR / ΔCoVaR / MES / SRISK)
-- Adrian & Brunnermeier CoVaR — 分位数回归求条件 VaR
-- Acharya et al. MES (Marginal Expected Shortfall) 与 SRISK = k·Debt − (1−k)·(1−LRMES)·Equity
-- 输入：机构与市场收益序列 (合成或用户上传)
-- 输出：CoVaR / ΔCoVaR 柱状图、SRISK 排名、系统性重要性排序
+### Tier B — 结构化数据但需要抓取（爬取 + 缓存）
+5. **ETF Database (etfdb.com)** — 无公开 API。新建 `etf-lookup` Edge Function：
+   - 用户输入 ticker（SPY/QQQ/...），后端抓 etfdb.com 的 `/etf/{TICKER}/` 页解析费率、AUM、YTD、Top Holdings
+   - 4 小时缓存进 `edge_kv`（用 in-memory Map + timestamp，避免加表）
+   - `EtfLookupCard.tsx`：单只 ETF 详情 + 对比模式（最多 3 只并排）
+6. **Finviz Heatmap** — Finviz 反爬严格。方案：不做抓取，做 **Sector Heatmap 自制版**：用现有 `market-quotes` 拉 11 个 SPDR sector ETF (`XLK/XLF/XLE/...`) 的 1D/1W/1M 涨跌，用 D3-style treemap（`recharts` Treemap）绘制，视觉对齐 Finviz 但数据自采；页脚保留 Finviz 外链。
+7. **CompaniesMarketCap** — 无 API 且反爬。方案：静态维护 Top-50 全球公司 JSON（`src/data/topMarketCap.ts`，每季度手更）+ 用 Alpha Vantage `OVERVIEW` 端点在用户点击时刷新单只市值。做成 `MarketCapRanking.tsx` 排行榜。
 
-### 2. 流动性调整 VaR (LVaR + Almgren-Chriss 最优清算)
-- 外生流动性成本：LVaR = VaR + ½·|Position|·bid-ask spread
-- 内生：Almgren-Chriss 最优清算轨迹，最小化 E[Cost] + λ·Var[Cost]
-- 输出：清算路径曲线、成本-风险有效前沿、λ 敏感度
+### Tier C — 精选外链工作台（不抓数据，只做导航）
+剩下的站点更适合作为"深度分析目的地"：**StockAnalysis / Koyfin / Seeking Alpha / Finviz screener** 等。做一个 `ExternalWorkbench.tsx` 卡片墙：
+- 每张卡片：Logo、一句话中文说明、"擅长做什么"标签（基本面初筛/多空观点/横向对比…）、直接跳深链模板（如 `stockanalysis.com/stocks/{ticker}/financials/`）
+- 支持用户在顶部输入 ticker 后，所有卡片的链接自动带上该 ticker → 一键跨站研究工作流
+- 与 Tool Bus 打通：读取当前 `selectedTicker`
 
-### 3. FRTB 监管资本 (IMA Expected Shortfall + DRC)
-- 97.5% ES on stressed period，跨流动性区间 (10/20/40/60/120d) scaling
-- IMCC = ρ·IMCC(全)  + (1−ρ)·Σ IMCC(bucket)
-- P&L attribution test (Spearman + KS) 和 backtesting (Kupiec + Christoffersen 综合灯)
-- 输出：ES 分解、Basel 交通灯、资本占用
+## Data Hub 页面结构（`/s/data`）
 
-### 4. 操作风险 LDA (Loss Distribution Approach)
-- 频率：Poisson(λ)；严重度：Lognormal 或 GPD
-- Monte Carlo 卷积得年度总损失分布 → 99.9% OpVaR (Basel III AMA)
-- 输出：分布直方图、VaR/ES 分位、按业务线聚合
+```text
+Data Hub
+├─ Section 1 · 宏观数据宝库
+│    ├─ FredExplorer            (已有)
+│    ├─ EconCalendarPanel       (新, Trading Economics)
+│    └─ WorldBankExplorer       (已有)
+├─ Section 2 · 市场行情 & 情绪
+│    ├─ CboeSentimentExplorer   (新, VIX/SKEW/PCR)
+│    ├─ SectorHeatmap           (新, Finviz-style)
+│    └─ AlphaVantageExplorer    (已有)
+├─ Section 3 · 公司 & ETF
+│    ├─ EtfLookupCard           (新, ETF Database 抓取)
+│    ├─ MarketCapRanking        (新, CompaniesMarketCap)
+│    └─ CoinGeckoExplorer       (已有)
+├─ Section 4 · 另类数据
+│    └─ QuiverSignalsCard       (新, 需可选 API key)
+└─ Section 5 · 外部分析工作台
+     └─ ExternalWorkbench       (新, StockAnalysis/Koyfin/SA/Finviz 深链墙)
+```
 
-### 5. 反向压力测试 (Reverse Stress Testing)
-- 给定目标损失 L*，求最不利但仍可信的因子冲击 (Mahalanobis 距离最小)
-- 因子协方差 Σ，冲击 δ = argmin δᵀΣ⁻¹δ  s.t.  bᵀδ = L*
-- 闭式解：δ* = (L*/bᵀΣb)·Σb；可信度得分 = δ*ᵀΣ⁻¹δ*
-- 输出：因子冲击表 + 情景可信度
-
-### 6. 集中度风险 & 风险贡献 (HHI + Component VaR + Euler)
-- Herfindahl-Hirschman Index 与有效分散度 1/Σwᵢ²
-- Component VaR：CVaRᵢ = wᵢ·∂VaR/∂wᵢ = wᵢ·(Σw)ᵢ/σₚ·zα
-- Euler 分配：Σ CVaRᵢ = VaR
-- 输出：贡献瀑布图、边际 VaR 热力图
-
-## 落地结构
-
-### 新数学库 `src/lib/quant/riskAdvanced.ts`
-- `computeCoVaR(returnsMkt, returnsI, alpha)` — 分位数回归
-- `computeMES_SRISK(retsMkt, retsI, marketCap, debt, k)`
-- `almgrenChriss(X, T, N, sigma, eta, lambda)` — 最优清算轨迹
-- `frtbES(pnl, alpha=0.975, liquidityBuckets)` + `basel Traffic Light`
-- `ldaOpVaR(lambda, mu, sigma, nSims)` — 卷积模拟
-- `reverseStressTest(Sigma, b, Lstar)`
-- `componentVaR(weights, Sigma, alpha)` — Euler 分解
-
-### 新 UI `src/components/risk/V43Tools.tsx`
-六个 Tool 组件，复用 `Slider` / `Stat` / `PresetButtons` / `ShareExportToolbar`，Recharts + gold 主题。
-
-### 挂载
-- `RiskTools.tsx`：`ToolId` 追加 6 条；引入两级分类导航 (`CategorizedToolNav`)：
-  ```
-  信用风险：   merton, cva, credit_copula
-  市场风险：   var, evt, esback, frtb
-  依赖与尾部： copula
-  流动性：     lvar
-  系统性：     systemic
-  操作风险：   opvar
-  情景与集中： stress, reverse_stress, concentration
-  ```
-- `src/data/toolsCatalog.ts` 追加 6 条元数据 (zh/en, category="risk", version="V4.3")
-
-### 测试 `src/lib/quant/__tests__/riskAdvanced.test.ts`
-- CoVaR 随 ρ 单调
-- MES ≥ Unconditional ES
-- Almgren-Chriss：λ→0 退化为 TWAP；λ↑ 收敛于立即清算
-- Reverse stress: δ*ᵀΣ⁻¹δ* 与 L*² 成正比
-- Component VaR 求和等于总 VaR
-- LDA 均值 ≈ λ·E[X]
-
-### 版本与文档
-- `package.json` bump → `4.3.0`；`src/lib/buildVersion.ts` 更新
-- `CHANGELOG.md` + `src/components/Changelog.tsx` 新增 V4.3 条目
-- `src/i18n/locales/{en,zh}.json`：
-  - `hero.latestUpdate.label` → "Latest Update · V4.3"
-  - `hero.latestUpdate.description` 改写为六大风险工具摘要
-  - `nav.version` → "V4.3"
-  - 6 个新工具 nav 键 (可选)
-
-## 交付顺序（一次实现）
-
-1. `riskAdvanced.ts` + 单元测试
-2. `V43Tools.tsx` 六个 UI 组件
-3. `RiskTools.tsx` 分类导航 & 注册
-4. `toolsCatalog.ts` / i18n / changelog / buildVersion / package.json
-5. `tsgo` + `vitest run` 通过
+Navbar / CommandPalette / `toolsCatalog.ts` 同步增加子锚点，可直接跳到某个 Section。
 
 ## 技术细节
 
-- **CoVaR**：对 R_sys 关于 R_i 分位数回归，取 α=5% 分位截距+斜率·VaR_i(α)。ΔCoVaR = CoVaR|distress − CoVaR|median。
-- **SRISK**：LRMES ≈ 1 − exp(−18·MES)（Brownlees-Engle 近似）。
-- **Almgren-Chriss 闭式**：x_k = X·sinh(κ(T−t_k))/sinh(κT)，κ = √(λσ²/η)。
-- **FRTB ES**：ES_{97.5} 用左尾 2.5% 均值；LH scaling: ES_liq = √(Σ (ES_j)²·(LH_j−LH_{j−1})/10)。
-- **Reverse Stress 闭式**：拉格朗日 → δ* = (L*/bᵀΣb)·Σb。
-- **Component VaR**：假设正态，VaR = z_α·√(wᵀΣw)；MCᵢ = z_α·(Σw)ᵢ/σₚ。
+**新增 Edge Functions**（全部走 corsHeaders + 8s AbortController + 内存缓存，与既有 fred-series 模式一致）：
+- `supabase/functions/econ-calendar/index.ts`
+- `supabase/functions/etf-lookup/index.ts`（HTML parse via regex on cheerio-free deno DOMParser）
+- `supabase/functions/quiver-signals/index.ts`（读取可选 `QUIVER_API_KEY`，未配置时返回 `{configured:false}`）
+
+**新增前端文件**：
+- `src/components/data/CboeSentimentExplorer.tsx`
+- `src/components/data/EconCalendarPanel.tsx`
+- `src/components/data/EtfLookupCard.tsx`
+- `src/components/data/SectorHeatmap.tsx`
+- `src/components/data/MarketCapRanking.tsx`
+- `src/components/data/QuiverSignalsCard.tsx`
+- `src/components/data/ExternalWorkbench.tsx`
+- `src/data/externalWorkbenchLinks.ts`（Tier C 卡片配置）
+- `src/data/topMarketCap.ts`（Top-50 静态种子）
+- `src/lib/marketData.ts` 追加 `useCboeSentiment / useEconCalendar / useEtfLookup / useQuiverSignals` hooks
+
+**页面级改动**：
+- `src/pages/SectionPage.tsx`：`data` section 改为渲染上面 5 段的 tab / anchored sections
+- `src/components/Navbar.tsx` + `CommandPalette.tsx`：新增子菜单锚点
+- `src/data/toolsCatalog.ts`：登记新工具，让全站搜索能命中"ETF 查询""经济日历"等关键词
+
+**版本**：更新到 **V4.4**，`Changelog.tsx` / `CHANGELOG.md` / `HeroSection` i18n 同步。
+
+## 已知取舍
+- Trading Economics 免费 API 限量，如果 guest key 拒绝，则回退为静态 FOMC/CPI 时间表；组件仍可用。
+- Finviz、Seeking Alpha、StockAnalysis、Koyfin 服务条款禁止抓取，只做外链，不采数据。
+- Quiver 未配置 key 时组件不隐藏，而是显示"配置后启用"引导，避免破坏布局。
+
+需要我按这个方案直接进入构建吗？如果你希望砍掉 Tier B/C 的某一块（比如不做 ETF 抓取，只保留外链），告诉我我调整后再执行。
