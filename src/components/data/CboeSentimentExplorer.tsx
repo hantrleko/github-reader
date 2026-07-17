@@ -10,8 +10,8 @@ import SectionHeader from "@/components/common/SectionHeader";
 const SYMBOLS = [
   { s: "^VIX", name: "VIX (30D)", color: CHART_COLORS.gold },
   { s: "^VIX9D", name: "VIX9D (9D)", color: CHART_COLORS.teal },
-  { s: "^VVIX", name: "VVIX (Vol of VIX)", color: CHART_COLORS.blue },
-  { s: "^SKEW", name: "SKEW", color: CHART_COLORS.purple },
+  { s: "^VVIX", name: "VVIX (Vol of VIX)", color: CHART_COLORS.series[0] },
+  { s: "^SKEW", name: "SKEW", color: CHART_COLORS.series[1] },
 ];
 
 const fmt = (n: number | null | undefined, d = 2) =>
