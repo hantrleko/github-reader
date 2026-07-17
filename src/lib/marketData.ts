@@ -260,3 +260,67 @@ export function useFredYieldCurve(enabled = true) {
 
   return { points, isLoading, isError, latestDate, refetch: () => results.forEach((r) => r.refetch()) };
 }
+
+// -----------------------------------------------------------
+// V4.4 · External Data Ecosystem hooks
+// -----------------------------------------------------------
+
+export type EconEvent = {
+  date: string;
+  country: string;
+  category: string;
+  event: string;
+  importance: 1 | 2 | 3;
+  actual?: string | null;
+  forecast?: string | null;
+  previous?: string | null;
+  source: "trading-economics" | "curated";
+};
+
+export function useEconCalendar(enabled = true) {
+  return useQuery({
+    queryKey: ["econ-calendar"],
+    queryFn: () => callFn<{ events: EconEvent[]; cached: boolean }>("econ-calendar", {}),
+    enabled,
+    staleTime: 30 * 60 * 1000,
+    retry: 1,
+  });
+}
+
+export type EtfInfo = {
+  ticker: string;
+  name: string | null;
+  issuer: string | null;
+  expenseRatio: string | null;
+  aum: string | null;
+  category: string | null;
+  ytd: string | null;
+  dividendYield: string | null;
+  url: string;
+  upstreamOk?: boolean;
+  cached?: boolean;
+};
+
+export function useEtfLookup(ticker: string, enabled = true) {
+  return useQuery({
+    queryKey: ["etf-lookup", ticker],
+    queryFn: () => callFn<EtfInfo>("etf-lookup", { ticker }),
+    enabled: enabled && !!ticker,
+    staleTime: FIVE_MIN,
+    retry: 1,
+  });
+}
+
+export type QuiverResp =
+  | { configured: false }
+  | { configured: true; kind?: string; items?: unknown[]; error?: string };
+
+export function useQuiverSignals(kind: "congress" | "wsb" = "congress", enabled = true) {
+  return useQuery({
+    queryKey: ["quiver", kind],
+    queryFn: () => callFn<QuiverResp>("quiver-signals", { kind }),
+    enabled,
+    staleTime: 30 * 60 * 1000,
+    retry: 0,
+  });
+}
