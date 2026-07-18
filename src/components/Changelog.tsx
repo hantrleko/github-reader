@@ -4,9 +4,39 @@ import { useTranslation } from "react-i18next";
 
 const RELEASES = [
   {
-    version: "V4.3",
+    version: "V4.4",
     date: "2026-07",
     tag: "Current",
+    highlights: [
+      {
+        icon: Sparkles,
+        title: "外部数据生态整合 — 7 个新数据入口",
+        items: [
+          "CBOE 市场情绪 (/s/cboe-sentiment): VIX / VIX9D / VVIX / SKEW 一年时间序列 + VIX 期限结构 (contango/backwardation) + FRED CPCE 股票 Put/Call Ratio",
+          "经济日历 (/s/econ-calendar): 未来 14 天 CPI / NFP / GDP / FOMC 等高影响事件, Trading Economics guest API + 精选静态时间表回退",
+          "ETF 查询 (/s/etf-lookup): 输入代码即时抓取 etfdb.com 费率 / AUM / 类别 / YTD / 股息率, 4 小时缓存",
+          "板块热力图 (/s/sector-heatmap): 11 只 SPDR 行业 ETF 一月涨跌 Finviz 风格热力图, 自采 Yahoo 数据",
+          "全球市值 Top 50 (/s/market-cap): 季度快照, 行业与国别分布, 一键跳转 StockAnalysis",
+          "Quiver 另类数据 (/s/quiver-signals): 议员交易 + WSB 散户热度 (需 QUIVER_API_KEY, 未配置时给指引卡)",
+          "外部研究工作台 (/s/external-workbench): StockAnalysis / Finviz / Koyfin / Seeking Alpha / Cboe / Trading Economics / ETFdb / Quiver / FRED / CompaniesMarketCap 10 站 ticker-aware 深链, 输入代码全部卡片同步",
+        ],
+      },
+      {
+        icon: BookOpen,
+        title: "工程",
+        items: [
+          "新增 3 个 Edge Function: econ-calendar / etf-lookup / quiver-signals (CORS + 缓存 + 上游失败回退)",
+          "新增数据模块: src/data/topMarketCap.ts (Top 50) 与 externalWorkbenchLinks.ts (10 站 URL 模板)",
+          "marketData.ts 补 useEconCalendar / useEtfLookup / useQuiverSignals 三个 React Query hook",
+          "Navbar「数据源」组扩至 12 项, 命令面板与 SECTIONS 目录自动登记, i18n (zh/en) 同步",
+        ],
+      },
+    ],
+  },
+  {
+    version: "V4.3",
+    date: "2026-07",
+    tag: "Stable",
     highlights: [
       {
         icon: Sparkles,
