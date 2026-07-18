@@ -48,6 +48,13 @@ const GROUPS: Group[] = [
     { id: "ecb-bis", labelKey: "nav.items.ecb-bis" },
     { id: "coingecko", labelKey: "nav.items.coingecko" },
     { id: "alphavantage", labelKey: "nav.items.alphavantage" },
+    { id: "cboe-sentiment", labelKey: "nav.items.cboe-sentiment" },
+    { id: "econ-calendar", labelKey: "nav.items.econ-calendar" },
+    { id: "etf-lookup", labelKey: "nav.items.etf-lookup" },
+    { id: "sector-heatmap", labelKey: "nav.items.sector-heatmap" },
+    { id: "market-cap", labelKey: "nav.items.market-cap" },
+    { id: "quiver-signals", labelKey: "nav.items.quiver-signals" },
+    { id: "external-workbench", labelKey: "nav.items.external-workbench" },
   ]},
   { labelKey: "nav.groups.quant", items: [
     { id: "quant", labelKey: "nav.items.quant" },
