@@ -1,5 +1,28 @@
 # EF Lab 版本日志
 
+## V4.4 — 外部数据生态整合 (7 个新数据入口 · 3 个 Edge Function · 10 站深链工作台)
+
+### 新增
+
+- **CBOE 市场情绪温度计** (`/s/cboe-sentiment`): VIX / VIX9D / VVIX / SKEW 一年时间序列, VIX 期限结构判定 (contango / backwardation), 叠加 FRED CPCE 股票 Put/Call Ratio。
+- **经济日历** (`/s/econ-calendar`): 未来 14 天 CPI / NFP / GDP / FOMC 等高影响宏观事件, Trading Economics guest API 优先, 失败回退到精选静态时间表。
+- **ETF 查询** (`/s/etf-lookup`): 输入代码抓取 etfdb.com 的费率 / AUM / 类别 / YTD / 股息率, 结果 4 小时缓存并直达 ETFdb 详情。
+- **板块热力图** (`/s/sector-heatmap`): 11 只 SPDR 行业 ETF 一月涨跌可视化, Finviz 风格。
+- **全球市值 Top 50** (`/s/market-cap`): 季度快照, 行业与国别分布, 每行直达 StockAnalysis。
+- **Quiver 另类数据** (`/s/quiver-signals`): 议员交易 + WSB 散户热度 (需要在项目 Secrets 配置 `QUIVER_API_KEY`, 未配置时会展示引导卡)。
+- **外部研究工作台** (`/s/external-workbench`): StockAnalysis / Finviz / Koyfin / Seeking Alpha / Cboe / Trading Economics / ETFdb / Quiver / FRED / CompaniesMarketCap 十个研究站的 ticker-aware 深链, 输入代码后所有链接同步更新。
+
+### 工程
+
+- 新增 3 个 Edge Function: `econ-calendar` / `etf-lookup` / `quiver-signals` (CORS + in-memory 缓存 + 上游失败降级)。
+- 新增数据模块 `src/data/topMarketCap.ts`, `src/data/externalWorkbenchLinks.ts`。
+- `src/lib/marketData.ts` 补 `useEconCalendar` / `useEtfLookup` / `useQuiverSignals` 三个 React Query hook。
+- Navbar「数据源」下拉与 zh/en i18n 同步扩至 12 项。
+
+### 变更
+
+- 全站版本号同步至 **V4.4**, V4.3 标记为 Stable。
+
 ## V3.8 — 计量经济学强化 (回归诊断 · 动态面板 GMM · 预测检验 · 非参数)
 
 ### 新增
