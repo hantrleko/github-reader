@@ -45,6 +45,13 @@
       "ecb-bis": "ECB / BIS Data",
       "coingecko": "CoinGecko Crypto",
       "alphavantage": "Alpha Vantage Stocks/FX",
+      "cboe-sentiment": "CBOE Sentiment (VIX/SKEW)",
+      "econ-calendar": "Econ Calendar (CPI/NFP)",
+      "etf-lookup": "ETF Lookup",
+      "sector-heatmap": "Sector Heatmap",
+      "market-cap": "Global Market Cap Top 50",
+      "quiver-signals": "Alt Data (Quiver)",
+      "external-workbench": "External Workbench",
       "quant": "Quant Strategy Lab",
       "quiz": "Interactive Quiz",
       "learning": "Learning Path",
@@ -69,8 +76,8 @@
       "knowledge": "Concepts"
     },
     "latestUpdate": {
-      "label": "Latest Update · V4.3",
-      "description": "Risk-management reinforcement — six research-grade tools: Systemic risk (CoVaR/ΔCoVaR/MES/SRISK), Liquidity-adjusted VaR with Almgren-Chriss optimal execution, FRTB IMA (97.5% ES + liquidity-horizon scaling + Basel traffic light), Operational LDA (Poisson × Lognormal → 99.9% OpVaR), Reverse stress testing (Mahalanobis-minimal factor shock), and Concentration + Euler Component VaR.",
+      "label": "Latest Update · V4.4",
+      "description": "External data-ecosystem integration — 7 new data stations: CBOE sentiment (VIX term structure + SKEW + PCR), Econ Calendar (Trading Economics + curated fallback), ETF Lookup (etfdb scrape), SPDR sector heatmap, Global Market Cap Top 50, Quiver alt-data (Congress / WSB), and an External Workbench of 10 ticker-aware deep links (StockAnalysis / Finviz / Koyfin / …).",
       "cta": "View Changelog"
     }
   },

@@ -45,6 +45,13 @@
       "ecb-bis": "ECB / BIS 数据",
       "coingecko": "CoinGecko 加密",
       "alphavantage": "Alpha Vantage 股票/外汇",
+      "cboe-sentiment": "CBOE 情绪 (VIX/SKEW)",
+      "econ-calendar": "经济日历 (CPI/NFP)",
+      "etf-lookup": "ETF 查询",
+      "sector-heatmap": "板块热力图",
+      "market-cap": "全球市值 Top 50",
+      "quiver-signals": "另类数据 (Quiver)",
+      "external-workbench": "外部研究工作台",
       "quant": "量化策略实验室",
       "quiz": "互动测验",
       "learning": "学习路径",
@@ -69,8 +76,8 @@
       "knowledge": "知识点"
     },
     "latestUpdate": {
-      "label": "最新更新 · V4.3",
-      "description": "风险管理强化六件套：系统性风险 (CoVaR/ΔCoVaR/MES/SRISK)、流动性 VaR + Almgren-Chriss 最优清算、FRTB IMA (97.5% ES + 流动性区间加权 + Basel 交通灯)、操作风险 LDA (Poisson × Lognormal → 99.9% OpVaR)、反向压力测试 (Mahalanobis 最小可信冲击) 与集中度 + Euler Component VaR 分解。",
+      "label": "最新更新 · V4.4",
+      "description": "外部数据生态整合 · 7 个新数据站入驻：CBOE 情绪温度计 (VIX 期限结构 + SKEW + PCR)、经济日历 (Trading Economics + 精选回退)、ETF 查询 (etfdb 抓取)、SPDR 板块热力图、全球市值 Top 50、Quiver 另类数据 (议员/WSB)、外部研究工作台 (StockAnalysis / Finviz / Koyfin 等 10 站 ticker-aware 深链)。",
       "cta": "查看更新日志"
     }
   },
