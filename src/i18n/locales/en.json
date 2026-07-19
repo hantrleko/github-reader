@@ -37,6 +37,7 @@
       "derivatives": "SVI / Heston / LSM",
       "bond": "Bond Calculator",
       "rate-model": "Rate Models",
+      "fixed-income-lab": "Fixed Income Lab",
       "frontier": "Efficient Frontier",
       "econometrics": "Causal / Time-Series / Vol / Panel / ML",
       "risk": "VaR·ES / Merton / Copula / Stress",
