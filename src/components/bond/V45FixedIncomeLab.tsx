@@ -6,7 +6,6 @@ import {
 } from "recharts";
 import { C, Slider, Stat, tooltipStyle } from "@/components/frontier/ui";
 import PresetButtons from "@/components/PresetButtons";
-import CitationFooter from "@/components/common/CitationFooter";
 import {
   mertonCredit, cdsParSpread, bootstrapHazard,
   vasicekYield, cirYield, simulateShortRate,
@@ -59,15 +58,10 @@ export default function V45FixedIncomeLab() {
         {tab === "curve" && <CurvePanel />}
       </motion.div>
 
-      <CitationFooter
-        items={[
-          { text: "Merton, R. C. (1974). On the pricing of corporate debt. Journal of Finance." },
-          { text: "Vasicek, O. (1977). An equilibrium characterization of the term structure." },
-          { text: "Cox, Ingersoll & Ross (1985). A theory of the term structure of interest rates." },
-          { text: "Hull, J. & White, A. (1990). Pricing interest-rate derivative securities." },
-          { text: "Fabozzi, F. J. (2012). Bond Markets, Analysis and Strategies (8th ed.)." },
-        ]}
-      />
+      <div className="rounded-lg border border-border bg-card/60 p-4 text-[11px] font-mono text-muted-foreground leading-relaxed">
+        <p className="text-gold uppercase tracking-wider mb-2">参考文献</p>
+        <p>Merton (1974) · Vasicek (1977) · Cox-Ingersoll-Ross (1985) · Hull &amp; White (1990) · Fabozzi (2012) Bond Markets, Analysis and Strategies.</p>
+      </div>
     </section>
   );
 }
