@@ -37,6 +37,7 @@
       "derivatives": "SVI / Heston / LSM",
       "bond": "债券计算",
       "rate-model": "利率模型",
+      "fixed-income-lab": "固收高阶实验室",
       "frontier": "有效前沿",
       "econometrics": "因果推断 / 时序 / 波动率 / 面板 / ML",
       "risk": "VaR·ES / Merton / Copula / 压测",
