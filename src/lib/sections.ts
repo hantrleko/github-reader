@@ -82,6 +82,15 @@ export const SECTIONS: SectionDef[] = [
     Component: lazy(() => import("@/components/RateModelSimulator")),
   },
   {
+    id: "fixed-income-lab",
+    chapter: "Chapter 3",
+    kicker: "Fixed Income Lab",
+    label: "固定收益高阶 · 信用/短率/OAS/曲线",
+    subtitle: "V4.5 · Merton & CDS 反推、Vasicek/CIR/HW 期限结构、Ho-Lee 树 OAS 与 PSA MBS、TIPS 与 2-5-10 蝶式。",
+    group: "固收与组合",
+    Component: lazy(() => import("@/components/bond/V45FixedIncomeLab")),
+  },
+  {
     id: "frontier",
     chapter: "Chapter 3",
     kicker: "Efficient Frontier",
