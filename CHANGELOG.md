@@ -1,5 +1,18 @@
 # EF Lab 版本日志
 
+## V4.6 — 宏观经济学高阶实验室 (6 个研究级工具)
+
+### 新增
+
+- **宏观高阶实验室** (`/s/macro-lab`): 6 个研究级工具，四 Tab 布局。
+  - 财政与债务动态: `b_{t+1}=(1+r)/(1+g)·b_t−s` 迭代 + Blanchard (r−g) 财政空间温度计。
+  - Dornbusch 汇率超调: 粘性价格 + UIP 闭式解, 展示短期超调后向 PPP 回归。
+  - BOP 三缺口: 会计恒等 `CA ≡ (S−I)+(T−G)`。
+  - Bernanke-Gertler-Gilchrist 金融加速器: 对比 RBC 无摩擦基线。
+  - ZLB + 前瞻指引 puzzle: 后向归纳求解 NK 3 方程在 `i_t=0` 约束下的路径。
+- 新增纯函数库 `src/lib/quant/macroAdvanced.ts` 及 11 项单元测试。
+- Navbar「理论」组新增「宏观高阶实验室」入口, zh/en i18n 同步。
+
 ## V4.4 — 外部数据生态整合 (7 个新数据入口 · 3 个 Edge Function · 10 站深链工作台)
 
 ### 新增
