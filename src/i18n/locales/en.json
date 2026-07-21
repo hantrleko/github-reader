@@ -59,6 +59,7 @@
       "changelog": "Changelog",
       "micro": "Microeconomics",
       "macro": "Macroeconomics",
+      "macro-lab": "Macro Advanced Lab",
       "asset-pricing": "Asset Pricing (CAPM)",
       "platform": "Platform Tools",
       "frontier-concepts": "Frontier Models"
@@ -77,8 +78,8 @@
       "knowledge": "Concepts"
     },
     "latestUpdate": {
-      "label": "Latest Update · V4.4",
-      "description": "External data-ecosystem integration — 7 new data stations: CBOE sentiment (VIX term structure + SKEW + PCR), Econ Calendar (Trading Economics + curated fallback), ETF Lookup (etfdb scrape), SPDR sector heatmap, Global Market Cap Top 50, Quiver alt-data (Congress / WSB), and an External Workbench of 10 ticker-aware deep links (StockAnalysis / Finviz / Koyfin / …).",
+      "label": "Latest Update · V4.6",
+      "description": "Macro Advanced Lab (/s/macro-lab) — 6 research-grade tools: Blanchard r−g debt dynamics with fiscal-space gauge, Dornbusch exchange-rate overshooting IRF, BOP three-gap identity (S−I / T−G / CA), Bernanke-Gertler-Gilchrist financial accelerator vs frictionless RBC baseline, and ZLB with forward-guidance puzzle amplification.",
       "cta": "View Changelog"
     }
   },

@@ -59,6 +59,7 @@
       "changelog": "更新日志",
       "micro": "微观经济学",
       "macro": "宏观经济学",
+      "macro-lab": "宏观高阶实验室",
       "asset-pricing": "资产定价 CAPM",
       "platform": "平台增强",
       "frontier-concepts": "前沿模型"
@@ -77,8 +78,8 @@
       "knowledge": "知识点"
     },
     "latestUpdate": {
-      "label": "最新更新 · V4.4",
-      "description": "外部数据生态整合 · 7 个新数据站入驻：CBOE 情绪温度计 (VIX 期限结构 + SKEW + PCR)、经济日历 (Trading Economics + 精选回退)、ETF 查询 (etfdb 抓取)、SPDR 板块热力图、全球市值 Top 50、Quiver 另类数据 (议员/WSB)、外部研究工作台 (StockAnalysis / Finviz / Koyfin 等 10 站 ticker-aware 深链)。",
+      "label": "最新更新 · V4.6",
+      "description": "宏观经济学高阶实验室 (/s/macro-lab) · 6 个研究级工具：Blanchard r−g 债务动态与财政空间温度计、Dornbusch 汇率超调 IRF、BOP 三缺口 (S−I / T−G / CA) 恒等式、Bernanke-Gertler-Gilchrist 金融加速器 (含 RBC 无摩擦基线对比)、ZLB + 前瞻指引 puzzle 后向归纳求解。",
       "cta": "查看更新日志"
     }
   },

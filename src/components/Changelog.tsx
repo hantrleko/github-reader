@@ -4,9 +4,37 @@ import { useTranslation } from "react-i18next";
 
 const RELEASES = [
   {
-    version: "V4.4",
+    version: "V4.6",
     date: "2026-07",
     tag: "Current",
+    highlights: [
+      {
+        icon: Sparkles,
+        title: "宏观经济学高阶实验室 — /s/macro-lab",
+        items: [
+          "财政与债务动态: b_{t+1}=(1+r)/(1+g)·b_t−s 迭代 + Blanchard (r−g) 财政空间温度计 (safe/watch/danger)",
+          "Dornbusch 汇率超调: 粘性价格 + UIP 闭式解, 展示 e(0)=Δm·(1+1/(λθ)) 短期超调后向长期 PPP 回归",
+          "BOP 三缺口: 会计恒等 CA ≡ (S−I)+(T−G), 一眼看穿盈余/赤字体制",
+          "Bernanke-Gertler-Gilchrist 金融加速器: 净值冲击 → EFP → 投资/产出放大, 对比 RBC 无摩擦基线",
+          "ZLB + 前瞻指引 Puzzle: 后向归纳求解 NK 3 方程在 i_t=0 约束下的路径, 记录 Del Negro 式放大倍数",
+        ],
+      },
+      {
+        icon: BookOpen,
+        title: "工程",
+        items: [
+          "新增纯函数库 src/lib/quant/macroAdvanced.ts (debtDynamics / dornbuschIRF / bopGaps / bggAccelerator / zlbNKSolve)",
+          "11 项单元测试全部通过: 稳定 s* 保持债务不变、汇率超调、BGG 放大 > RBC、ZLB 期数延长 → 当期 x 单调恶化",
+          "新增 UI 组件 V46MacroLab.tsx (四 Tab, Recharts ComposedChart + Area 高亮 ZLB 生效期)",
+          "SECTIONS 注册 /s/macro-lab, Navbar 「理论」组新增入口, zh/en i18n 同步",
+        ],
+      },
+    ],
+  },
+  {
+    version: "V4.4",
+    date: "2026-07",
+    tag: "Stable",
     highlights: [
       {
         icon: Sparkles,
