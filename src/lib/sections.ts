@@ -145,6 +145,15 @@ export const SECTIONS: SectionDef[] = [
     Component: lazy(() => import("@/components/MacroTools")),
   },
   {
+    id: "macro-lab",
+    chapter: "Chapter 7",
+    kicker: "Macro Lab",
+    label: "宏观高阶实验室 · 债务/汇率/BGG/ZLB",
+    subtitle: "V4.6 · Blanchard r−g 债务动态、Dornbusch 汇率超调、BOP 三缺口、BGG 金融加速器、ZLB 与前瞻指引 puzzle。",
+    group: "宏观",
+    Component: lazy(() => import("@/components/macro/V46MacroLab")),
+  },
+  {
     id: "fred",
     chapter: "Data",
     kicker: "FRED",
