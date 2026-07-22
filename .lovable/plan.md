@@ -1,67 +1,79 @@
-# V4.6 宏观经济学强化实验室
+# V4.7 行为金融与市场微观结构实验室
 
-当前 `MacroTools.tsx` 已有 9 个经典模型（IS-LM / AD-AS / Phillips / Mundell-Fleming / Ramsey / Solow / 3-Eq NK DSGE / HANK / Real Options）。本次强化聚焦**政策分析、财政可持续性、汇率与外部平衡、金融加速器**四大现代宏观前沿领域，与已有模块形成互补而非重叠。
+现有仅有 `ProspectTheoryTool`（价值函数 + 概率加权）一件"行为金融"工具，市场微观结构则完全缺席。本次新增一个独立路由 `/s/behavior-microstructure`，用两 Tab × 6 工具建立系统性覆盖，与既有 `FrontierConcepts` 展示型卡片互补（后者不动）。
 
 ## 交付形态
 
-新建 `/s/macro-lab` 路由（顶部导航「宏观」下拉新增「宏观高阶实验室」入口），四个 Tab 承载 6 个新工具，风格与 V4.5 固收实验室、V4.3 风险实验室完全一致（Recharts + Framer Motion + Tool Bus + Compare 模式）。原 `/s/macro` 页面保持不变。
+- 新 section `behavior-microstructure`，注册于 `src/lib/sections.ts`，`group: "理论"`；顶部导航「理论」下拉新增入口。
+- 新组件 `src/components/behavior/V47BehaviorMicroLab.tsx`（约 550 行）：两 Tab、Recharts、Framer Motion、接入 `ShareExportToolbar` / `useSharedState("behavior-micro")` / `CompareToggle` / `PresetButtons`，风格与 `V45FixedIncomeLab` / `V46MacroLab` 完全一致。
+- 新数学模块 `src/lib/quant/behaviorMicro.ts`（约 320 行）+ `__tests__/behaviorMicro.test.ts`（12+ 用例）。
+- `toolsCatalog.ts`、i18n locales、`Changelog.tsx`、`CHANGELOG.md`、`HeroSection.tsx` 同步 V4.7。
 
 ## 新增工具（6 项）
 
-### Tab 1 — 财政与债务动态
-1. **政府债务可持续性 (Debt Sustainability Analysis)**
-   - 核心方程：`b_{t+1} = ((1+r)/(1+g)) · b_t − s_t`
-   - 交互：r、g、初始 b/GDP、基本盈余路径 → 输出 30 年债务/GDP 轨迹 + 稳定所需基本盈余 s\* = (r−g)·b
-   - 情景：低利率陷阱 / r>g 债务螺旋 / 财政整顿
+### Tab 1 · 行为金融 (Behavioral Finance)
 
-2. **Blanchard (r−g) 财政空间温度计**
-   - 滚动计算 r−g，红/黄/绿三档；叠加 FRED 实时 10Y 名义利率与潜在增长率
+1. **心理账户 & 双曲贴现 (Mental Accounting & Hyperbolic Discounting)**
+   - β-δ 准双曲贴现：`U = u₀ + β·Σ δᵗ uₜ`，与指数贴现对比展示"现时偏好"与偏好反转
+   - 交互：β、δ、时间窗口 → 折现价值曲线 + 偏好反转点标记
 
-### Tab 2 — 汇率与外部平衡
-3. **Dornbusch 汇率超调模型**
-   - 粘性价格 + 利率平价：货币冲击后名义汇率瞬间超调至 e\* > 长期均衡，随价格调整回归
-   - 交互：货币扩张幅度、价格调整速度 θ → 汇率 / 价格 / 利率三面板 IRF
+2. **有限套利与噪声交易者风险 (DSSW 1990)**
+   - `p = p* + (1+r)·μ·λ⁻¹ + noise`；噪声交易者情绪 ρ 冲击 → 均衡价格偏离与套利者持仓
+   - 交互：ρ 波动率、套利者风险厌恶 → 定价误差 IRF、"聪明钱"份额演化
 
-4. **BOP-IS-LM 三缺口分析**
-   - S−I、T−G、CA 三缺口恒等式动态平衡；输入储蓄率/财政赤字/投资率 → 计算隐含经常账户
+3. **过度自信 & 处置效应组合模拟 (Odean 1998 / Barber-Odean)**
+   - 蒙特卡洛：过度自信信号精度膨胀因子 k > 1 → 换手率、alpha 净损失
+   - 处置效应：`P(sell | gain) > P(sell | loss)`；绘制持有时间-收益散点
 
-### Tab 3 — 金融加速器 & 非线性
-5. **Bernanke-Gertler-Gilchrist 金融加速器**
-   - 外部融资溢价 EFP = f(净值/资产)；负向净值冲击 → 投资放大衰退
-   - 交互：杠杆、监督成本 μ、破产概率 → 投资-净值-产出 IRF 对比"无摩擦 RBC"基线
+### Tab 2 · 市场微观结构 (Market Microstructure)
 
-### Tab 4 — 政策规则与流动性陷阱
-6. **零利率下限 (ZLB) & 前瞻指引 Puzzle**
-   - NK 模型在 i_t = max(0, φ_π π_t + φ_x x_t) 约束下的求解
-   - 展示：不同 ZLB 持续期对当前产出的非线性放大（"forward guidance puzzle"）
-   - 反事实：QE / 财政乘数在 ZLB 下 vs 正常期
+4. **Kyle (1985) 批量拍卖 & 信息知情度**
+   - 均衡：`λ = σᵥ/(2σᵤ)`，知情交易量 `x* = (v−p₀)/(2λ)`，价格影响 `Δp = λ(x+u)`
+   - 交互：私有信息方差 σᵥ、噪声流动性 σᵤ → λ、市场深度 1/λ、知情者利润
+
+5. **Glosten-Milgrom & Roll (1984) 有效价差反推**
+   - GM 序贯交易：知情者比例 α → 买卖价差 `S = 2α(V̄−V̲)/(1+α(2π−1))`
+   - Roll 序列协方差估计：`ŝ = 2√(−cov(Δpₜ, Δpₜ₋₁))`；给定合成 tick 序列反推有效价差
+
+6. **Almgren-Chriss 最优执行 & Amihud 非流动性**
+   - 前沿：期望执行成本 vs 方差；闭式解 `xₜ = sinh(κ(T−t))/sinh(κT)·X`
+   - 交互：永久/临时冲击 η、γ、风险厌恶 λ → 最优执行轨迹 + 有效前沿；同时展示 Amihud `ILLIQ = |r|/dollar_vol`
 
 ## 技术方案
 
-**数学层** — 新建 `src/lib/quant/macroAdvanced.ts`：
-- `debtDynamics(params, horizon)` — 差分方程迭代
-- `dornbuschIRF(params)` — 闭式解 + 时间路径
-- `bopGaps(s, i, tg)` — 三缺口恒等式
-- `bggAccelerator(params)` — 简化 log-linear IRF
-- `zlbNKSolve(params, zlbPeriods)` — 后向归纳求解 NK + ZLB
-- 12+ Vitest 单元测试（`__tests__/macroAdvanced.test.ts`）
+**数学层** — `src/lib/quant/behaviorMicro.ts` 导出：
+- `hyperbolicDiscount(beta, delta, T)` → 折现因子数组，含指数基线对比
+- `dsswPriceIRF(params)` → 噪声交易者冲击下价格偏离时间路径
+- `overconfidenceMC(params, N)` → 过度自信换手率与净 α 的 MC 分布
+- `dispositionEffect(gains, losses, params)` → 卖出概率与持有分布
+- `kyleEquilibrium({sigmaV, sigmaU, v, p0})` → { lambda, xStar, profit, depth }
+- `glostenMilgromSpread({alpha, vH, vL, pi})` + `rollSpread(prices)`
+- `almgrenChriss({X, T, N, eta, gamma, sigma, lambda})` → 轨迹 + 成本-方差前沿
+- `amihudIlliq(returns, dollarVol)`
 
-**UI 层** — 新建 `src/components/macro/V46MacroLab.tsx`：
-- 四 Tab 布局 + 参数滑块 + Recharts 图（LineChart / AreaChart / ComposedChart）
-- 接入 `ShareExportToolbar`、`useSharedState("macro-lab")`、`CompareToggle`
-- Debt/Blanchard 工具可选接入 `fred-series` 拉取实时 GS10 / GDP 潜在增长
+**测试**（`__tests__/behaviorMicro.test.ts`）：
+- Kyle λ 在极限 σᵤ→∞ 时 →0（完全隐蔽）；恒等式 `λ·2·xStar = v−p₀`
+- Almgren-Chriss 在 λ=0 时退化为线性 VWAP；κ 增大收缩执行窗口
+- Roll 反推：对合成 bid-ask bounce 序列 recovery 误差 < 5%
+- 双曲：β<1 时对 t=1 折扣 > 指数基线
+- GM：α=0 时 spread=0
+
+**UI 层** — `V47BehaviorMicroLab.tsx`：
+- 两 Tab（行为 / 微观结构）+ 6 子工具卡片，参数滑块 + LineChart/ScatterChart/ComposedChart
+- Almgren-Chriss 展示轨迹图 + 有效前沿双图；Kyle 展示深度-利润联动
+- 每工具附 KaTeX 公式头部 + `PresetButtons` 3-5 个经典标定
 
 **接入点**：
-- `src/lib/sections.ts` — 注册 `macro-lab` section
-- `src/components/Navbar.tsx` — 宏观下拉新增入口
+- `src/lib/sections.ts` — 注册 `behavior-microstructure`（`group: "理论"`, `chapter: "Chapter 8"`, `kicker: "Behavior & Microstructure"`）
+- `src/components/Navbar.tsx` — 「理论」下拉新增「行为 & 微观结构实验室」
 - `src/i18n/locales/{zh,en}.json` — 标题/描述
-- `src/data/toolsCatalog.ts` — 6 个新工具登记（用于全局搜索）
-- `CHANGELOG.md` + `Changelog.tsx` + `HeroSection.tsx` — V4.6 版本号 & 文案
+- `src/data/toolsCatalog.ts` — 6 个新工具登记（供全局搜索/Compare）
+- `CHANGELOG.md` + `Changelog.tsx` + `HeroSection.tsx` — V4.7 版本号与"最新更新"文案
 
 ## 不做
 
-- 不重写现有 `MacroTools.tsx` 的 9 个经典模型
-- 不新增边缘 Edge Function（复用现有 `fred-series`）
-- 不改动全局主题/路由结构
+- 不改动现有 `ProspectTheoryTool` / `FrontierConcepts`（前者作为"入门版"保留在 Frontier Concepts Lab）
+- 不引入新的边缘 Edge Function（全部纯前端计算）
+- 不改动主题、路由结构或既有模块
 
-预计交付：`macroAdvanced.ts`（~350 行）+ 测试 + `V46MacroLab.tsx`（~500 行）+ 6 处小改动文件。
+预计代码增量：`behaviorMicro.ts` ~320 行 + 测试 ~180 行 + `V47BehaviorMicroLab.tsx` ~550 行 + 6 处小改动。
