@@ -260,3 +260,44 @@ html.reading-mode .text-gold,
 html.reading-mode .text-primary {
   filter: saturate(0.7);
 }
+
+/* ============================================================
+   Mobile experience polish (V4.8)
+   - Larger touch targets for range sliders on coarse pointers
+   - Prevent iOS zoom-on-focus by keeping inputs >= 16px there
+   - Horizontal-scroll guards for wide tables / KaTeX blocks
+   ============================================================ */
+@media (pointer: coarse) {
+  input[type="range"] {
+    height: 28px; /* bigger hit area */
+  }
+  input[type="range"]::-webkit-slider-thumb {
+    width: 22px;
+    height: 22px;
+  }
+  button,
+  [role="button"] {
+    min-height: 32px;
+  }
+}
+
+@media (max-width: 640px) {
+  /* iOS Safari zooms when focused inputs are < 16px */
+  input[type="text"],
+  input[type="number"],
+  select,
+  textarea {
+    font-size: 16px;
+  }
+  /* Recharts containers occasionally overflow tiny screens */
+  .recharts-responsive-container {
+    max-width: 100%;
+    overflow: hidden;
+  }
+  /* Any data table becomes swipeable instead of squeezing the layout */
+  table {
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}

@@ -318,6 +318,97 @@ export function gridScan(
   return { xParam: opts.xParam, yParam: opts.yParam, xValues: opts.xValues, yValues: opts.yValues, metric: opts.metric, grid, best };
 }
 
+/* ───────────────────────── bootstrap risk cone ───────────────────────── */
+export interface BootstrapConeResult {
+  /** horizon in bars (x axis) */
+  horizon: number[];
+  /** percentile bands of terminal equity path, each length = horizon.length */
+  p5: number[];
+  p25: number[];
+  p50: number[];
+  p75: number[];
+  p95: number[];
+  /** distribution of terminal wealth across simulations */
+  terminal: { p5: number; p50: number; p95: number; probLoss: number };
+  nSims: number;
+}
+
+/** Mulberry32 deterministic PRNG so results are reproducible & testable. */
+function mulberry32(seed: number): () => number {
+  let a = seed >>> 0;
+  return () => {
+    a |= 0; a = (a + 0x6d2b79f5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+/**
+ * Block-bootstrap the strategy's daily net returns to build a forward-looking
+ * risk cone: resample blocks (preserving short-range autocorrelation), rebuild
+ * equity paths and report P5/P25/P50/P75/P95 bands plus terminal stats.
+ */
+export function bootstrapCone(
+  strategyReturns: number[],
+  opts: { horizon?: number; nSims?: number; blockSize?: number; seed?: number } = {}
+): BootstrapConeResult {
+  const horizon = Math.max(10, Math.min(opts.horizon ?? 252, 2520));
+  const nSims = Math.max(50, Math.min(opts.nSims ?? 500, 5000));
+  const block = Math.max(1, Math.min(opts.blockSize ?? 10, 60));
+  const rnd = mulberry32(opts.seed ?? 42);
+  const r = strategyReturns.filter((x) => isFinite(x));
+  if (r.length < 20) {
+    const flat = Array.from({ length: horizon }, () => 1);
+    const h = Array.from({ length: horizon }, (_, i) => i + 1);
+    return { horizon: h, p5: flat, p25: flat, p50: flat, p75: flat, p95: flat, terminal: { p5: 1, p50: 1, p95: 1, probLoss: 0 }, nSims: 0 };
+  }
+
+  // paths[s][t] = equity at t for sim s
+  const paths: number[][] = [];
+  for (let s = 0; s < nSims; s++) {
+    const path: number[] = new Array(horizon);
+    let eq = 1;
+    let t = 0;
+    while (t < horizon) {
+      const start = Math.floor(rnd() * r.length);
+      for (let b = 0; b < block && t < horizon; b++, t++) {
+        eq *= 1 + r[(start + b) % r.length];
+        path[t] = eq;
+      }
+    }
+    paths.push(path);
+  }
+
+  const q = (arr: number[], p: number): number => {
+    const sorted = [...arr].sort((a, b) => a - b);
+    const idx = Math.min(sorted.length - 1, Math.max(0, Math.floor(p * (sorted.length - 1))));
+    return sorted[idx];
+  };
+
+  const h: number[] = [], p5: number[] = [], p25: number[] = [], p50: number[] = [], p75: number[] = [], p95: number[] = [];
+  // Sample ~60 points along the horizon to keep the chart light
+  const step = Math.max(1, Math.floor(horizon / 60));
+  for (let t = step - 1; t < horizon; t += step) {
+    const cross = paths.map((p) => p[t]);
+    h.push(t + 1);
+    p5.push(q(cross, 0.05));
+    p25.push(q(cross, 0.25));
+    p50.push(q(cross, 0.5));
+    p75.push(q(cross, 0.75));
+    p95.push(q(cross, 0.95));
+  }
+
+  const terminals = paths.map((p) => p[horizon - 1]);
+  const probLoss = terminals.filter((x) => x < 1).length / terminals.length;
+
+  return {
+    horizon: h, p5, p25, p50, p75, p95,
+    terminal: { p5: q(terminals, 0.05), p50: q(terminals, 0.5), p95: q(terminals, 0.95), probLoss },
+    nSims,
+  };
+}
+
 /* ───────────────────────── monthly returns ───────────────────────── */
 export interface MonthlyReturnsResult {
   years: number[]; // descending

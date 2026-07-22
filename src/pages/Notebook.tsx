@@ -14,12 +14,14 @@ import { InlineMath } from "react-katex";
 import "katex/dist/katex.min.css";
 import { Plus, Trash2, Save, FolderOpen, GitFork, Globe, Lock, Download, FileText, Sigma, SlidersHorizontal, BarChart3, Sparkles, Loader2, Code2, Table as TableIcon, GripVertical, History, AlertTriangle } from "lucide-react";
 import DiscussionPanel from "@/components/DiscussionPanel";
+import PythonCell, { PY_PLACEHOLDER } from "@/components/notebook/PythonCell";
 import { awardBadge, checkNotebookCount } from "@/lib/achievements";
 import { NOTEBOOK_TEMPLATES } from "@/data/notebookTemplates";
 import { decodeCalcSeed, seedToCells } from "@/lib/calcToNotebook";
 import { evalDag, buildScope, type DagCellInput, type CellResult } from "@/lib/notebook/dag";
 import { compileExpr } from "@/lib/notebook/sandbox";
 import { exportIpynb } from "@/lib/notebook/exportIpynb";
+import { importIpynb } from "@/lib/notebook/importIpynb";
 import {
   DndContext, closestCenter, KeyboardSensor, PointerSensor,
   useSensor, useSensors, type DragEndEvent,
@@ -37,7 +39,8 @@ type FormulaCell= { id: string; kind: "formula"; name?: string; latex: string; e
 type ChartCell  = { id: string; kind: "chart"; xVar: string; xMin: number; xMax: number; n: number; expression: string };
 type JsCell     = { id: string; kind: "js"; name: string; body: string };
 type TableCell  = { id: string; kind: "table"; name?: string; body: string };
-type Cell = ParamCell | MdCell | FormulaCell | ChartCell | JsCell | TableCell;
+type PyCell     = { id: string; kind: "python"; body: string };
+type Cell = ParamCell | MdCell | FormulaCell | ChartCell | JsCell | TableCell | PyCell;
 
 const uid = () => Math.random().toString(36).slice(2, 10);
 
@@ -60,7 +63,7 @@ function cellToDag(c: Cell): DagCellInput {
     case "js":      return { id: c.id, name: c.name, source: c.body || "return null;", mode: "js" };
     case "table":   return { id: c.id, name: c.name, source: c.body || "[]", mode: "expr" };
     case "chart":   return { id: c.id, source: c.expression || "0", mode: "expr" };
-    default:        return { id: c.id, source: "", mode: "value", rawValue: null };
+    default:        return { id: c.id, source: "", mode: "value", rawValue: null }; // markdown / python — not in DAG
   }
 }
 
@@ -162,6 +165,7 @@ const Notebook = () => {
       chart:    { id: uid(), kind: "chart", xVar: "x", xMin: 0, xMax: 10, n: 50, expression: "Math.sin(x)*p.x1" },
       js:       { id: uid(), kind: "js",     name: `j${cells.filter(c=>c.kind==="js").length+1}`, body: "// 可用上游变量名 & p.*\nconst arr = linspace(0, 10, 50).map(x => Math.sin(x));\nreturn { mean: mean(arr), std: std(arr) };" },
       table:    { id: uid(), kind: "table",  name: "", body: "linspace(0, 10, 11).map(x => ({ x, sin: Math.sin(x), cos: Math.cos(x) }))" },
+      python:   { id: uid(), kind: "python", body: PY_PLACEHOLDER },
     };
     setCells((cs) => [...cs, blank[kind]]);
   };
@@ -250,6 +254,7 @@ const Notebook = () => {
       else if (c.kind === "chart") lines.push(`*Chart:* \`${c.expression}\` over ${c.xVar} ∈ [${c.xMin}, ${c.xMax}]\n`);
       else if (c.kind === "js") lines.push(`\`\`\`js\n// js cell — ${c.name}\n${c.body}\n\`\`\`\n`);
       else if (c.kind === "table") lines.push(`*Table:* \`${c.body}\`\n`);
+      else if (c.kind === "python") lines.push(`\`\`\`python\n${c.body}\n\`\`\`\n`);
     });
     const blob = new Blob([lines.join("\n")], { type: "text/markdown" });
     const a = document.createElement("a");
@@ -260,6 +265,27 @@ const Notebook = () => {
     const blob = new Blob([json], { type: "application/json" });
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob); a.download = `${title}.ipynb`; a.click();
+  };
+  const importNotebook = () => {
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = ".ipynb,application/json";
+    input.onchange = async () => {
+      const f = input.files?.[0];
+      if (!f) return;
+      try {
+        const { title: t, cells: imported } = importIpynb(await f.text());
+        setNotebookId(null);
+        setTitle(t);
+        setCells(imported as any);
+        setIsPublic(false);
+        setForkedFrom(null);
+        toast({ title: `已导入 ${t}`, description: `${imported.length} 个单元 · 代码单元可直接用 Python 内核运行` });
+      } catch (e) {
+        toast({ title: "导入失败", description: String((e as Error)?.message || e), variant: "destructive" });
+      }
+    };
+    input.click();
   };
 
   /* ─── Versions ─── */
@@ -338,6 +364,9 @@ const Notebook = () => {
             </button>
             <button onClick={exportNotebook} className="inline-flex items-center gap-1 px-3 py-1.5 border border-border/60 text-[10px] font-mono uppercase tracking-wider hover:border-gold/60 text-foreground">
               <Download className="w-3 h-3" /> .ipynb
+            </button>
+            <button onClick={importNotebook} title="导入 Jupyter Notebook — 代码单元将可用 Pyodide 内核运行" className="inline-flex items-center gap-1 px-3 py-1.5 border border-border/60 text-[10px] font-mono uppercase tracking-wider hover:border-gold/60 text-foreground">
+              <FolderOpen className="w-3 h-3" /> Import .ipynb
             </button>
             <button
               onClick={() => setIsPublic((v) => !v)}
@@ -419,7 +448,7 @@ const Notebook = () => {
 
           {/* Add cell */}
           <div className="mt-4 flex flex-wrap gap-2 border-t border-accent/30 pt-4">
-            {(["markdown","param","formula","chart","js","table"] as const).map((k) => (
+            {(["markdown","param","formula","chart","js","table","python"] as const).map((k) => (
               <button
                 key={k}
                 onClick={() => addCell(k)}
@@ -462,6 +491,7 @@ const SortableCellRow = ({
     cell.kind === "formula"  ? Sigma :
     cell.kind === "chart"    ? BarChart3 :
     cell.kind === "js"       ? Code2 :
+    cell.kind === "python"   ? Code2 :
     TableIcon;
   const cellName = (cell as any).name as string | undefined;
   return (
@@ -543,6 +573,15 @@ const CellBody = ({ cell, result, scope, p, update }: {
   p: Record<string,number>;
   update: (id: string, patch: Partial<Cell>) => void;
 }) => {
+  if (cell.kind === "python") {
+    return (
+      <PythonCell
+        body={cell.body}
+        params={p}
+        onChange={(body) => update(cell.id, { body } as Partial<Cell>)}
+      />
+    );
+  }
   if (cell.kind === "markdown") {
     return (
       <textarea

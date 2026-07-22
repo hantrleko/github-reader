@@ -80,6 +80,10 @@ export function exportIpynb(title: string, cells: AnyCell[]): string {
           `> source: \`${c.body ?? ""}\``,
         ]));
         break;
+      case "python":
+        // Real Python — export as directly executable code
+        out.push(codeCell((c.body ?? "").split("\n")));
+        break;
       default:
         out.push(mdCell([`<!-- unknown cell kind: ${c.kind} -->`]));
     }

@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import {
   ComposedChart, Area, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend,
 } from "recharts";
-import { Activity, Grid3x3, CalendarDays, Trophy } from "lucide-react";
+import { Activity, Grid3x3, CalendarDays, Trophy, Umbrella } from "lucide-react";
 import SectionHeader from "@/components/common/SectionHeader";
 import { Slider, Stat, C } from "@/components/frontier/ui";
 import { AXIS_PROPS, GRID_PROPS, ThemedTooltip } from "@/components/common/ChartTheme";
@@ -14,7 +14,7 @@ import {
 } from "@/lib/priceSeries";
 import PriceSourceBar from "@/components/quant/PriceSourceBar";
 import {
-  runBacktest, gridScan, monthlyReturns,
+  runBacktest, gridScan, monthlyReturns, bootstrapCone,
   type StrategyId, type BacktestParams, type ScanMetric, type GridScanResult,
 } from "@/lib/quant/backtest";
 
@@ -104,6 +104,24 @@ export default function BacktestLab() {
     if (!result) return null;
     return monthlyReturns(result.dates, result.equity);
   }, [result]);
+
+  // bootstrap forward risk cone from the strategy's net daily returns
+  const cone = useMemo(() => {
+    if (!result || result.equity.length < 60) return null;
+    const rets: number[] = [];
+    for (let i = 1; i < result.equity.length; i++) rets.push(result.equity[i] / result.equity[i - 1] - 1);
+    return bootstrapCone(rets, { horizon: 252, nSims: 400, blockSize: 10, seed: 7 });
+  }, [result]);
+
+  const coneChart = useMemo(() => {
+    if (!cone) return [];
+    return cone.horizon.map((h, i) => ({
+      day: h,
+      p5: cone.p5[i], p25: cone.p25[i], p50: cone.p50[i], p75: cone.p75[i], p95: cone.p95[i],
+      band90: [cone.p5[i], cone.p95[i]],
+      band50: [cone.p25[i], cone.p75[i]],
+    }));
+  }, [cone]);
 
   // parameter scan
   const scanConfig = useMemo(() => {
@@ -396,6 +414,31 @@ export default function BacktestLab() {
                         )}
                       </div>
                     </div>
+
+                    {cone && (
+                      <div className="rounded-xl border border-border bg-card/60 p-4">
+                        <p className="text-xs font-mono uppercase tracking-wider text-muted-foreground mb-1 flex items-center gap-1.5">
+                          <Umbrella className="w-3.5 h-3.5 text-gold" /> Bootstrap 风险锥 — 未来 252 交易日 ({cone.nSims} 次块自助法模拟)
+                        </p>
+                        <p className="text-[10px] font-mono text-muted-foreground mb-3">
+                          1 年后中位数净值 {cone.terminal.p50.toFixed(2)} · P5–P95 [{cone.terminal.p5.toFixed(2)}, {cone.terminal.p95.toFixed(2)}] · 亏损概率 {(cone.terminal.probLoss * 100).toFixed(1)}%
+                        </p>
+                        <ResponsiveContainer width="100%" height={220}>
+                          <ComposedChart data={coneChart}>
+                            <CartesianGrid {...GRID_PROPS} />
+                            <XAxis dataKey="day" {...AXIS_PROPS} label={{ value: "交易日", position: "insideBottomRight", fontSize: 10, fill: "hsl(var(--muted-foreground))" }} />
+                            <YAxis {...AXIS_PROPS} width={48} domain={["auto", "auto"]} />
+                            <Tooltip content={<ThemedTooltip />} />
+                            <Area type="monotone" dataKey="band90" name="P5–P95" stroke="none" fill={C.blue} fillOpacity={0.12} isAnimationActive={false} />
+                            <Area type="monotone" dataKey="band50" name="P25–P75" stroke="none" fill={C.blue} fillOpacity={0.22} isAnimationActive={false} />
+                            <Line type="monotone" dataKey="p50" name="中位数" stroke={C.gold} dot={false} strokeWidth={1.8} isAnimationActive={false} />
+                          </ComposedChart>
+                        </ResponsiveContainer>
+                        <p className="text-[10px] font-mono text-muted-foreground mt-2">
+                          块自助法 (block=10) 重采样策略净收益,保留短期自相关。锥体越宽,参数过拟合 / 小样本风险越大。
+                        </p>
+                      </div>
+                    )}
 
                     <p className="text-[10px] font-mono text-muted-foreground">
                       标的 {series?.symbol} · 数据源 {source} · 已计入 {costBps + slippageBps}bps 单边成本+滑点。教学用途,历史表现不代表未来收益。
