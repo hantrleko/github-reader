@@ -154,6 +154,15 @@ export const SECTIONS: SectionDef[] = [
     Component: lazy(() => import("@/components/macro/V46MacroLab")),
   },
   {
+    id: "behavior-microstructure",
+    chapter: "Chapter 8",
+    kicker: "Behavior & Microstructure",
+    label: "行为金融 & 市场微观结构实验室",
+    subtitle: "V4.7 · 双曲贴现 / DSSW / 过度自信 / 处置效应 + Kyle / Glosten-Milgrom / Roll / Almgren-Chriss / Amihud。",
+    group: "理论",
+    Component: lazy(() => import("@/components/behavior/V47BehaviorMicroLab")),
+  },
+  {
     id: "fred",
     chapter: "Data",
     kicker: "FRED",

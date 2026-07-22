@@ -60,6 +60,7 @@
       "micro": "Microeconomics",
       "macro": "Macroeconomics",
       "macro-lab": "Macro Advanced Lab",
+      "behavior-microstructure": "Behavior & Microstructure Lab",
       "asset-pricing": "Asset Pricing (CAPM)",
       "platform": "Platform Tools",
       "frontier-concepts": "Frontier Models"
@@ -78,8 +79,8 @@
       "knowledge": "Concepts"
     },
     "latestUpdate": {
-      "label": "Latest Update · V4.6",
-      "description": "Macro Advanced Lab (/s/macro-lab) — 6 research-grade tools: Blanchard r−g debt dynamics with fiscal-space gauge, Dornbusch exchange-rate overshooting IRF, BOP three-gap identity (S−I / T−G / CA), Bernanke-Gertler-Gilchrist financial accelerator vs frictionless RBC baseline, and ZLB with forward-guidance puzzle amplification.",
+      "label": "Latest Update · V4.7",
+      "description": "Behavior & Microstructure Lab (/s/behavior-microstructure) — 8 research-grade tools: Laibson β-δ hyperbolic discounting, DSSW noise-trader IRF, Barber-Odean overconfidence turnover drag, disposition-effect Monte Carlo, plus Kyle (1985) equilibrium, Glosten-Milgrom sequential-trade spread, Roll (1984) implied spread, Almgren-Chriss optimal execution frontier, and Amihud illiquidity.",
       "cta": "View Changelog"
     }
   },

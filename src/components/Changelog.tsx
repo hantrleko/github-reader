@@ -4,9 +4,40 @@ import { useTranslation } from "react-i18next";
 
 const RELEASES = [
   {
-    version: "V4.6",
+    version: "V4.7",
     date: "2026-07",
     tag: "Current",
+    highlights: [
+      {
+        icon: Sparkles,
+        title: "行为金融 & 市场微观结构实验室 — /s/behavior-microstructure",
+        items: [
+          "双曲贴现 (Laibson β-δ): D(t)=β·δᵗ vs 指数基线, 显式检测偏好反转",
+          "DSSW 噪声交易者 IRF: mispricing = (1−σ_arb)·ρ_t, AR(1) 情绪冲击",
+          "过度自信换手-α 侵蚀 (Barber-Odean): 净 α = α − k·turnover₀·cost 扫描曲线",
+          "处置效应蒙特卡洛: PGR/PLR 与持有天数-回报散点",
+          "Kyle 1985 均衡: λ=σ_v/(2σ_u), x*=(v−p₀)/(2λ), 深度-利润联动图",
+          "Glosten-Milgrom 序贯交易: 知情比例 α → Bid/Ask 价差 (α=0 → spread=0)",
+          "Roll 1984 有效价差反推: ŝ = 2√(−cov(Δpₜ,Δpₜ₋₁)) 合成 tick 验证",
+          "Almgren-Chriss 最优执行: sinh(κ(T−t))/sinh(κT)·X 轨迹 + λ 扫描有效前沿 + Amihud ILLIQ",
+        ],
+      },
+      {
+        icon: BookOpen,
+        title: "工程",
+        items: [
+          "新增纯函数库 src/lib/quant/behaviorMicro.ts (8 个模型)",
+          "10 项单元测试: λ=0→VWAP, α=0→spread=0, 2λx*=v−p₀, β<1→偏好反转",
+          "新增 UI 组件 V47BehaviorMicroLab.tsx (两 Tab, ScatterChart 有效前沿)",
+          "SECTIONS 注册 /s/behavior-microstructure, Navbar 「理论」组新增入口, zh/en i18n 同步",
+        ],
+      },
+    ],
+  },
+  {
+    version: "V4.6",
+    date: "2026-07",
+    tag: "Stable",
     highlights: [
       {
         icon: Sparkles,
