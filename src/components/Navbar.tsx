@@ -24,6 +24,7 @@ const GROUPS: Group[] = [
     { id: "micro", labelKey: "nav.items.micro" },
     { id: "macro", labelKey: "nav.items.macro" },
     { id: "macro-lab", labelKey: "nav.items.macro-lab" },
+    { id: "behavior-microstructure", labelKey: "nav.items.behavior-microstructure" },
   ]},
   { labelKey: "nav.groups.basics", items: [
     { id: "calculator", labelKey: "nav.items.calculator" },
