@@ -96,6 +96,9 @@ export default defineConfig(({ mode }) => ({
           "vendor-framer": ["framer-motion"],
           "vendor-katex": ["katex", "react-katex"],
           "vendor-html2img": ["html-to-image"],
+          "vendor-three": ["three", "@react-three/fiber", "@react-three/drei"],
+          "vendor-jspdf": ["jspdf"],
+          "vendor-dnd": ["@dnd-kit/core", "@dnd-kit/sortable", "@dnd-kit/utilities"],
           "vendor-query": ["@tanstack/react-query", "@tanstack/query-core"],
           "vendor-i18n": ["i18next", "react-i18next", "i18next-browser-languagedetector"],
           "vendor-radix": [

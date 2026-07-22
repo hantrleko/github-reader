@@ -126,6 +126,9 @@ const Notebook = lazyWithRetry(() => import("./pages/Notebook.tsx"));
 const NotebookTemplates = lazyWithRetry(() => import("./pages/NotebookTemplates.tsx"));
 const PublicProfile = lazyWithRetry(() => import("./pages/PublicProfile.tsx"));
 const Account = lazyWithRetry(() => import("./pages/Account.tsx"));
+const DataWorkspace = lazyWithRetry(() => import("./pages/DataWorkspace.tsx"));
+const Review = lazyWithRetry(() => import("./pages/Review.tsx"));
+const Gallery = lazyWithRetry(() => import("./pages/Gallery.tsx"));
 const NotFound = lazyWithRetry(() => import("./pages/NotFound.tsx"));
 
 const RouteFallback = () => (
@@ -171,6 +174,9 @@ const App = () => (
                 <Route path="/notebook/templates" element={<NotebookTemplates />} />
                 <Route path="/u/:username" element={<PublicProfile />} />
                 <Route path="/account" element={<Account />} />
+                <Route path="/data" element={<DataWorkspace />} />
+                <Route path="/review" element={<Review />} />
+                <Route path="/gallery" element={<Gallery />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
