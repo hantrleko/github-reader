@@ -1,5 +1,15 @@
 # EF Lab 版本日志
 
+## V4.7 — 行为金融 & 市场微观结构实验室 (8 个研究级工具)
+
+### 新增
+
+- **行为金融 & 微观结构实验室** (`/s/behavior-microstructure`): 两 Tab × 8 工具。
+  - 行为: Laibson β-δ 双曲贴现 · DSSW 噪声交易者 IRF · Barber-Odean 过度自信换手-α 侵蚀 · 处置效应 MC。
+  - 微观结构: Kyle (1985) 均衡 · Glosten-Milgrom 序贯交易价差 · Roll (1984) 有效价差反推 · Almgren-Chriss 最优执行有效前沿 + Amihud ILLIQ。
+- 新增纯函数库 `src/lib/quant/behaviorMicro.ts` (8 个模型) 与 10 项单元测试。
+- Navbar「理论」组新增入口, zh/en i18n 同步。
+
 ## V4.6 — 宏观经济学高阶实验室 (6 个研究级工具)
 
 ### 新增
