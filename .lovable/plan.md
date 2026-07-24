@@ -1,79 +1,62 @@
-# V4.7 行为金融与市场微观结构实验室
+# V4.8 可视化强化计划
 
-现有仅有 `ProspectTheoryTool`（价值函数 + 概率加权）一件"行为金融"工具，市场微观结构则完全缺席。本次新增一个独立路由 `/s/behavior-microstructure`，用两 Tab × 6 工具建立系统性覆盖，与既有 `FrontierConcepts` 展示型卡片互补（后者不动）。
+围绕现有 60+ 工具的 Recharts / 自绘 SVG 图表，做一次系统性可视化升级。分为「基础设施」+「六大能力」+「六个示范工具」三层。
 
-## 交付形态
+## 一、基础设施（统一图表体验）
 
-- 新 section `behavior-microstructure`，注册于 `src/lib/sections.ts`，`group: "理论"`；顶部导航「理论」下拉新增入口。
-- 新组件 `src/components/behavior/V47BehaviorMicroLab.tsx`（约 550 行）：两 Tab、Recharts、Framer Motion、接入 `ShareExportToolbar` / `useSharedState("behavior-micro")` / `CompareToggle` / `PresetButtons`，风格与 `V45FixedIncomeLab` / `V46MacroLab` 完全一致。
-- 新数学模块 `src/lib/quant/behaviorMicro.ts`（约 320 行）+ `__tests__/behaviorMicro.test.ts`（12+ 用例）。
-- `toolsCatalog.ts`、i18n locales、`Changelog.tsx`、`CHANGELOG.md`、`HeroSection.tsx` 同步 V4.7。
+1. **扩展 `src/components/common/ChartTheme.tsx`**
+   - 新增 `ChartToolbar`：右上角操作条（PNG 下载 · CSV 导出 · 复位缩放 · 全屏）。
+   - 新增 `useChartExport` hook：把任意 SVG/Canvas 节点转 PNG（`html-to-image` 或原生 `XMLSerializer + canvg`）。
+   - `ThemedTooltip` 升级：支持自定义 formatter、多序列排序、Δ 变化列。
+   - 增加 `CHART_PALETTES`：`sequential` / `diverging` / `categorical` / `colorblind-safe` 四套，全部走 HSL token。
 
-## 新增工具（6 项）
+2. **新增 `src/components/common/ChartFrame.tsx`（升级版）**
+   - 统一标题 / 副标题 / 图例 / 工具条 / 脚注引用 五段式布局。
+   - 内置 `<Reveal>` 入场动画 + 骨架态 + 空态。
+   - 支持 `compareRef`：Compare Mode 下自动叠加基线序列。
 
-### Tab 1 · 行为金融 (Behavioral Finance)
+## 二、六大可视化能力
 
-1. **心理账户 & 双曲贴现 (Mental Accounting & Hyperbolic Discounting)**
-   - β-δ 准双曲贴现：`U = u₀ + β·Σ δᵗ uₜ`，与指数贴现对比展示"现时偏好"与偏好反转
-   - 交互：β、δ、时间窗口 → 折现价值曲线 + 偏好反转点标记
+| # | 能力 | 说明 | 主要文件 |
+|---|------|------|----------|
+| 1 | **Brush + 双 Y 轴同步缩放** | 长时序（利率、宏观、回测净值）加 Recharts `<Brush>`；跨图 `SyncId` 联动 | `ChartFrame` 参数化 |
+| 2 | **交叉参考线 / Hover Crosshair** | 鼠标移动全图共享 x 轴指针，显示对应数值卡片 | 新 `CrosshairLayer.tsx` |
+| 3 | **区间标注（RegimeBands / 事件线）** | 衰退期、政策事件、DID 处理时点竖线；接 FRED USREC | 新 `AnnotationLayer.tsx` |
+| 4 | **置信带与分布图强化** | 蒙特卡洛/Bootstrap 输出的分位数带 `<Area>` 双边填充 + 中位数线；直方图叠 KDE 曲线 | 新 `FanChart.tsx` / `HistoKde.tsx` |
+| 5 | **3D / 曲面视图** | 波动率曲面（Heston/SABR/Local Vol）、久期-凸度曲面：轻量 `three.js` + `@react-three/fiber`（已在依赖候选） | 新 `Surface3D.tsx` |
+| 6 | **动画时间轴 Scrubber** | Solow 收敛、Kyle 均衡、DSSW IRF 支持"播放/暂停/拖拽 t"，展示动态过程 | 新 `TimeScrubber.tsx` |
 
-2. **有限套利与噪声交易者风险 (DSSW 1990)**
-   - `p = p* + (1+r)·μ·λ⁻¹ + noise`；噪声交易者情绪 ρ 冲击 → 均衡价格偏离与套利者持仓
-   - 交互：ρ 波动率、套利者风险厌恶 → 定价误差 IRF、"聪明钱"份额演化
+## 三、六个示范工具接入
 
-3. **过度自信 & 处置效应组合模拟 (Odean 1998 / Barber-Odean)**
-   - 蒙特卡洛：过度自信信号精度膨胀因子 k > 1 → 换手率、alpha 净损失
-   - 处置效应：`P(sell | gain) > P(sell | loss)`；绘制持有时间-收益散点
+- **`BacktestLab`**：净值 + Drawdown 双面板 Brush 联动 + 回撤区间高亮 + PNG 导出。
+- **`NelsonSiegelTool`**：曲线 FanChart 置信带 + 事件线（QE/加息日）+ CSV。
+- **`HestonTool` / `SABRTool`**：新增 3D IV 曲面 Tab，可旋转/切片。
+- **`V47 Almgren-Chriss`**：执行前沿加交互 Crosshair + 拖拽 λ 时间轴 Scrubber。
+- **`V39 Event-Study DID`**：动态处理效应图加置信带 + 处理时点竖线注释。
+- **`RatesTermStructure` / 宏观图**：Brush + NBER 衰退带（`AnnotationLayer`）。
 
-### Tab 2 · 市场微观结构 (Market Microstructure)
+## 四、辅助增强
 
-4. **Kyle (1985) 批量拍卖 & 信息知情度**
-   - 均衡：`λ = σᵥ/(2σᵤ)`，知情交易量 `x* = (v−p₀)/(2λ)`，价格影响 `Δp = λ(x+u)`
-   - 交互：私有信息方差 σᵥ、噪声流动性 σᵤ → λ、市场深度 1/λ、知情者利润
+- **色觉友好模式**：`ThemeToggle` 增加"Colorblind"开关，切换 `CHART_PALETTES.colorblindSafe`。
+- **打印/PDF 优化**：`@media print` 下图表转纯白背景 + 黑色轴，保证一键报告导出可读。
+- **全局 SR-only 数据表**：每张图旁挂 `<VisuallyHidden>` 数据表，提升 a11y & SEO。
 
-5. **Glosten-Milgrom & Roll (1984) 有效价差反推**
-   - GM 序贯交易：知情者比例 α → 买卖价差 `S = 2α(V̄−V̲)/(1+α(2π−1))`
-   - Roll 序列协方差估计：`ŝ = 2√(−cov(Δpₜ, Δpₜ₋₁))`；给定合成 tick 序列反推有效价差
+## 五、发版与文档
 
-6. **Almgren-Chriss 最优执行 & Amihud 非流动性**
-   - 前沿：期望执行成本 vs 方差；闭式解 `xₜ = sinh(κ(T−t))/sinh(κT)·X`
-   - 交互：永久/临时冲击 η、γ、风险厌恶 λ → 最优执行轨迹 + 有效前沿；同时展示 Amihud `ILLIQ = |r|/dollar_vol`
+- 版本升到 **V4.8 "可视化强化"**；更新 `CHANGELOG.md`、`Changelog.tsx`、`HeroSection` 最新更新卡、`zh/en.json`。
+- 新增 `/s/visualization-guide`（可选）：一页展示所有新组件的用法示例。
 
-## 技术方案
+## 技术细节
 
-**数学层** — `src/lib/quant/behaviorMicro.ts` 导出：
-- `hyperbolicDiscount(beta, delta, T)` → 折现因子数组，含指数基线对比
-- `dsswPriceIRF(params)` → 噪声交易者冲击下价格偏离时间路径
-- `overconfidenceMC(params, N)` → 过度自信换手率与净 α 的 MC 分布
-- `dispositionEffect(gains, losses, params)` → 卖出概率与持有分布
-- `kyleEquilibrium({sigmaV, sigmaU, v, p0})` → { lambda, xStar, profit, depth }
-- `glostenMilgromSpread({alpha, vH, vL, pi})` + `rollSpread(prices)`
-- `almgrenChriss({X, T, N, eta, gamma, sigma, lambda})` → 轨迹 + 成本-方差前沿
-- `amihudIlliq(returns, dollarVol)`
+- 依赖新增：`html-to-image`（PNG 导出，~15KB gz）；3D 视图确认后再引入 `three` + `@react-three/fiber`（首屏懒加载，避免 bundle 膨胀）。
+- 所有颜色走 `hsl(var(--token))`；禁止硬编码色值。
+- 新组件全部提供 `data-testid`，并补 vitest 快照/单测（导出函数、注释解析）。
+- Compare Mode 复用现有 `useToolBus`，图表订阅 `compareRef` 序列自动叠加虚线。
 
-**测试**（`__tests__/behaviorMicro.test.ts`）：
-- Kyle λ 在极限 σᵤ→∞ 时 →0（完全隐蔽）；恒等式 `λ·2·xStar = v−p₀`
-- Almgren-Chriss 在 λ=0 时退化为线性 VWAP；κ 增大收缩执行窗口
-- Roll 反推：对合成 bid-ask bounce 序列 recovery 误差 < 5%
-- 双曲：β<1 时对 t=1 折扣 > 指数基线
-- GM：α=0 时 spread=0
+## 优先级建议
 
-**UI 层** — `V47BehaviorMicroLab.tsx`：
-- 两 Tab（行为 / 微观结构）+ 6 子工具卡片，参数滑块 + LineChart/ScatterChart/ComposedChart
-- Almgren-Chriss 展示轨迹图 + 有效前沿双图；Kyle 展示深度-利润联动
-- 每工具附 KaTeX 公式头部 + `PresetButtons` 3-5 个经典标定
+若想分两次发布：
+- **V4.8a（基础设施 + 能力 1/2/3/4 + 4 个示范工具）**——投入约 60%，覆盖最痛的"看得清、导得出、能标注"。
+- **V4.8b（3D 曲面 + 时间轴 Scrubber + 剩余工具接入 + a11y/打印）**。
 
-**接入点**：
-- `src/lib/sections.ts` — 注册 `behavior-microstructure`（`group: "理论"`, `chapter: "Chapter 8"`, `kicker: "Behavior & Microstructure"`）
-- `src/components/Navbar.tsx` — 「理论」下拉新增「行为 & 微观结构实验室」
-- `src/i18n/locales/{zh,en}.json` — 标题/描述
-- `src/data/toolsCatalog.ts` — 6 个新工具登记（供全局搜索/Compare）
-- `CHANGELOG.md` + `Changelog.tsx` + `HeroSection.tsx` — V4.7 版本号与"最新更新"文案
-
-## 不做
-
-- 不改动现有 `ProspectTheoryTool` / `FrontierConcepts`（前者作为"入门版"保留在 Frontier Concepts Lab）
-- 不引入新的边缘 Edge Function（全部纯前端计算）
-- 不改动主题、路由结构或既有模块
-
-预计代码增量：`behaviorMicro.ts` ~320 行 + 测试 ~180 行 + `V47BehaviorMicroLab.tsx` ~550 行 + 6 处小改动。
+请确认：全量一次做 V4.8，还是先做 V4.8a？是否要引入 3D（`three.js`，会加约 150KB gz，懒加载）？
