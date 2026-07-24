@@ -4,9 +4,40 @@ import { useTranslation } from "react-i18next";
 
 const RELEASES = [
   {
-    version: "V4.7",
+    version: "V4.8",
     date: "2026-07",
     tag: "Current",
+    highlights: [
+      {
+        icon: Sparkles,
+        title: "可视化组件工作台 — /s/visualization-guide",
+        items: [
+          "Brush + syncId 联动缩放: 策略净值与回撤面板共享 x 轴游标",
+          "事件标注层: <ReferenceArea> 高亮衰退/政策窗口, <ReferenceLine> 标记结构断点",
+          "Fan Chart: 蒙特卡洛/bootstrap 输出 50% / 90% 分位数带 + 中位数, 支持 samples[] 或预算 quantiles",
+          "直方图 + 高斯 KDE: Silverman 带宽, 可标注 VaR/ES 临界值",
+          "TimeScrubber: 播放/暂停/拖拽的动态过程回放 (IRF · Solow · Kyle)",
+          "四套调色板: categorical / sequential / diverging / Okabe-Ito 色觉友好, 全部走 HSL token",
+          "PNG · SVG · CSV 一键导出 (原生 XMLSerializer + <canvas>, 零新增依赖)",
+          "打印友好样式: @media print 白底 · 隐藏工具条, 一键报告导出可读",
+        ],
+      },
+      {
+        icon: BookOpen,
+        title: "工程",
+        items: [
+          "升级 src/components/common/ChartTheme.tsx: CHART_PALETTES / ThemedTooltip (formatter/sort/delta) / ChartToolbar / useChartExport / 五段式 ChartFrame",
+          "新增 FanChart.tsx / HistoKde.tsx / TimeScrubber.tsx / ColorblindToggle.tsx 共享组件",
+          "新增 VisualizationGuide 页面, SECTIONS 注册 /s/visualization-guide, Navbar「理论」组新增入口, zh/en i18n 同步",
+          "全局 CSS: html.cb-safe 色觉友好覆盖 · @media print 图表白底 · shimmer 骨架态复用",
+        ],
+      },
+    ],
+  },
+  {
+    version: "V4.7",
+    date: "2026-07",
+    tag: "Stable",
     highlights: [
       {
         icon: Sparkles,

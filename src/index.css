@@ -238,6 +238,50 @@
 }
 
 /* ============================================================
+   V4.8 — Colorblind-safe palette override.
+   Toggled by <html class="cb-safe">. Remaps semantic accent
+   tokens to Okabe-Ito friendly values while keeping surfaces.
+   ============================================================ */
+html.cb-safe {
+  --gold: 30 90% 55%;         /* orange */
+  --gold-glow: 30 95% 65%;
+  --gold-dim: 30 60% 40%;
+  --teal: 202 80% 40%;        /* blue */
+  --teal-glow: 202 85% 55%;
+  --primary: 30 90% 55%;
+  --ring: 30 90% 55%;
+  --destructive: 15 80% 55%;  /* vermilion */
+}
+html.cb-safe.dark {
+  --gold: 30 95% 65%;
+  --gold-glow: 30 95% 75%;
+  --teal: 202 85% 55%;
+  --primary: 30 95% 65%;
+  --ring: 30 95% 65%;
+  --destructive: 15 85% 60%;
+}
+
+/* ============================================================
+   V4.8 — Print / PDF friendly chart styles.
+   Force white surfaces and dark axes so exported reports read
+   cleanly regardless of the active theme.
+   ============================================================ */
+@media print {
+  html, body {
+    background: #ffffff !important;
+    color: #111 !important;
+  }
+  .recharts-surface { background: #ffffff !important; }
+  .recharts-cartesian-axis-line,
+  .recharts-cartesian-axis-tick-line {
+    stroke: #333 !important;
+  }
+  .recharts-cartesian-axis-tick text { fill: #333 !important; }
+  .recharts-cartesian-grid line { stroke: #ddd !important; }
+  nav, header, aside, .print\:hidden { display: none !important; }
+}
+
+/* ============================================================
    Reading Mode — desaturates gold accents, increases line-height
    and letter-spacing for long-form reading comfort.
    Toggled by adding class `reading-mode` on <html>.

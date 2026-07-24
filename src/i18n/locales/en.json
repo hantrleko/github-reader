@@ -61,6 +61,7 @@
       "macro": "Macroeconomics",
       "macro-lab": "Macro Advanced Lab",
       "behavior-microstructure": "Behavior & Microstructure Lab",
+      "visualization-guide": "Visualization Toolkit",
       "asset-pricing": "Asset Pricing (CAPM)",
       "platform": "Platform Tools",
       "frontier-concepts": "Frontier Models"
@@ -79,8 +80,8 @@
       "knowledge": "Concepts"
     },
     "latestUpdate": {
-      "label": "Latest Update · V4.7",
-      "description": "Behavior & Microstructure Lab (/s/behavior-microstructure) — 8 research-grade tools: Laibson β-δ hyperbolic discounting, DSSW noise-trader IRF, Barber-Odean overconfidence turnover drag, disposition-effect Monte Carlo, plus Kyle (1985) equilibrium, Glosten-Milgrom sequential-trade spread, Roll (1984) implied spread, Almgren-Chriss optimal execution frontier, and Amihud illiquidity.",
+      "label": "Latest Update · V4.8",
+      "description": "Visualization Toolkit (/s/visualization-guide) — V4.8 shared chart infrastructure: Recharts <Brush> + syncId linked zoom, event-band / policy-line annotations, Fan Chart quantile confidence bands, histogram + Gaussian KDE, playable TimeScrubber, one-click PNG / CSV export, Okabe-Ito colorblind-safe palette and print-friendly styles — all HSL-tokenised across four palette families.",
       "cta": "View Changelog"
     }
   },
