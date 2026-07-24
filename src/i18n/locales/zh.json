@@ -61,6 +61,7 @@
       "macro": "宏观经济学",
       "macro-lab": "宏观高阶实验室",
       "behavior-microstructure": "行为 & 微观结构实验室",
+      "visualization-guide": "可视化组件工作台",
       "asset-pricing": "资产定价 CAPM",
       "platform": "平台增强",
       "frontier-concepts": "前沿模型"
@@ -79,8 +80,8 @@
       "knowledge": "知识点"
     },
     "latestUpdate": {
-      "label": "最新更新 · V4.7",
-      "description": "行为金融与市场微观结构实验室 (/s/behavior-microstructure) · 8 个研究级工具：双曲贴现 (Laibson β-δ)、DSSW 噪声交易者 IRF、过度自信换手-α 侵蚀、处置效应蒙特卡洛，以及 Kyle 1985 均衡、Glosten-Milgrom 序贯交易价差、Roll 有效价差反推、Almgren-Chriss 最优执行有效前沿与 Amihud 非流动性。",
+      "label": "最新更新 · V4.8",
+      "description": "可视化组件工作台 (/s/visualization-guide) · 统一图表基础设施 V4.8：Recharts <Brush> + syncId 联动缩放、事件区间 / 政策节点标注、Fan Chart 分位数置信带、直方图 + 高斯 KDE、播放式时间轴 Scrubber、PNG / CSV 一键导出、Okabe-Ito 色觉友好模式与打印友好样式，四套调色板 (categorical / sequential / diverging / colorblind-safe) 全部走 HSL token。",
       "cta": "查看更新日志"
     }
   },

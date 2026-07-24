@@ -1,5 +1,27 @@
 # EF Lab 版本日志
 
+## V4.8 — 可视化组件工作台 (统一图表基础设施)
+
+### 新增
+
+- **可视化组件工作台** (`/s/visualization-guide`): 一页展示 V4.8 所有新组件的用法示例。
+- **Brush + syncId 联动缩放**: 净值与回撤面板共享 x 轴游标，可局部放大长时序数据。
+- **事件标注层**: `<ReferenceArea>` 高亮衰退/政策/事件窗口, `<ReferenceLine>` 标记 QE / 加息 / DID 处理时点。
+- **Fan Chart**: 蒙特卡洛/bootstrap 输出 50% / 90% 分位数带 + 中位数线, 支持 `samples[]` 或预算 `quantiles`。
+- **直方图 + 高斯 KDE**: Silverman 带宽自动估计, 可标注 VaR / ES / 均值等临界值。
+- **TimeScrubber**: 播放/暂停/拖拽的动态过程回放, 适用于 IRF / Solow 收敛 / Kyle 均衡。
+- **四套调色板**: `categorical` / `sequential` / `diverging` / Okabe-Ito `colorblindSafe`, 全部走 HSL token, 不硬编码色值。
+- **一键导出**: PNG / SVG / CSV, 原生 `XMLSerializer` + `<canvas>` 实现, 零新增依赖。
+- **色觉友好模式**: `<ColorblindToggle>` 切换 `<html class="cb-safe">`, 图表自动使用 Okabe-Ito 8 色。
+- **打印/PDF 友好**: `@media print` 图表白底 + 边框, 工具条自动隐藏, 一键报告导出可读。
+
+### 工程
+
+- 升级 `src/components/common/ChartTheme.tsx`: `CHART_PALETTES` · `ThemedTooltip` (formatter/sort/delta) · `ChartToolbar` · `useChartExport` hook · 五段式 `ChartFrame` (标题/副标题/工具条/图表/脚注)。
+- 新增 `FanChart.tsx` / `HistoKde.tsx` / `TimeScrubber.tsx` / `ColorblindToggle.tsx` 通用组件。
+- 新增 `VisualizationGuide.tsx` 展示页, `SECTIONS` 注册 `/s/visualization-guide`, Navbar「理论」组新增入口, zh/en i18n 同步。
+- 全局 CSS: `html.cb-safe` 色觉友好覆盖, `@media print` 图表样式, 复用 shimmer 骨架态。
+
 ## V4.7 — 行为金融 & 市场微观结构实验室 (8 个研究级工具)
 
 ### 新增

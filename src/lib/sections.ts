@@ -326,6 +326,16 @@ export const SECTIONS: SectionDef[] = [
   },
 ];
 
+SECTIONS.push({
+  id: "visualization-guide",
+  chapter: "V4.8",
+  kicker: "Visualization Toolkit",
+  label: "可视化组件工作台",
+  subtitle: "Brush 联动缩放 · 事件标注 · Fan Chart 置信带 · 直方图 + KDE · 时间轴 Scrubber · PNG / CSV 一键导出 · 色觉友好模式。",
+  group: "量化与学习",
+  Component: lazy(() => import("@/components/VisualizationGuide")),
+});
+
 export const SECTION_MAP: Record<string, SectionDef> = Object.fromEntries(
   SECTIONS.map((s) => [s.id, s])
 );
