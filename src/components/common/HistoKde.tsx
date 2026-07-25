@@ -51,8 +51,8 @@ export default function HistoKde({
   markers?: Array<{ at: number; label?: string; color?: string }>;
   showKde?: boolean;
 }) {
-  const { rows, domain, binWidth } = useMemo(() => {
-    if (!samples.length) return [];
+  const { rows, domain } = useMemo(() => {
+    if (!samples.length) return { rows: [] as Array<{ x: number; xLabel: string; density: number; kde: number }>, domain: [0, 1] as [number, number] };
     const min = Math.min(...samples);
     const max = Math.max(...samples);
     const w = (max - min) / bins || 1;
@@ -78,8 +78,8 @@ export default function HistoKde({
     const markerMax = markers.length ? Math.max(...markers.map((m) => m.at)) : -Infinity;
     const lo = Math.min(min - w / 2, markerMin - w / 2);
     const hi = Math.max(max + w / 2, markerMax + w / 2);
-    return { rows, domain: [lo, hi] as [number, number], binWidth: w };
-  }, [samples, bins, formatX, showKde, markers]) ?? { rows: [], domain: [0, 1] as [number, number], binWidth: 1 };
+    return { rows, domain: [lo, hi] as [number, number] };
+  }, [samples, bins, formatX, showKde, markers]);
 
   return (
     <ResponsiveContainer width="100%" height={height}>
