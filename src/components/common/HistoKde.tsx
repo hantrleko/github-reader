@@ -51,8 +51,8 @@ export default function HistoKde({
   markers?: Array<{ at: number; label?: string; color?: string }>;
   showKde?: boolean;
 }) {
-  const rows = useMemo(() => {
-    if (!samples.length) return [];
+  const { rows, domain } = useMemo(() => {
+    if (!samples.length) return { rows: [] as Array<{ x: number; xLabel: string; density: number; kde: number }>, domain: [0, 1] as [number, number] };
     const min = Math.min(...samples);
     const max = Math.max(...samples);
     const w = (max - min) / bins || 1;
@@ -67,41 +67,54 @@ export default function HistoKde({
     const total = samples.length * w;
     const density = counts.map((c) => c / total);
     const kde = showKde ? kdeGaussian(samples, centers) : centers.map(() => 0);
-    // Scale KDE line so it lives on the same y-axis as density
-    return centers.map((c, i) => ({
+    const rows = centers.map((c, i) => ({
       x: c,
       xLabel: formatX(c),
       density: density[i],
       kde: kde[i],
     }));
-  }, [samples, bins, formatX, showKde]);
+    // Extend numeric domain slightly so markers just outside the bin range still render.
+    const markerMin = markers.length ? Math.min(...markers.map((m) => m.at)) : Infinity;
+    const markerMax = markers.length ? Math.max(...markers.map((m) => m.at)) : -Infinity;
+    const lo = Math.min(min - w / 2, markerMin - w / 2);
+    const hi = Math.max(max + w / 2, markerMax + w / 2);
+    return { rows, domain: [lo, hi] as [number, number] };
+  }, [samples, bins, formatX, showKde, markers]);
 
   return (
     <ResponsiveContainer width="100%" height={height}>
       <ComposedChart data={rows} margin={{ top: 8, right: 16, bottom: 8, left: 8 }}>
         <CartesianGrid {...GRID_PROPS} />
-        <XAxis dataKey="xLabel" {...AXIS_PROPS} interval={Math.max(0, Math.floor(rows.length / 8) - 1)} />
+        <XAxis
+          dataKey="x"
+          type="number"
+          domain={domain}
+          allowDecimals
+          {...AXIS_PROPS}
+          tickFormatter={(v) => formatX(Number(v))}
+        />
         <YAxis {...AXIS_PROPS} tickFormatter={(v) => Number(v).toFixed(2)} />
-        <Tooltip content={<ThemedTooltip formatter={(v) => (typeof v === "number" ? Number(v).toFixed(4) : String(v))} />} />
-        <Bar dataKey="density" fill="hsl(var(--gold) / 0.45)" isAnimationActive={false} name="密度" />
+        <Tooltip
+          labelFormatter={(v) => formatX(Number(v))}
+          content={<ThemedTooltip formatter={(v) => (typeof v === "number" ? Number(v).toFixed(4) : String(v))} />}
+        />
+        <Bar
+          dataKey="density"
+          fill="hsl(var(--gold) / 0.45)"
+          isAnimationActive={false}
+          name="密度"
+          // On a numeric axis Recharts needs an explicit bar size in px; approximate to bin spacing.
+          barSize={Math.max(2, Math.floor(600 / Math.max(1, rows.length)) - 1)}
+        />
         {showKde && (
           <Line type="monotone" dataKey="kde" stroke="hsl(var(--teal))" strokeWidth={2} dot={false} name="KDE" isAnimationActive={false} />
         )}
         {markers.map((m, i) => {
-          // Snap the marker to the nearest bin center so ReferenceLine's
-          // category-axis value matches an existing xLabel exactly.
-          let nearest = rows[0];
-          let bestD = Infinity;
-          for (const r of rows) {
-            const d = Math.abs(r.x - m.at);
-            if (d < bestD) { bestD = d; nearest = r; }
-          }
-          if (!nearest) return null;
           const color = m.color ?? "hsl(var(--destructive))";
           return (
             <ReferenceLine
               key={i}
-              x={nearest.xLabel}
+              x={m.at}
               stroke={color}
               strokeDasharray="4 3"
               label={m.label ? { value: `${m.label} (${formatX(m.at)})`, position: "top", fill: color, fontSize: 10 } : undefined}
