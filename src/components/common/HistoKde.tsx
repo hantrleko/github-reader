@@ -87,15 +87,27 @@ export default function HistoKde({
         {showKde && (
           <Line type="monotone" dataKey="kde" stroke="hsl(var(--teal))" strokeWidth={2} dot={false} name="KDE" isAnimationActive={false} />
         )}
-        {markers.map((m, i) => (
-          <ReferenceLine
-            key={i}
-            x={formatX(m.at)}
-            stroke={m.color ?? "hsl(var(--destructive))"}
-            strokeDasharray="4 3"
-            label={m.label ? { value: m.label, position: "top", fill: "hsl(var(--destructive))", fontSize: 10 } : undefined}
-          />
-        ))}
+        {markers.map((m, i) => {
+          // Snap the marker to the nearest bin center so ReferenceLine's
+          // category-axis value matches an existing xLabel exactly.
+          let nearest = rows[0];
+          let bestD = Infinity;
+          for (const r of rows) {
+            const d = Math.abs(r.x - m.at);
+            if (d < bestD) { bestD = d; nearest = r; }
+          }
+          if (!nearest) return null;
+          const color = m.color ?? "hsl(var(--destructive))";
+          return (
+            <ReferenceLine
+              key={i}
+              x={nearest.xLabel}
+              stroke={color}
+              strokeDasharray="4 3"
+              label={m.label ? { value: `${m.label} (${formatX(m.at)})`, position: "top", fill: color, fontSize: 10 } : undefined}
+            />
+          );
+        })}
       </ComposedChart>
     </ResponsiveContainer>
   );
