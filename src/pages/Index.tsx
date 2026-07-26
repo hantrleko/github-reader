@@ -16,6 +16,7 @@ import WorkflowStrip from "@/components/WorkflowStrip";
 import SiteFooter from "@/components/SiteFooter";
 import SectionHeader from "@/components/common/SectionHeader";
 import Reveal from "@/components/common/Reveal";
+import SplashIntro from "@/components/SplashIntro";
 import { SECTIONS, type SectionDef } from "@/lib/sections";
 import { HOME_SEO } from "@/lib/seoCopy";
 
@@ -151,6 +152,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <SplashIntro />
       <Seo
         title={HOME_SEO.title}
         description={HOME_SEO.description}
