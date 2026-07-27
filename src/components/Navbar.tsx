@@ -10,6 +10,7 @@ import UserMenu from "./UserMenu";
 import TopTicker from "./TopTicker";
 import { useTranslation } from "react-i18next";
 import { sectionHref } from "@/lib/sections";
+import { VersionBadge } from "./VersionBadge";
 
 type Item = { id: string; labelKey: string };
 type Group = { labelKey: string; items: Item[] };
@@ -384,9 +385,7 @@ const Navbar = () => {
         </ul>
 
         <div className="flex items-center gap-1 shrink-0">
-          <span className="hidden 2xl:inline-flex text-[9px] font-mono px-1.5 py-0.5 border border-gold/60 text-gold tracking-wider mr-1 whitespace-nowrap">
-            {t("nav.version")}
-          </span>
+          <VersionBadge className="hidden 2xl:inline-flex mr-1" />
 
           {/* Consolidated "More" pages dropdown (desktop) */}
           <div className="relative hidden xl:block">

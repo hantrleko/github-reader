@@ -80,7 +80,7 @@
       "knowledge": "知识点"
     },
     "latestUpdate": {
-      "label": "最新更新 · V4.9",
+      "label": "最新更新 · {{version}}",
       "description": "品牌级开场动画 SplashIntro — 全屏循环视频背景 + 金色 vignette + 大字标题「Theory, measured.」,含 Enter / Skip / 静音切换,首次访问首页时展示(sessionStorage 记忆),再次进入直达主页。",
       "cta": "查看更新日志"
     }

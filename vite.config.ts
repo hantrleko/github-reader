@@ -1,10 +1,21 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
+import { readFileSync } from "fs";
 import { componentTagger } from "lovable-tagger";
 import { VitePWA } from "vite-plugin-pwa";
 
 const BUILD_VERSION = process.env.BUILD_VERSION || String(Date.now());
+
+// Auto-derive app version from package.json so Navbar / Footer / Hero / Changelog
+// stay in sync without manual edits. "4.9.0" -> tag "V4.9".
+const pkg = JSON.parse(
+  readFileSync(path.resolve(__dirname, "package.json"), "utf-8"),
+) as { version?: string };
+const APP_VERSION = pkg.version || "0.0.0";
+const [major = "0", minor = "0"] = APP_VERSION.split(".");
+const APP_VERSION_TAG = `V${major}.${minor}`;
+const BUILD_TIME = new Date().toISOString();
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
@@ -17,6 +28,9 @@ export default defineConfig(({ mode }) => ({
   },
   define: {
     __BUILD_VERSION__: JSON.stringify(BUILD_VERSION),
+    __APP_VERSION__: JSON.stringify(APP_VERSION),
+    __APP_VERSION_TAG__: JSON.stringify(APP_VERSION_TAG),
+    __BUILD_TIME__: JSON.stringify(BUILD_TIME),
   },
   plugins: [
     react(),
