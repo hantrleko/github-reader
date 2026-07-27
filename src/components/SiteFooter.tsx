@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { ArrowUp } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { sectionHref } from "@/lib/sections";
+import { VersionBadge } from "./VersionBadge";
 
 /** Section anchors — mirror the navbar's grouped section links. */
 const navLinks = [
@@ -87,9 +88,7 @@ const SiteFooter = () => {
             © 2026 Econ &amp; Finance Lab · 仅供学习研究 · 不构成投资建议
           </p>
           <div className="flex items-center gap-3">
-            <span className="inline-flex text-[9px] font-mono px-1.5 py-0.5 border border-gold/60 text-gold tracking-wider">
-              {t("nav.version")}
-            </span>
+            <VersionBadge showBuildDate />
             <button
               type="button"
               onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
