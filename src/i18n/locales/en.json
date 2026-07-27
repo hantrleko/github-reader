@@ -11,7 +11,7 @@
   },
   "nav": {
     "brand": "Econ & Finance Lab",
-    "version": "V3.8",
+    "version": "V4.9",
     "lang": "Language",
     "smoothScroll": {
       "on": "Disable smooth scroll",
@@ -80,8 +80,8 @@
       "knowledge": "Concepts"
     },
     "latestUpdate": {
-      "label": "Latest Update · V4.8",
-      "description": "Visualization Toolkit (/s/visualization-guide) — V4.8 shared chart infrastructure: Recharts <Brush> + syncId linked zoom, event-band / policy-line annotations, Fan Chart quantile confidence bands, histogram + Gaussian KDE, playable TimeScrubber, one-click PNG / CSV export, Okabe-Ito colorblind-safe palette and print-friendly styles — all HSL-tokenised across four palette families.",
+      "label": "Latest Update · V4.9",
+      "description": "Brand-grade Splash Intro — full-screen looped video backdrop, gold vignette and the manifesto headline \"Theory, measured.\" open the lab on first visit, with Enter / Skip / mute controls and sessionStorage memory so returning visits go straight to the homepage.",
       "cta": "View Changelog"
     }
   },
