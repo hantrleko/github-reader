@@ -1,5 +1,19 @@
 # EF Lab 版本日志
 
+## V4.9 — 品牌级开场动画 SplashIntro
+
+### 新增
+
+- **SplashIntro** (`src/components/SplashIntro.tsx`): 首页首访展示全屏循环视频背景 + 金色 vignette + 大字标题「Theory, measured.」。
+- 三按钮控制: **Enter** 进入实验室 · **Skip** 跳过 · 右上角静音切换; 键盘 Enter/Space 进入, Esc 跳过。
+- `sessionStorage` 记忆首访状态, 后续访问直接进入主页, 不打扰工作流。
+- 循环静音自动播放, 兼容移动端 autoplay 限制; 视频加载失败自动降级为静态渐变背景。
+
+### 工程
+
+- `Index.tsx` 挂载 SplashIntro, 与 Hero / Onboarding 层级隔离, 首屏 CLS 无回归。
+- Navbar 版本徽章 / Hero 最新更新 / ChangelogPage Footer / 更新日志统一同步至 V4.9, V4.8 标记为 Stable。
+
 ## V4.8 — 可视化组件工作台 (统一图表基础设施)
 
 ### 新增

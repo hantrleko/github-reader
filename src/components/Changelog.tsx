@@ -4,9 +4,35 @@ import { useTranslation } from "react-i18next";
 
 const RELEASES = [
   {
-    version: "V4.8",
+    version: "V4.9",
     date: "2026-07",
     tag: "Current",
+    highlights: [
+      {
+        icon: Sparkles,
+        title: "品牌级开场动画 SplashIntro",
+        items: [
+          "首页首访全屏视频背景 + 金色 vignette + 大字标题「Theory, measured.」",
+          "Enter / Skip / 静音切换三按钮, 键盘可达 (Enter/Space 进入, Esc 跳过)",
+          "sessionStorage 记忆首访状态, 后续访问直达主页, 不打扰工作流",
+          "循环静音自动播放, 兼容移动端 autoplay 限制, 视频加载失败自动降级为静态背景",
+        ],
+      },
+      {
+        icon: BookOpen,
+        title: "工程",
+        items: [
+          "新增 src/components/SplashIntro.tsx (全屏 <video> + framer-motion 分层动效)",
+          "Index.tsx 挂载 SplashIntro, 与 Hero/Onboarding 层级隔离, 首屏 CLS 无回归",
+          "Navbar 版本徽章 / Hero 最新更新 / Footer / 更新日志统一同步至 V4.9, V4.8 标记为 Stable",
+        ],
+      },
+    ],
+  },
+  {
+    version: "V4.8",
+    date: "2026-07",
+    tag: "Stable",
     highlights: [
       {
         icon: Sparkles,
