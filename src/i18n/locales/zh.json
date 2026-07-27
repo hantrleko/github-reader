@@ -11,7 +11,7 @@
   },
   "nav": {
     "brand": "Econ & Finance Lab",
-    "version": "V3.8",
+    "version": "V4.9",
     "lang": "语言",
     "smoothScroll": {
       "on": "关闭平滑滚动",
@@ -80,8 +80,8 @@
       "knowledge": "知识点"
     },
     "latestUpdate": {
-      "label": "最新更新 · V4.8",
-      "description": "可视化组件工作台 (/s/visualization-guide) · 统一图表基础设施 V4.8：Recharts <Brush> + syncId 联动缩放、事件区间 / 政策节点标注、Fan Chart 分位数置信带、直方图 + 高斯 KDE、播放式时间轴 Scrubber、PNG / CSV 一键导出、Okabe-Ito 色觉友好模式与打印友好样式，四套调色板 (categorical / sequential / diverging / colorblind-safe) 全部走 HSL token。",
+      "label": "最新更新 · V4.9",
+      "description": "品牌级开场动画 SplashIntro — 全屏循环视频背景 + 金色 vignette + 大字标题「Theory, measured.」,含 Enter / Skip / 静音切换,首次访问首页时展示(sessionStorage 记忆),再次进入直达主页。",
       "cta": "查看更新日志"
     }
   },
