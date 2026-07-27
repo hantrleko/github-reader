@@ -80,7 +80,7 @@
       "knowledge": "Concepts"
     },
     "latestUpdate": {
-      "label": "Latest Update · V4.9",
+      "label": "Latest Update · {{version}}",
       "description": "Brand-grade Splash Intro — full-screen looped video backdrop, gold vignette and the manifesto headline \"Theory, measured.\" open the lab on first visit, with Enter / Skip / mute controls and sessionStorage memory so returning visits go straight to the homepage.",
       "cta": "View Changelog"
     }
