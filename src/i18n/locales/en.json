@@ -11,7 +11,7 @@
   },
   "nav": {
     "brand": "Econ & Finance Lab",
-    "version": "V4.9",
+    "version": "V5.0",
     "lang": "Language",
     "smoothScroll": {
       "on": "Disable smooth scroll",
@@ -82,7 +82,7 @@
     },
     "latestUpdate": {
       "label": "Latest Update · {{version}}",
-      "description": "Brand-grade Splash Intro — full-screen looped video backdrop, gold vignette and the manifesto headline \"Theory, measured.\" open the lab on first visit, with Enter / Skip / mute controls and sessionStorage memory so returning visits go straight to the homepage.",
+      "description": "V5.0 A-Share Suite — Tencent realtime quotes, Eastmoney daily K-line & fund flow, exchange 龙虎榜 aggregation and Cninfo official announcements, all wired into a single /s/ashare-suite workbench covering SH / SZ / BJ equities end-to-end.",
       "cta": "View Changelog"
     }
   },
