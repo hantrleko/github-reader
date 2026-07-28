@@ -11,7 +11,7 @@
   },
   "nav": {
     "brand": "Econ & Finance Lab",
-    "version": "V4.9",
+    "version": "V5.0",
     "lang": "语言",
     "smoothScroll": {
       "on": "关闭平滑滚动",
@@ -44,6 +44,7 @@
       "fred": "FRED 宏观数据",
       "worldbank": "World Bank 全球指标",
       "ecb-bis": "ECB / BIS 数据",
+      "ashare-suite": "A 股全栈 (V5.0)",
       "coingecko": "CoinGecko 加密",
       "alphavantage": "Alpha Vantage 股票/外汇",
       "cboe-sentiment": "CBOE 情绪 (VIX/SKEW)",
@@ -81,7 +82,7 @@
     },
     "latestUpdate": {
       "label": "最新更新 · {{version}}",
-      "description": "品牌级开场动画 SplashIntro — 全屏循环视频背景 + 金色 vignette + 大字标题「Theory, measured.」,含 Enter / Skip / 静音切换,首次访问首页时展示(sessionStorage 记忆),再次进入直达主页。",
+      "description": "V5.0 A 股全栈接入 — 腾讯行情实时报价 + 东方财富 push2 日 K 线与资金流向 + 沪深北交易所龙虎榜聚合 + 巨潮资讯网官方公告披露, 在 /s/ashare-suite 单页覆盖沪深北 A 股行情、资金、榜单与信披闭环。",
       "cta": "查看更新日志"
     }
   },

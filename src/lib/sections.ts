@@ -336,6 +336,16 @@ SECTIONS.push({
   Component: lazy(() => import("@/components/VisualizationGuide")),
 });
 
+SECTIONS.push({
+  id: "ashare-suite",
+  chapter: "V5.0",
+  kicker: "A-Share Suite",
+  label: "A 股全栈接入 · 行情 / 资金 / 龙虎榜 / 公告",
+  subtitle: "V5.0 · 腾讯行情 + 东方财富 push2 + 交易所龙虎榜 + 巨潮公告，一站覆盖沪深北 A 股实时报价、日 K 线、资金流向与官方披露。",
+  group: "数据源",
+  Component: lazy(() => import("@/components/data/AShareSuite")),
+});
+
 export const SECTION_MAP: Record<string, SectionDef> = Object.fromEntries(
   SECTIONS.map((s) => [s.id, s])
 );
