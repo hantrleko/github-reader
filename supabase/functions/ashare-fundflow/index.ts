@@ -1,0 +1,60 @@
+// A-share fund-flow K-line (Eastmoney push2 fflow). Daily net inflow decomposed
+// into main/small/mid/large/super-large and percentages.
+
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+};
+
+function normalizeSymbol(raw: string) {
+  const s = raw.replace(/^(sh|sz|bj)/i, "").replace(/\D/g, "").padStart(6, "0");
+  let market: "sh" | "sz" | "bj" = "sz";
+  if (/^(60|68|9)/.test(s)) market = "sh";
+  else if (/^(4|8)/.test(s)) market = "bj";
+  return { code: s, secid: market === "sh" ? `1.${s}` : `0.${s}` };
+}
+
+Deno.serve(async (req) => {
+  if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+  try {
+    const url = new URL(req.url);
+    const sym = normalizeSymbol(url.searchParams.get("symbol") || "sh600000");
+    const lmt = Math.min(parseInt(url.searchParams.get("lmt") || "120", 10) || 120, 500);
+    const api =
+      `https://push2his.eastmoney.com/api/qt/stock/fflow/kline/get` +
+      `?secid=${sym.secid}&klt=101` +
+      `&fields1=f1,f2,f3,f7&fields2=f51,f52,f53,f54,f55,f56,f57,f58,f59,f60,f61` +
+      `&ut=b2884a393a59ad64002292a3e90d46a5&lmt=${lmt}`;
+    const resp = await fetch(api, {
+      headers: { "User-Agent": "Mozilla/5.0 EFLab/5.0", "Referer": "https://data.eastmoney.com/" },
+    });
+    if (!resp.ok) throw new Error(`eastmoney ${resp.status}`);
+    const j = await resp.json();
+    const rows: string[] = j?.data?.klines || [];
+    const dates: string[] = [], mainNet: number[] = [], smallNet: number[] = [],
+      midNet: number[] = [], largeNet: number[] = [], superNet: number[] = [],
+      mainPct: number[] = [];
+    for (const r of rows) {
+      const p = r.split(",");
+      dates.push(p[0]);
+      mainNet.push(+p[1]);
+      smallNet.push(+p[2]);
+      midNet.push(+p[3]);
+      largeNet.push(+p[4]);
+      superNet.push(+p[5]);
+      mainPct.push(+p[6]);
+    }
+    return new Response(
+      JSON.stringify({
+        code: sym.code, name: j?.data?.name || "", n: dates.length,
+        dates, mainNet, smallNet, midNet, largeNet, superNet, mainPct,
+        unit: "元", note: "Net inflow in RMB; main = large + super-large.",
+      }),
+      { headers: { ...corsHeaders, "Content-Type": "application/json" } },
+    );
+  } catch (e) {
+    return new Response(JSON.stringify({ error: (e as Error)?.message || "unknown" }), {
+      status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+});
