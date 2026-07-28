@@ -53,16 +53,32 @@ async function fetchTencent(tencent: string) {
 }
 
 async function fetchKline(secid: string, lmt = 250) {
-  const url =
-    `https://push2his.eastmoney.com/api/qt/stock/kline/get` +
-    `?secid=${secid}&klt=101&fqt=1` +
+  // Eastmoney's push2his IPv6 endpoint sometimes drops TLS without close_notify
+  // from Deno Deploy. Try several hosts and retry on transient network errors.
+  const hosts = [
+    "push2his.eastmoney.com",
+    "push2.eastmoney.com",
+    "63.push2his.eastmoney.com",
+    "push2his.eastmoney.com",
+  ];
+  const path =
+    `/api/qt/stock/kline/get?secid=${secid}&klt=101&fqt=1` +
     `&fields1=f1,f2,f3,f4,f5,f6&fields2=f51,f52,f53,f54,f55,f56,f57,f58` +
     `&end=20500101&lmt=${lmt}`;
-  const resp = await fetch(url, {
-    headers: { "User-Agent": "Mozilla/5.0 EFLab/5.0", "Referer": "https://quote.eastmoney.com/" },
-  });
-  if (!resp.ok) return null;
-  const j = await resp.json();
+  let j: any = null;
+  for (const host of hosts) {
+    try {
+      const resp = await fetch(`https://${host}${path}`, {
+        headers: { "User-Agent": "Mozilla/5.0 EFLab/5.0", "Referer": "https://quote.eastmoney.com/" },
+      });
+      if (!resp.ok) { await resp.body?.cancel(); continue; }
+      j = await resp.json();
+      if (j?.data?.klines) break;
+    } catch (_e) {
+      // try next host
+    }
+  }
+  if (!j) return null;
   const rows: string[] = j?.data?.klines || [];
   const dates: string[] = [], opens: number[] = [], closes: number[] = [],
     highs: number[] = [], lows: number[] = [], volumes: number[] = [];
