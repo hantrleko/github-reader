@@ -22,7 +22,14 @@ async function fetchTencent(tencent: string) {
   const resp = await fetch(url, {
     headers: { "User-Agent": "Mozilla/5.0 EFLab/5.0", "Referer": "https://gu.qq.com/" },
   });
-  const text = await resp.text();
+  // Tencent returns GBK-encoded text; decode explicitly so Chinese names render.
+  const buf = new Uint8Array(await resp.arrayBuffer());
+  let text: string;
+  try {
+    text = new TextDecoder("gbk").decode(buf);
+  } catch {
+    text = new TextDecoder("utf-8").decode(buf);
+  }
   // v_sh600000="1~name~code~current~prev~open~vol~..~high~low~..~amt(万)"
   const m = text.match(/="([^"]+)"/);
   if (!m) return null;
