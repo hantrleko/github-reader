@@ -20,16 +20,31 @@ Deno.serve(async (req) => {
     const url = new URL(req.url);
     const sym = normalizeSymbol(url.searchParams.get("symbol") || "sh600000");
     const lmt = Math.min(parseInt(url.searchParams.get("lmt") || "120", 10) || 120, 500);
-    const api =
-      `https://push2his.eastmoney.com/api/qt/stock/fflow/kline/get` +
+    const path =
+      `/api/qt/stock/fflow/kline/get` +
       `?secid=${sym.secid}&klt=101` +
       `&fields1=f1,f2,f3,f7&fields2=f51,f52,f53,f54,f55,f56,f57,f58,f59,f60,f61` +
       `&ut=b2884a393a59ad64002292a3e90d46a5&lmt=${lmt}`;
-    const resp = await fetch(api, {
-      headers: { "User-Agent": "Mozilla/5.0 EFLab/5.0", "Referer": "https://data.eastmoney.com/" },
-    });
-    if (!resp.ok) throw new Error(`eastmoney ${resp.status}`);
-    const j = await resp.json();
+    const hosts = [
+      "https://push2his.eastmoney.com",
+      "https://push2.eastmoney.com",
+      "https://push2his.eastmoney.com",
+    ];
+    let j: any = null;
+    let lastErr: unknown = null;
+    for (const h of hosts) {
+      try {
+        const resp = await fetch(h + path, {
+          headers: { "User-Agent": "Mozilla/5.0 EFLab/5.0", "Referer": "https://data.eastmoney.com/" },
+        });
+        if (!resp.ok) throw new Error(`eastmoney ${resp.status}`);
+        j = await resp.json();
+        break;
+      } catch (e) {
+        lastErr = e;
+      }
+    }
+    if (!j) throw lastErr ?? new Error("fund-flow fetch failed");
     const rows: string[] = j?.data?.klines || [];
     const dates: string[] = [], mainNet: number[] = [], smallNet: number[] = [],
       midNet: number[] = [], largeNet: number[] = [], superNet: number[] = [],
