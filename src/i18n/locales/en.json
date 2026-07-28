@@ -44,6 +44,7 @@
       "fred": "FRED Macro Data",
       "worldbank": "World Bank Indicators",
       "ecb-bis": "ECB / BIS Data",
+      "ashare-suite": "A-Share Suite (CN)",
       "coingecko": "CoinGecko Crypto",
       "alphavantage": "Alpha Vantage Stocks/FX",
       "cboe-sentiment": "CBOE Sentiment (VIX/SKEW)",
