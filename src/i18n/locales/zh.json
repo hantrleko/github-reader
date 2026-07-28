@@ -44,6 +44,7 @@
       "fred": "FRED 宏观数据",
       "worldbank": "World Bank 全球指标",
       "ecb-bis": "ECB / BIS 数据",
+      "ashare-suite": "A 股全栈 (V5.0)",
       "coingecko": "CoinGecko 加密",
       "alphavantage": "Alpha Vantage 股票/外汇",
       "cboe-sentiment": "CBOE 情绪 (VIX/SKEW)",
