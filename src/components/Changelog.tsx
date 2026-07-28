@@ -4,9 +4,37 @@ import { useTranslation } from "react-i18next";
 
 const RELEASES = [
   {
-    version: "V4.9",
+    version: "V5.0",
     date: "2026-07",
     tag: "Current",
+    highlights: [
+      {
+        icon: Sparkles,
+        title: "A 股全栈接入 — /s/ashare-suite",
+        items: [
+          "腾讯行情 qt.gtimg.cn 实时报价 + 东方财富 push2his 日 K 线, 前复权",
+          "东方财富 push2 fflow 主力/超大/大/中/小单资金流向, 90 日累计与柱状图",
+          "沪深北交易所每日龙虎榜聚合 (RPT_DAILYBILLBOARD_DETAILS), 净买额排序",
+          "巨潮资讯网公告流, 支持个股/全市场切换, PDF 原件直链",
+          "四合一 Tab 界面 + 6 只经典 ticker preset (茅台/平安/宁德时代/中芯国际...)",
+        ],
+      },
+      {
+        icon: BookOpen,
+        title: "工程",
+        items: [
+          "新增 4 个 Deno edge functions: ashare-quote / ashare-fundflow / ashare-longhu / ashare-news",
+          "统一 sh/sz/bj 前缀归一化, 60/68/9 → sh, 4/8 → bj, 其余 → sz",
+          "新增 src/components/data/AShareSuite.tsx, Navbar「数据源」组置顶入口, zh/en i18n 同步",
+          "版本号自动同步至 V5.0, package.json → __APP_VERSION_TAG__ → Navbar/Footer/Hero",
+        ],
+      },
+    ],
+  },
+  {
+    version: "V4.9",
+    date: "2026-07",
+    tag: "Stable",
     highlights: [
       {
         icon: Sparkles,
