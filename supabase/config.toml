@@ -26,3 +26,15 @@ verify_jwt = false
 
 [functions.client-error-log]
 verify_jwt = false
+
+[functions.ashare-quote]
+verify_jwt = false
+
+[functions.ashare-fundflow]
+verify_jwt = false
+
+[functions.ashare-longhu]
+verify_jwt = false
+
+[functions.ashare-news]
+verify_jwt = false
