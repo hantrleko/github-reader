@@ -290,6 +290,25 @@ const TrillionDollarEquation = () => {
           ))}
         </div>
       </div>
+
+      {/* Next essay */}
+      <div className="mt-12">
+        <p className="text-[10px] font-mono uppercase tracking-[0.3em] text-gold mb-3">Next Essay</p>
+        <Link
+          to="/s/ai-quant-strategy"
+          className="group flex items-start justify-between gap-3 rounded-xl border border-border/60 bg-card/40 p-5 hover:border-gold/50 hover:bg-card/60 transition-all"
+        >
+          <div>
+            <p className="font-display text-lg text-foreground group-hover:text-gold transition-colors">
+              当 AI 告诉我：你的想法是反的
+            </p>
+            <p className="mt-1 text-xs text-foreground/60">
+              一句话生成的量化策略、四年亏损的因子组合，以及 +1047% 回测背后的 40% 回撤。
+            </p>
+          </div>
+          <ArrowUpRight className="w-4 h-4 text-muted-foreground group-hover:text-gold transition-all shrink-0 mt-1" />
+        </Link>
+      </div>
     </div>
   );
 };
