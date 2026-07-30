@@ -1,62 +1,46 @@
-# V4.8 可视化强化计划
+## 目标
 
-围绕现有 60+ 工具的 Recharts / 自绘 SVG 图表，做一次系统性可视化升级。分为「基础设施」+「六大能力」+「六个示范工具」三层。
+把这篇「用一句话让 AI 写出量化策略，然后它证明我错了」的实录，作为**第二篇前沿长文**加入站点——与已有的《万亿美元的方程》并列，沿用同一套编辑体例（章节标号、导语、Callout、复现入口）。
 
-## 一、基础设施（统一图表体验）
+关键立场：本站是研究平台，不做产品推广。因此这篇内容以**方法论案例研究**呈现，而不是软文：正文保留完整叙事与全部数字（含 -21.17%、-33.83%、-42% 回撤），但把落点放在「为什么价值+质量因子在 2022–2026 的大盘科技宇宙里结构性失效」「为什么 +1047% 的回测不是预测」这两个可以在本站工具里亲手复现的命题。外部工具只作为案例来源提及一次，不放推荐/返利链接。
 
-1. **扩展 `src/components/common/ChartTheme.tsx`**
-   - 新增 `ChartToolbar`：右上角操作条（PNG 下载 · CSV 导出 · 复位缩放 · 全屏）。
-   - 新增 `useChartExport` hook：把任意 SVG/Canvas 节点转 PNG（`html-to-image` 或原生 `XMLSerializer + canvg`）。
-   - `ThemedTooltip` 升级：支持自定义 formatter、多序列排序、Δ 变化列。
-   - 增加 `CHART_PALETTES`：`sequential` / `diverging` / `categorical` / `colorblind-safe` 四套，全部走 HSL token。
+## 呈现方式
 
-2. **新增 `src/components/common/ChartFrame.tsx`（升级版）**
-   - 统一标题 / 副标题 / 图例 / 工具条 / 脚注引用 五段式布局。
-   - 内置 `<Reveal>` 入场动画 + 骨架态 + 空态。
-   - 支持 `compareRef`：Compare Mode 下自动叠加基线序列。
+新建 `src/components/essays/AiQuantStrategyEssay.tsx`，结构：
 
-## 二、六大可视化能力
+1. **报头（masthead）**——栏目标签 `FRONTIER ESSAY / AI × QUANT`、中英标题、一句导语、阅读时长。
+2. **成绩单条（Scorecard strip）**——四张并排卡片，展示策略演进的四个版本：
+   ```text
+   V1 价值+质量  V2 反转信号   V3 +趋势过滤   基准
+   -21.17%       +829.20%      +1047.39%      买入持有
+   Sharpe -0.22  Sharpe 1.53   Sharpe 1.74    —
+   MDD -33.83%   MDD -42%      MDD -40.53%    —
+   ```
+   回报为金色、回撤强制以红色同等字号显示，呼应原文「measured honestly」的要点。
+3. **五章正文**（沿用 `H` 章节头 + `P` 段落 + `Callout` 体例）：
+   - 01 一句话进，一个策略出——工作流拆解（读市场状态 → 选因子 → 写 Python → 回测）
+   - 02 四笔交易的样本量陷阱——+3.47% / Sharpe 3.51 为何不是业绩记录
+   - 03 结构性失效——价值+质量在大盘科技动量市里等于做空赢家
+   - 04 反转与去掉空头腿——Sharpe 从 0.17 到 1.53 的来源分解
+   - 05 冷水：回测不是预测——单一牛市窗口、40% 回撤、费用/滑点/资金费率
+4. **两个方法论 Callout**：`SAMPLE SIZE`（4 笔交易的 Sharpe 置信区间近乎无意义）、`REGIME DEPENDENCE`（因子收益的条件性）。
+5. **「在实验室里复现」入口网格**——链到站内既有工具：
+   - `/s/backtest` 真实数据回测引擎（复现 V1/V3）
+   - `/s/quant`（Walk-Forward 样本外检验 → 过拟合缺口；Fama-French 5 因子归因 → 拆解 V3 的收益来源；Kelly & 破产风险 → 40% 回撤下的仓位上限；Michaud 重采样前沿 → 参数不确定性）
+   - `/s/calibration` 模型校准实验室
+6. **免责声明条**——底部固定一行 “Backtest ≠ forecast. Not financial advice.”，与文中论点一致。
 
-| # | 能力 | 说明 | 主要文件 |
-|---|------|------|----------|
-| 1 | **Brush + 双 Y 轴同步缩放** | 长时序（利率、宏观、回测净值）加 Recharts `<Brush>`；跨图 `SyncId` 联动 | `ChartFrame` 参数化 |
-| 2 | **交叉参考线 / Hover Crosshair** | 鼠标移动全图共享 x 轴指针，显示对应数值卡片 | 新 `CrosshairLayer.tsx` |
-| 3 | **区间标注（RegimeBands / 事件线）** | 衰退期、政策事件、DID 处理时点竖线；接 FRED USREC | 新 `AnnotationLayer.tsx` |
-| 4 | **置信带与分布图强化** | 蒙特卡洛/Bootstrap 输出的分位数带 `<Area>` 双边填充 + 中位数线；直方图叠 KDE 曲线 | 新 `FanChart.tsx` / `HistoKde.tsx` |
-| 5 | **3D / 曲面视图** | 波动率曲面（Heston/SABR/Local Vol）、久期-凸度曲面：轻量 `three.js` + `@react-three/fiber`（已在依赖候选） | 新 `Surface3D.tsx` |
-| 6 | **动画时间轴 Scrubber** | Solow 收敛、Kyle 均衡、DSSW IRF 支持"播放/暂停/拖拽 t"，展示动态过程 | 新 `TimeScrubber.tsx` |
+## 注册与导航
 
-## 三、六个示范工具接入
-
-- **`BacktestLab`**：净值 + Drawdown 双面板 Brush 联动 + 回撤区间高亮 + PNG 导出。
-- **`NelsonSiegelTool`**：曲线 FanChart 置信带 + 事件线（QE/加息日）+ CSV。
-- **`HestonTool` / `SABRTool`**：新增 3D IV 曲面 Tab，可旋转/切片。
-- **`V47 Almgren-Chriss`**：执行前沿加交互 Crosshair + 拖拽 λ 时间轴 Scrubber。
-- **`V39 Event-Study DID`**：动态处理效应图加置信带 + 处理时点竖线注释。
-- **`RatesTermStructure` / 宏观图**：Brush + NBER 衰退带（`AnnotationLayer`）。
-
-## 四、辅助增强
-
-- **色觉友好模式**：`ThemeToggle` 增加"Colorblind"开关，切换 `CHART_PALETTES.colorblindSafe`。
-- **打印/PDF 优化**：`@media print` 下图表转纯白背景 + 黑色轴，保证一键报告导出可读。
-- **全局 SR-only 数据表**：每张图旁挂 `<VisuallyHidden>` 数据表，提升 a11y & SEO。
-
-## 五、发版与文档
-
-- 版本升到 **V4.8 "可视化强化"**；更新 `CHANGELOG.md`、`Changelog.tsx`、`HeroSection` 最新更新卡、`zh/en.json`。
-- 新增 `/s/visualization-guide`（可选）：一页展示所有新组件的用法示例。
+- `src/lib/sections.ts`：新增 section `id: "ai-quant-strategy"`，`chapter: "Frontier Essay"`、`kicker: "AI × Quant"`、`group: "前沿"`，lazy 引入新组件。首页「前沿」组目录卡与 `/s/ai-quant-strategy` 路由自动生效。
+- `src/i18n/locales/zh.json` / `en.json`：补 `nav.items.ai-quant-strategy` 文案。
+- 若 Navbar「前沿」下拉是硬编码列表，则同步加入该条目。
+- 在《万亿美元的方程》页尾增加一张「下一篇长文」卡片，指向本文，形成长文序列。
 
 ## 技术细节
 
-- 依赖新增：`html-to-image`（PNG 导出，~15KB gz）；3D 视图确认后再引入 `three` + `@react-three/fiber`（首屏懒加载，避免 bundle 膨胀）。
-- 所有颜色走 `hsl(var(--token))`；禁止硬编码色值。
-- 新组件全部提供 `data-testid`，并补 vitest 快照/单测（导出函数、注释解析）。
-- Compare Mode 复用现有 `useToolBus`，图表订阅 `compareRef` 序列自动叠加虚线。
-
-## 优先级建议
-
-若想分两次发布：
-- **V4.8a（基础设施 + 能力 1/2/3/4 + 4 个示范工具）**——投入约 60%，覆盖最痛的"看得清、导得出、能标注"。
-- **V4.8b（3D 曲面 + 时间轴 Scrubber + 剩余工具接入 + a11y/打印）**。
-
-请确认：全量一次做 V4.8，还是先做 V4.8a？是否要引入 3D（`three.js`，会加约 150KB gz，懒加载）？
+- 纯前端展示组件，无后端、无新依赖；沿用 `Reveal`、`framer-motion`、`EquationBlock`（仅在归因小节用一次 Fama-French 回归式）。
+- 全部配色走语义 token（`text-gold`、`text-foreground/80`、`border-border/60`），回撤红色使用现有 destructive/rose token，不硬编码颜色。
+- 数字表格用 `tabular-nums` + `font-mono`，与站内其它结果面板一致。
+- 页面加 `Seo` 标题与描述（如与其它 section 页一致由 `SectionPage.tsx` 统一处理，则改在 `seoCopy.ts` 补一条，并确保 `scripts/check-copy-consistency.ts` 通过）。
+- 版本号与 Changelog：作为 V5.1 内容更新，写入 `Changelog.tsx` 与 `CHANGELOG.md`，`package.json` 同步。
