@@ -356,6 +356,16 @@ SECTIONS.push({
   Component: lazy(() => import("@/components/essays/TrillionDollarEquation")),
 });
 
+SECTIONS.push({
+  id: "ai-quant-strategy",
+  chapter: "Frontier Essay",
+  kicker: "AI Quant Case Study",
+  label: "当 AI 告诉我你的想法是反的 · 一次量化策略实录",
+  subtitle: "五章复盘：一句话生成的因子组合为何四年亏损、状态依赖如何逆转符号，以及 +1047% 回测背后的 40% 回撤。",
+  group: "前沿",
+  Component: lazy(() => import("@/components/essays/AiQuantStrategyEssay")),
+});
+
 export const SECTION_MAP: Record<string, SectionDef> = Object.fromEntries(
   SECTIONS.map((s) => [s.id, s])
 );

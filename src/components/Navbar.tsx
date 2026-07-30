@@ -66,6 +66,8 @@ const GROUPS: Group[] = [
     { id: "quant", labelKey: "nav.items.quant" },
     { id: "platform", labelKey: "nav.items.platform" },
     { id: "frontier-concepts", labelKey: "nav.items.frontier-concepts" },
+    { id: "trillion-dollar-equation", labelKey: "nav.items.trillion-dollar-equation" },
+    { id: "ai-quant-strategy", labelKey: "nav.items.ai-quant-strategy" },
     { id: "quiz", labelKey: "nav.items.quiz" },
     { id: "learning", labelKey: "nav.items.learning" },
   ]},

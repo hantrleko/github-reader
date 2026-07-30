@@ -4,9 +4,36 @@ import { useTranslation } from "react-i18next";
 
 const RELEASES = [
   {
-    version: "V5.0",
+    version: "V5.1",
     date: "2026-07",
     tag: "Current",
+    highlights: [
+      {
+        icon: FileText,
+        title: "前沿长文 · 当 AI 告诉我你的想法是反的 — /s/ai-quant-strategy",
+        items: [
+          "五章方法论复盘: 一句话生成的量化策略、四笔交易的样本量陷阱、因子的状态依赖失效",
+          "Scorecard 条形卡: V1 −21.17% / V2 +829.20% / V3 +1047.39%, 回撤与回报同等字号并列",
+          "两个方法论 Callout: Sample Size (夏普标准误) 与 Regime Dependence (因子符号反转)",
+          "六个「在实验室里复现」入口: 回测引擎 / Walk-Forward / FF 归因 / Kelly / Michaud / 校准",
+          "底部固定风险声明条 Backtest ≠ forecast, 全文不含任何推广链接",
+        ],
+      },
+      {
+        icon: BookOpen,
+        title: "工程",
+        items: [
+          "新增 src/components/essays/AiQuantStrategyEssay.tsx, 沿用长文编辑体例 (H / P / Callout)",
+          "sections.ts 注册「前沿」组第二篇长文, 万亿美元的方程页尾增加 Next Essay 跳转卡",
+          "Navbar 前沿分组补齐两篇长文入口, zh/en i18n 同步",
+        ],
+      },
+    ],
+  },
+  {
+    version: "V5.0",
+    date: "2026-07",
+    tag: "Stable",
     highlights: [
       {
         icon: Sparkles,
