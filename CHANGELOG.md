@@ -1,5 +1,21 @@
 # EF Lab 版本日志
 
+## V5.1 — 前沿长文 II：当 AI 告诉我你的想法是反的
+
+### 新增
+
+- **前沿长文** (`/s/ai-quant-strategy`): 一次 AI 生成量化策略会话的完整方法论复盘, 五章正文 + Scorecard + 复现入口。
+- **Scorecard**: V1 价值+质量 −21.17% (Sharpe −0.22, MDD −33.83%) → V2 反转去空头 +829.20% → V3 叠加 200 日趋势过滤 +1047.39% (MDD −40.53%), 回报与回撤同等字号并列。
+- **方法论 Callout**: Sample Size (四笔交易下的夏普标准误) 与 Regime Dependence (因子收益的条件性与符号反转)。
+- **在实验室里复现**: 链接到回测引擎 / Walk-Forward 样本外检验 / Fama-French 归因 / Kelly 与破产风险 / Michaud 重采样 / 模型校准。
+- 底部固定风险声明条 `Backtest ≠ forecast`, 全文不含任何产品推广或返利链接。
+
+### 工程
+
+- 新增 `src/components/essays/AiQuantStrategyEssay.tsx`, 沿用《万亿美元的方程》的编辑体例。
+- `sections.ts` 注册「前沿」组第二篇长文; 前作页尾新增 Next Essay 跳转卡, 形成长文序列。
+- Navbar 前沿分组补齐两篇长文入口, zh/en i18n 同步; 版本号统一至 V5.1。
+
 ## V4.9 — 品牌级开场动画 SplashIntro
 
 ### 新增
