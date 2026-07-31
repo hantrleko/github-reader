@@ -1,5 +1,22 @@
 # EF Lab 版本日志
 
+## V5.2 — 美股全栈数据工作台
+
+### 新增
+
+- **美股全栈** (`/s/us-suite`): 五页签工作台 — 行情与技术面 / 基本面 / SEC 披露流 / 期权链 / 全市场筛选。
+- **行情**: Yahoo chart v8 日 K 线, 本地计算 MA / EMA / MACD / RSI / KDJ / Bollinger, Brush 联动缩放。
+- **基本面**: SEC XBRL companyconcept 三表与 Yahoo quoteSummary 关键指标 (PE / PB / ROE / 毛利率…)。
+- **SEC 披露流**: submissions 表单过滤 (10-K / 10-Q / 8-K / 4 / 13F / S-1) + 2001 至今 EDGAR 全文检索。
+- **期权链**: 到期日切换、IV 微笑、Black–Scholes Greeks、Vol/OI 异动高亮与 Put/Call 比率。
+- **全市场筛选**: EDGAR XBRL frames 横截面排名与 CSV 导出。
+
+### 工程
+
+- 新增 5 个 edge functions: `us-quote` / `us-fundamentals` / `us-filings` / `us-options` / `us-screener`, 共享 `_shared/us.ts` (Yahoo cookie+crumb、host fallback、指标数学)。
+- 新增 `src/lib/usData.ts` 与 `src/components/data/USSuite.tsx`; 行情可经 Tool Bus 发送 S₀ / σ 至定价与回测实验室。
+- `SplashIntro` 版本号改为读取 `APP_VERSION_TAG`; 版本号统一至 V5.2。
+
 ## V5.1 — 前沿长文 II：当 AI 告诉我你的想法是反的
 
 ### 新增

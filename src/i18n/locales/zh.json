@@ -85,7 +85,7 @@
     },
     "latestUpdate": {
       "label": "最新更新 · {{version}}",
-      "description": "V5.0 A 股全栈接入 — 腾讯行情实时报价 + 东方财富 push2 日 K 线与资金流向 + 沪深北交易所龙虎榜聚合 + 巨潮资讯网官方公告披露, 在 /s/ashare-suite 单页覆盖沪深北 A 股行情、资金、榜单与信披闭环。",
+      "description": "V5.2 美股全栈数据工作台 — Yahoo 行情与本地技术指标、SEC XBRL 三表与关键指标、EDGAR 披露流与全库检索、期权链 Greeks 与异动、全市场 XBRL 横截面筛选, 在 /s/us-suite 一页贯通美股研究链路。",
       "cta": "查看更新日志"
     }
   },
