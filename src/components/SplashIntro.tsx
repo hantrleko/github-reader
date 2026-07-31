@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { ArrowRight, Play, VolumeX, Volume2 } from "lucide-react";
 import introVideo from "@/assets/intro.mp4.asset.json";
+import { APP_VERSION_TAG } from "@/lib/appVersion";
 
 const STORAGE_KEY = "splash:intro:v1:seen";
 
