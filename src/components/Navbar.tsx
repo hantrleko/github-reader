@@ -48,6 +48,7 @@ const GROUPS: Group[] = [
     { id: "risk", labelKey: "nav.items.risk" },
   ]},
   { labelKey: "nav.groups.data", items: [
+    { id: "us-suite", labelKey: "nav.items.us-suite" },
     { id: "ashare-suite", labelKey: "nav.items.ashare-suite" },
     { id: "fred", labelKey: "nav.items.fred" },
     { id: "worldbank", labelKey: "nav.items.worldbank" },
