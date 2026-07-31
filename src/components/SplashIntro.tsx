@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { ArrowRight, Play, VolumeX, Volume2 } from "lucide-react";
 import introVideo from "@/assets/intro.mp4.asset.json";
+import { APP_VERSION_TAG } from "@/lib/appVersion";
 
 const STORAGE_KEY = "splash:intro:v1:seen";
 
@@ -130,7 +131,7 @@ const SplashIntro = () => {
               transition={{ delay: 0.5, duration: 0.7 }}
               className="font-mono text-[10px] md:text-xs uppercase tracking-[0.5em] text-gold mb-6"
             >
-              — Econ &amp; Finance Lab / V4.8
+              — Econ &amp; Finance Lab / {APP_VERSION_TAG}
             </motion.p>
 
             <motion.h1
@@ -186,8 +187,8 @@ const SplashIntro = () => {
             >
               {[
                 { k: "60+", v: "Quant Models" },
-                { k: "12", v: "Live Data Feeds" },
-                { k: "V4.8", v: "Latest Release" },
+                { k: "13", v: "Live Data Feeds" },
+                { k: APP_VERSION_TAG, v: "Latest Release" },
               ].map((s) => (
                 <div key={s.v}>
                   <div className="font-display text-2xl md:text-3xl text-gold">{s.k}</div>

@@ -4,9 +4,38 @@ import { useTranslation } from "react-i18next";
 
 const RELEASES = [
   {
-    version: "V5.1",
+    version: "V5.2",
     date: "2026-07",
     tag: "Current",
+    highlights: [
+      {
+        icon: Activity,
+        title: "美股全栈数据工作台 — /s/us-suite",
+        items: [
+          "行情 · 技术面: Yahoo chart v8 日 K 线 + 本地 MA/EMA/MACD/RSI/KDJ/Bollinger, Brush 联动缩放",
+          "基本面: SEC XBRL companyconcept 三表 (利润 / 资产负债 / 现金流) + Yahoo quoteSummary 关键指标",
+          "SEC 披露流: EDGAR submissions 表单过滤 (10-K / 10-Q / 8-K / 4 / 13F / S-1) 与 2001 至今全库 EFTS 检索",
+          "期权链: 到期日切换、IV 微笑散点、Black–Scholes Greeks 与 Vol/OI 异动高亮、Put/Call 比率",
+          "全市场筛选: EDGAR XBRL frames 横截面排名 (Assets / Revenues / R&D…), 支持 CSV 导出",
+        ],
+      },
+      {
+        icon: BookOpen,
+        title: "工程",
+        items: [
+          "新增 5 个 Deno edge functions: us-quote / us-fundamentals / us-filings / us-options / us-screener",
+          "supabase/functions/_shared/us.ts 统一 Yahoo cookie+crumb、host fallback 重试与指标数学",
+          "新增 src/lib/usData.ts 数据层与 src/components/data/USSuite.tsx 五页签工作台",
+          "行情结果可经 Tool Bus 一键发送 S₀ / σ 至定价、隐含波动率与回测实验室",
+          "SplashIntro 版本号改为读取 APP_VERSION_TAG, 不再硬编码; 版本统一至 V5.2",
+        ],
+      },
+    ],
+  },
+  {
+    version: "V5.1",
+    date: "2026-07",
+    tag: "Stable",
     highlights: [
       {
         icon: FileText,

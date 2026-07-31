@@ -347,6 +347,16 @@ SECTIONS.push({
 });
 
 SECTIONS.push({
+  id: "us-suite",
+  chapter: "V5.2",
+  kicker: "US Full-Stack Data",
+  label: "美股全栈数据 · 行情 / 基本面 / SEC / 期权 / 筛选",
+  subtitle: "V5.2 · Yahoo 行情与本地技术指标、SEC XBRL 三表与关键指标、EDGAR 披露流与全库检索、期权链 Greeks 与异动、全市场 XBRL 横截面筛选。",
+  group: "数据源",
+  Component: lazy(() => import("@/components/data/USSuite")),
+});
+
+SECTIONS.push({
   id: "trillion-dollar-equation",
   chapter: "Frontier Essay",
   kicker: "Black–Scholes",

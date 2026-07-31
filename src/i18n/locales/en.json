@@ -44,6 +44,7 @@
       "fred": "FRED Macro Data",
       "worldbank": "World Bank Indicators",
       "ecb-bis": "ECB / BIS Data",
+      "us-suite": "US Full-Stack (V5.2)",
       "ashare-suite": "A-Share Suite (CN)",
       "coingecko": "CoinGecko Crypto",
       "alphavantage": "Alpha Vantage Stocks/FX",
@@ -84,7 +85,7 @@
     },
     "latestUpdate": {
       "label": "Latest Update · {{version}}",
-      "description": "V5.0 A-Share Suite — Tencent realtime quotes, Eastmoney daily K-line & fund flow, exchange 龙虎榜 aggregation and Cninfo official announcements, all wired into a single /s/ashare-suite workbench covering SH / SZ / BJ equities end-to-end.",
+      "description": "V5.2 US Full-Stack Data — Yahoo quotes with locally computed indicators, SEC XBRL statements, EDGAR filing stream and full-text search, option chains with Black-Scholes Greeks, and market-wide XBRL screening, all in one /s/us-suite workbench.",
       "cta": "View Changelog"
     }
   },

@@ -38,3 +38,18 @@ verify_jwt = false
 
 [functions.ashare-news]
 verify_jwt = false
+
+[functions.us-quote]
+verify_jwt = false
+
+[functions.us-fundamentals]
+verify_jwt = false
+
+[functions.us-filings]
+verify_jwt = false
+
+[functions.us-options]
+verify_jwt = false
+
+[functions.us-screener]
+verify_jwt = false
