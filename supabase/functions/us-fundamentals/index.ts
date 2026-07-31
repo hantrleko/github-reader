@@ -1,5 +1,5 @@
 // V5.2 · US fundamentals: SEC XBRL companyconcept (tier S) + Yahoo quoteSummary (tier C).
-import { corsHeaders, json, fail, fetchAny, yahooUrls, SEC_UA, tickerToCik } from "../_shared/us.ts";
+import { corsHeaders, json, fail, fetchAny, yahooGet, SEC_UA, tickerToCik } from "../_shared/us.ts";
 
 /** GAAP tags we surface as the "three statements" digest. */
 const TAGS: { tag: string; unit: string; label: string; statement: string }[] = [
@@ -21,7 +21,9 @@ const TAGS: { tag: string; unit: string; label: string; statement: string }[] = 
 
 type Point = { end: string; fy: number; fp: string; form: string; val: number };
 
-async function xbrlSeries(cik: string, tag: string, unit: string): Promise<Point[]> {
+const isInstant = (s: string) => s === "balance";
+
+async function xbrlSeries(cik: string, tag: string, unit: string, statement: string): Promise<Point[]> {
   try {
     const r = await fetchAny(
       [`https://data.sec.gov/api/xbrl/companyconcept/CIK${cik}/us-gaap/${tag}.json`],
@@ -30,10 +32,27 @@ async function xbrlSeries(cik: string, tag: string, unit: string): Promise<Point
     );
     if (!r.ok) return [];
     const j = await r.json();
-    const rows = j?.units?.[unit] || [];
-    const annual = rows.filter((x: any) => x.form === "10-K" && x.fp === "FY");
-    const pick = (annual.length ? annual : rows).slice(-6);
-    return pick.map((x: any) => ({ end: x.end, fy: x.fy, fp: x.fp, form: x.form, val: x.val }));
+    const rows: any[] = j?.units?.[unit] || [];
+    // Annual facts only: 10-K / FY, and for flow items a ~12-month duration.
+    const days = (x: any) =>
+      x.start ? (Date.parse(x.end) - Date.parse(x.start)) / 86400000 : null;
+    let annual = rows.filter(
+      (x) =>
+        x.form === "10-K" &&
+        x.fp === "FY" &&
+        (isInstant(statement) ? !x.start : (days(x) ?? 0) > 300),
+    );
+    if (!annual.length) annual = rows.filter((x) => (isInstant(statement) ? !x.start : (days(x) ?? 0) > 300));
+    // Dedupe by period end, keeping the most recently filed restatement.
+    const byEnd = new Map<string, any>();
+    for (const x of annual) {
+      const prev = byEnd.get(x.end);
+      if (!prev || (x.filed || "") > (prev.filed || "")) byEnd.set(x.end, x);
+    }
+    return [...byEnd.values()]
+      .sort((a, b) => (a.end < b.end ? -1 : 1))
+      .slice(-6)
+      .map((x) => ({ end: x.end, fy: x.fy, fp: x.fp, form: x.form, val: x.val }));
   } catch {
     return [];
   }
@@ -42,12 +61,10 @@ async function xbrlSeries(cik: string, tag: string, unit: string): Promise<Point
 async function yahooSummary(symbol: string) {
   try {
     const modules = "price,summaryDetail,defaultKeyStatistics,financialData";
-    const r = await fetchAny(
-      yahooUrls(`/v10/finance/quoteSummary/${encodeURIComponent(symbol)}?modules=${modules}`),
-      {},
-      1,
+    const r = await yahooGet(
+      `/v10/finance/quoteSummary/${encodeURIComponent(symbol)}?modules=${modules}`,
     );
-    if (!r.ok) return null;
+    if (!r || !r.ok) return null;
     const j = await r.json();
     const res = j?.quoteSummary?.result?.[0];
     if (!res) return null;
@@ -85,7 +102,7 @@ Deno.serve(async (req) => {
       const chunks: typeof TAGS[] = [];
       for (let i = 0; i < TAGS.length; i += 4) chunks.push(TAGS.slice(i, i + 4));
       for (const chunk of chunks) {
-        const got = await Promise.all(chunk.map((t) => xbrlSeries(cikRow.cik, t.tag, t.unit)));
+        const got = await Promise.all(chunk.map((t) => xbrlSeries(cikRow.cik, t.tag, t.unit, t.statement)));
         chunk.forEach((t, i) => {
           if (got[i].length) statements.push({ ...t, points: got[i] });
         });

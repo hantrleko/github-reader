@@ -1,6 +1,6 @@
 // V5.2 · US options chain (Yahoo, auto cookie+crumb) with locally computed
 // Black-Scholes Greeks and unusual-flow / 0DTE flags. Tier C — personal research.
-import { corsHeaders, json, fail, fetchAny, yahooUrls } from "../_shared/us.ts";
+import { corsHeaders, json, fail, yahooGet } from "../_shared/us.ts";
 
 /* ── Black-Scholes Greeks (pure) ── */
 const npdf = (x: number) => Math.exp(-0.5 * x * x) / Math.sqrt(2 * Math.PI);
@@ -25,25 +25,6 @@ function greeks(S: number, K: number, T: number, r: number, sigma: number, call:
   return { delta, gamma, vega, theta };
 }
 
-/** Yahoo now gates several endpoints on a cookie + crumb pair. Fetch once. */
-async function getCrumb(): Promise<{ cookie: string; crumb: string } | null> {
-  try {
-    const c = await fetch("https://fc.yahoo.com/", {
-      headers: { "User-Agent": "Mozilla/5.0 EFLab/5.2" },
-    });
-    const cookie = c.headers.get("set-cookie")?.split(";")[0] || "";
-    if (!cookie) return null;
-    const r = await fetch("https://query1.finance.yahoo.com/v1/test/getcrumb", {
-      headers: { "User-Agent": "Mozilla/5.0 EFLab/5.2", Cookie: cookie },
-    });
-    const crumb = (await r.text()).trim();
-    if (!crumb || crumb.length > 32) return null;
-    return { cookie, crumb };
-  } catch {
-    return null;
-  }
-}
-
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
   try {
@@ -53,16 +34,7 @@ Deno.serve(async (req) => {
     const rf = parseFloat(url.searchParams.get("r") || "0.042");
 
     const path = `/v7/finance/options/${encodeURIComponent(symbol)}${date ? `?date=${date}` : ""}`;
-    let resp = await fetchAny(yahooUrls(path), {}, 1).catch(() => null);
-    if (!resp || !resp.ok) {
-      const cr = await getCrumb();
-      if (cr) {
-        const sep = path.includes("?") ? "&" : "?";
-        resp = await fetchAny(yahooUrls(`${path}${sep}crumb=${encodeURIComponent(cr.crumb)}`), {
-          headers: { Cookie: cr.cookie },
-        });
-      }
-    }
+    const resp = await yahooGet(path);
     if (!resp || !resp.ok) throw new Error(`Yahoo options unavailable (HTTP ${resp?.status ?? "n/a"})`);
 
     const j = await resp.json();
