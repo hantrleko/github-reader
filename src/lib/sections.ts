@@ -350,6 +350,7 @@ SECTIONS.push({
   id: "trillion-dollar-equation",
   chapter: "Frontier Essay",
   kicker: "Black–Scholes",
+  kicker: "Black–Scholes",
   label: "万亿美元的方程 · Black–Scholes 论证全景",
   subtitle: "五章长文精读:让方向消失的复制组合、离散再平衡的 Gamma 税、卖方拿到的波动率风险溢价,以及行业为何不推翻而是延伸这个方程。",
   group: "前沿",
