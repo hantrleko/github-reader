@@ -1,7 +1,7 @@
 /**
  * V5.2 · US full-stack market data hooks.
  * All requests are proxied through Lovable Cloud edge functions so the browser
- * never talks to Yahoo / SEC directly (CORS + declared User-Agent handled там).
+ * never talks to Yahoo / SEC directly (CORS + declared User-Agent handled there).
  */
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
