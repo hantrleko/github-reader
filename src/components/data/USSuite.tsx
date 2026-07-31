@@ -190,8 +190,8 @@ function QuoteTab({ symbol }: { symbol: string }) {
             <Line type="monotone" dataKey="bollUpper" name="Boll Upper" stroke="hsl(var(--muted-foreground))" strokeWidth={0.8} strokeDasharray="3 3" dot={false} isAnimationActive={false} />
             <Line type="monotone" dataKey="bollLower" name="Boll Lower" stroke="hsl(var(--muted-foreground))" strokeWidth={0.8} strokeDasharray="3 3" dot={false} isAnimationActive={false} />
             <Line type="monotone" dataKey="close" name="Close" stroke={CHART_COLORS.primary} strokeWidth={1.6} dot={false} isAnimationActive={false} />
-            <Line type="monotone" dataKey="ma20" name="MA20" stroke={CHART_COLORS.secondary} strokeWidth={1} dot={false} isAnimationActive={false} />
-            <Line type="monotone" dataKey="ma60" name="MA60" stroke={CHART_COLORS.tertiary} strokeWidth={1} dot={false} isAnimationActive={false} />
+            <Line type="monotone" dataKey="ma20" name="MA20" stroke={CHART_COLORS.gold} strokeWidth={1} dot={false} isAnimationActive={false} />
+            <Line type="monotone" dataKey="ma60" name="MA60" stroke={CHART_COLORS.teal} strokeWidth={1} dot={false} isAnimationActive={false} />
             <Brush dataKey="date" height={18} travellerWidth={8} stroke="hsl(var(--border))" fill="hsl(var(--background))" />
           </ComposedChart>
         </ResponsiveContainer>
@@ -207,8 +207,8 @@ function QuoteTab({ symbol }: { symbol: string }) {
               <Tooltip content={<ThemedTooltip />} />
               <ReferenceLine y={0} stroke="hsl(var(--border))" />
               <Bar dataKey="hist" name="MACD Hist" fill={CHART_COLORS.primary} isAnimationActive={false} />
-              <Line type="monotone" dataKey="macd" name="DIF" stroke={CHART_COLORS.secondary} strokeWidth={1} dot={false} isAnimationActive={false} />
-              <Line type="monotone" dataKey="signal" name="DEA" stroke={CHART_COLORS.tertiary} strokeWidth={1} dot={false} isAnimationActive={false} />
+              <Line type="monotone" dataKey="macd" name="DIF" stroke={CHART_COLORS.gold} strokeWidth={1} dot={false} isAnimationActive={false} />
+              <Line type="monotone" dataKey="signal" name="DEA" stroke={CHART_COLORS.teal} strokeWidth={1} dot={false} isAnimationActive={false} />
             </ComposedChart>
           </ResponsiveContainer>
         </div>
@@ -334,7 +334,7 @@ function FundamentalsTab({ symbol }: { symbol: string }) {
                 <Bar
                   key={s.tag}
                   dataKey={s.label}
-                  fill={[CHART_COLORS.primary, CHART_COLORS.secondary, CHART_COLORS.tertiary, CHART_COLORS.quaternary][i % 4]}
+                  fill={[CHART_COLORS.primary, CHART_COLORS.gold, CHART_COLORS.teal, CHART_COLORS.destructive][i % 4]}
                   isAnimationActive={false}
                 />
               ))}
@@ -553,7 +553,7 @@ function OptionsTab({ symbol }: { symbol: string }) {
             <Legend wrapperStyle={{ fontSize: 10 }} />
             {data?.spot && <ReferenceLine x={data.spot} stroke="hsl(var(--border))" strokeDasharray="4 4" />}
             <Scatter name="Call IV" data={smile.filter((s) => s.type === "Call")} fill={CHART_COLORS.primary} isAnimationActive={false} />
-            <Scatter name="Put IV" data={smile.filter((s) => s.type === "Put")} fill={CHART_COLORS.secondary} isAnimationActive={false} />
+            <Scatter name="Put IV" data={smile.filter((s) => s.type === "Put")} fill={CHART_COLORS.gold} isAnimationActive={false} />
           </ScatterChart>
         </ResponsiveContainer>
       </div>
