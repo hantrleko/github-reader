@@ -62,6 +62,43 @@ export function yahooUrls(path: string) {
   return YAHOO_HOSTS.map((h) => `https://${h}${path}`);
 }
 
+/** Yahoo gates several endpoints on a cookie + crumb pair. Fetch once per isolate. */
+let crumbCache: { cookie: string; crumb: string } | null = null;
+
+export async function getYahooCrumb(): Promise<{ cookie: string; crumb: string } | null> {
+  if (crumbCache) return crumbCache;
+  try {
+    const c = await fetch("https://fc.yahoo.com/", {
+      headers: { "User-Agent": "Mozilla/5.0 EFLab/5.2" },
+    });
+    const cookie = c.headers.get("set-cookie")?.split(";")[0] || "";
+    if (!cookie) return null;
+    const r = await fetch("https://query1.finance.yahoo.com/v1/test/getcrumb", {
+      headers: { "User-Agent": "Mozilla/5.0 EFLab/5.2", Cookie: cookie },
+    });
+    const crumb = (await r.text()).trim();
+    if (!crumb || crumb.length > 32) return null;
+    crumbCache = { cookie, crumb };
+    return crumbCache;
+  } catch {
+    return null;
+  }
+}
+
+/** GET a Yahoo path, retrying once with cookie+crumb when the plain call is rejected. */
+export async function yahooGet(path: string): Promise<Response | null> {
+  const plain = await fetchAny(yahooUrls(path), {}, 1).catch(() => null);
+  if (plain && plain.ok) return plain;
+  const cr = await getYahooCrumb();
+  if (!cr) return plain;
+  const sep = path.includes("?") ? "&" : "?";
+  return await fetchAny(
+    yahooUrls(`${path}${sep}crumb=${encodeURIComponent(cr.crumb)}`),
+    { headers: { Cookie: cr.cookie } },
+    1,
+  ).catch(() => plain);
+}
+
 /* ───────────── technical indicators (pure, no deps) ───────────── */
 
 export function sma(xs: number[], n: number): (number | null)[] {
