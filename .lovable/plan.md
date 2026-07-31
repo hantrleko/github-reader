@@ -1,46 +1,56 @@
 ## 目标
 
-把这篇「用一句话让 AI 写出量化策略，然后它证明我错了」的实录，作为**第二篇前沿长文**加入站点——与已有的《万亿美元的方程》并列，沿用同一套编辑体例（章节标号、导语、Callout、复现入口）。
+参照已有的 A 股全栈板块（V5.0），把 `global-stock-data` 的美股数据能力以同样的架构有机接入本站，并把全站版本升到 **V5.2**（含首页开屏动画处的版本号）。
 
-关键立场：本站是研究平台，不做产品推广。因此这篇内容以**方法论案例研究**呈现，而不是软文：正文保留完整叙事与全部数字（含 -21.17%、-33.83%、-42% 回撤），但把落点放在「为什么价值+质量因子在 2022–2026 的大盘科技宇宙里结构性失效」「为什么 +1047% 的回测不是预测」这两个可以在本站工具里亲手复现的命题。外部工具只作为案例来源提及一次，不放推荐/返利链接。
+## 一、新增 Edge Functions（零密钥、公开数据源）
 
-## 呈现方式
+按合规分级优先取用官方源（tier S 优先，其余标注"个人研究"）：
 
-新建 `src/components/essays/AiQuantStrategyEssay.tsx`，结构：
+| 函数 | 数据源 | 输出 |
+| --- | --- | --- |
+| `us-quote` | Yahoo chart（Stooq 备援） | 实时价/涨跌/日K（OHLCV）+ 本地计算 MA/EMA/MACD/RSI/KDJ/布林 |
+| `us-fundamentals` | SEC XBRL `companyconcept`/`companyfacts` + Yahoo quoteSummary | 三大报表要点、关键指标（PE/PB/ROE/毛利率等） |
+| `us-filings` | SEC EDGAR submissions + 全文检索 | 10-K/10-Q/8-K/Form 4 列表，含直达链接 |
+| `us-options` | Yahoo options（自动 crumb），CBOE 只做延迟只读快照 | 期权链、IV、到期日、成交量/OI 比值（异动标记）；本地 BS 反解 Greeks |
+| `us-screener` | SEC EDGAR frames | 单个 XBRL 标签的全市场横截面排名（免费筛选器） |
 
-1. **报头（masthead）**——栏目标签 `FRONTIER ESSAY / AI × QUANT`、中英标题、一句导语、阅读时长。
-2. **成绩单条（Scorecard strip）**——四张并排卡片，展示策略演进的四个版本：
-   ```text
-   V1 价值+质量  V2 反转信号   V3 +趋势过滤   基准
-   -21.17%       +829.20%      +1047.39%      买入持有
-   Sharpe -0.22  Sharpe 1.53   Sharpe 1.74    —
-   MDD -33.83%   MDD -42%      MDD -40.53%    —
-   ```
-   回报为金色、回撤强制以红色同等字号显示，呼应原文「measured honestly」的要点。
-3. **五章正文**（沿用 `H` 章节头 + `P` 段落 + `Callout` 体例）：
-   - 01 一句话进，一个策略出——工作流拆解（读市场状态 → 选因子 → 写 Python → 回测）
-   - 02 四笔交易的样本量陷阱——+3.47% / Sharpe 3.51 为何不是业绩记录
-   - 03 结构性失效——价值+质量在大盘科技动量市里等于做空赢家
-   - 04 反转与去掉空头腿——Sharpe 从 0.17 到 1.53 的来源分解
-   - 05 冷水：回测不是预测——单一牛市窗口、40% 回撤、费用/滑点/资金费率
-4. **两个方法论 Callout**：`SAMPLE SIZE`（4 笔交易的 Sharpe 置信区间近乎无意义）、`REGIME DEPENDENCE`（因子收益的条件性）。
-5. **「在实验室里复现」入口网格**——链到站内既有工具：
-   - `/s/backtest` 真实数据回测引擎（复现 V1/V3）
-   - `/s/quant`（Walk-Forward 样本外检验 → 过拟合缺口；Fama-French 5 因子归因 → 拆解 V3 的收益来源；Kelly & 破产风险 → 40% 回撤下的仓位上限；Michaud 重采样前沿 → 参数不确定性）
-   - `/s/calibration` 模型校准实验室
-6. **免责声明条**——底部固定一行 “Backtest ≠ forecast. Not financial advice.”，与文中论点一致。
+统一实现要点（沿用 `ashare-*` 的模式）：CORS 头、多 host 回退重试（避免 TLS EOF 500）、SEC 请求带声明式 User-Agent 并限速 ≤8 req/s、`verify_jwt = false` 写入 `supabase/config.toml`（这是 V5.0 踩过的坑）。
 
-## 注册与导航
+## 二、前端：US Suite 工作台
 
-- `src/lib/sections.ts`：新增 section `id: "ai-quant-strategy"`，`chapter: "Frontier Essay"`、`kicker: "AI × Quant"`、`group: "前沿"`，lazy 引入新组件。首页「前沿」组目录卡与 `/s/ai-quant-strategy` 路由自动生效。
-- `src/i18n/locales/zh.json` / `en.json`：补 `nav.items.ai-quant-strategy` 文案。
-- 若 Navbar「前沿」下拉是硬编码列表，则同步加入该条目。
-- 在《万亿美元的方程》页尾增加一张「下一篇长文」卡片，指向本文，形成长文序列。
+新建 `src/components/data/USSuite.tsx`，五个页签，风格与 `AShareSuite.tsx` 一致（SectionHeader + ChartTheme + Recharts + 刷新/错误态）：
 
-## 技术细节
+1. **行情与技术面** — 价格头卡、日K + 均线、MACD/RSI 副图，支持 Brush 联动
+2. **基本面** — SEC XBRL 三表摘要 + 关键指标卡 + 多标的横向对比
+3. **披露流** — 最近备案列表（表单类型过滤）+ 全文检索框
+4. **期权** — 到期日选择、链表、IV 微笑曲线、0DTE 与异动高亮
+5. **全市场筛选** — XBRL 标签 + 期间选择，输出排名表（可导出 CSV）
 
-- 纯前端展示组件，无后端、无新依赖；沿用 `Reveal`、`framer-motion`、`EquationBlock`（仅在归因小节用一次 Fama-French 回归式）。
-- 全部配色走语义 token（`text-gold`、`text-foreground/80`、`border-border/60`），回撤红色使用现有 destructive/rose token，不硬编码颜色。
-- 数字表格用 `tabular-nums` + `font-mono`，与站内其它结果面板一致。
-- 页面加 `Seo` 标题与描述（如与其它 section 页一致由 `SectionPage.tsx` 统一处理，则改在 `seoCopy.ts` 补一条，并确保 `scripts/check-copy-consistency.ts` 通过）。
-- 版本号与 Changelog：作为 V5.1 内容更新，写入 `Changelog.tsx` 与 `CHANGELOG.md`，`package.json` 同步。
+配套：`src/lib/usData.ts`（react-query hooks，沿用 `marketData.ts` 的 `callFn` 风格）、每个页签底部标注数据源与合规层级。
+
+## 三、与现有系统的有机连接
+
+- 顶部 ticker 输入接入 **Tool Bus**：拉到的 σ / μ / 价格可一键送入 Black-Scholes、隐含波动率、回测引擎、组合优化
+- 期权页签的链数据可直接"送到"隐含波动率与 SABR/Heston 校准实验室
+- SEC 收益日历/披露流与 `EconCalendarPanel` 并列在「数据源」组
+
+## 四、注册与导航
+
+- `src/lib/sections.ts` 新增 `us-suite`（chapter `V5.2`，group `数据源`）
+- `Navbar.tsx` 数据源下拉 + `zh.json` / `en.json` 文案
+- `toolsCatalog.ts` 收录新工具条目
+
+## 五、版本号统一到 5.2（多处更新点）
+
+- `package.json` → `5.2.0`（Vite 注入 `__APP_VERSION_TAG__`，Navbar/Footer 徽章自动跟随）
+- `HeroSection.tsx` + i18n 的「最新更新」文案改写为 V5.2 美股全栈
+- **`SplashIntro.tsx` 开屏加载界面**加入 `VersionBadge`（改为从构建常量读取，杜绝再次不同步）
+- `Changelog.tsx` 与 `CHANGELOG.md` 新增 V5.2 条目
+- 全仓检索残留的硬编码 "V5.0/V5.1" 字样并清理
+
+## 技术说明
+
+- 全部数据经 Edge Function 代理，浏览器不直连第三方（绕过 CORS + 隐藏 UA 细节）
+- 技术指标与 Greeks 在前端/函数内用纯 TS 计算，不引入新依赖
+- 页面底部加合规声明：Yahoo/CBOE/Nasdaq 属个人研究用途，SEC/Treasury/CFTC 可商用
+- 新增 `src/lib/quant/__tests__` 下的技术指标单测（MACD/RSI/布林），保证数值正确
