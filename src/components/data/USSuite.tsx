@@ -171,7 +171,7 @@ function QuoteTab({ symbol }: { symbol: string }) {
             fromId="us-suite"
             label="US Suite 行情"
             outputs={{ S0: data.price, sigma: data.annualVol }}
-            targets={["calculator", "implied-vol", "mc-pricer", "quant"]}
+            targets={["bs", "iv", "mc", "backtest"]}
           />
           <span className="text-[10px] font-mono text-muted-foreground">
             S₀ = {data.price.toFixed(2)} · σ = {(data.annualVol * 100).toFixed(1)}% 可直接送入定价与回测工具
