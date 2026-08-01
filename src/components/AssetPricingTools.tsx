@@ -8,11 +8,17 @@ import { CAPMTool, APTTool, FamaFrenchTool, FamaMacBethTool } from "./asset/V31A
 import { SDFTool, CCAPMTool, HJBoundTool } from "./asset/SDFTools";
 import { ZeroBetaTool, ICAPMTool } from "./asset/CapmFamilyTools";
 import { AnomalySortTool, GRSTool } from "./asset/AnomalyTools";
+import { StatePriceTool, SdfFactorDualityTool, HJDistanceTool } from "./asset/NoArbitrageTools";
+import { LongRunRiskTool, HabitTool, DisasterTool, PuzzleScoreboardTool } from "./asset/PuzzleTools";
+import { CampbellShillerTool, FactorZooTool, CarryTool } from "./asset/FrontierAssetTools";
 
 type ToolId =
   | "capm" | "zerobeta" | "icapm"
   | "apt" | "famafrench" | "famamacbeth" | "anomaly" | "grs"
-  | "sdf" | "ccapm" | "hj";
+  | "sdf" | "ccapm" | "hj"
+  | "stateprice" | "duality" | "hjdist"
+  | "lrr" | "habit" | "disaster" | "scoreboard"
+  | "cs" | "zoo" | "carry";
 
 const TOOLS: { id: ToolId; name: string; nameEn: string; formula: string; component: React.FC }[] = [
   {
@@ -70,12 +76,65 @@ const TOOLS: { id: ToolId; name: string; nameEn: string; formula: string; compon
     formula: String.raw`\dfrac{\sigma(M)}{E(M)} \ \geq\ \dfrac{|E(R^e)|}{\sigma(R^e)} = \max\text{ Sharpe},\qquad E(M) = \dfrac{1}{1+R_f}`,
     component: HJBoundTool,
   },
+  {
+    id: "stateprice", name: "状态价格 / 风险中性测度", nameEn: "State Prices, SDF & Risk-Neutral Measure — Arrow-Debreu Foundations",
+    formula: String.raw`p_j = \sum_s q_s\,x_{js},\quad q_s = \pi_s m_s,\quad \pi^*_s = \dfrac{q_s}{\sum_k q_k},\qquad p = \dfrac{E^{*}[x]}{1+R_f}`,
+    component: StatePriceTool,
+  },
+  {
+    id: "duality", name: "SDF–因子对偶", nameEn: "SDF ↔ Beta-Pricing Duality — Risk Prices vs Factor Loadings",
+    formula: String.raw`m = 1 - b'(f - E f)\ \Longleftrightarrow\ E(R^e_i) = \beta_i'\lambda,\qquad b = \Sigma_f^{-1}\lambda`,
+    component: SdfFactorDualityTool,
+  },
+  {
+    id: "hjdist", name: "HJ 距离与模型比较", nameEn: "Hansen-Jagannathan Distance — Model Misspecification Diagnostics",
+    formula: String.raw`\delta_{HJ} = \sqrt{\alpha'\,E[R R']^{-1}\,\alpha},\qquad \alpha = E(R^e) - \beta\lambda`,
+    component: HJDistanceTool,
+  },
+  {
+    id: "lrr", name: "长期风险 (Epstein-Zin)", nameEn: "Bansal-Yaron Long-Run Risk under Epstein-Zin Recursive Preferences",
+    formula: String.raw`\theta = \dfrac{1-\gamma}{1-1/\psi},\quad m_{t+1} = \theta\ln\delta - \tfrac{\theta}{\psi}\Delta c_{t+1} + (\theta-1) r_{c,t+1}`,
+    component: LongRunRiskTool,
+  },
+  {
+    id: "habit", name: "习惯形成 (Campbell-Cochrane)", nameEn: "Campbell-Cochrane External Habit — Time-Varying Risk Aversion",
+    formula: String.raw`S_t = \dfrac{C_t - X_t}{C_t},\qquad \gamma^{\text{eff}}_t = \dfrac{\gamma}{S_t},\qquad \bar S = \sigma\sqrt{\dfrac{\gamma}{1-\phi}}`,
+    component: HabitTool,
+  },
+  {
+    id: "disaster", name: "罕见灾难 (Rietz-Barro)", nameEn: "Rietz-Barro Rare Disasters — Tail Risk and the Equity Premium",
+    formula: String.raw`R_f = \dfrac{\delta^{-1} e^{\gamma g - \gamma^2\sigma^2/2}}{(1-p) + p\,(1-b)^{-\gamma}},\qquad \text{ERP} \approx \gamma\sigma^2\phi + p\,[(1-b)^{-\gamma}-1]\,[1-(1-b)^{\phi}]`,
+    component: DisasterTool,
+  },
+  {
+    id: "scoreboard", name: "三大谜题对照", nameEn: "Puzzle Scoreboard — CRRA vs Long-Run Risk vs Habit vs Disasters",
+    formula: String.raw`\dfrac{\sigma(m)}{E(m)} \ \geq\ \max\ \text{Sharpe} \approx 0.4,\qquad \text{ERP} \approx 6\%,\qquad R_f \approx 1\%`,
+    component: PuzzleScoreboardTool,
+  },
+  {
+    id: "cs", name: "Campbell-Shiller 分解", nameEn: "Campbell-Shiller Decomposition & Long-Horizon Return Predictability",
+    formula: String.raw`dp_t \approx \sum_{j\geq0}\rho^{j}\big(r_{t+1+j} - \Delta d_{t+1+j}\big),\qquad b_r - b_d + \rho\phi = 1`,
+    component: CampbellShillerTool,
+  },
+  {
+    id: "zoo", name: "因子动物园与高维筛选", nameEn: "The Factor Zoo — PCA, Ridge / LASSO Shrinkage and Multiple-Testing Thresholds",
+    formula: String.raw`\hat b^{\text{lasso}} = \arg\min_b \|R^e - Fb\|^2 + \lambda\|b\|_1,\qquad \text{HLZ: } |t| > 3.0`,
+    component: FactorZooTool,
+  },
+  {
+    id: "carry", name: "国际定价与货币 Carry", nameEn: "International Asset Pricing — UIP, Fama Regression & the Carry Trade",
+    formula: String.raw`\Delta s_{t+1} = a + \beta\,(i^{*}_t - i_t) + \varepsilon,\qquad \text{UIP: }\beta = 1,\qquad \Delta s_{t+1} = \ln m^{*}_{t+1} - \ln m_{t+1}`,
+    component: CarryTool,
+  },
 ];
 
 const CATEGORIES: ToolCategory[] = [
+  { id: "noarb", label: "无套利基础", toolIds: ["stateprice", "duality", "hjdist"] },
   { id: "equilibrium", label: "均衡定价", toolIds: ["capm", "zerobeta", "icapm"] },
   { id: "factors", label: "因子与实证", toolIds: ["apt", "famafrench", "famamacbeth", "anomaly", "grs"] },
   { id: "sdf", label: "现代框架 · SDF", toolIds: ["sdf", "ccapm", "hj"] },
+  { id: "puzzles", label: "谜题与结构模型", toolIds: ["lrr", "habit", "disaster", "scoreboard"] },
+  { id: "frontier", label: "实证前沿", toolIds: ["cs", "zoo", "carry"] },
 ];
 
 const AssetPricingTools = () => {
@@ -93,7 +152,7 @@ const AssetPricingTools = () => {
           <p className="text-xs font-mono uppercase tracking-[0.3em] text-gold mb-3">Asset Pricing</p>
           <h2 className="text-3xl md:text-5xl font-display font-bold text-foreground">资产定价</h2>
           <p className="text-sm text-muted-foreground mt-3 max-w-2xl mx-auto">
-            11 个交互工具，覆盖均衡定价 (CAPM · 零β · ICAPM)、因子与实证 (APT · Fama-French · Fama-MacBeth · 异象排序 · GRS) 与现代 SDF 框架 (随机折现因子 · CCAPM 股权溢价之谜 · Hansen-Jagannathan 边界)。
+            21 个交互工具，从无套利基础 (状态价格 · 风险中性测度 · SDF-因子对偶 · HJ 距离) 出发，贯通均衡定价 (CAPM · 零β · ICAPM)、因子与实证 (APT · Fama-French · Fama-MacBeth · 异象排序 · GRS)、现代 SDF 框架，直到结构性谜题 (长期风险 · 习惯形成 · 罕见灾难) 与实证前沿 (Campbell-Shiller 分解 · 因子动物园 · 货币 Carry)。
           </p>
         </motion.div>
 
