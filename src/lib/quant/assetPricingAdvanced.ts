@@ -518,7 +518,9 @@ export function campbellShiller(inp: CSInput): CSResult {
 export function jacobiEigen(matIn: number[][], iters = 100): { values: number[]; vectors: number[][] } {
   const n = matIn.length;
   const A = matIn.map((r) => [...r]);
-  let V = Array.from({ length: n }, (_, i) => Array.from({ length: n }, (_, j) => (i === j ? 1 : 0)));
+  let V: number[][] = Array.from({ length: n }, (_, i) =>
+    Array.from({ length: n }, (_, j) => (i === j ? 1 : 0) as number),
+  );
   for (let sweep = 0; sweep < iters; sweep++) {
     let off = 0;
     for (let i = 0; i < n; i++) for (let j = i + 1; j < n; j++) off += A[i][j] ** 2;
