@@ -1,56 +1,38 @@
-## 目标
+# V5.3 资产定价补全：从状态价格到现代前沿
 
-参照已有的 A 股全栈板块（V5.0），把 `global-stock-data` 的美股数据能力以同样的架构有机接入本站，并把全站版本升到 **V5.2**（含首页开屏动画处的版本号）。
+现有资产定价版块有 11 个工具（CAPM / 零β / ICAPM / APT / Fama-French / Fama-MacBeth / 异象排序 / GRS / SDF / CCAPM / HJ 边界）。对照报告的知识地图，缺的是「无套利骨架的前半段」「谜题的解释机制」「实证评价与前沿方向」三块。计划补 10 个新工具 + 1 篇导读专题，把版块从 11 个扩到 21 个工具。
 
-## 一、新增 Edge Functions（零密钥、公开数据源）
+## 一、新增工具（按报告章节分四组）
 
-按合规分级优先取用官方源（tier S 优先，其余标注"个人研究"）：
+**A. 无套利骨架（报告二、四）**
+1. 状态价格与风险中性测度 — 有限状态市场：输入状态支付矩阵与资产价格，反解状态价格 q、真实概率 π、SDF m=q/π 与风险中性概率 Q；判定无套利与完备性，不完备时给出价格区间（上下界）。
+2. SDF 与线性因子模型的等价 — 展示 m = a − b'f 与 β 表示互相转换，风险价格 λ 与 b 的映射关系。
+3. HJ 距离与定价误差评价 — 在现有 HJ 边界之上加 Hansen-Jagannathan 距离、GMM 定价误差、模型横向比较（CAPM vs FF3 vs FF5）。
 
-| 函数 | 数据源 | 输出 |
-| --- | --- | --- |
-| `us-quote` | Yahoo chart（Stooq 备援） | 实时价/涨跌/日K（OHLCV）+ 本地计算 MA/EMA/MACD/RSI/KDJ/布林 |
-| `us-fundamentals` | SEC XBRL `companyconcept`/`companyfacts` + Yahoo quoteSummary | 三大报表要点、关键指标（PE/PB/ROE/毛利率等） |
-| `us-filings` | SEC EDGAR submissions + 全文检索 | 10-K/10-Q/8-K/Form 4 列表，含直达链接 |
-| `us-options` | Yahoo options（自动 crumb），CBOE 只做延迟只读快照 | 期权链、IV、到期日、成交量/OI 比值（异动标记）；本地 BS 反解 Greeks |
-| `us-screener` | SEC EDGAR frames | 单个 XBRL 标签的全市场横截面排名（免费筛选器） |
+**B. 偏好与谜题机制（报告六、七）**
+4. Epstein-Zin 与长期风险 (Bansal-Yaron) — 分离风险厌恶 γ 与跨期替代弹性 ψ，可变增长率与波动率状态，输出 ERP、无风险利率与 SDF 波动。
+5. 习惯形成 (Campbell-Cochrane) — 外部习惯、盈余消费比 s 的动态，展示时变风险厌恶与时变风险溢价。
+6. 罕见灾难 (Rietz-Barro) — 灾难概率与幅度对 ERP、无风险利率的影响，同时解释股权溢价与无风险利率之谜。
+7. 三大谜题对照面板 — 并排比较 CRRA / 长期风险 / 习惯 / 灾难 四条路线对「股权溢价、无风险利率、波动率」三谜题的解释力（含所需 γ 与隐含 SDF 波动）。
 
-统一实现要点（沿用 `ashare-*` 的模式）：CORS 头、多 host 回退重试（避免 TLS EOF 500）、SEC 请求带声明式 User-Agent 并限速 ≤8 req/s、`verify_jwt = false` 写入 `supabase/config.toml`（这是 V5.0 踩过的坑）。
+**C. 时间序列维度（报告七.3、九）**
+8. Campbell-Shiller 分解与收益可预测性 — 股利价格比的对数线性分解，分离现金流新闻与折现率新闻，并做长期收益预测回归（含 Hodrick 标准误）。
 
-## 二、前端：US Suite 工作台
+**D. 前沿方向（报告九）**
+9. 因子动物园与高维筛选 — 主成分与收缩（Ridge、Lasso）在多因子集合上的降维，多重检验校正（Harvey-Liu-Zhu 的 t>3 门槛），展示因子冗余。
+10. 国际定价与货币风险 — UIP 偏离、Carry 组合排序、汇率与两国定价核之差（Backus-Foresi-Telmer）。
 
-新建 `src/components/data/USSuite.tsx`，五个页签，风格与 `AShareSuite.tsx` 一致（SectionHeader + ChartTheme + Recharts + 刷新/错误态）：
+## 二、理论导读专题
 
-1. **行情与技术面** — 价格头卡、日K + 均线、MACD/RSI 副图，支持 Brush 联动
-2. **基本面** — SEC XBRL 三表摘要 + 关键指标卡 + 多标的横向对比
-3. **披露流** — 最近备案列表（表单类型过滤）+ 全文检索框
-4. **期权** — 到期日选择、链表、IV 微笑曲线、0DTE 与异动高亮
-5. **全市场筛选** — XBRL 标签 + 期间选择，输出排名表（可导出 CSV）
+在 `/s/asset-pricing-theory` 新增一篇结构化导读页（沿用现有前沿专题页风格），把报告主线做成可导航内容：价格→状态价格→SDF→均衡的骨架图、经典模型演进时间轴、三大谜题卡片、四层知识地图与阅读路线。每个理论块配「到实验室复现」按钮，直接跳到对应工具。
 
-配套：`src/lib/usData.ts`（react-query hooks，沿用 `marketData.ts` 的 `callFn` 风格）、每个页签底部标注数据源与合规层级。
+## 三、技术方案
 
-## 三、与现有系统的有机连接
+- 计算逻辑：新增 `src/lib/quant/assetPricingAdvanced.ts`（状态价格与完备性、Epstein-Zin、习惯、灾难、Campbell-Shiller、HJ 距离、Carry），配套单测 `src/lib/quant/__tests__/assetPricingAdvanced.test.ts`，与现有 `assetPricing.ts` 同为纯函数风格。
+- UI：新增 `src/components/asset/NoArbitrageTools.tsx`、`PuzzleTools.tsx`、`FrontierAssetTools.tsx`，复用 `AssetChrome.tsx` 的 Slider / Stat / Note 与 CHART 配色。
+- 导航：在 `AssetPricingTools.tsx` 的 `CATEGORIES` 中新增「无套利与状态价格」「谜题与偏好」「前沿扩展」三类；工具目录 `src/data/toolsCatalog.ts` 与 `src/lib/sections.ts` 同步登记，专题页在 `App.tsx` 注册路由。
+- 版本：升级到 **V5.3**，同步 `package.json`、`CHANGELOG.md`、首页与 SplashIntro 版本号及「最新更新」文案（zh/en 两份 locale）。
 
-- 顶部 ticker 输入接入 **Tool Bus**：拉到的 σ / μ / 价格可一键送入 Black-Scholes、隐含波动率、回测引擎、组合优化
-- 期权页签的链数据可直接"送到"隐含波动率与 SABR/Heston 校准实验室
-- SEC 收益日历/披露流与 `EconCalendarPanel` 并列在「数据源」组
+## 四、不做的事
 
-## 四、注册与导航
-
-- `src/lib/sections.ts` 新增 `us-suite`（chapter `V5.2`，group `数据源`）
-- `Navbar.tsx` 数据源下拉 + `zh.json` / `en.json` 文案
-- `toolsCatalog.ts` 收录新工具条目
-
-## 五、版本号统一到 5.2（多处更新点）
-
-- `package.json` → `5.2.0`（Vite 注入 `__APP_VERSION_TAG__`，Navbar/Footer 徽章自动跟随）
-- `HeroSection.tsx` + i18n 的「最新更新」文案改写为 V5.2 美股全栈
-- **`SplashIntro.tsx` 开屏加载界面**加入 `VersionBadge`（改为从构建常量读取，杜绝再次不同步）
-- `Changelog.tsx` 与 `CHANGELOG.md` 新增 V5.2 条目
-- 全仓检索残留的硬编码 "V5.0/V5.1" 字样并清理
-
-## 技术说明
-
-- 全部数据经 Edge Function 代理，浏览器不直连第三方（绕过 CORS + 隐藏 UA 细节）
-- 技术指标与 Greeks 在前端/函数内用纯 TS 计算，不引入新依赖
-- 页面底部加合规声明：Yahoo/CBOE/Nasdaq 属个人研究用途，SEC/Treasury/CFTC 可商用
-- 新增 `src/lib/quant/__tests__` 下的技术指标单测（MACD/RSI/布林），保证数值正确
+不接入新的外部数据源；灾难与长期风险等模型使用解析近似与校准参数，不做完整数值动态规划求解。
