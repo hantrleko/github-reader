@@ -5,7 +5,8 @@ import {
 } from "recharts";
 import PresetButtons from "../PresetButtons";
 import { AssetChrome, CHART } from "./AssetChrome";
-import { longRunRisk, habitModel, disasterModel, ccapmBaseline } from "@/lib/quant/puzzleModels";
+import { longRunRisk, habitModel, disasterModel } from "@/lib/quant/assetPricingAdvanced";
+import { ccapm } from "@/lib/quant/assetPricing";
 
 const { GOLD, TEAL, RED, BLUE, GRID, TEXT } = CHART;
 const { Slider, Stat, Note, ChartCard } = AssetChrome;
@@ -260,7 +261,7 @@ export const PuzzleScoreboardTool = () => {
   const [gammaCRRA, setGammaCRRA] = useState(10);
 
   const rows = useMemo(() => {
-    const crra = ccapmBaseline({ delta: 0.98, gamma: gammaCRRA, muC: 1.8, sigmaC: 2.7, sigmaM: 20, rho: 0.2 });
+    const crra = ccapm({ delta: 0.98, gamma: gammaCRRA, muC: 1.8, sigmaC: 2.7, sigmaM: 20, rho: 0.2, targetERP });
     const lrr = longRunRisk({ delta: 0.998, gamma: 10, psi: 1.5, muC: 1.8, sigma: 2.7, rho: 0.979, phiE: 0.044, leverage: 3, kappa1: 0.997 });
     const hab = habitModel({ delta: 0.97, gamma: 2, g: 1.9, sigma: 1.5, phi: 0.87 });
     const dis = disasterModel({ delta: 0.97, gamma: 4, g: 2.5, sigma: 2, p: 0.017, b: 0.4, leverage: 2 });
