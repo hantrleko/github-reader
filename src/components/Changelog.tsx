@@ -4,9 +4,45 @@ import { useTranslation } from "react-i18next";
 
 const RELEASES = [
   {
+    version: "V5.3",
+    date: "2026-08",
+    tag: "Current",
+    highlights: [
+      {
+        icon: Target,
+        title: "资产定价补全 — /s/asset-pricing (11 → 21 个工具)",
+        items: [
+          "无套利基础: 状态价格与风险中性测度 (无套利/完备性判定、不完备市场价格区间)、SDF–因子对偶、HJ 距离与 CAPM/FF3/FF5 模型比较",
+          "谜题与结构模型: 长期风险 (Epstein-Zin / Bansal-Yaron)、习惯形成 (Campbell-Cochrane)、罕见灾难 (Rietz-Barro)",
+          "三大谜题对照面板: CRRA / 长期风险 / 习惯 / 灾难 四条路线对股权溢价、无风险利率与超额波动的解释力并排比较",
+          "实证前沿: Campbell-Shiller 分解与长期收益预测、因子动物园 (PCA / Ridge / LASSO + Harvey-Liu-Zhu t>3 门槛)、货币 Carry 与 UIP 偏离",
+        ],
+      },
+      {
+        icon: FileText,
+        title: "理论导读专题 — /s/asset-pricing-theory",
+        items: [
+          "以 p=E[mx] 为主线的四层知识地图: 无套利骨架 → 偏好与均衡 → 实证检验 → 前沿扩展",
+          "1952–2026 模型演进时间轴与三大谜题卡片 (Fact / Gap / Fix 三段式)",
+          "每个理论块配「到实验室复现」入口, 直接跳转对应工具",
+        ],
+      },
+      {
+        icon: BookOpen,
+        title: "工程",
+        items: [
+          "新增 src/lib/quant/assetPricingAdvanced.ts 纯函数计算层, 配 18 项单元测试",
+          "新增 NoArbitrageTools / PuzzleTools / FrontierAssetTools 三个组件族, 复用 AssetChrome 与统一图表配色",
+          "AssetPricingTools 两级导航新增「无套利基础」「谜题与结构模型」「实证前沿」三类, 工具目录同步登记",
+          "版本统一至 V5.3 (Navbar 徽章 / SplashIntro / 首页最新更新 / 更新日志页脚)",
+        ],
+      },
+    ],
+  },
+  {
     version: "V5.2",
     date: "2026-07",
-    tag: "Current",
+    tag: "Stable",
     highlights: [
       {
         icon: Activity,
