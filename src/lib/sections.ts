@@ -376,6 +376,16 @@ SECTIONS.push({
   Component: lazy(() => import("@/components/essays/AiQuantStrategyEssay")),
 });
 
+SECTIONS.push({
+  id: "asset-pricing-theory",
+  chapter: "Reading Guide",
+  kicker: "Asset Pricing Theory",
+  label: "资产定价理论导读 · 从状态价格到现代前沿",
+  subtitle: "V5.3 · p=E[mx] 的四层骨架：无套利与状态价格、偏好与三大谜题、实证检验 (GRS/HJ 距离)、可预测性与因子动物园，每一块都可跳到实验室复现。",
+  group: "资产定价",
+  Component: lazy(() => import("@/components/essays/AssetPricingTheory")),
+});
+
 export const SECTION_MAP: Record<string, SectionDef> = Object.fromEntries(
   SECTIONS.map((s) => [s.id, s])
 );
