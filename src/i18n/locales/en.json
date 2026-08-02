@@ -65,6 +65,7 @@
       "behavior-microstructure": "Behavior & Microstructure Lab",
       "visualization-guide": "Visualization Toolkit",
       "asset-pricing": "Asset Pricing (CAPM)",
+      "asset-pricing-theory": "Asset Pricing Theory Guide (V5.3)",
       "platform": "Platform Tools",
       "frontier-concepts": "Frontier Models",
       "trillion-dollar-equation": "Essay · Trillion-Dollar Equation",
@@ -85,7 +86,7 @@
     },
     "latestUpdate": {
       "label": "Latest Update · {{version}}",
-      "description": "V5.2 US Full-Stack Data — Yahoo quotes with locally computed indicators, SEC XBRL statements, EDGAR filing stream and full-text search, option chains with Black-Scholes Greeks, and market-wide XBRL screening, all in one /s/us-suite workbench.",
+      "description": "V5.3 Asset Pricing Completion — state prices and risk-neutral measures, SDF–factor duality, Hansen-Jagannathan distance model comparison, long-run risk / habit / rare disasters, a three-puzzle scoreboard, Campbell-Shiller decomposition, the factor zoo and currency carry: 21 tools plus a structured theory reading guide.",
       "cta": "View Changelog"
     }
   },

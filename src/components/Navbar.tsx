@@ -42,6 +42,7 @@ const GROUPS: Group[] = [
     { id: "fixed-income-lab", labelKey: "nav.items.fixed-income-lab" },
     { id: "frontier", labelKey: "nav.items.frontier" },
     { id: "asset-pricing", labelKey: "nav.items.asset-pricing" },
+    { id: "asset-pricing-theory", labelKey: "nav.items.asset-pricing-theory" },
   ]},
   { labelKey: "nav.groups.econ", items: [
     { id: "econometrics", labelKey: "nav.items.econometrics" },

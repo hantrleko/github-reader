@@ -1,5 +1,21 @@
 # EF Lab 版本日志
 
+## V5.3 — 资产定价补全：从状态价格到现代前沿
+
+### 新增
+
+- **无套利基础** (`/s/asset-pricing`): 状态价格与风险中性测度 (反解 q / π / m / Q, 无套利与完备性判定, 不完备市场价格上下界)、SDF–因子对偶 (m=a−b'f ↔ E[R]=Rf+β'λ)、HJ 距离与 CAPM/FF3/FF5 模型比较。
+- **谜题与结构模型**: 长期风险 (Epstein-Zin / Bansal-Yaron, 分离 γ 与 ψ)、习惯形成 (Campbell-Cochrane 盈余消费比与时变风险厌恶)、罕见灾难 (Rietz-Barro)、三大谜题对照面板。
+- **实证前沿**: Campbell-Shiller 对数线性分解与长期收益预测回归、因子动物园 (PCA / Ridge / LASSO + Harvey-Liu-Zhu t>3 多重检验门槛)、货币 Carry 与 UIP 偏离。
+- **理论导读专题** (`/s/asset-pricing-theory`): p=E[mx] 四层知识地图、1952–2026 模型演进时间轴、三大谜题卡片, 每块配「到实验室复现」入口。
+
+### 工程
+
+- 新增 `src/lib/quant/assetPricingAdvanced.ts` 纯函数计算层与 18 项单元测试。
+- 新增 `src/components/asset/NoArbitrageTools.tsx` / `PuzzleTools.tsx` / `FrontierAssetTools.tsx`, 复用 `AssetChrome` 与统一图表配色。
+- `AssetPricingTools` 两级导航新增三个分类, 资产定价版块由 11 个工具扩至 21 个; 工具目录与 `sections.ts` 同步登记。
+- 版本号统一至 V5.3 (Navbar 徽章 / SplashIntro / 首页最新更新 / 更新日志页脚)。
+
 ## V5.2 — 美股全栈数据工作台
 
 ### 新增
