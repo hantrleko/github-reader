@@ -65,6 +65,7 @@
       "behavior-microstructure": "行为 & 微观结构实验室",
       "visualization-guide": "可视化组件工作台",
       "asset-pricing": "资产定价 CAPM",
+      "asset-pricing-theory": "资产定价理论导读 (V5.3)",
       "platform": "平台增强",
       "frontier-concepts": "前沿模型",
       "trillion-dollar-equation": "长文 · 万亿美元的方程",
@@ -85,7 +86,7 @@
     },
     "latestUpdate": {
       "label": "最新更新 · {{version}}",
-      "description": "V5.2 美股全栈数据工作台 — Yahoo 行情与本地技术指标、SEC XBRL 三表与关键指标、EDGAR 披露流与全库检索、期权链 Greeks 与异动、全市场 XBRL 横截面筛选, 在 /s/us-suite 一页贯通美股研究链路。",
+      "description": "V5.3 资产定价补全 — 新增状态价格与风险中性测度、SDF–因子对偶、HJ 距离模型比较、长期风险 / 习惯形成 / 罕见灾难、三大谜题对照、Campbell-Shiller 分解、因子动物园与货币 Carry, 版块扩至 21 个工具, 并配《资产定价理论导读》专题。",
       "cta": "查看更新日志"
     }
   },
