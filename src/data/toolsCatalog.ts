@@ -37,7 +37,7 @@ export interface ToolEntry {
   related?: string[];
   /** true once unit tests vs a closed-form benchmark exist in src/lib/quant */
   verified?: boolean;
-  version: "V1.0" | "V2.0" | "V2.1" | "V2.2" | "V2.3" | "V2.4" | "V2.5" | "V2.6" | "V2.7" | "V2.8" | "V3.0" | "V3.1" | "V3.2" | "V3.3" | "V3.4" | "V3.5" | "V3.6" | "V3.7" | "V3.8" | "V3.9" | "V4.0" | "V4.1" | "V4.2" | "V4.3";
+  version: "V1.0" | "V2.0" | "V2.1" | "V2.2" | "V2.3" | "V2.4" | "V2.5" | "V2.6" | "V2.7" | "V2.8" | "V3.0" | "V3.1" | "V3.2" | "V3.3" | "V3.4" | "V3.5" | "V3.6" | "V3.7" | "V3.8" | "V3.9" | "V4.0" | "V4.1" | "V4.2" | "V4.3" | "V5.3";
 }
 
 export const CATEGORY_LABEL: Record<ToolCategory, { zh: string; en: string }> = {
@@ -1149,6 +1149,87 @@ export const TOOLS_CATALOG: ToolEntry[] = [
     refs: ["Tasche (2007)", "Litterman (1996)"],
     blurb: "HHI 与有效资产数 1/HHI + Euler 分解 Component VaR (∑=VaR)，识别单一资产尾部贡献。",
     related: ["var", "risk-parity"], verified: true, version: "V4.3",
+  },
+  // ── V5.3: Asset Pricing completion ──
+  {
+    id: "stateprice", name: "状态价格与风险中性测度", nameEn: "State Prices & Risk-Neutral Measure",
+    category: "asset-pricing", difficulty: "research", anchor: "/s/asset-pricing",
+    tags: ["无套利", "完备市场", "状态价格", "风险中性"],
+    refs: ["Arrow (1964)", "Debreu (1959)", "Harrison & Kreps (1979)"],
+    blurb: "有限状态市场反解状态价格 q、SDF m=q/π 与风险中性概率 Q；判定无套利与完备性，不完备时给出价格区间。",
+    related: ["sdf", "sdf-factor"], verified: true, version: "V5.3",
+  },
+  {
+    id: "sdf-factor", name: "SDF–因子对偶", nameEn: "SDF & Linear Factor Model Duality",
+    category: "asset-pricing", difficulty: "research", anchor: "/s/asset-pricing",
+    tags: ["定价核", "β 表示", "风险价格"],
+    refs: ["Cochrane (2005) ch.6"],
+    blurb: "m=a−b'f 与 E[R]=Rf+β'λ 的双向映射，展示 b 与风险价格 λ 的等价关系。",
+    related: ["sdf", "stateprice", "famafrench"], verified: true, version: "V5.3",
+  },
+  {
+    id: "hjdist", name: "HJ 距离与模型比较", nameEn: "Hansen-Jagannathan Distance",
+    category: "asset-pricing", difficulty: "research", anchor: "/s/asset-pricing",
+    tags: ["HJ 距离", "GMM", "定价误差", "模型比较"],
+    refs: ["Hansen & Jagannathan (1997)"],
+    blurb: "以 E[RR']⁻¹ 加权的定价误差范数，在同一尺度上比较 CAPM / FF3 / FF5。",
+    related: ["hj", "grs", "sdf"], verified: true, version: "V5.3",
+  },
+  {
+    id: "longrunrisk", name: "长期风险 (Epstein-Zin)", nameEn: "Long-Run Risk & Recursive Utility",
+    category: "asset-pricing", difficulty: "research", anchor: "/s/asset-pricing",
+    tags: ["递归效用", "IES", "长期风险", "股权溢价"],
+    refs: ["Epstein & Zin (1989)", "Bansal & Yaron (2004)"],
+    blurb: "分离风险厌恶 γ 与跨期替代弹性 ψ，可变增长与波动状态下输出 ERP、无风险利率与 SDF 波动。",
+    related: ["ccapm", "habit", "disaster", "puzzles"], verified: true, version: "V5.3",
+  },
+  {
+    id: "habit", name: "习惯形成 (Campbell-Cochrane)", nameEn: "External Habit Formation",
+    category: "asset-pricing", difficulty: "research", anchor: "/s/asset-pricing",
+    tags: ["外部习惯", "盈余消费比", "时变风险厌恶"],
+    refs: ["Campbell & Cochrane (1999)"],
+    blurb: "盈余消费比 s 的动态生成时变风险厌恶与时变风险溢价，解释溢价的顺周期波动。",
+    related: ["ccapm", "longrunrisk", "puzzles"], verified: true, version: "V5.3",
+  },
+  {
+    id: "disaster", name: "罕见灾难 (Rietz-Barro)", nameEn: "Rare Disasters",
+    category: "asset-pricing", difficulty: "research", anchor: "/s/asset-pricing",
+    tags: ["尾部风险", "灾难概率", "无风险利率之谜"],
+    refs: ["Rietz (1988)", "Barro (2006)"],
+    blurb: "小概率大幅消费崩塌同时抬高股权溢价、压低无风险利率，展示对灾难分布的敏感性。",
+    related: ["ccapm", "puzzles", "evt"], verified: true, version: "V5.3",
+  },
+  {
+    id: "puzzles", name: "三大谜题对照面板", nameEn: "Three Puzzles Scoreboard",
+    category: "asset-pricing", difficulty: "research", anchor: "/s/asset-pricing",
+    tags: ["股权溢价之谜", "无风险利率之谜", "超额波动"],
+    refs: ["Mehra & Prescott (1985)", "Weil (1989)", "Shiller (1981)"],
+    blurb: "CRRA / 长期风险 / 习惯 / 灾难四条路线并排比较三大谜题的解释力与所需 γ。",
+    related: ["ccapm", "longrunrisk", "habit", "disaster"], verified: true, version: "V5.3",
+  },
+  {
+    id: "campbellshiller", name: "Campbell-Shiller 分解", nameEn: "Campbell-Shiller Decomposition",
+    category: "asset-pricing", difficulty: "research", anchor: "/s/asset-pricing",
+    tags: ["股利价格比", "折现率新闻", "收益可预测性"],
+    refs: ["Campbell & Shiller (1988)", "Cochrane (2008)"],
+    blurb: "对数线性分解 dp 为现金流新闻与折现率新闻，并做长期收益预测回归 (Hodrick 标准误)。",
+    related: ["puzzles", "famafrench"], verified: true, version: "V5.3",
+  },
+  {
+    id: "factorzoo", name: "因子动物园与高维筛选", nameEn: "Factor Zoo & High-Dimensional Screening",
+    category: "asset-pricing", difficulty: "research", anchor: "/s/asset-pricing",
+    tags: ["主成分", "Ridge", "LASSO", "多重检验"],
+    refs: ["Harvey, Liu & Zhu (2016)", "Gu, Kelly & Xiu (2020)"],
+    blurb: "PCA 与收缩估计压缩多因子集合，用 t>3 门槛做多重检验校正，展示因子冗余。",
+    related: ["famafrench", "anomaly", "hjdist"], verified: true, version: "V5.3",
+  },
+  {
+    id: "carry", name: "货币 Carry 与国际定价", nameEn: "Currency Carry & International Pricing",
+    category: "asset-pricing", difficulty: "research", anchor: "/s/asset-pricing",
+    tags: ["UIP 偏离", "Carry", "跨国 SDF"],
+    refs: ["Backus, Foresi & Telmer (2001)", "Lustig & Verdelhan (2007)"],
+    blurb: "UIP 偏离与利差排序 Carry 组合，把汇率变动写成两国定价核之差。",
+    related: ["sdf", "factorzoo"], verified: true, version: "V5.3",
   },
 ];
 
