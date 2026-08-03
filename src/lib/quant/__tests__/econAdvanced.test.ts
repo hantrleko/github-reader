@@ -95,12 +95,17 @@ describe("LASSO / post-double-selection", () => {
     expect(Math.abs(b[2])).toBeLessThan(1e-6);
     expect(Math.abs(b[0])).toBeGreaterThan(0.2);
   });
-  it("PDS is less biased than naive selection", () => {
-    const r = pdsLasso({ n: 250, p: 60, alpha: 0.5, confounding: 1.2, seed: 19 });
-    const err = (v: number) => Math.abs(v - r.betaTrue);
-    expect(err(r.pds.beta)).toBeLessThanOrEqual(err(r.naive.beta) + 1e-9);
-    expect(r.pds.selected.length).toBeGreaterThanOrEqual(r.naive.selected.length);
-  });
+  it("PDS is less biased than naive selection on average", () => {
+    let pdsErr = 0;
+    let naiveErr = 0;
+    for (let seed = 1; seed <= 12; seed++) {
+      const r = pdsLasso({ n: 250, p: 60, alpha: 0.5, confounding: 1.2, seed });
+      pdsErr += Math.abs(r.pds.beta - r.betaTrue);
+      naiveErr += Math.abs(r.naive.beta - r.betaTrue);
+      expect(r.pds.selected.length).toBeGreaterThanOrEqual(r.naive.selected.length);
+    }
+    expect(pdsErr).toBeLessThan(naiveErr);
+  }, 30000);
 });
 
 describe("HTE diagnostics", () => {
