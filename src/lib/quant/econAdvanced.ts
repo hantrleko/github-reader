@@ -721,6 +721,10 @@ export interface PDSResult {
 export function pdsLasso(opts: {
   n?: number; p?: number; alpha?: number; sparsity?: number;
   confounding?: number; lambda?: number; seed?: number;
+  /** how strongly the controls load on y (weak loadings are what naive selection misses) */
+  yStrength?: number;
+  /** how strongly the same controls drive the treatment d */
+  dStrength?: number;
 }): PDSResult {
   const n = opts.n ?? 200;
   const p = opts.p ?? 60;
@@ -733,8 +737,10 @@ export function pdsLasso(opts: {
   const X: number[][] = [];
   const d: number[] = [];
   const y: number[] = [];
-  const bY = Array.from({ length: p }, (_, j) => (j < s ? conf / (j + 1) : 0));
-  const bD = Array.from({ length: p }, (_, j) => (j < s ? conf / (j + 1) : 0));
+  const wY = opts.yStrength ?? 0.35;
+  const wD = opts.dStrength ?? 1.5;
+  const bY = Array.from({ length: p }, (_, j) => (j < s ? (conf * wY) / (j + 1) : 0));
+  const bD = Array.from({ length: p }, (_, j) => (j < s ? (conf * wD) / (j + 1) : 0));
   for (let i = 0; i < n; i++) {
     const xi = Array.from({ length: p }, () => randn(rng));
     const di = xi.reduce((acc, v, j) => acc + bD[j] * v, 0) + randn(rng);
