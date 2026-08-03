@@ -731,7 +731,7 @@ export function pdsLasso(opts: {
   const alphaTrue = opts.alpha ?? 0.5;
   const s = Math.max(1, opts.sparsity ?? 5);
   const conf = opts.confounding ?? 1;
-  const lambda = opts.lambda ?? 0.06;
+  const lambda = opts.lambda ?? 0.15;
   const rng = mulberry32(opts.seed ?? 11);
 
   const X: number[][] = [];
