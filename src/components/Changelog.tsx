@@ -4,9 +4,46 @@ import { useTranslation } from "react-i18next";
 
 const RELEASES = [
   {
-    version: "V5.3",
+    version: "V5.4",
     date: "2026-08",
     tag: "Current",
+    highlights: [
+      {
+        icon: Target,
+        title: "计量经济学补全 — /s/econometrics (41 → 49 个工具)",
+        items: [
+          "识别与推断内核: 弱工具变量诊断 (一阶段 F / Cragg-Donald / Stock-Yogo 临界值 + Anderson-Rubin 反转检验置信集)、Heckman 样本选择两步法 (probit + 逆米尔斯比, 排除约束强度可调)",
+          "Wald / LR / LM 三大检验: 同一原假设的三种几何视角, 可视化小样本分歧与 W ≥ LR ≥ LM 排序",
+          "标准误实验室: 蒙特卡洛比较 iid / HC1 / HC3 / 聚类 / Wild cluster bootstrap-t 的真实 95% 覆盖率, 复现少簇场景下的过度自信",
+          "面板与几何: 固定效应 vs 随机效应 (Hausman χ² + Mundlak CRE 等价检验 + θ 准去均值)、FWL 定理与共线性几何 (残差化散点、VIF 方差膨胀)",
+          "高维与异质性: 双重选择 LASSO (Belloni-Chernozhukov-Hansen) 对比朴素单次选择与 Oracle、GATES 分位组效应与 BLP 校准回归",
+        ],
+      },
+      {
+        icon: FileText,
+        title: "理论导读专题 — /s/econometrics-theory",
+        items: [
+          "以 DGP → 识别 → 估计 → 推断 → 解释 五步推理链为主线的结构化导读",
+          "七条识别策略对照表 (随机化 / 条件独立 / IV / 面板 FE / 平行趋势 / 断点 / 样本选择) 及其软肋",
+          "五级标准误阶梯与 1930s–2026 计量方法演进时间轴, 每块配「到实验室复现」入口",
+        ],
+      },
+      {
+        icon: BookOpen,
+        title: "工程",
+        items: [
+          "新增 src/lib/quant/econAdvanced.ts 纯函数计算层 (2SLS / AR / probit / Heckman / 三大检验 / 聚类与 wild bootstrap / FE-RE / FWL / LASSO / GATES), 配 14 项单元测试",
+          "新增 src/components/econ/V54Tools.tsx 八个交互实验组件, 复用统一 Slider / Stat / 图表配色",
+          "计量版块两级导航新增「识别与推断」分类, 工具目录同步登记 8 个新条目",
+          "版本统一至 V5.4 (Navbar 徽章 / SplashIntro / 首页最新更新 / 更新日志页脚)",
+        ],
+      },
+    ],
+  },
+  {
+    version: "V5.3",
+    date: "2026-08",
+    tag: "Stable",
     highlights: [
       {
         icon: Target,

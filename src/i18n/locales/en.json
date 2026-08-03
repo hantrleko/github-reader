@@ -66,6 +66,7 @@
       "visualization-guide": "Visualization Toolkit",
       "asset-pricing": "Asset Pricing (CAPM)",
       "asset-pricing-theory": "Asset Pricing Theory Guide (V5.3)",
+      "econometrics-theory": "Econometrics Theory Guide (V5.4)",
       "platform": "Platform Tools",
       "frontier-concepts": "Frontier Models",
       "trillion-dollar-equation": "Essay · Trillion-Dollar Equation",
@@ -86,7 +87,7 @@
     },
     "latestUpdate": {
       "label": "Latest Update · {{version}}",
-      "description": "V5.3 Asset Pricing Completion — state prices and risk-neutral measures, SDF–factor duality, Hansen-Jagannathan distance model comparison, long-run risk / habit / rare disasters, a three-puzzle scoreboard, Campbell-Shiller decomposition, the factor zoo and currency carry: 21 tools plus a structured theory reading guide.",
+      "description": "V5.4 Econometrics Completion — weak-instrument diagnostics (first-stage F, Cragg-Donald, Anderson-Rubin), Heckman selection, the Wald/LR/LM trinity, a standard-error lab covering clustered and wild bootstrap coverage, fixed vs random effects (Hausman/Mundlak), the FWL theorem, post-double-selection LASSO and GATES/BLP heterogeneity diagnostics: 49 tools plus a structured theory reading guide.",
       "cta": "View Changelog"
     }
   },

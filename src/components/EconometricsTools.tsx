@@ -25,6 +25,10 @@ import { UnitRootTool } from "./econ/UnitRootTool";
 import { RegressionDiagnosticsTool, DynamicPanelTool, DieboldMarianoTool, KernelRegressionTool } from "./econ/V38Tools";
 import { EventStudyDIDTool, PanelRootTool, QuantileMfxTool, DiagnosticReportTool } from "./econ/V39Tools";
 import { GrangerTYTool, SpectralTool, ExpSmoothTool, LongMemoryTool } from "./econ/V40Tools";
+import {
+  WeakIVTool, HeckmanTool, TrinityTool, SELabTool,
+  HausmanTool, FWLTool, PDSLassoTool, HteDiagTool,
+} from "./econ/V54Tools";
 import { EquationBlock } from "@/components/common/EquationBlock";
 import CategorizedToolNav, { type ToolCategory } from "@/components/common/CategorizedToolNav";
 
@@ -2231,7 +2235,7 @@ const ResultRow = ({ label, value, truth, se, color }: { label: string; value: n
 };
 
 /* ──────────────────  Main module  ────────────────── */
-type ToolId = "olsiv" | "did" | "sdid" | "rdd" | "synth" | "gmm" | "svar" | "garch" | "dcc" | "regime" | "coint" | "unitroot" | "kalman" | "midas" | "logit" | "qreg" | "psm" | "arima" | "lp" | "lasso" | "panel" | "tobit" | "dlm" | "dml" | "cforest" | "bayes" | "harrv" | "hawkes" | "kyle" | "diagnostics" | "dynpanel" | "dmtest" | "kernelreg" | "eventdid" | "panelroot" | "qreglab" | "diagreport" | "granger" | "spectral" | "expsmooth" | "longmem";
+type ToolId = "olsiv" | "did" | "sdid" | "rdd" | "synth" | "gmm" | "svar" | "garch" | "dcc" | "regime" | "coint" | "unitroot" | "kalman" | "midas" | "logit" | "qreg" | "psm" | "arima" | "lp" | "lasso" | "panel" | "tobit" | "dlm" | "dml" | "cforest" | "bayes" | "harrv" | "hawkes" | "kyle" | "diagnostics" | "dynpanel" | "dmtest" | "kernelreg" | "eventdid" | "panelroot" | "qreglab" | "diagreport" | "granger" | "spectral" | "expsmooth" | "longmem" | "weakiv" | "heckman" | "trinity" | "selab" | "hausman" | "fwl" | "pdslasso" | "htediag";
 
 const TOOLS: { id: ToolId; name: string; nameEn: string; formula: string; python: string; component: React.FC }[] = [
   { id: "olsiv", name: "OLS / IV (工具变量)", nameEn: "Ordinary Least Squares & Instrumental Variables",
@@ -3085,6 +3089,101 @@ TOOLS.push({
   component: LongMemoryTool,
 });
 
+/* ───────── V5.4 识别与推断 ───────── */
+
+TOOLS.push({
+  id: "weakiv",
+  name: "弱工具变量诊断 (F · Cragg-Donald · AR)",
+  nameEn: "Weak Instrument Diagnostics — First-stage F, Cragg-Donald & Anderson-Rubin",
+  formula: String.raw`\hat\beta_{2SLS}-\beta\approx\frac{\rho\,m}{F};\quad AR(\beta_0)=\frac{(y-\beta_0 d)'P_Z(y-\beta_0 d)/m}{(y-\beta_0 d)'M_Z(y-\beta_0 d)/(n-m)}`,
+  python: `import linearmodels as lm
+res = lm.IV2SLS(y, None, d, Z).fit(cov_type="robust")
+print(res.first_stage)        # partial F / Cragg-Donald
+# weak-IV robust: invert the Anderson-Rubin test over a grid of beta0`,
+  component: WeakIVTool,
+});
+
+TOOLS.push({
+  id: "heckman",
+  name: "Heckman 样本选择 (逆米尔斯比)",
+  nameEn: "Heckman Sample Selection — Two-step & Inverse Mills Ratio",
+  formula: String.raw`E[y\mid x,s=1]=x'\beta+\rho\sigma\lambda(w'\gamma),\quad \lambda(\cdot)=\frac{\phi(\cdot)}{\Phi(\cdot)}`,
+  python: `from scipy.stats import norm
+# step 1: probit of s on w  -> gamma_hat
+lam = norm.pdf(W @ gamma) / norm.cdf(W @ gamma)
+# step 2: OLS of y on [x, lam] over the selected subsample`,
+  component: HeckmanTool,
+});
+
+TOOLS.push({
+  id: "trinity",
+  name: "Wald / LR / LM 三大检验",
+  nameEn: "The Testing Trinity — Wald, Likelihood Ratio & Lagrange Multiplier",
+  formula: String.raw`W=(R\hat\beta-r)'[R\hat V R']^{-1}(R\hat\beta-r);\ LR=n\ln\frac{RSS_r}{RSS_u};\ LM=nR^2_{aux};\ W\ge LR\ge LM`,
+  python: `import statsmodels.api as sm
+res_u = sm.OLS(y, Xu).fit(); res_r = sm.OLS(y, Xr).fit()
+res_u.wald_test(R); res_u.compare_lr_test(res_r)
+# LM = n * R^2 from regressing restricted residuals on the full regressor set`,
+  component: TrinityTool,
+});
+
+TOOLS.push({
+  id: "selab",
+  name: "标准误实验室 (稳健 · 聚类 · Wild Bootstrap)",
+  nameEn: "Standard Error Lab — Robust, Clustered & Wild Cluster Bootstrap Coverage",
+  formula: String.raw`\hat V=(X'X)^{-1}\Big(\sum_{g}X_g'\hat u_g\hat u_g'X_g\Big)(X'X)^{-1};\ t^*=\frac{\hat\beta^*-\beta_0}{se^*_{cl}}`,
+  python: `import statsmodels.api as sm
+sm.OLS(y, X).fit(cov_type="cluster", cov_kwds={"groups": g})
+# few clusters -> wild cluster bootstrap-t, Rademacher weights, H0 imposed`,
+  component: SELabTool,
+});
+
+TOOLS.push({
+  id: "hausman",
+  name: "固定效应 vs 随机效应 (Hausman · Mundlak)",
+  nameEn: "Fixed vs Random Effects — Hausman Test & Mundlak CRE",
+  formula: String.raw`H=\frac{(\hat\beta_{FE}-\hat\beta_{RE})^2}{V_{FE}-V_{RE}}\sim\chi^2_1;\ \theta=1-\sqrt{\frac{\sigma^2_\varepsilon}{T\sigma^2_\alpha+\sigma^2_\varepsilon}}`,
+  python: `from linearmodels.panel import PanelOLS, RandomEffects
+fe = PanelOLS(y, X, entity_effects=True).fit(); re = RandomEffects(y, X).fit()
+# Mundlak: add group means of X to the RE regression, test them jointly`,
+  component: HausmanTool,
+});
+
+TOOLS.push({
+  id: "fwl",
+  name: "FWL 定理与共线性几何",
+  nameEn: "Frisch-Waugh-Lovell Theorem & Collinearity Geometry",
+  formula: String.raw`\hat\beta_1=\frac{\tilde x_1'\tilde y}{\tilde x_1'\tilde x_1},\ \tilde x_1=M_{X_2}x_1;\quad VIF_j=\frac{1}{1-R_j^2}`,
+  python: `import numpy as np
+x_t = x1 - X2 @ np.linalg.lstsq(X2, x1, rcond=None)[0]
+y_t = y  - X2 @ np.linalg.lstsq(X2, y,  rcond=None)[0]
+beta1 = (x_t @ y_t) / (x_t @ x_t)   # identical to the multivariate coefficient`,
+  component: FWLTool,
+});
+
+TOOLS.push({
+  id: "pdslasso",
+  name: "双重选择 LASSO (高维控制变量)",
+  nameEn: "Post-Double-Selection LASSO — High-dimensional Controls",
+  formula: String.raw`\hat S=\hat S_y\cup\hat S_d;\quad y=\alpha d+X_{\hat S}'\beta+\varepsilon\ \Rightarrow\ \sqrt n(\hat\alpha-\alpha)\rightsquigarrow N(0,\sigma^2)`,
+  python: `# Belloni, Chernozhukov & Hansen (2014)
+S_y = lasso_select(X, y); S_d = lasso_select(X, d)
+cols = sorted(set(S_y) | set(S_d))
+alpha = OLS(y, add_constant(np.c_[d, X[:, cols]])).fit().params[1]`,
+  component: PDSLassoTool,
+});
+
+TOOLS.push({
+  id: "htediag",
+  name: "异质性处理效应诊断 (GATES · BLP)",
+  nameEn: "Heterogeneous Treatment Effects — GATES & BLP Calibration",
+  formula: String.raw`Y=a+\beta_1(D-\hat p)+\beta_2(D-\hat p)(\hat\tau-\bar\tau)+\epsilon;\quad GATES_k=E[Y_1-Y_0\mid \hat\tau\in Q_k]`,
+  python: `# Chernozhukov, Demirer, Duflo & Fernandez-Val (2018)
+# out-of-fold CATE -> quantile groups (GATES) + BLP calibration regression
+# beta2 ~ 1: well calibrated learner; beta2 ~ 0: no usable heterogeneity`,
+  component: HteDiagTool,
+});
+
 
 /** Compact collapsible Python reference snippet — companion to the formula bar. */
 const PythonReference = ({ code }: { code: string }) => {
@@ -3125,6 +3224,7 @@ const PythonReference = ({ code }: { code: string }) => {
 };
 
 const ECON_CATEGORIES: ToolCategory[] = [
+  { id: "ident", label: "识别与推断", toolIds: ["weakiv", "heckman", "trinity", "selab", "hausman", "fwl", "pdslasso", "htediag"] },
   { id: "causal", label: "因果推断", toolIds: ["olsiv", "did", "eventdid", "sdid", "rdd", "synth", "psm"] },
   { id: "timeseries", label: "时间序列", toolIds: ["svar", "coint", "unitroot", "panelroot", "kalman", "midas", "arima", "lp", "dlm", "dmtest", "granger", "spectral", "expsmooth", "longmem"] },
   { id: "vol", label: "波动率 / 高频", toolIds: ["garch", "dcc", "regime", "harrv", "hawkes", "kyle"] },

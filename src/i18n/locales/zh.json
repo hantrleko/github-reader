@@ -66,6 +66,7 @@
       "visualization-guide": "可视化组件工作台",
       "asset-pricing": "资产定价 CAPM",
       "asset-pricing-theory": "资产定价理论导读 (V5.3)",
+      "econometrics-theory": "计量经济学导读 (V5.4)",
       "platform": "平台增强",
       "frontier-concepts": "前沿模型",
       "trillion-dollar-equation": "长文 · 万亿美元的方程",
@@ -86,7 +87,7 @@
     },
     "latestUpdate": {
       "label": "最新更新 · {{version}}",
-      "description": "V5.3 资产定价补全 — 新增状态价格与风险中性测度、SDF–因子对偶、HJ 距离模型比较、长期风险 / 习惯形成 / 罕见灾难、三大谜题对照、Campbell-Shiller 分解、因子动物园与货币 Carry, 版块扩至 21 个工具, 并配《资产定价理论导读》专题。",
+      "description": "V5.4 计量经济学补全 — 新增弱工具变量诊断 (F / Cragg-Donald / Anderson-Rubin)、Heckman 样本选择、Wald/LR/LM 三大检验、标准误实验室 (聚类与 wild bootstrap 覆盖率)、固定效应 vs 随机效应 (Hausman / Mundlak)、FWL 定理与共线性几何、双重选择 LASSO、GATES/BLP 异质性诊断, 版块扩至 49 个工具, 并配《计量经济学导读》专题。",
       "cta": "查看更新日志"
     }
   },

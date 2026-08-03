@@ -386,6 +386,16 @@ SECTIONS.push({
   Component: lazy(() => import("@/components/essays/AssetPricingTheory")),
 });
 
+SECTIONS.push({
+  id: "econometrics-theory",
+  chapter: "Reading Guide",
+  kicker: "Econometrics Theory",
+  label: "计量经济学导读 · 从数据生成过程到可信推断",
+  subtitle: "V5.4 · 五步推理链：DGP → 识别 → 估计 → 推断 → 解释，七条识别策略、五级标准误与高维异质性方法，每一块都可跳到实验室复现。",
+  group: "计量经济",
+  Component: lazy(() => import("@/components/essays/EconometricsTheory")),
+});
+
 export const SECTION_MAP: Record<string, SectionDef> = Object.fromEntries(
   SECTIONS.map((s) => [s.id, s])
 );
