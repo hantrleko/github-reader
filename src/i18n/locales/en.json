@@ -67,6 +67,7 @@
       "asset-pricing": "Asset Pricing (CAPM)",
       "asset-pricing-theory": "Asset Pricing Theory Guide (V5.3)",
       "econometrics-theory": "Econometrics Theory Guide (V5.4)",
+      "time-series-theory": "Time Series Theory Guide (V5.5)",
       "platform": "Platform Tools",
       "frontier-concepts": "Frontier Models",
       "trillion-dollar-equation": "Essay · Trillion-Dollar Equation",
@@ -87,7 +88,7 @@
     },
     "latestUpdate": {
       "label": "Latest Update · {{version}}",
-      "description": "V5.4 Econometrics Completion — weak-instrument diagnostics (first-stage F, Cragg-Donald, Anderson-Rubin), Heckman selection, the Wald/LR/LM trinity, a standard-error lab covering clustered and wild bootstrap coverage, fixed vs random effects (Hausman/Mundlak), the FWL theorem, post-double-selection LASSO and GATES/BLP heterogeneity diagnostics: 49 tools plus a structured theory reading guide.",
+      "description": "V5.5 Time Series Completion — a full unit-root suite (ADF, Phillips-Perron, DF-GLS, KPSS, Zivot-Andrews, HEGY), a Wold/ARMA identification bench, a differencing lab covering spurious regression and over-differencing, SETAR/LSTAR threshold models with Hansen's bootstrap test, Bai-Perron multiple breaks, density forecast evaluation (PIT, CRPS, log score), Hansen's model confidence set with forecast combination, and stochastic volatility vs GARCH via a particle filter: 57 tools plus a structured time-series reading guide.",
       "cta": "View Changelog"
     }
   },
