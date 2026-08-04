@@ -2239,7 +2239,7 @@ const ResultRow = ({ label, value, truth, se, color }: { label: string; value: n
 };
 
 /* ──────────────────  Main module  ────────────────── */
-type ToolId = "olsiv" | "did" | "sdid" | "rdd" | "synth" | "gmm" | "svar" | "garch" | "dcc" | "regime" | "coint" | "unitroot" | "kalman" | "midas" | "logit" | "qreg" | "psm" | "arima" | "lp" | "lasso" | "panel" | "tobit" | "dlm" | "dml" | "cforest" | "bayes" | "harrv" | "hawkes" | "kyle" | "diagnostics" | "dynpanel" | "dmtest" | "kernelreg" | "eventdid" | "panelroot" | "qreglab" | "diagreport" | "granger" | "spectral" | "expsmooth" | "longmem" | "weakiv" | "heckman" | "trinity" | "selab" | "hausman" | "fwl" | "pdslasso" | "htediag";
+type ToolId = "olsiv" | "did" | "sdid" | "rdd" | "synth" | "gmm" | "svar" | "garch" | "dcc" | "regime" | "coint" | "unitroot" | "kalman" | "midas" | "logit" | "qreg" | "psm" | "arima" | "lp" | "lasso" | "panel" | "tobit" | "dlm" | "dml" | "cforest" | "bayes" | "harrv" | "hawkes" | "kyle" | "diagnostics" | "dynpanel" | "dmtest" | "kernelreg" | "eventdid" | "panelroot" | "qreglab" | "diagreport" | "granger" | "spectral" | "expsmooth" | "longmem" | "weakiv" | "heckman" | "trinity" | "selab" | "hausman" | "fwl" | "pdslasso" | "htediag" | "urootsuite" | "armaident" | "difflab" | "setar" | "baiperron" | "denseval" | "mcs" | "svgarch";
 
 const TOOLS: { id: ToolId; name: string; nameEn: string; formula: string; python: string; component: React.FC }[] = [
   { id: "olsiv", name: "OLS / IV (工具变量)", nameEn: "Ordinary Least Squares & Instrumental Variables",
