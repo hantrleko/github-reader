@@ -74,7 +74,7 @@ export const UnitRootSuiteTool = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="space-y-3">
           <p className="text-xs font-mono text-gold uppercase tracking-wider">数据生成过程</p>
-          <Choice value={kind} onChange={setKind} options={[
+          <Choice<SeriesKind> value={kind} onChange={setKind} options={[
             { id: "rw", label: "随机游走" }, { id: "rwdrift", label: "带漂移" },
             { id: "trend", label: "趋势平稳" }, { id: "ar", label: "AR(1)" },
             { id: "break", label: "断点" }, { id: "seasonal", label: "季节单位根" },
