@@ -4,9 +4,46 @@ import { useTranslation } from "react-i18next";
 
 const RELEASES = [
   {
-    version: "V5.4",
+    version: "V5.5",
     date: "2026-08",
     tag: "Current",
+    highlights: [
+      {
+        icon: Activity,
+        title: "时间序列补全 — /s/econometrics (49 → 57 个工具)",
+        items: [
+          "单位根检验全家桶: ADF / Phillips-Perron (Newey-West) / DF-GLS / KPSS / Zivot-Andrews 内生断点 / HEGY 季节单位根, 并给出 ADF × KPSS 四象限联合读法",
+          "Wold 分解与 ARMA 识别台: 理论 vs 样本 ACF/PACF、ψ 冲击传播权重、AR/MA 特征根与单位圆、AIC/BIC/HQ 阶数网格 (Hannan-Rissanen 两步估计)",
+          "差分决策实验室: Granger-Newbold 伪回归拒绝率蒙特卡洛、过度差分的 −1 附近 MA 根与 RMSE 代价、趋势平稳 vs 随机游走的两种预测扇形",
+          "非线性与断点: SETAR 门限网格搜索 + Hansen (1996) 自助 supF 检验、LSTAR 平滑转换函数、Bai-Perron 多重断点动态规划 (BIC/LWZ + 序贯 supF(l+1|l))",
+          "预测评价: PIT 直方图与均匀性 χ²、对数得分、CRPS、pinball 与区间覆盖率; Hansen 模型置信集 (块自助序贯等价检验) 与等权 / 逆 MSE / 最优权重组合对比",
+          "波动率: 随机波动率自举粒子滤波 vs GARCH(1,1), 在滤波精度、相关性与对数得分上正面对比",
+        ],
+      },
+      {
+        icon: FileText,
+        title: "理论导读专题 — /s/time-series-theory",
+        items: [
+          "六层方法地图: 平稳性与预处理 → 线性表示 → 多变量动态 → 非线性与制度 → 波动率与状态空间 → 预测评价",
+          "单位根检验对照表 (两种原假设、六个检验) 与 1927–2026 时间序列方法演进时间轴",
+          "八条最低报告清单, 每个知识块配「到实验室复现」入口",
+        ],
+      },
+      {
+        icon: BookOpen,
+        title: "工程",
+        items: [
+          "新增 src/lib/quant/tsFrontier.ts 纯函数计算层 (PP / DF-GLS / ZA / HEGY / Durand-Kerner 求根 / Hannan-Rissanen / SETAR-LSTAR / Bai-Perron DP / PIT-CRPS / MCS / 粒子滤波 SV), 配 20 项单元测试全绿",
+          "新增 src/components/econ/V55Tools.tsx 八个交互实验组件, 计量版块两级导航新增「非线性 / 断点 / 预测评价」分类",
+          "工具目录同步登记 8 个新条目, 版本统一至 V5.5",
+        ],
+      },
+    ],
+  },
+  {
+    version: "V5.4",
+    date: "2026-08",
+    tag: "",
     highlights: [
       {
         icon: Target,
