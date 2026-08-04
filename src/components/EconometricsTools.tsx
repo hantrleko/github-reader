@@ -3188,6 +3188,103 @@ TOOLS.push({
   component: HteDiagTool,
 });
 
+/* ───────── V5.5 平稳性 · 非线性 · 预测评价 ───────── */
+
+TOOLS.push({
+  id: "urootsuite",
+  name: "单位根检验全家桶 (ADF · PP · DF-GLS · KPSS · ZA · HEGY)",
+  nameEn: "Unit-Root Test Suite — ADF, Phillips-Perron, DF-GLS, KPSS, Zivot-Andrews & HEGY",
+  formula: String.raw`\Delta y_t=\alpha+\delta t+\gamma y_{t-1}+\sum_{i=1}^{p}\phi_i\Delta y_{t-i}+\varepsilon_t;\quad H_0^{ADF}:\gamma=0,\ \ H_0^{KPSS}:\sigma_\eta^2=0`,
+  python: `from statsmodels.tsa.stattools import adfuller, kpss
+from arch.unitroot import PhillipsPerron, DFGLS, ZivotAndrews
+adfuller(y, regression="c"); kpss(y, regression="c", nlags="auto")
+PhillipsPerron(y).summary(); DFGLS(y).summary(); ZivotAndrews(y).summary()`,
+  component: UnitRootSuiteTool,
+});
+
+TOOLS.push({
+  id: "armaident",
+  name: "Wold 分解与 ARMA 识别台",
+  nameEn: "Wold Decomposition & ARMA Identification Bench",
+  formula: String.raw`y_t=\mu+\sum_{j=0}^{\infty}\psi_j\varepsilon_{t-j};\quad \phi(L)y_t=\theta(L)\varepsilon_t,\ \ \text{平稳}\iff|z_i^{AR}|>1`,
+  python: `import statsmodels.api as sm
+sm.graphics.tsa.plot_acf(y, lags=20); sm.graphics.tsa.plot_pacf(y, lags=20)
+res = sm.tsa.ARIMA(y, order=(p, 0, q)).fit()
+print(res.arroots, res.maroots, res.aic, res.bic)`,
+  component: ArmaIdentTool,
+});
+
+TOOLS.push({
+  id: "difflab",
+  name: "差分决策实验室 (伪回归 · 过度差分)",
+  nameEn: "Differencing Decision Lab — Spurious Regression & Over-differencing",
+  formula: String.raw`y_t=\beta x_t+u_t,\ x,y\sim I(1)\ \text{独立}\Rightarrow t\text{ 发散},\ R^2\not\to0;\quad \text{过度差分}\Rightarrow\theta\to-1`,
+  python: `import numpy as np, statsmodels.api as sm
+# Granger-Newbold: regress two independent random walks, record |t| across sims
+t = [abs(sm.OLS(np.cumsum(np.random.randn(T)),
+     sm.add_constant(np.cumsum(np.random.randn(T)))).fit().tvalues[1]) for _ in range(S)]
+print(np.mean(np.array(t) > 1.96))   # nominal 5%`,
+  component: DifferencingTool,
+});
+
+TOOLS.push({
+  id: "setar",
+  name: "门限自回归 SETAR / LSTAR (Hansen 自助检验)",
+  nameEn: "Threshold Autoregression — SETAR / LSTAR with Hansen's Bootstrap Test",
+  formula: String.raw`y_t=\begin{cases}\phi_L y_{t-1}+\varepsilon_t,& y_{t-1}\le c\\ \phi_H y_{t-1}+\varepsilon_t,& y_{t-1}>c\end{cases};\quad G(z;\gamma,c)=\big[1+e^{-\gamma(z-c)}\big]^{-1}`,
+  python: `# grid search the threshold c, minimise segmented SSR, then bootstrap supF
+# Hansen (1996): simulate under the linear null to get the p-value of supF
+from statsmodels.tsa.regime_switching import markov_autoregression as mar`,
+  component: SetarTool,
+});
+
+TOOLS.push({
+  id: "baiperron",
+  name: "Bai-Perron 多重结构断点",
+  nameEn: "Bai-Perron Multiple Structural Breaks",
+  formula: String.raw`y_t=\mu_j+\varepsilon_t,\ t\in(T_{j-1},T_j];\quad \min_{T_1<\dots<T_m}\sum_{j=1}^{m+1}\mathrm{SSR}_j,\ \ \sup F(l+1\mid l)`,
+  python: `import ruptures as rpt
+algo = rpt.Dynp(model="l2", min_size=15).fit(y)
+breaks = algo.predict(n_bkps=m)     # dynamic programming, O(T^2)
+# choose m by BIC / LWZ or by the sequential supF(l+1|l) tests`,
+  component: BaiPerronTool,
+});
+
+TOOLS.push({
+  id: "denseval",
+  name: "密度预测评价 (PIT · CRPS · 对数得分)",
+  nameEn: "Density Forecast Evaluation — PIT, CRPS & Log Score",
+  formula: String.raw`u_t=\hat F_t(y_t)\sim U(0,1);\quad \mathrm{CRPS}=\int\big[\hat F(z)-\mathbf 1\{z\ge y\}\big]^2dz;\quad S=\tfrac1T\sum\ln \hat f_t(y_t)`,
+  python: `import numpy as np, properscoring as ps
+u = norm.cdf(y, loc=mu_t, scale=sigma_t)          # PIT
+chi2 = ((np.histogram(u, bins=10)[0] - T/10)**2 / (T/10)).sum()
+crps = ps.crps_gaussian(y, mu=mu_t, sig=sigma_t).mean()`,
+  component: DensityEvalTool,
+});
+
+TOOLS.push({
+  id: "mcs",
+  name: "模型置信集与预测组合 (Hansen MCS · DM)",
+  nameEn: "Model Confidence Set & Forecast Combination — Hansen MCS, Diebold-Mariano",
+  formula: String.raw`H_{0,\mathcal M}:E[d_{ij,t}]=0\ \forall i,j\in\mathcal M;\quad T_{\max}=\max_{i}\frac{\bar d_{i\cdot}}{\widehat{\mathrm{se}}(\bar d_{i\cdot})}`,
+  python: `from arch.bootstrap import MCS
+mcs = MCS(losses, size=0.10, reps=1000, block_size=6)
+mcs.compute(); print(mcs.pvalues, mcs.included)`,
+  component: McsTool,
+});
+
+TOOLS.push({
+  id: "svgarch",
+  name: "随机波动率 vs GARCH (粒子滤波)",
+  nameEn: "Stochastic Volatility vs GARCH — Bootstrap Particle Filter",
+  formula: String.raw`h_t=\mu+\phi(h_{t-1}-\mu)+\sigma_\eta\eta_t,\ y_t=e^{h_t/2}\varepsilon_t;\quad p(y_{1:T})=\int p(y_{1:T}\mid h_{1:T})p(h_{1:T})dh`,
+  python: `# bootstrap particle filter: propagate h, weight by N(y_t; 0, exp(h_t)), resample
+# maximise the estimated log-likelihood over (phi, sigma_eta); compare to arch_model
+from arch import arch_model
+arch_model(100*y, vol="Garch", p=1, q=1).fit(disp="off")`,
+  component: SVGarchTool,
+});
+
 
 /** Compact collapsible Python reference snippet — companion to the formula bar. */
 const PythonReference = ({ code }: { code: string }) => {
