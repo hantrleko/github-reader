@@ -29,6 +29,10 @@ import {
   WeakIVTool, HeckmanTool, TrinityTool, SELabTool,
   HausmanTool, FWLTool, PDSLassoTool, HteDiagTool,
 } from "./econ/V54Tools";
+import {
+  UnitRootSuiteTool, ArmaIdentTool, DifferencingTool, SetarTool,
+  BaiPerronTool, DensityEvalTool, McsTool, SVGarchTool,
+} from "./econ/V55Tools";
 import { EquationBlock } from "@/components/common/EquationBlock";
 import CategorizedToolNav, { type ToolCategory } from "@/components/common/CategorizedToolNav";
 
