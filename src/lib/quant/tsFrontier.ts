@@ -1067,10 +1067,11 @@ export function densityEvalLab(opts: {
       } else {
         const zs = z * scaleT;
         pit.push(zs >= 0 ? 1 - tTwoTail(zs, nu) / 2 : tTwoTail(-zs, nu) / 2);
+        // y = mu + s·z with z = zs/scaleT standardised ⇒ log f(y) = -log s + log scaleT + log f_t(zs)
         const c =
           Math.log(gammaFn((nu + 1) / 2)) - Math.log(gammaFn(nu / 2)) -
-          0.5 * Math.log(Math.PI * (nu - 2)) - Math.log(s);
-        ls += c - ((nu + 1) / 2) * Math.log(1 + (zs * zs) / (nu - 2) * ((nu - 2) / nu) * (nu / (nu - 2)) / 1);
+          0.5 * Math.log(nu * Math.PI) - Math.log(s) + Math.log(scaleT);
+        ls += c - ((nu + 1) / 2) * Math.log(1 + (zs * zs) / nu);
       }
       const qf = (tau: number) => mu + s * (dist === "n" ? normalQuantile(tau) : tQuantile(tau, nu) / scaleT);
       crps += crpsFromQuantiles(returns[t], qf, 19);
