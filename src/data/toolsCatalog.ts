@@ -1298,7 +1298,7 @@ export const TOOLS_CATALOG: ToolEntry[] = [
   },
   {
     id: "urootsuite", name: "单位根检验全家桶", nameEn: "Unit-Root Test Suite",
-    category: "econometrics", difficulty: "intermediate", anchor: "/s/econometrics",
+    category: "econometrics", difficulty: "advanced", anchor: "/s/econometrics",
     tags: ["单位根", "ADF", "KPSS", "DF-GLS", "Zivot-Andrews", "HEGY"],
     refs: ["Dickey & Fuller (1979)", "Phillips & Perron (1988)", "KPSS (1992)", "Zivot & Andrews (1992)", "Hylleberg et al. (1990)"],
     blurb: "同一序列上并排跑 ADF / PP / DF-GLS / KPSS / Zivot-Andrews / HEGY，读出两种原假设组合下的四种结论，包括「证据不足」。",
@@ -1306,7 +1306,7 @@ export const TOOLS_CATALOG: ToolEntry[] = [
   },
   {
     id: "armaident", name: "Wold 分解与 ARMA 识别台", nameEn: "Wold Decomposition & ARMA Identification",
-    category: "econometrics", difficulty: "intermediate", anchor: "/s/econometrics",
+    category: "econometrics", difficulty: "advanced", anchor: "/s/econometrics",
     tags: ["Wold", "ACF", "PACF", "特征根", "AIC/BIC"],
     refs: ["Wold (1938)", "Box & Jenkins (1970)", "Hannan & Rissanen (1982)"],
     blurb: "理论与样本 ACF/PACF 对照、ψ 权重冲击传播、AR/MA 特征根与单位圆，以及 AIC/BIC/HQ 阶数网格。",
@@ -1314,7 +1314,7 @@ export const TOOLS_CATALOG: ToolEntry[] = [
   },
   {
     id: "difflab", name: "差分决策实验室", nameEn: "Differencing Decision Lab",
-    category: "econometrics", difficulty: "intermediate", anchor: "/s/econometrics",
+    category: "econometrics", difficulty: "advanced", anchor: "/s/econometrics",
     tags: ["伪回归", "过度差分", "趋势平稳", "蒙特卡洛"],
     refs: ["Granger & Newbold (1974)", "Nelson & Plosser (1982)"],
     blurb: "蒙特卡洛复现伪回归的拒绝率发散，并量化过度差分带来的 −1 附近 MA 根与预测误差恶化。",
