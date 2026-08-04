@@ -67,6 +67,7 @@
       "asset-pricing": "资产定价 CAPM",
       "asset-pricing-theory": "资产定价理论导读 (V5.3)",
       "econometrics-theory": "计量经济学导读 (V5.4)",
+      "time-series-theory": "时间序列导读 (V5.5)",
       "platform": "平台增强",
       "frontier-concepts": "前沿模型",
       "trillion-dollar-equation": "长文 · 万亿美元的方程",
@@ -87,7 +88,7 @@
     },
     "latestUpdate": {
       "label": "最新更新 · {{version}}",
-      "description": "V5.4 计量经济学补全 — 新增弱工具变量诊断 (F / Cragg-Donald / Anderson-Rubin)、Heckman 样本选择、Wald/LR/LM 三大检验、标准误实验室 (聚类与 wild bootstrap 覆盖率)、固定效应 vs 随机效应 (Hausman / Mundlak)、FWL 定理与共线性几何、双重选择 LASSO、GATES/BLP 异质性诊断, 版块扩至 49 个工具, 并配《计量经济学导读》专题。",
+      "description": "V5.5 时间序列补全 — 新增单位根检验全家桶 (ADF / PP / DF-GLS / KPSS / Zivot-Andrews / HEGY)、Wold 分解与 ARMA 识别台、差分决策实验室 (伪回归与过度差分)、SETAR/LSTAR 门限模型 (Hansen 自助检验)、Bai-Perron 多重断点、密度预测评价 (PIT / CRPS / 对数得分)、Hansen 模型置信集与预测组合、随机波动率 vs GARCH (粒子滤波), 版块扩至 57 个工具, 并配《时间序列导读》专题。",
       "cta": "查看更新日志"
     }
   },
