@@ -37,7 +37,7 @@ export interface ToolEntry {
   related?: string[];
   /** true once unit tests vs a closed-form benchmark exist in src/lib/quant */
   verified?: boolean;
-  version: "V1.0" | "V2.0" | "V2.1" | "V2.2" | "V2.3" | "V2.4" | "V2.5" | "V2.6" | "V2.7" | "V2.8" | "V3.0" | "V3.1" | "V3.2" | "V3.3" | "V3.4" | "V3.5" | "V3.6" | "V3.7" | "V3.8" | "V3.9" | "V4.0" | "V4.1" | "V4.2" | "V4.3" | "V5.3" | "V5.4";
+  version: "V1.0" | "V2.0" | "V2.1" | "V2.2" | "V2.3" | "V2.4" | "V2.5" | "V2.6" | "V2.7" | "V2.8" | "V3.0" | "V3.1" | "V3.2" | "V3.3" | "V3.4" | "V3.5" | "V3.6" | "V3.7" | "V3.8" | "V3.9" | "V4.0" | "V4.1" | "V4.2" | "V4.3" | "V5.3" | "V5.4" | "V5.5";
 }
 
 export const CATEGORY_LABEL: Record<ToolCategory, { zh: string; en: string }> = {
@@ -1295,6 +1295,70 @@ export const TOOLS_CATALOG: ToolEntry[] = [
     refs: ["Chernozhukov, Demirer, Duflo & Fernandez-Val (2018)"],
     blurb: "按样本外 CATE 分位分组比较实际效应，并用 BLP 校准回归检验学习器是否真有预测力。",
     related: ["cforest", "dml"], verified: true, version: "V5.4",
+  },
+  {
+    id: "urootsuite", name: "单位根检验全家桶", nameEn: "Unit-Root Test Suite",
+    category: "econometrics", difficulty: "advanced", anchor: "/s/econometrics",
+    tags: ["单位根", "ADF", "KPSS", "DF-GLS", "Zivot-Andrews", "HEGY"],
+    refs: ["Dickey & Fuller (1979)", "Phillips & Perron (1988)", "KPSS (1992)", "Zivot & Andrews (1992)", "Hylleberg et al. (1990)"],
+    blurb: "同一序列上并排跑 ADF / PP / DF-GLS / KPSS / Zivot-Andrews / HEGY，读出两种原假设组合下的四种结论，包括「证据不足」。",
+    related: ["unitroot", "difflab", "coint"], verified: true, version: "V5.5",
+  },
+  {
+    id: "armaident", name: "Wold 分解与 ARMA 识别台", nameEn: "Wold Decomposition & ARMA Identification",
+    category: "econometrics", difficulty: "advanced", anchor: "/s/econometrics",
+    tags: ["Wold", "ACF", "PACF", "特征根", "AIC/BIC"],
+    refs: ["Wold (1938)", "Box & Jenkins (1970)", "Hannan & Rissanen (1982)"],
+    blurb: "理论与样本 ACF/PACF 对照、ψ 权重冲击传播、AR/MA 特征根与单位圆，以及 AIC/BIC/HQ 阶数网格。",
+    related: ["arima", "urootsuite", "spectral"], verified: true, version: "V5.5",
+  },
+  {
+    id: "difflab", name: "差分决策实验室", nameEn: "Differencing Decision Lab",
+    category: "econometrics", difficulty: "advanced", anchor: "/s/econometrics",
+    tags: ["伪回归", "过度差分", "趋势平稳", "蒙特卡洛"],
+    refs: ["Granger & Newbold (1974)", "Nelson & Plosser (1982)"],
+    blurb: "蒙特卡洛复现伪回归的拒绝率发散，并量化过度差分带来的 −1 附近 MA 根与预测误差恶化。",
+    related: ["urootsuite", "coint", "arima"], verified: true, version: "V5.5",
+  },
+  {
+    id: "setar", name: "门限自回归 SETAR / LSTAR", nameEn: "Threshold Autoregression — SETAR / LSTAR",
+    category: "econometrics", difficulty: "research", anchor: "/s/econometrics",
+    tags: ["非线性", "门限", "制度", "自助检验"],
+    refs: ["Tong (1983)", "Hansen (1996, 1999)", "Teräsvirta (1994)"],
+    blurb: "门限网格搜索最小化分段 SSR，Hansen 自助 supF 解决 Davies 未识别参数问题，并给出 LSTAR 平滑转换函数。",
+    related: ["regime", "baiperron", "arima"], verified: true, version: "V5.5",
+  },
+  {
+    id: "baiperron", name: "Bai-Perron 多重结构断点", nameEn: "Bai-Perron Multiple Structural Breaks",
+    category: "econometrics", difficulty: "research", anchor: "/s/econometrics",
+    tags: ["结构断点", "动态规划", "supF", "BIC/LWZ"],
+    refs: ["Bai & Perron (1998, 2003)", "Liu, Wu & Zidek (1997)"],
+    blurb: "用动态规划在 O(T²) 内同时估计断点位置与个数，配 BIC/LWZ 与序贯 supF(l+1|l) 检验。",
+    related: ["setar", "regime", "urootsuite"], verified: true, version: "V5.5",
+  },
+  {
+    id: "denseval", name: "密度预测评价", nameEn: "Density Forecast Evaluation — PIT, CRPS & Log Score",
+    category: "econometrics", difficulty: "research", anchor: "/s/econometrics",
+    tags: ["PIT", "CRPS", "对数得分", "校准", "评分规则"],
+    refs: ["Diebold, Gunther & Tay (1998)", "Gneiting & Raftery (2007)"],
+    blurb: "用 PIT 均匀性、对数得分、CRPS、pinball 与覆盖率评价正态 / t / GARCH 三种条件密度的校准质量。",
+    related: ["mcs", "garch", "dmtest"], verified: true, version: "V5.5",
+  },
+  {
+    id: "mcs", name: "模型置信集与预测组合", nameEn: "Model Confidence Set & Forecast Combination",
+    category: "econometrics", difficulty: "research", anchor: "/s/econometrics",
+    tags: ["MCS", "Diebold-Mariano", "预测组合", "多重比较"],
+    refs: ["Hansen, Lunde & Nason (2011)", "Diebold & Mariano (1995)", "Bates & Granger (1969)"],
+    blurb: "块自助序贯等价检验筛出模型置信集，并对比等权、逆 MSE 与最优权重组合——等权常常胜出。",
+    related: ["dmtest", "denseval", "expsmooth"], verified: true, version: "V5.5",
+  },
+  {
+    id: "svgarch", name: "随机波动率 vs GARCH", nameEn: "Stochastic Volatility vs GARCH — Particle Filter",
+    category: "econometrics", difficulty: "research", anchor: "/s/econometrics",
+    tags: ["随机波动率", "粒子滤波", "状态空间", "GARCH"],
+    refs: ["Taylor (1986)", "Kim, Shephard & Chib (1998)", "Gordon, Salmond & Smith (1993)"],
+    blurb: "自举粒子滤波估计对数波动潜在状态，与 GARCH(1,1) 在滤波精度与对数得分上正面对比。",
+    related: ["garch", "kalman", "harrv"], verified: true, version: "V5.5",
   },
 ];
 

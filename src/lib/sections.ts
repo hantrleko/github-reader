@@ -396,6 +396,16 @@ SECTIONS.push({
   Component: lazy(() => import("@/components/essays/EconometricsTheory")),
 });
 
+SECTIONS.push({
+  id: "time-series-theory",
+  chapter: "Reading Guide",
+  kicker: "Time Series Theory",
+  label: "时间序列导读 · 从平稳性到密度预测评价",
+  subtitle: "V5.5 · 六层结构：平稳性与预处理 → 线性表示 → 多变量动态 → 非线性与制度 → 波动率与状态空间 → 预测评价，每一块都可跳到实验室复现。",
+  group: "计量经济",
+  Component: lazy(() => import("@/components/essays/TimeSeriesTheory")),
+});
+
 export const SECTION_MAP: Record<string, SectionDef> = Object.fromEntries(
   SECTIONS.map((s) => [s.id, s])
 );
