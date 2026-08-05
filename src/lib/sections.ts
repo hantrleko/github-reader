@@ -412,7 +412,7 @@ SECTIONS.push({
   kicker: "Portfolio Theory",
   label: "投资组合导读 · 从均值—方差到稳健与动态配置",
   subtitle: "V5.6 · 六层结构：选择与几何 → 均衡定价 → 估计与稳健 → 风险与约束 → 主动与增长 → 动态与高维，每一块都可跳到实验室复现。",
-  group: "量化策略",
+  group: "量化与学习",
   Component: lazy(() => import("@/components/essays/PortfolioTheory")),
 });
 
