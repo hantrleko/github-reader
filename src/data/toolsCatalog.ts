@@ -37,7 +37,7 @@ export interface ToolEntry {
   related?: string[];
   /** true once unit tests vs a closed-form benchmark exist in src/lib/quant */
   verified?: boolean;
-  version: "V1.0" | "V2.0" | "V2.1" | "V2.2" | "V2.3" | "V2.4" | "V2.5" | "V2.6" | "V2.7" | "V2.8" | "V3.0" | "V3.1" | "V3.2" | "V3.3" | "V3.4" | "V3.5" | "V3.6" | "V3.7" | "V3.8" | "V3.9" | "V4.0" | "V4.1" | "V4.2" | "V4.3" | "V5.3" | "V5.4" | "V5.5";
+  version: "V1.0" | "V2.0" | "V2.1" | "V2.2" | "V2.3" | "V2.4" | "V2.5" | "V2.6" | "V2.7" | "V2.8" | "V3.0" | "V3.1" | "V3.2" | "V3.3" | "V3.4" | "V3.5" | "V3.6" | "V3.7" | "V3.8" | "V3.9" | "V4.0" | "V4.1" | "V4.2" | "V4.3" | "V5.3" | "V5.4" | "V5.5" | "V5.6";
 }
 
 export const CATEGORY_LABEL: Record<ToolCategory, { zh: string; en: string }> = {
@@ -1359,6 +1359,70 @@ export const TOOLS_CATALOG: ToolEntry[] = [
     refs: ["Taylor (1986)", "Kim, Shephard & Chib (1998)", "Gordon, Salmond & Smith (1993)"],
     blurb: "自举粒子滤波估计对数波动潜在状态，与 GARCH(1,1) 在滤波精度与对数得分上正面对比。",
     related: ["garch", "kalman", "harrv"], verified: true, version: "V5.5",
+  },
+  {
+    id: "frontier-geo", name: "有效前沿几何与两基金分离", nameEn: "Frontier Geometry, CAL & Two-Fund Separation",
+    category: "portfolio", difficulty: "core", anchor: "/s/quant",
+    tags: ["有效前沿", "CAL", "两基金分离", "零贝塔 CAPM"],
+    refs: ["Markowitz (1952)", "Tobin (1958)", "Merton (1972)", "Black (1972)"],
+    blurb: "解析双曲线前沿、资本配置线与切点组合，并在禁止借款时切换到零贝塔 CAPM 的 SML 读法。",
+    related: ["single-index", "est-error", "rp"], verified: true, version: "V5.6",
+  },
+  {
+    id: "single-index", name: "单指数模型降维台", nameEn: "Sharpe Single-Index Model",
+    category: "portfolio", difficulty: "core", anchor: "/s/quant",
+    tags: ["单指数", "β", "结构化协方差", "降维"],
+    refs: ["Sharpe (1963)", "Elton & Gruber (1973)"],
+    blurb: "把 N(N+1)/2 个协方差压缩为 2N+1 个参数，量化结构化估计在短样本下的样本外优势。",
+    related: ["frontier-geo", "shrinkage", "ff5"], verified: true, version: "V5.6",
+  },
+  {
+    id: "est-error", name: "估计误差与滚动优化", nameEn: "Estimation Error & the 1/N Benchmark",
+    category: "portfolio", difficulty: "advanced", anchor: "/s/quant",
+    tags: ["估计误差", "1/N", "样本外", "蒙特卡洛"],
+    refs: ["Michaud (1989)", "Chopra & Ziemba (1993)", "DeMiguel, Garlappi & Uppal (2009)"],
+    blurb: "蒙特卡洛比较插件式均值-方差、最小方差与等权的真实样本外 Sharpe，复现 1/N 强基准现象。",
+    related: ["shrinkage", "resampled", "bl-full"], verified: true, version: "V5.6",
+  },
+  {
+    id: "rebal-cost", name: "约束与再平衡成本", nameEn: "Constraints, Rebalancing & Turnover Cost",
+    category: "portfolio", difficulty: "advanced", anchor: "/s/quant",
+    tags: ["再平衡", "交易成本", "跟踪误差", "权重上限"],
+    refs: ["Perold & Sharpe (1988)", "Donohue & Yip (2003)", "Jagannathan & Ma (2003)"],
+    blurb: "日历规则与阈值带宽的成本—跟踪误差前沿，并展示权重上限如何充当隐性正则化。",
+    related: ["est-error", "backtest", "regularise"], verified: true, version: "V5.6",
+  },
+  {
+    id: "active-ir", name: "主动管理与信息比率", nameEn: "Fundamental Law & Treynor-Black",
+    category: "portfolio", difficulty: "advanced", anchor: "/s/quant",
+    tags: ["信息比率", "IC", "广度", "Treynor-Black"],
+    refs: ["Grinold (1989)", "Grinold & Kahn (1999)", "Clarke, de Silva & Thorley (2002)", "Treynor & Black (1973)"],
+    blurb: "IR ≈ TC·IC·√BR 的广度网格、最优跟踪误差与附加价值，以及 Treynor-Black 主动组合权重。",
+    related: ["ff5", "backtest", "walkforward"], verified: true, version: "V5.6",
+  },
+  {
+    id: "downside-sd", name: "下行风险与随机占优", nameEn: "Downside Risk & Stochastic Dominance",
+    category: "portfolio", difficulty: "advanced", anchor: "/s/quant",
+    tags: ["下偏矩", "Sortino", "Omega", "随机占优", "CRRA"],
+    refs: ["Markowitz (1959)", "Bawa (1975)", "Fishburn (1977)", "Keating & Shadwick (2002)"],
+    blurb: "LPM(n,τ)、Sortino/Omega 与 FSD/SSD 判据并排比较两个分布，并用 CRRA 确定性等价选出最优混合。",
+    related: ["cvar", "evt", "kelly"], verified: true, version: "V5.6",
+  },
+  {
+    id: "dynamic-alloc", name: "多期与动态配置", nameEn: "Merton Dynamic Allocation & Glide Path",
+    category: "portfolio", difficulty: "research", anchor: "/s/quant",
+    tags: ["Merton", "对冲需求", "生命周期", "路径依赖"],
+    refs: ["Merton (1969, 1971)", "Samuelson (1969)", "Campbell & Viceira (2002)", "Bodie, Merton & Samuelson (1992)"],
+    blurb: "短视需求 + 跨期对冲需求的期限结构、人力资本驱动的下滑轨道，以及再平衡 vs 买入持有的终值分布。",
+    related: ["kelly", "est-error", "rp"], verified: true, version: "V5.6",
+  },
+  {
+    id: "regularise", name: "高维正则化与最大分散化", nameEn: "Norm-Constrained Portfolios & Maximum Diversification",
+    category: "portfolio", difficulty: "research", anchor: "/s/quant",
+    tags: ["L1", "L2", "稀疏", "最大分散化", "高维"],
+    refs: ["DeMiguel, Garlappi, Nogales & Uppal (2009)", "Jagannathan & Ma (2003)", "Choueifaty & Coignard (2008)"],
+    blurb: "L1/L2 惩罚的权重路径与稀疏解，与长仓约束、最大分散化 MDP 及等权在样本外正面比较。",
+    related: ["shrinkage", "rebal-cost", "rp"], verified: true, version: "V5.6",
   },
 ];
 
