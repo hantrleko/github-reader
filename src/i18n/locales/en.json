@@ -89,7 +89,7 @@
     },
     "latestUpdate": {
       "label": "Latest Update · {{version}}",
-      "description": "V5.5 Time Series Completion — a full unit-root suite (ADF, Phillips-Perron, DF-GLS, KPSS, Zivot-Andrews, HEGY), a Wold/ARMA identification bench, a differencing lab covering spurious regression and over-differencing, SETAR/LSTAR threshold models with Hansen's bootstrap test, Bai-Perron multiple breaks, density forecast evaluation (PIT, CRPS, log score), Hansen's model confidence set with forecast combination, and stochastic volatility vs GARCH via a particle filter: 57 tools plus a structured time-series reading guide.",
+      "description": "V5.6 Portfolio Completion — frontier geometry & two-fund separation (CAL, tangency, zero-beta CAPM), Sharpe single-index reduction, estimation error vs the 1/N benchmark, constraints & rebalancing cost, the fundamental law of active management with Treynor-Black, downside risk & stochastic dominance, Merton dynamic allocation with glide paths, and high-dimensional regularisation with maximum diversification — 19 allocation tools plus a new Portfolio Theory reading guide.",
       "cta": "View Changelog"
     }
   },
