@@ -48,6 +48,7 @@ const GROUPS: Group[] = [
     { id: "econometrics", labelKey: "nav.items.econometrics" },
     { id: "econometrics-theory", labelKey: "nav.items.econometrics-theory" },
     { id: "time-series-theory", labelKey: "nav.items.time-series-theory" },
+    { id: "portfolio-theory", labelKey: "nav.items.portfolio-theory" },
     { id: "risk", labelKey: "nav.items.risk" },
   ]},
   { labelKey: "nav.groups.data", items: [

@@ -68,6 +68,7 @@
       "asset-pricing-theory": "资产定价理论导读 (V5.3)",
       "econometrics-theory": "计量经济学导读 (V5.4)",
       "time-series-theory": "时间序列导读 (V5.5)",
+      "portfolio-theory": "投资组合导读 (V5.6)",
       "platform": "平台增强",
       "frontier-concepts": "前沿模型",
       "trillion-dollar-equation": "长文 · 万亿美元的方程",
@@ -88,7 +89,7 @@
     },
     "latestUpdate": {
       "label": "最新更新 · {{version}}",
-      "description": "V5.5 时间序列补全 — 新增单位根检验全家桶 (ADF / PP / DF-GLS / KPSS / Zivot-Andrews / HEGY)、Wold 分解与 ARMA 识别台、差分决策实验室 (伪回归与过度差分)、SETAR/LSTAR 门限模型 (Hansen 自助检验)、Bai-Perron 多重断点、密度预测评价 (PIT / CRPS / 对数得分)、Hansen 模型置信集与预测组合、随机波动率 vs GARCH (粒子滤波), 版块扩至 57 个工具, 并配《时间序列导读》专题。",
+      "description": "V5.6 投资组合补全 — 新增有效前沿几何与两基金分离 (CAL / 切点 / 零贝塔 CAPM)、Sharpe 单指数降维台、估计误差与 1/N 强基准实验室、约束与再平衡成本 (日历 vs 阈值)、主动管理基本法则与 Treynor-Black、下行风险与随机占优 (LPM / Sortino / Omega / FSD-SSD)、Merton 多期动态配置与生命周期轨道、高维正则化与最大分散化 MDP, 资产配置版块扩至 19 个工具, 并配《投资组合导读》专题。",
       "cta": "查看更新日志"
     }
   },

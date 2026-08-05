@@ -14,10 +14,16 @@ import {
   BlackLittermanFullTool, MeanCVaRTool, ShrinkageTool,
   ResampledFrontierTool, FactorBudgetTool, KellyRuinTool,
 } from "./quant/V41PortfolioTools";
+import {
+  FrontierGeometryTool, SingleIndexTool, EstimationErrorTool, RebalanceCostTool,
+  ActiveManagementTool, DownsideDominanceTool, DynamicAllocationTool, RegularizationTool,
+} from "./quant/V56PortfolioTools";
 
 type ToolId =
   | "backtest" | "walkforward" | "bl" | "rp" | "ff5"
-  | "bl-full" | "cvar" | "shrinkage" | "resampled" | "factor-budget" | "kelly";
+  | "bl-full" | "cvar" | "shrinkage" | "resampled" | "factor-budget" | "kelly"
+  | "frontier-geo" | "single-index" | "est-error" | "rebal-cost"
+  | "active-ir" | "downside-sd" | "dynamic-alloc" | "regularise";
 
 const TOOLS: { id: ToolId; name: string; nameEn: string; formula: string; component: React.FC }[] = [
   {
@@ -75,12 +81,54 @@ const TOOLS: { id: ToolId; name: string; nameEn: string; formula: string; compon
     formula: String.raw`k^{*} = \Sigma^{-1}(\mu-r_f),\quad g(f) = f\,(\mu_p - r_f) + r_f - \tfrac{1}{2}f^{2}\sigma_p^{2},\quad \Pr\!\bigl(\min_t W_t < \theta\bigr)`,
     component: KellyRuinTool,
   },
+  {
+    id: "frontier-geo", name: "有效前沿几何与两基金分离", nameEn: "Frontier Geometry, CAL & Two-Fund Separation (Zero-Beta CAPM)",
+    formula: String.raw`\sigma_p^{2}(m) = \dfrac{A m^{2} - 2Bm + C}{D},\quad A=\mathbf 1^{\!\top}\Sigma^{-1}\mathbf 1,\; B=\mathbf 1^{\!\top}\Sigma^{-1}\mu,\; C=\mu^{\!\top}\Sigma^{-1}\mu,\; D=AC-B^{2}`,
+    component: FrontierGeometryTool,
+  },
+  {
+    id: "single-index", name: "单指数模型降维台", nameEn: "Sharpe Single-Index Model — Structured Covariance",
+    formula: String.raw`r_i = \alpha_i + \beta_i r_m + \varepsilon_i,\qquad \sigma_{ij} = \beta_i\beta_j\sigma_m^{2} + \delta_{ij}\sigma_{\varepsilon_i}^{2},\qquad \tfrac{N(N+1)}{2}\ \longrightarrow\ 2N+1`,
+    component: SingleIndexTool,
+  },
+  {
+    id: "est-error", name: "估计误差与滚动优化", nameEn: "Estimation Error & the 1/N Benchmark — DeMiguel et al. (2009)",
+    formula: String.raw`\hat w = f(\hat\mu, \hat\Sigma),\qquad \mathbb E\bigl[\mathrm{SR}(\hat w)\bigr] < \mathrm{SR}(w^{*}),\qquad \mathrm{SE}(\hat\mu)=\sigma/\sqrt{T}`,
+    component: EstimationErrorTool,
+  },
+  {
+    id: "rebal-cost", name: "约束与再平衡成本", nameEn: "Constraints, Rebalancing Rules & Turnover Cost",
+    formula: String.raw`\text{Cost} = c\sum_i |w_i^{\text{new}} - w_i^{\text{old}}|,\qquad \text{触发条件: } \tfrac12\!\sum_i |w_{i,t}-w_i^{\ast}| > b,\qquad \mathrm{TE}=\sigma(r_p - r_b)`,
+    component: RebalanceCostTool,
+  },
+  {
+    id: "active-ir", name: "主动管理与信息比率", nameEn: "Fundamental Law of Active Management & Treynor-Black",
+    formula: String.raw`\mathrm{IR} \approx \mathrm{TC}\cdot \mathrm{IC}\sqrt{\mathrm{BR}},\qquad \mathrm{VA}^{*} = \dfrac{\mathrm{IR}^{2}}{4\lambda},\qquad w_i^{A} \propto \dfrac{\alpha_i}{\sigma^{2}(\varepsilon_i)},\qquad S_P^{2}=S_M^{2}+\Bigl(\tfrac{\alpha_A}{\sigma_A}\Bigr)^{2}`,
+    component: ActiveManagementTool,
+  },
+  {
+    id: "downside-sd", name: "下行风险与随机占优", nameEn: "Downside Risk, Stochastic Dominance & CRRA Utility",
+    formula: String.raw`\mathrm{LPM}_n(\tau) = \mathbb E\bigl[(\tau - r)^{+n}\bigr],\quad \text{SSD: } \int_{-\infty}^{x}\!\!F_A \le \int_{-\infty}^{x}\!\!F_B\ \forall x,\quad \mathrm{CE} = U^{-1}\bigl(\mathbb E[U(W)]\bigr)`,
+    component: DownsideDominanceTool,
+  },
+  {
+    id: "dynamic-alloc", name: "多期与动态配置", nameEn: "Merton Dynamic Allocation, Hedging Demand & Glide Path",
+    formula: String.raw`w^{*} = \underbrace{\dfrac{\mu-r}{\gamma\sigma^{2}}}_{\text{短视需求}} + \underbrace{\Bigl(1-\tfrac1\gamma\Bigr)\dfrac{-\rho\,\sigma_x}{\sigma}\,h(\phi,T)}_{\text{跨期对冲需求}}`,
+    component: DynamicAllocationTool,
+  },
+  {
+    id: "regularise", name: "高维正则化与最大分散化", nameEn: "Norm-Constrained Portfolios & Maximum Diversification",
+    formula: String.raw`\min_w\ w^{\!\top}\Sigma w + \lambda_1\|w\|_1 + \lambda_2\|w\|_2^{2}\ \ \text{s.t.}\ \mathbf 1^{\!\top}w=1,\qquad \mathrm{DR}(w)=\dfrac{\sum_i w_i\sigma_i}{\sqrt{w^{\!\top}\Sigma w}}`,
+    component: RegularizationTool,
+  },
 ];
 
 const CATEGORIES: ToolCategory[] = [
-  { id: "classic", label: "经典与稳健", toolIds: ["backtest", "walkforward", "shrinkage", "resampled"] },
+  { id: "classic", label: "经典与均衡", toolIds: ["frontier-geo", "single-index", "backtest", "walkforward"] },
+  { id: "estimation", label: "估计与执行", toolIds: ["est-error", "shrinkage", "resampled", "rebal-cost"] },
   { id: "bayes", label: "贝叶斯与因子", toolIds: ["bl", "bl-full", "ff5", "factor-budget"] },
-  { id: "downside", label: "下行与增长", toolIds: ["rp", "cvar", "kelly"] },
+  { id: "downside", label: "主动与下行", toolIds: ["active-ir", "downside-sd", "rp", "cvar"] },
+  { id: "dynamic", label: "动态与高维", toolIds: ["dynamic-alloc", "regularise", "kelly"] },
 ];
 
 const QuantStrategyTools = () => {

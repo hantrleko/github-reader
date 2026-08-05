@@ -4,9 +4,48 @@ import { useTranslation } from "react-i18next";
 
 const RELEASES = [
   {
-    version: "V5.5",
+    version: "V5.6",
     date: "2026-08",
     tag: "Current",
+    highlights: [
+      {
+        icon: Target,
+        title: "投资组合补全 — /s/quant (11 → 19 个工具)",
+        items: [
+          "有效前沿几何与两基金分离: 解析双曲线 σ²(m)=(Am²−2Bm+C)/D、资本配置线与切点组合、杠杆上限截断后的零贝塔 CAPM (Black 1972) 与 SML 读法, 并可叠加长仓约束前沿",
+          "Sharpe 单指数降维台: β 与残差方差估计、N(N+1)/2 → 2N+1 的参数压缩, 以及结构化协方差在 T<5N 时的样本外波动优势",
+          "估计误差与滚动优化: 蒙特卡洛比较插件式均值-方差 / 最小方差 / 等权的真实样本外 Sharpe, 复现 DeMiguel 等 (2009) 的 1/N 强基准与「误差最大化器」现象",
+          "约束与再平衡成本: 买入持有 / 日历 (月-季-年) / 阈值带三类规则的换手、成本、跟踪误差与净 CAGR 对照, 阈值带宽的成本—TE 前沿, 以及权重上限对最小方差解的隐性正则化效应",
+          "主动管理与信息比率: Grinold 基本法则 IR ≈ TC·IC·√BR 的广度网格、最优跟踪误差 IR/(2λ) 与附加价值 IR²/(4λ), 配 Treynor-Black 主动组合 (评价比率与 Sharpe² 可加性)",
+          "下行风险与随机占优: 半方差、LPM(1/2/3)、Sortino、Omega、Kappa₃、VaR/CVaR 与偏度峰度对照, 一阶/二阶随机占优判据, 以及 CRRA 确定性等价 vs 均值-方差近似的最优混合",
+          "多期与动态配置: Merton 短视需求 (μ−r)/γσ² 与跨期对冲需求的期限结构、人力资本驱动的生命周期下滑轨道、年度再平衡 vs 买入持有的终值分位数分布",
+          "高维正则化与最大分散化: L1/L2 范数约束的权重路径与稀疏解、长仓约束、最大分散化 MDP (相关矩阵最小方差再按波动率还原) 与等权的样本外六方对照",
+        ],
+      },
+      {
+        icon: FileText,
+        title: "理论导读专题 — /s/portfolio-theory",
+        items: [
+          "十节结构: 配置问题 → 经典 MPT → 均衡定价 → 风险约束与执行 → 主动管理 → 扩展与多期 → 稳健前沿 → 1952–2020s 时间轴 → 九条最低报告清单",
+          "六种风险度量的适用与边界对照表 (方差 / 半方差-LPM / VaR / CVaR / 最大回撤 / 跟踪误差)",
+          "每个知识块配「到实验室复现」入口, 与资产配置版块 19 个工具一一对应",
+        ],
+      },
+      {
+        icon: BookOpen,
+        title: "工程",
+        items: [
+          "新增 src/lib/quant/portfolioFrontier.ts 纯函数计算层 (解析前沿 / 零贝塔 / 单指数 / 估计误差 MC / 阈值再平衡引擎 / 带上限单纯形投影 / 基本法则与 Treynor-Black / LPM 与 FSD-SSD / Merton 动态解 / 近端梯度 L1-L2 / MDP), 配 30 项单元测试全绿",
+          "新增 src/components/quant/V56PortfolioTools.tsx 八个交互实验组件, 资产配置版块两级导航重排为「经典与均衡 / 估计与执行 / 贝叶斯与因子 / 主动与下行 / 动态与高维」",
+          "工具目录同步登记 8 个新条目, 版本统一至 V5.6",
+        ],
+      },
+    ],
+  },
+  {
+    version: "V5.5",
+    date: "2026-08",
+    tag: "",
     highlights: [
       {
         icon: Activity,
