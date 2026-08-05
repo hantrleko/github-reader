@@ -810,26 +810,19 @@ export function diversificationRatio(w: number[], cov: number[][]): number {
   return den > 1e-12 ? num / den : 1;
 }
 
-/** Long-only maximum-diversification portfolio via projected gradient ascent on log DR. */
-export function maxDiversification(cov: number[][], iters = 2000): number[] {
+/**
+ * Long-only maximum-diversification portfolio (Choueifaty-Coignard 2008).
+ * Maximising (Σwᵢσᵢ)/σ_p is equivalent to solving the long-only minimum-variance
+ * problem on the *correlation* matrix and then de-scaling by each volatility.
+ */
+export function maxDiversification(cov: number[][]): number[] {
   const n = cov.length;
-  const s = cov.map((row, i) => Math.sqrt(Math.max(row[i], 0)));
-  let w = new Array(n).fill(1 / n);
-  const lmax = Math.max(...cov.map((r, i) => Math.abs(r[i]))) || 1;
-  const step = 0.5 / (lmax + 1e-9);
-  for (let it = 0; it < iters; it++) {
-    const num = w.reduce((a, x, i) => a + x * s[i], 0);
-    const varp = Math.max(portVariance(w, cov), 1e-16);
-    const Sw = matVec(cov, w);
-    // ∇ log DR = σ/num − Σw/var
-    const grad = s.map((si, i) => si / Math.max(num, 1e-12) - Sw[i] / varp);
-    const nw = projectSimplex(w.map((x, i) => x + step * grad[i]));
-    let diff = 0;
-    for (let i = 0; i < n; i++) diff += Math.abs(nw[i] - w[i]);
-    w = nw;
-    if (diff < 1e-13) break;
-  }
-  return w;
+  const s = cov.map((row, i) => Math.sqrt(Math.max(row[i], 1e-16)));
+  const corr = cov.map((row, i) => row.map((c, j) => c / (s[i] * s[j])));
+  const y = minVarLongOnly(corr, 4000);
+  const raw = y.map((x, i) => x / s[i]);
+  const tot = raw.reduce((a, b) => a + b, 0);
+  return tot > 0 ? raw.map((x) => x / tot) : new Array(n).fill(1 / n);
 }
 
 /**
