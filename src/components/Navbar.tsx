@@ -269,7 +269,7 @@ const Navbar = () => {
         </button>
 
         {/* Desktop grouped */}
-        <ul className="hidden xl:flex flex-nowrap items-center gap-0 2xl:gap-0.5 min-w-0 flex-1 justify-center" role="menubar">
+        <ul className="hidden xl:flex flex-nowrap items-center gap-0 2xl:gap-0.5 min-w-0" role="menubar">
           {GROUPS.map((g, gIdx) => {
             const groupActive = isGroupActive(g);
             const open = openGroup === g.labelKey;
