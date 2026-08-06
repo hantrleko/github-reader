@@ -17,7 +17,7 @@ import SiteFooter from "@/components/SiteFooter";
 import SectionHeader from "@/components/common/SectionHeader";
 import Reveal from "@/components/common/Reveal";
 import SplashIntro from "@/components/SplashIntro";
-import { SECTIONS, type SectionDef } from "@/lib/sections";
+import { sectionsByGroup } from "@/lib/sections";
 import { HOME_SEO } from "@/lib/seoCopy";
 
 const editorialPillars = [
@@ -81,10 +81,7 @@ const EditorialBriefing = () => (
 /** Directory of all section pages, grouped, each linking to its own route. */
 const SectionDirectory = () => {
   const reduce = useReducedMotion();
-  const groups = SECTIONS.reduce<Record<string, SectionDef[]>>((acc, s) => {
-    (acc[s.group] = acc[s.group] || []).push(s);
-    return acc;
-  }, {});
+  const groups = sectionsByGroup();
 
   return (
     <section id="directory" className="scroll-mt-16 px-6 pb-16">
@@ -95,10 +92,10 @@ const SectionDirectory = () => {
         subtitle="每个板块都是独立工作区——选择一个主题，进入其专属实验环境。"
       />
       <div className="container max-w-6xl mt-4 space-y-8">
-        {Object.entries(groups).map(([group, items]) => (
-          <div key={group}>
+        {groups.map(({ group, sections: items }) => (
+          <div key={group.id}>
             <p className="text-[10px] font-mono uppercase tracking-[0.2em] text-gold/80 mb-3">
-              {group}
+              {group.code} / {group.label} · {group.kicker}
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
               {items.map((s, i) => (
