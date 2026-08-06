@@ -294,7 +294,7 @@ const Navbar = () => {
                       : "text-muted-foreground hover:text-foreground hover:bg-accent"
                   )}
                 >
-                  {t(g.labelKey, `${g.code} ${g.label}`)}
+                  {t(g.labelKey, g.label)}
                   {groupActive && (
                     <span className="w-1 h-1 rounded-full bg-gold" aria-hidden />
                   )}
@@ -307,7 +307,7 @@ const Navbar = () => {
                   <ul
                     id={menuId}
                     role="menu"
-                    aria-label={t(g.labelKey, `${g.code} ${g.label}`)}
+                    aria-label={t(g.labelKey, g.label)}
                     className="absolute right-0 top-full mt-1 min-w-[220px] rounded-md border border-border/70 bg-popover/95 backdrop-blur-lg shadow-lg overflow-hidden py-1"
                   >
                     {g.items.map((i, idx) => {
@@ -428,7 +428,7 @@ const Navbar = () => {
             {GROUPS.map((g) => (
               <div key={g.labelKey}>
                 <p className="text-[10px] font-mono text-gold/80 tracking-wider uppercase mb-1.5 px-1">
-                  {t(g.labelKey, `${g.code} ${g.label}`)}
+                  {t(g.labelKey, g.label)}
                 </p>
                 <div className="grid grid-cols-2 gap-1">
                   {g.items.map((i) => {
