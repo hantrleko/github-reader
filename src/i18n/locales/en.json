@@ -25,7 +25,15 @@
       "econ": "Econ & Risk",
       "quant": "Quant",
       "data": "Data",
-      "theory": "Economics"
+      "theory": "Economics",
+      "overview": "Overview",
+      "foundations": "Foundations",
+      "pricing": "Pricing",
+      "fixed-income": "Fixed Income",
+      "asset-portfolio": "Asset & Portfolio",
+      "econometrics": "Econometrics",
+      "risk": "Risk",
+      "frontier": "Frontier"
     },
     "items": {
       "hero": "Home",

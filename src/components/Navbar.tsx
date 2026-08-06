@@ -9,74 +9,27 @@ import LanguageToggle from "./LanguageToggle";
 import UserMenu from "./UserMenu";
 import TopTicker from "./TopTicker";
 import { useTranslation } from "react-i18next";
-import { sectionHref } from "@/lib/sections";
+import { sectionHref, NAV_GROUPS, SECTION_MAP, HOME_IDS } from "@/lib/sections";
 import { VersionBadge } from "./VersionBadge";
 
-type Item = { id: string; labelKey: string };
-type Group = { labelKey: string; items: Item[] };
+type Item = { id: string; labelKey: string; fallback: string };
+type Group = { labelKey: string; code: string; label: string; kicker: string; items: Item[] };
 
-const GROUPS: Group[] = [
-  { labelKey: "nav.groups.guide", items: [
-    { id: "hero", labelKey: "nav.items.hero" },
-    { id: "topics", labelKey: "nav.items.topics" },
-    { id: "models", labelKey: "nav.items.models" },
-  ]},
-  { labelKey: "nav.groups.theory", items: [
-    { id: "micro", labelKey: "nav.items.micro" },
-    { id: "macro", labelKey: "nav.items.macro" },
-    { id: "macro-lab", labelKey: "nav.items.macro-lab" },
-    { id: "behavior-microstructure", labelKey: "nav.items.behavior-microstructure" },
-    { id: "visualization-guide", labelKey: "nav.items.visualization-guide" },
-  ]},
-  { labelKey: "nav.groups.basics", items: [
-    { id: "calculator", labelKey: "nav.items.calculator" },
-    { id: "implied-vol", labelKey: "nav.items.implied-vol" },
-    { id: "mc-pricer", labelKey: "nav.items.mc-pricer" },
-  ]},
-  { labelKey: "nav.groups.deriv", items: [
-    { id: "derivatives", labelKey: "nav.items.derivatives" },
-  ]},
-  { labelKey: "nav.groups.fixed", items: [
-    { id: "bond", labelKey: "nav.items.bond" },
-    { id: "rate-model", labelKey: "nav.items.rate-model" },
-    { id: "fixed-income-lab", labelKey: "nav.items.fixed-income-lab" },
-    { id: "frontier", labelKey: "nav.items.frontier" },
-    { id: "asset-pricing", labelKey: "nav.items.asset-pricing" },
-    { id: "asset-pricing-theory", labelKey: "nav.items.asset-pricing-theory" },
-  ]},
-  { labelKey: "nav.groups.econ", items: [
-    { id: "econometrics", labelKey: "nav.items.econometrics" },
-    { id: "econometrics-theory", labelKey: "nav.items.econometrics-theory" },
-    { id: "time-series-theory", labelKey: "nav.items.time-series-theory" },
-    { id: "portfolio-theory", labelKey: "nav.items.portfolio-theory" },
-    { id: "risk", labelKey: "nav.items.risk" },
-  ]},
-  { labelKey: "nav.groups.data", items: [
-    { id: "us-suite", labelKey: "nav.items.us-suite" },
-    { id: "ashare-suite", labelKey: "nav.items.ashare-suite" },
-    { id: "fred", labelKey: "nav.items.fred" },
-    { id: "worldbank", labelKey: "nav.items.worldbank" },
-    { id: "ecb-bis", labelKey: "nav.items.ecb-bis" },
-    { id: "coingecko", labelKey: "nav.items.coingecko" },
-    { id: "alphavantage", labelKey: "nav.items.alphavantage" },
-    { id: "cboe-sentiment", labelKey: "nav.items.cboe-sentiment" },
-    { id: "econ-calendar", labelKey: "nav.items.econ-calendar" },
-    { id: "etf-lookup", labelKey: "nav.items.etf-lookup" },
-    { id: "sector-heatmap", labelKey: "nav.items.sector-heatmap" },
-    { id: "market-cap", labelKey: "nav.items.market-cap" },
-    { id: "quiver-signals", labelKey: "nav.items.quiver-signals" },
-    { id: "external-workbench", labelKey: "nav.items.external-workbench" },
-  ]},
-  { labelKey: "nav.groups.quant", items: [
-    { id: "quant", labelKey: "nav.items.quant" },
-    { id: "platform", labelKey: "nav.items.platform" },
-    { id: "frontier-concepts", labelKey: "nav.items.frontier-concepts" },
-    { id: "trillion-dollar-equation", labelKey: "nav.items.trillion-dollar-equation" },
-    { id: "ai-quant-strategy", labelKey: "nav.items.ai-quant-strategy" },
-    { id: "quiz", labelKey: "nav.items.quiz" },
-    { id: "learning", labelKey: "nav.items.learning" },
-  ]},
-];
+/** Derived from the single IA source in `sections.ts` so the navbar,
+ *  the homepage domain strip and the section directory stay identical. */
+const GROUPS: Group[] = NAV_GROUPS.map((g) => ({
+  labelKey: `nav.groups.${g.id}`,
+  code: g.code,
+  label: g.label,
+  kicker: g.kicker,
+  items: g.items
+    .filter((id) => SECTION_MAP[id] || HOME_IDS.includes(id))
+    .map((id) => ({
+      id,
+      labelKey: `nav.items.${id}`,
+      fallback: SECTION_MAP[id]?.label ?? id,
+    })),
+}));
 
 /** Standalone page links (their own routes) — consolidated into a "More" menu */
 type PageLink = { to: string; label: string; match: (path: string, search: string) => boolean };
@@ -316,7 +269,7 @@ const Navbar = () => {
         </button>
 
         {/* Desktop grouped */}
-        <ul className="hidden xl:flex flex-nowrap items-center gap-0.5 min-w-0" role="menubar">
+        <ul className="hidden xl:flex flex-nowrap items-center gap-0 2xl:gap-0.5 min-w-0" role="menubar">
           {GROUPS.map((g, gIdx) => {
             const groupActive = isGroupActive(g);
             const open = openGroup === g.labelKey;
@@ -335,13 +288,13 @@ const Navbar = () => {
                   aria-expanded={open}
                   aria-controls={menuId}
                   className={cn(
-                    "px-2 py-1 rounded-md text-[11px] font-mono whitespace-nowrap shrink-0 transition-colors flex items-center gap-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/60",
+                    "px-1.5 py-1 rounded-md text-[10px] font-mono whitespace-nowrap shrink-0 transition-colors flex items-center gap-0.5 2xl:gap-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/60",
                     groupActive
                       ? "text-gold font-semibold"
                       : "text-muted-foreground hover:text-foreground hover:bg-accent"
                   )}
                 >
-                  {t(g.labelKey)}
+                  {t(g.labelKey, g.label)}
                   {groupActive && (
                     <span className="w-1 h-1 rounded-full bg-gold" aria-hidden />
                   )}
@@ -354,7 +307,7 @@ const Navbar = () => {
                   <ul
                     id={menuId}
                     role="menu"
-                    aria-label={t(g.labelKey)}
+                    aria-label={t(g.labelKey, g.label)}
                     className="absolute right-0 top-full mt-1 min-w-[220px] rounded-md border border-border/70 bg-popover/95 backdrop-blur-lg shadow-lg overflow-hidden py-1"
                   >
                     {g.items.map((i, idx) => {
@@ -374,7 +327,7 @@ const Navbar = () => {
                                 : "text-muted-foreground hover:text-foreground hover:bg-accent"
                             )}
                           >
-                            <span>{t(i.labelKey)}</span>
+                            <span>{t(i.labelKey, i.fallback)}</span>
                             {isActive && (
                               <span
                                 className="w-1.5 h-1.5 rounded-full bg-gold shrink-0"
@@ -475,7 +428,7 @@ const Navbar = () => {
             {GROUPS.map((g) => (
               <div key={g.labelKey}>
                 <p className="text-[10px] font-mono text-gold/80 tracking-wider uppercase mb-1.5 px-1">
-                  {t(g.labelKey)}
+                  {t(g.labelKey, g.label)}
                 </p>
                 <div className="grid grid-cols-2 gap-1">
                   {g.items.map((i) => {
@@ -492,7 +445,7 @@ const Navbar = () => {
                             : "text-muted-foreground hover:text-foreground hover:bg-accent"
                         )}
                       >
-                        {t(i.labelKey)}
+                        {t(i.labelKey, i.fallback)}
                       </button>
                     );
                   })}

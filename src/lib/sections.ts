@@ -420,6 +420,158 @@ export const SECTION_MAP: Record<string, SectionDef> = Object.fromEntries(
   SECTIONS.map((s) => [s.id, s])
 );
 
+/* ───────────────────────────────────────────────────────────────
+   Unified information architecture — single source of truth for
+   the navbar, the homepage domain strip and the section directory.
+   ─────────────────────────────────────────────────────────────── */
+
+export type NavGroup = {
+  /** stable id, also used as i18n key suffix */
+  id: string;
+  /** display order code, e.g. "01" */
+  code: string;
+  /** Chinese display name */
+  label: string;
+  /** English kicker */
+  kicker: string;
+  /** one-line description shown in the homepage strip */
+  desc: string;
+  /** ordered member ids (home ids or section ids) */
+  items: string[];
+};
+
+export const NAV_GROUPS: NavGroup[] = [
+  {
+    id: "overview",
+    code: "01",
+    label: "导览",
+    kicker: "Overview",
+    desc: "主题图谱 · 模型速览 · 学习路径",
+    items: ["hero", "topics", "models", "learning", "quiz"],
+  },
+  {
+    id: "foundations",
+    code: "02",
+    label: "基础",
+    kicker: "Foundations",
+    desc: "微观 · 宏观 · 宏观高阶实验室",
+    items: ["micro", "macro", "macro-lab"],
+  },
+  {
+    id: "pricing",
+    code: "03",
+    label: "定价",
+    kicker: "Pricing",
+    desc: "Black-Scholes · IV · 蒙特卡洛 · 曲面",
+    items: ["calculator", "implied-vol", "mc-pricer", "derivatives"],
+  },
+  {
+    id: "fixed-income",
+    code: "04",
+    label: "固收",
+    kicker: "Fixed Income",
+    desc: "债券 · 短率模型 · 信用与曲线",
+    items: ["bond", "rate-model", "fixed-income-lab"],
+  },
+  {
+    id: "asset-portfolio",
+    code: "05",
+    label: "资产定价与组合",
+    kicker: "Asset Pricing & Portfolio",
+    desc: "CAPM · 有效前沿 · 量化策略 · 导读",
+    items: [
+      "asset-pricing",
+      "frontier",
+      "quant",
+      "backtest",
+      "calibration",
+      "asset-pricing-theory",
+      "portfolio-theory",
+    ],
+  },
+  {
+    id: "econometrics",
+    code: "06",
+    label: "计量与时序",
+    kicker: "Econometrics & Time Series",
+    desc: "OLS · 面板 · 时间序列 · 行为与微观结构",
+    items: [
+      "econometrics",
+      "econometrics-theory",
+      "time-series-theory",
+      "behavior-microstructure",
+    ],
+  },
+  {
+    id: "risk",
+    code: "07",
+    label: "风险",
+    kicker: "Risk",
+    desc: "VaR / ES · 信用 · Copula · 压力测试",
+    items: ["risk"],
+  },
+  {
+    id: "data",
+    code: "08",
+    label: "数据",
+    kicker: "Data",
+    desc: "美股 / A 股 · 宏观 · 情绪 · 外部工作台",
+    items: [
+      "us-suite",
+      "ashare-suite",
+      "fred",
+      "worldbank",
+      "ecb-bis",
+      "coingecko",
+      "alphavantage",
+      "cboe-sentiment",
+      "econ-calendar",
+      "etf-lookup",
+      "sector-heatmap",
+      "market-cap",
+      "quiver-signals",
+      "external-workbench",
+    ],
+  },
+  {
+    id: "frontier",
+    code: "09",
+    label: "前沿",
+    kicker: "Frontier",
+    desc: "长文精读 · 新兴范式 · 平台与可视化",
+    items: [
+      "trillion-dollar-equation",
+      "ai-quant-strategy",
+      "frontier-concepts",
+      "visualization-guide",
+      "platform",
+    ],
+  },
+];
+
+/** Re-label every section with its unified domain so all surfaces agree. */
+for (const g of NAV_GROUPS) {
+  for (const id of g.items) {
+    const s = SECTION_MAP[id];
+    if (s) s.group = `${g.code} ${g.label} · ${g.kicker}`;
+  }
+}
+
+/** Ordered [group, sections] pairs — sections only (home ids excluded). */
+export const sectionsByGroup = (): { group: NavGroup; sections: SectionDef[] }[] =>
+  NAV_GROUPS.map((group) => ({
+    group,
+    sections: group.items
+      .map((id) => SECTION_MAP[id])
+      .filter((s): s is SectionDef => Boolean(s)),
+  })).filter((entry) => entry.sections.length > 0);
+
+/** Route a domain card should link to (its first real section, else home). */
+export const groupEntryHref = (g: NavGroup): string => {
+  const first = g.items.find((id) => SECTION_MAP[id]);
+  return first ? `/s/${first}` : "/";
+};
+
 export const isSectionId = (id: string): boolean =>
   Object.prototype.hasOwnProperty.call(SECTION_MAP, id);
 

@@ -24,8 +24,16 @@
       "fixed": "固收组合",
       "econ": "计量风险",
       "quant": "量化前沿",
-      "data": "数据源",
-      "theory": "经济学"
+      "data": "数据",
+      "theory": "经济学",
+      "overview": "导览",
+      "foundations": "基础",
+      "pricing": "定价",
+      "fixed-income": "固收",
+      "asset-portfolio": "资产与组合",
+      "econometrics": "计量与时序",
+      "risk": "风险",
+      "frontier": "前沿"
     },
     "items": {
       "hero": "首页",
