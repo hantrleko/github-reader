@@ -288,7 +288,7 @@ const Navbar = () => {
                   aria-expanded={open}
                   aria-controls={menuId}
                   className={cn(
-                    "px-1.5 2xl:px-2 py-1 rounded-md text-[10px] 2xl:text-[11px] font-mono whitespace-nowrap shrink-0 transition-colors flex items-center gap-0.5 2xl:gap-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/60",
+                    "px-1.5 py-1 rounded-md text-[10px] font-mono whitespace-nowrap shrink-0 transition-colors flex items-center gap-0.5 2xl:gap-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/60",
                     groupActive
                       ? "text-gold font-semibold"
                       : "text-muted-foreground hover:text-foreground hover:bg-accent"
