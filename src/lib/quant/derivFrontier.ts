@@ -479,7 +479,8 @@ export function hestonCF(u: Cx, o: HestonParams & { S: number; r: number; q?: nu
   const { v0, kappa, theta, xi, rho, S, r, q = 0, T } = o;
   const iu: Cx = { re: -u.im, im: u.re };
   const a = cSub({ re: kappa, im: 0 }, cMul({ re: rho * xi, im: 0 }, iu));
-  const d = cSqrt(cAdd(cMul(a, a), cMul({ re: xi * xi, im: 0 }, cAdd(cMul(iu, iu) as Cx, iu))));
+  // ξ²(u² + iu) with u complex: u² = −(iu)²
+  const d = cSqrt(cAdd(cMul(a, a), cMul({ re: xi * xi, im: 0 }, cSub(iu, cMul(iu, iu)))));
   const g = cDiv(cSub(a, d), cAdd(a, d));
   const edT = cExp(cMul({ re: -T, im: 0 }, d));
   const one: Cx = { re: 1, im: 0 };
@@ -624,8 +625,7 @@ export function rBergomiSmile(o: {
       for (let k = 0; k <= i; k++) W += L[i][k] * zv[k];
       const t = times[i];
       const v = xi * Math.exp(eta * W - 0.5 * eta * eta * Math.pow(t, 2 * H));
-      const dW1 = Math.sqrt(dt) * (i === 0 ? zv[0] : (zv[i] - zv[i - 1]) / Math.SQRT2 + zv[i] / Math.SQRT2);
-      const dB = rho * dW1 + Math.sqrt(1 - rho * rho) * Math.sqrt(dt) * zs[i];
+      const dB = Math.sqrt(dt) * (rho * zv[i] + Math.sqrt(1 - rho * rho) * zs[i]);
       logS += (r - 0.5 * v) * dt + Math.sqrt(Math.max(v, 0)) * dB;
       rv += v * dt;
     }

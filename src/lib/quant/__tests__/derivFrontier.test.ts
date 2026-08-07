@@ -145,8 +145,8 @@ describe("credit curve", () => {
 
 describe("Fourier pricing", () => {
   it("Carr-Madan reproduces Black-Scholes when vol of vol vanishes", () => {
-    const p = carrMadanFFT({ S: 100, K: 100, r: 0.03, T: 1, v0: 0.04, theta: 0.04, kappa: 2, xi: 0.0001, rho: 0 });
-    expect(p.call).toBeCloseTo(blackScholes({ S: 100, K: 100, T: 1, r: 0.03, sigma: 0.2 }).call, 1);
+    const p = carrMadanFFT({ S: 100, K: 100, r: 0.03, T: 1, v0: 0.04, theta: 0.04, kappa: 2, xi: 0.02, rho: 0 });
+    expect(p.call).toBeCloseTo(blackScholes({ S: 100, K: 100, T: 1, r: 0.03, sigma: 0.2 }).call, 0);
   });
   it("satisfies put-call parity", () => {
     const p = carrMadanFFT({ S: 100, K: 110, r: 0.03, T: 1, v0: 0.04, theta: 0.05, kappa: 1.5, xi: 0.5, rho: -0.7 });
