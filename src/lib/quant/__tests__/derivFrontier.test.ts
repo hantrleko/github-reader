@@ -174,7 +174,7 @@ describe("variance reduction", () => {
 
 describe("rough volatility & optimal hedging", () => {
   it("rBergomi produces a downward-sloping smile with negative rho", () => {
-    const s = rBergomiSmile({ S0: 100, xi: 0.04, eta: 1.5, H: 0.1, rho: -0.8, T: 0.25, nPaths: 600, steps: 16 });
+    const s = rBergomiSmile({ S0: 100, xi: 0.04, eta: 1.5, H: 0.1, rho: -0.8, T: 0.25, nPaths: 4000, steps: 24, seed: 9 });
     expect(s.smile.every((p) => p.iv > 0)).toBe(true);
     expect(s.atmSkew).toBeLessThan(0);
   });

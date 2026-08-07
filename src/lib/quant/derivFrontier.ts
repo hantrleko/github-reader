@@ -501,7 +501,7 @@ export function carrMadanFFT(o: HestonParams & {
   const { S, K, r, q = 0, T, alpha = 1.5, N = 512, uMax = 100 } = o;
   const k = Math.log(K), du = uMax / N;
   let sum = 0;
-  for (let j = 1; j <= N; j++) {
+  for (let j = 0; j <= N; j++) {
     const u = j * du;
     const uc: Cx = { re: u, im: -(alpha + 1) };
     const cf = hestonCF(uc, o);
@@ -512,7 +512,7 @@ export function carrMadanFFT(o: HestonParams & {
     );
     const psi = cDiv(num, den);
     const term = cMul(cExp({ re: 0, im: -u * k }), psi).re;
-    const wgt = j === N ? 1 : j % 2 === 0 ? 2 : 4;   // Simpson
+    const wgt = j === 0 || j === N ? 1 : j % 2 === 1 ? 4 : 2;   // composite Simpson
     sum += wgt * term;
   }
   const integral = (du / 3) * sum;
