@@ -622,10 +622,15 @@ export function rBergomiSmile(o: {
     const zs = Array.from({ length: steps }, () => randn(rng));
     let logS = Math.log(S0), rv = 0;
     for (let i = 0; i < steps; i++) {
-      let W = 0;
-      for (let k = 0; k <= i; k++) W += L[i][k] * zv[k];
-      const t = times[i];
-      const v = xi * Math.exp(eta * W - 0.5 * eta * eta * Math.pow(t, 2 * H));
+      // variance is predictable: it uses the Volterra path up to the *start* of
+      // the interval, the price shock uses the increment over the interval.
+      let v = xi;
+      if (i > 0) {
+        let W = 0;
+        for (let k = 0; k < i; k++) W += L[i - 1][k] * zv[k];
+        const tPrev = times[i - 1];
+        v = xi * Math.exp(eta * W - 0.5 * eta * eta * Math.pow(tPrev, 2 * H));
+      }
       const dB = Math.sqrt(dt) * (rho * zv[i] + Math.sqrt(1 - rho * rho) * zs[i]);
       logS += (r - 0.5 * v) * dt + Math.sqrt(Math.max(v, 0)) * dB;
       rv += v * dt;
