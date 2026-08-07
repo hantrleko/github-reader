@@ -17,18 +17,26 @@ import {
   JumpDiffusionTool, BatesVarSwapTool, PdeTool,
   HedgePnLTool, AutocallableTool, XvaTool,
 } from "./deriv/V42Tools";
+import {
+  StatePriceBoundsTool, LSMCTool, CarryFuturesTool, SviSurfaceTool,
+  ShortRateCurveTool, CreditCurveTool, NumericsLabTool, RoughVolHedgeTool,
+} from "./deriv/V57Tools";
 import { EquationBlock } from "@/components/common/EquationBlock";
 import CategorizedToolNav, { type ToolCategory } from "@/components/common/CategorizedToolNav";
 
 type ToolId = "vol" | "heston" | "sabr" | "sabr_heston" | "localvol" | "greeks" | "binomial" | "amer" | "rates" | "lmm" | "exotic"
-  | "jump" | "bates_var" | "pde" | "hedge_pnl" | "autocall" | "xva";
+  | "jump" | "bates_var" | "pde" | "hedge_pnl" | "autocall" | "xva"
+  | "state_price" | "lsmc" | "carry" | "svi_arb" | "shortrate" | "credit" | "numerics" | "rough";
 
 const DERIV_CATEGORIES: ToolCategory[] = [
-  { id: "surface", label: "波动率曲面", toolIds: ["vol", "heston", "sabr", "sabr_heston", "localvol"] },
-  { id: "greeks", label: "希腊字母与格点", toolIds: ["greeks", "binomial", "amer"] },
+  { id: "foundation", label: "无套利与复制", toolIds: ["state_price", "carry"] },
+  { id: "surface", label: "波动率曲面", toolIds: ["vol", "svi_arb", "heston", "sabr", "sabr_heston", "localvol"] },
+  { id: "greeks", label: "希腊字母与格点", toolIds: ["greeks", "binomial", "amer", "lsmc"] },
   { id: "rates", label: "利率与奇异", toolIds: ["rates", "lmm", "exotic"] },
+  { id: "curve_credit", label: "曲线与信用", toolIds: ["shortrate", "credit"] },
   { id: "jumps", label: "跳跃与方差", toolIds: ["jump", "bates_var"] },
-  { id: "numerics", label: "数值方法", toolIds: ["pde"] },
+  { id: "numerics", label: "数值方法", toolIds: ["pde", "numerics"] },
+  { id: "frontier", label: "前沿与不完全市场", toolIds: ["rough"] },
   { id: "structured", label: "交易与结构", toolIds: ["hedge_pnl", "autocall", "xva"] },
 ];
 
@@ -117,6 +125,46 @@ const TOOLS: { id: ToolId; name: string; nameEn: string; formula: string; compon
     id: "xva", name: "XVA (CVA / DVA / FVA)", nameEn: "Counterparty Credit XVA — Exposure, PFE & Adjustments",
     formula: String.raw`\text{CVA} = (1-R)\!\int_0^T\! D(0,t)\,\mathrm{EE}(t)\,dPD_C(t),\quad \text{DVA} = (1-R)\!\int_0^T\! D(0,t)\,\mathrm{NE}(t)\,dPD_B(t),\quad \text{FVA} = s_F\!\int_0^T\! D(0,t)\,\mathrm{EE}(t)\,dt`,
     component: XvaTool,
+  },
+  {
+    id: "state_price", name: "状态价格与无套利区间", nameEn: "Arrow-Debreu State Prices & Super/Sub-Replication Bounds",
+    formula: String.raw`V_0 = \sum_i \psi_i H_i,\quad \sum_i \psi_i = e^{-rT},\ \sum_i \psi_i S_T^{(i)} = S_0 \;\Longrightarrow\; \bigl[\inf_{Q\in\mathcal M} \mathbb E^Q[e^{-rT}H],\; \sup_{Q\in\mathcal M} \mathbb E^Q[e^{-rT}H]\bigr]`,
+    component: StatePriceBoundsTool,
+  },
+  {
+    id: "lsmc", name: "美式/百慕大 LSMC 定价台", nameEn: "Longstaff-Schwartz Least-Squares Monte Carlo — Exercise Boundary",
+    formula: String.raw`V_t = \max\Bigl(\text{Payoff}(S_t),\; \mathbb E^{Q}\bigl[e^{-r\Delta t}V_{t+\Delta t}\mid S_t\bigr]\Bigr),\qquad \widehat{\mathbb E}[\cdot\mid S_t] = \sum_{j=0}^{J}\beta_j\,\phi_j(S_t)`,
+    component: LSMCTool,
+  },
+  {
+    id: "carry", name: "期货—远期与持有成本", nameEn: "Cost of Carry, Convenience Yield & Futures-Forward Convexity",
+    formula: String.raw`F(0,T) = S_0 e^{(r+u-y-q)T},\qquad \frac{\text{Futures}}{\text{Forward}} \approx \exp\Bigl(\tfrac12\rho\,\sigma_S\sigma_r T^2\Bigr)`,
+    component: CarryFuturesTool,
+  },
+  {
+    id: "svi_arb", name: "SVI 曲面与静态无套利检查", nameEn: "SVI Calibration, Butterfly/Calendar Arbitrage & Dupire Inversion",
+    formula: String.raw`g(k) = \Bigl(1-\tfrac{k w'}{2w}\Bigr)^{2} - \tfrac{w'^{2}}{4}\Bigl(\tfrac1w+\tfrac14\Bigr) + \tfrac{w''}{2} \ge 0,\qquad \sigma^2_{\text{loc}} = \dfrac{\partial_T w}{1-\tfrac{k}{w}\partial_k w + \tfrac14\bigl(-\tfrac14-\tfrac1w+\tfrac{k^2}{w^2}\bigr)(\partial_k w)^2 + \tfrac12 \partial^2_k w}`,
+    component: SviSurfaceTool,
+  },
+  {
+    id: "shortrate", name: "短期利率 / HJM / LMM 曲线台", nameEn: "Vasicek, CIR, Hull-White Bond Options, HJM Drift & Black-76 Caplet",
+    formula: String.raw`P(t,T) = A(t,T)e^{-B(t,T)r_t},\qquad \mu^{\text{HJM}}(t,T) = \sigma(t,T)\!\int_t^T\!\sigma(t,u)\,du,\qquad \text{Caplet} = \tau P\bigl[F\Phi(d_1)-K\Phi(d_2)\bigr]`,
+    component: ShortRateCurveTool,
+  },
+  {
+    id: "credit", name: "信用曲线自举与 CDS 定价", nameEn: "Reduced-Form Hazard Bootstrap & CDS Par Spread",
+    formula: String.raw`Q(t) = e^{-\int_0^t \lambda(u)du},\qquad s^{\text{par}} = \dfrac{(1-R)\int_0^T D(t)\,(-dQ(t))}{\sum_i \Delta_i D(t_i)\,\bar Q(t_i)} \;\approx\; \lambda(1-R)`,
+    component: CreditCurveTool,
+  },
+  {
+    id: "numerics", name: "数值方法实验室 (FFT / MC / 方差缩减)", nameEn: "Carr-Madan Fourier vs Monte Carlo with Variance Reduction",
+    formula: String.raw`C(k) = \dfrac{e^{-\alpha k}}{\pi}\int_0^{\infty}\! e^{-iuk}\,\dfrac{e^{-rT}\varphi_T\bigl(u-(\alpha+1)i\bigr)}{\alpha^2+\alpha-u^2+i(2\alpha+1)u}\,du,\qquad \hat C_{\text{CV}} = \bar Y - \hat\beta(\bar X - \mathbb E X)`,
+    component: NumericsLabTool,
+  },
+  {
+    id: "rough", name: "粗糙波动率与最优对冲", nameEn: "rBergomi Rough Volatility & Mean-Variance / Utility Indifference Hedging",
+    formula: String.raw`v_t = \xi\exp\Bigl(\eta W^H_t - \tfrac{\eta^2}{2}t^{2H}\Bigr),\quad \psi(T)\sim T^{H-1/2};\qquad \theta^\star = \arg\min_\theta \mathrm{Var}\bigl(H-\theta\Delta S\bigr),\quad p^{\gamma} = \tfrac1\gamma\log\mathbb E\bigl[e^{\gamma(H-\theta^\star\Delta S)}\bigr]`,
+    component: RoughVolHedgeTool,
   },
 ];
 

@@ -577,8 +577,6 @@ export const NumericsLabTool = () => {
       let lo = 0.01, hi = 3;
       for (let it = 0; it < 50; it++) {
         const mid = (lo + hi) / 2;
-        const bsc = 100 * Math.exp(0) - 0; // placeholder, replaced below
-        void bsc;
         const d1 = (Math.log(100 / K) + (0.03 + 0.5 * mid * mid)) / mid;
         const d2 = d1 - mid;
         const cdf = (x: number) => 0.5 * (1 + Math.sign(x) * Math.sqrt(1 - Math.exp((-2 / Math.PI) * x * x)));
