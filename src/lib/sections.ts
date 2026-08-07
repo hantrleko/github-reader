@@ -549,11 +549,42 @@ export const NAV_GROUPS: NavGroup[] = [
   },
 ];
 
-/** Re-label every section with its unified domain so all surfaces agree. */
+/** Fallback bucket so a newly added section can never silently disappear. */
+const UNGROUPED: NavGroup = {
+  id: "ungrouped",
+  code: "99",
+  label: "其他",
+  kicker: "Unfiled",
+  desc: "尚未归入一级域的板块",
+  items: [],
+};
+
+/** sectionId -> owning domain. Single lookup shared by every surface. */
+export const GROUP_OF: Record<string, NavGroup> = {};
 for (const g of NAV_GROUPS) {
   for (const id of g.items) {
+    GROUP_OF[id] = g;
     const s = SECTION_MAP[id];
     if (s) s.group = `${g.code} ${g.label} · ${g.kicker}`;
+  }
+}
+
+/** Any section missing from NAV_GROUPS is collected into the fallback domain. */
+export const UNGROUPED_SECTION_IDS: string[] = SECTIONS.filter(
+  (s) => !GROUP_OF[s.id]
+).map((s) => s.id);
+if (UNGROUPED_SECTION_IDS.length) {
+  UNGROUPED.items = UNGROUPED_SECTION_IDS;
+  for (const id of UNGROUPED_SECTION_IDS) {
+    GROUP_OF[id] = UNGROUPED;
+    SECTION_MAP[id].group = `${UNGROUPED.code} ${UNGROUPED.label} · ${UNGROUPED.kicker}`;
+  }
+  NAV_GROUPS.push(UNGROUPED);
+  if (import.meta.env?.DEV) {
+    console.warn(
+      "[sections] 未归类板块，请补进 NAV_GROUPS：",
+      UNGROUPED_SECTION_IDS.join(", ")
+    );
   }
 }
 
