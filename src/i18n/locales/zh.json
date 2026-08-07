@@ -97,7 +97,7 @@
     },
     "latestUpdate": {
       "label": "最新更新 · {{version}}",
-      "description": "V5.6 投资组合补全 — 新增有效前沿几何与两基金分离 (CAL / 切点 / 零贝塔 CAPM)、Sharpe 单指数降维台、估计误差与 1/N 强基准实验室、约束与再平衡成本 (日历 vs 阈值)、主动管理基本法则与 Treynor-Black、下行风险与随机占优 (LPM / Sortino / Omega / FSD-SSD)、Merton 多期动态配置与生命周期轨道、高维正则化与最大分散化 MDP, 资产配置版块扩至 19 个工具, 并配《投资组合导读》专题。",
+      "description": "V5.7 衍生品定价补全 — 新增状态价格与无套利区间 (超复制/次复制)、美式与百慕大 LSMC 定价台与行权边界、期货—远期与持有成本 (便利收益、凸性调整)、SVI 曲面拟合与蝶式/日历无套利检查 + Dupire 反解、Vasicek/CIR/Hull-White 与 HJM 漂移条件及 Black-76 Caplet、约化式危险率自举与 CDS 平价利差、Carr-Madan 傅里叶定价与方差缩减对比、粗糙波动率 rBergomi 与不完全市场最优对冲 (均方 + 效用无差别), 衍生品版块扩至 25 个工具。此前 V5.6 投资组合补全 — 新增有效前沿几何与两基金分离 (CAL / 切点 / 零贝塔 CAPM)、Sharpe 单指数降维台、估计误差与 1/N 强基准实验室、约束与再平衡成本 (日历 vs 阈值)、主动管理基本法则与 Treynor-Black、下行风险与随机占优 (LPM / Sortino / Omega / FSD-SSD)、Merton 多期动态配置与生命周期轨道、高维正则化与最大分散化 MDP, 资产配置版块扩至 19 个工具, 并配《投资组合导读》专题。",
       "cta": "查看更新日志"
     }
   },

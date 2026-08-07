@@ -4,9 +4,30 @@ import { useTranslation } from "react-i18next";
 
 const RELEASES = [
   {
-    version: "V5.6",
+    version: "V5.7",
     date: "2026-08",
     tag: "Current",
+    highlights: [
+      {
+        icon: Target,
+        title: "衍生品定价补全 — /s/derivatives (17 → 25 个工具)",
+        items: [
+          "状态价格与无套利区间: Arrow-Debreu 状态价格 (Σψ=e^{-rT}, Σψ·S_T=S₀), 三态两资产的不完全市场中等价鞅测度集合与超复制/次复制价格区间",
+          "美式与百慕大 LSMC: 最小二乘蒙特卡洛 + 对偶变量, 行权边界 S*(t) 可视化, 百慕大→美式的行权日阶梯与早行权溢价分解",
+          "期货—远期与持有成本: F=S·e^{(r+u−y−q)T} 分解、Contango/Backwardation 判读、隐含便利收益反解与盯市引起的凸性差异",
+          "SVI 曲面工程: 五参数拟合、Gatheral 蝶式条件 g(k)≥0、日历总方差单调性检查, 以及从曲面到 Dupire 局部波动率的反解对照",
+          "利率曲线三层: Vasicek / CIR 闭式债券与 Feller 条件、Hull-White 债券期权 (满足平价)、HJM 漂移被无套利唯一决定、Black-76 Caplet",
+          "信用曲线: 分段常数危险率自举 (逐期重定价至 par)、存活与累计违约概率曲线、信用三角 s/(1−R) 近似与 λ–R 联合识别提醒",
+          "数值方法实验室: Carr-Madan 傅里叶定价 (Heston 特征函数, Simpson 积分) vs 朴素 MC / 对偶变量 / 控制变量 / 拟蒙特卡洛的收敛与效率对比",
+          "前沿与不完全市场: rBergomi 粗糙波动率微笑与 T^(H−1/2) 偏斜幂律, 跳跃市场中的均方最优对冲比、残余风险与效用无差别定价曲线",
+        ],
+      },
+    ],
+  },
+  {
+    version: "V5.6",
+    date: "2026-08",
+    tag: "",
     highlights: [
       {
         icon: Target,
