@@ -599,7 +599,8 @@ export function rBergomiSmile(o: {
       const u = ((i + 0.5) / N) * s;
       acc += Math.pow(t - u, H - 0.5) * Math.pow(s - u, H - 0.5);
     }
-    return (acc * s) / N;
+    // normalised so that Var(W_t) = t^{2H} (Riemann-Liouville, factor 2H)
+    return (2 * H * acc * s) / N;
   };
   const times = Array.from({ length: steps }, (_, i) => (i + 1) * dt);
   const cov = times.map((a) => times.map((b) => g(a, b)));
