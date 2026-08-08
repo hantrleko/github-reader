@@ -104,7 +104,7 @@ export const StatePriceBoundsTool = () => {
 
       <Note>
         状态价格把定价拆成两步：<strong>先问每一元的状态支付值多少钱</strong>，再对支付函数加权求和。
-        Σψ = e^{-rT} 与 Σψ·S_T = S₀ 是无套利的两条硬约束。一旦状态数超过可交易资产数（这里是三态两资产），
+        {" Σψ = e^(−rT) 与 Σψ·S_T = S₀ 是无套利的两条硬约束。一旦状态数超过可交易资产数（这里是三态两资产），"}
         鞅测度不再唯一，价格塌缩成区间 [{bounds.lower.toFixed(3)}, {bounds.upper.toFixed(3)}]，
         宽度 {bounds.spread.toFixed(3)} 就是模型无法消除的不完全性成本——它必须由买卖价差、资本或效用假设来填补。
       </Note>
