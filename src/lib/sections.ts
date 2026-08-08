@@ -416,6 +416,16 @@ SECTIONS.push({
   Component: lazy(() => import("@/components/essays/PortfolioTheory")),
 });
 
+SECTIONS.push({
+  id: "derivatives-theory",
+  chapter: "Reading Guide",
+  kicker: "Derivatives Theory",
+  label: "衍生品定价导读 · 从一价定律到粗糙波动率",
+  subtitle: "V5.7 · 六层结构：无套利与状态价格 → 复制与测度 → 模型谱系 → 曲线与信用 → 数值方法 → 校准与前沿，每一块都可跳到实验室复现。",
+  group: "衍生品",
+  Component: lazy(() => import("@/components/essays/DerivativesTheory")),
+});
+
 export const SECTION_MAP: Record<string, SectionDef> = Object.fromEntries(
   SECTIONS.map((s) => [s.id, s])
 );
@@ -463,7 +473,7 @@ export const NAV_GROUPS: NavGroup[] = [
     label: "定价",
     kicker: "Pricing",
     desc: "Black-Scholes · IV · 蒙特卡洛 · 曲面",
-    items: ["calculator", "implied-vol", "mc-pricer", "derivatives"],
+    items: ["calculator", "implied-vol", "mc-pricer", "derivatives", "derivatives-theory"],
   },
   {
     id: "fixed-income",
