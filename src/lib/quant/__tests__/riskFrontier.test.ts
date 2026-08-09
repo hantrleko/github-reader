@@ -51,14 +51,14 @@ describe("riskFrontier — V5.8 risk measures", () => {
 });
 
 describe("riskFrontier — volatility & FHS", () => {
-  it("EWMA and HAR both jump after a volatility burst, HAR decays slower", () => {
+  it("EWMA and HAR both jump after a volatility burst; EWMA decays slower", () => {
     const rets = [...Array(200).fill(0.001), ...Array(20).fill(0.06), ...Array(30).fill(0.001)];
     const e = ewmaVol(rets, 0.94);
     const h = harVol(rets);
     expect(e[215]).toBeGreaterThan(e[195] * 5);
     expect(h[215]).toBeGreaterThan(h[195] * 5);
-    // long-memory component keeps HAR elevated once the burst is over
-    expect(h[245] / e[245]).toBeGreaterThan(1);
+    // EWMA carries the shock forward far longer than the rolling HAR windows
+    expect(e[245]).toBeGreaterThan(h[245]);
   });
 
   it("GARCH filter log-likelihood is finite and fit is stationary", () => {
