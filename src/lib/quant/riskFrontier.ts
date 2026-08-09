@@ -23,10 +23,12 @@ export function varOf(losses: number[], alpha = 0.99): number {
   return quantile(losses, alpha);
 }
 
+/** Average of the worst (1-α) fraction — robust to discrete/atomic losses. */
 export function esOf(losses: number[], alpha = 0.99): number {
-  const v = varOf(losses, alpha);
-  const tail = losses.filter((l) => l >= v);
-  return tail.length ? tail.reduce((a, b) => a + b, 0) / tail.length : v;
+  const s = [...losses].sort((a, b) => a - b);
+  const k = Math.max(1, Math.round(s.length * (1 - alpha)));
+  const tail = s.slice(s.length - k);
+  return tail.reduce((a, b) => a + b, 0) / tail.length;
 }
 
 /**
@@ -400,37 +402,38 @@ export interface SpiralOutput { path: SpiralStep[]; totalSales: number; finalLev
 
 /** Brunnermeier–Pedersen style margin / loss spiral. */
 export function deleveragingSpiral(o: SpiralInputs): SpiralOutput {
-  let assets = o.assets;
-  let equity = o.equity * (1 - o.shock);
-  assets *= 1 - o.shock * (o.assets / Math.max(1e-9, o.assets));
+  const target = o.targetLeverage ?? o.assets / o.equity;
+  const shockLoss = o.assets * o.shock;
+  let assets = o.assets - shockLoss;
+  let equity = Math.max(0, o.equity - shockLoss);
   let price = 1 - o.shock;
   let haircut = o.haircut;
-  const target = o.targetLeverage ?? o.assets / o.equity;
-  const path: SpiralStep[] = [];
   let totalSales = 0;
+  let spiralLoss = 0;
+  const path: SpiralStep[] = [];
   for (let r = 1; r <= o.rounds; r++) {
     haircut = Math.min(0.95, haircut + o.haircutShock);
     const maxAssets = Math.min(equity * target, equity / Math.max(1e-6, haircut));
     const sales = Math.max(0, assets - maxAssets);
     totalSales += sales;
-    const drop = o.priceImpact * (sales / Math.max(1e-9, o.assets));
+    const drop = Math.min(0.95, o.priceImpact * (sales / Math.max(1e-9, o.assets)));
     price *= 1 - drop;
+    const mtmLoss = assets * drop;
+    spiralLoss += mtmLoss;
     assets = Math.max(0, (assets - sales) * (1 - drop));
-    equity = Math.max(0, equity - (assets + sales) * drop);
+    equity = Math.max(0, equity - mtmLoss);
     path.push({
       round: r, assets: +assets.toFixed(4), equity: +equity.toFixed(4),
       leverage: equity > 1e-6 ? +(assets / equity).toFixed(3) : Infinity,
       sales: +sales.toFixed(4), price: +price.toFixed(4), margin: +haircut.toFixed(4),
     });
-    if (equity <= 1e-6) break;
+    if (equity <= 1e-6 || sales <= 1e-9) break;
   }
-  const directLoss = o.assets * o.shock;
-  const totalLoss = o.assets - assets;
   return {
     path, totalSales,
     finalLeverage: equity > 1e-6 ? assets / equity : Infinity,
     insolvent: equity <= 1e-6,
-    amplification: directLoss > 0 ? totalLoss / directLoss : 1,
+    amplification: shockLoss > 0 ? (shockLoss + spiralLoss) / shockLoss : 1,
   };
 }
 

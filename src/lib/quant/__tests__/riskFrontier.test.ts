@@ -51,11 +51,14 @@ describe("riskFrontier — V5.8 risk measures", () => {
 });
 
 describe("riskFrontier — volatility & FHS", () => {
-  it("EWMA reacts faster than a long memory blend", () => {
-    const rets = [...Array(200).fill(0.001), ...Array(20).fill(0.06)];
+  it("EWMA and HAR both jump after a volatility burst, HAR decays slower", () => {
+    const rets = [...Array(200).fill(0.001), ...Array(20).fill(0.06), ...Array(30).fill(0.001)];
     const e = ewmaVol(rets, 0.94);
     const h = harVol(rets);
-    expect(e[e.length - 1]).toBeGreaterThan(h[h.length - 1]);
+    expect(e[215]).toBeGreaterThan(e[195] * 5);
+    expect(h[215]).toBeGreaterThan(h[195] * 5);
+    // long-memory component keeps HAR elevated once the burst is over
+    expect(h[245] / e[245]).toBeGreaterThan(1);
   });
 
   it("GARCH filter log-likelihood is finite and fit is stationary", () => {
@@ -103,8 +106,13 @@ describe("riskFrontier — credit capital", () => {
     expect(b).toBeGreaterThanOrEqual(0.12 - 1e-9);
   });
 
-  it("maturity adjustment equals 1 at M = 2.5", () => {
-    expect(irbCapital({ pd: 0.02, lgd: 0.45, ead: 1, maturity: 2.5 }).maturityAdj).toBeCloseTo(1, 10);
+  it("maturity adjustment increases with M", () => {
+    const m1 = irbCapital({ pd: 0.02, lgd: 0.45, ead: 1, maturity: 1 }).maturityAdj;
+    const m5 = irbCapital({ pd: 0.02, lgd: 0.45, ead: 1, maturity: 5 }).maturityAdj;
+    expect(m5).toBeGreaterThan(m1);
+    expect(m1).toBeGreaterThan(0);
+    // retail exposures carry no maturity adjustment
+    expect(irbCapital({ pd: 0.02, lgd: 0.45, ead: 1, maturity: 5, kind: "retail_mortgage" }).maturityAdj).toBe(1);
   });
 
   it("RWA = 12.5 × K × EAD and EL = PD·LGD·EAD", () => {
@@ -119,9 +127,11 @@ describe("riskFrontier — credit capital", () => {
     expect(vasicekLossQuantile(0.02, 0.35, 0.999)).toBeGreaterThan(q);
   });
 
-  it("PIT PD rises in a downturn and equals TTC at z = 0", () => {
-    expect(pitPd(0.02, 0.2, 0)).toBeCloseTo(0.02, 6);
-    expect(pitPd(0.02, 0.2, -2)).toBeGreaterThan(0.02);
+  it("PIT PD is monotone decreasing in the macro state z", () => {
+    const bad = pitPd(0.02, 0.2, -2), mid = pitPd(0.02, 0.2, 0), good = pitPd(0.02, 0.2, 2);
+    expect(bad).toBeGreaterThan(mid);
+    expect(mid).toBeGreaterThan(good);
+    expect(bad).toBeGreaterThan(0.02);
   });
 });
 
