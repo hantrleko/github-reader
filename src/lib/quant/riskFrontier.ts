@@ -271,7 +271,7 @@ export function matMul(A: number[][], B: number[][]): number[][] {
 }
 
 export function matPow(P: number[][], n: number): number[][] {
-  let R = P.map((_, i) => P.map((__, j) => (i === j ? 1 : 0)));
+  let R: number[][] = P.map((_, i) => P.map((__, j) => (i === j ? 1 : 0)));
   let base = P.map((r) => [...r]);
   let e = Math.max(0, Math.round(n));
   while (e > 0) {
