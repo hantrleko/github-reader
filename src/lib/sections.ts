@@ -426,6 +426,16 @@ SECTIONS.push({
   Component: lazy(() => import("@/components/essays/DerivativesTheory")),
 });
 
+SECTIONS.push({
+  id: "risk-theory",
+  chapter: "Reading Guide",
+  kicker: "Risk Theory",
+  label: "风险管理导读 · 从计量指标到资本、监管与韧性",
+  subtitle: "V5.8 · 十节结构：风险本质与闭环 → 分类与相互作用 → 市场风险计量 → 信用框架 → 流动性/操作/模型风险 → Basel 与 FRTB → 危机史 → 系统性与前沿 → 判断框架 → 学习路线图。",
+  group: "风险",
+  Component: lazy(() => import("@/components/essays/RiskTheory")),
+});
+
 export const SECTION_MAP: Record<string, SectionDef> = Object.fromEntries(
   SECTIONS.map((s) => [s.id, s])
 );
@@ -518,7 +528,7 @@ export const NAV_GROUPS: NavGroup[] = [
     label: "风险",
     kicker: "Risk",
     desc: "VaR / ES · 信用 · Copula · 压力测试",
-    items: ["risk"],
+    items: ["risk", "risk-theory"],
   },
   {
     id: "data",

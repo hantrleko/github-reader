@@ -19,6 +19,10 @@ import {
   SystemicRiskTool, LiquidityVaRTool, FRTBTool,
   OpRiskLDATool, ReverseStressTool, ConcentrationTool,
 } from "./risk/V43Tools";
+import {
+  CoherenceTool, VolFhsTool, IrbCapitalTool, MigrationCreditMetricsTool,
+  FundingSpiralTool, BaselStackTool, ModelRiskTool, ResilienceTool,
+} from "./risk/V58Tools";
 
 const CHART_GOLD = "hsl(43, 80%, 55%)";
 const CHART_TEAL = "hsl(180, 50%, 40%)";
@@ -666,7 +670,8 @@ export const StressTool = () => {
    ════════════════════════════════════════════════════════════ */
 type ToolId =
   | "var" | "merton" | "copula" | "evt" | "esback" | "stress" | "cva" | "credit_copula"
-  | "systemic" | "lvar" | "frtb" | "opvar" | "reverse_stress" | "concentration";
+  | "systemic" | "lvar" | "frtb" | "opvar" | "reverse_stress" | "concentration"
+  | "coherence" | "vol_fhs" | "irb" | "migration" | "spiral" | "basel" | "model_risk" | "resilience";
 
 const TOOLS: { id: ToolId; name: string; nameEn: string; formula: string; python: string; component: React.FC }[] = [
   {
@@ -941,6 +946,152 @@ def component_var(w, Sigma, alpha=0.99):
     hhi = (w**2).sum()
     return var, component, component / var, hhi, 1 / hhi`,
     component: ConcentrationTool,
+  },
+);
+
+// ── V5.8 Risk Completion ──
+TOOLS.push(
+  {
+    id: "coherence", name: "风险度量公理台",
+    nameEn: "Coherence Axioms, Spectral & Distortion Measures, Elicitability",
+    formula: String.raw`\rho(L_1+L_2)\le\rho(L_1)+\rho(L_2),\quad \rho_\phi(L)=\int_0^1\phi(u)Q_L(u)\,du,\quad S(q,y)=(\mathbf 1\{y\le q\}-\alpha)(q-y)`,
+    python: `import numpy as np
+
+def es(losses, a=0.99):
+    L = np.sort(losses); k = max(1, round(len(L) * (1 - a)))
+    return L[-k:].mean()
+
+def spectral(losses, gamma):
+    L = np.sort(losses); n = len(L)
+    u = (np.arange(n) + 0.5) / n
+    phi = gamma * np.exp(-gamma * (1 - u)) / (1 - np.exp(-gamma))
+    return float((phi * L).sum() / phi.sum())
+
+def pinball(y, q, a=0.99):
+    y = np.asarray(y)
+    return float((((y <= q).astype(float) - a) * (q - y)).mean())`,
+    component: CoherenceTool,
+  },
+  {
+    id: "vol_fhs", name: "波动率建模与过滤式历史模拟",
+    nameEn: "EWMA / GARCH(1,1) / HAR + Filtered Historical Simulation",
+    formula: String.raw`\sigma_t^2=\omega+\alpha\varepsilon_{t-1}^2+\beta\sigma_{t-1}^2,\qquad z_t=\frac{r_t}{\sigma_t},\qquad r_{T+h}^{*}=\sigma_{T+h}\,z^{*}`,
+    python: `import numpy as np
+
+def ewma_vol(r, lam=0.94):
+    v = np.var(r[:20]); out = []
+    for x in r:
+        v = lam * v + (1 - lam) * x * x
+        out.append(np.sqrt(v))
+    return np.array(out)
+
+def fhs_var(r, sigma, sigma_fwd, a=0.99, n=10000, seed=1):
+    z = r / sigma
+    rng = np.random.default_rng(seed)
+    draws = sigma_fwd * rng.choice(z, size=n)
+    L = -draws
+    return np.quantile(L, a)`,
+    component: VolFhsTool,
+  },
+  {
+    id: "irb", name: "PD / LGD / EAD 与 IRB 资本",
+    nameEn: "Expected Loss, Vasicek Unexpected Loss & Basel IRB Risk Weights",
+    formula: String.raw`K=\mathrm{LGD}\left[\Phi\!\left(\frac{\Phi^{-1}(\mathrm{PD})+\sqrt{R}\,\Phi^{-1}(0.999)}{\sqrt{1-R}}\right)-\mathrm{PD}\right]\cdot\frac{1+(M-2.5)b}{1-1.5b},\quad \mathrm{RWA}=12.5\,K\,\mathrm{EAD}`,
+    python: `import numpy as np
+from scipy.stats import norm
+
+def irb_capital(pd, lgd, ead, M=2.5):
+    R = 0.12 * (1 - np.exp(-50 * pd)) / (1 - np.exp(-50)) \
+        + 0.24 * (1 - (1 - np.exp(-50 * pd)) / (1 - np.exp(-50)))
+    b = (0.11852 - 0.05478 * np.log(pd)) ** 2
+    cond = norm.cdf((norm.ppf(pd) + np.sqrt(R) * norm.ppf(0.999)) / np.sqrt(1 - R))
+    k = lgd * (cond - pd) * (1 + (M - 2.5) * b) / (1 - 1.5 * b)
+    return k, 12.5 * k * ead, pd * lgd * ead`,
+    component: IrbCapitalTool,
+  },
+  {
+    id: "migration", name: "评级迁移与 CreditMetrics",
+    nameEn: "Rating Migration Matrices, Generators & CreditMetrics Portfolio Loss",
+    formula: String.raw`P^{(n)}=P^{n},\quad Q=\log P,\qquad R_i=\sqrt{\rho}\,Z+\sqrt{1-\rho}\,\epsilon_i,\quad \text{rating}_i=k \iff z_{k}<R_i\le z_{k-1}`,
+    python: `import numpy as np
+
+def n_period(P, n):
+    return np.linalg.matrix_power(np.asarray(P), n)
+
+def credit_metrics(P, idx, n_obl, rho, lgd, n_sims=5000, seed=0):
+    rng = np.random.default_rng(seed)
+    row = P[idx]
+    thr = np.concatenate([[np.inf], -np.sort(-np.cumsum(row[::-1]))])
+    Z = rng.standard_normal(n_sims)
+    losses = []
+    for z in Z:
+        R = np.sqrt(rho) * z + np.sqrt(1 - rho) * rng.standard_normal(n_obl)
+        losses.append(lgd * (R < np.quantile(R, row[-1])).mean())
+    return np.mean(losses), np.quantile(losses, 0.99)`,
+    component: MigrationCreditMetricsTool,
+  },
+  {
+    id: "spiral", name: "融资流动性与去杠杆螺旋",
+    nameEn: "Funding Liquidity, Margin Spirals & Survival Horizon",
+    formula: String.raw`A_t\le\frac{E_t}{m_t},\qquad \Delta p=\lambda\,\frac{\text{sales}}{A_0},\qquad \text{Amplification}=\frac{\text{direct}+\text{spiral}}{\text{direct}}`,
+    python: `def spiral(assets, equity, haircut, dh, impact, shock, rounds=8):
+    loss = assets * shock
+    a, e = assets - loss, equity - loss
+    spiral_loss = 0.0
+    for _ in range(rounds):
+        haircut = min(0.95, haircut + dh)
+        sales = max(0.0, a - e / haircut)
+        drop = min(0.95, impact * sales / assets)
+        mtm = a * drop
+        spiral_loss += mtm
+        a, e = max(0.0, (a - sales) * (1 - drop)), max(0.0, e - mtm)
+        if e <= 0 or sales <= 0:
+            break
+    return (loss + spiral_loss) / loss`,
+    component: FundingSpiralTool,
+  },
+  {
+    id: "basel", name: "Basel 资本栈与 LCR / NSFR",
+    nameEn: "CET1 / AT1 / T2 Stack, Buffers, Leverage Ratio & Liquidity Ratios",
+    formula: String.raw`\text{CET1 ratio}=\frac{\text{CET1}}{\mathrm{RWA}}\ge 4.5\%+\text{CCB}+\text{CCyB}+\text{G-SIB},\quad \mathrm{LCR}=\frac{\mathrm{HQLA}}{\text{30d net outflows}}\ge 100\%`,
+    python: `def basel_stack(cet1, at1, t2, rwa, exposure, hqla, outflows, asf, rsf,
+                ccyb=0.0, gsib=0.0):
+    return {
+        "cet1_ratio": cet1 / rwa,
+        "tier1_ratio": (cet1 + at1) / rwa,
+        "total_ratio": (cet1 + at1 + t2) / rwa,
+        "leverage": (cet1 + at1) / exposure,
+        "cet1_required": 0.045 + 0.025 + ccyb + gsib,
+        "lcr": hqla / outflows,
+        "nsfr": asf / rsf,
+    }`,
+    component: BaselStackTool,
+  },
+  {
+    id: "model_risk", name: "模型风险与稳健决策",
+    nameEn: "Model Uncertainty Bands, ε-Contamination & SR 11-7 Governance",
+    formula: String.raw`\rho^{\text{rob}}=(1-\varepsilon)\,\rho_{\text{base}}+\varepsilon\,\rho_{\text{worst}},\qquad \text{Buffer}=\rho^{\text{rob}}-\rho_{\text{base}}`,
+    python: `import numpy as np
+
+def model_band(vals, eps=0.1, mult=1.0):
+    base, worst = float(np.mean(vals)), float(np.max(vals))
+    robust = (1 - eps) * base + eps * worst
+    return {"spread": float(np.ptp(vals)), "robust": robust * mult,
+            "buffer": max(0.0, robust * mult - base)}`,
+    component: ModelRiskTool,
+  },
+  {
+    id: "resilience", name: "韧性与恢复计划",
+    nameEn: "Multi-Period Capital Trajectory, Buffer Release & Recovery Triggers",
+    formula: String.raw`\mathrm{CET1}_{t+1}=\mathrm{CET1}_t+\mathrm{PPNR}_t-L_t-D_t,\qquad \mathrm{ratio}_t=\frac{\mathrm{CET1}_t}{\mathrm{RWA}_t},\quad \mathrm{RWA}_{t+1}=\mathrm{RWA}_t(1+g)`,
+    python: `def trajectory(cet1, rwa, ppnr, losses, g=0.01, div=0.4):
+    path = []
+    for L in losses:
+        cet1 = cet1 + ppnr - L - div
+        rwa *= 1 + g
+        path.append(cet1 / rwa)
+    return path, min(path)`,
+    component: ResilienceTool,
   },
 );
 
