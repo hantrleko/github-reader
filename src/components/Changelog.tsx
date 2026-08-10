@@ -4,9 +4,37 @@ import { useTranslation } from "react-i18next";
 
 const RELEASES = [
   {
-    version: "V5.7",
+    version: "V5.8",
     date: "2026-08",
     tag: "Current",
+    highlights: [
+      {
+        icon: Shield,
+        title: "风险管理补全 — /s/risk (15 → 23 个工具)",
+        items: [
+          "风险度量公理台: 一致性四公理与 VaR 次可加性反例、谱风险测度、扭曲测度 (Wang 变换)、ES 可引出性与 Fissler-Ziegel 联合打分",
+          "波动率与过滤式历史模拟: EWMA / GARCH(1,1) 极大似然 / HAR 对比, 标准化残差 FHS 生成条件 VaR/ES 与多日 √h 缩放",
+          "PD / LGD / EAD 与 IRB 资本台: EL/UL 分解、Vasicek 单因子分位损失、Basel 相关性函数与期限调整、RWA=12.5·K·EAD、PIT 与 TTC 顺周期对比",
+          "评级迁移与 CreditMetrics: 迁移矩阵 n 期外推与生成元、阈值法组合估值分布、信用 VaR/ES 与迁移 vs 违约损失分解",
+          "融资流动性与去杠杆螺旋: 保证金/折扣冲击、Brunnermeier-Pedersen 式反馈循环、抛售价格冲击、生存天数与现金缺口路径",
+          "Basel 资本栈与 LCR/NSFR: CET1/AT1/T2、CCB/CCyB/G-SIB 缓冲、杠杆率、MDA 分红限制、流动性两比率一体化达标检查",
+          "模型风险与稳健决策: 模型分歧带、ε-污染最坏情形、模型平均与资本缓冲量化、SR 11-7 三道防线检查表",
+          "韧性与恢复计划: 多期资本轨道压力路径、PPNR 与损失吸收顺序、逆周期缓冲释放、恢复触发点与管理层行动效果",
+        ],
+      },
+      {
+        icon: FileText,
+        title: "理论导读专题 — /s/risk-theory",
+        items: [
+          "十节结构: 风险本质与管理闭环 → 分类与相互作用 → 市场风险计量 → 信用框架 → 流动性/操作/模型风险 → Basel 与 FRTB → 危机史 (1952–2019) → 系统性与前沿 → 稳健性判断框架 → 五阶段学习路线图",
+          "五类风险度量的适用与边界对照表 (VaR / ES / 谱测度 / 扭曲测度 / 回撤与生存天数), 七条常见误用与八条最低报告清单",
+        ],
+      },
+    ],
+  },
+  {
+    version: "V5.7",
+    date: "2026-08",
     highlights: [
       {
         icon: Target,
