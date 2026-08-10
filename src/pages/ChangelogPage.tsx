@@ -1,5 +1,6 @@
 import { lazy, Suspense } from "react";
 import Navbar from "@/components/Navbar";
+import { APP_VERSION_TAG } from "@/lib/appVersion";
 
 const Changelog = lazy(() => import("@/components/Changelog"));
 
@@ -27,7 +28,7 @@ const ChangelogPage = () => (
           Economics &amp; Finance Lab
         </p>
         <p className="text-[10px] font-mono text-gold/70 tracking-[0.2em] uppercase pt-2">
-          Version 5.3 · © 2026
+          Version {APP_VERSION_TAG.replace("V", "")} · © 2026
         </p>
       </div>
     </footer>
