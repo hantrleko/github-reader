@@ -542,6 +542,8 @@ export const NAV_GROUPS: NavGroup[] = [
       "econometrics-theory",
       "time-series-theory",
       "behavior-microstructure",
+      "behavior-lab",
+      "behavior-theory",
     ],
   },
   {
