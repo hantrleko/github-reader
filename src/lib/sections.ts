@@ -436,6 +436,28 @@ SECTIONS.push({
   Component: lazy(() => import("@/components/essays/RiskTheory")),
 });
 
+SECTIONS.push({
+  id: "behavior-lab",
+  chapter: "Chapter 8",
+  kicker: "Behavioral Finance Lab",
+  label: "行为金融实验室 · 前景理论到有限套利",
+  subtitle:
+    "V5.9 · 八个实验：累积前景理论、短视损失厌恶、BSV / DHS / Hong-Stein 信念模型、有限套利与被迫平仓、投资者情绪截面、行为公司金融。",
+  group: "理论",
+  Component: lazy(() => import("@/components/behavior/V59BehaviorTools")),
+});
+
+SECTIONS.push({
+  id: "behavior-theory",
+  chapter: "Reading Guide",
+  kicker: "Behavioral Theory",
+  label: "行为金融导读 · 有限理性与有限套利",
+  subtitle:
+    "V5.9 · 九节结构：核心问题与框架 → 两大支柱 → 前景理论 → 认知偏差图谱 → 情绪与羊群 → 有限套利与噪声交易 → 异象的行为解释 → 行为公司金融 → 前沿与研究设计守则。",
+  group: "理论",
+  Component: lazy(() => import("@/components/essays/BehaviorTheory")),
+});
+
 export const SECTION_MAP: Record<string, SectionDef> = Object.fromEntries(
   SECTIONS.map((s) => [s.id, s])
 );
@@ -520,6 +542,8 @@ export const NAV_GROUPS: NavGroup[] = [
       "econometrics-theory",
       "time-series-theory",
       "behavior-microstructure",
+      "behavior-lab",
+      "behavior-theory",
     ],
   },
   {
