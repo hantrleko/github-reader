@@ -366,8 +366,10 @@ export function barroGordon(x: BarroGordonInput): BarroGordonResult {
   const piD = bias + stabilisation;
   const piC = stabilisation;
   const pi = x.credibility * piC + (1 - x.credibility) * piD;
-  const gap = a * (pi - (x.credibility * piC + (1 - x.credibility) * piD)) + x.shock * -1 + x.ambition * 0;
-  const loss = (p: number) => p * p + lam * Math.pow(a * 0 - x.ambition + x.shock, 2);
+  // expected inflation equals the equilibrium rule the public believes
+  const piExp = pi;
+  const gap = a * (pi - piExp) - x.shock;
+  const loss = (p: number) => p * p + lam * Math.pow(gap - x.ambition, 2);
   return {
     discretionInflation: piD,
     commitmentInflation: piC,
