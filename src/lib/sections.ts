@@ -464,7 +464,7 @@ SECTIONS.push({
   kicker: "Macro Frontier Lab",
   label: "宏观前沿实验室 · 增长引擎到政策规则",
   subtitle:
-    "V6.0 · 十二个实验：内生增长、增长核算、财政乘数、RBC 校准、Calvo/NKPC、政策规则、平价与 Carry、突然停止、预期形成、QE/YCC、银行资本、气候转型。",
+    "V6.0 · 十二个实验：内生增长、增长核算、财政乘数、RBC、Calvo/NKPC、政策规则、平价与 Carry、突然停止、QE/YCC、气候转型。",
   group: "宏观",
   Component: lazy(() => import("@/components/macro/V60MacroTools")),
 });
