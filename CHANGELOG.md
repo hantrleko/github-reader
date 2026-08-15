@@ -1,5 +1,23 @@
 # EF Lab 版本日志
 
+## V6.0 — 宏观经济学补全：从增长引擎到政策规则与前沿
+
+### 新增
+
+- **长期增长** (`/s/macro-frontier`): 内生增长引擎 (AK / Lucas / Romer / Schumpeter vs Solow 过渡动态)、增长核算与 TFP 残差分解 + Hall-Jones 发展核算。
+- **周期与名义刚性**: Samuelson 乘数—加速数区制判定、状态依赖财政乘数 (松弛度 / ZLB / 货币抵消 / 李嘉图程度)、RBC 校准与周期矩对照、Calvo 定价与 NKPC 微观基础 (θ→κ、指数化、牺牲率)。
+- **政策规则**: Barro-Gordon 通胀偏差与可信度曲线、泰勒 / 通胀目标 / 价格水平 / 名义 GDP 四种规则在成本推动冲击下的对比。
+- **开放经济**: PPP / UIP / CIP 平价条件与 Fama 回归远期溢价之谜、突然停止与外部调整 (储备覆盖、货币错配的资产负债表效应)。
+- **当代前沿**: 预期形成 (理性 / 适应性 / 黏性 / 诊断性 + CG 系数)、QE 组合再平衡与 YCC、银行资本与去杠杆螺旋、气候转型宏观路径。
+- **理论导读专题** (`/s/macro-theory`): 九节结构 — 对象与微观基础 → 长期增长 → 短期波动 → 货币政策 → 财政政策 → 开放经济 → 思想史主线 → 当代前沿 → 宏观判断力四步框架。
+
+### 工程
+
+- 新增 `src/lib/quant/macroFrontier.ts` 纯函数计算层与 23 项单元测试 (种子化随机, 结果可复现)。
+- 新增 `src/components/macro/V60MacroTools.tsx` (五分类 / 十二实验) 与 `src/components/essays/MacroTheory.tsx`。
+- `sections.ts` 统一登记 `macro-frontier` / `macro-theory` 至「基础」导航分组, 顶栏 / 首页目录 / HeroToolStrip 自动同步。
+- 版本号统一至 V6.0 (Navbar 徽章 / SplashIntro / 首页最新更新 / 更新日志页脚)。
+
 ## V5.3 — 资产定价补全：从状态价格到现代前沿
 
 ### 新增
