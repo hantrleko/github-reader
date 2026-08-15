@@ -458,6 +458,28 @@ SECTIONS.push({
   Component: lazy(() => import("@/components/essays/BehaviorTheory")),
 });
 
+SECTIONS.push({
+  id: "macro-frontier",
+  chapter: "Chapter 7",
+  kicker: "Macro Frontier Lab",
+  label: "宏观前沿实验室 · 增长引擎到政策规则",
+  subtitle:
+    "V6.0 · 十二个实验：内生增长引擎、增长核算与 TFP、乘数—加速数与状态依赖财政乘数、RBC 校准、Calvo/NKPC、规则 vs 相机抉择、平价条件与 Carry、突然停止、预期形成、QE/YCC、银行资本放大、气候转型路径。",
+  group: "宏观",
+  Component: lazy(() => import("@/components/macro/V60MacroTools")),
+});
+
+SECTIONS.push({
+  id: "macro-theory",
+  chapter: "Reading Guide",
+  kicker: "Macro Theory",
+  label: "宏观经济学导读 · 增长、波动、政策与开放经济",
+  subtitle:
+    "V6.0 · 九节结构：对象与微观基础 → 长期增长 → 短期波动 → 货币政策 → 财政政策 → 开放经济 → 思想史主线 → 当代前沿 → 宏观判断力四步框架。",
+  group: "宏观",
+  Component: lazy(() => import("@/components/essays/MacroTheory")),
+});
+
 export const SECTION_MAP: Record<string, SectionDef> = Object.fromEntries(
   SECTIONS.map((s) => [s.id, s])
 );
@@ -497,7 +519,7 @@ export const NAV_GROUPS: NavGroup[] = [
     label: "基础",
     kicker: "Foundations",
     desc: "微观 · 宏观 · 宏观高阶实验室",
-    items: ["micro", "macro", "macro-lab"],
+    items: ["micro", "macro", "macro-lab", "macro-frontier", "macro-theory"],
   },
   {
     id: "pricing",
