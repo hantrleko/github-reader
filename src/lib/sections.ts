@@ -331,7 +331,7 @@ SECTIONS.push({
   chapter: "V4.8",
   kicker: "Visualization Toolkit",
   label: "可视化组件工作台",
-  subtitle: "Brush 联动缩放 · 事件标注 · Fan Chart 置信带 · 直方图 + KDE · 时间轴 Scrubber · PNG / CSV 一键导出 · 色觉友好模式。",
+  subtitle: "Brush 联动缩放 · 事件标注 · Fan Chart 置信带 · 直方图 KDE · PNG / CSV 导出 · 色觉友好。",
   group: "量化与学习",
   Component: lazy(() => import("@/components/VisualizationGuide")),
 });
@@ -351,7 +351,7 @@ SECTIONS.push({
   chapter: "V5.2",
   kicker: "US Full-Stack Data",
   label: "美股全栈数据 · 行情 / 基本面 / SEC / 期权 / 筛选",
-  subtitle: "V5.2 · Yahoo 行情与本地技术指标、SEC XBRL 三表与关键指标、EDGAR 披露流与全库检索、期权链 Greeks 与异动、全市场 XBRL 横截面筛选。",
+  subtitle: "V5.2 · Yahoo 行情与技术指标、SEC XBRL 三表、EDGAR 披露检索、期权链 Greeks、横截面筛选。",
   group: "数据源",
   Component: lazy(() => import("@/components/data/USSuite")),
 });
@@ -359,9 +359,9 @@ SECTIONS.push({
 SECTIONS.push({
   id: "trillion-dollar-equation",
   chapter: "Frontier Essay",
-  kicker: "Black–Scholes",
+  kicker: "Black-Scholes",
   label: "万亿美元的方程 · Black–Scholes 论证全景",
-  subtitle: "五章长文精读:让方向消失的复制组合、离散再平衡的 Gamma 税、卖方拿到的波动率风险溢价,以及行业为何不推翻而是延伸这个方程。",
+  subtitle: "五章长文精读：让方向消失的复制组合、离散再平衡的 Gamma 税、波动率风险溢价与延伸。",
   group: "前沿",
   Component: lazy(() => import("@/components/essays/TrillionDollarEquation")),
 });
@@ -431,7 +431,7 @@ SECTIONS.push({
   chapter: "Reading Guide",
   kicker: "Risk Theory",
   label: "风险管理导读 · 从计量指标到资本、监管与韧性",
-  subtitle: "V5.8 · 十节结构：风险本质与闭环 → 分类与相互作用 → 市场风险计量 → 信用框架 → 流动性/操作/模型风险 → Basel 与 FRTB → 危机史 → 系统性与前沿 → 判断框架 → 学习路线图。",
+  subtitle: "V5.8 · 十节：风险本质 → 分类 → 市场计量 → 信用 → 流动性 → Basel/FRTB → 危机史 → 前沿。",
   group: "风险",
   Component: lazy(() => import("@/components/essays/RiskTheory")),
 });
@@ -453,7 +453,7 @@ SECTIONS.push({
   kicker: "Behavioral Theory",
   label: "行为金融导读 · 有限理性与有限套利",
   subtitle:
-    "V5.9 · 九节结构：核心问题与框架 → 两大支柱 → 前景理论 → 认知偏差图谱 → 情绪与羊群 → 有限套利与噪声交易 → 异象的行为解释 → 行为公司金融 → 前沿与研究设计守则。",
+    "V5.9 · 九节：核心问题 → 两大支柱 → 前景理论 → 偏差图谱 → 情绪 → 有限套利 → 异象 → 前沿。",
   group: "理论",
   Component: lazy(() => import("@/components/essays/BehaviorTheory")),
 });
