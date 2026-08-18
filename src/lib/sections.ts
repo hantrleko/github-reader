@@ -480,6 +480,28 @@ SECTIONS.push({
   Component: lazy(() => import("@/components/essays/MacroTheory")),
 });
 
+SECTIONS.push({
+  id: "microstructure-lab",
+  chapter: "Chapter 8",
+  kicker: "Microstructure Lab",
+  label: "微观结构实验室 · 库存、信息与订单簿",
+  subtitle:
+    "V6.1 · 十七个实验：Stoll 分解、Ho-Stoll 报价、PIN/VPIN、订单簿仿真、价差口径、信息份额、市场设计。",
+  group: "微观",
+  Component: lazy(() => import("@/components/micro/V61MicrostructureTools")),
+});
+
+SECTIONS.push({
+  id: "microstructure-theory",
+  chapter: "Reading Guide",
+  kicker: "Microstructure Theory",
+  label: "市场微观结构导读 · 从做市到市场设计",
+  subtitle:
+    "V6.1 · 九节：核心问题 → 市场组织 → 库存与信息 → 订单簿 → 流动性度量 → 价格发现 → 市场设计 → 前沿。",
+  group: "微观",
+  Component: lazy(() => import("@/components/essays/MicrostructureTheory")),
+});
+
 export const SECTION_MAP: Record<string, SectionDef> = Object.fromEntries(
   SECTIONS.map((s) => [s.id, s])
 );
