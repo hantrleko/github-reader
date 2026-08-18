@@ -450,7 +450,7 @@ function SpreadPanel() {
   const [noise, setNoise] = useState(0.01);
   const built = useMemo(() => {
     const r = lcg(77);
-    const trades = [], highs: number[] = [], lows: number[] = [], prices: number[] = [], mids: number[] = [];
+    const trades: { price: number; midBefore: number; midAfter: number; direction: 1 | -1 }[] = [], highs: number[] = [], lows: number[] = [], prices: number[] = [], mids: number[] = [];
     const truth: (1 | -1)[] = [];
     let mid = 100;
     for (let i = 0; i < 250; i++) {
