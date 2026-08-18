@@ -1,5 +1,23 @@
 # EF Lab 版本日志
 
+## V6.1 — 市场微观结构补全：从做市商库存到订单簿与市场设计
+
+### 新增
+
+- **做市与库存** (`/s/microstructure-lab`): Garman 存货流、Stoll 三成分价差分解、Ho-Stoll 库存偏离下的最优报价偏移。
+- **信息与毒性**: Easley-O'Hara PIN 似然估计 (α / μ / ε) 与 VPIN 成交量桶订单流毒性时序。
+- **限价订单簿**: make-or-take 决策、排队价值与成交概率、零智能三泊松流订单簿仿真、Hawkes 自激成交强度。
+- **成本与价格发现**: 报价/有效/已实现价差与冲击分解恒等式、Corwin-Schultz 与 Roll 低频代理、Lee-Ready 方向标注误判率、平方根冲击定律、Hasbrouck 信息份额与 Gonzalo-Granger 权重。
+- **市场设计与韧性**: tick size 机制效应、集合竞价 vs 连续交易、熔断触发仿真、暗池分流、流动性蒸发半衰期、Amihud-Mendelson 流动性溢价。
+- **理论导读专题** (`/s/microstructure-theory`): 九节结构 — 核心问题 → 市场组织 → 库存与信息 → 订单簿 → 流动性度量陷阱 → 价格发现 → 市场设计 → 历史与前沿 → 研究设计清单。
+
+### 工程
+
+- 新增 `src/lib/quant/microstructure.ts` 纯函数计算层与 28 项单元测试 (种子化随机, 结果可复现)。
+- 新增 `src/components/micro/V61MicrostructureTools.tsx` (五分类 / 十七面板) 与 `src/components/essays/MicrostructureTheory.tsx`。
+- `sections.ts` 登记 `microstructure-lab` / `microstructure-theory`, 顶栏 / 首页目录 / 搜索自动同步。
+- 版本号统一至 V6.1。
+
 ## V6.0 — 宏观经济学补全：从增长引擎到政策规则与前沿
 
 ### 新增

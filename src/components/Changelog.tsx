@@ -4,9 +4,35 @@ import { useTranslation } from "react-i18next";
 
 const RELEASES = [
   {
-    version: "V6.0",
+    version: "V6.1",
     date: "2026-08",
     tag: "Current",
+    highlights: [
+      {
+        icon: Activity,
+        title: "市场微观结构补全 — /s/microstructure-lab (17 个交互面板)",
+        items: [
+          "做市与库存: Garman 存货流、Stoll 三成分价差分解 (订单处理/库存/逆向选择)、Ho-Stoll 库存偏离下的最优报价偏移",
+          "信息与毒性: Easley-O'Hara PIN 对数似然估计 (α, μ, ε) 与 VPIN 成交量桶订单流毒性时序",
+          "限价订单簿: make-or-take 决策 (限价单期权价值 vs 市价单即时成本)、排队价值与成交概率、零智能三泊松流订单簿仿真、Hawkes 自激成交强度",
+          "成本口径: 报价/有效/已实现价差与价格冲击分解恒等式、Corwin-Schultz 与 Roll 低频代理及失效条件、Lee-Ready / tick rule 方向标注误判率",
+          "价格发现: 平方根冲击定律与 Almgren 校准对照、Hasbrouck 信息份额上下界与 Gonzalo-Granger 共同因子权重、交易信息含量 (永久冲击占比)",
+          "市场设计与韧性: tick size 对价差/排队/深度的权衡、集合竞价 vs 连续交易、熔断触发仿真、暗池分流对显示流动性的影响、流动性蒸发半衰期、Amihud-Mendelson 流动性溢价",
+        ],
+      },
+      {
+        icon: BookOpen,
+        title: "《市场微观结构导读》专题 — /s/microstructure-theory",
+        items: [
+          "九节结构: 四个核心问题 → 市场组织形式 → 库存与信息两条经典线 → 限价订单簿语言 → 流动性度量陷阱 → 价格发现 → HFT 与市场设计 → 历史脉络与前沿 → 研究设计清单与四阶段学习路线",
+          "流动性度量对照表与 1968 至今的范式演进表, 每节配「到实验室复现」链接",
+        ],
+      },
+    ],
+  },
+  {
+    version: "V6.0",
+    date: "2026-08",
     highlights: [
       {
         icon: Activity,

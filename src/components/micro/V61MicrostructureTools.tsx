@@ -97,7 +97,7 @@ function GarmanPanel() {
               <XAxis dataKey="t" stroke={C.text} fontSize={11} />
               <YAxis yAxisId="l" stroke={C.text} fontSize={11} />
               <YAxis yAxisId="r" orientation="right" stroke={C.text} fontSize={11} />
-              <Tooltip {...tooltipStyle} />
+              <Tooltip contentStyle={tooltipStyle} />
               <Legend />
               <ReferenceLine yAxisId="l" y={0} stroke={C.red} strokeDasharray="4 4" />
               <Line yAxisId="l" dataKey="inventory" name="期望库存" stroke={C.gold} dot={false} />
@@ -141,7 +141,7 @@ function StollPanel() {
               <CartesianGrid stroke={C.grid} strokeDasharray="3 3" />
               <XAxis dataKey="name" stroke={C.text} fontSize={11} />
               <YAxis stroke={C.text} fontSize={11} unit="%" />
-              <Tooltip {...tooltipStyle} />
+              <Tooltip contentStyle={tooltipStyle} />
               <Bar dataKey="v" name="占半价差比重 (%)" fill={C.gold} />
             </BarChart>
           </ResponsiveContainer>
@@ -186,7 +186,7 @@ function HoStollPanel() {
               <CartesianGrid stroke={C.grid} strokeDasharray="3 3" />
               <XAxis dataKey="inv" stroke={C.text} fontSize={11} label={{ value: "库存 q", position: "insideBottom", offset: -3, fill: C.text, fontSize: 10 }} />
               <YAxis stroke={C.text} fontSize={11} domain={["auto", "auto"]} />
-              <Tooltip {...tooltipStyle} />
+              <Tooltip contentStyle={tooltipStyle} />
               <Legend />
               <ReferenceLine y={100} stroke={C.grid} strokeDasharray="4 4" label={{ value: "中间价", fill: C.text, fontSize: 10 }} />
               <Line dataKey="ask" name="卖价" stroke={C.red} dot={false} />
@@ -233,7 +233,7 @@ function PinPanel() {
               <CartesianGrid stroke={C.grid} strokeDasharray="3 3" />
               <XAxis dataKey="d" stroke={C.text} fontSize={11} />
               <YAxis stroke={C.text} fontSize={11} />
-              <Tooltip {...tooltipStyle} />
+              <Tooltip contentStyle={tooltipStyle} />
               <Legend />
               <Line dataKey="buys" name="买单笔数" stroke={C.green} dot={false} strokeWidth={1} />
               <Line dataKey="sells" name="卖单笔数" stroke={C.red} dot={false} strokeWidth={1} />
@@ -287,7 +287,7 @@ function VpinPanel() {
               <CartesianGrid stroke={C.grid} strokeDasharray="3 3" />
               <XAxis dataKey="i" stroke={C.text} fontSize={11} label={{ value: "成交量桶", position: "insideBottom", offset: -3, fill: C.text, fontSize: 10 }} />
               <YAxis stroke={C.text} fontSize={11} domain={[0, 1]} />
-              <Tooltip {...tooltipStyle} />
+              <Tooltip contentStyle={tooltipStyle} />
               <Area dataKey="vpin" name="VPIN" stroke={C.gold} fill={C.gold} fillOpacity={0.18} />
             </AreaChart>
           </ResponsiveContainer>
@@ -335,7 +335,7 @@ function MakeTakePanel() {
               <CartesianGrid stroke={C.grid} strokeDasharray="3 3" />
               <XAxis dataKey="p" stroke={C.text} fontSize={11} tickFormatter={(v) => v.toFixed(1)} label={{ value: "成交概率", position: "insideBottom", offset: -3, fill: C.text, fontSize: 10 }} />
               <YAxis stroke={C.text} fontSize={11} />
-              <Tooltip {...tooltipStyle} />
+              <Tooltip contentStyle={tooltipStyle} />
               <Legend />
               <ReferenceLine y={0} stroke={C.grid} />
               <Line dataKey="limit" name="限价单 EV" stroke={C.gold} dot={false} />
@@ -378,7 +378,7 @@ function ZilobPanel() {
               <CartesianGrid stroke={C.grid} strokeDasharray="3 3" />
               <XAxis dataKey="i" stroke={C.text} fontSize={11} />
               <YAxis stroke={C.text} fontSize={11} />
-              <Tooltip {...tooltipStyle} />
+              <Tooltip contentStyle={tooltipStyle} />
               <Legend />
               <Line dataKey="spread" name="价差" stroke={C.gold} dot={false} strokeWidth={1} />
             </LineChart>
@@ -388,7 +388,7 @@ function ZilobPanel() {
               <CartesianGrid stroke={C.grid} strokeDasharray="3 3" />
               <XAxis dataKey="lvl" stroke={C.text} fontSize={11} />
               <YAxis stroke={C.text} fontSize={11} />
-              <Tooltip {...tooltipStyle} />
+              <Tooltip contentStyle={tooltipStyle} />
               <Legend />
               <Bar dataKey="bid" name="买侧深度" fill={C.teal} />
               <Bar dataKey="ask" name="卖侧深度" fill={C.red} />
@@ -426,7 +426,7 @@ function HawkesPanel() {
               <CartesianGrid stroke={C.grid} strokeDasharray="3 3" />
               <XAxis dataKey="t" stroke={C.text} fontSize={11} tickFormatter={(v) => v.toFixed(0)} />
               <YAxis stroke={C.text} fontSize={11} />
-              <Tooltip {...tooltipStyle} />
+              <Tooltip contentStyle={tooltipStyle} />
               <ReferenceLine y={mu} stroke={C.teal} strokeDasharray="4 4" label={{ value: "外生 μ", fill: C.text, fontSize: 10 }} />
               <Area dataKey="lambda" name="强度 λ(t)" stroke={C.gold} fill={C.gold} fillOpacity={0.15} />
             </AreaChart>
@@ -450,7 +450,7 @@ function SpreadPanel() {
   const [noise, setNoise] = useState(0.01);
   const built = useMemo(() => {
     const r = lcg(77);
-    const trades = [], highs: number[] = [], lows: number[] = [], prices: number[] = [], mids: number[] = [];
+    const trades: { price: number; midBefore: number; midAfter: number; direction: 1 | -1 }[] = [], highs: number[] = [], lows: number[] = [], prices: number[] = [], mids: number[] = [];
     const truth: (1 | -1)[] = [];
     let mid = 100;
     for (let i = 0; i < 250; i++) {
@@ -489,7 +489,7 @@ function SpreadPanel() {
               <CartesianGrid stroke={C.grid} strokeDasharray="3 3" />
               <XAxis dataKey="name" stroke={C.text} fontSize={11} />
               <YAxis stroke={C.text} fontSize={11} unit="bp" />
-              <Tooltip {...tooltipStyle} />
+              <Tooltip contentStyle={tooltipStyle} />
               <Bar dataKey="v" name="基点" fill={C.gold} />
             </BarChart>
           </ResponsiveContainer>
@@ -576,7 +576,7 @@ function DiscoveryPanel() {
               <CartesianGrid stroke={C.grid} strokeDasharray="3 3" />
               <XAxis dataKey="name" stroke={C.text} fontSize={11} />
               <YAxis stroke={C.text} fontSize={11} domain={[0, 1]} />
-              <Tooltip {...tooltipStyle} />
+              <Tooltip contentStyle={tooltipStyle} />
               <Legend />
               <Bar dataKey="lower" name="IS 下界" fill={C.teal} />
               <Bar dataKey="upper" name="IS 上界" fill={C.gold} />
@@ -621,7 +621,7 @@ function TickPanel() {
               <XAxis dataKey="tk" stroke={C.text} fontSize={11} tickFormatter={(v) => v.toFixed(3)} />
               <YAxis yAxisId="l" stroke={C.text} fontSize={11} unit="bp" />
               <YAxis yAxisId="r" orientation="right" stroke={C.text} fontSize={11} />
-              <Tooltip {...tooltipStyle} />
+              <Tooltip contentStyle={tooltipStyle} />
               <Legend />
               <ReferenceLine yAxisId="l" x={fric} stroke={C.red} strokeDasharray="4 4" label={{ value: "约束临界", fill: C.text, fontSize: 10 }} />
               <Line yAxisId="l" dataKey="spread" name="报价价差 (bp)" stroke={C.gold} dot={false} />
@@ -665,7 +665,7 @@ function AuctionPanel() {
               <CartesianGrid stroke={C.grid} strokeDasharray="3 3" />
               <XAxis dataKey="b" stroke={C.text} fontSize={11} label={{ value: "批量规模", position: "insideBottom", offset: -3, fill: C.text, fontSize: 10 }} />
               <YAxis stroke={C.text} fontSize={11} />
-              <Tooltip {...tooltipStyle} />
+              <Tooltip contentStyle={tooltipStyle} />
               <Legend />
               <Line dataKey="cont" name="连续交易定价误差" stroke={C.red} dot={false} strokeDasharray="5 4" />
               <Line dataKey="call" name="集合竞价定价误差" stroke={C.gold} dot={false} />
@@ -705,7 +705,7 @@ function BreakerPanel() {
               <CartesianGrid stroke={C.grid} strokeDasharray="3 3" />
               <XAxis dataKey="t" stroke={C.text} fontSize={11} />
               <YAxis stroke={C.text} fontSize={11} domain={["auto", "auto"]} />
-              <Tooltip {...tooltipStyle} />
+              <Tooltip contentStyle={tooltipStyle} />
               <Line dataKey="price" name="价格" stroke={C.gold} dot={false} strokeWidth={1.2} />
             </LineChart>
           </ResponsiveContainer>
@@ -745,7 +745,7 @@ function DarkPanel() {
               <XAxis dataKey="s" stroke={C.text} fontSize={11} tickFormatter={(v) => `${(v * 100).toFixed(0)}%`} />
               <YAxis yAxisId="l" stroke={C.text} fontSize={11} />
               <YAxis yAxisId="r" orientation="right" stroke={C.text} fontSize={11} />
-              <Tooltip {...tooltipStyle} />
+              <Tooltip contentStyle={tooltipStyle} />
               <Legend />
               <ReferenceLine yAxisId="l" x={share} stroke={C.red} strokeDasharray="4 4" />
               <Line yAxisId="l" dataKey="spread" name="显示市场价差" stroke={C.gold} dot={false} />
@@ -786,7 +786,7 @@ function ResiliencePanel() {
               <CartesianGrid stroke={C.grid} strokeDasharray="3 3" />
               <XAxis dataKey="t" stroke={C.text} fontSize={11} />
               <YAxis stroke={C.text} fontSize={11} />
-              <Tooltip {...tooltipStyle} />
+              <Tooltip contentStyle={tooltipStyle} />
               <Legend />
               <ReferenceLine y={1} stroke={C.grid} strokeDasharray="4 4" />
               <Line dataKey="spread" name="价差（相对常态）" stroke={C.red} dot={false} />
