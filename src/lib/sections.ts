@@ -588,6 +588,8 @@ export const NAV_GROUPS: NavGroup[] = [
       "behavior-microstructure",
       "behavior-lab",
       "behavior-theory",
+      "microstructure-lab",
+      "microstructure-theory",
     ],
   },
   {
