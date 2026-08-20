@@ -1,0 +1,1026 @@
+import { useMemo, useState } from "react";
+import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
+import {
+  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+  Legend, ReferenceLine, BarChart, Bar, AreaChart, Area,
+} from "recharts";
+import { C, Slider, Stat, tooltipStyle } from "@/components/frontier/ui";
+import {
+  bootstrapCurve, interpolateCurve, rollDownReturn,
+  pvCashflows, spreadTaxonomy, effectiveRisk, keyRateHedge, redingtonImmunization,
+  optionEmbeddedBond, convertibleBond,
+  creditSpreadDecomposition, ratingMigration, cdsBondBasis,
+  waterfall, gaussianCopulaTranche, mbsNegativeConvexity,
+  repoLeverage, marginSpiral, rfrCompounding, shiftedLognormalCaplet,
+  greeniumSpread, bondLiquidityPremium,
+} from "@/lib/quant/fixedIncomeFrontier";
+
+type Cat = "curve" | "spread" | "option" | "credit" | "book";
+type Tab =
+  | "bootstrap" | "interp" | "roll"
+  | "taxonomy" | "effrisk" | "krd" | "immunize"
+  | "embedded" | "convertible"
+  | "creditdec" | "migration" | "waterfall" | "copula" | "basis"
+  | "mbs" | "repo" | "rfr" | "green";
+
+const CATS: { id: Cat; label: string; kicker: string }[] = [
+  { id: "curve",  label: "曲线与口径",   kicker: "Curve" },
+  { id: "spread", label: "利差与风险",   kicker: "Spread & Risk" },
+  { id: "option", label: "含权与可转债", kicker: "Optionality" },
+  { id: "credit", label: "信用与结构化", kicker: "Credit" },
+  { id: "book",   label: "组合与制度",   kicker: "Portfolio & Regime" },
+];
+
+const TABS: { id: Tab; cat: Cat; title: string; desc: string }[] = [
+  { id: "bootstrap",   cat: "curve",  title: "票息剥离自举",     desc: "par 曲线 → 贴现因子 → 零息与远期" },
+  { id: "interp",      cat: "curve",  title: "插值方法对比",     desc: "线性零率 / 分段常数远期 / 三次样条的远期平滑性" },
+  { id: "roll",        cat: "curve",  title: "Carry 与滚动收益", desc: "曲线不变假设下的持有期收益分解" },
+  { id: "taxonomy",    cat: "spread", title: "利差四口径",       desc: "名义 / Z-spread / ASW / OAS 与期权成本" },
+  { id: "effrisk",     cat: "spread", title: "有效久期与凸性",   desc: "曲线扰动法：含权债的正确风险口径" },
+  { id: "krd",         cat: "spread", title: "关键利率久期对冲", desc: "逐桶中性化的对冲名义求解" },
+  { id: "immunize",    cat: "spread", title: "免疫与久期缺口",   desc: "Redington 条件下盈余对平行移动的敏感性" },
+  { id: "embedded",    cat: "option", title: "可赎回 / 可回售债", desc: "对数正态短率树：期权价值与不对称性" },
+  { id: "convertible", cat: "option", title: "可转债分解",       desc: "债底 + 转换期权、转换平价与债性/股性区间" },
+  { id: "creditdec",   cat: "credit", title: "信用利差分解",     desc: "预期损失 / 风险溢价 / 流动性 / 税收与信用利差之谜" },
+  { id: "migration",   cat: "credit", title: "评级迁移矩阵",     desc: "多期演化、违约累积与迁移风险 VaR" },
+  { id: "waterfall",   cat: "credit", title: "分层瀑布与 OC 触发", desc: "顺序偿付、超额抵押触发与减记顺位" },
+  { id: "copula",      cat: "credit", title: "高斯 copula 分层",  desc: "单因子相关性对股权/夹层/优先层的再分配" },
+  { id: "basis",       cat: "credit", title: "CDS-债券基差",     desc: "现券 vs 合成的融资口径与套利方向" },
+  { id: "mbs",         cat: "book",   title: "MBS 负凸性",       desc: "提前还款加速 → 利率下行时久期反而缩短" },
+  { id: "repo",        cat: "book",   title: "回购杠杆与螺旋",   desc: "杠杆放大 carry 与风险；折扣率上升的追缴螺旋" },
+  { id: "rfr",         cat: "book",   title: "RFR 改革与负利率", desc: "后视复利 vs 定盘、fallback 利差、位移对数正态 caplet" },
+  { id: "green",       cat: "book",   title: "气候与流动性利差", desc: "绿色溢价、转型贴水与债券流动性溢价" },
+];
+
+const Panel = ({ title, note, children }: { title: string; note: string; children: React.ReactNode }) => (
+  <div className="rounded-2xl border border-border bg-card p-5 md:p-6">
+    <h3 className="font-serif text-xl text-foreground">{title}</h3>
+    <p className="text-xs text-muted-foreground mt-1 mb-5">{note}</p>
+    {children}
+  </div>
+);
+const Grid = ({ children }: { children: React.ReactNode }) => (
+  <div className="grid md:grid-cols-[280px_1fr] gap-6">{children}</div>
+);
+const Controls = ({ children }: { children: React.ReactNode }) => <div className="space-y-4">{children}</div>;
+const Stats = ({ children }: { children: React.ReactNode }) => (
+  <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 mt-4">{children}</div>
+);
+const f = (x: number | null, d = 3) => (x === null || !Number.isFinite(x) ? "—" : x.toFixed(d));
+const bp = (x: number | null, d = 1) => (x === null || !Number.isFinite(x) ? "—" : (x * 1e4).toFixed(d) + " bp");
+const pct = (x: number, d = 2) => (Number.isFinite(x) ? (x * 100).toFixed(d) + "%" : "—");
+
+/* ── 1. Bootstrap ── */
+function BootstrapPanel() {
+  const [level, setLevel] = useState(0.03);
+  const [slope, setSlope] = useState(0.015);
+  const [hump, setHump] = useState(0.004);
+  const mats = [0.5, 1, 2, 3, 5, 7, 10, 20, 30];
+  const out = useMemo(() => {
+    const ins = mats.map((m) => ({
+      maturity: m,
+      parRate: level + slope * (1 - Math.exp(-m / 3)) + hump * (m / 3) * Math.exp(-m / 3),
+    }));
+    const pts = bootstrapCurve(ins);
+    const data = pts.map((p, i) => {
+      const prev = i === 0 ? null : pts[i - 1];
+      const fwd = prev ? (p.zero * p.maturity - prev.zero * prev.maturity) / (p.maturity - prev.maturity) : p.zero;
+      return { tau: p.maturity, par: p.parRate * 100, zero: p.zero * 100, forward: fwd * 100, df: p.discount };
+    });
+    return { pts, data };
+  }, [level, slope, hump]);
+  return (
+    <Panel title="票息剥离自举 (Bootstrapping)" note="市场直接可观测的是附息债的 par 收益率，而定价需要的是贴现因子。自举按期限从短到长依次剥离票息，把 par 曲线翻译成零息曲线与瞬时远期曲线：上斜的 par 曲线一定对应更陡的零息曲线，远期曲线又比零息曲线更陡。">
+      <Grid>
+        <Controls>
+          <Slider label="水平 (level)" value={level} min={0} max={0.08} step={0.001} onChange={setLevel} />
+          <Slider label="斜率 (slope)" value={slope} min={-0.03} max={0.04} step={0.001} onChange={setSlope} />
+          <Slider label="曲率 (hump)" value={hump} min={-0.02} max={0.02} step={0.001} onChange={setHump} />
+        </Controls>
+        <div>
+          <ResponsiveContainer width="100%" height={280}>
+            <LineChart data={out.data}>
+              <CartesianGrid stroke={C.grid} strokeDasharray="3 3" />
+              <XAxis dataKey="tau" stroke={C.text} fontSize={11} label={{ value: "年", position: "insideBottomRight", fontSize: 10 }} />
+              <YAxis stroke={C.text} fontSize={11} unit="%" />
+              <Tooltip contentStyle={tooltipStyle} />
+              <Legend />
+              <Line dataKey="par" name="par 收益率" stroke={C.text} dot={false} />
+              <Line dataKey="zero" name="零息利率" stroke={C.gold} dot={false} strokeWidth={2} />
+              <Line dataKey="forward" name="远期利率" stroke={C.teal} dot={false} strokeDasharray="4 3" />
+            </LineChart>
+          </ResponsiveContainer>
+          <Stats>
+            <Stat label="10Y 贴现因子" value={f(out.data[6].df, 4)} color={C.gold} />
+            <Stat label="10Y 零息" value={f(out.data[6].zero, 3) + "%"} />
+            <Stat label="30Y 零息" value={f(out.data[8].zero, 3) + "%"} />
+            <Stat label="2s10s 斜率" value={f(out.data[6].zero - out.data[2].zero, 3) + "%"} color={C.teal} />
+          </Stats>
+        </div>
+      </Grid>
+    </Panel>
+  );
+}
+
+/* ── 2. Interpolation ── */
+function InterpPanel() {
+  const [tenYear, setTenYear] = useState(0.036);
+  const [kink, setKink] = useState(0.031);
+  const nodes = useMemo(() => [
+    { maturity: 0.5, zero: 0.02 }, { maturity: 2, zero: 0.028 },
+    { maturity: 5, zero: kink }, { maturity: 10, zero: tenYear }, { maturity: 30, zero: tenYear + 0.002 },
+  ], [tenYear, kink]);
+  const res = useMemo(() => (["linearZero", "flatForward", "cubicZero"] as const).map((m) => interpolateCurve(nodes, m, 90)), [nodes]);
+  const data = useMemo(() => res[0].curve.map((p, i) => ({
+    t: +p.t.toFixed(2),
+    linear: res[0].curve[i].forward * 100,
+    flat: res[1].curve[i].forward * 100,
+    cubic: res[2].curve[i].forward * 100,
+  })), [res]);
+  return (
+    <Panel title="插值方法与远期曲线平滑性" note="插值不是无害的技术细节：同一组节点在不同插值下会给出完全不同的远期曲线。零率线性插值会在节点处制造远期跳跃，分段常数远期给出阶梯，样条最平滑但可能出现震荡。远期曲线的粗糙度（二阶差分平方和）是选择插值方案的标准诊断。">
+      <Grid>
+        <Controls>
+          <Slider label="5Y 零息" value={kink} min={0.01} max={0.06} step={0.0005} onChange={setKink} />
+          <Slider label="10Y 零息" value={tenYear} min={0.01} max={0.06} step={0.0005} onChange={setTenYear} />
+          <p className="text-[11px] text-muted-foreground leading-relaxed">把 5Y 拉离邻近节点，可以看到线性插值的远期折线如何被放大成尖峰。</p>
+        </Controls>
+        <div>
+          <ResponsiveContainer width="100%" height={280}>
+            <LineChart data={data}>
+              <CartesianGrid stroke={C.grid} strokeDasharray="3 3" />
+              <XAxis dataKey="t" stroke={C.text} fontSize={11} />
+              <YAxis stroke={C.text} fontSize={11} unit="%" />
+              <Tooltip contentStyle={tooltipStyle} />
+              <Legend />
+              <Line dataKey="linear" name="线性零率" stroke={C.gold} dot={false} />
+              <Line dataKey="flat" name="分段常数远期" stroke={C.teal} dot={false} />
+              <Line dataKey="cubic" name="三次样条" stroke={C.red} dot={false} />
+            </LineChart>
+          </ResponsiveContainer>
+          <Stats>
+            <Stat label="线性零率粗糙度" value={f(res[0].roughness * 1e6, 2)} />
+            <Stat label="常数远期粗糙度" value={f(res[1].roughness * 1e6, 2)} />
+            <Stat label="样条粗糙度" value={f(res[2].roughness * 1e6, 2)} color={C.gold} />
+            <Stat label="单位" value="×10⁻⁶" />
+          </Stats>
+        </div>
+      </Grid>
+    </Panel>
+  );
+}
+
+/* ── 3. Roll-down ── */
+function RollPanel() {
+  const [mat, setMat] = useState(5);
+  const [slope, setSlope] = useState(0.006);
+  const [funding, setFunding] = useState(0.02);
+  const zeroAt = (t: number) => 0.02 + slope * Math.min(t, 10);
+  const data = useMemo(() => Array.from({ length: 20 }, (_, i) => {
+    const m = 1 + i * 1.5;
+    const r = rollDownReturn({ zeroNow: zeroAt(m), maturity: m, horizon: 1, zeroRolled: zeroAt(m - 1), fundingRate: funding });
+    return { maturity: m, total: r.total * 100, carry: r.carry * 100, rolldown: r.rolldown * 100 };
+  }), [slope, funding]);
+  const cur = useMemo(() => rollDownReturn({ zeroNow: zeroAt(mat), maturity: mat, horizon: 1, zeroRolled: zeroAt(mat - 1), fundingRate: funding }), [mat, slope, funding]);
+  return (
+    <Panel title="Carry 与滚动收益分解" note="若曲线一年后完全不变，持有一只债券的收益来自两块：carry（票息/收益率减去融资成本）与 roll-down（债券沿曲线向短端滚动带来的资本利得）。曲线越陡，roll-down 越大，这正是曲线交易与套息组合的收益来源，也是它在曲线走平时最脆弱的地方。">
+      <Grid>
+        <Controls>
+          <Slider label="持仓期限 (年)" value={mat} min={2} max={30} step={1} onChange={setMat} />
+          <Slider label="曲线斜率 / 年" value={slope} min={-0.004} max={0.012} step={0.0005} onChange={setSlope} />
+          <Slider label="融资利率" value={funding} min={0} max={0.06} step={0.001} onChange={setFunding} />
+        </Controls>
+        <div>
+          <ResponsiveContainer width="100%" height={280}>
+            <BarChart data={data}>
+              <CartesianGrid stroke={C.grid} strokeDasharray="3 3" />
+              <XAxis dataKey="maturity" stroke={C.text} fontSize={11} />
+              <YAxis stroke={C.text} fontSize={11} unit="%" />
+              <Tooltip contentStyle={tooltipStyle} />
+              <Legend />
+              <ReferenceLine y={0} stroke={C.text} />
+              <Bar dataKey="carry" name="carry" stackId="a" fill={C.teal} />
+              <Bar dataKey="rolldown" name="roll-down" stackId="a" fill={C.gold} />
+            </BarChart>
+          </ResponsiveContainer>
+          <Stats>
+            <Stat label="一年期总收益" value={pct(cur.total)} color={cur.total > 0 ? C.green : C.red} />
+            <Stat label="carry" value={pct(cur.carry)} color={C.teal} />
+            <Stat label="roll-down" value={pct(cur.rolldown)} color={C.gold} />
+            <Stat label="期初价格" value={f(cur.priceStart * 100, 2)} />
+          </Stats>
+        </div>
+      </Grid>
+    </Panel>
+  );
+}
+
+/* ── 4. Spread taxonomy ── */
+function TaxonomyPanel() {
+  const [coupon, setCoupon] = useState(0.05);
+  const [price, setPrice] = useState(98);
+  const [curve, setCurve] = useState(0.035);
+  const [oas, setOas] = useState(0.002);
+  const maturity = 5;
+  const cfs = useMemo(() => Array.from({ length: maturity * 2 }, (_, k) => ({
+    t: (k + 1) / 2, amount: k === maturity * 2 - 1 ? 100 + (coupon * 100) / 2 : (coupon * 100) / 2,
+  })), [coupon]);
+  const zeroAt = (t: number) => curve + 0.0008 * t;
+  const out = useMemo(() => spreadTaxonomy({ cfs, zeroAt, price, benchmarkYield: curve, maturity, coupon, oas }), [cfs, price, curve, coupon, oas]);
+  const data = [
+    { name: "名义利差", v: out.nominal * 1e4 },
+    { name: "Z-spread", v: out.zSpread * 1e4 },
+    { name: "ASW", v: out.asw * 1e4 },
+    { name: "OAS", v: (out.oas ?? 0) * 1e4 },
+    { name: "期权成本", v: (out.optionCost ?? 0) * 1e4 },
+  ];
+  return (
+    <Panel title="利差四口径：名义 / Z / ASW / OAS" note="四种利差回答四个不同的问题：名义利差只对一个基准点，Z-spread 对整条曲线，ASW 把债券换成浮息现金流后对互换曲线报价，OAS 再进一步剥掉内含期权。恒等式 Z − OAS = 期权成本，是判断含权债券是否被正确定价的第一道检查。">
+      <Grid>
+        <Controls>
+          <Slider label="票息" value={coupon} min={0} max={0.1} step={0.0025} onChange={setCoupon} />
+          <Slider label="市场净价" value={price} min={80} max={120} step={0.5} onChange={setPrice} />
+          <Slider label="基准曲线水平" value={curve} min={0} max={0.08} step={0.001} onChange={setCurve} />
+          <Slider label="模型 OAS" value={oas} min={-0.005} max={0.02} step={0.0005} onChange={setOas} />
+        </Controls>
+        <div>
+          <ResponsiveContainer width="100%" height={280}>
+            <BarChart data={data}>
+              <CartesianGrid stroke={C.grid} strokeDasharray="3 3" />
+              <XAxis dataKey="name" stroke={C.text} fontSize={11} />
+              <YAxis stroke={C.text} fontSize={11} unit="bp" />
+              <Tooltip contentStyle={tooltipStyle} />
+              <ReferenceLine y={0} stroke={C.text} />
+              <Bar dataKey="v" name="利差 (bp)" fill={C.gold} />
+            </BarChart>
+          </ResponsiveContainer>
+          <Stats>
+            <Stat label="到期收益率" value={pct(out.ytm)} />
+            <Stat label="Z-spread" value={bp(out.zSpread)} color={C.gold} />
+            <Stat label="ASW" value={bp(out.asw)} color={C.teal} />
+            <Stat label="期权成本 (Z−OAS)" value={bp(out.optionCost)} color={C.red} />
+          </Stats>
+          <p className="text-[11px] text-muted-foreground mt-3">曲线 PV = {f(pvCashflows(cfs, zeroAt), 3)}；净价高于曲线 PV 时 Z-spread 转负，说明该券相对曲线偏贵。</p>
+        </div>
+      </Grid>
+    </Panel>
+  );
+}
+
+/* ── 5. Effective duration ── */
+function EffRiskPanel() {
+  const [coupon, setCoupon] = useState(0.05);
+  const [sigma, setSigma] = useState(0.2);
+  const [callable, setCallable] = useState(true);
+  const priceFn = useMemo(() => (shift: number) =>
+    optionEmbeddedBond({ coupon, maturity: 10, r0: 0.045 + shift, sigma, type: callable ? "call" : "bullet", strike: 100, steps: 30 }).price,
+    [coupon, sigma, callable]);
+  const out = useMemo(() => effectiveRisk(priceFn, 0.0025), [priceFn]);
+  const data = useMemo(() => Array.from({ length: 21 }, (_, i) => {
+    const s = -0.02 + i * 0.002;
+    return { shift: +(s * 1e4).toFixed(0), price: priceFn(s) };
+  }), [priceFn]);
+  return (
+    <Panel title="有效久期与有效凸性" note="解析久期只对无期权的固定现金流成立。含权债的现金流本身随利率变化，正确做法是对整条曲线上下扰动后重新定价：有效久期 =(P₋−P₊)/(2P₀Δy)，有效凸性 =(P₊+P₋−2P₀)/(P₀Δy²)。可赎回债在低利率区凸性转负，价格被赎回价压住。">
+      <Grid>
+        <Controls>
+          <Slider label="票息" value={coupon} min={0.01} max={0.1} step={0.0025} onChange={setCoupon} />
+          <Slider label="利率波动率 σ" value={sigma} min={0.02} max={0.5} step={0.01} onChange={setSigma} />
+          <button onClick={() => setCallable((v) => !v)} className="w-full px-3 py-2 rounded-lg border border-border text-xs font-mono bg-secondary/40 hover:text-foreground">
+            {callable ? "当前：可赎回债" : "当前：普通债"} · 点击切换
+          </button>
+        </Controls>
+        <div>
+          <ResponsiveContainer width="100%" height={280}>
+            <LineChart data={data}>
+              <CartesianGrid stroke={C.grid} strokeDasharray="3 3" />
+              <XAxis dataKey="shift" stroke={C.text} fontSize={11} unit="bp" />
+              <YAxis stroke={C.text} fontSize={11} domain={["auto", "auto"]} />
+              <Tooltip contentStyle={tooltipStyle} />
+              <ReferenceLine x={0} stroke={C.text} strokeDasharray="4 4" />
+              <Line dataKey="price" name="价格" stroke={C.gold} dot={false} strokeWidth={2} />
+            </LineChart>
+          </ResponsiveContainer>
+          <Stats>
+            <Stat label="价格" value={f(out.price, 3)} />
+            <Stat label="有效久期" value={f(out.effDuration, 3)} color={C.gold} />
+            <Stat label="有效凸性" value={f(out.effConvexity, 2)} color={out.effConvexity < 0 ? C.red : C.teal} />
+            <Stat label="DV01 (每 100 面值)" value={f(out.dv01, 4)} />
+          </Stats>
+        </div>
+      </Grid>
+    </Panel>
+  );
+}
+
+/* ── 6. KRD hedge ── */
+function KrdPanel() {
+  const [k2, setK2] = useState(1.1);
+  const [k5, setK5] = useState(2.2);
+  const [k10, setK10] = useState(3.6);
+  const out = useMemo(() => keyRateHedge({
+    portfolioKrd: [k2, k5, k10], portfolioValue: 100,
+    hedgeKrd: [[1.9, 0.05, 0], [0.1, 4.6, 0.1], [0, 0.15, 8.4]],
+    hedgeValues: [100, 100, 100],
+  }), [k2, k5, k10]);
+  const data = [
+    { bucket: "2Y", 组合: k2, 对冲后: k2 + out.notional[0] * 1.9 / 100 + out.notional[1] * 0.1 / 100 },
+    { bucket: "5Y", 组合: k5, 对冲后: k5 + out.notional[0] * 0.05 / 100 + out.notional[1] * 4.6 / 100 + out.notional[2] * 0.15 / 100 },
+    { bucket: "10Y", 组合: k10, 对冲后: k10 + out.notional[1] * 0.1 / 100 + out.notional[2] * 8.4 / 100 },
+  ];
+  return (
+    <Panel title="关键利率久期对冲" note="平行移动只是曲线风险的一个维度。关键利率久期把总久期拆到各个期限桶上，对冲的任务是用一组基准券把每个桶分别打平——这也是曲线陡峭化/平坦化交易能够单独表达观点的技术前提。">
+      <Grid>
+        <Controls>
+          <Slider label="2Y 桶 KRD" value={k2} min={0} max={5} step={0.1} onChange={setK2} />
+          <Slider label="5Y 桶 KRD" value={k5} min={0} max={5} step={0.1} onChange={setK5} />
+          <Slider label="10Y 桶 KRD" value={k10} min={0} max={8} step={0.1} onChange={setK10} />
+        </Controls>
+        <div>
+          <ResponsiveContainer width="100%" height={280}>
+            <BarChart data={data}>
+              <CartesianGrid stroke={C.grid} strokeDasharray="3 3" />
+              <XAxis dataKey="bucket" stroke={C.text} fontSize={11} />
+              <YAxis stroke={C.text} fontSize={11} />
+              <Tooltip contentStyle={tooltipStyle} />
+              <Legend />
+              <ReferenceLine y={0} stroke={C.text} />
+              <Bar dataKey="组合" fill={C.gold} />
+              <Bar dataKey="对冲后" fill={C.teal} />
+            </BarChart>
+          </ResponsiveContainer>
+          <Stats>
+            <Stat label="2Y 对冲名义" value={f(out.notional[0], 2)} color={C.gold} />
+            <Stat label="5Y 对冲名义" value={f(out.notional[1], 2)} color={C.gold} />
+            <Stat label="10Y 对冲名义" value={f(out.notional[2], 2)} color={C.gold} />
+            <Stat label="最大残差" value={f(out.maxResidual, 6)} color={C.teal} />
+          </Stats>
+        </div>
+      </Grid>
+    </Panel>
+  );
+}
+
+/* ── 7. Immunization ── */
+function ImmunizePanel() {
+  const [aD, setAD] = useState(6);
+  const [aC, setAC] = useState(60);
+  const [lD, setLD] = useState(6);
+  const [surplusPv, setSurplusPv] = useState(5);
+  const out = useMemo(() => redingtonImmunization({
+    assetPv: 100 + surplusPv, assetDuration: aD, assetConvexity: aC,
+    liabPv: 100, liabDuration: lD, liabConvexity: 40,
+  }), [aD, aC, lD, surplusPv]);
+  const data = useMemo(() => Array.from({ length: 41 }, (_, i) => {
+    const dy = -0.02 + i * 0.001;
+    return { dy: +(dy * 1e4).toFixed(0), surplus: out.surplus(dy) };
+  }), [out]);
+  return (
+    <Panel title="免疫与久期缺口 (Redington)" note="负债驱动投资的核心不是最大化收益，而是让盈余对利率免疫。Redington 条件要求美元久期匹配、资产凸性高于负债凸性：此时盈余对小幅平行移动一阶不敏感，二阶还是正的。缺口一旦为正，利率上行就直接吃掉资本。">
+      <Grid>
+        <Controls>
+          <Slider label="资产久期" value={aD} min={1} max={15} step={0.1} onChange={setAD} />
+          <Slider label="资产凸性" value={aC} min={10} max={200} step={5} onChange={setAC} />
+          <Slider label="负债久期" value={lD} min={1} max={15} step={0.1} onChange={setLD} />
+          <Slider label="初始盈余" value={surplusPv} min={-20} max={40} step={1} onChange={setSurplusPv} />
+        </Controls>
+        <div>
+          <ResponsiveContainer width="100%" height={280}>
+            <AreaChart data={data}>
+              <CartesianGrid stroke={C.grid} strokeDasharray="3 3" />
+              <XAxis dataKey="dy" stroke={C.text} fontSize={11} unit="bp" />
+              <YAxis stroke={C.text} fontSize={11} />
+              <Tooltip contentStyle={tooltipStyle} />
+              <ReferenceLine y={0} stroke={C.red} strokeDasharray="4 4" />
+              <Area dataKey="surplus" name="盈余" stroke={C.gold} fill={C.gold} fillOpacity={0.18} />
+            </AreaChart>
+          </ResponsiveContainer>
+          <Stats>
+            <Stat label="美元久期缺口" value={f(out.dollarGap, 2)} color={Math.abs(out.dollarGap) < 1 ? C.green : C.red} />
+            <Stat label="凸性缺口" value={f(out.convexityGap, 1)} color={out.convexityGap >= 0 ? C.teal : C.red} />
+            <Stat label="久期缺口" value={f(out.durationGap, 3)} />
+            <Stat label="是否免疫" value={out.immunized ? "是" : "否"} color={out.immunized ? C.green : C.red} />
+          </Stats>
+        </div>
+      </Grid>
+    </Panel>
+  );
+}
+
+/* ── 8. Embedded options ── */
+function EmbeddedPanel() {
+  const [r0, setR0] = useState(0.045);
+  const [sigma, setSigma] = useState(0.2);
+  const [strike, setStrike] = useState(100);
+  const base = { coupon: 0.05, maturity: 8, r0, sigma, steps: 32 } as const;
+  const out = useMemo(() => ({
+    bullet: optionEmbeddedBond({ ...base, type: "bullet" }),
+    call: optionEmbeddedBond({ ...base, type: "call", strike }),
+    put: optionEmbeddedBond({ ...base, type: "put", strike }),
+  }), [r0, sigma, strike]);
+  const data = useMemo(() => Array.from({ length: 21 }, (_, i) => {
+    const r = 0.01 + i * 0.005;
+    const b = { coupon: 0.05, maturity: 8, r0: r, sigma, steps: 32 } as const;
+    return {
+      rate: +(r * 100).toFixed(2),
+      普通债: optionEmbeddedBond({ ...b, type: "bullet" }).price,
+      可赎回: optionEmbeddedBond({ ...b, type: "call", strike }).price,
+      可回售: optionEmbeddedBond({ ...b, type: "put", strike }).price,
+    };
+  }), [sigma, strike]);
+  return (
+    <Panel title="可赎回债与可回售债" note="内含期权把债券的价格-利率曲线掰弯：赎回权归发行人，价格在低利率端被赎回价压平（负凸性）；回售权归投资者，价格在高利率端获得下方保护。期权价值 = 普通债价值与含权价值之差，随利率波动率单调上升。">
+      <Grid>
+        <Controls>
+          <Slider label="短率水平 r₀" value={r0} min={0.005} max={0.1} step={0.0025} onChange={setR0} />
+          <Slider label="利率波动率 σ" value={sigma} min={0.02} max={0.6} step={0.01} onChange={setSigma} />
+          <Slider label="行权价" value={strike} min={90} max={110} step={0.5} onChange={setStrike} />
+        </Controls>
+        <div>
+          <ResponsiveContainer width="100%" height={280}>
+            <LineChart data={data}>
+              <CartesianGrid stroke={C.grid} strokeDasharray="3 3" />
+              <XAxis dataKey="rate" stroke={C.text} fontSize={11} unit="%" />
+              <YAxis stroke={C.text} fontSize={11} />
+              <Tooltip contentStyle={tooltipStyle} />
+              <Legend />
+              <ReferenceLine y={strike} stroke={C.red} strokeDasharray="4 4" />
+              <Line dataKey="普通债" stroke={C.text} dot={false} />
+              <Line dataKey="可赎回" stroke={C.gold} dot={false} strokeWidth={2} />
+              <Line dataKey="可回售" stroke={C.teal} dot={false} strokeWidth={2} />
+            </LineChart>
+          </ResponsiveContainer>
+          <Stats>
+            <Stat label="普通债" value={f(out.bullet.price, 3)} />
+            <Stat label="可赎回债" value={f(out.call.price, 3)} color={C.gold} />
+            <Stat label="赎回期权价值" value={f(out.call.optionValue, 3)} color={C.red} />
+            <Stat label="回售期权价值" value={f(out.put.optionValue, 3)} color={C.teal} />
+          </Stats>
+        </div>
+      </Grid>
+    </Panel>
+  );
+}
+
+/* ── 9. Convertible ── */
+function ConvertiblePanel() {
+  const [stock, setStock] = useState(45);
+  const [sigma, setSigma] = useState(0.35);
+  const [credit, setCredit] = useState(0.06);
+  const out = useMemo(() => convertibleBond({ coupon: 0.02, maturity: 5, creditYield: credit, riskFree: 0.03, stock, ratio: 2, sigma }), [stock, sigma, credit]);
+  const data = useMemo(() => Array.from({ length: 31 }, (_, i) => {
+    const S = 10 + i * 3;
+    const r = convertibleBond({ coupon: 0.02, maturity: 5, creditYield: credit, riskFree: 0.03, stock: S, ratio: 2, sigma });
+    return { S, 可转债: r.value, 债底: r.bondFloor, 转换平价: r.parity };
+  }), [sigma, credit]);
+  return (
+    <Panel title="可转债分解：债底 + 转换期权" note="可转债 = 债底 + 股票看涨期权。股价低时债底主导，行为像信用债；股价高时转换平价主导，delta 趋近转换比率；中间是混合区，波动率与信用利差同时定价。转股溢价率衡量你为可选性多付了多少。">
+      <Grid>
+        <Controls>
+          <Slider label="正股价格" value={stock} min={10} max={100} step={1} onChange={setStock} />
+          <Slider label="股票波动率" value={sigma} min={0.1} max={0.9} step={0.01} onChange={setSigma} />
+          <Slider label="信用收益率" value={credit} min={0.02} max={0.2} step={0.005} onChange={setCredit} />
+        </Controls>
+        <div>
+          <ResponsiveContainer width="100%" height={280}>
+            <LineChart data={data}>
+              <CartesianGrid stroke={C.grid} strokeDasharray="3 3" />
+              <XAxis dataKey="S" stroke={C.text} fontSize={11} />
+              <YAxis stroke={C.text} fontSize={11} />
+              <Tooltip contentStyle={tooltipStyle} />
+              <Legend />
+              <ReferenceLine x={stock} stroke={C.red} strokeDasharray="4 4" />
+              <Line dataKey="可转债" stroke={C.gold} dot={false} strokeWidth={2} />
+              <Line dataKey="债底" stroke={C.teal} dot={false} strokeDasharray="4 3" />
+              <Line dataKey="转换平价" stroke={C.text} dot={false} strokeDasharray="2 3" />
+            </LineChart>
+          </ResponsiveContainer>
+          <Stats>
+            <Stat label="理论价值" value={f(out.value, 2)} color={C.gold} />
+            <Stat label="债底" value={f(out.bondFloor, 2)} color={C.teal} />
+            <Stat label="Delta" value={f(out.delta, 3)} />
+            <Stat label="所处区间" value={out.regime === "bond" ? "债性" : out.regime === "equity" ? "股性" : "混合"} color={C.red} />
+          </Stats>
+        </div>
+      </Grid>
+    </Panel>
+  );
+}
+
+/* ── 10. Credit spread decomposition ── */
+function CreditDecPanel() {
+  const [obs, setObs] = useState(0.015);
+  const [pd, setPd] = useState(0.01);
+  const [lgd, setLgd] = useState(0.6);
+  const [liq, setLiq] = useState(0.003);
+  const out = useMemo(() => creditSpreadDecomposition({
+    observedSpread: obs, pd, lgd, riskPremiumMultiple: 2, liquidityPremium: liq, taxRate: 0.2, couponYield: 0.005,
+  }), [obs, pd, lgd, liq]);
+  const data = [
+    { name: "预期损失", v: out.expectedLoss * 1e4 },
+    { name: "风险溢价", v: out.riskPremium * 1e4 },
+    { name: "流动性", v: out.liquidityPremium * 1e4 },
+    { name: "税收", v: out.tax * 1e4 },
+    { name: "残差", v: out.residual * 1e4 },
+  ];
+  return (
+    <Panel title="信用利差分解与信用利差之谜" note="投资级债券的利差远高于历史违约损失所能解释的部分——这就是信用利差之谜。把观测利差拆成预期损失、承担违约风险的溢价、流动性补偿与税收效应后，通常仍有相当比例落在残差里，提示模型之外的定价因素。">
+      <Grid>
+        <Controls>
+          <Slider label="观测利差" value={obs} min={0.002} max={0.06} step={0.001} onChange={setObs} />
+          <Slider label="年化违约概率" value={pd} min={0.0005} max={0.06} step={0.0005} onChange={setPd} />
+          <Slider label="违约损失率 LGD" value={lgd} min={0.1} max={0.9} step={0.05} onChange={setLgd} />
+          <Slider label="流动性溢价" value={liq} min={0} max={0.02} step={0.0005} onChange={setLiq} />
+        </Controls>
+        <div>
+          <ResponsiveContainer width="100%" height={280}>
+            <BarChart data={data}>
+              <CartesianGrid stroke={C.grid} strokeDasharray="3 3" />
+              <XAxis dataKey="name" stroke={C.text} fontSize={11} />
+              <YAxis stroke={C.text} fontSize={11} unit="bp" />
+              <Tooltip contentStyle={tooltipStyle} />
+              <ReferenceLine y={0} stroke={C.text} />
+              <Bar dataKey="v" name="贡献 (bp)" fill={C.gold} />
+            </BarChart>
+          </ResponsiveContainer>
+          <Stats>
+            <Stat label="预期损失占比" value={pct(out.shares.expectedLoss)} color={C.teal} />
+            <Stat label="流动性占比" value={pct(out.shares.liquidity)} />
+            <Stat label="残差占比" value={pct(out.shares.residual)} color={C.red} />
+            <Stat label="利差之谜" value={out.creditSpreadPuzzle ? "成立" : "不成立"} color={out.creditSpreadPuzzle ? C.red : C.green} />
+          </Stats>
+        </div>
+      </Grid>
+    </Panel>
+  );
+}
+
+/* ── 11. Rating migration ── */
+function MigrationPanel() {
+  const [downgrade, setDowngrade] = useState(0.08);
+  const [start, setStart] = useState(0);
+  const matrix = useMemo(() => {
+    const d = downgrade;
+    return [
+      [1 - d - 0.005, d, 0.004, 0.001],
+      [0.05, 1 - d - 0.06, d, 0.01],
+      [0.01, 0.10, 1 - d - 0.15, d + 0.04],
+      [0, 0, 0, 1],
+    ];
+  }, [downgrade]);
+  const out = useMemo(() => ratingMigration({
+    matrix, startRating: start, horizons: [1, 2, 3, 5, 7, 10],
+    spreadsByRating: [0.005, 0.012, 0.035, 1], duration: 5,
+  }), [matrix, start]);
+  const data = out.results.map((r) => ({
+    horizon: r.horizon, AAA: r.distribution[0] * 100, A: r.distribution[1] * 100,
+    BB: r.distribution[2] * 100, 违约: r.defaultProb * 100, VaR: r.var,
+  }));
+  return (
+    <Panel title="评级迁移矩阵与迁移风险 VaR" note="信用风险不止违约：评级下调本身就通过利差重估造成损失。把一年期迁移矩阵做矩阵幂即可得到多期分布，累积违约概率随期限凸性上升；把各状态的利差变化折算成损失后取分位数，就是 CreditMetrics 式的迁移风险 VaR。">
+      <Grid>
+        <Controls>
+          <Slider label="下调强度" value={downgrade} min={0.01} max={0.2} step={0.005} onChange={setDowngrade} />
+          <Slider label="初始评级 (0=最高)" value={start} min={0} max={2} step={1} onChange={setStart} />
+        </Controls>
+        <div>
+          <ResponsiveContainer width="100%" height={280}>
+            <AreaChart data={data}>
+              <CartesianGrid stroke={C.grid} strokeDasharray="3 3" />
+              <XAxis dataKey="horizon" stroke={C.text} fontSize={11} unit="y" />
+              <YAxis stroke={C.text} fontSize={11} unit="%" />
+              <Tooltip contentStyle={tooltipStyle} />
+              <Legend />
+              <Area dataKey="AAA" stackId="1" stroke={C.teal} fill={C.teal} fillOpacity={0.35} />
+              <Area dataKey="A" stackId="1" stroke={C.gold} fill={C.gold} fillOpacity={0.35} />
+              <Area dataKey="BB" stackId="1" stroke={C.text} fill={C.text} fillOpacity={0.25} />
+              <Area dataKey="违约" stackId="1" stroke={C.red} fill={C.red} fillOpacity={0.5} />
+            </AreaChart>
+          </ResponsiveContainer>
+          <Stats>
+            <Stat label="1 年违约率" value={pct(out.results[0].defaultProb)} />
+            <Stat label="10 年违约率" value={pct(out.results[5].defaultProb)} color={C.red} />
+            <Stat label="10 年期望利差" value={bp(out.results[5].expectedSpread)} color={C.gold} />
+            <Stat label="迁移 VaR (99%)" value={f(out.results[5].var, 3)} color={C.red} />
+          </Stats>
+        </div>
+      </Grid>
+    </Panel>
+  );
+}
+
+/* ── 12. Waterfall ── */
+function WaterfallPanel() {
+  const [lossRate, setLossRate] = useState(0.08);
+  const [seniorSize, setSeniorSize] = useState(70);
+  const [ocTrigger, setOcTrigger] = useState(1.0);
+  const tranches = useMemo(() => [
+    { name: "A 优先", size: seniorSize, coupon: 0.04 },
+    { name: "B 夹层", size: (100 - seniorSize) * 0.65, coupon: 0.07 },
+    { name: "C 股权", size: (100 - seniorSize) * 0.35, coupon: 0.12 },
+  ], [seniorSize]);
+  const out = useMemo(() => waterfall({ poolPrincipal: 100, poolInterest: 6, lossRate, tranches, ocTrigger }), [lossRate, tranches, ocTrigger]);
+  const data = out.tranches.map((t) => ({ name: t.name, 本金偿付: t.principalPaid, 减记: t.writedown, 利息: t.interestPaid });
+  return (
+    <Panel title="分层瀑布与超额抵押触发" note="结构化产品的风险分配写在现金流瀑布里：本金按优先级顺序偿付，损失自下而上吞噬。超额抵押触发一旦被击穿，利息会被强制改道去偿还优先级本金——这正是危机中夹层持有人一夜之间断流的机制。">
+      <Grid>
+        <Controls>
+          <Slider label="资产池损失率" value={lossRate} min={0} max={0.5} step={0.01} onChange={setLossRate} />
+          <Slider label="优先层厚度" value={seniorSize} min={40} max={90} step={1} onChange={setSeniorSize} />
+          <Slider label="OC 触发水平" value={ocTrigger} min={0.8} max={1.1} step={0.01} onChange={setOcTrigger} />
+        </Controls>
+        <div>
+          <ResponsiveContainer width="100%" height={280}>
+            <BarChart data={data}>
+              <CartesianGrid stroke={C.grid} strokeDasharray="3 3" />
+              <XAxis dataKey="name" stroke={C.text} fontSize={11} />
+              <YAxis stroke={C.text} fontSize={11} />
+              <Tooltip contentStyle={tooltipStyle} />
+              <Legend />
+              <Bar dataKey="本金偿付" stackId="a" fill={C.teal} />
+              <Bar dataKey="减记" stackId="a" fill={C.red} />
+              <Bar dataKey="利息" fill={C.gold} />
+            </BarChart>
+          </ResponsiveContainer>
+          <Stats>
+            <Stat label="资产池损失" value={f(out.loss, 2)} color={C.red} />
+            <Stat label="OC 比率" value={f(out.ocRatio, 4)} color={out.triggered ? C.red : C.teal} />
+            <Stat label="触发状态" value={out.triggered ? "已击穿" : "正常"} color={out.triggered ? C.red : C.green} />
+            <Stat label="股权残值" value={f(out.equityResidual, 2)} color={C.gold} />
+          </Stats>
+        </div>
+      </Grid>
+    </Panel>
+  );
+}
+
+/* ── 13. Copula tranche ── */
+function CopulaPanel() {
+  const [pd, setPd] = useState(0.05);
+  const [rho, setRho] = useState(0.2);
+  const [lgd, setLgd] = useState(0.6);
+  const slices = [
+    { name: "0–3% 股权", attach: 0, detach: 0.03 },
+    { name: "3–7% 夹层", attach: 0.03, detach: 0.07 },
+    { name: "7–15% 高级夹层", attach: 0.07, detach: 0.15 },
+    { name: "15–30% 优先", attach: 0.15, detach: 0.30 },
+  ];
+  const out = useMemo(() => slices.map((s) => ({
+    name: s.name,
+    ...gaussianCopulaTranche({ pd, rho, lgd, attach: s.attach, detach: s.detach }),
+  })), [pd, rho, lgd]);
+  const rhoCurve = useMemo(() => Array.from({ length: 19 }, (_, i) => {
+    const r = 0.02 + i * 0.05;
+    return {
+      rho: +r.toFixed(2),
+      股权: gaussianCopulaTranche({ pd, rho: r, lgd, attach: 0, detach: 0.03 }).expectedTrancheLoss,
+      夹层: gaussianCopulaTranche({ pd, rho: r, lgd, attach: 0.03, detach: 0.07 }).expectedTrancheLoss,
+      优先: gaussianCopulaTranche({ pd, rho: r, lgd, attach: 0.15, detach: 0.30 }).expectedTrancheLoss,
+    };
+  }), [pd, lgd]);
+  return (
+    <Panel title="单因子高斯 copula 分层" note="相关性不改变资产池的期望损失，只改变损失在分层之间的分配：相关性上升时，全体一起违约与全体都不违约的概率同时上升，股权层反而受益，优先层被显著损害。这就是相关性微笑与 2007 年"AAA 也会破"的定价根源。">
+      <Grid>
+        <Controls>
+          <Slider label="单笔违约概率" value={pd} min={0.005} max={0.3} step={0.005} onChange={setPd} />
+          <Slider label="资产相关性 ρ" value={rho} min={0.01} max={0.9} step={0.01} onChange={setRho} />
+          <Slider label="LGD" value={lgd} min={0.2} max={0.9} step={0.05} onChange={setLgd} />
+        </Controls>
+        <div>
+          <ResponsiveContainer width="100%" height={280}>
+            <LineChart data={rhoCurve}>
+              <CartesianGrid stroke={C.grid} strokeDasharray="3 3" />
+              <XAxis dataKey="rho" stroke={C.text} fontSize={11} />
+              <YAxis stroke={C.text} fontSize={11} />
+              <Tooltip contentStyle={tooltipStyle} />
+              <Legend />
+              <ReferenceLine x={rho} stroke={C.red} strokeDasharray="4 4" />
+              <Line dataKey="股权" stroke={C.red} dot={false} />
+              <Line dataKey="夹层" stroke={C.gold} dot={false} />
+              <Line dataKey="优先" stroke={C.teal} dot={false} strokeWidth={2} />
+            </LineChart>
+          </ResponsiveContainer>
+          <Stats>
+            {out.map((t) => (
+              <Stat key={t.name} label={t.name} value={pct(t.expectedTrancheLoss)} color={C.gold} />
+            ))}
+          </Stats>
+          <p className="text-[11px] text-muted-foreground mt-3">资产池期望损失 {pct(out[0].expectedPoolLoss)}，与 ρ 无关；变化的只是它在各层之间的切分。</p>
+        </div>
+      </Grid>
+    </Panel>
+  );
+}
+
+/* ── 14. CDS-bond basis ── */
+function BasisPanel() {
+  const [cds, setCds] = useState(0.012);
+  const [z, setZ] = useState(0.02);
+  const [repo, setRepo] = useState(0.001);
+  const [funding, setFunding] = useState(0.002);
+  const out = useMemo(() => cdsBondBasis({ cdsSpread: cds, bondZSpread: z, repoCost: repo, fundingSpread: funding }), [cds, z, repo, funding]);
+  const data = [
+    { name: "CDS (合成)", v: out.syntheticSpread * 1e4 },
+    { name: "现券 (净融资后)", v: out.cashSpread * 1e4 },
+    { name: "基差", v: out.basis * 1e4 },
+  ];
+  return (
+    <Panel title="CDS-债券基差" note="同一个信用主体有两种表达：买现券 + 融资，或卖出保护。理论上两者利差应当相等，实际上融资成本、回购便利与资产负债表约束会撕开一个基差。负基差意味着现券便宜，但把它捞回来需要能持续融资——2008 年正是融资先断裂。">
+      <Grid>
+        <Controls>
+          <Slider label="CDS 利差" value={cds} min={0.001} max={0.06} step={0.0005} onChange={setCds} />
+          <Slider label="债券 Z-spread" value={z} min={0.001} max={0.08} step={0.0005} onChange={setZ} />
+          <Slider label="回购成本" value={repo} min={0} max={0.02} step={0.0005} onChange={setRepo} />
+          <Slider label="融资利差" value={funding} min={0} max={0.02} step={0.0005} onChange={setFunding} />
+        </Controls>
+        <div>
+          <ResponsiveContainer width="100%" height={280}>
+            <BarChart data={data}>
+              <CartesianGrid stroke={C.grid} strokeDasharray="3 3" />
+              <XAxis dataKey="name" stroke={C.text} fontSize={11} />
+              <YAxis stroke={C.text} fontSize={11} unit="bp" />
+              <Tooltip contentStyle={tooltipStyle} />
+              <ReferenceLine y={0} stroke={C.text} />
+              <Bar dataKey="v" name="利差 (bp)" fill={C.gold} />
+            </BarChart>
+          </ResponsiveContainer>
+          <Stats>
+            <Stat label="基差" value={bp(out.basis)} color={out.basis < 0 ? C.red : C.teal} />
+            <Stat label="方向" value={out.sign === "negative" ? "负基差" : out.sign === "positive" ? "正基差" : "持平"} />
+            <Stat label="是否可套" value={out.arbitrage ? "超过 20bp" : "在摩擦内"} color={out.arbitrage ? C.gold : C.text} />
+            <Stat label="交易方向" value={out.basis < 0 ? "买券+买保护" : "卖券+卖保护"} />
+          </Stats>
+        </div>
+      </Grid>
+    </Panel>
+  );
+}
+
+/* ── 15. MBS ── */
+function MbsPanel() {
+  const [wac, setWac] = useState(0.055);
+  const [cpr, setCpr] = useState(0.08);
+  const [refi, setRefi] = useState(8);
+  const out = useMemo(() => mbsNegativeConvexity({ wac, baseCpr: cpr, refiSensitivity: refi, maturity: 20 }), [wac, cpr, refi]);
+  const data = out.curve.map((p) => ({ shift: +(p.shift * 1e4).toFixed(0), price: p.price }));
+  return (
+    <Panel title="MBS 提前还款与负凸性" note="房贷借款人手里握着一份免费的再融资期权。利率下行时提前还款加速，MBS 久期反而缩短，投资者被迫在低利率再投资；利率上行时提前还款枯竭，久期拉长——这种"两头挨打"的久期漂移就是负凸性，也是对冲组合需要不断再平衡的原因。">
+      <Grid>
+        <Controls>
+          <Slider label="加权平均票息 WAC" value={wac} min={0.02} max={0.09} step={0.0025} onChange={setWac} />
+          <Slider label="基准 CPR" value={cpr} min={0.02} max={0.3} step={0.01} onChange={setCpr} />
+          <Slider label="再融资敏感度" value={refi} min={0} max={25} step={0.5} onChange={setRefi} />
+        </Controls>
+        <div>
+          <ResponsiveContainer width="100%" height={280}>
+            <LineChart data={data}>
+              <CartesianGrid stroke={C.grid} strokeDasharray="3 3" />
+              <XAxis dataKey="shift" stroke={C.text} fontSize={11} unit="bp" />
+              <YAxis stroke={C.text} fontSize={11} domain={["auto", "auto"]} />
+              <Tooltip contentStyle={tooltipStyle} />
+              <ReferenceLine x={0} stroke={C.text} strokeDasharray="4 4" />
+              <Line dataKey="price" name="MBS 价格" stroke={C.gold} dot={false} strokeWidth={2} />
+            </LineChart>
+          </ResponsiveContainer>
+          <Stats>
+            <Stat label="价格" value={f(out.price, 2)} />
+            <Stat label="有效久期" value={f(out.effDuration, 3)} color={C.gold} />
+            <Stat label="低利率久期" value={f(out.durationLowRates, 3)} color={C.teal} />
+            <Stat label="高利率久期" value={f(out.durationHighRates, 3)} color={C.red} />
+          </Stats>
+        </div>
+      </Grid>
+    </Panel>
+  );
+}
+
+/* ── 16. Repo leverage & spiral ── */
+function RepoPanel() {
+  const [haircut, setHaircut] = useState(0.05);
+  const [assetYield, setAssetYield] = useState(0.04);
+  const [repoRate, setRepoRate] = useState(0.025);
+  const [shock, setShock] = useState(0.05);
+  const lev = useMemo(() => repoLeverage({ equity: 10, haircut, assetYield, repoRate, duration: 5, yieldShock: 0.01 }), [haircut, assetYield, repoRate]);
+  const spiral = useMemo(() => marginSpiral({ equity: 10, assets: lev.assets, haircut0: haircut, haircutShock: shock, priceImpact: 0.05 }), [lev.assets, haircut, shock]);
+  const data = spiral.path.map((p) => ({ round: p.round, 资产: p.assets, 权益: p.equity, 价格: p.price * 100 }));
+  return (
+    <Panel title="回购杠杆与保证金螺旋" note="回购让固定收益组合可以用很薄的权益撑起很大的资产：杠杆同时放大 carry 与久期风险，击穿点往往只有几十个基点。当折扣率因市场压力上升，被迫抛售压低价格，价格下跌又进一步侵蚀权益——这就是 Brunnermeier-Pedersen 的融资流动性螺旋。">
+      <Grid>
+        <Controls>
+          <Slider label="折扣率 haircut" value={haircut} min={0.01} max={0.25} step={0.005} onChange={setHaircut} />
+          <Slider label="资产收益率" value={assetYield} min={0} max={0.1} step={0.0025} onChange={setAssetYield} />
+          <Slider label="回购利率" value={repoRate} min={0} max={0.08} step={0.0025} onChange={setRepoRate} />
+          <Slider label="折扣率冲击" value={shock} min={0} max={0.2} step={0.005} onChange={setShock} />
+        </Controls>
+        <div>
+          <ResponsiveContainer width="100%" height={280}>
+            <LineChart data={data}>
+              <CartesianGrid stroke={C.grid} strokeDasharray="3 3" />
+              <XAxis dataKey="round" stroke={C.text} fontSize={11} />
+              <YAxis yAxisId="l" stroke={C.text} fontSize={11} />
+              <YAxis yAxisId="r" orientation="right" stroke={C.text} fontSize={11} />
+              <Tooltip contentStyle={tooltipStyle} />
+              <Legend />
+              <Line yAxisId="l" dataKey="资产" stroke={C.gold} dot={false} />
+              <Line yAxisId="l" dataKey="权益" stroke={C.red} dot={false} strokeWidth={2} />
+              <Line yAxisId="r" dataKey="价格" stroke={C.teal} dot={false} strokeDasharray="4 3" />
+            </LineChart>
+          </ResponsiveContainer>
+          <Stats>
+            <Stat label="杠杆倍数" value={f(lev.leverage, 2) + "×"} color={C.gold} />
+            <Stat label="权益回报 ROE" value={pct(lev.roe)} color={lev.roe > 0 ? C.green : C.red} />
+            <Stat label="击穿冲击" value={bp(lev.wipeoutShock)} color={C.red} />
+            <Stat label="被迫抛售" value={f(spiral.totalSold, 1)} color={C.red} />
+          </Stats>
+        </div>
+      </Grid>
+    </Panel>
+  );
+}
+
+/* ── 17. RFR & negative rates ── */
+function RfrPanel() {
+  const [level, setLevel] = useState(0.03);
+  const [vol, setVol] = useState(0.006);
+  const [fwd, setFwd] = useState(-0.002);
+  const [shift, setShift] = useState(0.03);
+  const path = useMemo(() => Array.from({ length: 90 }, (_, i) => level + vol * Math.sin(i / 8)), [level, vol]);
+  const out = useMemo(() => rfrCompounding({ overnightPath: path, termFixing: level + 0.002, historicalBasis: [0.0008, 0.0012, 0.0026] }), [path, level]);
+  const caplets = useMemo(() => Array.from({ length: 21 }, (_, i) => {
+    const K = -0.01 + i * 0.002;
+    const r = shiftedLognormalCaplet({ forward: fwd, strike: K, sigma: 0.4, T: 2, shift, tau: 0.5, discount: 0.98 });
+    return { strike: +(K * 100).toFixed(2), price: r.valid ? r.price * 1e4 : null };
+  }), [fwd, shift]);
+  const data = path.map((r, i) => ({ day: i + 1, overnight: r * 100 }));
+  return (
+    <Panel title="RFR 改革与负利率定价" note="LIBOR 是前瞻的定盘报价，SOFR 类无风险利率是后视的隔夜复利：期初你并不知道利息是多少。复利相对简单平均有正的凸性收益；转换旧合约需要 ISDA 式的历史中位数 fallback 利差。负利率则让对数正态失效，位移对数正态把远期和行权价整体平移回正区间。">
+      <Grid>
+        <Controls>
+          <Slider label="隔夜利率中枢" value={level} min={-0.01} max={0.08} step={0.0025} onChange={setLevel} />
+          <Slider label="隔夜波动幅度" value={vol} min={0} max={0.02} step={0.0005} onChange={setVol} />
+          <Slider label="caplet 远期" value={fwd} min={-0.02} max={0.04} step={0.001} onChange={setFwd} />
+          <Slider label="位移参数 shift" value={shift} min={0.005} max={0.08} step={0.0025} onChange={setShift} />
+        </Controls>
+        <div>
+          <div className="grid lg:grid-cols-2 gap-4">
+            <ResponsiveContainer width="100%" height={220}>
+              <LineChart data={data}>
+                <CartesianGrid stroke={C.grid} strokeDasharray="3 3" />
+                <XAxis dataKey="day" stroke={C.text} fontSize={11} />
+                <YAxis stroke={C.text} fontSize={11} unit="%" />
+                <Tooltip contentStyle={tooltipStyle} />
+                <Line dataKey="overnight" name="隔夜路径" stroke={C.gold} dot={false} />
+              </LineChart>
+            </ResponsiveContainer>
+            <ResponsiveContainer width="100%" height={220}>
+              <LineChart data={caplets}>
+                <CartesianGrid stroke={C.grid} strokeDasharray="3 3" />
+                <XAxis dataKey="strike" stroke={C.text} fontSize={11} unit="%" />
+                <YAxis stroke={C.text} fontSize={11} unit="bp" />
+                <Tooltip contentStyle={tooltipStyle} />
+                <ReferenceLine x={0} stroke={C.red} strokeDasharray="4 4" />
+                <Line dataKey="price" name="位移对数正态 caplet" stroke={C.teal} dot={false} connectNulls={false} />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+          <Stats>
+            <Stat label="后视复利利率" value={pct(out.compounded, 3)} color={C.gold} />
+            <Stat label="简单平均" value={pct(out.simpleAverage, 3)} />
+            <Stat label="复利凸性收益" value={bp(out.convexityGain, 2)} color={C.teal} />
+            <Stat label="fallback 利差" value={bp(out.fallbackSpread)} color={C.red} />
+          </Stats>
+        </div>
+      </Grid>
+    </Panel>
+  );
+}
+
+/* ── 18. Green & liquidity ── */
+function GreenPanel() {
+  const [demand, setDemand] = useState(2);
+  const [carbon, setCarbon] = useState(0.3);
+  const [carbonPrice, setCarbonPrice] = useState(0.04);
+  const [trades, setTrades] = useState(5);
+  const green = useMemo(() => greeniumSpread({ baselineSpread: 0.012, greenLabel: true, investorDemand: demand, carbonIntensity: 0, transitionBeta: 0.5, carbonPrice, duration: 6 }), [demand, carbonPrice]);
+  const brown = useMemo(() => greeniumSpread({ baselineSpread: 0.012, greenLabel: false, investorDemand: 0, carbonIntensity: carbon, transitionBeta: 0.5, carbonPrice, duration: 6 }), [carbon, carbonPrice]);
+  const liq = useMemo(() => bondLiquidityPremium({ turnover: trades / 10, tradesPerDay: trades, quotedSpread: 0.008, volatility: 0.06, holdingPeriod: 2 }), [trades]);
+  const data = [
+    { name: "基准利差", v: 0.012 * 1e4 },
+    { name: "绿色债", v: green.spread * 1e4 },
+    { name: "高碳债", v: brown.spread * 1e4 },
+    { name: "流动性溢价", v: liq.liquidityPremium * 1e4 },
+  ];
+  return (
+    <Panel title="气候利差与债券流动性溢价" note="两类难以进入传统模型的定价因素：一是气候，绿色标签带来需求驱动的负溢价，高碳排放暴露则要求转型风险补偿；二是流动性，公司债成交稀疏，报价价差要按持有期摊销，还要加上搜寻成本与 Amihud 式的价格冲击补偿。">
+      <Grid>
+        <Controls>
+          <Slider label="ESG 需求强度" value={demand} min={0} max={6} step={0.25} onChange={setDemand} />
+          <Slider label="碳强度暴露" value={carbon} min={0} max={1} step={0.05} onChange={setCarbon} />
+          <Slider label="碳价水平" value={carbonPrice} min={0} max={0.15} step={0.005} onChange={setCarbonPrice} />
+          <Slider label="日均成交笔数" value={trades} min={0.5} max={60} step={0.5} onChange={setTrades} />
+        </Controls>
+        <div>
+          <ResponsiveContainer width="100%" height={280}>
+            <BarChart data={data}>
+              <CartesianGrid stroke={C.grid} strokeDasharray="3 3" />
+              <XAxis dataKey="name" stroke={C.text} fontSize={11} />
+              <YAxis stroke={C.text} fontSize={11} unit="bp" />
+              <Tooltip contentStyle={tooltipStyle} />
+              <ReferenceLine y={0.012 * 1e4} stroke={C.text} strokeDasharray="4 4" />
+              <Bar dataKey="v" name="利差 (bp)" fill={C.gold} />
+            </BarChart>
+          </ResponsiveContainer>
+          <Stats>
+            <Stat label="绿色溢价" value={bp(green.greenium)} color={C.green} />
+            <Stat label="转型风险贴水" value={bp(brown.transitionPremium)} color={C.red} />
+            <Stat label="流动性溢价" value={bp(liq.liquidityPremium)} color={C.gold} />
+            <Stat label="流动性状态" value={liq.illiquid ? "稀薄" : "尚可"} color={liq.illiquid ? C.red : C.teal} />
+          </Stats>
+        </div>
+      </Grid>
+    </Panel>
+  );
+}
+
+export default function V62FixedIncomeTools() {
+  const [cat, setCat] = useState<Cat>("curve");
+  const [tab, setTab] = useState<Tab>("bootstrap");
+  const inCat = TABS.filter((t) => t.cat === cat);
+
+  return (
+    <section className="space-y-6">
+      <div className="rounded-2xl border border-border bg-card/50 p-5">
+        <p className="text-[10px] font-mono uppercase tracking-[0.2em] text-gold mb-1">V6.2 · Fixed Income Frontier</p>
+        <h2 className="text-2xl font-serif text-foreground">固定收益前沿实验室</h2>
+        <p className="text-sm text-muted-foreground mt-2 max-w-3xl">
+          从曲线怎么建、利差怎么读，到含权债与可转债、信用迁移与结构化分层，再到回购杠杆、RFR 改革与气候利差。与
+          {" "}<Link to="/s/fixed-income-lab" className="text-gold hover:underline">/s/fixed-income-lab</Link>{" "}
+          的 Merton / CDS / Vasicek / OAS 基础面板互为补充，理论脉络见
+          {" "}<Link to="/s/fixed-income-theory" className="text-gold hover:underline">固定收益导读</Link>。
+        </p>
+        <div className="mt-4 flex flex-wrap gap-2">
+          {CATS.map((c) => (
+            <button key={c.id}
+              onClick={() => { setCat(c.id); setTab(TABS.find((t) => t.cat === c.id)!.id); }}
+              className={`px-3.5 py-2 rounded-lg border text-xs font-mono transition-colors ${
+                cat === c.id ? "bg-gold/15 border-gold/60 text-gold"
+                             : "bg-secondary/40 border-border text-muted-foreground hover:text-foreground"
+              }`}>
+              <span className="uppercase tracking-wider mr-2">{c.kicker}</span>{c.label}
+            </button>
+          ))}
+        </div>
+        <div className="mt-3 flex flex-wrap gap-2">
+          {inCat.map((t) => (
+            <button key={t.id} onClick={() => setTab(t.id)}
+              className={`px-3 py-1.5 rounded-md border text-[11px] transition-colors ${
+                tab === t.id ? "bg-secondary border-gold/40 text-foreground"
+                             : "bg-transparent border-border/60 text-muted-foreground hover:text-foreground"
+              }`}>
+              {t.title}
+              <span className="ml-2 text-[10px] text-muted-foreground/70 hidden md:inline">{t.desc}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <motion.div key={tab} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
+        {tab === "bootstrap" && <BootstrapPanel />}
+        {tab === "interp" && <InterpPanel />}
+        {tab === "roll" && <RollPanel />}
+        {tab === "taxonomy" && <TaxonomyPanel />}
+        {tab === "effrisk" && <EffRiskPanel />}
+        {tab === "krd" && <KrdPanel />}
+        {tab === "immunize" && <ImmunizePanel />}
+        {tab === "embedded" && <EmbeddedPanel />}
+        {tab === "convertible" && <ConvertiblePanel />}
+        {tab === "creditdec" && <CreditDecPanel />}
+        {tab === "migration" && <MigrationPanel />}
+        {tab === "waterfall" && <WaterfallPanel />}
+        {tab === "copula" && <CopulaPanel />}
+        {tab === "basis" && <BasisPanel />}
+        {tab === "mbs" && <MbsPanel />}
+        {tab === "repo" && <RepoPanel />}
+        {tab === "rfr" && <RfrPanel />}
+        {tab === "green" && <GreenPanel />}
+      </motion.div>
+
+      <div className="rounded-lg border border-border bg-card/60 p-4 text-[11px] font-mono text-muted-foreground leading-relaxed">
+        <p className="text-gold uppercase tracking-wider mb-2">参考文献</p>
+        <p>
+          Macaulay (1938) Some Theoretical Problems Suggested by the Movements of Interest Rates ·
+          Redington (1952) Review of the Principles of Life-Office Valuations · Fisher-Weil (1971) Coping with the Risk of Interest-Rate Fluctuations ·
+          Ho (1992) Key Rate Durations · Nelson-Siegel (1987) / Svensson (1994) · Vasicek (1977) · Cox-Ingersoll-Ross (1985) ·
+          Hull-White (1990) Pricing Interest-Rate Derivative Securities · Heath-Jarrow-Morton (1992) · Brace-Gatarek-Musiela (1997) ·
+          Merton (1974) On the Pricing of Corporate Debt · Jarrow-Turnbull (1995) · Duffie-Singleton (1999) ·
+          Longstaff-Mithal-Neis (2005) Corporate Yield Spreads · Collin-Dufresne et al. (2001) The Determinants of Credit Spread Changes ·
+          Li (2000) On Default Correlation: A Copula Function Approach · Coval-Jurek-Stafford (2009) The Economics of Structured Finance ·
+          Brunnermeier-Pedersen (2009) Market Liquidity and Funding Liquidity · Amihud-Mendelson (1986) ·
+          Zerbib (2019) The Effect of Pro-Environmental Preferences on Bond Prices · ISDA (2020) IBOR Fallbacks Protocol.
+        </p>
+        <p className="mt-2">全部为教学级简写模型：树与求积规模限制在浏览器内即时响应的量级，插值、瀑布与螺旋均为确定性计算，不作为实盘定价或风控参数使用。</p>
+      </div>
+    </section>
+  );
+}
