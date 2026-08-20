@@ -253,12 +253,14 @@ describe("leverage and funding", () => {
     expect(hi.wipeoutShock).toBeLessThan(lo.wipeoutShock);
   });
 
-  it("margin spiral: bigger haircut shock forces more selling", () => {
+  it("margin spiral: a bigger haircut shock deleverages harder and can wipe out equity", () => {
     const mild = marginSpiral({ equity: 10, assets: 100, haircut0: 0.1, haircutShock: 0.02, priceImpact: 0.5 });
     const harsh = marginSpiral({ equity: 10, assets: 100, haircut0: 0.1, haircutShock: 0.15, priceImpact: 0.5 });
-    expect(harsh.finalPrice).toBeLessThanOrEqual(mild.finalPrice);
     expect(harsh.finalEquity).toBeLessThan(mild.finalEquity);
+    expect(harsh.failed).toBe(true);
+    expect(mild.failed).toBe(false);
     expect(mild.totalSold).toBeGreaterThan(0);
+    expect(mild.finalPrice).toBeLessThan(1);
     expect(mild.path.length).toBeGreaterThan(0);
   });
 });
