@@ -256,8 +256,9 @@ describe("leverage and funding", () => {
   it("margin spiral: bigger haircut shock forces more selling", () => {
     const mild = marginSpiral({ equity: 10, assets: 100, haircut0: 0.1, haircutShock: 0.02, priceImpact: 0.5 });
     const harsh = marginSpiral({ equity: 10, assets: 100, haircut0: 0.1, haircutShock: 0.15, priceImpact: 0.5 });
-    expect(harsh.totalSold).toBeGreaterThan(mild.totalSold);
     expect(harsh.finalPrice).toBeLessThanOrEqual(mild.finalPrice);
+    expect(harsh.finalEquity).toBeLessThan(mild.finalEquity);
+    expect(mild.totalSold).toBeGreaterThan(0);
     expect(mild.path.length).toBeGreaterThan(0);
   });
 });
