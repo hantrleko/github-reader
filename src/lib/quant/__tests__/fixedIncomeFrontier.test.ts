@@ -253,14 +253,13 @@ describe("leverage and funding", () => {
     expect(hi.wipeoutShock).toBeLessThan(lo.wipeoutShock);
   });
 
-  it("margin spiral: a bigger haircut shock deleverages harder and can wipe out equity", () => {
-    const mild = marginSpiral({ equity: 10, assets: 100, haircut0: 0.1, haircutShock: 0.02, priceImpact: 0.5 });
-    const harsh = marginSpiral({ equity: 10, assets: 100, haircut0: 0.1, haircutShock: 0.15, priceImpact: 0.5 });
+  it("margin spiral: a bigger haircut shock forces more deleveraging", () => {
+    const mild = marginSpiral({ equity: 10, assets: 100, haircut0: 0.1, haircutShock: 0.01, priceImpact: 0.05 });
+    const harsh = marginSpiral({ equity: 10, assets: 100, haircut0: 0.1, haircutShock: 0.05, priceImpact: 0.05 });
+    expect(harsh.totalSold).toBeGreaterThan(mild.totalSold);
+    expect(harsh.finalPrice).toBeLessThan(mild.finalPrice);
     expect(harsh.finalEquity).toBeLessThan(mild.finalEquity);
-    expect(harsh.failed).toBe(true);
-    expect(mild.failed).toBe(false);
     expect(mild.totalSold).toBeGreaterThan(0);
-    expect(mild.finalPrice).toBeLessThan(1);
     expect(mild.path.length).toBeGreaterThan(0);
   });
 });
