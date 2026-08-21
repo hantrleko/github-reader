@@ -581,7 +581,7 @@ export const NAV_GROUPS: NavGroup[] = [
     label: "固收",
     kicker: "Fixed Income",
     desc: "债券 · 短率模型 · 信用与曲线",
-    items: ["bond", "rate-model", "fixed-income-lab"],
+    items: ["bond", "rate-model", "fixed-income-lab", "fixed-income-frontier", "fixed-income-theory"],
   },
   {
     id: "asset-portfolio",
