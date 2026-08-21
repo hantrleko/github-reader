@@ -4,9 +4,34 @@ import { useTranslation } from "react-i18next";
 
 const RELEASES = [
   {
-    version: "V6.1",
+    version: "V6.2",
     date: "2026-08",
     tag: "Current",
+    highlights: [
+      {
+        icon: Activity,
+        title: "固定收益补全 — /s/fixed-income-frontier (18 个交互面板)",
+        items: [
+          "曲线与口径: par 曲线自举剥离贴现因子、线性零率/分段常数远期/三次样条三种插值的远期粗糙度对比、远期利率与 carry / roll-down 分解、应计利息与净价脏价换算",
+          "利差与风险: 名义 / Z-spread / ASW / OAS 四口径同券对照与期权成本、有效久期与有效凸性、美元久期与 DV01、关键利率久期对冲求解、Redington 免疫条件",
+          "含权与可转债: 二叉树可赎回/可回售债定价、可转债债底 + 转换期权分解、转换平价与债性/混合/股性区间判定",
+          "信用与结构化: 信用利差四成分分解与信用利差之谜、评级迁移矩阵与迁移 VaR、CDS-债券基差、分层瀑布与超额抵押触发、单因子高斯 copula 分层、MBS 负凸性",
+          "杠杆与制度前沿: 回购杠杆 ROE 与击穿冲击、haircut 保证金螺旋、Hull-White θ(t) 校准、RFR 后视复利与 fallback 利差、位移对数正态 caplet、绿色溢价、债券流动性溢价",
+        ],
+      },
+      {
+        icon: BookOpen,
+        title: "固定收益导读 — /s/fixed-income-theory (九节)",
+        items: [
+          "利率概念体系 → 久期凸性 → 利差语言 → 期限结构与曲线构建 → 动态模型谱系 (Vasicek→CIR→HW→HJM→LMM) → 信用与结构化 → 组合免疫与杠杆 → 历史脉络 → 制度前沿与八步研究流程",
+        ],
+      },
+    ],
+  },
+  {
+    version: "V6.1",
+    date: "2026-08",
+    tag: "Past",
     highlights: [
       {
         icon: Activity,
