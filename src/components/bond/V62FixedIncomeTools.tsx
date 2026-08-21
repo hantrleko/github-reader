@@ -621,7 +621,7 @@ function WaterfallPanel() {
     { name: "C 股权", size: (100 - seniorSize) * 0.35, coupon: 0.12 },
   ], [seniorSize]);
   const out = useMemo(() => waterfall({ poolPrincipal: 100, poolInterest: 6, lossRate, tranches, ocTrigger }), [lossRate, tranches, ocTrigger]);
-  const data = out.tranches.map((t) => ({ name: t.name, 本金偿付: t.principalPaid, 减记: t.writedown, 利息: t.interestPaid });
+  const data = out.tranches.map((t) => ({ name: t.name, 本金偿付: t.principalPaid, 减记: t.writedown, 利息: t.interestPaid }));
   return (
     <Panel title="分层瀑布与超额抵押触发" note="结构化产品的风险分配写在现金流瀑布里：本金按优先级顺序偿付，损失自下而上吞噬。超额抵押触发一旦被击穿，利息会被强制改道去偿还优先级本金——这正是危机中夹层持有人一夜之间断流的机制。">
       <Grid>
@@ -680,7 +680,7 @@ function CopulaPanel() {
     };
   }), [pd, lgd]);
   return (
-    <Panel title="单因子高斯 copula 分层" note="相关性不改变资产池的期望损失，只改变损失在分层之间的分配：相关性上升时，全体一起违约与全体都不违约的概率同时上升，股权层反而受益，优先层被显著损害。这就是相关性微笑与 2007 年"AAA 也会破"的定价根源。">
+    <Panel title="单因子高斯 copula 分层" note="相关性不改变资产池的期望损失，只改变损失在分层之间的分配：相关性上升时，全体一起违约与全体都不违约的概率同时上升，股权层反而受益，优先层被显著损害。这就是相关性微笑与 2007 年「AAA 也会破」的定价根源。">
       <Grid>
         <Controls>
           <Slider label="单笔违约概率" value={pd} min={0.005} max={0.3} step={0.005} onChange={setPd} />
@@ -765,7 +765,7 @@ function MbsPanel() {
   const out = useMemo(() => mbsNegativeConvexity({ wac, baseCpr: cpr, refiSensitivity: refi, maturity: 20 }), [wac, cpr, refi]);
   const data = out.curve.map((p) => ({ shift: +(p.shift * 1e4).toFixed(0), price: p.price }));
   return (
-    <Panel title="MBS 提前还款与负凸性" note="房贷借款人手里握着一份免费的再融资期权。利率下行时提前还款加速，MBS 久期反而缩短，投资者被迫在低利率再投资；利率上行时提前还款枯竭，久期拉长——这种"两头挨打"的久期漂移就是负凸性，也是对冲组合需要不断再平衡的原因。">
+    <Panel title="MBS 提前还款与负凸性" note="房贷借款人手里握着一份免费的再融资期权。利率下行时提前还款加速，MBS 久期反而缩短，投资者被迫在低利率再投资；利率上行时提前还款枯竭，久期拉长——这种「两头挨打」的久期漂移就是负凸性，也是对冲组合需要不断再平衡的原因。">
       <Grid>
         <Controls>
           <Slider label="加权平均票息 WAC" value={wac} min={0.02} max={0.09} step={0.0025} onChange={setWac} />
