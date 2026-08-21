@@ -100,7 +100,7 @@ export default function FixedIncomeTheory() {
         YTM 是最方便也最容易误用的一个：它是让所有现金流用<strong className="text-foreground">同一个</strong>利率折现的解，因此隐含了「曲线是平的」与「票息按 YTM 再投资」两个假设。
         跨券比较、跨期限比较时，请回到零息曲线。
       </P>
-      <ToolLink label="自举与插值对比" href="" note="从 par 曲线剥离贴现因子, 比较三种插值的远期平滑性" to={LAB} />
+      <ToolLink label="自举与插值对比" note="从 par 曲线剥离贴现因子, 比较三种插值的远期平滑性" to={LAB} />
 
       <H n="2" en="Pricing, Duration, Convexity" zh="经典定价与久期凸性：一阶与二阶的分工" />
       <P>
