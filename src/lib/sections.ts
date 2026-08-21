@@ -502,6 +502,30 @@ SECTIONS.push({
   Component: lazy(() => import("@/components/essays/MicrostructureTheory")),
 });
 
+SECTIONS.push({
+  id: "fixed-income-frontier",
+  chapter: "Chapter 9",
+  kicker: "Fixed Income Frontier",
+  label: "固定收益前沿实验室 · 曲线、利差与结构化",
+  subtitle:
+    "V6.2 · 十八个实验：自举插值、四口径利差、含权与可转债、信用结构化、杠杆与制度前沿。",
+  group: "固收",
+  Component: lazy(() => import("@/components/bond/V62FixedIncomeTools")),
+});
+
+SECTIONS.push({
+  id: "fixed-income-theory",
+  chapter: "Reading Guide",
+  kicker: "Fixed Income Theory",
+  label: "固定收益导读 · 从贴现因子到制度前沿",
+  subtitle:
+    "V6.2 · 九节：利率语言 → 久期凸性 → 利差口径 → 曲线构建 → 动态模型 → 信用结构化 → 组合杠杆。",
+  group: "固收",
+  Component: lazy(() => import("@/components/essays/FixedIncomeTheory")),
+});
+
+
+
 export const SECTION_MAP: Record<string, SectionDef> = Object.fromEntries(
   SECTIONS.map((s) => [s.id, s])
 );
