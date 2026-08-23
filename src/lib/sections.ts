@@ -1,5 +1,8 @@
 import { lazy, type ComponentType, type LazyExoticComponent } from "react";
 
+/** Learning tier of a page — drives the domain hub's ordering + badges. */
+export type SectionLevel = "guide" | "basic" | "advanced" | "frontier" | "data";
+
 export type SectionDef = {
   id: string;
   /** e.g. "Chapter 1" or "Foundations" */
@@ -11,8 +14,13 @@ export type SectionDef = {
   subtitle?: string;
   /** nav group this section belongs to (for landing directory grouping) */
   group: string;
+  /** learning tier (optional; defaults to "basic" in the hub) */
+  level?: SectionLevel;
+  /** ids of sections worth reading first */
+  prereq?: string[];
   Component: LazyExoticComponent<ComponentType<unknown>>;
 };
+
 
 /** ids that live on the landing page (not their own route) */
 export const HOME_IDS = ["hero", "topics", "models"];
