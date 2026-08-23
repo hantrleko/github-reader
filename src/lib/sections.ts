@@ -532,11 +532,94 @@ SECTIONS.push({
   Component: lazy(() => import("@/components/essays/FixedIncomeTheory")),
 });
 
+SECTIONS.push({
+  id: "micro-theory",
+  chapter: "Reading Guide",
+  kicker: "Microeconomics Theory",
+  label: "微观经济学导读 · 从偏好到机制设计",
+  subtitle:
+    "六节：偏好与效用 → 生产与成本 → 市场结构 → 博弈与策略 → 信息不对称 → 机制设计。",
+  group: "基础",
+  Component: lazy(() => import("@/components/essays/MicroTheory")),
+});
 
+SECTIONS.push({
+  id: "quant-theory",
+  chapter: "Reading Guide",
+  kicker: "Quant Strategy Theory",
+  label: "量化策略导读 · 从信号到实盘落差",
+  subtitle:
+    "六节：信号构建 → 组合构建 → 交易成本 → 回测偏误清单 → 评价指标 → 实盘落差。",
+  group: "量化与学习",
+  Component: lazy(() => import("@/components/essays/QuantTheory")),
+});
 
 export const SECTION_MAP: Record<string, SectionDef> = Object.fromEntries(
   SECTIONS.map((s) => [s.id, s])
 );
+
+/* ───────────────────────────────────────────────────────────────
+   Learning tiers + prerequisite chains. Kept as one table so a page
+   never silently drifts from the level shown on the domain hub.
+   ─────────────────────────────────────────────────────────────── */
+
+const LEVELS: Record<SectionLevel, string[]> = {
+  guide: [
+    "micro-theory", "macro-theory", "asset-pricing-theory", "econometrics-theory",
+    "time-series-theory", "portfolio-theory", "derivatives-theory", "risk-theory",
+    "behavior-theory", "microstructure-theory", "fixed-income-theory", "quant-theory",
+    "trillion-dollar-equation", "ai-quant-strategy", "learning", "quiz",
+  ],
+  basic: [
+    "micro", "macro", "calculator", "implied-vol", "mc-pricer", "bond", "rate-model",
+    "frontier", "asset-pricing", "econometrics", "risk", "quant",
+  ],
+  advanced: [
+    "derivatives", "fixed-income-lab", "macro-lab", "behavior-microstructure",
+    "behavior-lab", "microstructure-lab", "backtest", "calibration",
+  ],
+  frontier: [
+    "fixed-income-frontier", "macro-frontier", "frontier-concepts",
+    "visualization-guide", "platform",
+  ],
+  data: [
+    "us-suite", "ashare-suite", "fred", "worldbank", "ecb-bis", "coingecko",
+    "alphavantage", "cboe-sentiment", "econ-calendar", "etf-lookup",
+    "sector-heatmap", "market-cap", "quiver-signals", "external-workbench",
+  ],
+};
+
+for (const [level, ids] of Object.entries(LEVELS) as [SectionLevel, string[]][]) {
+  for (const id of ids) if (SECTION_MAP[id]) SECTION_MAP[id].level = level;
+}
+
+/** "建议先看" chains — kept shallow (1–2 hops) so they stay actionable. */
+const PREREQ: Record<string, string[]> = {
+  derivatives: ["calculator", "derivatives-theory"],
+  "implied-vol": ["calculator"],
+  "mc-pricer": ["calculator"],
+  "fixed-income-lab": ["bond", "fixed-income-theory"],
+  "fixed-income-frontier": ["fixed-income-lab", "fixed-income-theory"],
+  "rate-model": ["bond"],
+  "macro-lab": ["macro", "macro-theory"],
+  "macro-frontier": ["macro-lab", "macro-theory"],
+  "microstructure-lab": ["microstructure-theory"],
+  "behavior-lab": ["behavior-theory"],
+  "asset-pricing": ["asset-pricing-theory"],
+  frontier: ["portfolio-theory"],
+  quant: ["quant-theory", "frontier"],
+  backtest: ["quant", "quant-theory"],
+  calibration: ["econometrics", "calculator"],
+  risk: ["risk-theory", "econometrics"],
+  econometrics: ["econometrics-theory"],
+  micro: ["micro-theory"],
+  macro: ["macro-theory"],
+};
+
+for (const [id, prereq] of Object.entries(PREREQ)) {
+  if (SECTION_MAP[id]) SECTION_MAP[id].prereq = prereq.filter((p) => SECTION_MAP[p]);
+}
+
 
 /* ───────────────────────────────────────────────────────────────
    Unified information architecture — single source of truth for
