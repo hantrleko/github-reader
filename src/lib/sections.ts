@@ -328,7 +328,7 @@ export const SECTIONS: SectionDef[] = [
 
 SECTIONS.push({
   id: "visualization-guide",
-  chapter: "V4.8",
+  chapter: "Toolkit",
   kicker: "Visualization Toolkit",
   label: "可视化组件工作台",
   subtitle: "Brush 联动缩放 · 事件标注 · Fan Chart 置信带 · 直方图 KDE · PNG / CSV 导出 · 色觉友好。",
@@ -338,7 +338,7 @@ SECTIONS.push({
 
 SECTIONS.push({
   id: "ashare-suite",
-  chapter: "V5.0",
+  chapter: "Data",
   kicker: "A-Share Suite",
   label: "A 股全栈接入 · 行情 / 资金 / 龙虎榜 / 公告",
   subtitle: "腾讯行情 + 东方财富 push2 + 交易所龙虎榜 + 巨潮公告，一站覆盖沪深北 A 股实时报价、日 K 线、资金流向与官方披露。",
@@ -348,7 +348,7 @@ SECTIONS.push({
 
 SECTIONS.push({
   id: "us-suite",
-  chapter: "V5.2",
+  chapter: "Data",
   kicker: "US Full-Stack Data",
   label: "美股全栈数据 · 行情 / 基本面 / SEC / 期权 / 筛选",
   subtitle: "Yahoo 行情与技术指标、SEC XBRL 三表、EDGAR 披露检索、期权链 Greeks、横截面筛选。",
