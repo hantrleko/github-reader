@@ -1,5 +1,8 @@
 import { lazy, type ComponentType, type LazyExoticComponent } from "react";
 
+/** Learning tier of a page — drives the domain hub's ordering + badges. */
+export type SectionLevel = "guide" | "basic" | "advanced" | "frontier" | "data";
+
 export type SectionDef = {
   id: string;
   /** e.g. "Chapter 1" or "Foundations" */
@@ -11,8 +14,13 @@ export type SectionDef = {
   subtitle?: string;
   /** nav group this section belongs to (for landing directory grouping) */
   group: string;
+  /** learning tier (optional; defaults to "basic" in the hub) */
+  level?: SectionLevel;
+  /** ids of sections worth reading first */
+  prereq?: string[];
   Component: LazyExoticComponent<ComponentType<unknown>>;
 };
+
 
 /** ids that live on the landing page (not their own route) */
 export const HOME_IDS = ["hero", "topics", "models"];
@@ -86,7 +94,7 @@ export const SECTIONS: SectionDef[] = [
     chapter: "Chapter 3",
     kicker: "Fixed Income Lab",
     label: "固定收益高阶 · 信用/短率/OAS/曲线",
-    subtitle: "V4.5 · Merton 与 CDS 反推、Vasicek/CIR/HW 期限结构、OAS 与 PSA MBS、TIPS 蝶式。",
+    subtitle: "Merton 与 CDS 反推、Vasicek/CIR/HW 期限结构、OAS 与 PSA MBS、TIPS 蝶式。",
     group: "固收与组合",
     Component: lazy(() => import("@/components/bond/V45FixedIncomeLab")),
   },
@@ -149,7 +157,7 @@ export const SECTIONS: SectionDef[] = [
     chapter: "Chapter 7",
     kicker: "Macro Lab",
     label: "宏观高阶实验室 · 债务/汇率/BGG/ZLB",
-    subtitle: "V4.6 · Blanchard r−g 债务动态、Dornbusch 汇率超调、BOP 三缺口、BGG 金融加速器、ZLB 与前瞻指引 puzzle。",
+    subtitle: "Blanchard r−g 债务动态、Dornbusch 汇率超调、BOP 三缺口、BGG 金融加速器、ZLB 与前瞻指引 puzzle。",
     group: "宏观",
     Component: lazy(() => import("@/components/macro/V46MacroLab")),
   },
@@ -158,7 +166,7 @@ export const SECTIONS: SectionDef[] = [
     chapter: "Chapter 8",
     kicker: "Behavior & Microstructure",
     label: "行为金融 & 市场微观结构实验室",
-    subtitle: "V4.7 · 双曲贴现 / DSSW / 处置效应 + Kyle / Glosten-Milgrom / Roll / Almgren-Chriss。",
+    subtitle: "双曲贴现 / DSSW / 处置效应 + Kyle / Glosten-Milgrom / Roll / Almgren-Chriss。",
     group: "理论",
     Component: lazy(() => import("@/components/behavior/V47BehaviorMicroLab")),
   },
@@ -328,7 +336,7 @@ export const SECTIONS: SectionDef[] = [
 
 SECTIONS.push({
   id: "visualization-guide",
-  chapter: "V4.8",
+  chapter: "Toolkit",
   kicker: "Visualization Toolkit",
   label: "可视化组件工作台",
   subtitle: "Brush 联动缩放 · 事件标注 · Fan Chart 置信带 · 直方图 KDE · PNG / CSV 导出 · 色觉友好。",
@@ -338,20 +346,20 @@ SECTIONS.push({
 
 SECTIONS.push({
   id: "ashare-suite",
-  chapter: "V5.0",
+  chapter: "Data",
   kicker: "A-Share Suite",
   label: "A 股全栈接入 · 行情 / 资金 / 龙虎榜 / 公告",
-  subtitle: "V5.0 · 腾讯行情 + 东方财富 push2 + 交易所龙虎榜 + 巨潮公告，一站覆盖沪深北 A 股实时报价、日 K 线、资金流向与官方披露。",
+  subtitle: "腾讯行情 + 东方财富 push2 + 交易所龙虎榜 + 巨潮公告，一站覆盖沪深北 A 股实时报价、日 K 线、资金流向与官方披露。",
   group: "数据源",
   Component: lazy(() => import("@/components/data/AShareSuite")),
 });
 
 SECTIONS.push({
   id: "us-suite",
-  chapter: "V5.2",
+  chapter: "Data",
   kicker: "US Full-Stack Data",
   label: "美股全栈数据 · 行情 / 基本面 / SEC / 期权 / 筛选",
-  subtitle: "V5.2 · Yahoo 行情与技术指标、SEC XBRL 三表、EDGAR 披露检索、期权链 Greeks、横截面筛选。",
+  subtitle: "Yahoo 行情与技术指标、SEC XBRL 三表、EDGAR 披露检索、期权链 Greeks、横截面筛选。",
   group: "数据源",
   Component: lazy(() => import("@/components/data/USSuite")),
 });
@@ -381,7 +389,7 @@ SECTIONS.push({
   chapter: "Reading Guide",
   kicker: "Asset Pricing Theory",
   label: "资产定价理论导读 · 从状态价格到现代前沿",
-  subtitle: "V5.3 · p=E[mx] 的四层骨架：无套利与状态价格、偏好与三大谜题、实证检验 (GRS/HJ 距离)、可预测性与因子动物园，每一块都可跳到实验室复现。",
+  subtitle: "p=E[mx] 的四层骨架：无套利与状态价格、偏好与三大谜题、实证检验 (GRS/HJ 距离)、可预测性与因子动物园，每一块都可跳到实验室复现。",
   group: "资产定价",
   Component: lazy(() => import("@/components/essays/AssetPricingTheory")),
 });
@@ -391,7 +399,7 @@ SECTIONS.push({
   chapter: "Reading Guide",
   kicker: "Econometrics Theory",
   label: "计量经济学导读 · 从数据生成过程到可信推断",
-  subtitle: "V5.4 · 五步推理链：DGP → 识别 → 估计 → 推断 → 解释，七条识别策略、五级标准误与高维异质性方法，每一块都可跳到实验室复现。",
+  subtitle: "五步推理链：DGP → 识别 → 估计 → 推断 → 解释，七条识别策略、五级标准误与高维异质性方法，每一块都可跳到实验室复现。",
   group: "计量经济",
   Component: lazy(() => import("@/components/essays/EconometricsTheory")),
 });
@@ -401,7 +409,7 @@ SECTIONS.push({
   chapter: "Reading Guide",
   kicker: "Time Series Theory",
   label: "时间序列导读 · 从平稳性到密度预测评价",
-  subtitle: "V5.5 · 六层结构：平稳性与预处理 → 线性表示 → 多变量动态 → 非线性与制度 → 波动率与状态空间 → 预测评价，每一块都可跳到实验室复现。",
+  subtitle: "六层结构：平稳性与预处理 → 线性表示 → 多变量动态 → 非线性与制度 → 波动率与状态空间 → 预测评价，每一块都可跳到实验室复现。",
   group: "计量经济",
   Component: lazy(() => import("@/components/essays/TimeSeriesTheory")),
 });
@@ -411,7 +419,7 @@ SECTIONS.push({
   chapter: "Reading Guide",
   kicker: "Portfolio Theory",
   label: "投资组合导读 · 从均值—方差到稳健与动态配置",
-  subtitle: "V5.6 · 六层结构：选择与几何 → 均衡定价 → 估计与稳健 → 风险与约束 → 主动与增长 → 动态与高维，每一块都可跳到实验室复现。",
+  subtitle: "六层结构：选择与几何 → 均衡定价 → 估计与稳健 → 风险与约束 → 主动与增长 → 动态与高维，每一块都可跳到实验室复现。",
   group: "量化与学习",
   Component: lazy(() => import("@/components/essays/PortfolioTheory")),
 });
@@ -421,7 +429,7 @@ SECTIONS.push({
   chapter: "Reading Guide",
   kicker: "Derivatives Theory",
   label: "衍生品定价导读 · 从一价定律到粗糙波动率",
-  subtitle: "V5.7 · 六层结构：无套利与状态价格 → 复制与测度 → 模型谱系 → 曲线与信用 → 数值方法 → 校准与前沿，每一块都可跳到实验室复现。",
+  subtitle: "六层结构：无套利与状态价格 → 复制与测度 → 模型谱系 → 曲线与信用 → 数值方法 → 校准与前沿，每一块都可跳到实验室复现。",
   group: "衍生品",
   Component: lazy(() => import("@/components/essays/DerivativesTheory")),
 });
@@ -431,7 +439,7 @@ SECTIONS.push({
   chapter: "Reading Guide",
   kicker: "Risk Theory",
   label: "风险管理导读 · 从计量指标到资本、监管与韧性",
-  subtitle: "V5.8 · 十节：风险本质 → 分类 → 市场计量 → 信用 → 流动性 → Basel/FRTB → 危机史 → 前沿。",
+  subtitle: "十节：风险本质 → 分类 → 市场计量 → 信用 → 流动性 → Basel/FRTB → 危机史 → 前沿。",
   group: "风险",
   Component: lazy(() => import("@/components/essays/RiskTheory")),
 });
@@ -442,7 +450,7 @@ SECTIONS.push({
   kicker: "Behavioral Finance Lab",
   label: "行为金融实验室 · 前景理论到有限套利",
   subtitle:
-    "V5.9 · 八个实验：累积前景理论、短视损失厌恶、BSV / DHS / Hong-Stein 信念模型、有限套利与被迫平仓、投资者情绪截面、行为公司金融。",
+    "八个实验：累积前景理论、短视损失厌恶、BSV / DHS / Hong-Stein 信念模型、有限套利与被迫平仓、投资者情绪截面、行为公司金融。",
   group: "理论",
   Component: lazy(() => import("@/components/behavior/V59BehaviorTools")),
 });
@@ -453,7 +461,7 @@ SECTIONS.push({
   kicker: "Behavioral Theory",
   label: "行为金融导读 · 有限理性与有限套利",
   subtitle:
-    "V5.9 · 九节：核心问题 → 两大支柱 → 前景理论 → 偏差图谱 → 情绪 → 有限套利 → 异象 → 前沿。",
+    "九节：核心问题 → 两大支柱 → 前景理论 → 偏差图谱 → 情绪 → 有限套利 → 异象 → 前沿。",
   group: "理论",
   Component: lazy(() => import("@/components/essays/BehaviorTheory")),
 });
@@ -464,7 +472,7 @@ SECTIONS.push({
   kicker: "Macro Frontier Lab",
   label: "宏观前沿实验室 · 增长引擎到政策规则",
   subtitle:
-    "V6.0 · 十二个实验：内生增长、增长核算、财政乘数、RBC、Calvo/NKPC、政策规则、平价与 Carry、突然停止、QE/YCC、气候转型。",
+    "十二个实验：内生增长、增长核算、财政乘数、RBC、Calvo/NKPC、政策规则、平价与 Carry、突然停止、QE/YCC、气候转型。",
   group: "宏观",
   Component: lazy(() => import("@/components/macro/V60MacroTools")),
 });
@@ -475,7 +483,7 @@ SECTIONS.push({
   kicker: "Macro Theory",
   label: "宏观经济学导读 · 增长、波动、政策与开放经济",
   subtitle:
-    "V6.0 · 九节：微观基础 → 长期增长 → 短期波动 → 货币 → 财政 → 开放经济 → 思想史 → 前沿 → 判断框架。",
+    "九节：微观基础 → 长期增长 → 短期波动 → 货币 → 财政 → 开放经济 → 思想史 → 前沿 → 判断框架。",
   group: "宏观",
   Component: lazy(() => import("@/components/essays/MacroTheory")),
 });
@@ -486,7 +494,7 @@ SECTIONS.push({
   kicker: "Microstructure Lab",
   label: "微观结构实验室 · 库存、信息与订单簿",
   subtitle:
-    "V6.1 · 十七个实验：Stoll 分解、Ho-Stoll 报价、PIN/VPIN、订单簿仿真、价差口径、信息份额、市场设计。",
+    "十七个实验：Stoll 分解、Ho-Stoll 报价、PIN/VPIN、订单簿仿真、价差口径、信息份额、市场设计。",
   group: "微观",
   Component: lazy(() => import("@/components/micro/V61MicrostructureTools")),
 });
@@ -497,7 +505,7 @@ SECTIONS.push({
   kicker: "Microstructure Theory",
   label: "市场微观结构导读 · 从做市到市场设计",
   subtitle:
-    "V6.1 · 九节：核心问题 → 市场组织 → 库存与信息 → 订单簿 → 流动性度量 → 价格发现 → 市场设计 → 前沿。",
+    "九节：核心问题 → 市场组织 → 库存与信息 → 订单簿 → 流动性度量 → 价格发现 → 市场设计 → 前沿。",
   group: "微观",
   Component: lazy(() => import("@/components/essays/MicrostructureTheory")),
 });
@@ -508,7 +516,7 @@ SECTIONS.push({
   kicker: "Fixed Income Frontier",
   label: "固定收益前沿实验室 · 曲线、利差与结构化",
   subtitle:
-    "V6.2 · 十八个实验：自举插值、四口径利差、含权与可转债、信用结构化、杠杆与制度前沿。",
+    "十八个实验：自举插值、四口径利差、含权与可转债、信用结构化、杠杆与制度前沿。",
   group: "固收",
   Component: lazy(() => import("@/components/bond/V62FixedIncomeTools")),
 });
@@ -519,16 +527,99 @@ SECTIONS.push({
   kicker: "Fixed Income Theory",
   label: "固定收益导读 · 从贴现因子到制度前沿",
   subtitle:
-    "V6.2 · 九节：利率语言 → 久期凸性 → 利差口径 → 曲线构建 → 动态模型 → 信用结构化 → 组合杠杆。",
+    "九节：利率语言 → 久期凸性 → 利差口径 → 曲线构建 → 动态模型 → 信用结构化 → 组合杠杆。",
   group: "固收",
   Component: lazy(() => import("@/components/essays/FixedIncomeTheory")),
 });
 
+SECTIONS.push({
+  id: "micro-theory",
+  chapter: "Reading Guide",
+  kicker: "Microeconomics Theory",
+  label: "微观经济学导读 · 从偏好到机制设计",
+  subtitle:
+    "六节：偏好与效用 → 生产与成本 → 市场结构 → 博弈与策略 → 信息不对称 → 机制设计。",
+  group: "基础",
+  Component: lazy(() => import("@/components/essays/MicroTheory")),
+});
 
+SECTIONS.push({
+  id: "quant-theory",
+  chapter: "Reading Guide",
+  kicker: "Quant Strategy Theory",
+  label: "量化策略导读 · 从信号到实盘落差",
+  subtitle:
+    "六节：信号构建 → 组合构建 → 交易成本 → 回测偏误清单 → 评价指标 → 实盘落差。",
+  group: "量化与学习",
+  Component: lazy(() => import("@/components/essays/QuantTheory")),
+});
 
 export const SECTION_MAP: Record<string, SectionDef> = Object.fromEntries(
   SECTIONS.map((s) => [s.id, s])
 );
+
+/* ───────────────────────────────────────────────────────────────
+   Learning tiers + prerequisite chains. Kept as one table so a page
+   never silently drifts from the level shown on the domain hub.
+   ─────────────────────────────────────────────────────────────── */
+
+const LEVELS: Record<SectionLevel, string[]> = {
+  guide: [
+    "micro-theory", "macro-theory", "asset-pricing-theory", "econometrics-theory",
+    "time-series-theory", "portfolio-theory", "derivatives-theory", "risk-theory",
+    "behavior-theory", "microstructure-theory", "fixed-income-theory", "quant-theory",
+    "trillion-dollar-equation", "ai-quant-strategy", "learning", "quiz",
+  ],
+  basic: [
+    "micro", "macro", "calculator", "implied-vol", "mc-pricer", "bond", "rate-model",
+    "frontier", "asset-pricing", "econometrics", "risk", "quant",
+  ],
+  advanced: [
+    "derivatives", "fixed-income-lab", "macro-lab", "behavior-microstructure",
+    "behavior-lab", "microstructure-lab", "backtest", "calibration",
+  ],
+  frontier: [
+    "fixed-income-frontier", "macro-frontier", "frontier-concepts",
+    "visualization-guide", "platform",
+  ],
+  data: [
+    "us-suite", "ashare-suite", "fred", "worldbank", "ecb-bis", "coingecko",
+    "alphavantage", "cboe-sentiment", "econ-calendar", "etf-lookup",
+    "sector-heatmap", "market-cap", "quiver-signals", "external-workbench",
+  ],
+};
+
+for (const [level, ids] of Object.entries(LEVELS) as [SectionLevel, string[]][]) {
+  for (const id of ids) if (SECTION_MAP[id]) SECTION_MAP[id].level = level;
+}
+
+/** "建议先看" chains — kept shallow (1–2 hops) so they stay actionable. */
+const PREREQ: Record<string, string[]> = {
+  derivatives: ["calculator", "derivatives-theory"],
+  "implied-vol": ["calculator"],
+  "mc-pricer": ["calculator"],
+  "fixed-income-lab": ["bond", "fixed-income-theory"],
+  "fixed-income-frontier": ["fixed-income-lab", "fixed-income-theory"],
+  "rate-model": ["bond"],
+  "macro-lab": ["macro", "macro-theory"],
+  "macro-frontier": ["macro-lab", "macro-theory"],
+  "microstructure-lab": ["microstructure-theory"],
+  "behavior-lab": ["behavior-theory"],
+  "asset-pricing": ["asset-pricing-theory"],
+  frontier: ["portfolio-theory"],
+  quant: ["quant-theory", "frontier"],
+  backtest: ["quant", "quant-theory"],
+  calibration: ["econometrics", "calculator"],
+  risk: ["risk-theory", "econometrics"],
+  econometrics: ["econometrics-theory"],
+  micro: ["micro-theory"],
+  macro: ["macro-theory"],
+};
+
+for (const [id, prereq] of Object.entries(PREREQ)) {
+  if (SECTION_MAP[id]) SECTION_MAP[id].prereq = prereq.filter((p) => SECTION_MAP[p]);
+}
+
 
 /* ───────────────────────────────────────────────────────────────
    Unified information architecture — single source of truth for
