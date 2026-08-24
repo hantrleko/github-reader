@@ -58,6 +58,10 @@ const SectionPage = () => {
   const idx = SECTIONS.findIndex((s) => s.id === def.id);
   const prev = idx > 0 ? SECTIONS[idx - 1] : null;
   const next = idx < SECTIONS.length - 1 ? SECTIONS[idx + 1] : null;
+  const domain = GROUP_OF[def.id];
+  const prereqs = (def.prereq ?? [])
+    .map((id) => SECTION_MAP[id])
+    .filter(Boolean);
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
