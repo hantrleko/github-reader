@@ -656,7 +656,7 @@ export const NAV_GROUPS: NavGroup[] = [
     label: "基础",
     kicker: "Foundations",
     desc: "微观 · 宏观 · 宏观高阶实验室",
-    items: ["micro", "macro", "macro-lab", "macro-frontier", "macro-theory"],
+    items: ["micro", "micro-theory", "macro", "macro-lab", "macro-frontier", "macro-theory"],
   },
   {
     id: "pricing",
