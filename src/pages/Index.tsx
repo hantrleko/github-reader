@@ -94,9 +94,13 @@ const SectionDirectory = () => {
       <div className="container max-w-6xl mt-4 space-y-8">
         {groups.map(({ group, sections: items }) => (
           <div key={group.id}>
-            <p className="text-[10px] font-mono uppercase tracking-[0.2em] text-gold/80 mb-3">
+            <Link
+              to={`/d/${group.id}`}
+              className="inline-flex items-center gap-1.5 text-[10px] font-mono uppercase tracking-[0.2em] text-gold/80 mb-3 hover:text-gold transition-colors"
+            >
               {group.code} / {group.label} · {group.kicker}
-            </p>
+              <ArrowUpRight className="w-3 h-3" />
+            </Link>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
               {items.map((s, i) => (
                 <motion.div
