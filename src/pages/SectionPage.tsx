@@ -8,7 +8,7 @@ import KeyboardHelp from "@/components/KeyboardHelp";
 import SectionErrorBoundary from "@/components/SectionErrorBoundary";
 import SectionHeader from "@/components/common/SectionHeader";
 import SiteFooter from "@/components/SiteFooter";
-import { SECTION_MAP, SECTIONS } from "@/lib/sections";
+import { GROUP_OF, SECTION_MAP, SECTIONS } from "@/lib/sections";
 import { sectionSeo } from "@/lib/seoCopy";
 
 const SectionFallback = () => (
