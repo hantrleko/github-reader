@@ -27,6 +27,22 @@ const entries: Entry[] = [
   { path: "/changelog",  changefreq: "monthly", priority: "0.4" },
 ];
 
+// Domain hub pages (/d/:groupId) — keep in sync with NAV_GROUPS in src/lib/sections.ts
+const DOMAIN_IDS = [
+  "overview",
+  "foundations",
+  "pricing",
+  "fixed-income",
+  "asset-portfolio",
+  "econometrics",
+  "risk",
+  "data",
+  "frontier",
+];
+for (const id of DOMAIN_IDS) {
+  entries.push({ path: `/d/${id}`, changefreq: "weekly", priority: "0.85" });
+}
+
 // Topic knowledge pages (/topic/:id) — keep in sync with src/data/topicsData.ts
 const TOPIC_IDS = [
   "asset-pricing",

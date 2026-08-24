@@ -113,6 +113,7 @@ if (typeof window !== "undefined") {
 
 const Index = lazyWithRetry(() => import("./pages/Index.tsx"));
 const SectionPage = lazyWithRetry(() => import("./pages/SectionPage.tsx"));
+const DomainPage = lazyWithRetry(() => import("./pages/DomainPage.tsx"));
 const TopicDetail = lazyWithRetry(() => import("./pages/TopicDetail.tsx"));
 const ChangelogPage = lazyWithRetry(() => import("./pages/ChangelogPage.tsx"));
 const ToolsCatalog = lazyWithRetry(() => import("./pages/ToolsCatalog.tsx"));
@@ -161,6 +162,7 @@ const App = () => (
               <Routes>
                 <Route path="/" element={<Index />} />
                 <Route path="/s/:sectionId" element={<SectionPage />} />
+                <Route path="/d/:groupId" element={<DomainPage />} />
                 <Route path="/topic/:topicId" element={<TopicDetail />} />
                 <Route path="/changelog" element={<ChangelogPage />} />
                 <Route path="/tools" element={<ToolsCatalog />} />

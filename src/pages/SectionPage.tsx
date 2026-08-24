@@ -8,7 +8,7 @@ import KeyboardHelp from "@/components/KeyboardHelp";
 import SectionErrorBoundary from "@/components/SectionErrorBoundary";
 import SectionHeader from "@/components/common/SectionHeader";
 import SiteFooter from "@/components/SiteFooter";
-import { SECTION_MAP, SECTIONS } from "@/lib/sections";
+import { GROUP_OF, SECTION_MAP, SECTIONS } from "@/lib/sections";
 import { sectionSeo } from "@/lib/seoCopy";
 
 const SectionFallback = () => (
@@ -58,6 +58,10 @@ const SectionPage = () => {
   const idx = SECTIONS.findIndex((s) => s.id === def.id);
   const prev = idx > 0 ? SECTIONS[idx - 1] : null;
   const next = idx < SECTIONS.length - 1 ? SECTIONS[idx + 1] : null;
+  const domain = GROUP_OF[def.id];
+  const prereqs = (def.prereq ?? [])
+    .map((id) => SECTION_MAP[id])
+    .filter(Boolean);
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -73,7 +77,7 @@ const SectionPage = () => {
       <KeyboardHelp />
 
       <main id="main-content" className="flex-1 pt-14">
-        <div className="container max-w-6xl px-6 pt-6">
+        <div className="container max-w-6xl px-6 pt-6 flex flex-wrap items-center gap-x-4 gap-y-2">
           <Link
             to="/"
             className="inline-flex items-center gap-1.5 text-[11px] font-mono uppercase tracking-wider text-muted-foreground hover:text-gold transition-colors"
@@ -81,6 +85,14 @@ const SectionPage = () => {
             <ArrowLeft className="w-3.5 h-3.5" />
             返回首页
           </Link>
+          {domain && (
+            <Link
+              to={`/d/${domain.id}`}
+              className="text-[11px] font-mono uppercase tracking-wider text-muted-foreground hover:text-gold transition-colors"
+            >
+              {domain.code} {domain.label} · {domain.kicker} 主线 →
+            </Link>
+          )}
         </div>
 
         <SectionHeader
@@ -89,6 +101,23 @@ const SectionPage = () => {
           title={def.label}
           subtitle={def.subtitle}
         />
+
+        {prereqs.length > 0 && (
+          <div className="container max-w-6xl px-6 -mt-2 mb-6 flex flex-wrap items-center gap-2">
+            <span className="text-[10px] font-mono uppercase tracking-[0.2em] text-gold/80">
+              建议先看
+            </span>
+            {prereqs.map((p) => (
+              <Link
+                key={p.id}
+                to={`/s/${p.id}`}
+                className="rounded-full border border-border/60 bg-card/35 px-3 py-1 text-xs text-foreground/75 hover:border-gold/40 hover:text-gold transition-colors"
+              >
+                {p.label}
+              </Link>
+            ))}
+          </div>
+        )}
 
         <SectionErrorBoundary name={def.label}>
           <Suspense fallback={<SectionFallback />}>
