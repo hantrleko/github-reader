@@ -113,6 +113,7 @@ if (typeof window !== "undefined") {
 
 const Index = lazyWithRetry(() => import("./pages/Index.tsx"));
 const SectionPage = lazyWithRetry(() => import("./pages/SectionPage.tsx"));
+const DomainPage = lazyWithRetry(() => import("./pages/DomainPage.tsx"));
 const TopicDetail = lazyWithRetry(() => import("./pages/TopicDetail.tsx"));
 const ChangelogPage = lazyWithRetry(() => import("./pages/ChangelogPage.tsx"));
 const ToolsCatalog = lazyWithRetry(() => import("./pages/ToolsCatalog.tsx"));
