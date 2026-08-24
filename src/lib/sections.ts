@@ -684,6 +684,7 @@ export const NAV_GROUPS: NavGroup[] = [
       "asset-pricing",
       "frontier",
       "quant",
+      "quant-theory",
       "backtest",
       "calibration",
       "asset-pricing-theory",
