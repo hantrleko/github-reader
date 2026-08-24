@@ -161,6 +161,7 @@ const App = () => (
               <Routes>
                 <Route path="/" element={<Index />} />
                 <Route path="/s/:sectionId" element={<SectionPage />} />
+                <Route path="/d/:groupId" element={<DomainPage />} />
                 <Route path="/topic/:topicId" element={<TopicDetail />} />
                 <Route path="/changelog" element={<ChangelogPage />} />
                 <Route path="/tools" element={<ToolsCatalog />} />
