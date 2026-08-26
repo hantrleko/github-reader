@@ -65,13 +65,11 @@ export default function TvScreenerSuite() {
 
   const filters: TvFilter[] = useMemo(() => {
     const base = [...preset.filters];
-    if (presetKey === "crypto" && market !== "crypto") setMarket("crypto");
-    if (presetKey === "forex" && market !== "forex") setMarket("forex");
     if (search.trim()) {
       base.push({ left: "name", operation: "match", right: search.trim().toUpperCase() });
     }
     return base;
-  }, [preset, presetKey, search]);
+  }, [preset, search]);
 
   const req = useMemo(
     () => ({
