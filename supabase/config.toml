@@ -53,3 +53,6 @@ verify_jwt = false
 
 [functions.us-screener]
 verify_jwt = false
+
+[functions.tv-screener]
+verify_jwt = false
