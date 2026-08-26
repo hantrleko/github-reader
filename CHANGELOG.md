@@ -1,5 +1,23 @@
 # EF Lab 版本日志
 
+## V6.4 — TradingView 跨市场筛选器：无需 API key 的实时扫描
+
+### 新增
+
+- **TradingView 筛选器** (`/s/tv-screener`): 通过 Lovable Cloud Edge Function 代理 TradingView 公共 Scanner，覆盖股票、外汇、加密货币、债券与期货。
+- **9 组快速筛选**: 市值龙头、涨幅榜、跌幅榜、成交量领袖、高波动、价值、成长、加密货币 Top 100、外汇主要货币对。
+- **字段自由组合**: 支持 13000+ TradingView 字段，内置常用列（价格、成交量、市值、P/E、股息率、波动率、板块等）点选开关。
+- **CSV 导出与分页**: 每页 50 条，支持上一页/下一页与一键下载当前结果。
+- **跨市场切换**: 内置 11 个市场（America / UK / Germany / France / Japan / HK / China 等）快速切换。
+
+### 工程
+
+- 新增 `supabase/functions/tv-screener/index.ts` 边缘函数代理公共 Scanner 请求。
+- 新增 `src/lib/tvScreener.ts` 类型、hooks、预设与格式化工具。
+- 新增 `src/components/data/TvScreenerSuite.tsx` 数据工作台 UI。
+- `sections.ts` 登记 `tv-screener` 并归入「数据」学科主线；站点地图、i18n 同步更新。
+- 版本号统一至 V6.4。
+
 ## V6.3 — 学科主线与结构升级：从「板块清单」到「学科主线」
 
 ### 新增

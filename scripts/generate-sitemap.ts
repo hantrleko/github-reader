@@ -21,6 +21,7 @@ const entries: Entry[] = [
   { path: "/papers",     changefreq: "monthly", priority: "0.8" },
   { path: "/glossary",   changefreq: "monthly", priority: "0.7" },
   { path: "/data",       changefreq: "weekly",  priority: "0.75" },
+  { path: "/s/tv-screener", changefreq: "daily", priority: "0.75" },
   { path: "/review",     changefreq: "weekly",  priority: "0.7" },
   { path: "/gallery",    changefreq: "daily",   priority: "0.75" },
   { path: "/github",     changefreq: "monthly", priority: "0.5" },
