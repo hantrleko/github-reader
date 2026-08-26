@@ -365,6 +365,17 @@ SECTIONS.push({
 });
 
 SECTIONS.push({
+  id: "tv-screener",
+  chapter: "Data",
+  kicker: "TradingView Screener",
+  label: "TradingView 筛选器 · 跨市场实时扫描",
+  subtitle: "无需 API key 查询 TradingView 公共 Scanner，覆盖股票、外汇、加密货币、债券与期货，支持 13000+ 字段自由组合。",
+  group: "数据源",
+  level: "data",
+  Component: lazy(() => import("@/components/data/TvScreenerSuite")),
+});
+
+SECTIONS.push({
   id: "trillion-dollar-equation",
   chapter: "Frontier Essay",
   kicker: "Black-Scholes",
@@ -725,6 +736,7 @@ export const NAV_GROUPS: NavGroup[] = [
     items: [
       "us-suite",
       "ashare-suite",
+      "tv-screener",
       "fred",
       "worldbank",
       "ecb-bis",
