@@ -185,6 +185,8 @@
   },
   "changelog": {
     "title": "Changelog",
-    "subtitle": "追踪平台每次迭代的能力增量"
+    "subtitle": "追踪平台每次迭代的能力增量",
+    "expandAll": "展开全部",
+    "collapseAll": "折叠全部"
   }
 }

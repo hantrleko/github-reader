@@ -183,6 +183,8 @@
   },
   "changelog": {
     "title": "Changelog",
-    "subtitle": "Tracking the capability delta of every release"
+    "subtitle": "Tracking the capability delta of every release",
+    "expandAll": "Expand all",
+    "collapseAll": "Collapse all"
   }
 }
