@@ -5,9 +5,58 @@ import { useMemo, useState } from "react";
 
 const RELEASES = [
   {
-    version: "V6.2",
+    version: "V6.4",
     date: "2026-08",
     tag: "Current",
+    highlights: [
+      {
+        icon: Activity,
+        title: "TradingView Cross-Market Screener — /s/tv-screener",
+        items: [
+          "零 API Key 接入 TradingView 公开 Scanner：通过 Lovable Cloud Edge Function 代理股票、外汇、加密货币、债券与期货五大市场",
+          "九组预设筛选：市值 Top 100、涨幅榜、成交量榜、高波动、高股息等，支持 130+ 常用字段组合与排序",
+          "交互表格：字段格式化、分页、刷新、CSV 导出、复制选中 symbol、跳转 TradingView 原始页面",
+        ],
+      },
+      {
+        icon: FolderTree,
+        title: "数据源架构扩展",
+        items: [
+          "新增 src/lib/tvScreener.ts 类型化 hook，复用 callFn + useQuery 模式，与 us-screener / coingecko-series 保持一致",
+          "supabase/functions/tv-screener 处理 CORS、请求体构造与上游 429/5xx 降级提示",
+        ],
+      },
+    ],
+  },
+  {
+    version: "V6.3",
+    date: "2026-08",
+    tag: "Past",
+    highlights: [
+      {
+        icon: Layout,
+        title: "学科主线升级 — Domain Hubs /d/:groupId",
+        items: [
+          "为九大一级域建立独立主页：一句话定位、学习顺序（导读 → 基础 → 进阶 → 前沿）、核心公式速查卡、真实数据源入口与相关长文",
+          "新增 SectionDef level（basic / advanced / frontier）与 prereq 字段，支持「建议先看」前置知识链与全站依赖图",
+          "首页从 56 个扁平条目压缩为 9 张学科卡片，路径从「找页面」变成「走主线」",
+        ],
+      },
+      {
+        icon: BookOpen,
+        title: "量化策略与微观经济学导读",
+        items: [
+          "新增 /s/quant-theory：信号构建 → 组合构建 → 交易成本 → 回测偏误清单 → 实盘落差",
+          "新增 /s/micro-theory：偏好与效用 → 生产与成本 → 市场结构 → 博弈与信息 → 机制设计",
+          "清理用户可见文案中的内部版本前缀（V4.x 等），改为能力描述；实验室统一为「基础工具 / 进阶实验室 / 前沿实验室」三级命名法",
+        ],
+      },
+    ],
+  },
+  {
+    version: "V6.2",
+    date: "2026-08",
+    tag: "Past",
     highlights: [
       {
         icon: Activity,
