@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { Sparkles, Wrench, BookOpen, Zap, Layout, GraduationCap, Target, ClipboardCheck, FileStack, Gauge, FileText, Share2, Shield, FolderTree, Activity, ChevronDown, ChevronsUpDown } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { useMemo, useState } from "react";
 
 const RELEASES = [
   {
