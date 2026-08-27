@@ -163,7 +163,7 @@ const HeroSection = () => {
               <h4 className="text-[10px] font-mono font-bold uppercase tracking-[0.2em] mb-2 text-foreground">
                 {t("hero.latestUpdate.label", { version: APP_VERSION_TAG })}
               </h4>
-              <p className="text-xs leading-relaxed text-foreground/75 mb-3">
+              <p className="text-xs leading-relaxed text-foreground/75 mb-3 line-clamp-3 overflow-hidden">
                 {t("hero.latestUpdate.description")}
               </p>
               <span className="text-[10px] text-gold uppercase font-mono font-bold inline-flex items-center gap-1">

@@ -1,12 +1,62 @@
 import { motion } from "framer-motion";
-import { Sparkles, Wrench, BookOpen, Zap, Layout, GraduationCap, Target, ClipboardCheck, FileStack, Gauge, FileText, Share2, Shield, FolderTree, Activity } from "lucide-react";
+import { Sparkles, Wrench, BookOpen, Zap, Layout, GraduationCap, Target, ClipboardCheck, FileStack, Gauge, FileText, Share2, Shield, FolderTree, Activity, ChevronDown, ChevronsUpDown } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { useMemo, useState } from "react";
 
 const RELEASES = [
   {
-    version: "V6.2",
+    version: "V6.4",
     date: "2026-08",
     tag: "Current",
+    highlights: [
+      {
+        icon: Activity,
+        title: "TradingView Cross-Market Screener — /s/tv-screener",
+        items: [
+          "零 API Key 接入 TradingView 公开 Scanner：通过 Lovable Cloud Edge Function 代理股票、外汇、加密货币、债券与期货五大市场",
+          "九组预设筛选：市值 Top 100、涨幅榜、成交量榜、高波动、高股息等，支持 130+ 常用字段组合与排序",
+          "交互表格：字段格式化、分页、刷新、CSV 导出、复制选中 symbol、跳转 TradingView 原始页面",
+        ],
+      },
+      {
+        icon: FolderTree,
+        title: "数据源架构扩展",
+        items: [
+          "新增 src/lib/tvScreener.ts 类型化 hook，复用 callFn + useQuery 模式，与 us-screener / coingecko-series 保持一致",
+          "supabase/functions/tv-screener 处理 CORS、请求体构造与上游 429/5xx 降级提示",
+        ],
+      },
+    ],
+  },
+  {
+    version: "V6.3",
+    date: "2026-08",
+    tag: "Past",
+    highlights: [
+      {
+        icon: Layout,
+        title: "学科主线升级 — Domain Hubs /d/:groupId",
+        items: [
+          "为九大一级域建立独立主页：一句话定位、学习顺序（导读 → 基础 → 进阶 → 前沿）、核心公式速查卡、真实数据源入口与相关长文",
+          "新增 SectionDef level（basic / advanced / frontier）与 prereq 字段，支持「建议先看」前置知识链与全站依赖图",
+          "首页从 56 个扁平条目压缩为 9 张学科卡片，路径从「找页面」变成「走主线」",
+        ],
+      },
+      {
+        icon: BookOpen,
+        title: "量化策略与微观经济学导读",
+        items: [
+          "新增 /s/quant-theory：信号构建 → 组合构建 → 交易成本 → 回测偏误清单 → 实盘落差",
+          "新增 /s/micro-theory：偏好与效用 → 生产与成本 → 市场结构 → 博弈与信息 → 机制设计",
+          "清理用户可见文案中的内部版本前缀（V4.x 等），改为能力描述；实验室统一为「基础工具 / 进阶实验室 / 前沿实验室」三级命名法",
+        ],
+      },
+    ],
+  },
+  {
+    version: "V6.2",
+    date: "2026-08",
+    tag: "Past",
     highlights: [
       {
         icon: Activity,
@@ -1821,6 +1871,25 @@ const RELEASES = [
 
 const Changelog = () => {
   const { t } = useTranslation();
+  const allVersions = useMemo(() => RELEASES.map((r) => r.version), []);
+  const [expanded, setExpanded] = useState<Set<string>>(
+    () => new Set([RELEASES[0]?.version].filter(Boolean) as string[])
+  );
+
+  const isAllExpanded = expanded.size === allVersions.length;
+
+  const toggle = (version: string) => {
+    setExpanded((prev) => {
+      const next = new Set(prev);
+      if (next.has(version)) next.delete(version);
+      else next.add(version);
+      return next;
+    });
+  };
+
+  const expandAll = () => setExpanded(new Set(allVersions));
+  const collapseAll = () => setExpanded(new Set());
+
   return (
     <section className="py-20 px-6 bg-background border-t border-border/40">
       <div className="container max-w-5xl">
@@ -1828,7 +1897,7 @@ const Changelog = () => {
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="mb-12"
+          className="mb-6"
         >
           <p className="text-[10px] font-mono text-gold tracking-[0.3em] uppercase mb-2">
             Release Notes · 更新日志
@@ -1837,67 +1906,112 @@ const Changelog = () => {
             {t("changelog.title")}
           </h2>
           <p className="text-sm text-muted-foreground font-mono">
-            {t("changelog.subtitle")} — V1.0 → V3.2
+            {t("changelog.subtitle")} — V1.0 → V6.4
           </p>
         </motion.div>
 
-        <div className="space-y-12">
-          {RELEASES.map((release, i) => (
-            <motion.div
-              key={release.version}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-100px" }}
-              transition={{ delay: i * 0.1 }}
-              className="relative"
-            >
-              {/* Version header */}
-              <div className="flex items-baseline gap-3 mb-6 pb-3 border-b border-border/50">
-                <h3 className="text-2xl font-display text-gold">{release.version}</h3>
-                <span className="text-xs font-mono text-muted-foreground tracking-wider">
-                  {release.date}
-                </span>
-                <span
-                  className={`ml-auto text-[10px] px-2 py-0.5 rounded font-mono tracking-wider uppercase ${
-                    release.tag === "Current"
-                      ? "bg-gold/15 text-gold"
-                      : "bg-muted text-muted-foreground"
-                  }`}
-                >
-                  {release.tag}
-                </span>
-              </div>
+        <div className="flex justify-end mb-8">
+          <button
+            type="button"
+            onClick={isAllExpanded ? collapseAll : expandAll}
+            className="inline-flex items-center gap-2 text-[11px] font-mono uppercase tracking-[0.15em] text-gold hover:text-gold/80 transition-colors"
+            aria-label={isAllExpanded ? t("changelog.collapseAll") : t("changelog.expandAll")}
+          >
+            <ChevronsUpDown className="w-3.5 h-3.5" />
+            {isAllExpanded ? t("changelog.collapseAll") : t("changelog.expandAll")}
+          </button>
+        </div>
 
-              <div className="grid md:grid-cols-2 gap-5">
-                {release.highlights.map((h) => {
-                  const Icon = h.icon;
-                  return (
-                    <div
-                      key={h.title}
-                      className="rounded-lg border border-border/60 bg-card/50 p-5 hover:border-gold/40 transition-colors"
-                    >
-                      <div className="flex items-center gap-2 mb-3">
-                        <Icon className="w-4 h-4 text-gold" />
-                        <h4 className="text-sm font-semibold text-foreground font-mono">
+        <div className="space-y-6">
+          {RELEASES.map((release, i) => {
+            const isOpen = expanded.has(release.version);
+            return (
+              <motion.div
+                key={release.version}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-80px" }}
+                transition={{ delay: i * 0.05 }}
+                className="rounded-xl border border-border/60 bg-card/35 overflow-hidden"
+              >
+                <button
+                  type="button"
+                  onClick={() => toggle(release.version)}
+                  className="w-full flex items-center gap-3 px-5 py-4 text-left hover:bg-card/55 transition-colors"
+                  aria-expanded={isOpen}
+                  aria-controls={`release-${release.version}`}
+                >
+                  <h3 className="text-2xl font-display text-gold">{release.version}</h3>
+                  <span className="text-xs font-mono text-muted-foreground tracking-wider">
+                    {release.date}
+                  </span>
+                  <span
+                    className={`ml-auto text-[10px] px-2 py-0.5 rounded font-mono tracking-wider uppercase ${
+                      release.tag === "Current"
+                        ? "bg-gold/15 text-gold"
+                        : "bg-muted text-muted-foreground"
+                    }`}
+                  >
+                    {release.tag}
+                  </span>
+                  <ChevronDown
+                    className={`w-4 h-4 text-muted-foreground transition-transform shrink-0 ${
+                      isOpen ? "rotate-180" : ""
+                    }`}
+                  />
+                </button>
+
+                <div
+                  id={`release-${release.version}`}
+                  className={`px-5 pb-5 ${isOpen ? "" : "hidden"}`}
+                >
+                  <div className="grid md:grid-cols-2 gap-4">
+                    {release.highlights.map((h) => {
+                      const Icon = h.icon;
+                      return (
+                        <div
+                          key={h.title}
+                          className="rounded-lg border border-border/60 bg-card/50 p-5 hover:border-gold/40 transition-colors"
+                        >
+                          <div className="flex items-center gap-2 mb-3">
+                            <Icon className="w-4 h-4 text-gold" />
+                            <h4 className="text-sm font-semibold text-foreground font-mono">
+                              {h.title}
+                            </h4>
+                          </div>
+                          <ul className="space-y-1.5">
+                            {h.items.map((item, idx) => (
+                              <li
+                                key={idx}
+                                className="text-xs text-muted-foreground leading-relaxed pl-3 relative before:content-['—'] before:absolute before:left-0 before:text-gold/50"
+                              >
+                                {item}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {!isOpen && (
+                  <div className="px-5 pb-4">
+                    <div className="flex flex-wrap gap-2">
+                      {release.highlights.map((h) => (
+                        <span
+                          key={h.title}
+                          className="text-[10px] font-mono text-foreground/60 bg-accent/30 px-2 py-1 rounded"
+                        >
                           {h.title}
-                        </h4>
-                      </div>
-                      <ul className="space-y-1.5">
-                        {h.items.map((item, idx) => (
-                          <li
-                            key={idx}
-                            className="text-xs text-muted-foreground leading-relaxed pl-3 relative before:content-['—'] before:absolute before:left-0 before:text-gold/50"
-                          >
-                            {item}
-                          </li>
-                        ))}
-                      </ul>
+                        </span>
+                      ))}
                     </div>
-                  );
-                })}
-              </div>
-            </motion.div>
-          ))}
+                  </div>
+                )}
+              </motion.div>
+            );
+          })}
         </div>
       </div>
     </section>
