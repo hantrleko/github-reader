@@ -1822,6 +1822,25 @@ const RELEASES = [
 
 const Changelog = () => {
   const { t } = useTranslation();
+  const allVersions = useMemo(() => RELEASES.map((r) => r.version), []);
+  const [expanded, setExpanded] = useState<Set<string>>(
+    () => new Set([RELEASES[0]?.version].filter(Boolean) as string[])
+  );
+
+  const isAllExpanded = expanded.size === allVersions.length;
+
+  const toggle = (version: string) => {
+    setExpanded((prev) => {
+      const next = new Set(prev);
+      if (next.has(version)) next.delete(version);
+      else next.add(version);
+      return next;
+    });
+  };
+
+  const expandAll = () => setExpanded(new Set(allVersions));
+  const collapseAll = () => setExpanded(new Set());
+
   return (
     <section className="py-20 px-6 bg-background border-t border-border/40">
       <div className="container max-w-5xl">
@@ -1829,7 +1848,7 @@ const Changelog = () => {
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="mb-12"
+          className="mb-6"
         >
           <p className="text-[10px] font-mono text-gold tracking-[0.3em] uppercase mb-2">
             Release Notes · 更新日志
@@ -1842,63 +1861,108 @@ const Changelog = () => {
           </p>
         </motion.div>
 
-        <div className="space-y-12">
-          {RELEASES.map((release, i) => (
-            <motion.div
-              key={release.version}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-100px" }}
-              transition={{ delay: i * 0.1 }}
-              className="relative"
-            >
-              {/* Version header */}
-              <div className="flex items-baseline gap-3 mb-6 pb-3 border-b border-border/50">
-                <h3 className="text-2xl font-display text-gold">{release.version}</h3>
-                <span className="text-xs font-mono text-muted-foreground tracking-wider">
-                  {release.date}
-                </span>
-                <span
-                  className={`ml-auto text-[10px] px-2 py-0.5 rounded font-mono tracking-wider uppercase ${
-                    release.tag === "Current"
-                      ? "bg-gold/15 text-gold"
-                      : "bg-muted text-muted-foreground"
-                  }`}
-                >
-                  {release.tag}
-                </span>
-              </div>
+        <div className="flex justify-end mb-8">
+          <button
+            type="button"
+            onClick={isAllExpanded ? collapseAll : expandAll}
+            className="inline-flex items-center gap-2 text-[11px] font-mono uppercase tracking-[0.15em] text-gold hover:text-gold/80 transition-colors"
+            aria-label={isAllExpanded ? t("changelog.collapseAll") : t("changelog.expandAll")}
+          >
+            <ChevronsUpDown className="w-3.5 h-3.5" />
+            {isAllExpanded ? t("changelog.collapseAll") : t("changelog.expandAll")}
+          </button>
+        </div>
 
-              <div className="grid md:grid-cols-2 gap-5">
-                {release.highlights.map((h) => {
-                  const Icon = h.icon;
-                  return (
-                    <div
-                      key={h.title}
-                      className="rounded-lg border border-border/60 bg-card/50 p-5 hover:border-gold/40 transition-colors"
-                    >
-                      <div className="flex items-center gap-2 mb-3">
-                        <Icon className="w-4 h-4 text-gold" />
-                        <h4 className="text-sm font-semibold text-foreground font-mono">
+        <div className="space-y-6">
+          {RELEASES.map((release, i) => {
+            const isOpen = expanded.has(release.version);
+            return (
+              <motion.div
+                key={release.version}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-80px" }}
+                transition={{ delay: i * 0.05 }}
+                className="rounded-xl border border-border/60 bg-card/35 overflow-hidden"
+              >
+                <button
+                  type="button"
+                  onClick={() => toggle(release.version)}
+                  className="w-full flex items-center gap-3 px-5 py-4 text-left hover:bg-card/55 transition-colors"
+                  aria-expanded={isOpen}
+                  aria-controls={`release-${release.version}`}
+                >
+                  <h3 className="text-2xl font-display text-gold">{release.version}</h3>
+                  <span className="text-xs font-mono text-muted-foreground tracking-wider">
+                    {release.date}
+                  </span>
+                  <span
+                    className={`ml-auto text-[10px] px-2 py-0.5 rounded font-mono tracking-wider uppercase ${
+                      release.tag === "Current"
+                        ? "bg-gold/15 text-gold"
+                        : "bg-muted text-muted-foreground"
+                    }`}
+                  >
+                    {release.tag}
+                  </span>
+                  <ChevronDown
+                    className={`w-4 h-4 text-muted-foreground transition-transform shrink-0 ${
+                      isOpen ? "rotate-180" : ""
+                    }`}
+                  />
+                </button>
+
+                <div
+                  id={`release-${release.version}`}
+                  className={`px-5 pb-5 ${isOpen ? "" : "hidden"}`}
+                >
+                  <div className="grid md:grid-cols-2 gap-4">
+                    {release.highlights.map((h) => {
+                      const Icon = h.icon;
+                      return (
+                        <div
+                          key={h.title}
+                          className="rounded-lg border border-border/60 bg-card/50 p-5 hover:border-gold/40 transition-colors"
+                        >
+                          <div className="flex items-center gap-2 mb-3">
+                            <Icon className="w-4 h-4 text-gold" />
+                            <h4 className="text-sm font-semibold text-foreground font-mono">
+                              {h.title}
+                            </h4>
+                          </div>
+                          <ul className="space-y-1.5">
+                            {h.items.map((item, idx) => (
+                              <li
+                                key={idx}
+                                className="text-xs text-muted-foreground leading-relaxed pl-3 relative before:content-['—'] before:absolute before:left-0 before:text-gold/50"
+                              >
+                                {item}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {!isOpen && (
+                  <div className="px-5 pb-4">
+                    <div className="flex flex-wrap gap-2">
+                      {release.highlights.map((h) => (
+                        <span
+                          key={h.title}
+                          className="text-[10px] font-mono text-foreground/60 bg-accent/30 px-2 py-1 rounded"
+                        >
                           {h.title}
-                        </h4>
-                      </div>
-                      <ul className="space-y-1.5">
-                        {h.items.map((item, idx) => (
-                          <li
-                            key={idx}
-                            className="text-xs text-muted-foreground leading-relaxed pl-3 relative before:content-['—'] before:absolute before:left-0 before:text-gold/50"
-                          >
-                            {item}
-                          </li>
-                        ))}
-                      </ul>
+                        </span>
+                      ))}
                     </div>
-                  );
-                })}
-              </div>
-            </motion.div>
-          ))}
+                  </div>
+                )}
+              </motion.div>
+            );
+          })}
         </div>
       </div>
     </section>
