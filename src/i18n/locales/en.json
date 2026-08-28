@@ -111,7 +111,7 @@
     },
     "latestUpdate": {
       "label": "Latest Update · {{version}}",
-      "description": "V6.4 TradingView Cross-Market Screener is live: proxy TradingView's public scanner through a Lovable Cloud edge function — no API key needed for stocks, FX, crypto, bonds and futures. Nine quick screens, 13,000+ field combinations, sorting and CSV export.",
+      "description": "V6.5 adds a Quant Trading domain, opening with Microsoft Qlib: a reading guide on its seven-layer research pipeline plus an in-browser lab reproducing Alpha158-style factors, cross-sectional normalisation, model fitting, IC/RankIC evaluation and a TopK-Dropout backtest.",
       "cta": "View Changelog"
     }
   },
