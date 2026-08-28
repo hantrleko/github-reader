@@ -647,6 +647,8 @@ const PREREQ: Record<string, string[]> = {
   quant: ["quant-theory", "frontier"],
   backtest: ["quant", "quant-theory"],
   calibration: ["econometrics", "calculator"],
+  "qlib-lab": ["qlib-guide", "quant-theory"],
+  "qlib-guide": ["quant-theory"],
   risk: ["risk-theory", "econometrics"],
   econometrics: ["econometrics-theory"],
   micro: ["micro-theory"],
