@@ -565,6 +565,30 @@ SECTIONS.push({
   Component: lazy(() => import("@/components/essays/QuantTheory")),
 });
 
+SECTIONS.push({
+  id: "qlib-guide",
+  chapter: "Reading Guide",
+  kicker: "Microsoft Qlib",
+  label: "Qlib 导读 · 可复现的量化研究流水线",
+  subtitle:
+    "七层结构：数据层 → 表达式因子 → 截面归一化 → 模型 → 评估 → TopK-Dropout → 工作流。",
+  group: "量化交易",
+  Component: lazy(() => import("@/components/essays/QlibGuide")),
+});
+
+SECTIONS.push({
+  id: "qlib-lab",
+  chapter: "Lab",
+  kicker: "Qlib Pipeline",
+  label: "Qlib 流水线实验室 · 因子到组合",
+  subtitle:
+    "复现 Qlib 研究闭环：Alpha158 式因子、截面标准化、Ridge 拟合、IC 评估与 TopK-Dropout 回测。",
+  group: "量化交易",
+  Component: lazy(() => import("@/components/quant/QlibLab")),
+});
+
+
+
 export const SECTION_MAP: Record<string, SectionDef> = Object.fromEntries(
   SECTIONS.map((s) => [s.id, s])
 );
