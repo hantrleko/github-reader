@@ -33,7 +33,8 @@
       "asset-portfolio": "资产与组合",
       "econometrics": "计量与时序",
       "risk": "风险",
-      "frontier": "前沿"
+      "frontier": "前沿",
+      "quant-trading": "量化交易"
     },
     "items": {
       "hero": "首页",
@@ -93,7 +94,9 @@
       "microstructure-lab": "微观结构实验室",
       "microstructure-theory": "市场微观结构导读",
       "fixed-income-frontier": "固定收益前沿实验室",
-      "fixed-income-theory": "固定收益导读"
+      "fixed-income-theory": "固定收益导读",
+      "qlib-guide": "Qlib 导读",
+      "qlib-lab": "Qlib 流水线实验室"
     }
   },
   "hero": {
@@ -110,7 +113,7 @@
     },
     "latestUpdate": {
       "label": "最新更新 · {{version}}",
-      "description": "V6.4 TradingView 跨市场筛选器已上线：通过 Lovable Cloud Edge Function 代理 TradingView 公共 Scanner，无需 API key 即可扫描股票、外汇、加密货币、债券与期货；内置 9 组快速筛选，支持 13000+ 字段自由组合、排序与 CSV 导出。",
+      "description": "V6.5 新增「量化交易」一级域，首块内容为 Microsoft Qlib：导读拆解其七层研究流水线，实验室在浏览器内复现 Alpha158 式因子、截面标准化、模型拟合、IC/RankIC 评估与 TopK-Dropout 组合回测。",
       "cta": "查看更新日志"
     }
   },

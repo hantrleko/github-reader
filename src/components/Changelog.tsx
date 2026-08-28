@@ -5,9 +5,42 @@ import { useMemo, useState } from "react";
 
 const RELEASES = [
   {
-    version: "V6.4",
+    version: "V6.5",
     date: "2026-08",
     tag: "Current",
+    highlights: [
+      {
+        icon: FolderTree,
+        title: "新增一级域「量化交易」 — Quant Trading",
+        items: [
+          "把 Qlib 导读、Qlib 流水线实验室、量化策略导读、策略实验室、回测引擎与模型校准整合为独立学科主线",
+          "域编号重排为 01–10，导航、首页目录与学科主页共用同一套分类",
+        ],
+      },
+      {
+        icon: BookOpen,
+        title: "Qlib 导读 — /s/qlib-guide",
+        items: [
+          "七节精读：数据层与表达式引擎、Alpha158 / Alpha360、CSZScoreNorm 截面归一化、模型层、IC 评估协议、TopK-Dropout、qrun 工作流",
+          "标签对齐、样本切分与换手成本三类常见误用的成因与修法",
+        ],
+      },
+      {
+        icon: Activity,
+        title: "Qlib 流水线实验室 — /s/qlib-lab",
+        items: [
+          "浏览器内复现完整研究闭环：模拟股票池 → 8 个 Alpha158 式表达式因子 → 截面 z-score → Ridge / 等权 / 单因子模型 → 样本外 IC",
+          "评估面板：IC / RankIC 时间序列、ICIR、IC 胜率、五分组未来收益单调性",
+          "TopK-Dropout 组合回测：TopK、n_drop、调仓频率与成本可调，输出净值、超额、最大回撤与平均换手",
+          "训练 / 测试按时间硬切分，所有展示指标均为样本外",
+        ],
+      },
+    ],
+  },
+  {
+    version: "V6.4",
+    date: "2026-08",
+    tag: "Past",
     highlights: [
       {
         icon: Activity,
@@ -1906,7 +1939,7 @@ const Changelog = () => {
             {t("changelog.title")}
           </h2>
           <p className="text-sm text-muted-foreground font-mono">
-            {t("changelog.subtitle")} — V1.0 → V6.4
+            {t("changelog.subtitle")} — V1.0 → V6.5
           </p>
         </motion.div>
 

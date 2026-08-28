@@ -565,6 +565,30 @@ SECTIONS.push({
   Component: lazy(() => import("@/components/essays/QuantTheory")),
 });
 
+SECTIONS.push({
+  id: "qlib-guide",
+  chapter: "Reading Guide",
+  kicker: "Microsoft Qlib",
+  label: "Qlib 导读 · 可复现的量化研究流水线",
+  subtitle:
+    "七层结构：数据层 → 表达式因子 → 截面归一化 → 模型 → 评估 → TopK-Dropout → 工作流。",
+  group: "量化交易",
+  Component: lazy(() => import("@/components/essays/QlibGuide")),
+});
+
+SECTIONS.push({
+  id: "qlib-lab",
+  chapter: "Lab",
+  kicker: "Qlib Pipeline",
+  label: "Qlib 流水线实验室 · 因子到组合",
+  subtitle:
+    "复现 Qlib 研究闭环：Alpha158 式因子、截面标准化、Ridge 拟合、IC 评估与 TopK-Dropout 回测。",
+  group: "量化交易",
+  Component: lazy(() => import("@/components/quant/QlibLab")),
+});
+
+
+
 export const SECTION_MAP: Record<string, SectionDef> = Object.fromEntries(
   SECTIONS.map((s) => [s.id, s])
 );
@@ -579,6 +603,7 @@ const LEVELS: Record<SectionLevel, string[]> = {
     "micro-theory", "macro-theory", "asset-pricing-theory", "econometrics-theory",
     "time-series-theory", "portfolio-theory", "derivatives-theory", "risk-theory",
     "behavior-theory", "microstructure-theory", "fixed-income-theory", "quant-theory",
+    "qlib-guide",
     "trillion-dollar-equation", "ai-quant-strategy", "learning", "quiz",
   ],
   basic: [
@@ -587,8 +612,9 @@ const LEVELS: Record<SectionLevel, string[]> = {
   ],
   advanced: [
     "derivatives", "fixed-income-lab", "macro-lab", "behavior-microstructure",
-    "behavior-lab", "microstructure-lab", "backtest", "calibration",
+    "behavior-lab", "microstructure-lab", "backtest", "calibration", "qlib-lab",
   ],
+
   frontier: [
     "fixed-income-frontier", "macro-frontier", "frontier-concepts",
     "visualization-guide", "platform",
@@ -621,6 +647,8 @@ const PREREQ: Record<string, string[]> = {
   quant: ["quant-theory", "frontier"],
   backtest: ["quant", "quant-theory"],
   calibration: ["econometrics", "calculator"],
+  "qlib-lab": ["qlib-guide", "quant-theory"],
+  "qlib-guide": ["quant-theory"],
   risk: ["risk-theory", "econometrics"],
   econometrics: ["econometrics-theory"],
   micro: ["micro-theory"],
@@ -690,21 +718,32 @@ export const NAV_GROUPS: NavGroup[] = [
     code: "05",
     label: "资产定价与组合",
     kicker: "Asset Pricing & Portfolio",
-    desc: "CAPM · 有效前沿 · 量化策略 · 导读",
+    desc: "CAPM · 有效前沿 · 资产定价与组合导读",
     items: [
       "asset-pricing",
       "frontier",
-      "quant",
-      "quant-theory",
-      "backtest",
-      "calibration",
       "asset-pricing-theory",
       "portfolio-theory",
     ],
   },
   {
-    id: "econometrics",
+    id: "quant-trading",
     code: "06",
+    label: "量化交易",
+    kicker: "Quant Trading",
+    desc: "Qlib 流水线 · 因子与信号 · 回测与校准",
+    items: [
+      "qlib-guide",
+      "qlib-lab",
+      "quant-theory",
+      "quant",
+      "backtest",
+      "calibration",
+    ],
+  },
+  {
+    id: "econometrics",
+    code: "07",
     label: "计量与时序",
     kicker: "Econometrics & Time Series",
     desc: "OLS · 面板 · 时间序列 · 行为与微观结构",
@@ -721,7 +760,7 @@ export const NAV_GROUPS: NavGroup[] = [
   },
   {
     id: "risk",
-    code: "07",
+    code: "08",
     label: "风险",
     kicker: "Risk",
     desc: "VaR / ES · 信用 · Copula · 压力测试",
@@ -729,7 +768,7 @@ export const NAV_GROUPS: NavGroup[] = [
   },
   {
     id: "data",
-    code: "08",
+    code: "09",
     label: "数据",
     kicker: "Data",
     desc: "美股 / A 股 · 宏观 · 情绪 · 外部工作台",
@@ -753,7 +792,8 @@ export const NAV_GROUPS: NavGroup[] = [
   },
   {
     id: "frontier",
-    code: "09",
+    code: "10",
+
     label: "前沿",
     kicker: "Frontier",
     desc: "长文精读 · 新兴范式 · 平台与可视化",

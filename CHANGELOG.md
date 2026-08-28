@@ -1,5 +1,20 @@
 # EF Lab 版本日志
 
+## V6.5 — 新增「量化交易」一级域：以 Microsoft Qlib 为第一块内容
+
+### 新增
+
+- **量化交易学科主线**: 新建一级域 `quant-trading`，收纳 Qlib 导读、Qlib 流水线实验室、量化策略导读、量化策略实验室、真实数据回测引擎与模型校准实验室；域编号重排为 01–10。
+- **Qlib 导读** (`/s/qlib-guide`): 七节精读 Microsoft Qlib 的七层结构（数据层、表达式引擎、预处理、模型层、策略层、回测执行、qrun 工作流），含 Alpha158 / Alpha360 对比、标签对齐与 IC 评估协议。
+- **Qlib 流水线实验室** (`/s/qlib-lab`): 交互复现 Qlib 研究闭环——Alpha158 式表达式因子、CSZScoreNorm 截面标准化、Ridge / 等权 / 单因子模型、IC·RankIC·ICIR 与五分组单调性、TopK-Dropout 组合回测。
+
+### 工程
+
+- 新增 `src/lib/quant/qlibPipeline.ts`：合成面板生成、表达式因子、截面归一化、Ridge 正规方程求解、IC/RankIC 评估与 TopK-Dropout 回测，训练/测试按时间硬切分。
+- 新增 `src/lib/quant/__tests__/qlibPipeline.test.ts`（7 项，含 oracle 信号 IC=1 与系数回收校验）。
+- 新增 `src/components/essays/QlibGuide.tsx`、`src/components/quant/QlibLab.tsx`；`sections.ts` 登记新板块与新一级域，i18n 与站点地图同步更新。
+- 版本号统一至 V6.5。
+
 ## V6.4 — TradingView 跨市场筛选器：无需 API key 的实时扫描
 
 ### 新增
