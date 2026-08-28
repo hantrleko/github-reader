@@ -33,7 +33,8 @@
       "asset-portfolio": "资产与组合",
       "econometrics": "计量与时序",
       "risk": "风险",
-      "frontier": "前沿"
+      "frontier": "前沿",
+      "quant-trading": "量化交易"
     },
     "items": {
       "hero": "首页",
@@ -93,7 +94,9 @@
       "microstructure-lab": "微观结构实验室",
       "microstructure-theory": "市场微观结构导读",
       "fixed-income-frontier": "固定收益前沿实验室",
-      "fixed-income-theory": "固定收益导读"
+      "fixed-income-theory": "固定收益导读",
+      "qlib-guide": "Qlib 导读",
+      "qlib-lab": "Qlib 流水线实验室"
     }
   },
   "hero": {

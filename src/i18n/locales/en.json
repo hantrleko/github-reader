@@ -33,7 +33,8 @@
       "asset-portfolio": "Asset & Portfolio",
       "econometrics": "Econometrics",
       "risk": "Risk",
-      "frontier": "Frontier"
+      "frontier": "Frontier",
+      "quant-trading": "Quant Trading"
     },
     "items": {
       "hero": "Home",
@@ -91,7 +92,9 @@
       "microstructure-lab": "Microstructure Lab",
       "microstructure-theory": "Microstructure Theory Guide",
       "fixed-income-frontier": "Fixed Income Frontier Lab",
-      "fixed-income-theory": "Fixed Income Theory Guide"
+      "fixed-income-theory": "Fixed Income Theory Guide",
+      "qlib-guide": "Qlib Reading Guide",
+      "qlib-lab": "Qlib Pipeline Lab"
     }
   },
   "hero": {
