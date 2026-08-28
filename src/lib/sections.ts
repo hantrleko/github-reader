@@ -603,6 +603,7 @@ const LEVELS: Record<SectionLevel, string[]> = {
     "micro-theory", "macro-theory", "asset-pricing-theory", "econometrics-theory",
     "time-series-theory", "portfolio-theory", "derivatives-theory", "risk-theory",
     "behavior-theory", "microstructure-theory", "fixed-income-theory", "quant-theory",
+    "qlib-guide",
     "trillion-dollar-equation", "ai-quant-strategy", "learning", "quiz",
   ],
   basic: [
@@ -611,8 +612,9 @@ const LEVELS: Record<SectionLevel, string[]> = {
   ],
   advanced: [
     "derivatives", "fixed-income-lab", "macro-lab", "behavior-microstructure",
-    "behavior-lab", "microstructure-lab", "backtest", "calibration",
+    "behavior-lab", "microstructure-lab", "backtest", "calibration", "qlib-lab",
   ],
+
   frontier: [
     "fixed-income-frontier", "macro-frontier", "frontier-concepts",
     "visualization-guide", "platform",
