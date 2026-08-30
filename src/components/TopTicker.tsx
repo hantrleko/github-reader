@@ -36,10 +36,23 @@ const ENDPOINT =
     : "";
 const SUPABASE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY as string | undefined;
 
+const CACHE_KEY = "top-ticker-quotes-v1";
+const CACHE_TTL = 24 * 60 * 60 * 1000;
+
+const readCache = (): Quote[] => {
+  try {
+    const raw = localStorage.getItem(CACHE_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw) as { at: number; quotes: Quote[] };
+    if (!parsed?.at || Date.now() - parsed.at > CACHE_TTL) return [];
+    return Array.isArray(parsed.quotes) ? parsed.quotes.filter((q) => q && q.price != null) : [];
+  } catch {
+    return [];
+  }
+};
+
 const TopTicker = () => {
-  const [quotes, setQuotes] = useState<Quote[]>(
-    SYMBOLS.map((s) => ({ symbol: s.sym, label: s.label, price: null, change: null }))
-  );
+  const [quotes, setQuotes] = useState<Quote[]>(() => readCache());
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
@@ -49,6 +62,7 @@ const TopTicker = () => {
     const loadOne = async (sym: string, label: string): Promise<Quote> => {
       if (!ENDPOINT) return { symbol: sym, label, price: null, change: null };
       try {
+        // Yahoo v7/finance/quote is dead (401) — always use the v8 chart proxy.
         const url = `${ENDPOINT}?symbol=${encodeURIComponent(sym)}&range=5d&interval=1d`;
         const resp = await fetch(url, {
           signal: controller.signal,
@@ -76,9 +90,19 @@ const TopTicker = () => {
 
     (async () => {
       const results = await Promise.all(SYMBOLS.map((s) => loadOne(s.sym, s.label)));
-      if (!cancelled) {
-        setQuotes(results);
+      if (cancelled) return;
+      const fresh = results.filter((q) => q.price != null && isFinite(q.price as number));
+      if (fresh.length) {
+        setQuotes(fresh);
         setReady(true);
+        try {
+          localStorage.setItem(CACHE_KEY, JSON.stringify({ at: Date.now(), quotes: fresh }));
+        } catch {
+          /* storage unavailable */
+        }
+      } else {
+        // Keep whatever cache we already show; never render dashes.
+        setReady(readCache().length > 0);
       }
     })();
 
@@ -89,6 +113,8 @@ const TopTicker = () => {
   }, []);
 
   const items = useMemo(() => [...quotes, ...quotes], [quotes]); // duplicate for seamless loop
+
+  if (!quotes.length) return null;
 
   return (
     <div
@@ -101,8 +127,9 @@ const TopTicker = () => {
           "flex items-center gap-8 h-full whitespace-nowrap will-change-transform",
           !ready && "opacity-60"
         )}
-        style={{ animation: ready ? "ticker 60s linear infinite" : "none" }}
+        style={{ animation: quotes.length ? "ticker 60s linear infinite" : "none" }}
       >
+
         {items.map((q, i) => {
           const up = (q.change ?? 0) > 0;
           const dn = (q.change ?? 0) < 0;
