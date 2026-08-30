@@ -70,7 +70,8 @@ const SplashIntro = () => {
           animate={{ opacity: 1 }}
           exit={{ opacity: 0, transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] } }}
           transition={{ duration: 0.5 }}
-          className="fixed inset-0 z-[100] overflow-hidden bg-background"
+          onClick={dismiss}
+          className="fixed inset-0 z-[100] overflow-hidden bg-background cursor-pointer"
         >
           {/* Video layer */}
           <div className="absolute inset-0">
@@ -206,7 +207,7 @@ const SplashIntro = () => {
             <span className="flex items-center gap-2">
               <Play className="w-3 h-3 text-gold" /> Intro reel · loop
             </span>
-            <span className="hidden sm:block">Press Enter · Esc to skip</span>
+            <span className="hidden sm:block">Auto-entering the Lab · click anywhere to skip</span>
             <span>© Eugene Finance Lab</span>
           </div>
         </motion.div>
