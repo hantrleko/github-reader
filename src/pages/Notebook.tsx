@@ -324,7 +324,7 @@ const Notebook = () => {
                 "@context": "https://schema.org",
                 "@type": "Article",
                 headline: title,
-                url: `https://my-repo-mind.lovable.app/notebook?id=${notebookId}`,
+                url: `https://eugenefinance.tech/notebook?id=${notebookId}`,
                 articleSection: "Quantitative Finance Notebook",
               }
             : undefined

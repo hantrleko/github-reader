@@ -1,7 +1,7 @@
 import { Helmet } from "react-helmet-async";
 import { useTranslation } from "react-i18next";
 
-const SITE = "https://my-repo-mind.lovable.app";
+const SITE = "https://eugenefinance.tech";
 const DEFAULT_OG = `${SITE}/og-image.jpg`;
 
 interface SeoProps {

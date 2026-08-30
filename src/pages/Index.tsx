@@ -164,10 +164,10 @@ const Index = () => {
           "@context": "https://schema.org",
           "@type": "WebSite",
           name: "EF Lab",
-          url: "https://my-repo-mind.lovable.app/",
+          url: "https://eugenefinance.tech/",
           potentialAction: {
             "@type": "SearchAction",
-            target: "https://my-repo-mind.lovable.app/glossary?q={query}",
+            target: "https://eugenefinance.tech/glossary?q={query}",
             "query-input": "required name=query",
           },
         }}

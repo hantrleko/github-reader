@@ -6,7 +6,7 @@ import { SECTIONS, type SectionDef } from "@/lib/sections";
  * test import from here, so the "unified editorial style" rules stay enforced.
  */
 
-export const SITE_URL = "https://my-repo-mind.lovable.app";
+export const SITE_URL = "https://eugenefinance.tech";
 export const BRAND = "EF Lab";
 /** editorial em-dash brand suffix appended to page titles */
 export const TITLE_SUFFIX = ` — ${BRAND}`;

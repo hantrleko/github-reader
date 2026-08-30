@@ -1,7 +1,7 @@
 import { writeFileSync, mkdirSync } from "fs";
 import { resolve } from "path";
 
-const BASE_URL = "https://my-repo-mind.lovable.app";
+const BASE_URL = "https://eugenefinance.tech";
 
 interface Entry {
   path: string;
