@@ -4,11 +4,13 @@ import { ArrowRight, Play, VolumeX, Volume2 } from "lucide-react";
 import introVideo from "@/assets/intro.mp4.asset.json";
 import { APP_VERSION_TAG } from "@/lib/appVersion";
 
-const STORAGE_KEY = "splash:intro:v1:seen";
+const STORAGE_KEY = "splash:intro:v2:seen";
+const AUTO_DISMISS_MS = 4500;
 
 /**
- * Cinematic brand splash shown on first visit per session.
- * Video plays muted+autoplay; user can enter the Lab at any time.
+ * Cinematic brand splash. Shown once per browser (first-ever visit) and
+ * auto-dismissed after a few seconds — the Lab is always the default landing.
+ * Replay manually with ?intro=1.
  */
 const SplashIntro = () => {
   const reduce = useReducedMotion();
@@ -18,37 +20,36 @@ const SplashIntro = () => {
 
   useEffect(() => {
     if (typeof window === "undefined") return;
+    const forced = new URLSearchParams(window.location.search).get("intro") === "1";
+    let seen = false;
     try {
-      const seen = sessionStorage.getItem(STORAGE_KEY);
-      if (!seen) setVisible(true);
+      seen = localStorage.getItem(STORAGE_KEY) === "1";
+      if (!seen) localStorage.setItem(STORAGE_KEY, "1");
     } catch {
-      setVisible(true);
+      /* storage unavailable — treat as seen to avoid blocking */
+      seen = true;
     }
-  }, []);
+    if (forced || (!seen && !reduce)) setVisible(true);
+  }, [reduce]);
 
   useEffect(() => {
     if (!visible) return;
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape" || e.key === "Enter") dismiss();
     };
     window.addEventListener("keydown", onKey);
+    const timer = window.setTimeout(() => setVisible(false), AUTO_DISMISS_MS);
     return () => {
-      document.body.style.overflow = prev;
       window.removeEventListener("keydown", onKey);
+      window.clearTimeout(timer);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visible]);
 
   const dismiss = () => {
-    try {
-      sessionStorage.setItem(STORAGE_KEY, "1");
-    } catch {
-      /* no-op */
-    }
     setVisible(false);
   };
+
 
   const toggleMute = () => {
     const v = videoRef.current;
@@ -69,7 +70,8 @@ const SplashIntro = () => {
           animate={{ opacity: 1 }}
           exit={{ opacity: 0, transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] } }}
           transition={{ duration: 0.5 }}
-          className="fixed inset-0 z-[100] overflow-hidden bg-background"
+          onClick={dismiss}
+          className="fixed inset-0 z-[100] overflow-hidden bg-background cursor-pointer"
         >
           {/* Video layer */}
           <div className="absolute inset-0">
@@ -205,7 +207,7 @@ const SplashIntro = () => {
             <span className="flex items-center gap-2">
               <Play className="w-3 h-3 text-gold" /> Intro reel · loop
             </span>
-            <span className="hidden sm:block">Press Enter · Esc to skip</span>
+            <span className="hidden sm:block">Auto-entering the Lab · click anywhere to skip</span>
             <span>© Eugene Finance Lab</span>
           </div>
         </motion.div>
