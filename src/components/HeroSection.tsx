@@ -83,8 +83,6 @@ const HeroSection = () => {
               className="font-display font-bold leading-[1.05] text-5xl md:text-6xl lg:text-7xl text-foreground mb-8"
             >
               {t("hero.title1")}{" "}
-              <span className="italic text-gold">&amp;</span>
-              <br />
               <span className="text-gold">{t("hero.title2")}</span>
             </motion.h1>
 
