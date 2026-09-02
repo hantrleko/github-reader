@@ -171,6 +171,8 @@ const Index = () => {
       <main id="main-content">
         <div id="hero" className="scroll-mt-12"><HeroSection /></div>
         <HeroToolStrip />
+        <DomainStrip />
+
         <EditorialBriefing />
         <TodaysPick />
         <div id="topics" className="scroll-mt-12"><TopicCards /></div>
