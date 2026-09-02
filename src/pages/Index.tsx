@@ -89,7 +89,7 @@ const SectionDirectory = () => {
               to={`/d/${group.id}`}
               className="inline-flex items-center gap-1.5 text-[10px] font-mono uppercase tracking-[0.2em] text-gold/80 mb-3 hover:text-gold transition-colors"
             >
-              {group.code} / {group.label} · {group.kicker}
+              {group.code} / {t(`nav.groups.${group.id}`, { defaultValue: group.label })} · {group.kicker}
               <ArrowUpRight className="w-3 h-3" />
             </Link>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
