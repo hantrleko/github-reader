@@ -1,11 +1,13 @@
 import { useEffect } from "react";
 import { useLocation, Link } from "react-router-dom";
 import { motion, useReducedMotion } from "framer-motion";
+import { useTranslation } from "react-i18next";
 import { ArrowUpRight } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Seo from "@/components/Seo";
 import HeroSection from "@/components/HeroSection";
 import HeroToolStrip from "@/components/HeroToolStrip";
+import DomainStrip from "@/components/DomainStrip";
 import TopicCards from "@/components/TopicCards";
 import ModelShowcase from "@/components/ModelShowcase";
 import ScrollUtilities from "@/components/ScrollUtilities";
@@ -20,77 +22,66 @@ import SplashIntro from "@/components/SplashIntro";
 import { sectionsByGroup } from "@/lib/sections";
 import { HOME_SEO } from "@/lib/seoCopy";
 
-const editorialPillars = [
-  {
-    label: "01 / Concept",
-    title: "先建立理论语言",
-    text: "用统一的符号、假设与推导，把 CAPM、SDF、Black–Scholes、OLS 串成同一套语言，而非零散的公式。",
-  },
-  {
-    label: "02 / Experiment",
-    title: "再进入交互实验",
-    text: "把参数、数据与情景压力放进同一界面，观察输出如何随假设变化，快速识别敏感变量。",
-  },
-  {
-    label: "03 / Research",
-    title: "最后沉淀研究资产",
-    text: "用 Notebook、模板、论文索引与可复用图表，把课堂演示、策略原型与实证作业转化为可复现工作流。",
-  },
-];
+const PILLAR_KEYS = ["p1", "p2", "p3"] as const;
 
-const EditorialBriefing = () => (
-  <section className="px-6 py-10" aria-label="编辑导读">
-    <div className="container max-w-6xl">
-      <Reveal className="rounded-2xl border border-border/60 bg-card/35 p-6 md:p-8">
-        <div className="grid grid-cols-1 lg:grid-cols-[0.9fr_1.6fr] gap-8 items-start">
-          <div>
-            <p className="text-[10px] font-mono uppercase tracking-[0.3em] text-gold mb-3">
-              Editorial Briefing
-            </p>
-            <h2 className="font-display text-2xl md:text-3xl text-foreground leading-tight">
-              不是工具的堆叠，而是一条从理论到实证的研究链路
-            </h2>
-            <p className="mt-4 text-sm text-foreground/70 leading-relaxed">
-              每个板块都是独立页面：从导航直达对应工作区，专注单一主题，无需在长页面里反复定位。
-            </p>
+const EditorialBriefing = () => {
+  const { t } = useTranslation();
+  return (
+    <section className="px-6 py-10" aria-label={t("home.briefing.aria")}>
+      <div className="container max-w-6xl">
+        <Reveal className="rounded-2xl border border-border/60 bg-card/35 p-6 md:p-8">
+          <div className="grid grid-cols-1 lg:grid-cols-[0.9fr_1.6fr] gap-8 items-start">
+            <div>
+              <p className="text-[10px] font-mono uppercase tracking-[0.3em] text-gold mb-3">
+                {t("home.briefing.eyebrow")}
+              </p>
+              <h2 className="font-display text-2xl md:text-3xl text-foreground leading-tight">
+                {t("home.briefing.title")}
+              </h2>
+              <p className="mt-4 text-sm text-foreground/70 leading-relaxed">
+                {t("home.briefing.lead")}
+              </p>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              {PILLAR_KEYS.map((key) => (
+                <div
+                  key={key}
+                  className="rounded-xl border border-border/50 bg-background/35 p-4 hover:border-gold/40 hover:-translate-y-0.5 hover:shadow-[0_14px_36px_-20px_hsl(var(--gold)/0.35)] transition-all duration-300"
+                >
+                  <span className="text-[9px] font-mono uppercase tracking-[0.2em] text-gold/80">
+                    {t(`home.briefing.${key}.label`)}
+                  </span>
+                  <h3 className="mt-3 font-display text-lg text-foreground leading-snug">
+                    {t(`home.briefing.${key}.title`)}
+                  </h3>
+                  <p className="mt-2 text-xs text-foreground/65 leading-relaxed">
+                    {t(`home.briefing.${key}.text`)}
+                  </p>
+                </div>
+              ))}
+            </div>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-            {editorialPillars.map((item) => (
-              <div
-                key={item.label}
-                className="rounded-xl border border-border/50 bg-background/35 p-4 hover:border-gold/40 hover:-translate-y-0.5 hover:shadow-[0_14px_36px_-20px_hsl(var(--gold)/0.35)] transition-all duration-300"
-              >
-                <span className="text-[9px] font-mono uppercase tracking-[0.2em] text-gold/80">
-                  {item.label}
-                </span>
-                <h3 className="mt-3 font-display text-lg text-foreground leading-snug">
-                  {item.title}
-                </h3>
-                <p className="mt-2 text-xs text-foreground/65 leading-relaxed">
-                  {item.text}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </Reveal>
-    </div>
-  </section>
-);
+        </Reveal>
+      </div>
+    </section>
+  );
+};
 
 /** Directory of all section pages, grouped, each linking to its own route. */
 const SectionDirectory = () => {
   const reduce = useReducedMotion();
+  const { t } = useTranslation();
   const groups = sectionsByGroup();
 
   return (
     <section id="directory" className="scroll-mt-16 px-6 pb-16">
       <SectionHeader
-        chapter="Directory"
-        kicker="All Sections"
-        title="功能板块目录"
-        subtitle="每个板块都是独立工作区——选择一个主题，进入其专属实验环境。"
+        chapter={t("home.directory.chapter")}
+        kicker={t("home.directory.kicker")}
+        title={t("home.directory.title")}
+        subtitle={t("home.directory.subtitle")}
       />
+
       <div className="container max-w-6xl mt-4 space-y-8">
         {groups.map(({ group, sections: items }) => (
           <div key={group.id}>
@@ -98,7 +89,7 @@ const SectionDirectory = () => {
               to={`/d/${group.id}`}
               className="inline-flex items-center gap-1.5 text-[10px] font-mono uppercase tracking-[0.2em] text-gold/80 mb-3 hover:text-gold transition-colors"
             >
-              {group.code} / {group.label} · {group.kicker}
+              {group.code} / {t(`nav.groups.${group.id}`, { defaultValue: group.label })} · {group.kicker}
               <ArrowUpRight className="w-3 h-3" />
             </Link>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -180,6 +171,8 @@ const Index = () => {
       <main id="main-content">
         <div id="hero" className="scroll-mt-12"><HeroSection /></div>
         <HeroToolStrip />
+        <DomainStrip />
+
         <EditorialBriefing />
         <TodaysPick />
         <div id="topics" className="scroll-mt-12"><TopicCards /></div>

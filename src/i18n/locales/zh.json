@@ -113,7 +113,7 @@
     },
     "latestUpdate": {
       "label": "最新更新 · {{version}}",
-      "description": "V6.5 新增「量化交易」一级域，首块内容为 Microsoft Qlib：导读拆解其七层研究流水线，实验室在浏览器内复现 Alpha158 式因子、截面标准化、模型拟合、IC/RankIC 评估与 TopK-Dropout 组合回测。",
+      "description": "V6.6 把首页与页脚的中文硬编码文案全部迁入双语词条，在 Hero 下方新增十条学科主线入口，并为每个板块页加上难度徽章、前置阅读与同域相关链接。",
       "cta": "查看更新日志"
     }
   },
@@ -191,5 +191,62 @@
     "subtitle": "追踪平台每次迭代的能力增量",
     "expandAll": "展开全部",
     "collapseAll": "折叠全部"
+  },
+  "home": {
+    "briefing": {
+      "eyebrow": "Editorial Briefing",
+      "title": "不是工具的堆叠，而是一条从理论到实证的研究链路",
+      "lead": "每个板块都是独立页面：从导航直达对应工作区，专注单一主题，无需在长页面里反复定位。",
+      "aria": "编辑导读",
+      "p1": {
+        "label": "01 / Concept",
+        "title": "先建立理论语言",
+        "text": "用统一的符号、假设与推导，把 CAPM、SDF、Black–Scholes、OLS 串成同一套语言，而非零散的公式。"
+      },
+      "p2": {
+        "label": "02 / Experiment",
+        "title": "再进入交互实验",
+        "text": "把参数、数据与情景压力放进同一界面，观察输出如何随假设变化，快速识别敏感变量。"
+      },
+      "p3": {
+        "label": "03 / Research",
+        "title": "最后沉淀研究资产",
+        "text": "用 Notebook、模板、论文索引与可复用图表，把课堂演示、策略原型与实证作业转化为可复现工作流。"
+      }
+    },
+    "domains": {
+      "chapter": "Domains",
+      "kicker": "Subject Tracks",
+      "title": "十条学科主线",
+      "subtitle": "从学科入口进入：每条主线按导读 → 基础 → 进阶 → 前沿的顺序铺开该域的全部内容。"
+    },
+    "directory": {
+      "chapter": "Directory",
+      "kicker": "All Sections",
+      "title": "功能板块目录",
+      "subtitle": "每个板块都是独立工作区——选择一个主题，进入其专属实验环境。"
+    }
+  },
+  "footer": {
+    "kicker": "The Quantitative Report",
+    "blurb": "系统化的实证方法学习平台 · 将资产定价、计量经济学与量化研究拆解为可推导、可实验、可复现的工作流。",
+    "blurbAlt": "A systematic approach to empirical methods in economics and finance.",
+    "sections": "板块导航",
+    "quickLinks": "快速链接",
+    "backToTop": "返回顶部",
+    "rights": "© 2026 Econ & Finance Lab · 仅供学习研究 · 不构成投资建议"
+  },
+  "section": {
+    "backHome": "返回首页",
+    "track": "主线",
+    "prereq": "建议先看",
+    "related": "同域相关",
+    "level": {
+      "guide": "导读",
+      "basic": "基础",
+      "advanced": "进阶",
+      "frontier": "前沿",
+      "data": "数据"
+    }
   }
 }

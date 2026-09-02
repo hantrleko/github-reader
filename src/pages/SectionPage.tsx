@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import { Navigate, useParams, Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { ArrowLeft } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Seo from "@/components/Seo";
@@ -48,6 +49,7 @@ const SectionFallback = () => (
 );
 
 const SectionPage = () => {
+  const { t } = useTranslation();
   const { sectionId } = useParams<{ sectionId: string }>();
   const def = sectionId ? SECTION_MAP[sectionId] : undefined;
 
@@ -62,6 +64,10 @@ const SectionPage = () => {
   const prereqs = (def.prereq ?? [])
     .map((id) => SECTION_MAP[id])
     .filter(Boolean);
+  const related = (domain?.items ?? [])
+    .filter((id) => id !== def.id && SECTION_MAP[id] && !(def.prereq ?? []).includes(id))
+    .slice(0, 3)
+    .map((id) => SECTION_MAP[id]);
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -83,15 +89,21 @@ const SectionPage = () => {
             className="inline-flex items-center gap-1.5 text-[11px] font-mono uppercase tracking-wider text-muted-foreground hover:text-gold transition-colors"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
-            返回首页
+            {t("section.backHome")}
           </Link>
           {domain && (
             <Link
               to={`/d/${domain.id}`}
               className="text-[11px] font-mono uppercase tracking-wider text-muted-foreground hover:text-gold transition-colors"
             >
-              {domain.code} {domain.label} · {domain.kicker} 主线 →
+              {domain.code} {t(`nav.groups.${domain.id}`, { defaultValue: domain.label })} ·{" "}
+              {domain.kicker} {t("section.track")} →
             </Link>
+          )}
+          {def.level && (
+            <span className="rounded-full border border-gold/40 px-2 py-0.5 text-[10px] font-mono uppercase tracking-[0.18em] text-gold/90">
+              {t(`section.level.${def.level}`)}
+            </span>
           )}
         </div>
 
@@ -105,7 +117,7 @@ const SectionPage = () => {
         {prereqs.length > 0 && (
           <div className="container max-w-6xl px-6 -mt-2 mb-6 flex flex-wrap items-center gap-2">
             <span className="text-[10px] font-mono uppercase tracking-[0.2em] text-gold/80">
-              建议先看
+              {t("section.prereq")}
             </span>
             {prereqs.map((p) => (
               <Link
@@ -114,6 +126,23 @@ const SectionPage = () => {
                 className="rounded-full border border-border/60 bg-card/35 px-3 py-1 text-xs text-foreground/75 hover:border-gold/40 hover:text-gold transition-colors"
               >
                 {p.label}
+              </Link>
+            ))}
+          </div>
+        )}
+
+        {related.length > 0 && (
+          <div className="container max-w-6xl px-6 -mt-2 mb-6 flex flex-wrap items-center gap-2">
+            <span className="text-[10px] font-mono uppercase tracking-[0.2em] text-muted-foreground">
+              {t("section.related")}
+            </span>
+            {related.map((r) => (
+              <Link
+                key={r.id}
+                to={`/s/${r.id}`}
+                className="rounded-full border border-border/60 bg-card/35 px-3 py-1 text-xs text-foreground/70 hover:border-gold/40 hover:text-gold transition-colors"
+              >
+                {r.label}
               </Link>
             ))}
           </div>
