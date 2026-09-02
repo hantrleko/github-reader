@@ -5,9 +5,41 @@ import { useMemo, useState } from "react";
 
 const RELEASES = [
   {
+    version: "V6.6",
+    date: "2026-09",
+    tag: "Current",
+    highlights: [
+      {
+        icon: Layout,
+        title: "首屏结构 — 十条学科主线入口",
+        items: [
+          "Hero 下方新增学科主线入口带，一屏看清全站十个一级域，点击直达 /d/:groupId",
+          "首页目录分组标题与入口带共用同一套 NAV_GROUPS 分类",
+        ],
+      },
+      {
+        icon: FileText,
+        title: "双语一致性 — 首页与页脚全量迁入词条",
+        items: [
+          "编辑导读三段（Concept / Experiment / Research）、板块目录标题与副标题改为中英双语词条",
+          "页脚品牌简介、导航列、版权行与「返回顶部」不再硬编码中文",
+          "页脚板块导航改为按一级域链接到学科主线页",
+        ],
+      },
+      {
+        icon: FolderTree,
+        title: "板块页定位条 — 难度与相关链接",
+        items: [
+          "每个 /s/:id 顶部显示难度徽章：导读 / 基础 / 进阶 / 前沿 / 数据",
+          "「建议先看」前置链之外新增「同域相关」链接，最多三条同域板块",
+        ],
+      },
+    ],
+  },
+  {
     version: "V6.5",
     date: "2026-08",
-    tag: "Current",
+    tag: "Past",
     highlights: [
       {
         icon: FolderTree,
@@ -1939,7 +1971,7 @@ const Changelog = () => {
             {t("changelog.title")}
           </h2>
           <p className="text-sm text-muted-foreground font-mono">
-            {t("changelog.subtitle")} — V1.0 → V6.5
+            {t("changelog.subtitle")} — V1.0 → V6.6
           </p>
         </motion.div>
 
