@@ -111,7 +111,7 @@
     },
     "latestUpdate": {
       "label": "Latest Update · {{version}}",
-      "description": "V6.5 adds a Quant Trading domain, opening with Microsoft Qlib: a reading guide on its seven-layer research pipeline plus an in-browser lab reproducing Alpha158-style factors, cross-sectional normalisation, model fitting, IC/RankIC evaluation and a TopK-Dropout backtest.",
+      "description": "V6.6 makes the site fully bilingual below the hero, adds a ten-domain entry strip right under the fold so the whole scope is visible at a glance, and gives every section page a level badge plus prerequisite and same-domain links.",
       "cta": "View Changelog"
     }
   },
