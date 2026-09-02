@@ -189,5 +189,62 @@
     "subtitle": "Tracking the capability delta of every release",
     "expandAll": "Expand all",
     "collapseAll": "Collapse all"
+  },
+  "home": {
+    "briefing": {
+      "eyebrow": "Editorial Briefing",
+      "title": "Not a pile of tools — one chain from theory to evidence",
+      "lead": "Every section is its own page: jump straight to a workspace from the nav, stay on one topic, no hunting inside an endless scroll.",
+      "aria": "Editorial briefing",
+      "p1": {
+        "label": "01 / Concept",
+        "title": "First, build the language",
+        "text": "One consistent set of symbols, assumptions and derivations ties CAPM, the SDF, Black–Scholes and OLS into a single language instead of scattered formulas."
+      },
+      "p2": {
+        "label": "02 / Experiment",
+        "title": "Then run the experiment",
+        "text": "Parameters, data and stress scenarios live in one interface, so you can watch outputs move with assumptions and spot the sensitive variables fast."
+      },
+      "p3": {
+        "label": "03 / Research",
+        "title": "Finally, keep the output",
+        "text": "Notebooks, templates, a paper index and reusable charts turn lectures, strategy prototypes and empirical homework into reproducible workflows."
+      }
+    },
+    "domains": {
+      "chapter": "Domains",
+      "kicker": "Subject Tracks",
+      "title": "Ten subject tracks",
+      "subtitle": "Start from a domain: each track lays out its guides, core labs and frontier work in reading order."
+    },
+    "directory": {
+      "chapter": "Directory",
+      "kicker": "All Sections",
+      "title": "Section directory",
+      "subtitle": "Every section is a standalone workspace — pick a topic and enter its own lab environment."
+    }
+  },
+  "footer": {
+    "kicker": "The Quantitative Report",
+    "blurb": "A systematic platform for empirical methods — asset pricing, econometrics and quantitative research broken down into derivable, testable, reproducible workflows.",
+    "blurbAlt": "A systematic approach to empirical methods in economics and finance.",
+    "sections": "Sections",
+    "quickLinks": "Quick links",
+    "backToTop": "Back to top",
+    "rights": "© 2026 Econ & Finance Lab · For study and research only · Not investment advice"
+  },
+  "section": {
+    "backHome": "Back to home",
+    "track": "track",
+    "prereq": "Read first",
+    "related": "In this domain",
+    "level": {
+      "guide": "Guide",
+      "basic": "Basic",
+      "advanced": "Advanced",
+      "frontier": "Frontier",
+      "data": "Data"
+    }
   }
 }
