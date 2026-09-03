@@ -57,19 +57,26 @@ export function review(card: CardState, grade: Grade, now = Date.now()): CardSta
 }
 
 /* ── persistence ───────────────────────────────────────────── */
-export function loadStates(): Record<string, CardState> {
+/** Decks are stored separately so glossary terms and quiz questions never mix. */
+export type Deck = "glossary" | "quiz";
+const DECK_KEYS: Record<Deck, string> = {
+  glossary: KEY,
+  quiz: "eflab.srs.quiz.v1",
+};
+
+export function loadStates(deck: Deck = "glossary"): Record<string, CardState> {
   if (typeof window === "undefined") return {};
   try {
-    const raw = localStorage.getItem(KEY);
+    const raw = localStorage.getItem(DECK_KEYS[deck]);
     return raw ? JSON.parse(raw) : {};
   } catch {
     return {};
   }
 }
 
-export function saveStates(states: Record<string, CardState>): void {
+export function saveStates(states: Record<string, CardState>, deck: Deck = "glossary"): void {
   try {
-    localStorage.setItem(KEY, JSON.stringify(states));
+    localStorage.setItem(DECK_KEYS[deck], JSON.stringify(states));
   } catch {
     /* quota */
   }

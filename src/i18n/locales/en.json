@@ -111,7 +111,7 @@
     },
     "latestUpdate": {
       "label": "Latest Update · {{version}}",
-      "description": "V6.6 makes the site fully bilingual below the hero, adds a ten-domain entry strip right under the fold so the whole scope is visible at a glance, and gives every section page a level badge plus prerequisite and same-domain links.",
+      "description": "V6.7 binds the six-stage learning path to real lab pages, syncs your reading progress to your account, adds a spaced-repetition deck for missed quiz questions, and finishes the bilingual pass over the Overview module.",
       "cta": "View Changelog"
     }
   },
@@ -246,5 +246,89 @@
       "frontier": "Frontier",
       "data": "Data"
     }
+  },
+  "learning": {
+    "intro": "A continuous ladder from mathematical foundations to economic intuition, pricing theory and empirical research. Each stage links straight to the lab pages that teach it.",
+    "read": "read {{done}}/{{total}}",
+    "markDone": "Mark stage complete",
+    "markUndone": "Mark stage incomplete",
+    "domainLink": "Domain hub",
+    "synced": "Synced",
+    "stages": {
+      "prob": {
+        "title": "Probability, statistics & econometric method",
+        "desc": "Random variables, distributions, LLN/CLT, then OLS, MLE, IV and GMM — the identification assumptions everything else rests on."
+      },
+      "micro": {
+        "title": "Micro & macro foundations",
+        "desc": "Preferences, constraints, equilibrium and strategic interaction; then growth, business cycles and policy rules at the aggregate level."
+      },
+      "fin": {
+        "title": "Pricing fundamentals",
+        "desc": "No-arbitrage, risk-neutral valuation, Black–Scholes and the implied-volatility surface — the shared language of financial models."
+      },
+      "ap": {
+        "title": "Asset pricing & portfolio choice",
+        "desc": "From the stochastic discount factor and CAPM-family models to factor construction, mean–variance optimisation and the efficient frontier."
+      },
+      "risk": {
+        "title": "Risk measurement & fixed income",
+        "desc": "VaR, expected shortfall, backtesting and capital rules; curve construction, duration and structured cash flows."
+      },
+      "adv": {
+        "title": "Quant research & reproducible output",
+        "desc": "Signal construction, the Qlib pipeline, out-of-sample evaluation and backtests you can hand over as a research artefact."
+      }
+    }
+  },
+  "quiz": {
+    "allTopics": "All topics",
+    "reset": "Reset quiz progress",
+    "modeAll": "All questions",
+    "modeWrong": "Missed questions",
+    "modeUnanswered": "Unanswered only",
+    "correctAnswer": "Correct",
+    "explanation": "Explanation",
+    "reference": "Reference: ",
+    "gotoLab": "Open the lab: {{name}}",
+    "srsHint": "Missed questions are scheduled for spaced review."
+  },
+  "domain": {
+    "prereq": "Read first: ",
+    "otherTracks": "Other domain tracks",
+    "orderHint": ". Work through it in order: the reading guide builds the language, the basics run the formulas, advanced labs relax the assumptions, and the frontier takes you to live research.",
+    "level": {
+      "guide": {
+        "label": "Reading Guide",
+        "hint": "build the language and intuition first"
+      },
+      "basic": {
+        "label": "Basic tools",
+        "hint": "run the core formulas once"
+      },
+      "advanced": {
+        "label": "Advanced labs",
+        "hint": "relax assumptions, add frictions"
+      },
+      "frontier": {
+        "label": "Frontier labs",
+        "hint": "research-grade models and new paradigms"
+      },
+      "data": {
+        "label": "Live data",
+        "hint": "plug the model into real markets"
+      }
+    },
+    "quickstart": {
+      "eyebrow": "Three-minute tour",
+      "title": "How this site fits together",
+      "lead": "Six stages, from mathematical foundations to reproducible quant research. Start anywhere — each stage opens with the page that sets its language."
+    }
+  },
+  "topics": {
+    "intro": "Every topic follows the same three-part structure — core question, key models, empirical application — so it works both as a revision outline and as an entry point for your own research.",
+    "open": "Open topic: {{title}} — {{subtitle}}",
+    "read": "read {{done}}/{{total}}",
+    "readAria": "{{done}} of {{total}} knowledge points read"
   }
 }

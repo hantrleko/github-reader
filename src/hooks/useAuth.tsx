@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
 import type { Session, User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
+import { syncProgress } from "@/lib/userProgress";
 
 type AuthCtx = {
   user: User | null;
@@ -28,6 +29,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       if (!active) return;
       setSession(s);
       setLoading(false);
+      // Merge local reading progress with the account copy after sign-in.
+      const uid = s?.user?.id;
+      if (uid) setTimeout(() => void syncProgress(uid), 0);
     });
 
     supabase.auth

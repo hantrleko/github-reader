@@ -5,20 +5,64 @@ import Seo from "@/components/Seo";
 import ScrollUtilities from "@/components/ScrollUtilities";
 import SectionHeader from "@/components/common/SectionHeader";
 import SiteFooter from "@/components/SiteFooter";
-import { NAV_GROUPS, SECTION_MAP, type SectionDef, type SectionLevel } from "@/lib/sections";
+import { useTranslation } from "react-i18next";
+import { NAV_GROUPS, SECTION_MAP, sectionHref, type SectionDef, type SectionLevel } from "@/lib/sections";
+import { LEARNING_STAGES, stageSections } from "@/lib/learningPath";
 
 /** Learning order shown on every domain hub. */
 const LEVEL_ORDER: SectionLevel[] = ["guide", "basic", "advanced", "frontier", "data"];
 
-const LEVEL_META: Record<SectionLevel, { zh: string; en: string; hint: string }> = {
-  guide: { zh: "导读", en: "Reading Guide", hint: "先建立语言与直觉" },
-  basic: { zh: "基础工具", en: "Basic", hint: "把核心公式跑一遍" },
-  advanced: { zh: "进阶实验室", en: "Advanced", hint: "放松假设、加入摩擦" },
-  frontier: { zh: "前沿实验室", en: "Frontier", hint: "研究级模型与新范式" },
-  data: { zh: "真实数据", en: "Live Data", hint: "把模型接到真实市场" },
+const LEVEL_EN: Record<SectionLevel, string> = {
+  guide: "Reading Guide",
+  basic: "Basic",
+  advanced: "Advanced",
+  frontier: "Frontier",
+  data: "Live Data",
 };
 
-const SectionCard = ({ s }: { s: SectionDef }) => (
+/** Overview hub only: a three-minute tour of the whole site via the learning path. */
+const OverviewQuickstart = () => {
+  const { t } = useTranslation();
+  return (
+    <section className="container max-w-6xl px-6 pb-8">
+      <div className="rounded-2xl border border-gold/25 bg-gradient-to-br from-gold/5 to-transparent p-6 md:p-8">
+        <p className="text-[10px] font-mono uppercase tracking-[0.3em] text-gold mb-2">
+          {t("domain.quickstart.eyebrow")}
+        </p>
+        <h2 className="font-display text-2xl text-foreground">{t("domain.quickstart.title")}</h2>
+        <p className="mt-2 text-sm text-foreground/70 leading-relaxed max-w-2xl">
+          {t("domain.quickstart.lead")}
+        </p>
+        <ol className="mt-5 grid grid-cols-1 md:grid-cols-3 gap-3">
+          {LEARNING_STAGES.map((stage, i) => {
+            const first = stageSections(stage)[0];
+            return (
+              <li key={stage.id} className="rounded-xl border border-border/60 bg-background/40 p-4">
+                <span className="text-[9px] font-mono uppercase tracking-[0.2em] text-gold/80">
+                  {String(i + 1).padStart(2, "0")}
+                </span>
+                <h3 className="mt-2 font-display text-base text-foreground leading-snug">
+                  {t(`learning.stages.${stage.id}.title`)}
+                </h3>
+                {first && (
+                  <Link
+                    to={sectionHref(first.id)}
+                    className="mt-2 inline-flex items-center gap-1 text-xs font-mono text-gold hover:underline"
+                  >
+                    {first.label}
+                    <ArrowUpRight className="w-3 h-3" />
+                  </Link>
+                )}
+              </li>
+            );
+          })}
+        </ol>
+      </div>
+    </section>
+  );
+};
+
+const SectionCard = ({ s, prereqLabel }: { s: SectionDef; prereqLabel: string }) => (
   <Link
     to={`/s/${s.id}`}
     aria-label={`${s.label}${s.subtitle ? ` — ${s.subtitle}` : ""}`}
@@ -36,13 +80,14 @@ const SectionCard = ({ s }: { s: SectionDef }) => (
     )}
     {s.prereq?.length ? (
       <p className="mt-2 text-[10px] font-mono text-muted-foreground">
-        建议先看：{s.prereq.map((p) => SECTION_MAP[p]?.kicker ?? p).join(" · ")}
+        {prereqLabel}{s.prereq.map((p) => SECTION_MAP[p]?.kicker ?? p).join(" · ")}
       </p>
     ) : null}
   </Link>
 );
 
 const DomainPage = () => {
+  const { t } = useTranslation();
   const { groupId } = useParams<{ groupId: string }>();
   const group = NAV_GROUPS.find((g) => g.id === groupId);
   if (!group) return <Navigate to="/" replace />;
@@ -56,7 +101,8 @@ const DomainPage = () => {
     items: sections.filter((s) => (s.level ?? "basic") === level),
   })).filter((b) => b.items.length > 0);
 
-  const title = `${group.label} · ${group.kicker}`;
+  const groupLabel = t(`nav.groups.${group.id}`, { defaultValue: group.label });
+  const title = `${groupLabel} · ${group.kicker}`;
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -75,7 +121,7 @@ const DomainPage = () => {
             className="inline-flex items-center gap-1.5 text-[11px] font-mono uppercase tracking-wider text-muted-foreground hover:text-gold transition-colors"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
-            返回首页
+            {t("section.backHome")}
           </Link>
         </div>
 
@@ -83,22 +129,24 @@ const DomainPage = () => {
           chapter={`Domain ${group.code}`}
           kicker={group.kicker}
           title={title}
-          subtitle={`${group.desc}。按下面的顺序推进：导读建立语言，基础跑通公式，进阶放松假设，前沿进入研究现场。`}
+          subtitle={`${group.desc}${t("domain.orderHint")}`}
         />
+
+        {group.id === "overview" && <OverviewQuickstart />}
 
         <div className="container max-w-6xl px-6 space-y-10 pb-8">
           {buckets.map(({ level, items }) => (
             <section key={level}>
               <div className="flex items-baseline gap-3 mb-3">
                 <p className="text-[10px] font-mono uppercase tracking-[0.2em] text-gold/80">
-                  {LEVEL_META[level].en}
+                  {LEVEL_EN[level]}
                 </p>
-                <h2 className="font-display text-lg text-foreground">{LEVEL_META[level].zh}</h2>
-                <span className="text-[11px] text-muted-foreground">{LEVEL_META[level].hint}</span>
+                <h2 className="font-display text-lg text-foreground">{t(`domain.level.${level}.label`)}</h2>
+                <span className="text-[11px] text-muted-foreground">{t(`domain.level.${level}.hint`)}</span>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                 {items.map((s) => (
-                  <SectionCard key={s.id} s={s} />
+                  <SectionCard key={s.id} s={s} prereqLabel={t("domain.prereq")} />
                 ))}
               </div>
             </section>
@@ -107,7 +155,7 @@ const DomainPage = () => {
 
         <nav className="container max-w-6xl px-6 mt-6 mb-12">
           <p className="text-[10px] font-mono uppercase tracking-[0.2em] text-muted-foreground mb-3">
-            其他学科主线
+            {t("domain.otherTracks")}
           </p>
           <div className="flex flex-wrap gap-2">
             {NAV_GROUPS.filter((g) => g.id !== group.id).map((g) => (
@@ -116,7 +164,7 @@ const DomainPage = () => {
                 to={`/d/${g.id}`}
                 className="rounded-full border border-border/60 bg-card/35 px-3 py-1.5 text-xs text-foreground/75 hover:border-gold/40 hover:text-gold transition-colors"
               >
-                {g.code} {g.label}
+                {g.code} {t(`nav.groups.${g.id}`, { defaultValue: g.label })}
               </Link>
             ))}
           </div>
