@@ -36,7 +36,7 @@ const TopicCards = () => {
             {t("sections.topics.title")}
           </h2>
           <p className="mt-4 max-w-2xl mx-auto text-sm md:text-base text-foreground/65 leading-relaxed">
-            每个主题以「核心问题 · 关键模型 · 实证应用」三段式组织，既是课程复习提纲，也是研究选题与模型实现的入口。
+            {t("topics.intro")}
           </p>
         </motion.div>
 
@@ -51,7 +51,7 @@ const TopicCards = () => {
             >
               <Link
                 to={`/topic/${topic.id}`}
-                aria-label={`查看主题：${topic.title} — ${topic.subtitle}`}
+                aria-label={t("topics.open", { title: topic.title, subtitle: topic.subtitle })}
                 className="group relative block p-7 bg-transparent border-b border-r border-accent/30 hover:bg-accent/15 hover:z-10 hover:shadow-[0_16px_40px_-20px_hsl(var(--gold)/0.35)] transition-all duration-300 overflow-hidden h-full"
               >
                 <span className="absolute top-0 left-0 h-0.5 w-0 bg-gold transition-all duration-300 group-hover:w-full" />
@@ -87,7 +87,7 @@ const TopicCards = () => {
                     </span>
                   </div>
                   {(progress[topic.id] ?? 0) > 0 && (
-                    <div className="mt-4" aria-label={`已阅读 ${progress[topic.id]} / ${topic.knowledgePoints.length} 个知识点`}>
+                    <div className="mt-4" aria-label={t("topics.readAria", { done: progress[topic.id], total: topic.knowledgePoints.length })}>
                       <div className="h-0.5 rounded-full bg-accent/40 overflow-hidden">
                         <div
                           className="h-full bg-gold/70 rounded-full transition-all duration-500"
@@ -97,7 +97,7 @@ const TopicCards = () => {
                         />
                       </div>
                       <p className="mt-1 text-[9px] font-mono text-muted-foreground">
-                        已阅读 {Math.min(progress[topic.id] ?? 0, topic.knowledgePoints.length)}/{topic.knowledgePoints.length}
+                        {t("topics.read", { done: Math.min(progress[topic.id] ?? 0, topic.knowledgePoints.length), total: topic.knowledgePoints.length })}
                       </p>
                     </div>
                   )}

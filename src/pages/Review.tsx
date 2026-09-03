@@ -8,8 +8,10 @@ import Navbar from "@/components/Navbar";
 import Seo from "@/components/Seo";
 import SectionHeader from "@/components/common/SectionHeader";
 import { GLOSSARY } from "@/data/glossary";
+import { QUIZ_QUESTIONS } from "@/data/quizQuestions";
+import { sectionHref, SECTION_MAP } from "@/lib/sections";
 import {
-  type CardState, type Grade,
+  type CardState, type Grade, type Deck,
   loadStates, saveStates, newCard, review, buildQueue, deckStats,
 } from "@/lib/srs";
 import { InlineMath } from "react-katex";
@@ -29,21 +31,40 @@ const CAT_LABEL: Record<string, string> = {
 };
 
 const Review = () => {
-  const allSlugs = useMemo(() => GLOSSARY.map((g) => g.slug), []);
-  const [states, setStates] = useState<Record<string, CardState>>(() => loadStates());
+  const [deck, setDeck] = useState<Deck>("glossary");
+  const allSlugs = useMemo(
+    () => (deck === "glossary" ? GLOSSARY.map((g) => g.slug) : QUIZ_QUESTIONS.map((q) => q.id)),
+    [deck]
+  );
+  const [states, setStates] = useState<Record<string, CardState>>(() => loadStates("glossary"));
   const [queue, setQueue] = useState<string[]>([]);
   const [flipped, setFlipped] = useState(false);
   const [done, setDone] = useState(0);
 
+  // Rebuild the session queue whenever the deck changes (states are per-deck).
   useEffect(() => {
-    const q = buildQueue(allSlugs, states);
+    const loaded = loadStates(deck);
+    setStates(loaded);
+    const q = buildQueue(
+      deck === "glossary" ? GLOSSARY.map((g) => g.slug) : QUIZ_QUESTIONS.map((x) => x.id),
+      loaded
+    );
     setQueue([...q.due, ...q.fresh]);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    setDone(0);
+    setFlipped(false);
+  }, [deck]);
 
   const stats = useMemo(() => deckStats(allSlugs, states), [allSlugs, states]);
   const currentSlug = queue[0];
-  const term = useMemo(() => GLOSSARY.find((g) => g.slug === currentSlug), [currentSlug]);
+  const term = useMemo(
+    () => (deck === "glossary" ? GLOSSARY.find((g) => g.slug === currentSlug) : undefined),
+    [currentSlug, deck]
+  );
+  const quizCard = useMemo(
+    () => (deck === "quiz" ? QUIZ_QUESTIONS.find((q) => q.id === currentSlug) : undefined),
+    [currentSlug, deck]
+  );
+  const card = term ?? quizCard;
 
   const grade = (g: Grade) => {
     if (!currentSlug) return;
@@ -51,7 +72,7 @@ const Review = () => {
     const next = review(prev, g);
     const nextStates = { ...states, [currentSlug]: next };
     setStates(nextStates);
-    saveStates(nextStates);
+    saveStates(nextStates, deck);
     setFlipped(false);
     setDone((d) => d + 1);
     setQueue((q) => {
@@ -103,8 +124,29 @@ const Review = () => {
             ))}
           </div>
 
+          {/* Deck switch */}
+          <div className="flex justify-center gap-2">
+            {([
+              { id: "glossary" as const, label: `术语卡 · ${GLOSSARY.length}` },
+              { id: "quiz" as const, label: `测验错题 · ${QUIZ_QUESTIONS.length}` },
+            ]).map((d) => (
+              <button
+                key={d.id}
+                onClick={() => setDeck(d.id)}
+                className={cn(
+                  "px-3 py-1.5 border text-xs font-mono transition-colors",
+                  deck === d.id
+                    ? "border-gold text-gold bg-gold/10"
+                    : "border-border/60 text-muted-foreground hover:text-foreground"
+                )}
+              >
+                {d.label}
+              </button>
+            ))}
+          </div>
+
           {/* Card */}
-          {!term ? (
+          {!card ? (
             <div className="border border-border/60 bg-card/40 p-10 text-center space-y-4">
               <CheckCircle2 className="w-10 h-10 text-emerald-400 mx-auto" />
               <p className="text-foreground font-display text-lg">
@@ -117,7 +159,71 @@ const Review = () => {
                 <RotateCcw className="w-3 h-3" /> 重新抽取队列
               </button>
             </div>
-          ) : (
+          ) : quizCard ? (
+            <div className="border border-border/60 bg-card/40">
+              <div className="px-6 pt-8 pb-6 space-y-3">
+                <p className="text-[9px] font-mono uppercase tracking-[0.25em] text-muted-foreground text-center">
+                  {quizCard.topic} · 卡片 {done + 1} / {done + queue.length}
+                </p>
+                <h2 className="font-display text-xl text-foreground leading-relaxed text-center">
+                  {quizCard.question}
+                </h2>
+                <ul className="space-y-1.5 text-sm text-foreground/80">
+                  {quizCard.options.map((opt, i) => (
+                    <li
+                      key={i}
+                      className={cn(
+                        "border border-border/50 px-3 py-2",
+                        flipped && i === quizCard.answer && "border-emerald-500/60 bg-emerald-500/10"
+                      )}
+                    >
+                      <span className="font-mono text-xs text-muted-foreground mr-2">
+                        {String.fromCharCode(65 + i)}.
+                      </span>
+                      {opt}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              {!flipped ? (
+                <div className="px-6 pb-8 text-center">
+                  <button
+                    onClick={() => setFlipped(true)}
+                    className="px-6 py-2.5 bg-gold text-background text-xs font-mono uppercase tracking-wider hover:bg-gold/85"
+                  >
+                    显示答案
+                  </button>
+                </div>
+              ) : (
+                <div className="border-t border-accent/30">
+                  <div className="px-6 py-5 space-y-3 text-left">
+                    <p className="text-sm text-foreground/85 leading-relaxed">{quizCard.explanation}</p>
+                    {SECTION_MAP[quizCard.sectionId] && (
+                      <Link
+                        to={sectionHref(quizCard.sectionId)}
+                        className="text-[10px] font-mono text-gold underline"
+                      >
+                        去对应实验室：{SECTION_MAP[quizCard.sectionId].label}
+                      </Link>
+                    )}
+                  </div>
+                  <div className="grid grid-cols-4 border-t border-accent/30">
+                    {GRADE_BTNS.map(({ grade: g, label, hint, cls }) => (
+                      <button
+                        key={g}
+                        onClick={() => grade(g)}
+                        className={cn("px-2 py-3 border-r last:border-r-0 border-accent/30 text-center transition-colors", cls)}
+                      >
+                        <span className="block text-xs font-mono">{label}</span>
+                        <span className="block text-[9px] font-mono opacity-70">{hint}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          ) : term ? (
             <div className="border border-border/60 bg-card/40">
               {/* front */}
               <div className="px-6 pt-8 pb-6 text-center space-y-2">
@@ -168,7 +274,7 @@ const Review = () => {
                 </div>
               )}
             </div>
-          )}
+          ) : null}
 
           <p className="text-[10px] font-mono text-muted-foreground text-center">
             SM-2:答对间隔按 1 天 → 6 天 → 间隔×EF 增长;答错重置并 10 分钟后重现。进度保存在本地浏览器。

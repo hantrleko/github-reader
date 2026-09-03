@@ -1,4 +1,5 @@
-import { Suspense } from "react";
+import { Suspense, useEffect } from "react";
+import { markSectionVisited } from "@/lib/userProgress";
 import { Navigate, useParams, Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { ArrowLeft } from "lucide-react";
@@ -53,7 +54,13 @@ const SectionPage = () => {
   const { sectionId } = useParams<{ sectionId: string }>();
   const def = sectionId ? SECTION_MAP[sectionId] : undefined;
 
+  // Track reading progress (local-first, synced to the account when signed in).
+  useEffect(() => {
+    if (def) markSectionVisited(def.id);
+  }, [def]);
+
   if (!def) return <Navigate to="/" replace />;
+
 
   const { Component } = def;
   const seo = sectionSeo(def);

@@ -5,9 +5,43 @@ import { useMemo, useState } from "react";
 
 const RELEASES = [
   {
-    version: "V6.6",
+    version: "V6.7",
     date: "2026-09",
     tag: "Current",
+    highlights: [
+      {
+        icon: GraduationCap,
+        title: "学习路线绑定真实板块",
+        items: [
+          "六个阶段各列出 2–4 个真实板块页，点击直达 /s/:id，已读自动打勾",
+          "「继续」按钮跳到当前阶段第一个未读板块，而不是旧的页面锚点",
+          "登录后阶段与已读进度同步到账号，未登录仍保存在本地，登录时取并集合并",
+        ],
+      },
+      {
+        icon: Target,
+        title: "测验错题进入间隔重复",
+        items: [
+          "答题结果按 SM-2 排期，答错的题很快回到队列",
+          "/review 新增「测验错题」牌组，与术语卡分开存储",
+          "每题解析下方直接链到对应实验室页面",
+        ],
+      },
+      {
+        icon: FileText,
+        title: "导览模块双语化与题库外置",
+        items: [
+          "学习路线、主题卡、学科主线页层级标签与导航文案全部迁入中英词条",
+          "17 道题移入 src/data/quizQuestions.ts，新增 sectionId 与英文主题标签",
+          "/d/overview 顶部新增「三分钟看懂本站」六阶段速览",
+        ],
+      },
+    ],
+  },
+  {
+    version: "V6.6",
+    date: "2026-09",
+    tag: "Past",
     highlights: [
       {
         icon: Layout,
@@ -1971,7 +2005,7 @@ const Changelog = () => {
             {t("changelog.title")}
           </h2>
           <p className="text-sm text-muted-foreground font-mono">
-            {t("changelog.subtitle")} — V1.0 → V6.6
+            {t("changelog.subtitle")} — V1.0 → V6.7
           </p>
         </motion.div>
 
