@@ -5,9 +5,42 @@ import { useMemo, useState } from "react";
 
 const RELEASES = [
   {
-    version: "V6.7",
+    version: "V6.8",
     date: "2026-09",
     tag: "Current",
+    highlights: [
+      {
+        icon: Wrench,
+        title: "工具目录直达实验室",
+        items: [
+          "工具卡片改用统一路由解析，86 条工具不再跳回首页顶部",
+          "6 条衍生品工具的坏锚点 /s/deriv 更正为 /s/derivatives",
+          "新增测试：每条工具锚点都必须解析成真实板块页",
+        ],
+      },
+      {
+        icon: Sparkles,
+        title: "高阶宏观工具进目录",
+        items: [
+          "宏观高阶实验室 4 个工具（债务动态 / 汇率超调 / BGG / ZLB）补入工具目录",
+          "宏观前沿实验室 12 个实验（内生增长、RBC、Calvo、政策规则、QE/YCC、气候等）可被搜索",
+          "支持 ?t=<toolId> 深链，目录卡片直达具体工具，分享链接保真",
+        ],
+      },
+      {
+        icon: FileText,
+        title: "基础模块双语化",
+        items: [
+          "微观 / 宏观板块标题与导语迁入中英词条",
+          "英文界面下工具按钮显示英文短名",
+        ],
+      },
+    ],
+  },
+  {
+    version: "V6.7",
+    date: "2026-09",
+    tag: "Past",
     highlights: [
       {
         icon: GraduationCap,
@@ -2005,7 +2038,7 @@ const Changelog = () => {
             {t("changelog.title")}
           </h2>
           <p className="text-sm text-muted-foreground font-mono">
-            {t("changelog.subtitle")} — V1.0 → V6.7
+            {t("changelog.subtitle")} — V1.0 → V6.8
           </p>
         </motion.div>
 

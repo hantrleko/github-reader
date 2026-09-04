@@ -111,7 +111,7 @@
     },
     "latestUpdate": {
       "label": "Latest Update · {{version}}",
-      "description": "V6.7 binds the six-stage learning path to real lab pages, syncs your reading progress to your account, adds a spaced-repetition deck for missed quiz questions, and finishes the bilingual pass over the Overview module.",
+      "description": "V6.8 fixes catalog navigation: all 86 tool cards now land on their lab page, 16 advanced and frontier macro tools join the catalog and search, and ?t= deep links open a specific tool.",
       "cta": "View Changelog"
     }
   },
