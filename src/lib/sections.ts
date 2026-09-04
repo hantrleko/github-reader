@@ -869,16 +869,21 @@ export const isSectionId = (id: string): boolean =>
  * - home ids (hero/topics/models) -> "/#id" (or "/" for hero)
  * - registered section ids        -> "/s/id"
  * - anything else                 -> returned as-is (already a path)
+ *
+ * A trailing query string ("/#macro-lab?t=debt") is preserved so catalog
+ * entries can deep-link straight to a sub-tool tab.
  */
 export const sectionHref = (idOrAnchor: string): string => {
-  let id = idOrAnchor;
+  const qi = idOrAnchor.indexOf("?");
+  const query = qi >= 0 ? idOrAnchor.slice(qi) : "";
+  let id = qi >= 0 ? idOrAnchor.slice(0, qi) : idOrAnchor;
   if (id.startsWith("/#")) id = id.slice(2);
   else if (id.startsWith("#")) id = id.slice(1);
   else if (id.startsWith("/")) return idOrAnchor; // already a real path
 
-  if (id === "hero") return "/";
-  if (HOME_IDS.includes(id)) return `/#${id}`;
-  if (isSectionId(id)) return `/s/${id}`;
+  if (id === "hero") return `/${query}`;
+  if (HOME_IDS.includes(id)) return `/${query}#${id}`;
+  if (isSectionId(id)) return `/s/${id}${query}`;
   // unknown anchor (e.g. research-playbooks lives on home)
-  return `/#${id}`;
+  return `/${query}#${id}`;
 };

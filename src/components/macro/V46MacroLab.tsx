@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { useToolTab } from "@/lib/useToolTab";
 import { motion } from "framer-motion";
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -24,7 +25,7 @@ const TABS: { id: Tab; title: string; kicker: string; desc: string }[] = [
 ];
 
 export default function V46MacroLab() {
-  const [tab, setTab] = useState<Tab>("debt");
+  const [tab, setTab] = useToolTab<Tab>(TABS.map((x) => x.id), "debt");
   return (
     <section className="space-y-6">
       <div className="rounded-2xl border border-border bg-card/50 p-5">
