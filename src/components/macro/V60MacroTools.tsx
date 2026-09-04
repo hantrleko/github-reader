@@ -1,4 +1,5 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useToolTab } from "@/lib/useToolTab";
 import { motion } from "framer-motion";
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -47,8 +48,13 @@ const TABS: { id: Tab; cat: Cat; title: string; desc: string }[] = [
 ];
 
 export default function V60MacroTools() {
-  const [cat, setCat] = useState<Cat>("growth");
-  const [tab, setTab] = useState<Tab>("endo");
+  const [tab, setTab] = useToolTab<Tab>(TABS.map((x) => x.id), "endo");
+  const [cat, setCat] = useState<Cat>(TABS.find((x) => x.id === tab)?.cat ?? "growth");
+  // Keep the category strip in sync when the tab arrives from the URL.
+  useEffect(() => {
+    const owner = TABS.find((x) => x.id === tab)?.cat;
+    if (owner) setCat(owner);
+  }, [tab]);
   const inCat = TABS.filter((t) => t.cat === cat);
 
   return (
