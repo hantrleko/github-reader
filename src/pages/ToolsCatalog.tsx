@@ -12,6 +12,7 @@ import {
   type Difficulty,
   type ToolEntry,
 } from "@/data/toolsCatalog";
+import { sectionHref } from "@/lib/sections";
 
 const ALL_CATEGORIES = Object.keys(CATEGORY_LABEL) as ToolCategory[];
 const ALL_DIFFICULTIES = Object.keys(DIFFICULTY_LABEL) as Difficulty[];
@@ -244,7 +245,7 @@ const ToolCard = ({ tool, query }: { tool: ToolEntry; query: string }) => {
   const offlineCapable = tool.category !== "platform";
   return (
     <Link
-      to={tool.anchor}
+      to={sectionHref(tool.anchor)}
       className="group block rounded-xl border border-border/60 bg-card/30 p-4 hover:border-gold/50 hover:bg-card/60 transition-all hover:-translate-y-0.5"
     >
       <div className="flex items-start justify-between gap-2 mb-2">
