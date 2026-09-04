@@ -330,5 +330,15 @@
     "open": "Open topic: {{title}} — {{subtitle}}",
     "read": "read {{done}}/{{total}}",
     "readAria": "{{done}} of {{total}} knowledge points read"
+  },
+  "labs": {
+    "micro": {
+      "title": "Microeconomics",
+      "subtitle": "Supply & demand · consumer choice · producer theory · market structure games · information economics — the micro foundations of every economic argument."
+    },
+    "macro": {
+      "title": "Macroeconomics",
+      "subtitle": "IS-LM · AD-AS · Phillips curve · Mundell-Fleming · Ramsey · Solow · NK DSGE · HANK · real options — the full span from short-run fluctuations to long-run growth."
+    }
   }
 }
