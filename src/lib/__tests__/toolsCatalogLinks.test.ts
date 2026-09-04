@@ -5,7 +5,7 @@ import { HOME_IDS, isSectionId, sectionHref } from "@/lib/sections";
 const baseId = (anchor: string) => {
   const q = anchor.indexOf("?");
   const raw = q >= 0 ? anchor.slice(0, q) : anchor;
-  return raw.replace(/^\/?#/, "");
+  return raw.replace(/^\/s\//, "").replace(/^\/?#/, "");
 };
 
 describe("tools catalog links", () => {
