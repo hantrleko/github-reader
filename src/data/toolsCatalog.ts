@@ -1243,7 +1243,7 @@ export const TOOLS_CATALOG: ToolEntry[] = [
   {
     id: "jump", name: "跳跃扩散 (Merton & Kou)",
     nameEn: "Jump-Diffusion — Merton & Kou",
-    category: "derivatives", difficulty: "advanced", anchor: "/s/deriv",
+    category: "derivatives", difficulty: "advanced", anchor: "/s/derivatives",
     tags: ["跳跃", "Merton", "Kou", "崩盘风险", "微笑"],
     refs: ["Merton (1976)", "Kou (2002)"],
     blurb: "Merton 对数正态跳跃级数闭式解 + Kou 双指数跳跃 Monte Carlo，与 BS 平滑对比揭示短期 OTM 溢价与偏度。",
@@ -1252,7 +1252,7 @@ export const TOOLS_CATALOG: ToolEntry[] = [
   {
     id: "bates_var", name: "Bates + 方差互换",
     nameEn: "Bates SVJ & Variance Swap Replication",
-    category: "derivatives", difficulty: "research", anchor: "/s/deriv",
+    category: "derivatives", difficulty: "research", anchor: "/s/derivatives",
     tags: ["Bates", "方差互换", "VIX", "静态复制", "方差风险溢价"],
     refs: ["Bates (1996)", "Demeterfi et al. (1999)"],
     blurb: "Bates 随机波+跳跃 MC 定价，模型自由方差互换复制得 VIX 与 Realized Vol 的方差风险溢价。",
@@ -1261,7 +1261,7 @@ export const TOOLS_CATALOG: ToolEntry[] = [
   {
     id: "pde", name: "Crank-Nicolson PDE 求解",
     nameEn: "Crank-Nicolson PDE Solver",
-    category: "derivatives", difficulty: "advanced", anchor: "/s/deriv",
+    category: "derivatives", difficulty: "advanced", anchor: "/s/derivatives",
     tags: ["有限差分", "Crank-Nicolson", "PSOR", "美式", "障碍"],
     refs: ["Crank & Nicolson (1947)", "Wilmott (1998)"],
     blurb: "二阶隐式 θ=0.5 差分，Thomas 三对角求解；PSOR 处理美式期权早行权，边界处理支持敲出障碍。",
@@ -1270,7 +1270,7 @@ export const TOOLS_CATALOG: ToolEntry[] = [
   {
     id: "hedge_pnl", name: "Delta 对冲 P&L 归因",
     nameEn: "Delta-Hedge P&L Attribution",
-    category: "derivatives", difficulty: "advanced", anchor: "/s/deriv",
+    category: "derivatives", difficulty: "advanced", anchor: "/s/derivatives",
     tags: ["对冲", "Gamma", "Vega", "Volga", "交易成本"],
     refs: ["Wilmott (2006)"],
     blurb: "蒙特卡洛离散重新对冲下 P&L 分解为 Γ·Θ 平衡、Vega·Δσ、离散误差与交易成本，含分布与瀑布图。",
@@ -1279,7 +1279,7 @@ export const TOOLS_CATALOG: ToolEntry[] = [
   {
     id: "autocall", name: "Autocallable 结构化票据",
     nameEn: "Autocallable / Phoenix Note",
-    category: "derivatives", difficulty: "research", anchor: "/s/deriv",
+    category: "derivatives", difficulty: "research", anchor: "/s/derivatives",
     tags: ["结构化", "自动赎回", "敲入", "Phoenix", "票息"],
     refs: ["Bouzoubaa & Osseiran (2010)"],
     blurb: "Phoenix 结构：每期观察 AC 提前赎回、KI 保护到期条款；输出公允价、期望存续期、赎回概率分布与 KI 命中率。",
@@ -1288,7 +1288,7 @@ export const TOOLS_CATALOG: ToolEntry[] = [
   {
     id: "xva", name: "XVA (CVA / DVA / FVA)",
     nameEn: "Counterparty Credit XVA",
-    category: "derivatives", difficulty: "research", anchor: "/s/deriv",
+    category: "derivatives", difficulty: "research", anchor: "/s/derivatives",
     tags: ["CVA", "DVA", "FVA", "EE", "PFE", "对手风险"],
     refs: ["Gregory (2015)", "Green (2015)"],
     blurb: "利率互换暴露蒙特卡洛 → EE/NE/PFE95 曲线，结合双边违约强度、回收率与融资利差计算 CVA/DVA/FVA。",
