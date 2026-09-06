@@ -37,7 +37,7 @@ export interface ToolEntry {
   related?: string[];
   /** true once unit tests vs a closed-form benchmark exist in src/lib/quant */
   verified?: boolean;
-  version: "V1.0" | "V2.0" | "V2.1" | "V2.2" | "V2.3" | "V2.4" | "V2.5" | "V2.6" | "V2.7" | "V2.8" | "V3.0" | "V3.1" | "V3.2" | "V3.3" | "V3.4" | "V3.5" | "V3.6" | "V3.7" | "V3.8" | "V3.9" | "V4.0" | "V4.1" | "V4.2" | "V4.3" | "V5.3" | "V5.4" | "V5.5" | "V5.6" | "V6.8";
+  version: "V1.0" | "V2.0" | "V2.1" | "V2.2" | "V2.3" | "V2.4" | "V2.5" | "V2.6" | "V2.7" | "V2.8" | "V3.0" | "V3.1" | "V3.2" | "V3.3" | "V3.4" | "V3.5" | "V3.6" | "V3.7" | "V3.8" | "V3.9" | "V4.0" | "V4.1" | "V4.2" | "V4.3" | "V5.3" | "V5.4" | "V5.5" | "V5.6" | "V6.8" | "V6.9";
 }
 
 export const CATEGORY_LABEL: Record<ToolCategory, { zh: string; en: string }> = {
@@ -1616,6 +1616,95 @@ export const TOOLS_CATALOG: ToolEntry[] = [
     refs: ["DeMiguel, Garlappi, Nogales & Uppal (2009)", "Jagannathan & Ma (2003)", "Choueifaty & Coignard (2008)"],
     blurb: "L1/L2 惩罚的权重路径与稀疏解，与长仓约束、最大分散化 MDP 及等权在样本外正面比较。",
     related: ["shrinkage", "rebal-cost", "rp"], verified: true, version: "V5.6",
+  },
+  // ── V6.9: Derivatives lab coverage ──
+  {
+    id: "amer", name: "美式期权 (LSM)", nameEn: "American Option — Longstaff-Schwartz LSM",
+    category: "derivatives", difficulty: "advanced", anchor: "/#derivatives?t=amer",
+    tags: ["美式期权", "最小二乘蒙特卡洛", "提前行权"],
+    refs: ["Longstaff & Schwartz (2001)"],
+    blurb: "回归估计继续持有价值，定位提前行权边界与美式溢价。",
+    related: ["binomial", "lsmc", "pde"], verified: true, version: "V6.9",
+  },
+  {
+    id: "rates", name: "利率衍生品 (Cap/Floor/Swaption)", nameEn: "Interest Rate Derivatives — Black-76",
+    category: "derivatives", difficulty: "advanced", anchor: "/#derivatives?t=rates",
+    tags: ["Cap", "Floor", "Swaption", "Black-76"],
+    refs: ["Black (1976)", "Hull (2018)"],
+    blurb: "远期利率 Black-76 定价 caplet/floorlet 与欧式互换期权，含年金因子拆解。",
+    related: ["lmm", "shortrate", "xva"], verified: true, version: "V6.9",
+  },
+  {
+    id: "sabr_heston", name: "SABR vs Heston 对比", nameEn: "SABR vs Heston — Smile Comparison",
+    category: "derivatives", difficulty: "research", anchor: "/#derivatives?t=sabr_heston",
+    tags: ["微笑", "误差热图", "模型对比"],
+    refs: ["Hagan et al. (2002)", "Heston (1993)"],
+    blurb: "同一微笑下并排 SABR 近似与 Heston 蒙特卡洛，输出误差热图与关键点差异。",
+    related: ["sabr", "heston", "svi"], verified: true, version: "V6.9",
+  },
+  {
+    id: "state_price", name: "状态价格与无套利区间", nameEn: "Arrow-Debreu State Prices & Replication Bounds",
+    category: "derivatives", difficulty: "advanced", anchor: "/#derivatives?t=state_price",
+    tags: ["Arrow-Debreu", "超复制", "无套利边界"],
+    refs: ["Arrow (1964)", "Harrison & Kreps (1979)"],
+    blurb: "由状态价格构造超/次复制组合，给出不完全市场下的价格区间。",
+    related: ["binomial", "carry-futures"], verified: true, version: "V6.9",
+  },
+  {
+    id: "lsmc", name: "百慕大 LSMC 定价台", nameEn: "Bermudan LSMC Desk — Exercise Boundary",
+    category: "derivatives", difficulty: "research", anchor: "/#derivatives?t=lsmc",
+    tags: ["百慕大", "回归基函数", "行权边界"],
+    refs: ["Longstaff & Schwartz (2001)", "Glasserman (2003)"],
+    blurb: "多项式基回归的继续价值估计，可视化行权边界随基函数阶数的变化。",
+    related: ["amer", "lmm", "numerics"], verified: true, version: "V6.9",
+  },
+  {
+    id: "carry-futures", name: "期货—远期与持有成本", nameEn: "Cost of Carry & Futures-Forward Convexity",
+    category: "derivatives", difficulty: "core", anchor: "/#derivatives?t=carry",
+    tags: ["持有成本", "便利收益", "期现基差"],
+    refs: ["Cox, Ingersoll & Ross (1981)", "Hull (2018)"],
+    blurb: "持有成本模型下的期货定价、便利收益与期货—远期凸性差。",
+    related: ["state_price", "shortrate"], verified: true, version: "V6.9",
+  },
+  {
+    id: "svi_arb", name: "SVI 静态无套利检查", nameEn: "SVI Butterfly & Calendar Arbitrage Check",
+    category: "derivatives", difficulty: "research", anchor: "/#derivatives?t=svi_arb",
+    tags: ["蝶式无套利", "日历无套利", "Dupire 反演"],
+    refs: ["Gatheral & Jacquier (2014)", "Dupire (1994)"],
+    blurb: "校准 SVI 后检验 g(k)≥0 与日历单调，再反演局部波动率面。",
+    related: ["svi", "local-vol"], verified: true, version: "V6.9",
+  },
+  {
+    id: "shortrate", name: "短率 / HJM 曲线台", nameEn: "Vasicek, CIR, Hull-White & HJM Curve Desk",
+    category: "derivatives", difficulty: "research", anchor: "/#derivatives?t=shortrate",
+    tags: ["Vasicek", "CIR", "Hull-White", "HJM"],
+    refs: ["Vasicek (1977)", "Cox, Ingersoll & Ross (1985)", "Heath, Jarrow & Morton (1992)"],
+    blurb: "仿射短率债券价格、Hull-White 债券期权与 HJM 漂移条件的统一工作台。",
+    related: ["rates", "lmm"], verified: true, version: "V6.9",
+  },
+  {
+    id: "credit", name: "信用曲线自举与 CDS", nameEn: "Hazard Bootstrap & CDS Par Spread",
+    category: "derivatives", difficulty: "advanced", anchor: "/#derivatives?t=credit",
+    tags: ["违约强度", "生存概率", "CDS"],
+    refs: ["Jarrow & Turnbull (1995)", "Duffie & Singleton (1999)"],
+    blurb: "从 CDS 报价自举分段违约强度，得到生存曲线与平价利差近似 λ(1−R)。",
+    related: ["xva", "shortrate"], verified: true, version: "V6.9",
+  },
+  {
+    id: "numerics", name: "数值方法实验室", nameEn: "Carr-Madan FFT vs Monte Carlo Variance Reduction",
+    category: "derivatives", difficulty: "research", anchor: "/#derivatives?t=numerics",
+    tags: ["FFT", "控制变量", "对偶变量", "收敛"],
+    refs: ["Carr & Madan (1999)", "Glasserman (2003)"],
+    blurb: "傅里叶定价与蒙特卡洛并排，比较控制变量/对偶变量的方差缩减效率。",
+    related: ["pde", "lsmc", "mc"], verified: true, version: "V6.9",
+  },
+  {
+    id: "rough", name: "粗糙波动率与最优对冲", nameEn: "rBergomi Rough Volatility & Optimal Hedging",
+    category: "derivatives", difficulty: "research", anchor: "/#derivatives?t=rough",
+    tags: ["粗糙波动率", "Hurst", "均值方差对冲", "效用无差别"],
+    refs: ["Gatheral, Jaisson & Rosenbaum (2018)", "Bayer, Friz & Gatheral (2016)"],
+    blurb: "rBergomi 路径与 ATM 斜率的幂律衰减，配合均值方差与效用无差别对冲定价。",
+    related: ["heston", "hedge_pnl"], verified: true, version: "V6.9",
   },
 ];
 
