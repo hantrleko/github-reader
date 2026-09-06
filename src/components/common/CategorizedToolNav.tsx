@@ -1,5 +1,6 @@
 import { useMemo, useState, useEffect } from "react";
 import { Search, X } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 export interface ToolMeta {
   id: string;
@@ -11,6 +12,8 @@ export interface ToolMeta {
 export interface ToolCategory {
   id: string;
   label: string;
+  /** optional English category label shown when the UI language is English */
+  labelEn?: string;
   /** ordered tool ids belonging to this category */
   toolIds: string[];
 }
@@ -44,6 +47,8 @@ export default function CategorizedToolNav({
   enableSearch,
   flatThreshold = 7,
 }: Props) {
+  const { t, i18n } = useTranslation();
+  const isEn = i18n.language?.startsWith("en");
   const byId = useMemo(() => {
     const m = new Map<string, ToolMeta>();
     for (const t of tools) m.set(t.id, t);
@@ -92,7 +97,7 @@ export default function CategorizedToolNav({
       aria-current={activeId === t.id ? "true" : undefined}
       className={`${tabBase} ${activeId === t.id ? tabActive : tabIdle}`}
     >
-      {t.name}
+      {isEn && t.nameEn ? t.nameEn : t.name}
     </button>
   );
 
@@ -105,14 +110,14 @@ export default function CategorizedToolNav({
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="搜索工具…"
-            aria-label="搜索工具"
+            placeholder={t("labs.nav.search")}
+            aria-label={t("labs.nav.search")}
             className="w-full pl-9 pr-9 py-2 rounded-lg bg-secondary/60 border border-border text-sm font-mono text-foreground placeholder:text-muted-foreground/70 focus:outline-none focus:ring-2 focus:ring-gold/50 transition-shadow"
           />
           {q.length > 0 && (
             <button
               onClick={() => setQuery("")}
-              aria-label="清空搜索"
+              aria-label={t("labs.nav.clear")}
               className="absolute right-2.5 top-1/2 -translate-y-1/2 p-0.5 rounded text-muted-foreground hover:text-foreground"
             >
               <X className="w-4 h-4" />
@@ -128,7 +133,7 @@ export default function CategorizedToolNav({
           </div>
         ) : (
           <p className="text-center text-sm font-mono text-muted-foreground py-2">
-            未找到匹配「{query}」的工具
+            {t("labs.nav.noResults", { query })}
           </p>
         )
       ) : useCategories ? (
@@ -152,7 +157,7 @@ export default function CategorizedToolNav({
                       : "border-border text-muted-foreground hover:text-foreground hover:border-foreground/40"
                   }`}
                 >
-                  {c.label}
+                  {isEn && c.labelEn ? c.labelEn : c.label}
                   <span className="ml-1.5 opacity-60">{c.toolIds.length}</span>
                 </button>
               );
