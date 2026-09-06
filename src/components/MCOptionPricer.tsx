@@ -9,6 +9,7 @@ import RealDataLoader from "./RealDataLoader";
 import SendToTool from "./common/SendToTool";
 import { useBusConsume } from "@/lib/toolBus";
 import { motion } from "framer-motion";
+import { useTranslation } from "react-i18next";
 import {
   LineChart,
   Line,
@@ -221,6 +222,7 @@ function runMC(
 }
 
 const MCOptionPricer = () => {
+  const { t } = useTranslation();
   const [optionType, setOptionType] = useState<OptionType>("european");
   const [putCall, setPutCall] = useState<PutCall>("call");
   const [s0, setS0] = useState(100);
