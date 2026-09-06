@@ -37,7 +37,7 @@ export interface ToolEntry {
   related?: string[];
   /** true once unit tests vs a closed-form benchmark exist in src/lib/quant */
   verified?: boolean;
-  version: "V1.0" | "V2.0" | "V2.1" | "V2.2" | "V2.3" | "V2.4" | "V2.5" | "V2.6" | "V2.7" | "V2.8" | "V3.0" | "V3.1" | "V3.2" | "V3.3" | "V3.4" | "V3.5" | "V3.6" | "V3.7" | "V3.8" | "V3.9" | "V4.0" | "V4.1" | "V4.2" | "V4.3" | "V5.3" | "V5.4" | "V5.5" | "V5.6" | "V6.8";
+  version: "V1.0" | "V2.0" | "V2.1" | "V2.2" | "V2.3" | "V2.4" | "V2.5" | "V2.6" | "V2.7" | "V2.8" | "V3.0" | "V3.1" | "V3.2" | "V3.3" | "V3.4" | "V3.5" | "V3.6" | "V3.7" | "V3.8" | "V3.9" | "V4.0" | "V4.1" | "V4.2" | "V4.3" | "V5.3" | "V5.4" | "V5.5" | "V5.6" | "V6.8" | "V6.9";
 }
 
 export const CATEGORY_LABEL: Record<ToolCategory, { zh: string; en: string }> = {
@@ -111,7 +111,7 @@ export const TOOLS_CATALOG: ToolEntry[] = [
     nameEn: "SVI Surface",
     category: "derivatives",
     difficulty: "advanced",
-    anchor: "/#derivatives",
+    anchor: "/#derivatives?t=vol",
     tags: ["波动率曲面", "无套利", "校准"],
     refs: ["Gatheral (2004)"],
     blurb: "SVI 五参数曲面拟合 + Lee 翼部约束。",
@@ -124,7 +124,7 @@ export const TOOLS_CATALOG: ToolEntry[] = [
     nameEn: "Heston Stochastic Vol",
     category: "derivatives",
     difficulty: "advanced",
-    anchor: "/#derivatives",
+    anchor: "/#derivatives?t=heston",
     tags: ["随机波动率", "FFT", "特征函数"],
     refs: ["Heston (1993)", "Carr & Madan (1999)"],
     blurb: "随机波动率定价 + FFT，对比 BS 价格曲面。",
@@ -137,7 +137,7 @@ export const TOOLS_CATALOG: ToolEntry[] = [
     nameEn: "SABR Model",
     category: "derivatives",
     difficulty: "advanced",
-    anchor: "/#derivatives",
+    anchor: "/#derivatives?t=sabr",
     tags: ["forward smile", "Hagan", "校准"],
     refs: ["Hagan, Kumar, Lesniewski, Woodward (2002)"],
     blurb: "SABR α β ρ ν 校准 + Hagan 近似公式。",
@@ -150,7 +150,7 @@ export const TOOLS_CATALOG: ToolEntry[] = [
     nameEn: "Local Volatility",
     category: "derivatives",
     difficulty: "advanced",
-    anchor: "/#derivatives",
+    anchor: "/#derivatives?t=localvol",
     tags: ["Dupire", "Implied → Local"],
     refs: ["Dupire (1994)"],
     blurb: "Dupire 公式从隐含曲面反演局部波动率面。",
@@ -163,7 +163,7 @@ export const TOOLS_CATALOG: ToolEntry[] = [
     nameEn: "Greeks Desk",
     category: "derivatives",
     difficulty: "core",
-    anchor: "/#derivatives",
+    anchor: "/#derivatives?t=greeks",
     tags: ["对冲", "组合 Greek"],
     refs: ["Hull (2018)"],
     blurb: "多腿期权组合 Greeks 聚合 + Delta/Gamma 对冲场景。",
@@ -176,7 +176,7 @@ export const TOOLS_CATALOG: ToolEntry[] = [
     nameEn: "LMM Bermudan",
     category: "derivatives",
     difficulty: "research",
-    anchor: "/#derivatives",
+    anchor: "/#derivatives?t=lmm",
     tags: ["BGM", "Longstaff-Schwartz", "EPE"],
     refs: ["Brace, Gatarek, Musiela (1997)", "Longstaff & Schwartz (2001)"],
     blurb: "Libor Market Model + LSM 蒙特卡洛定价 Bermudan Swaption。",
@@ -189,7 +189,7 @@ export const TOOLS_CATALOG: ToolEntry[] = [
     nameEn: "Path-dependent Exotics",
     category: "derivatives",
     difficulty: "advanced",
-    anchor: "/#derivatives",
+    anchor: "/#derivatives?t=exotic",
     tags: ["Asian", "Barrier", "Lookback", "控制变量"],
     refs: ["Glasserman (2003)"],
     blurb: "亚式 / 障碍 / 回望期权 MC + 控制变量降方差。",
@@ -1113,7 +1113,7 @@ export const TOOLS_CATALOG: ToolEntry[] = [
   // ── V3.2: model gap fill ──
   {
     id: "binomial", name: "二叉树 (CRR)", nameEn: "Cox-Ross-Rubinstein Binomial Tree",
-    category: "derivatives", difficulty: "core", anchor: "/#derivatives",
+    category: "derivatives", difficulty: "core", anchor: "/#derivatives?t=binomial",
     tags: ["二叉树", "收敛", "美式期权", "CRR"],
     refs: ["Cox, Ross & Rubinstein (1979)"],
     blurb: "CRR 二叉树定价，可视化随步数收敛到 Black-Scholes，并比较美式提前行权溢价。",
@@ -1243,7 +1243,7 @@ export const TOOLS_CATALOG: ToolEntry[] = [
   {
     id: "jump", name: "跳跃扩散 (Merton & Kou)",
     nameEn: "Jump-Diffusion — Merton & Kou",
-    category: "derivatives", difficulty: "advanced", anchor: "/s/derivatives",
+    category: "derivatives", difficulty: "advanced", anchor: "/#derivatives?t=jump",
     tags: ["跳跃", "Merton", "Kou", "崩盘风险", "微笑"],
     refs: ["Merton (1976)", "Kou (2002)"],
     blurb: "Merton 对数正态跳跃级数闭式解 + Kou 双指数跳跃 Monte Carlo，与 BS 平滑对比揭示短期 OTM 溢价与偏度。",
@@ -1252,7 +1252,7 @@ export const TOOLS_CATALOG: ToolEntry[] = [
   {
     id: "bates_var", name: "Bates + 方差互换",
     nameEn: "Bates SVJ & Variance Swap Replication",
-    category: "derivatives", difficulty: "research", anchor: "/s/derivatives",
+    category: "derivatives", difficulty: "research", anchor: "/#derivatives?t=bates_var",
     tags: ["Bates", "方差互换", "VIX", "静态复制", "方差风险溢价"],
     refs: ["Bates (1996)", "Demeterfi et al. (1999)"],
     blurb: "Bates 随机波+跳跃 MC 定价，模型自由方差互换复制得 VIX 与 Realized Vol 的方差风险溢价。",
@@ -1261,7 +1261,7 @@ export const TOOLS_CATALOG: ToolEntry[] = [
   {
     id: "pde", name: "Crank-Nicolson PDE 求解",
     nameEn: "Crank-Nicolson PDE Solver",
-    category: "derivatives", difficulty: "advanced", anchor: "/s/derivatives",
+    category: "derivatives", difficulty: "advanced", anchor: "/#derivatives?t=pde",
     tags: ["有限差分", "Crank-Nicolson", "PSOR", "美式", "障碍"],
     refs: ["Crank & Nicolson (1947)", "Wilmott (1998)"],
     blurb: "二阶隐式 θ=0.5 差分，Thomas 三对角求解；PSOR 处理美式期权早行权，边界处理支持敲出障碍。",
@@ -1270,7 +1270,7 @@ export const TOOLS_CATALOG: ToolEntry[] = [
   {
     id: "hedge_pnl", name: "Delta 对冲 P&L 归因",
     nameEn: "Delta-Hedge P&L Attribution",
-    category: "derivatives", difficulty: "advanced", anchor: "/s/derivatives",
+    category: "derivatives", difficulty: "advanced", anchor: "/#derivatives?t=hedge_pnl",
     tags: ["对冲", "Gamma", "Vega", "Volga", "交易成本"],
     refs: ["Wilmott (2006)"],
     blurb: "蒙特卡洛离散重新对冲下 P&L 分解为 Γ·Θ 平衡、Vega·Δσ、离散误差与交易成本，含分布与瀑布图。",
@@ -1279,7 +1279,7 @@ export const TOOLS_CATALOG: ToolEntry[] = [
   {
     id: "autocall", name: "Autocallable 结构化票据",
     nameEn: "Autocallable / Phoenix Note",
-    category: "derivatives", difficulty: "research", anchor: "/s/derivatives",
+    category: "derivatives", difficulty: "research", anchor: "/#derivatives?t=autocall",
     tags: ["结构化", "自动赎回", "敲入", "Phoenix", "票息"],
     refs: ["Bouzoubaa & Osseiran (2010)"],
     blurb: "Phoenix 结构：每期观察 AC 提前赎回、KI 保护到期条款；输出公允价、期望存续期、赎回概率分布与 KI 命中率。",
@@ -1288,7 +1288,7 @@ export const TOOLS_CATALOG: ToolEntry[] = [
   {
     id: "xva", name: "XVA (CVA / DVA / FVA)",
     nameEn: "Counterparty Credit XVA",
-    category: "derivatives", difficulty: "research", anchor: "/s/derivatives",
+    category: "derivatives", difficulty: "research", anchor: "/#derivatives?t=xva",
     tags: ["CVA", "DVA", "FVA", "EE", "PFE", "对手风险"],
     refs: ["Gregory (2015)", "Green (2015)"],
     blurb: "利率互换暴露蒙特卡洛 → EE/NE/PFE95 曲线，结合双边违约强度、回收率与融资利差计算 CVA/DVA/FVA。",
@@ -1616,6 +1616,95 @@ export const TOOLS_CATALOG: ToolEntry[] = [
     refs: ["DeMiguel, Garlappi, Nogales & Uppal (2009)", "Jagannathan & Ma (2003)", "Choueifaty & Coignard (2008)"],
     blurb: "L1/L2 惩罚的权重路径与稀疏解，与长仓约束、最大分散化 MDP 及等权在样本外正面比较。",
     related: ["shrinkage", "rebal-cost", "rp"], verified: true, version: "V5.6",
+  },
+  // ── V6.9: Derivatives lab coverage ──
+  {
+    id: "amer", name: "美式期权 (LSM)", nameEn: "American Option — Longstaff-Schwartz LSM",
+    category: "derivatives", difficulty: "advanced", anchor: "/#derivatives?t=amer",
+    tags: ["美式期权", "最小二乘蒙特卡洛", "提前行权"],
+    refs: ["Longstaff & Schwartz (2001)"],
+    blurb: "回归估计继续持有价值，定位提前行权边界与美式溢价。",
+    related: ["binomial", "lsmc", "pde"], verified: true, version: "V6.9",
+  },
+  {
+    id: "rates", name: "利率衍生品 (Cap/Floor/Swaption)", nameEn: "Interest Rate Derivatives — Black-76",
+    category: "derivatives", difficulty: "advanced", anchor: "/#derivatives?t=rates",
+    tags: ["Cap", "Floor", "Swaption", "Black-76"],
+    refs: ["Black (1976)", "Hull (2018)"],
+    blurb: "远期利率 Black-76 定价 caplet/floorlet 与欧式互换期权，含年金因子拆解。",
+    related: ["lmm", "shortrate", "xva"], verified: true, version: "V6.9",
+  },
+  {
+    id: "sabr_heston", name: "SABR vs Heston 对比", nameEn: "SABR vs Heston — Smile Comparison",
+    category: "derivatives", difficulty: "research", anchor: "/#derivatives?t=sabr_heston",
+    tags: ["微笑", "误差热图", "模型对比"],
+    refs: ["Hagan et al. (2002)", "Heston (1993)"],
+    blurb: "同一微笑下并排 SABR 近似与 Heston 蒙特卡洛，输出误差热图与关键点差异。",
+    related: ["sabr", "heston", "svi"], verified: true, version: "V6.9",
+  },
+  {
+    id: "state_price", name: "状态价格与无套利区间", nameEn: "Arrow-Debreu State Prices & Replication Bounds",
+    category: "derivatives", difficulty: "advanced", anchor: "/#derivatives?t=state_price",
+    tags: ["Arrow-Debreu", "超复制", "无套利边界"],
+    refs: ["Arrow (1964)", "Harrison & Kreps (1979)"],
+    blurb: "由状态价格构造超/次复制组合，给出不完全市场下的价格区间。",
+    related: ["binomial", "carry-futures"], verified: true, version: "V6.9",
+  },
+  {
+    id: "lsmc", name: "百慕大 LSMC 定价台", nameEn: "Bermudan LSMC Desk — Exercise Boundary",
+    category: "derivatives", difficulty: "research", anchor: "/#derivatives?t=lsmc",
+    tags: ["百慕大", "回归基函数", "行权边界"],
+    refs: ["Longstaff & Schwartz (2001)", "Glasserman (2003)"],
+    blurb: "多项式基回归的继续价值估计，可视化行权边界随基函数阶数的变化。",
+    related: ["amer", "lmm", "numerics"], verified: true, version: "V6.9",
+  },
+  {
+    id: "carry-futures", name: "期货—远期与持有成本", nameEn: "Cost of Carry & Futures-Forward Convexity",
+    category: "derivatives", difficulty: "core", anchor: "/#derivatives?t=carry",
+    tags: ["持有成本", "便利收益", "期现基差"],
+    refs: ["Cox, Ingersoll & Ross (1981)", "Hull (2018)"],
+    blurb: "持有成本模型下的期货定价、便利收益与期货—远期凸性差。",
+    related: ["state_price", "shortrate"], verified: true, version: "V6.9",
+  },
+  {
+    id: "svi_arb", name: "SVI 静态无套利检查", nameEn: "SVI Butterfly & Calendar Arbitrage Check",
+    category: "derivatives", difficulty: "research", anchor: "/#derivatives?t=svi_arb",
+    tags: ["蝶式无套利", "日历无套利", "Dupire 反演"],
+    refs: ["Gatheral & Jacquier (2014)", "Dupire (1994)"],
+    blurb: "校准 SVI 后检验 g(k)≥0 与日历单调，再反演局部波动率面。",
+    related: ["svi", "local-vol"], verified: true, version: "V6.9",
+  },
+  {
+    id: "shortrate", name: "短率 / HJM 曲线台", nameEn: "Vasicek, CIR, Hull-White & HJM Curve Desk",
+    category: "derivatives", difficulty: "research", anchor: "/#derivatives?t=shortrate",
+    tags: ["Vasicek", "CIR", "Hull-White", "HJM"],
+    refs: ["Vasicek (1977)", "Cox, Ingersoll & Ross (1985)", "Heath, Jarrow & Morton (1992)"],
+    blurb: "仿射短率债券价格、Hull-White 债券期权与 HJM 漂移条件的统一工作台。",
+    related: ["rates", "lmm"], verified: true, version: "V6.9",
+  },
+  {
+    id: "credit", name: "信用曲线自举与 CDS", nameEn: "Hazard Bootstrap & CDS Par Spread",
+    category: "derivatives", difficulty: "advanced", anchor: "/#derivatives?t=credit",
+    tags: ["违约强度", "生存概率", "CDS"],
+    refs: ["Jarrow & Turnbull (1995)", "Duffie & Singleton (1999)"],
+    blurb: "从 CDS 报价自举分段违约强度，得到生存曲线与平价利差近似 λ(1−R)。",
+    related: ["xva", "shortrate"], verified: true, version: "V6.9",
+  },
+  {
+    id: "numerics", name: "数值方法实验室", nameEn: "Carr-Madan FFT vs Monte Carlo Variance Reduction",
+    category: "derivatives", difficulty: "research", anchor: "/#derivatives?t=numerics",
+    tags: ["FFT", "控制变量", "对偶变量", "收敛"],
+    refs: ["Carr & Madan (1999)", "Glasserman (2003)"],
+    blurb: "傅里叶定价与蒙特卡洛并排，比较控制变量/对偶变量的方差缩减效率。",
+    related: ["pde", "lsmc", "mc"], verified: true, version: "V6.9",
+  },
+  {
+    id: "rough", name: "粗糙波动率与最优对冲", nameEn: "rBergomi Rough Volatility & Optimal Hedging",
+    category: "derivatives", difficulty: "research", anchor: "/#derivatives?t=rough",
+    tags: ["粗糙波动率", "Hurst", "均值方差对冲", "效用无差别"],
+    refs: ["Gatheral, Jaisson & Rosenbaum (2018)", "Bayer, Friz & Gatheral (2016)"],
+    blurb: "rBergomi 路径与 ATM 斜率的幂律衰减，配合均值方差与效用无差别对冲定价。",
+    related: ["heston", "hedge_pnl"], verified: true, version: "V6.9",
   },
 ];
 
