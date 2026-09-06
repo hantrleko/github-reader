@@ -6,6 +6,7 @@ import { FormulaCodeView } from "./common/FormulaCodeView";
 import RealDataLoader from "./RealDataLoader";
 import SendToTool from "./common/SendToTool";
 import { motion } from "framer-motion";
+import { useTranslation } from "react-i18next";
 
 import "katex/dist/katex.min.css";
 import {
@@ -135,6 +136,7 @@ const EXPIRY_COLORS = [
 ];
 
 const ImpliedVolTool = () => {
+  const { t } = useTranslation();
   // IV calculator inputs
   const [optType, setOptType] = useState<"call" | "put">("call");
   const [mktPrice, setMktPrice] = useState(10.45);
