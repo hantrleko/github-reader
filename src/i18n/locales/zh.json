@@ -346,6 +346,38 @@
       "search": "搜索工具…",
       "clear": "清空搜索",
       "noResults": "未找到匹配「{{query}}」的工具"
+    },
+    "iv": {
+      "title": "隐含波动率工具",
+      "inversion": "隐含波动率反算",
+      "optType": "期权类型",
+      "call": "看涨 Call",
+      "put": "看跌 Put",
+      "mktPrice": "市场价格",
+      "spot": "标的价格 S",
+      "strike": "行权价格 K",
+      "rate": "无风险利率 r",
+      "maturity": "到期时间 T",
+      "years": " 年",
+      "sigmaIv": "隐含波动率 σ_iv",
+      "bsCheck": "BS价格验证: {{price}} ≈ 市场价 {{mkt}}",
+      "noSolution": "无解 — 检查输入参数",
+      "noSolutionShort": "无解 — 检查输入",
+      "ivVsPrice": "隐含波动率 vs 市场价格",
+      "optionPrice": "期权价格",
+      "bsRefPrice": "BS 验证价",
+      "surfaceParams": "波动率曲面参数",
+      "baseVol": "基础波动率 σ₀",
+      "skew": "偏斜系数 (Skew)",
+      "smile": "微笑系数 (Smile)",
+      "smileByExpiry": "波动率微笑 · 各到期日",
+      "strikeAxis": "行权价 K",
+      "atmTerm": "ATM 波动率期限结构",
+      "maturityAxis": "到期 (年)",
+      "atmNote": "ATM 隐含波动率随到期时间的变化 · 短期 IV 通常高于长期",
+      "surfaceMatrix": "波动率曲面矩阵 (IV %)",
+      "surfaceNote": "金色深浅 = IV 高低 · • = ATM 行权价 · 调节 Skew/Smile 观察曲面形态变化",
+      "sendLabel": "隐含波动率"
     }
   }
 }

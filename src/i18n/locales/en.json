@@ -344,6 +344,38 @@
       "search": "Search tools…",
       "clear": "Clear search",
       "noResults": "No tools match “{{query}}”"
+    },
+    "iv": {
+      "title": "Implied Volatility Lab",
+      "inversion": "Implied Volatility Inversion",
+      "optType": "Option type",
+      "call": "Call",
+      "put": "Put",
+      "mktPrice": "Market price",
+      "spot": "Spot S",
+      "strike": "Strike K",
+      "rate": "Risk-free rate r",
+      "maturity": "Maturity T",
+      "years": " yr",
+      "sigmaIv": "Implied volatility σ_iv",
+      "bsCheck": "BS price check: {{price}} ≈ market {{mkt}}",
+      "noSolution": "No solution — check the inputs",
+      "noSolutionShort": "No solution — check inputs",
+      "ivVsPrice": "Implied volatility vs market price",
+      "optionPrice": "Option price",
+      "bsRefPrice": "BS check price",
+      "surfaceParams": "Volatility surface parameters",
+      "baseVol": "Base volatility σ₀",
+      "skew": "Skew coefficient",
+      "smile": "Smile coefficient",
+      "smileByExpiry": "Volatility smile · by expiry",
+      "strikeAxis": "Strike K",
+      "atmTerm": "ATM volatility term structure",
+      "maturityAxis": "Maturity (years)",
+      "atmNote": "ATM implied volatility across maturities · short-dated IV usually exceeds long-dated",
+      "surfaceMatrix": "Volatility surface matrix (IV %)",
+      "surfaceNote": "Gold intensity = IV level · • = ATM strike · move Skew/Smile to reshape the surface",
+      "sendLabel": "Implied volatility"
     }
   }
 }
