@@ -111,7 +111,7 @@
     },
     "latestUpdate": {
       "label": "Latest Update · {{version}}",
-      "description": "V6.8 fixes catalog navigation: all 86 tool cards now land on their lab page, 16 advanced and frontier macro tools join the catalog and search, and ?t= deep links open a specific tool.",
+      "description": "V6.9 completes the pricing module: 11 more derivatives labs join the catalog and search, ?t= deep links open any of the 25 experiments, and the calculator, implied-vol and Monte Carlo tools are now fully bilingual.",
       "cta": "View Changelog"
     }
   },

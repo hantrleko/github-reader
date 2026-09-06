@@ -5,9 +5,32 @@ import { useMemo, useState } from "react";
 
 const RELEASES = [
   {
-    version: "V6.8",
+    version: "V6.9",
     date: "2026-09",
     tag: "Current",
+    highlights: [
+      {
+        icon: Sparkles,
+        title: "衍生品工具全进目录",
+        items: [
+          "美式期权、利率结构、SABR–Heston、状态价格、LSMC 等 11 个实验补入工具目录",
+          "衍生品实验室支持 ?t=<toolId> 深链，25 个实验都可直达",
+        ],
+      },
+      {
+        icon: FileText,
+        title: "定价模块双语化",
+        items: [
+          "模型计算器、隐含波动率工具、蒙特卡洛定价器的界面文案迁入中英词条",
+          "分类工具导航的搜索、清空与分类名支持中英文",
+        ],
+      },
+    ],
+  },
+  {
+    version: "V6.8",
+    date: "2026-09",
+    tag: "Past",
     highlights: [
       {
         icon: Wrench,
@@ -2038,7 +2061,7 @@ const Changelog = () => {
             {t("changelog.title")}
           </h2>
           <p className="text-sm text-muted-foreground font-mono">
-            {t("changelog.subtitle")} — V1.0 → V6.8
+            {t("changelog.subtitle")} — V1.0 → V6.9
           </p>
         </motion.div>
 
