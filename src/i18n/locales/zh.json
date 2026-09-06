@@ -496,7 +496,24 @@
       "excessDetail": "超额收益 = {{v}}%",
       "varLabel": "{{c}}% VaR（参数法）",
       "varValue": "{{v}} 万",
-      "varDetail": "ES = {{es}} 万 · 持有期 {{T}} 天 · 组合 {{W}} 万"
+      "varDetail": "ES = {{es}} 万 · 持有期 {{T}} 天 · 组合 {{W}} 万",
+      "presets": {
+        "textbook": "教科书标准",
+        "highBeta": "高Beta科技股",
+        "defensive": "防御性公用事业",
+        "hull": "Hull 教材",
+        "deepOTM": "深度虚值",
+        "shortHighVol": "短期高波动",
+        "spx": "标普500历史",
+        "hedgeFund": "优秀对冲基金",
+        "highRisk": "高风险策略",
+        "basel": "Basel 标准",
+        "intraday": "日内交易",
+        "conservative": "保守配置",
+        "baselDesc": "99%置信, 10天持有期",
+        "intradayDesc": "95%置信, 1天, 高波动",
+        "conservativeDesc": "99.9%置信, 20天"
+      }
     }
   }
 }

@@ -494,7 +494,24 @@
       "excessDetail": "Excess return = {{v}}%",
       "varLabel": "{{c}}% VaR (parametric)",
       "varValue": "{{v}} (10k)",
-      "varDetail": "ES = {{es}} (10k) · horizon {{T}} days · portfolio {{W}} (10k)"
+      "varDetail": "ES = {{es}} (10k) · horizon {{T}} days · portfolio {{W}} (10k)",
+      "presets": {
+        "textbook": "Textbook baseline",
+        "highBeta": "High-beta tech",
+        "defensive": "Defensive utility",
+        "hull": "Hull textbook",
+        "deepOTM": "Deep out-of-the-money",
+        "shortHighVol": "Short-dated high vol",
+        "spx": "S&P 500 history",
+        "hedgeFund": "Strong hedge fund",
+        "highRisk": "High-risk strategy",
+        "basel": "Basel standard",
+        "intraday": "Intraday trading",
+        "conservative": "Conservative allocation",
+        "baselDesc": "99% confidence, 10-day horizon",
+        "intradayDesc": "95% confidence, 1 day, high vol",
+        "conservativeDesc": "99.9% confidence, 20 days"
+      }
     }
   }
 }

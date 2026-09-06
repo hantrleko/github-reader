@@ -35,6 +35,8 @@ import { blackScholes as bsVerified } from "@/lib/quant/blackScholes";
 interface ParamConfig {
   key: string;
   label: string;
+  labelEn?: string;
+  unitEn?: string;
   shortLabel: string;
   unit: string;
   min: number;
@@ -44,9 +46,9 @@ interface ParamConfig {
 }
 
 const capmParams: ParamConfig[] = [
-  { key: "rf", label: "无风险利率 Rᶠ", shortLabel: "Rᶠ", unit: "%", min: 0, max: 15, step: 0.1, defaultValue: 3 },
-  { key: "beta", label: "Beta 系数 βᵢ", shortLabel: "β", unit: "", min: -1, max: 3, step: 0.05, defaultValue: 1.2 },
-  { key: "rm", label: "市场预期收益率 E(Rₘ)", shortLabel: "E(Rₘ)", unit: "%", min: 0, max: 30, step: 0.1, defaultValue: 10 },
+  { key: "rf", label: "无风险利率 Rᶠ", labelEn: "Risk-free rate Rᶠ", shortLabel: "Rᶠ", unit: "%", min: 0, max: 15, step: 0.1, defaultValue: 3 },
+  { key: "beta", label: "Beta 系数 βᵢ", labelEn: "Beta βᵢ", shortLabel: "β", unit: "", min: -1, max: 3, step: 0.05, defaultValue: 1.2 },
+  { key: "rm", label: "市场预期收益率 E(Rₘ)", labelEn: "Expected market return E(Rₘ)", shortLabel: "E(Rₘ)", unit: "%", min: 0, max: 30, step: 0.1, defaultValue: 10 },
 ];
 
 function erf(x: number): number {
@@ -140,25 +142,25 @@ function generateGreeksData(values: Record<string, number>) {
 }
 
 const bsParams: ParamConfig[] = [
-  { key: "s", label: "标的价格 S₀", shortLabel: "S₀", unit: "", min: 1, max: 500, step: 1, defaultValue: 100 },
-  { key: "k", label: "行权价格 K", shortLabel: "K", unit: "", min: 1, max: 500, step: 1, defaultValue: 100 },
-  { key: "r", label: "无风险利率 r", shortLabel: "r", unit: "%", min: 0, max: 15, step: 0.1, defaultValue: 5 },
-  { key: "sigma", label: "波动率 σ", shortLabel: "σ", unit: "%", min: 1, max: 100, step: 0.5, defaultValue: 20 },
-  { key: "t", label: "到期时间 T", shortLabel: "T", unit: "年", min: 0.01, max: 5, step: 0.01, defaultValue: 1 },
+  { key: "s", label: "标的价格 S₀", labelEn: "Spot S₀", shortLabel: "S₀", unit: "", min: 1, max: 500, step: 1, defaultValue: 100 },
+  { key: "k", label: "行权价格 K", labelEn: "Strike K", shortLabel: "K", unit: "", min: 1, max: 500, step: 1, defaultValue: 100 },
+  { key: "r", label: "无风险利率 r", labelEn: "Risk-free rate r", shortLabel: "r", unit: "%", min: 0, max: 15, step: 0.1, defaultValue: 5 },
+  { key: "sigma", label: "波动率 σ", labelEn: "Volatility σ", shortLabel: "σ", unit: "%", min: 1, max: 100, step: 0.5, defaultValue: 20 },
+  { key: "t", label: "到期时间 T", labelEn: "Maturity T", shortLabel: "T", unit: "年", unitEn: "yr", min: 0.01, max: 5, step: 0.01, defaultValue: 1 },
 ];
 
 const sharpeParams: ParamConfig[] = [
-  { key: "rp", label: "组合收益率 Rₚ", shortLabel: "Rₚ", unit: "%", min: -20, max: 50, step: 0.1, defaultValue: 12 },
-  { key: "rf", label: "无风险利率 Rᶠ", shortLabel: "Rᶠ", unit: "%", min: 0, max: 15, step: 0.1, defaultValue: 3 },
-  { key: "sigmap", label: "组合标准差 σₚ", shortLabel: "σₚ", unit: "%", min: 0.1, max: 60, step: 0.1, defaultValue: 15 },
+  { key: "rp", label: "组合收益率 Rₚ", labelEn: "Portfolio return Rₚ", shortLabel: "Rₚ", unit: "%", min: -20, max: 50, step: 0.1, defaultValue: 12 },
+  { key: "rf", label: "无风险利率 Rᶠ", labelEn: "Risk-free rate Rᶠ", shortLabel: "Rᶠ", unit: "%", min: 0, max: 15, step: 0.1, defaultValue: 3 },
+  { key: "sigmap", label: "组合标准差 σₚ", labelEn: "Portfolio σₚ", shortLabel: "σₚ", unit: "%", min: 0.1, max: 60, step: 0.1, defaultValue: 15 },
 ];
 
 const varParams: ParamConfig[] = [
-  { key: "portfolio", label: "组合价值 W", shortLabel: "W", unit: "万", min: 100, max: 10000, step: 100, defaultValue: 1000 },
-  { key: "mu", label: "日均收益率 μ", shortLabel: "μ", unit: "%", min: -1, max: 1, step: 0.01, defaultValue: 0.04 },
-  { key: "dailySigma", label: "日波动率 σ", shortLabel: "σ", unit: "%", min: 0.1, max: 10, step: 0.1, defaultValue: 1.5 },
-  { key: "confidence", label: "置信水平", shortLabel: "α", unit: "%", min: 90, max: 99.9, step: 0.1, defaultValue: 99 },
-  { key: "holdingDays", label: "持有期", shortLabel: "T", unit: "天", min: 1, max: 30, step: 1, defaultValue: 10 },
+  { key: "portfolio", label: "组合价值 W", labelEn: "Portfolio value W", shortLabel: "W", unit: "万", unitEn: "10k", min: 100, max: 10000, step: 100, defaultValue: 1000 },
+  { key: "mu", label: "日均收益率 μ", labelEn: "Daily mean return μ", shortLabel: "μ", unit: "%", min: -1, max: 1, step: 0.01, defaultValue: 0.04 },
+  { key: "dailySigma", label: "日波动率 σ", labelEn: "Daily volatility σ", shortLabel: "σ", unit: "%", min: 0.1, max: 10, step: 0.1, defaultValue: 1.5 },
+  { key: "confidence", label: "置信水平", labelEn: "Confidence level", shortLabel: "α", unit: "%", min: 90, max: 99.9, step: 0.1, defaultValue: 99 },
+  { key: "holdingDays", label: "持有期", labelEn: "Holding period", shortLabel: "T", unit: "天", unitEn: "d", min: 1, max: 30, step: 1, defaultValue: 10 },
 ];
 
 type CalcId = "capm" | "bs" | "sharpe" | "var";
@@ -476,7 +478,7 @@ function calcMetrics(active: CalcId, v: Record<string, number>): CompareMetric[]
     const rp = v.beta * (v.rm - v.rf);
     return [
       { label: "E(Rᵢ)", a: er, b: er, fmt: pct },
-      { label: "风险溢价", a: rp, b: rp, fmt: pct },
+      { label: tr("labs.calc.riskPremium"), a: rp, b: rp, fmt: pct },
     ];
   }
   if (active === "bs") {
@@ -496,8 +498,8 @@ function calcMetrics(active: CalcId, v: Record<string, number>): CompareMetric[]
     const sr = (v.rp - v.rf) / v.sigmap;
     const ex = v.rp - v.rf;
     return [
-      { label: "夏普比率", a: sr, b: sr, fmt: num4, higherIsBetter: true },
-      { label: "超额收益", a: ex, b: ex, fmt: pct, higherIsBetter: true },
+      { label: tr("labs.calc.sharpe"), a: sr, b: sr, fmt: num4, higherIsBetter: true },
+      { label: tr("labs.calc.excessReturn"), a: ex, b: ex, fmt: pct, higherIsBetter: true },
     ];
   }
   // VaR
@@ -509,8 +511,8 @@ function calcMetrics(active: CalcId, v: Record<string, number>): CompareMetric[]
   const VaR = W * Math.abs(mu * T - z * sigma * Math.sqrt(T));
   const ES = W * Math.abs(mu * T - sigma * Math.sqrt(T) * normPdf(z) / (1 - v.confidence / 100));
   return [
-    { label: "VaR (万)", a: VaR, b: VaR, fmt: money, higherIsBetter: false },
-    { label: "ES (万)", a: ES, b: ES, fmt: money, higherIsBetter: false },
+    { label: tr("labs.calc.varMetric"), a: VaR, b: VaR, fmt: money, higherIsBetter: false },
+    { label: tr("labs.calc.esMetric"), a: ES, b: ES, fmt: money, higherIsBetter: false },
   ];
 }
 
@@ -531,14 +533,15 @@ const CustomTooltipImpl = ({ active: isActive, payload, label, unit }: any) => {
 };
 
 const VaRTooltip = ({ active: isActive, payload, label }: any) => {
+  const { t } = useTranslation();
   if (!isActive || !payload?.length) return null;
   return (
     <div className="rounded-lg bg-card border border-border px-3 py-2 shadow-lg">
       <p className="text-xs font-mono text-muted-foreground mb-1">
-        损失: {label} 万
+        {t("labs.calc.lossAxis")}: {label}
       </p>
       <p className="text-sm font-mono text-foreground">
-        频次: {payload[0]?.value}
+        {t("labs.calc.frequency")}: {payload[0]?.value}
       </p>
     </div>
   );
@@ -591,24 +594,24 @@ const CalculatorSection = () => {
 
   const presets: Record<CalcId, Preset[]> = {
     capm: [
-      { name: "教科书标准", description: "Rf=3%, β=1.2, Rm=10%", apply: () => setMulti({ rf: 3, beta: 1.2, rm: 10 }) },
-      { name: "高Beta科技股", description: "Rf=2%, β=1.8, Rm=12%", apply: () => setMulti({ rf: 2, beta: 1.8, rm: 12 }) },
-      { name: "防御性公用事业", description: "Rf=3%, β=0.5, Rm=8%", apply: () => setMulti({ rf: 3, beta: 0.5, rm: 8 }) },
+      { name: t("labs.calc.presets.textbook"), description: "Rf=3%, β=1.2, Rm=10%", apply: () => setMulti({ rf: 3, beta: 1.2, rm: 10 }) },
+      { name: t("labs.calc.presets.highBeta"), description: "Rf=2%, β=1.8, Rm=12%", apply: () => setMulti({ rf: 2, beta: 1.8, rm: 12 }) },
+      { name: t("labs.calc.presets.defensive"), description: "Rf=3%, β=0.5, Rm=8%", apply: () => setMulti({ rf: 3, beta: 0.5, rm: 8 }) },
     ],
     bs: [
-      { name: "Hull 教材", description: "S=K=100, σ=20%, T=1", apply: () => setMulti({ s: 100, k: 100, r: 5, sigma: 20, t: 1 }) },
-      { name: "深度虚值", description: "S=100, K=130, σ=25%", apply: () => setMulti({ s: 100, k: 130, r: 5, sigma: 25, t: 0.5 }) },
-      { name: "短期高波动", description: "S=K=100, σ=50%, T=0.25", apply: () => setMulti({ s: 100, k: 100, r: 3, sigma: 50, t: 0.25 }) },
+      { name: t("labs.calc.presets.hull"), description: "S=K=100, σ=20%, T=1", apply: () => setMulti({ s: 100, k: 100, r: 5, sigma: 20, t: 1 }) },
+      { name: t("labs.calc.presets.deepOTM"), description: "S=100, K=130, σ=25%", apply: () => setMulti({ s: 100, k: 130, r: 5, sigma: 25, t: 0.5 }) },
+      { name: t("labs.calc.presets.shortHighVol"), description: "S=K=100, σ=50%, T=0.25", apply: () => setMulti({ s: 100, k: 100, r: 3, sigma: 50, t: 0.25 }) },
     ],
     sharpe: [
-      { name: "标普500历史", description: "Rp=10%, Rf=3%, σ=15%", apply: () => setMulti({ rp: 10, rf: 3, sigmap: 15 }) },
-      { name: "优秀对冲基金", description: "Rp=8%, Rf=2%, σ=6%", apply: () => setMulti({ rp: 8, rf: 2, sigmap: 6 }) },
-      { name: "高风险策略", description: "Rp=25%, Rf=3%, σ=35%", apply: () => setMulti({ rp: 25, rf: 3, sigmap: 35 }) },
+      { name: t("labs.calc.presets.spx"), description: "Rp=10%, Rf=3%, σ=15%", apply: () => setMulti({ rp: 10, rf: 3, sigmap: 15 }) },
+      { name: t("labs.calc.presets.hedgeFund"), description: "Rp=8%, Rf=2%, σ=6%", apply: () => setMulti({ rp: 8, rf: 2, sigmap: 6 }) },
+      { name: t("labs.calc.presets.highRisk"), description: "Rp=25%, Rf=3%, σ=35%", apply: () => setMulti({ rp: 25, rf: 3, sigmap: 35 }) },
     ],
     var: [
-      { name: "Basel 标准", description: "99%置信, 10天持有期", apply: () => setMulti({ portfolio: 1000, mu: 0.04, dailySigma: 1.5, confidence: 99, holdingDays: 10 }) },
-      { name: "日内交易", description: "95%置信, 1天, 高波动", apply: () => setMulti({ portfolio: 5000, mu: 0.1, dailySigma: 3, confidence: 95, holdingDays: 1 }) },
-      { name: "保守配置", description: "99.9%置信, 20天", apply: () => setMulti({ portfolio: 2000, mu: 0.02, dailySigma: 0.8, confidence: 99.9, holdingDays: 20 }) },
+      { name: t("labs.calc.presets.basel"), description: t("labs.calc.presets.baselDesc"), apply: () => setMulti({ portfolio: 1000, mu: 0.04, dailySigma: 1.5, confidence: 99, holdingDays: 10 }) },
+      { name: t("labs.calc.presets.intraday"), description: t("labs.calc.presets.intradayDesc"), apply: () => setMulti({ portfolio: 5000, mu: 0.1, dailySigma: 3, confidence: 95, holdingDays: 1 }) },
+      { name: t("labs.calc.presets.conservative"), description: t("labs.calc.presets.conservativeDesc"), apply: () => setMulti({ portfolio: 2000, mu: 0.02, dailySigma: 0.8, confidence: 99.9, holdingDays: 20 }) },
     ],
   };
 
@@ -616,9 +619,9 @@ const CalculatorSection = () => {
     if (active === "capm") {
       const er = values.rf + values.beta * (values.rm - values.rf);
       return {
-        label: "预期收益率 E(Rᵢ)",
+        label: t("labs.calc.expectedReturn"),
         value: `${er.toFixed(2)}%`,
-        detail: `风险溢价 = ${(values.beta * (values.rm - values.rf)).toFixed(2)}%`,
+        detail: t("labs.calc.riskPremiumDetail", { v: (values.beta * (values.rm - values.rf)).toFixed(2) }),
       };
     }
     if (active === "bs") {
@@ -628,7 +631,7 @@ const CalculatorSection = () => {
       const d1 = (Math.log(values.s / values.k) + (r + (sigma * sigma) / 2) * values.t) / (sigma * Math.sqrt(values.t));
       const d2 = d1 - sigma * Math.sqrt(values.t);
       return {
-        label: "期权价格",
+        label: t("labs.calc.optionPrice"),
         value: `Call = ${call.toFixed(4)}  |  Put = ${put.toFixed(4)}`,
         detail: `d₁ = ${d1.toFixed(4)},  d₂ = ${d2.toFixed(4)}`,
       };
@@ -636,9 +639,9 @@ const CalculatorSection = () => {
     if (active === "sharpe") {
       const sr = (values.rp - values.rf) / values.sigmap;
       return {
-        label: "夏普比率",
+        label: t("labs.calc.sharpe"),
         value: sr.toFixed(4),
-        detail: `超额收益 = ${(values.rp - values.rf).toFixed(2)}%`,
+        detail: t("labs.calc.excessDetail", { v: (values.rp - values.rf).toFixed(2) }),
       };
     }
     // VaR
@@ -653,9 +656,9 @@ const CalculatorSection = () => {
     const paramES = W * Math.abs(mu * T - sigma * Math.sqrt(T) * normPdf(z) / (1 - values.confidence / 100));
 
     return {
-      label: `${values.confidence}% VaR（参数法）`,
-      value: `${paramVaR.toFixed(2)} 万`,
-      detail: `ES = ${paramES.toFixed(2)} 万 · 持有期 ${T} 天 · 组合 ${W} 万`,
+      label: t("labs.calc.varLabel", { c: values.confidence }),
+      value: t("labs.calc.varValue", { v: paramVaR.toFixed(2) }),
+      detail: t("labs.calc.varDetail", { es: paramES.toFixed(2), T, W }),
     };
   }, [active, values]);
 
@@ -707,7 +710,7 @@ const CalculatorSection = () => {
             Interactive Tools
           </p>
           <h2 className="text-3xl md:text-5xl font-display font-bold text-foreground">
-            模型计算器
+            {t("labs.calc.title")}
           </h2>
         </motion.div>
 
@@ -763,7 +766,7 @@ const CalculatorSection = () => {
                 filename={`calculator-${active}`}
                 notebookSeed={{
                   title: `${calculators.find((c) => c.id === active)!.name} · ${calculators.find((c) => c.id === active)!.nameEn}`,
-                  description: `从计算器导入的参数集。修改 param 滑块即可重算下面的公式。`,
+                  description: t("labs.calc.notebookDesc"),
                   params: params.map((p) => ({
                     name: p.key,
                     value: values[p.key] ?? p.defaultValue,
@@ -826,7 +829,7 @@ const CalculatorSection = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
             {/* Params */}
             <div className="space-y-5">
-              <p className="text-xs font-mono text-muted-foreground uppercase tracking-wider mb-2">参数设置</p>
+              <p className="text-xs font-mono text-muted-foreground uppercase tracking-wider mb-2">{t("labs.calc.params")}</p>
               <PresetButtons presets={presets[active]} />
               {active === "bs" && (
                 <RealDataLoader
@@ -842,10 +845,10 @@ const CalculatorSection = () => {
                 <div key={p.key}>
                   <div className="flex justify-between items-baseline mb-2">
                     <label className="text-sm text-secondary-foreground font-medium">
-                      {p.label}
+                      {isEn && p.labelEn ? p.labelEn : p.label}
                     </label>
                     <span className="text-sm font-mono text-gold">
-                      {values[p.key]}{p.unit && ` ${p.unit}`}
+                      {values[p.key]}{p.unit && ` ${isEn && p.unitEn ? p.unitEn : p.unit}`}
                     </span>
                   </div>
                   <input
@@ -870,7 +873,7 @@ const CalculatorSection = () => {
               {active !== "var" ? (
                 <>
                   <div className="flex items-center justify-between mb-3">
-                    <p className="text-xs font-mono text-muted-foreground uppercase tracking-wider">敏感性分析</p>
+                    <p className="text-xs font-mono text-muted-foreground uppercase tracking-wider">{t("labs.calc.sensitivity")}</p>
                     <div className="flex gap-1.5">
                       {params.map((p) => (
                         <button
@@ -928,14 +931,14 @@ const CalculatorSection = () => {
                     </ResponsiveContainer>
                   </div>
                   <p className="text-[10px] text-muted-foreground font-mono mt-2 text-center">
-                    虚线标注当前参数值 · 拖动滑块实时更新
+                    {t("labs.calc.sensNote")}
                   </p>
                 </>
               ) : (
                 /* VaR: Monte Carlo Loss Distribution Histogram */
                 <>
                   <p className="text-xs font-mono text-muted-foreground uppercase tracking-wider mb-3">
-                    蒙特卡洛损失分布（10,000 次模拟）
+                    {t("labs.calc.mcLossDist")}
                   </p>
                   <div className="rounded-xl bg-secondary/30 border border-border p-4">
                     {mcData && (
@@ -947,7 +950,7 @@ const CalculatorSection = () => {
                             stroke={CHART_TEXT}
                             tick={{ fontSize: 9, fontFamily: "var(--font-mono)" }}
                             label={{
-                              value: "损失 (万)",
+                              value: t("labs.calc.lossAxis"),
                               position: "insideBottom",
                               offset: -2,
                               style: { fontSize: 11, fill: CHART_TEXT, fontFamily: "var(--font-mono)" },
@@ -981,7 +984,7 @@ const CalculatorSection = () => {
                               style: { fontSize: 10, fill: CHART_GOLD, fontFamily: "var(--font-mono)", fontWeight: 600 },
                             }}
                           />
-                          <Bar dataKey="count" name="频次">
+                          <Bar dataKey="count" name={t("labs.calc.frequency")}>
                             {mcData.bins.map((entry, index) => (
                               <Cell
                                 key={`cell-${index}`}
@@ -995,7 +998,7 @@ const CalculatorSection = () => {
                     )}
                   </div>
                   <p className="text-[10px] text-muted-foreground font-mono mt-2 text-center">
-                    红色区域为超过 VaR 的尾部损失 · 红线 = VaR · 金线 = ES
+                    {t("labs.calc.mcNote")}
                   </p>
                 </>
               )}
@@ -1010,7 +1013,7 @@ const CalculatorSection = () => {
             <div className="mb-8">
               <div className="flex items-center justify-between gap-3 flex-wrap mb-4">
                 <p className="text-xs font-mono text-muted-foreground uppercase tracking-wider">
-                  Greeks 敏感性分析
+                  {t("labs.calc.greeks")}
                 </p>
                 {(() => {
                   const bsRef = bsVerified({
@@ -1026,11 +1029,11 @@ const CalculatorSection = () => {
                   return (
                     <BenchmarkDrawer
                       label="BS Closed-form"
-                      title="Black–Scholes · 闭式解对照"
-                      description={`S=${values.s}, K=${values.k}, T=${values.t}, r=${values.r}%, σ=${values.sigma}%。参考来自 src/lib/quant/blackScholes (Abramowitz–Stegun 7.1.26 误差 < 7.5e-8,vitest 通过)。`}
+                      title={t("labs.calc.bsRefTitle")}
+                      description={t("labs.calc.bsRefDesc", { s: values.s, k: values.k, t: values.t, r: values.r, sigma: values.sigma })}
                       rows={[
-                        { metric: "Call 价格", ours: ourCall, reference: bsRef.call, source: "Black–Scholes (1973)", digits: 6, tol: 1e-4 },
-                        { metric: "Put 价格", ours: ourPut, reference: bsRef.put, source: "Black–Scholes (1973)", digits: 6, tol: 1e-4 },
+                        { metric: t("labs.calc.callPrice"), ours: ourCall, reference: bsRef.call, source: "Black–Scholes (1973)", digits: 6, tol: 1e-4 },
+                        { metric: t("labs.calc.putPrice"), ours: ourPut, reference: bsRef.put, source: "Black–Scholes (1973)", digits: 6, tol: 1e-4 },
                         { metric: "Δ Call", ours: currentGreeks.callDelta, reference: bsRef.deltaCall, source: "∂C/∂S", digits: 6, tol: 1e-4 },
                         { metric: "Γ", ours: currentGreeks.gamma, reference: bsRef.gamma, source: "∂²C/∂S²", digits: 6, tol: 1e-4 },
                         { metric: "Vega (per 1σ)", ours: currentGreeks.vega * 100, reference: bsRef.vega, source: "∂C/∂σ", digits: 4, tol: 1e-2 },
@@ -1094,7 +1097,7 @@ const CalculatorSection = () => {
 
                 {/* Theta */}
                 <div className="rounded-xl bg-secondary/30 border border-border p-4">
-                  <p className="text-[11px] font-mono text-red-400 mb-2">Theta (Θ) — ∂C/∂t（每日）</p>
+                  <p className="text-[11px] font-mono text-red-400 mb-2">{t("labs.calc.thetaDaily")}</p>
                   <ResponsiveContainer width="100%" height={180}>
                     <LineChart data={greeksData} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
                       <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID} />
@@ -1128,7 +1131,7 @@ const CalculatorSection = () => {
                 </div>
               </div>
               <p className="text-[10px] text-muted-foreground font-mono mt-2 text-center">
-                金色虚线 = 当前 S₀ · 灰色虚线 = 行权价 K · 拖动滑块实时更新
+                {t("labs.calc.greeksNote")}
               </p>
             </div>
           )}
@@ -1146,8 +1149,8 @@ const CalculatorSection = () => {
 
                 const methods = [
                   {
-                    name: "参数法",
-                    desc: "假设正态分布",
+                    name: t("labs.calc.parametric"),
+                    desc: t("labs.calc.parametricDesc"),
                     var: paramVaR,
                     es: paramES,
                     color: "text-gold",
@@ -1155,8 +1158,8 @@ const CalculatorSection = () => {
                     bgColor: "bg-gold/[0.03]",
                   },
                   {
-                    name: "历史模拟法",
-                    desc: `${histData.nObs} 个滚动窗口`,
+                    name: t("labs.calc.historical"),
+                    desc: t("labs.calc.historicalDesc", { n: histData.nObs }),
                     var: histData.histVaR,
                     es: histData.histES,
                     color: "text-teal-400",
@@ -1164,8 +1167,8 @@ const CalculatorSection = () => {
                     bgColor: "bg-teal-400/[0.03]",
                   },
                   {
-                    name: "蒙特卡洛法",
-                    desc: "10,000 次模拟",
+                    name: t("labs.calc.monteCarlo"),
+                    desc: t("labs.calc.monteCarloDesc"),
                     var: mcData.mcVaR,
                     es: mcData.mcES,
                     color: "text-red-400",
@@ -1189,13 +1192,13 @@ const CalculatorSection = () => {
                       <div>
                         <p className="text-[10px] text-muted-foreground font-mono">VaR</p>
                         <p className="text-xl font-mono font-bold text-foreground">
-                          {m.var.toFixed(2)} <span className="text-sm text-muted-foreground">万</span>
+                          {m.var.toFixed(2)} <span className="text-sm text-muted-foreground">{t("labs.calc.wan")}</span>
                         </p>
                       </div>
                       <div>
                         <p className="text-[10px] text-muted-foreground font-mono">ES (CVaR)</p>
                         <p className="text-lg font-mono font-semibold text-foreground">
-                          {m.es.toFixed(2)} <span className="text-sm text-muted-foreground">万</span>
+                          {m.es.toFixed(2)} <span className="text-sm text-muted-foreground">{t("labs.calc.wan")}</span>
                         </p>
                       </div>
                     </div>
@@ -1210,7 +1213,7 @@ const CalculatorSection = () => {
             <div className="mb-8">
               <div className="flex items-center justify-between mb-3">
                 <p className="text-xs font-mono text-muted-foreground uppercase tracking-wider">
-                  VaR / ES 敏感性分析
+                  {t("labs.calc.varSensitivity")}
                 </p>
                 <div className="flex gap-1.5">
                   {params.map((p) => (
@@ -1255,8 +1258,8 @@ const CalculatorSection = () => {
                       strokeDasharray="4 4"
                       strokeOpacity={0.5}
                     />
-                    <Area type="monotone" dataKey="es" name="ES (万)" stroke={CHART_RED} fill={CHART_RED} fillOpacity={0.1} strokeWidth={2} dot={false} />
-                    <Area type="monotone" dataKey="var" name="VaR (万)" stroke={CHART_GOLD} fill={CHART_GOLD} fillOpacity={0.15} strokeWidth={2} dot={false} />
+                    <Area type="monotone" dataKey="es" name={t("labs.calc.esSeries")} stroke={CHART_RED} fill={CHART_RED} fillOpacity={0.1} strokeWidth={2} dot={false} />
+                    <Area type="monotone" dataKey="var" name={t("labs.calc.varSeries")} stroke={CHART_GOLD} fill={CHART_GOLD} fillOpacity={0.15} strokeWidth={2} dot={false} />
                     <Legend wrapperStyle={{ fontSize: 11, fontFamily: "var(--font-mono)" }} />
                   </AreaChart>
                 </ResponsiveContainer>
@@ -1268,7 +1271,7 @@ const CalculatorSection = () => {
           {active === "var" && backtestData && (
             <div className="mb-8">
               <p className="text-xs font-mono text-muted-foreground uppercase tracking-wider mb-4">
-                回测检验 · Backtesting（250 交易日）
+                {t("labs.calc.backtest")}
               </p>
 
               {/* Traffic Light + Kupiec Stats */}
@@ -1276,7 +1279,7 @@ const CalculatorSection = () => {
                 {/* Traffic Light */}
                 <div className="rounded-xl border border-border bg-secondary/30 p-5 flex flex-col items-center justify-center">
                   <p className="text-xs font-mono text-muted-foreground mb-3 uppercase tracking-wider">
-                    Basel 交通灯
+                    {t("labs.calc.trafficLight")}
                   </p>
                   <div className="flex gap-3 mb-3">
                     {(["green", "yellow", "red"] as const).map((color) => {
@@ -1297,24 +1300,24 @@ const CalculatorSection = () => {
                     backtestData.trafficLight === "green" ? "text-emerald-400" :
                     backtestData.trafficLight === "yellow" ? "text-yellow-400" : "text-red-400"
                   }`}>
-                    {backtestData.trafficLight === "green" ? "绿区 · 模型合格" :
-                     backtestData.trafficLight === "yellow" ? "黄区 · 需关注" : "红区 · 模型失效"}
+                    {backtestData.trafficLight === "green" ? t("labs.calc.green") :
+                     backtestData.trafficLight === "yellow" ? t("labs.calc.yellow") : t("labs.calc.red")}
                   </p>
                 </div>
 
                 {/* Exception Count */}
                 <div className="rounded-xl border border-border bg-secondary/30 p-5 text-center">
                   <p className="text-xs font-mono text-muted-foreground mb-2 uppercase tracking-wider">
-                    突破次数
+                    {t("labs.calc.exceptions")}
                   </p>
                   <p className="text-3xl font-mono font-bold text-foreground">
                     {backtestData.exceptions}
                   </p>
                   <p className="text-xs font-mono text-muted-foreground mt-1">
-                    预期: {backtestData.expectedExceptions.toFixed(1)} 次
+                    {t("labs.calc.expected", { n: backtestData.expectedExceptions.toFixed(1) })}
                   </p>
                   <p className="text-xs font-mono text-muted-foreground">
-                    突破率: {((backtestData.exceptions / backtestData.nDays) * 100).toFixed(2)}%
+                    {t("labs.calc.exceptionRate", { pct: ((backtestData.exceptions / backtestData.nDays) * 100).toFixed(2) })}
                   </p>
                 </div>
 
@@ -1323,9 +1326,9 @@ const CalculatorSection = () => {
                   backtestData.kupiecReject ? "border-red-400/20 bg-red-400/[0.03]" : "border-emerald-400/20 bg-emerald-400/[0.03]"
                 }`}>
                   <p className="text-xs font-mono text-muted-foreground mb-2 uppercase tracking-wider">
-                    Kupiec POF 检验
+                    {t("labs.calc.kupiec")}
                   </p>
-                  <p className="text-xs font-mono text-muted-foreground mb-1">H₀: p = p̂（覆盖率正确）</p>
+                  <p className="text-xs font-mono text-muted-foreground mb-1">{t("labs.calc.kupiecH0")}</p>
                   <p className="text-lg font-mono font-bold text-foreground">
                     LR<sub>uc</sub> = {backtestData.kupiecLR.toFixed(3)}
                   </p>
@@ -1333,7 +1336,7 @@ const CalculatorSection = () => {
                     p = {backtestData.kupiecPValue.toFixed(4)} · χ²(1)
                   </p>
                   <p className={`text-xs font-mono mt-1 font-bold ${backtestData.kupiecReject ? "text-red-400" : "text-emerald-400"}`}>
-                    {backtestData.kupiecReject ? "拒绝 · 覆盖率不准确" : "通过 · 覆盖率可接受"}
+                    {backtestData.kupiecReject ? t("labs.calc.kupiecReject") : t("labs.calc.kupiecPass")}
                   </p>
                 </div>
               </div>
@@ -1345,9 +1348,9 @@ const CalculatorSection = () => {
                   backtestData.indReject ? "border-red-400/20 bg-red-400/[0.03]" : "border-emerald-400/20 bg-emerald-400/[0.03]"
                 }`}>
                   <p className="text-xs font-mono text-muted-foreground mb-2 uppercase tracking-wider">
-                    独立性检验 (LR<sub>ind</sub>)
+                    {t("labs.calc.independence")} (LR<sub>ind</sub>)
                   </p>
-                  <p className="text-xs font-mono text-muted-foreground mb-1">H₀: 突破间相互独立</p>
+                  <p className="text-xs font-mono text-muted-foreground mb-1">{t("labs.calc.indH0")}</p>
                   <p className="text-lg font-mono font-bold text-foreground">
                     LR<sub>ind</sub> = {backtestData.indLR.toFixed(3)}
                   </p>
@@ -1355,7 +1358,7 @@ const CalculatorSection = () => {
                     p = {backtestData.indPValue.toFixed(4)} · χ²(1)
                   </p>
                   <p className={`text-xs font-mono mt-1 font-bold ${backtestData.indReject ? "text-red-400" : "text-emerald-400"}`}>
-                    {backtestData.indReject ? "拒绝 · 存在聚集效应" : "通过 · 突破独立"}
+                    {backtestData.indReject ? t("labs.calc.indReject") : t("labs.calc.indPass")}
                   </p>
                 </div>
 
@@ -1364,7 +1367,7 @@ const CalculatorSection = () => {
                   backtestData.ccReject ? "border-red-400/20 bg-red-400/[0.03]" : "border-emerald-400/20 bg-emerald-400/[0.03]"
                 }`}>
                   <p className="text-xs font-mono text-muted-foreground mb-2 uppercase tracking-wider">
-                    条件覆盖检验 (LR<sub>cc</sub>)
+                    {t("labs.calc.condCoverage")} (LR<sub>cc</sub>)
                   </p>
                   <p className="text-xs font-mono text-muted-foreground mb-1">LR<sub>cc</sub> = LR<sub>uc</sub> + LR<sub>ind</sub></p>
                   <p className="text-lg font-mono font-bold text-foreground">
@@ -1374,31 +1377,31 @@ const CalculatorSection = () => {
                     p = {backtestData.ccPValue.toFixed(4)} · χ²(2)
                   </p>
                   <p className={`text-xs font-mono mt-1 font-bold ${backtestData.ccReject ? "text-red-400" : "text-emerald-400"}`}>
-                    {backtestData.ccReject ? "拒绝 · 模型综合不合格" : "通过 · 模型综合合格"}
+                    {backtestData.ccReject ? t("labs.calc.ccReject") : t("labs.calc.ccPass")}
                   </p>
                 </div>
 
                 {/* Transition Matrix */}
                 <div className="rounded-xl border border-border bg-secondary/30 p-5">
                   <p className="text-xs font-mono text-muted-foreground mb-3 uppercase tracking-wider text-center">
-                    转移矩阵
+                    {t("labs.calc.transition")}
                   </p>
                   <table className="w-full text-center font-mono text-sm">
                     <thead>
                       <tr>
                         <th className="text-[10px] text-muted-foreground p-1"></th>
-                        <th className="text-[10px] text-muted-foreground p-1">→ 正常</th>
-                        <th className="text-[10px] text-muted-foreground p-1">→ 突破</th>
+                        <th className="text-[10px] text-muted-foreground p-1">{t("labs.calc.toNormal")}</th>
+                        <th className="text-[10px] text-muted-foreground p-1">{t("labs.calc.toException")}</th>
                       </tr>
                     </thead>
                     <tbody>
                       <tr>
-                        <td className="text-[10px] text-muted-foreground p-1">正常 →</td>
+                        <td className="text-[10px] text-muted-foreground p-1">{t("labs.calc.fromNormal")}</td>
                         <td className="text-foreground p-1 font-bold">{backtestData.n00}</td>
                         <td className="text-gold p-1 font-bold">{backtestData.n01}</td>
                       </tr>
                       <tr>
-                        <td className="text-[10px] text-muted-foreground p-1">突破 →</td>
+                        <td className="text-[10px] text-muted-foreground p-1">{t("labs.calc.fromException")}</td>
                         <td className="text-foreground p-1 font-bold">{backtestData.n10}</td>
                         <td className="text-red-400 p-1 font-bold">{backtestData.n11}</td>
                       </tr>
@@ -1420,7 +1423,7 @@ const CalculatorSection = () => {
                       stroke={CHART_TEXT}
                       tick={{ fontSize: 9, fontFamily: "var(--font-mono)" }}
                       label={{
-                        value: "交易日",
+                        value: t("labs.calc.tradingDay"),
                         position: "insideBottom",
                         offset: -2,
                         style: { fontSize: 11, fill: CHART_TEXT, fontFamily: "var(--font-mono)" },
@@ -1437,15 +1440,15 @@ const CalculatorSection = () => {
                         const d = payload[0]?.payload;
                         return (
                           <div className="rounded-lg bg-card border border-border px-3 py-2 shadow-lg">
-                            <p className="text-xs font-mono text-muted-foreground">第 {d?.day} 天</p>
+                            <p className="text-xs font-mono text-muted-foreground">{t("labs.calc.dayN", { n: d?.day })}</p>
                             <p className={`text-sm font-mono ${d?.pnl >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
-                              P&L: {d?.pnl?.toFixed(2)} 万
+                              {t("labs.calc.pnl", { v: d?.pnl?.toFixed(2) })}
                             </p>
                             <p className="text-xs font-mono text-muted-foreground">
-                              VaR线: {d?.var?.toFixed(2)} 万
+                              {t("labs.calc.varLine", { v: d?.var?.toFixed(2) })}
                             </p>
                             {d?.exception && (
-                              <p className="text-xs font-mono text-red-400 font-bold">⚠ VaR 突破</p>
+                              <p className="text-xs font-mono text-red-400 font-bold">{t("labs.calc.varBreach")}</p>
                             )}
                           </div>
                         );
@@ -1475,7 +1478,7 @@ const CalculatorSection = () => {
                 </ResponsiveContainer>
               </div>
               <p className="text-[10px] text-muted-foreground font-mono mt-2 text-center">
-                红色柱 = 损失超过VaR的突破日 · 虚线 = −VaR 阈值 · Kupiec LR ~ χ²(1), 5%显著性水平
+                {t("labs.calc.backtestNote")}
               </p>
             </div>
           )}
@@ -1526,7 +1529,7 @@ price = bs_call(S=${values.s ?? 100}, K=${values.k ?? 100},
                       <div className="text-base text-gold font-bold">{result.value}</div>
                     </div>
                     <div className="rounded-md border border-border bg-card/50 p-3">
-                      <div className="text-[10px] uppercase tracking-wider text-muted-foreground">说明</div>
+                      <div className="text-[10px] uppercase tracking-wider text-muted-foreground">{t("labs.calc.explanation")}</div>
                       <div className="text-xs text-foreground">{result.detail}</div>
                     </div>
                   </div>
@@ -1586,7 +1589,7 @@ function ComparePanel({
     <div className="mb-8 rounded-xl border border-border/60 bg-secondary/20 p-5">
       <div className="flex items-center justify-between gap-3 flex-wrap mb-3">
         <p className="text-xs font-mono text-muted-foreground uppercase tracking-wider">
-          A/B 参数对比
+          {t("labs.calc.abCompare")}
         </p>
         <CompareToolbar
           enabled={enabled}
@@ -1599,7 +1602,7 @@ function ComparePanel({
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
           <div className="space-y-2.5">
             <p className="text-[11px] font-mono text-gold uppercase tracking-wider">
-              情形 B · 参数
+              {t("labs.calc.caseB")}
             </p>
             {params.map((p) => (
               <label key={p.key} className="flex items-center justify-between gap-3 text-xs font-mono">
@@ -1624,11 +1627,11 @@ function ComparePanel({
           </div>
           <div>
             <p className="text-[11px] font-mono text-gold uppercase tracking-wider mb-2.5">
-              结果差异
+              {t("labs.calc.diff")}
             </p>
             <CompareDiff metrics={merged} />
             <p className="text-[10px] text-muted-foreground font-mono mt-2">
-              A = 上方实时参数 · B = 本面板参数 · Δ 为 B 相对 A 的变化
+              {t("labs.calc.abNote")}
             </p>
           </div>
         </div>
