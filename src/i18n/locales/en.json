@@ -339,6 +339,11 @@
     "macro": {
       "title": "Macroeconomics",
       "subtitle": "IS-LM · AD-AS · Phillips curve · Mundell-Fleming · Ramsey · Solow · NK DSGE · HANK · real options — the full span from short-run fluctuations to long-run growth."
+    },
+    "nav": {
+      "search": "Search tools…",
+      "clear": "Clear search",
+      "noResults": "No tools match “{{query}}”"
     }
   }
 }

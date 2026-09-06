@@ -341,6 +341,11 @@
     "macro": {
       "title": "宏观经济学",
       "subtitle": "IS-LM · AD-AS · 菲利普斯曲线 · 蒙代尔-弗莱明 · 拉姆齐 · Solow · NK DSGE · HANK · 实物期权 — 短期波动到长期增长的完整谱系"
+    },
+    "nav": {
+      "search": "搜索工具…",
+      "clear": "清空搜索",
+      "noResults": "未找到匹配「{{query}}」的工具"
     }
   }
 }
