@@ -226,7 +226,7 @@ const ImpliedVolTool = () => {
             Implied Volatility
           </p>
           <h2 className="text-3xl md:text-5xl font-display font-bold text-foreground">
-            隐含波动率工具
+            {t("labs.iv.title")}
           </h2>
         </motion.div>
 
@@ -282,7 +282,7 @@ const ImpliedVolTool = () => {
               {ivResult && (
                 <SendToTool
                   fromId="iv"
-                  label="隐含波动率"
+                  label={t("labs.iv.sendLabel")}
                   outputs={{ sigma: ivResult.iv / 100, S0: ivS, K: ivK, r: ivR / 100, T: ivT }}
                   targets={["bs", "mc", "greeks-desk", "svi", "heston"]}
                 />
@@ -302,7 +302,7 @@ const ImpliedVolTool = () => {
           {/* ─── IV Calculator ─── */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-10">
             <div className="space-y-4">
-              <p className="text-xs font-mono text-muted-foreground uppercase tracking-wider mb-2">隐含波动率反算</p>
+              <p className="text-xs font-mono text-muted-foreground uppercase tracking-wider mb-2">{t("labs.iv.inversion")}</p>
               <RealDataLoader
                 defaultSymbol="SPY"
                 onApply={({ S0, sigma }) => {
@@ -319,9 +319,9 @@ const ImpliedVolTool = () => {
 
               {/* Option type toggle */}
               <div>
-                <label className="text-sm text-secondary-foreground font-medium mb-2 block">期权类型</label>
+                <label className="text-sm text-secondary-foreground font-medium mb-2 block">{t("labs.iv.optType")}</label>
                 <div className="flex gap-2">
-                  {([{ v: "call" as const, l: "看涨 Call" }, { v: "put" as const, l: "看跌 Put" }]).map((o) => (
+                  {([{ v: "call" as const, l: t("labs.iv.call") }, { v: "put" as const, l: t("labs.iv.put") }]).map((o) => (
                     <button key={o.v} onClick={() => setOptType(o.v)}
                       className={`px-4 py-1.5 text-xs font-mono rounded-lg transition-all ${optType === o.v ? "bg-gold/20 text-gold border border-gold/30" : "bg-secondary text-muted-foreground"}`}
                     >{o.l}</button>
@@ -329,11 +329,11 @@ const ImpliedVolTool = () => {
                 </div>
               </div>
 
-              {renderSlider("市场价格", mktPrice, 0.1, 50, 0.05, setMktPrice)}
-              {renderSlider("标的价格 S", ivS, 50, 200, 1, setIvS)}
-              {renderSlider("行权价格 K", ivK, 50, 200, 1, setIvK)}
-              {renderSlider("无风险利率 r", ivR, 0, 15, 0.1, setIvR, "%")}
-              {renderSlider("到期时间 T", ivT, 0.01, 3, 0.01, setIvT, " 年")}
+              {renderSlider(t("labs.iv.mktPrice"), mktPrice, 0.1, 50, 0.05, setMktPrice)}
+              {renderSlider(t("labs.iv.spot"), ivS, 50, 200, 1, setIvS)}
+              {renderSlider(t("labs.iv.strike"), ivK, 50, 200, 1, setIvK)}
+              {renderSlider(t("labs.iv.rate"), ivR, 0, 15, 0.1, setIvR, "%")}
+              {renderSlider(t("labs.iv.maturity"), ivT, 0.01, 3, 0.01, setIvT, t("labs.iv.years"))}
             </div>
 
             <div>
@@ -342,7 +342,7 @@ const ImpliedVolTool = () => {
                 ivResult ? "border-gold/20 bg-gold/[0.03]" : "border-red-400/20 bg-red-400/[0.03]"
               }`}>
                 <p className="text-xs font-mono text-muted-foreground mb-2 uppercase tracking-wider">
-                  隐含波动率 σ_iv
+                  {t("labs.iv.sigmaIv")}
                 </p>
                 {ivResult ? (
                   <>
@@ -350,24 +350,24 @@ const ImpliedVolTool = () => {
                       {ivResult.iv.toFixed(2)}%
                     </p>
                     <p className="text-sm font-mono text-muted-foreground">
-                      BS价格验证: {ivResult.bsPrice.toFixed(4)} ≈ 市场价 {mktPrice.toFixed(2)}
+                      {t("labs.iv.bsCheck", { price: ivResult.bsPrice.toFixed(4), mkt: mktPrice.toFixed(2) })}
                     </p>
                   </>
                 ) : (
-                  <p className="text-lg font-mono text-red-400">无解 — 检查输入参数</p>
+                  <p className="text-lg font-mono text-red-400">{t("labs.iv.noSolution")}</p>
                 )}
               </div>
 
               {/* IV vs Market Price chart */}
               <p className="text-xs font-mono text-muted-foreground uppercase tracking-wider mb-3">
-                隐含波动率 vs 市场价格
+                {t("labs.iv.ivVsPrice")}
               </p>
               <div className="rounded-xl bg-secondary/30 border border-border p-4">
                 <ResponsiveContainer width="100%" height={220}>
                   <LineChart data={ivSensData} margin={{ top: 5, right: 10, left: 5, bottom: 5 }}>
                     <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID} />
                     <XAxis dataKey="price" stroke={CHART_TEXT} tick={{ fontSize: 9, fontFamily: "var(--font-mono)" }}
-                      label={{ value: "期权价格", position: "insideBottom", offset: -2, style: { fontSize: 10, fill: CHART_TEXT, fontFamily: "var(--font-mono)" } }}
+                      label={{ value: t("labs.iv.optionPrice"), position: "insideBottom", offset: -2, style: { fontSize: 10, fill: CHART_TEXT, fontFamily: "var(--font-mono)" } }}
                     />
                     <YAxis stroke={CHART_TEXT} tick={{ fontSize: 9, fontFamily: "var(--font-mono)" }} width={40}
                       label={{ value: "σ_iv (%)", angle: -90, position: "insideLeft", offset: 10, style: { fontSize: 10, fill: CHART_TEXT, fontFamily: "var(--font-mono)" } }}
@@ -421,12 +421,12 @@ iv = implied_vol(C_mkt=${mktPrice}, S=${ivS}, K=${ivK},
                       <div className="text-base text-gold font-bold">{ivResult.iv.toFixed(4)}%</div>
                     </div>
                     <div className="rounded-md border border-border bg-card/50 p-3">
-                      <div className="text-[10px] uppercase tracking-wider text-muted-foreground">BS 验证价</div>
+                      <div className="text-[10px] uppercase tracking-wider text-muted-foreground">{t("labs.iv.bsRefPrice")}</div>
                       <div className="text-base text-foreground font-bold">{ivResult.bsPrice.toFixed(4)}</div>
                     </div>
                   </div>
                 ) : (
-                  <div className="text-red-400 text-xs">无解 — 检查输入</div>
+                  <div className="text-red-400 text-xs">{t("labs.iv.noSolutionShort")}</div>
                 )
               }
             />
@@ -435,26 +435,26 @@ iv = implied_vol(C_mkt=${mktPrice}, S=${ivS}, K=${ivK},
           {/* ─── Volatility Surface ─── */}
           <div className="border-t border-border pt-8">
             <p className="text-xs font-mono text-muted-foreground uppercase tracking-wider mb-4">
-              波动率曲面参数
+              {t("labs.iv.surfaceParams")}
             </p>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-              {renderSlider("基础波动率 σ₀", baseVol, 5, 60, 0.5, setBaseVol, "%")}
-              {renderSlider("偏斜系数 (Skew)", skew, -0.3, 0.1, 0.01, (v) => setSkew(v))}
-              {renderSlider("微笑系数 (Smile)", smile, 0, 0.2, 0.005, (v) => setSmile(v))}
+              {renderSlider(t("labs.iv.baseVol"), baseVol, 5, 60, 0.5, setBaseVol, "%")}
+              {renderSlider(t("labs.iv.skew"), skew, -0.3, 0.1, 0.01, (v) => setSkew(v))}
+              {renderSlider(t("labs.iv.smile"), smile, 0, 0.2, 0.005, (v) => setSmile(v))}
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Volatility Smile across expiries */}
               <div>
                 <p className="text-xs font-mono text-muted-foreground uppercase tracking-wider mb-3">
-                  波动率微笑 · 各到期日
+                  {t("labs.iv.smileByExpiry")}
                 </p>
                 <div className="rounded-xl bg-secondary/30 border border-border p-4">
                   <ResponsiveContainer width="100%" height={280}>
                     <LineChart data={surface.smileChartData} margin={{ top: 5, right: 10, left: 5, bottom: 5 }}>
                       <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID} />
                       <XAxis dataKey="strike" stroke={CHART_TEXT} tick={{ fontSize: 9, fontFamily: "var(--font-mono)" }}
-                        label={{ value: "行权价 K", position: "insideBottom", offset: -2, style: { fontSize: 10, fill: CHART_TEXT, fontFamily: "var(--font-mono)" } }}
+                        label={{ value: t("labs.iv.strikeAxis"), position: "insideBottom", offset: -2, style: { fontSize: 10, fill: CHART_TEXT, fontFamily: "var(--font-mono)" } }}
                       />
                       <YAxis stroke={CHART_TEXT} tick={{ fontSize: 9, fontFamily: "var(--font-mono)" }} width={40}
                         label={{ value: "IV (%)", angle: -90, position: "insideLeft", offset: 10, style: { fontSize: 10, fill: CHART_TEXT, fontFamily: "var(--font-mono)" } }}
@@ -484,14 +484,14 @@ iv = implied_vol(C_mkt=${mktPrice}, S=${ivS}, K=${ivK},
               {/* ATM Term Structure */}
               <div>
                 <p className="text-xs font-mono text-muted-foreground uppercase tracking-wider mb-3">
-                  ATM 波动率期限结构
+                  {t("labs.iv.atmTerm")}
                 </p>
                 <div className="rounded-xl bg-secondary/30 border border-border p-4">
                   <ResponsiveContainer width="100%" height={280}>
                     <LineChart data={surface.termData} margin={{ top: 5, right: 10, left: 5, bottom: 5 }}>
                       <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID} />
                       <XAxis dataKey="expiry" stroke={CHART_TEXT} tick={{ fontSize: 9, fontFamily: "var(--font-mono)" }}
-                        label={{ value: "到期 (年)", position: "insideBottom", offset: -2, style: { fontSize: 10, fill: CHART_TEXT, fontFamily: "var(--font-mono)" } }}
+                        label={{ value: t("labs.iv.maturityAxis"), position: "insideBottom", offset: -2, style: { fontSize: 10, fill: CHART_TEXT, fontFamily: "var(--font-mono)" } }}
                       />
                       <YAxis stroke={CHART_TEXT} tick={{ fontSize: 9, fontFamily: "var(--font-mono)" }} width={40}
                         label={{ value: "ATM IV (%)", angle: -90, position: "insideLeft", offset: 10, style: { fontSize: 10, fill: CHART_TEXT, fontFamily: "var(--font-mono)" } }}
@@ -503,7 +503,7 @@ iv = implied_vol(C_mkt=${mktPrice}, S=${ivS}, K=${ivK},
                   </ResponsiveContainer>
                 </div>
                 <p className="text-[10px] text-muted-foreground font-mono mt-2 text-center">
-                  ATM 隐含波动率随到期时间的变化 · 短期 IV 通常高于长期
+                  {t("labs.iv.atmNote")}
                 </p>
               </div>
             </div>
@@ -511,7 +511,7 @@ iv = implied_vol(C_mkt=${mktPrice}, S=${ivS}, K=${ivK},
             {/* Vol surface heatmap table */}
             <div className="mt-6">
               <p className="text-xs font-mono text-muted-foreground uppercase tracking-wider mb-3">
-                波动率曲面矩阵 (IV %)
+                {t("labs.iv.surfaceMatrix")}
               </p>
               <div className="rounded-xl bg-secondary/30 border border-border p-4 overflow-x-auto">
                 <table className="w-full text-center font-mono text-[10px]">
@@ -552,7 +552,7 @@ iv = implied_vol(C_mkt=${mktPrice}, S=${ivS}, K=${ivK},
                 </table>
               </div>
               <p className="text-[10px] text-muted-foreground font-mono mt-2 text-center">
-                {"金色深浅 = IV 高低 · • = ATM 行权价 · 调节 Skew/Smile 观察曲面形态变化"}
+                {t("labs.iv.surfaceNote")}
               </p>
             </div>
           </div>
