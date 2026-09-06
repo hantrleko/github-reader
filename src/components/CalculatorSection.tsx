@@ -532,6 +532,11 @@ const CustomTooltipImpl = ({ active: isActive, payload, label, unit }: any) => {
   );
 };
 
+import { useTranslation } from "react-i18next";
+import i18n from "@/i18n";
+
+const tr = (k: string) => i18n.t(k);
+
 const VaRTooltip = ({ active: isActive, payload, label }: any) => {
   const { t } = useTranslation();
   if (!isActive || !payload?.length) return null;
@@ -548,6 +553,8 @@ const VaRTooltip = ({ active: isActive, payload, label }: any) => {
 };
 
 const CalculatorSection = () => {
+  const { t, i18n: i18nInst } = useTranslation();
+  const isEn = i18nInst.language?.startsWith("en");
   const [active, setActive] = useState<CalcId>("capm");
   const [values, setValues] = useState<Record<string, number>>(() => {
     const init: Record<string, number> = {};
@@ -1565,6 +1572,7 @@ function ComparePanel({
   valuesA: Record<string, number>;
   params: ParamConfig[];
 }) {
+  const { t } = useTranslation();
   const [enabled, setEnabled] = useState(false);
   const [valuesB, setValuesB] = useState<Record<string, number>>(valuesA);
 
