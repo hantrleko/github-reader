@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from "react";
+import { useRef, useCallback, useMemo } from "react";
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 
@@ -23,21 +23,22 @@ import {
 } from "./deriv/V57Tools";
 import { EquationBlock } from "@/components/common/EquationBlock";
 import CategorizedToolNav, { type ToolCategory } from "@/components/common/CategorizedToolNav";
+import { useToolTab } from "@/lib/useToolTab";
 
 type ToolId = "vol" | "heston" | "sabr" | "sabr_heston" | "localvol" | "greeks" | "binomial" | "amer" | "rates" | "lmm" | "exotic"
   | "jump" | "bates_var" | "pde" | "hedge_pnl" | "autocall" | "xva"
   | "state_price" | "lsmc" | "carry" | "svi_arb" | "shortrate" | "credit" | "numerics" | "rough";
 
 const DERIV_CATEGORIES: ToolCategory[] = [
-  { id: "foundation", label: "无套利与复制", toolIds: ["state_price", "carry"] },
-  { id: "surface", label: "波动率曲面", toolIds: ["vol", "svi_arb", "heston", "sabr", "sabr_heston", "localvol"] },
-  { id: "greeks", label: "希腊字母与格点", toolIds: ["greeks", "binomial", "amer", "lsmc"] },
-  { id: "rates", label: "利率与奇异", toolIds: ["rates", "lmm", "exotic"] },
-  { id: "curve_credit", label: "曲线与信用", toolIds: ["shortrate", "credit"] },
-  { id: "jumps", label: "跳跃与方差", toolIds: ["jump", "bates_var"] },
-  { id: "numerics", label: "数值方法", toolIds: ["pde", "numerics"] },
-  { id: "frontier", label: "前沿与不完全市场", toolIds: ["rough"] },
-  { id: "structured", label: "交易与结构", toolIds: ["hedge_pnl", "autocall", "xva"] },
+  { id: "foundation", label: "无套利与复制", labelEn: "No-Arbitrage & Replication", toolIds: ["state_price", "carry"] },
+  { id: "surface", label: "波动率曲面", labelEn: "Volatility Surface", toolIds: ["vol", "svi_arb", "heston", "sabr", "sabr_heston", "localvol"] },
+  { id: "greeks", label: "希腊字母与格点", labelEn: "Greeks & Lattices", toolIds: ["greeks", "binomial", "amer", "lsmc"] },
+  { id: "rates", label: "利率与奇异", labelEn: "Rates & Exotics", toolIds: ["rates", "lmm", "exotic"] },
+  { id: "curve_credit", label: "曲线与信用", labelEn: "Curves & Credit", toolIds: ["shortrate", "credit"] },
+  { id: "jumps", label: "跳跃与方差", labelEn: "Jumps & Variance", toolIds: ["jump", "bates_var"] },
+  { id: "numerics", label: "数值方法", labelEn: "Numerical Methods", toolIds: ["pde", "numerics"] },
+  { id: "frontier", label: "前沿与不完全市场", labelEn: "Frontier & Incomplete Markets", toolIds: ["rough"] },
+  { id: "structured", label: "交易与结构", labelEn: "Trading & Structured", toolIds: ["hedge_pnl", "autocall", "xva"] },
 ];
 
 const TOOLS: { id: ToolId; name: string; nameEn: string; formula: string; component: React.FC }[] = [
@@ -168,14 +169,18 @@ const TOOLS: { id: ToolId; name: string; nameEn: string; formula: string; compon
   },
 ];
 
+const TOOL_IDS = TOOLS.map((x) => x.id) as ToolId[];
+
 const DerivativesTools = () => {
   const { t } = useTranslation();
   // If another tool handed off option parameters via the Tool Bus, land on the
   // Greeks Desk so it can consume them; otherwise default to the vol surface.
-  const [tool, setTool] = useState<ToolId>(() => {
+  // Tool Bus handoff decides the default landing tab; an explicit ?t= wins.
+  const busDefault = useMemo<ToolId>(() => {
     const bus = getBus();
     return bus.sigma || bus.S0 || bus.K ? "greeks" : "vol";
-  });
+  }, []);
+  const [tool, setTool] = useToolTab<ToolId>(TOOL_IDS, busDefault);
   const captureRef = useRef<HTMLDivElement>(null);
   const apply = useCallback((s: { tool: ToolId }) => { if (s?.tool) setTool(s.tool); }, []);
   useSharedState<{ tool: ToolId }>("deriv", apply);
