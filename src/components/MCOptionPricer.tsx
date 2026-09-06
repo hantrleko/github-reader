@@ -298,7 +298,7 @@ const MCOptionPricer = () => {
     </div>
   );
 
-  const optionNames: Record<OptionType, string> = { european: "欧式期权", asian: "亚式期权", barrier: "障碍期权" };
+  const optionNames: Record<OptionType, string> = { european: t("labs.mc.european"), asian: t("labs.mc.asian"), barrier: t("labs.mc.barrier") };
   const formulas: Record<OptionType, string> = {
     european: String.raw`V = e^{-rT}\,\mathbb{E}^{\mathbb{Q}}\!\bigl[\max(S_T - K,\,0)\bigr]`,
     asian:    String.raw`V = e^{-rT}\,\mathbb{E}^{\mathbb{Q}}\!\bigl[\max(\bar{S} - K,\,0)\bigr],\quad \bar{S}=\tfrac{1}{n}\sum_{i=1}^{n}S_{t_i}`,
@@ -324,7 +324,7 @@ const MCOptionPricer = () => {
             Monte Carlo Pricing
           </p>
           <h2 className="text-3xl md:text-5xl font-display font-bold text-foreground">
-            蒙特卡洛期权定价器
+            {t("labs.mc.title")}
           </h2>
         </motion.div>
 
@@ -417,7 +417,7 @@ const MCOptionPricer = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
             {/* Parameters */}
             <div className="space-y-3">
-              <p className="text-xs font-mono text-muted-foreground uppercase tracking-wider mb-2">参数设置</p>
+              <p className="text-xs font-mono text-muted-foreground uppercase tracking-wider mb-2">{t("labs.mc.params")}</p>
               <RealDataLoader
                 defaultSymbol="AAPL"
                 onApply={({ S0, sigma }) => {
@@ -435,23 +435,23 @@ const MCOptionPricer = () => {
 
               {/* Put/Call */}
               <div className="flex gap-2 mb-2">
-                {([{ v: "call" as PutCall, l: "看涨 Call" }, { v: "put" as PutCall, l: "看跌 Put" }]).map((o) => (
+                {([{ v: "call" as PutCall, l: t("labs.mc.call") }, { v: "put" as PutCall, l: t("labs.mc.put") }]).map((o) => (
                   <button key={o.v} onClick={() => setPutCall(o.v)}
                     className={`px-4 py-1.5 text-xs font-mono rounded-lg transition-all ${putCall === o.v ? "bg-gold/20 text-gold border border-gold/30" : "bg-secondary text-muted-foreground"}`}
                   >{o.l}</button>
                 ))}
               </div>
 
-              {renderSlider("标的价格 S₀", s0, 50, 200, 1, setS0)}
-              {renderSlider("行权价格 K", k, 50, 200, 1, setK)}
-              {renderSlider("无风险利率 r", r, 0, 15, 0.1, setR, "%")}
-              {renderSlider("波动率 σ", sigma, 5, 80, 0.5, setSigma, "%")}
-              {renderSlider("到期时间 T", T, 0.1, 3, 0.1, setT, " 年")}
+              {renderSlider(t("labs.mc.spot"), s0, 50, 200, 1, setS0)}
+              {renderSlider(t("labs.mc.strike"), k, 50, 200, 1, setK)}
+              {renderSlider(t("labs.mc.rate"), r, 0, 15, 0.1, setR, "%")}
+              {renderSlider(t("labs.mc.vol"), sigma, 5, 80, 0.5, setSigma, "%")}
+              {renderSlider(t("labs.mc.maturity"), T, 0.1, 3, 0.1, setT, t("labs.mc.years"))}
 
               {/* Paths selector */}
               <div>
                 <div className="flex justify-between items-baseline mb-2">
-                  <label className="text-sm text-secondary-foreground font-medium">模拟路径数</label>
+                  <label className="text-sm text-secondary-foreground font-medium">{t("labs.mc.paths")}</label>
                   <span className="text-sm font-mono text-gold">{nPaths.toLocaleString()}</span>
                 </div>
                 <div className="flex gap-1.5 flex-wrap">
@@ -466,7 +466,7 @@ const MCOptionPricer = () => {
               {/* Barrier options */}
               {optionType === "barrier" && (
                 <div className="rounded-xl border border-border bg-secondary/20 p-4 space-y-3">
-                  <p className="text-xs font-mono text-gold uppercase tracking-wider">障碍参数</p>
+                  <p className="text-xs font-mono text-gold uppercase tracking-wider">{t("labs.mc.barrierParams")}</p>
                   <div className="flex gap-1.5 flex-wrap">
                     {(["up-out", "up-in", "down-out", "down-in"] as BarrierType[]).map((bt) => (
                       <button key={bt} onClick={() => {
@@ -478,28 +478,28 @@ const MCOptionPricer = () => {
                       >{bt}</button>
                     ))}
                   </div>
-                  {renderSlider("障碍水平 H", barrierLevel, 50, 200, 1, setBarrierLevel)}
+                  {renderSlider(t("labs.mc.barrierLevel"), barrierLevel, 50, 200, 1, setBarrierLevel)}
                 </div>
               )}
 
               <button onClick={() => setSeed(s => s + 1)}
                 className="w-full py-2 text-xs font-mono rounded-lg border border-gold/20 text-gold hover:bg-gold/10 transition-all"
               >
-                {"🎲 重新模拟 (Seed: " + seed + ")"}
+                {t("labs.mc.resimulate", { seed })}
               </button>
             </div>
 
             {/* Sample paths chart */}
             <div>
               <p className="text-xs font-mono text-muted-foreground uppercase tracking-wider mb-3">
-                {"样本路径 (" + result.samplePaths.length + " 条)"}
+                {t("labs.mc.samplePaths", { count: result.samplePaths.length })}
               </p>
               <div className="rounded-xl bg-secondary/30 border border-border p-4">
                 <ResponsiveContainer width="100%" height={320}>
                   <LineChart data={pathData} margin={{ top: 5, right: 10, left: 5, bottom: 5 }}>
                     <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID} />
                     <XAxis dataKey="t" stroke={CHART_TEXT} tick={{ fontSize: 9, fontFamily: "var(--font-mono)" }}
-                      label={{ value: "时间 (年)", position: "insideBottom", offset: -2, style: { fontSize: 11, fill: CHART_TEXT, fontFamily: "var(--font-mono)" } }}
+                      label={{ value: t("labs.mc.timeAxis"), position: "insideBottom", offset: -2, style: { fontSize: 11, fill: CHART_TEXT, fontFamily: "var(--font-mono)" } }}
                     />
                     <YAxis stroke={CHART_TEXT} tick={{ fontSize: 9, fontFamily: "var(--font-mono)" }} width={45}
                       label={{ value: "S(t)", angle: -90, position: "insideLeft", offset: 10, style: { fontSize: 11, fill: CHART_TEXT, fontFamily: "var(--font-mono)" } }}
@@ -522,7 +522,7 @@ const MCOptionPricer = () => {
                       <Line key={`path-${i}`} type="monotone" dataKey={`p${i}`}
                         stroke={PATH_COLORS[i % PATH_COLORS.length]}
                         strokeWidth={1.2} strokeOpacity={0.7} dot={false} activeDot={false}
-                        name={`路径 ${i + 1}`}
+                        name={t("labs.mc.pathLabel", { i: i + 1 })}
                       />
                     ))}
                   </LineChart>
@@ -530,8 +530,8 @@ const MCOptionPricer = () => {
               </div>
               <p className="text-[10px] text-muted-foreground font-mono mt-2 text-center">
                 {optionType === "barrier"
-                  ? "灰色虚线 = K · 红色虚线 = 障碍水平 H"
-                  : "灰色虚线 = 行权价 K · 彩色线 = GBM 样本路径"}
+                  ? t("labs.mc.pathNoteBarrier")
+                  : t("labs.mc.pathNote")}
               </p>
             </div>
           </div>
@@ -539,11 +539,11 @@ const MCOptionPricer = () => {
           {/* Results cards */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
             <div className="rounded-xl border border-gold/20 bg-gold/[0.03] p-4 text-center">
-              <p className="text-[10px] font-mono text-gold mb-1 uppercase tracking-wider">MC 价格</p>
+              <p className="text-[10px] font-mono text-gold mb-1 uppercase tracking-wider">{t("labs.mc.mcPrice")}</p>
               <p className="text-2xl font-mono font-bold text-foreground">{result.price.toFixed(4)}</p>
             </div>
             <div className="rounded-xl border border-teal-400/20 bg-teal-400/[0.03] p-4 text-center">
-              <p className="text-[10px] font-mono text-teal-400 mb-1 uppercase tracking-wider">标准误差</p>
+              <p className="text-[10px] font-mono text-teal-400 mb-1 uppercase tracking-wider">{t("labs.mc.stdErr")}</p>
               <p className="text-lg font-mono font-bold text-foreground">{result.stdErr.toFixed(4)}</p>
               <p className="text-[10px] font-mono text-muted-foreground">
                 {"95% CI: [" + result.ci95[0].toFixed(3) + ", " + result.ci95[1].toFixed(3) + "]"}
@@ -551,31 +551,31 @@ const MCOptionPricer = () => {
             </div>
             {result.bsAnalytical !== null ? (
               <div className="rounded-xl border border-blue-400/20 bg-blue-400/[0.03] p-4 text-center">
-                <p className="text-[10px] font-mono text-blue-400 mb-1 uppercase tracking-wider">BS 解析解</p>
+                <p className="text-[10px] font-mono text-blue-400 mb-1 uppercase tracking-wider">{t("labs.mc.bsAnalytic")}</p>
                 <p className="text-lg font-mono font-bold text-foreground">{result.bsAnalytical.toFixed(4)}</p>
                 <p className="text-[10px] font-mono text-muted-foreground">
-                  {"误差: " + ((result.price - result.bsAnalytical) / result.bsAnalytical * 100).toFixed(3) + "%"}
+                  {t("labs.mc.error", { pct: ((result.price - result.bsAnalytical) / result.bsAnalytical * 100).toFixed(3) })}
                 </p>
               </div>
             ) : (
               <div className="rounded-xl border border-purple-400/20 bg-purple-400/[0.03] p-4 text-center">
                 <p className="text-[10px] font-mono text-purple-400 mb-1 uppercase tracking-wider">
-                  {optionType === "asian" ? "路径依赖" : "障碍条件"}
+                  {optionType === "asian" ? t("labs.mc.pathDependent") : t("labs.mc.barrierCondition")}
                 </p>
                 <p className="text-sm font-mono text-foreground">
-                  {optionType === "asian" ? "无解析解" : barrierType}
+                  {optionType === "asian" ? t("labs.mc.noClosedForm") : barrierType}
                 </p>
                 {optionType === "barrier" && (
                   <p className="text-[10px] font-mono text-muted-foreground">
-                    {"触碰率: " + ((result.barrierHits! / nPaths) * 100).toFixed(1) + "%"}
+                    {t("labs.mc.hitRate", { pct: ((result.barrierHits! / nPaths) * 100).toFixed(1) })}
                   </p>
                 )}
               </div>
             )}
             <div className="rounded-xl border border-border bg-secondary/30 p-4 text-center">
-              <p className="text-[10px] font-mono text-muted-foreground mb-1 uppercase tracking-wider">模拟配置</p>
-              <p className="text-sm font-mono text-foreground">{(nPaths / 1000).toFixed(0)}K 路径</p>
-              <p className="text-[10px] font-mono text-muted-foreground">{nSteps} 步/路径</p>
+              <p className="text-[10px] font-mono text-muted-foreground mb-1 uppercase tracking-wider">{t("labs.mc.config")}</p>
+              <p className="text-sm font-mono text-foreground">{t("labs.mc.pathsUnit", { n: (nPaths / 1000).toFixed(0) })}</p>
+              <p className="text-[10px] font-mono text-muted-foreground">{t("labs.mc.stepsPerPath", { n: nSteps })}</p>
             </div>
           </div>
 
@@ -584,21 +584,21 @@ const MCOptionPricer = () => {
             {/* Payoff distribution */}
             <div>
               <p className="text-xs font-mono text-muted-foreground uppercase tracking-wider mb-3">
-                折现收益分布
+                {t("labs.mc.payoffDist")}
               </p>
               <div className="rounded-xl bg-secondary/30 border border-border p-4">
                 <ResponsiveContainer width="100%" height={220}>
                   <BarChart data={result.payoffDist} margin={{ top: 5, right: 10, left: 5, bottom: 5 }}>
                     <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID} />
                     <XAxis dataKey="bin" stroke={CHART_TEXT} tick={{ fontSize: 9, fontFamily: "var(--font-mono)" }}
-                      label={{ value: "折现收益", position: "insideBottom", offset: -2, style: { fontSize: 10, fill: CHART_TEXT, fontFamily: "var(--font-mono)" } }}
+                      label={{ value: t("labs.mc.payoffAxis"), position: "insideBottom", offset: -2, style: { fontSize: 10, fill: CHART_TEXT, fontFamily: "var(--font-mono)" } }}
                     />
                     <YAxis stroke={CHART_TEXT} tick={{ fontSize: 9, fontFamily: "var(--font-mono)" }} width={35} />
                     <Tooltip contentStyle={{ backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 11, fontFamily: "var(--font-mono)" }} />
                     <ReferenceLine x={parseFloat(result.price.toFixed(3))} stroke={CHART_GOLD} strokeDasharray="4 4"
                       label={{ value: "E[V]", position: "top", style: { fontSize: 9, fill: CHART_GOLD, fontFamily: "var(--font-mono)" } }}
                     />
-                    <Bar dataKey="count" name="频次">
+                    <Bar dataKey="count" name={t("labs.mc.frequency")}>
                       {result.payoffDist.map((entry, i) => (
                         <Cell key={i} fill={entry.bin > 0 ? CHART_TEAL : CHART_RED} fillOpacity={entry.bin > 0 ? 0.6 : 0.4} />
                       ))}
@@ -607,21 +607,21 @@ const MCOptionPricer = () => {
                 </ResponsiveContainer>
               </div>
               <p className="text-[10px] text-muted-foreground font-mono mt-2 text-center">
-                青色 = 正收益 · 金线 = MC 期望值 · 零处尖峰 = OTM 到期无价值
+                {t("labs.mc.payoffNote")}
               </p>
             </div>
 
             {/* Convergence */}
             <div>
               <p className="text-xs font-mono text-muted-foreground uppercase tracking-wider mb-3">
-                价格收敛 · 95% 置信区间
+                {t("labs.mc.convergence")}
               </p>
               <div className="rounded-xl bg-secondary/30 border border-border p-4">
                 <ResponsiveContainer width="100%" height={220}>
                   <LineChart data={result.convergence} margin={{ top: 5, right: 10, left: 5, bottom: 5 }}>
                     <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID} />
                     <XAxis dataKey="n" stroke={CHART_TEXT} tick={{ fontSize: 9, fontFamily: "var(--font-mono)" }}
-                      label={{ value: "路径数", position: "insideBottom", offset: -2, style: { fontSize: 10, fill: CHART_TEXT, fontFamily: "var(--font-mono)" } }}
+                      label={{ value: t("labs.mc.pathsAxis"), position: "insideBottom", offset: -2, style: { fontSize: 10, fill: CHART_TEXT, fontFamily: "var(--font-mono)" } }}
                     />
                     <YAxis stroke={CHART_TEXT} tick={{ fontSize: 9, fontFamily: "var(--font-mono)" }} width={50} domain={["auto", "auto"]} />
                     <Tooltip contentStyle={{ backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 11, fontFamily: "var(--font-mono)" }} />
@@ -632,13 +632,13 @@ const MCOptionPricer = () => {
                     )}
                     <Line type="monotone" dataKey="upper" name="+1.96σ" stroke={CHART_GOLD} strokeWidth={1} strokeDasharray="3 3" dot={false} />
                     <Line type="monotone" dataKey="lower" name="-1.96σ" stroke={CHART_GOLD} strokeWidth={1} strokeDasharray="3 3" dot={false} />
-                    <Line type="monotone" dataKey="price" name="MC价格" stroke="white" strokeWidth={2} dot={{ r: 3, fill: "white" }} />
+                    <Line type="monotone" dataKey="price" name={t("labs.mc.mcPriceSeries")} stroke="white" strokeWidth={2} dot={{ r: 3, fill: "white" }} />
                     <Legend wrapperStyle={{ fontSize: 10, fontFamily: "var(--font-mono)" }} />
                   </LineChart>
                 </ResponsiveContainer>
               </div>
               <p className="text-[10px] text-muted-foreground font-mono mt-2 text-center">
-                {"白色 = MC 估计 · 金色虚线 = 95% CI · " + (result.bsAnalytical !== null ? "蓝色 = BS 解析解" : "收敛速度 ∝ 1/√N")}
+                {result.bsAnalytical !== null ? t("labs.mc.convNoteBs") : t("labs.mc.convNote")}
               </p>
             </div>
           </div>
@@ -670,11 +670,11 @@ price, se, ci = mc_european(
               result={
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs">
                   <div className="rounded-md border border-gold/20 bg-gold/5 p-3">
-                    <div className="text-[10px] uppercase tracking-wider text-gold/80">MC 价格</div>
+                    <div className="text-[10px] uppercase tracking-wider text-gold/80">{t("labs.mc.mcPrice")}</div>
                     <div className="text-base text-gold font-bold">{result.price.toFixed(4)}</div>
                   </div>
                   <div className="rounded-md border border-border bg-card/50 p-3">
-                    <div className="text-[10px] uppercase tracking-wider text-muted-foreground">标准误差</div>
+                    <div className="text-[10px] uppercase tracking-wider text-muted-foreground">{t("labs.mc.stdErr")}</div>
                     <div className="text-base text-foreground font-bold">{result.stdErr.toFixed(4)}</div>
                   </div>
                   {result.bsAnalytical !== null && (
