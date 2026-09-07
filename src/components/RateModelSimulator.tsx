@@ -1,4 +1,5 @@
 import { useState, useMemo, useRef, useCallback } from "react";
+import { useTranslation } from "react-i18next";
 
 import "katex/dist/katex.min.css";
 import { ShareExportToolbar, useSharedState } from "@/lib/calculatorTools";
@@ -149,6 +150,7 @@ function vasicekBondPrice(r: number, kappa: number, theta: number, sigma: number
 }
 
 const RateModelSimulator = () => {
+  const { t } = useTranslation();
   const [model, setModel] = useToolTab<ModelId>(MODEL_IDS, "vasicek");
   const [r0, setR0] = useState(3);       // %
   const [kappa, setKappa] = useState(0.5);
