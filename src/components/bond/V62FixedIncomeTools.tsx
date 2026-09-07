@@ -1,4 +1,6 @@
 import { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { useToolTab } from "@/lib/useToolTab";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import {
@@ -24,33 +26,40 @@ type Tab =
   | "creditdec" | "migration" | "waterfall" | "copula" | "basis"
   | "mbs" | "repo" | "rfr" | "green";
 
-const CATS: { id: Cat; label: string; kicker: string }[] = [
-  { id: "curve",  label: "曲线与口径",   kicker: "Curve" },
-  { id: "spread", label: "利差与风险",   kicker: "Spread & Risk" },
-  { id: "option", label: "含权与可转债", kicker: "Optionality" },
-  { id: "credit", label: "信用与结构化", kicker: "Credit" },
-  { id: "book",   label: "组合与制度",   kicker: "Portfolio & Regime" },
+const CATS: { id: Cat; label: string; labelEn: string; kicker: string }[] = [
+  { id: "curve",  label: "曲线与口径",   labelEn: "Curve Building",       kicker: "Curve" },
+  { id: "spread", label: "利差与风险",   labelEn: "Spread & Risk",        kicker: "Spread & Risk" },
+  { id: "option", label: "含权与可转债", labelEn: "Optionality",          kicker: "Optionality" },
+  { id: "credit", label: "信用与结构化", labelEn: "Credit & Structured",  kicker: "Credit" },
+  { id: "book",   label: "组合与制度",   labelEn: "Portfolio & Regime",   kicker: "Portfolio & Regime" },
 ];
 
-const TABS: { id: Tab; cat: Cat; title: string; desc: string }[] = [
-  { id: "bootstrap",   cat: "curve",  title: "票息剥离自举",     desc: "par 曲线 → 贴现因子 → 零息与远期" },
-  { id: "interp",      cat: "curve",  title: "插值方法对比",     desc: "线性零率 / 分段常数远期 / 三次样条的远期平滑性" },
-  { id: "roll",        cat: "curve",  title: "Carry 与滚动收益", desc: "曲线不变假设下的持有期收益分解" },
-  { id: "taxonomy",    cat: "spread", title: "利差四口径",       desc: "名义 / Z-spread / ASW / OAS 与期权成本" },
-  { id: "effrisk",     cat: "spread", title: "有效久期与凸性",   desc: "曲线扰动法：含权债的正确风险口径" },
-  { id: "krd",         cat: "spread", title: "关键利率久期对冲", desc: "逐桶中性化的对冲名义求解" },
-  { id: "immunize",    cat: "spread", title: "免疫与久期缺口",   desc: "Redington 条件下盈余对平行移动的敏感性" },
-  { id: "embedded",    cat: "option", title: "可赎回 / 可回售债", desc: "对数正态短率树：期权价值与不对称性" },
-  { id: "convertible", cat: "option", title: "可转债分解",       desc: "债底 + 转换期权、转换平价与债性/股性区间" },
-  { id: "creditdec",   cat: "credit", title: "信用利差分解",     desc: "预期损失 / 风险溢价 / 流动性 / 税收与信用利差之谜" },
-  { id: "migration",   cat: "credit", title: "评级迁移矩阵",     desc: "多期演化、违约累积与迁移风险 VaR" },
-  { id: "waterfall",   cat: "credit", title: "分层瀑布与 OC 触发", desc: "顺序偿付、超额抵押触发与减记顺位" },
-  { id: "copula",      cat: "credit", title: "高斯 copula 分层",  desc: "单因子相关性对股权/夹层/优先层的再分配" },
-  { id: "basis",       cat: "credit", title: "CDS-债券基差",     desc: "现券 vs 合成的融资口径与套利方向" },
-  { id: "mbs",         cat: "book",   title: "MBS 负凸性",       desc: "提前还款加速 → 利率下行时久期反而缩短" },
-  { id: "repo",        cat: "book",   title: "回购杠杆与螺旋",   desc: "杠杆放大 carry 与风险；折扣率上升的追缴螺旋" },
-  { id: "rfr",         cat: "book",   title: "RFR 改革与负利率", desc: "后视复利 vs 定盘、fallback 利差、位移对数正态 caplet" },
-  { id: "green",       cat: "book",   title: "气候与流动性利差", desc: "绿色溢价、转型贴水与债券流动性溢价" },
+const TABS: { id: Tab; cat: Cat; title: string; titleEn: string; desc: string }[] = [
+  { id: "bootstrap",   cat: "curve",  title: "票息剥离自举",     titleEn: "Par-Curve Bootstrapping",   desc: "par 曲线 → 贴现因子 → 零息与远期" },
+  { id: "interp",      cat: "curve",  title: "插值方法对比",     titleEn: "Interpolation Methods",     desc: "线性零率 / 分段常数远期 / 三次样条的远期平滑性" },
+  { id: "roll",        cat: "curve",  title: "Carry 与滚动收益", titleEn: "Carry & Roll-Down",         desc: "曲线不变假设下的持有期收益分解" },
+  { id: "taxonomy",    cat: "spread", title: "利差四口径",       titleEn: "Spread Taxonomy",           desc: "名义 / Z-spread / ASW / OAS 与期权成本" },
+  { id: "effrisk",     cat: "spread", title: "有效久期与凸性",   titleEn: "Effective Duration & Convexity", desc: "曲线扰动法：含权债的正确风险口径" },
+  { id: "krd",         cat: "spread", title: "关键利率久期对冲", titleEn: "Key-Rate Duration Hedging", desc: "逐桶中性化的对冲名义求解" },
+  { id: "immunize",    cat: "spread", title: "免疫与久期缺口",   titleEn: "Immunization & Duration Gap", desc: "Redington 条件下盈余对平行移动的敏感性" },
+  { id: "embedded",    cat: "option", title: "可赎回 / 可回售债", titleEn: "Callable & Putable Bonds",  desc: "对数正态短率树：期权价值与不对称性" },
+  { id: "convertible", cat: "option", title: "可转债分解",       titleEn: "Convertible Decomposition", desc: "债底 + 转换期权、转换平价与债性/股性区间" },
+  { id: "creditdec",   cat: "credit", title: "信用利差分解",     titleEn: "Credit Spread Decomposition", desc: "预期损失 / 风险溢价 / 流动性 / 税收与信用利差之谜" },
+  { id: "migration",   cat: "credit", title: "评级迁移矩阵",     titleEn: "Rating Migration Matrix",   desc: "多期演化、违约累积与迁移风险 VaR" },
+  { id: "waterfall",   cat: "credit", title: "分层瀑布与 OC 触发", titleEn: "Waterfall & OC Triggers", desc: "顺序偿付、超额抵押触发与减记顺位" },
+  { id: "copula",      cat: "credit", title: "高斯 copula 分层",  titleEn: "Gaussian Copula Tranches", desc: "单因子相关性对股权/夹层/优先层的再分配" },
+  { id: "basis",       cat: "credit", title: "CDS-债券基差",     titleEn: "CDS-Bond Basis",            desc: "现券 vs 合成的融资口径与套利方向" },
+  { id: "mbs",         cat: "book",   title: "MBS 负凸性",       titleEn: "MBS Negative Convexity",    desc: "提前还款加速 → 利率下行时久期反而缩短" },
+  { id: "repo",        cat: "book",   title: "回购杠杆与螺旋",   titleEn: "Repo Leverage & Spiral",    desc: "杠杆放大 carry 与风险；折扣率上升的追缴螺旋" },
+  { id: "rfr",         cat: "book",   title: "RFR 改革与负利率", titleEn: "RFR Reform & Negative Rates", desc: "后视复利 vs 定盘、fallback 利差、位移对数正态 caplet" },
+  { id: "green",       cat: "book",   title: "气候与流动性利差", titleEn: "Climate & Liquidity Spreads", desc: "绿色溢价、转型贴水与债券流动性溢价" },
+];
+const TAB_IDS: Tab[] = [
+  "bootstrap", "interp", "roll",
+  "taxonomy", "effrisk", "krd", "immunize",
+  "embedded", "convertible",
+  "creditdec", "migration", "waterfall", "copula", "basis",
+  "mbs", "repo", "rfr", "green",
 ];
 
 const Panel = ({ title, note, children }: { title: string; note: string; children: React.ReactNode }) => (
@@ -944,15 +953,17 @@ function GreenPanel() {
 }
 
 export default function V62FixedIncomeTools() {
-  const [cat, setCat] = useState<Cat>("curve");
-  const [tab, setTab] = useState<Tab>("bootstrap");
+  const { t: tr, i18n } = useTranslation();
+  const isEn = i18n.language?.startsWith("en");
+  const [tab, setTab] = useToolTab<Tab>(TAB_IDS, "bootstrap");
+  const cat: Cat = TABS.find((t) => t.id === tab)!.cat;
   const inCat = TABS.filter((t) => t.cat === cat);
 
   return (
     <section className="space-y-6">
       <div className="rounded-2xl border border-border bg-card/50 p-5">
         <p className="text-[10px] font-mono uppercase tracking-[0.2em] text-gold mb-1">V6.2 · Fixed Income Frontier</p>
-        <h2 className="text-2xl font-serif text-foreground">固定收益前沿实验室</h2>
+        <h2 className="text-2xl font-serif text-foreground">{tr("labs.fiFrontier.title")}</h2>
         <p className="text-sm text-muted-foreground mt-2 max-w-3xl">
           从曲线怎么建、利差怎么读，到含权债与可转债、信用迁移与结构化分层，再到回购杠杆、RFR 改革与气候利差。与
           {" "}<Link to="/s/fixed-income-lab" className="text-gold hover:underline">/s/fixed-income-lab</Link>{" "}
@@ -962,12 +973,12 @@ export default function V62FixedIncomeTools() {
         <div className="mt-4 flex flex-wrap gap-2">
           {CATS.map((c) => (
             <button key={c.id}
-              onClick={() => { setCat(c.id); setTab(TABS.find((t) => t.cat === c.id)!.id); }}
+              onClick={() => setTab(TABS.find((t) => t.cat === c.id)!.id)}
               className={`px-3.5 py-2 rounded-lg border text-xs font-mono transition-colors ${
                 cat === c.id ? "bg-gold/15 border-gold/60 text-gold"
                              : "bg-secondary/40 border-border text-muted-foreground hover:text-foreground"
               }`}>
-              <span className="uppercase tracking-wider mr-2">{c.kicker}</span>{c.label}
+              <span className="uppercase tracking-wider mr-2">{c.kicker}</span>{isEn ? c.labelEn : c.label}
             </button>
           ))}
         </div>
@@ -978,7 +989,7 @@ export default function V62FixedIncomeTools() {
                 tab === t.id ? "bg-secondary border-gold/40 text-foreground"
                              : "bg-transparent border-border/60 text-muted-foreground hover:text-foreground"
               }`}>
-              {t.title}
+              {isEn ? t.titleEn : t.title}
               <span className="ml-2 text-[10px] text-muted-foreground/70 hidden md:inline">{t.desc}</span>
             </button>
           ))}
@@ -1007,7 +1018,7 @@ export default function V62FixedIncomeTools() {
       </motion.div>
 
       <div className="rounded-lg border border-border bg-card/60 p-4 text-[11px] font-mono text-muted-foreground leading-relaxed">
-        <p className="text-gold uppercase tracking-wider mb-2">参考文献</p>
+        <p className="text-gold uppercase tracking-wider mb-2">{tr("labs.nav.references")}</p>
         <p>
           Macaulay (1938) Some Theoretical Problems Suggested by the Movements of Interest Rates ·
           Redington (1952) Review of the Principles of Life-Office Valuations · Fisher-Weil (1971) Coping with the Risk of Interest-Rate Fluctuations ·
