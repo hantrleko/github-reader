@@ -366,7 +366,7 @@ const RateModelSimulator = () => {
             </div>
             {model === "cir" && !fellerCondition && (
               <p className="text-xs font-mono text-red-400 mt-2">
-                {"⚠ Feller 条件不满足 (2κθ < σ²)，利率可能触及零"}
+                {"⚠ "}{t("labs.rateModel.fellerWarn")}
               </p>
             )}
           </div>
@@ -429,14 +429,14 @@ const RateModelSimulator = () => {
             {/* Paths chart */}
             <div>
               <p className="text-xs font-mono text-muted-foreground uppercase tracking-wider mb-3">
-                利率路径 · Monte Carlo
+                {t("labs.rateModel.pathsTitle")}
               </p>
               <div className="rounded-xl bg-secondary/30 border border-border p-4">
                 <ResponsiveContainer width="100%" height={320}>
                   <LineChart data={chartData} margin={{ top: 5, right: 10, left: 5, bottom: 5 }}>
                     <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID} />
                     <XAxis dataKey="t" stroke={CHART_TEXT} tick={{ fontSize: 9, fontFamily: "var(--font-mono)" }}
-                      label={{ value: "时间 (年)", position: "insideBottom", offset: -2, style: { fontSize: 11, fill: CHART_TEXT, fontFamily: "var(--font-mono)" } }}
+                      label={{ value: t("labs.rateModel.timeYears"), position: "insideBottom", offset: -2, style: { fontSize: 11, fill: CHART_TEXT, fontFamily: "var(--font-mono)" } }}
                     />
                     <YAxis stroke={CHART_TEXT} tick={{ fontSize: 9, fontFamily: "var(--font-mono)" }} width={40}
                       label={{ value: "r (%)", angle: -90, position: "insideLeft", offset: 10, style: { fontSize: 11, fill: CHART_TEXT, fontFamily: "var(--font-mono)" } }}
@@ -520,7 +520,7 @@ const RateModelSimulator = () => {
                     </p>
                   </div>
                   <div>
-                    <p className="text-[10px] font-mono text-muted-foreground">模拟路径</p>
+                    <p className="text-[10px] font-mono text-muted-foreground">{t("labs.rateModel.simPaths")}</p>
                     <p className="text-sm font-mono font-bold text-foreground">{Math.max(nPaths, 100)}</p>
                   </div>
                 </div>
@@ -575,7 +575,7 @@ const RateModelSimulator = () => {
                 </ResponsiveContainer>
               </div>
               <p className="text-[10px] text-muted-foreground font-mono mt-2 text-center">
-                {"P(0,T) = A(T)e^{-B(T)r₀} → y(T) = -ln P/T · 长端收趋于 θ − σ²/(2κ²)"}
+                {"P(0,T) = A(T)e^{-B(T)r₀} → y(T) = -ln P/T"}{" · "}{t("labs.rateModel.curveNote")}
               </p>
             </div>
           )}
@@ -626,7 +626,7 @@ def simulate_${model}(r0=${r0 / 100}, kappa=${kappa}, theta=${theta / 100},
                     <div className="text-base text-foreground font-bold">{(simResult.terminalStd * 100).toFixed(3)}%</div>
                   </div>
                   <div className="rounded-md border border-border bg-card/50 p-3">
-                    <div className="text-[10px] uppercase tracking-wider text-muted-foreground">路径数 / 步数</div>
+                    <div className="text-[10px] uppercase tracking-wider text-muted-foreground">{t("labs.rateModel.pathsSteps")}</div>
                     <div className="text-base text-foreground font-bold">{nPaths} × {(T * 50) | 0}</div>
                   </div>
                 </div>
