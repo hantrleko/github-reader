@@ -965,10 +965,10 @@ export default function V62FixedIncomeTools() {
         <p className="text-[10px] font-mono uppercase tracking-[0.2em] text-gold mb-1">V6.2 · Fixed Income Frontier</p>
         <h2 className="text-2xl font-serif text-foreground">{tr("labs.fiFrontier.title")}</h2>
         <p className="text-sm text-muted-foreground mt-2 max-w-3xl">
-          从曲线怎么建、利差怎么读，到含权债与可转债、信用迁移与结构化分层，再到回购杠杆、RFR 改革与气候利差。与
-          {" "}<Link to="/s/fixed-income-lab" className="text-gold hover:underline">/s/fixed-income-lab</Link>{" "}
-          的 Merton / CDS / Vasicek / OAS 基础面板互为补充，理论脉络见
-          {" "}<Link to="/s/fixed-income-theory" className="text-gold hover:underline">固定收益导读</Link>。
+          {tr("labs.fiFrontier.intro")}{" "}
+          <Link to="/s/fixed-income-lab" className="text-gold hover:underline">/s/fixed-income-lab</Link>{" "}
+          {tr("labs.fiFrontier.introMid")}{" "}
+          <Link to="/s/fixed-income-theory" className="text-gold hover:underline">{tr("labs.fiFrontier.theoryLink")}</Link>
         </p>
         <div className="mt-4 flex flex-wrap gap-2">
           {CATS.map((c) => (
