@@ -17,11 +17,11 @@ import {
 
 type Tab = "credit" | "rates" | "oas" | "curve";
 
-const TABS: { id: Tab; title: string; titleEn: string; kicker: string; desc: string }[] = [
-  { id: "credit", title: "信用债 & CDS", titleEn: "Credit & CDS", kicker: "Credit", desc: "Merton 结构化模型 + CDS par spread / hazard 反推" },
-  { id: "rates", title: "短率模型", titleEn: "Short-Rate Models", kicker: "Rate Models", desc: "Vasicek / CIR / Hull-White 期限结构与路径模拟" },
-  { id: "oas", title: "OAS & 含权债", titleEn: "OAS & Callable / MBS", kicker: "Callable/MBS", desc: "Ho-Lee 树上可赎回债 OAS + PSA 提前偿付 MBS" },
-  { id: "curve", title: "通胀与曲线策略", titleEn: "Inflation & Curve Strategies", kicker: "Inflation/Curve", desc: "Breakeven、2-5-10 蝶式、carry-roll 分解" },
+const TABS: { id: Tab; title: string; titleEn: string; kicker: string; desc: string; descEn: string }[] = [
+  { id: "credit", title: "信用债 & CDS", titleEn: "Credit & CDS", kicker: "Credit", desc: "Merton 结构化模型 + CDS par spread / hazard 反推" , descEn: "Merton structural model plus CDS par spread / hazard inversion" },
+  { id: "rates", title: "短率模型", titleEn: "Short-Rate Models", kicker: "Rate Models", desc: "Vasicek / CIR / Hull-White 期限结构与路径模拟" , descEn: "Vasicek / CIR / Hull-White term structure and path simulation" },
+  { id: "oas", title: "OAS & 含权债", titleEn: "OAS & Callable / MBS", kicker: "Callable/MBS", desc: "Ho-Lee 树上可赎回债 OAS + PSA 提前偿付 MBS" , descEn: "Callable-bond OAS on a Ho-Lee tree plus PSA prepayment MBS" },
+  { id: "curve", title: "通胀与曲线策略", titleEn: "Inflation & Curve Strategies", kicker: "Inflation/Curve", desc: "Breakeven、2-5-10 蝶式、carry-roll 分解" , descEn: "Breakeven inflation, 2-5-10 butterfly, carry-roll decomposition" },
 ];
 const TAB_IDS: Tab[] = ["credit", "rates", "oas", "curve"];
 
