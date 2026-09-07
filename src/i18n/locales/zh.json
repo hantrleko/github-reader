@@ -345,7 +345,8 @@
     "nav": {
       "search": "搜索工具…",
       "clear": "清空搜索",
-      "noResults": "未找到匹配「{{query}}」的工具"
+      "noResults": "未找到匹配「{{query}}」的工具",
+      "references": "参考文献"
     },
     "iv": {
       "title": "隐含波动率工具",
@@ -514,6 +515,16 @@
         "intradayDesc": "95%置信, 1天, 高波动",
         "conservativeDesc": "99.9%置信, 20天"
       }
+    },
+    "fiLab": {
+      "title": "固定收益高阶实验室",
+      "intro": "围绕四个研究支柱构建：信用违约（Merton / CDS bootstrap）、随机短率（Vasicek / CIR / HW）、含权债 OAS（Ho-Lee 树 + PSA MBS），以及通胀挂钩与曲线相对价值策略。"
+    },
+    "fiFrontier": {
+      "title": "固定收益前沿实验室",
+      "intro": "从曲线怎么建、利差怎么读，到含权债与可转债、信用迁移与结构化分层，再到回购杠杆、RFR 改革与气候利差。与",
+      "introMid": "的 Merton / CDS / Vasicek / OAS 基础面板互为补充，理论脉络见",
+      "theoryLink": "固定收益导读"
     }
   }
 }

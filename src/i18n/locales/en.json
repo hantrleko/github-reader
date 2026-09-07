@@ -343,7 +343,8 @@
     "nav": {
       "search": "Search tools…",
       "clear": "Clear search",
-      "noResults": "No tools match “{{query}}”"
+      "noResults": "No tools match “{{query}}”",
+      "references": "References"
     },
     "iv": {
       "title": "Implied Volatility Lab",
@@ -512,6 +513,16 @@
         "intradayDesc": "95% confidence, 1 day, high vol",
         "conservativeDesc": "99.9% confidence, 20 days"
       }
+    },
+    "fiLab": {
+      "title": "Fixed Income Lab",
+      "intro": "Four research pillars: structural credit (Merton / CDS bootstrap), stochastic short rates (Vasicek / CIR / Hull-White), option-adjusted spreads on callable bonds and PSA MBS, plus inflation-linked and curve relative-value strategies."
+    },
+    "fiFrontier": {
+      "title": "Fixed Income Frontier Lab",
+      "intro": "From how a curve is built and how spreads are read, to embedded options and convertibles, credit migration and structured tranches, then repo leverage, RFR reform and climate spreads. Complements the Merton / CDS / Vasicek / OAS panels in",
+      "introMid": "; the conceptual thread lives in",
+      "theoryLink": "the fixed income primer"
     }
   }
 }
