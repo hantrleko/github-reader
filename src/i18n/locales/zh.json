@@ -598,7 +598,8 @@
       "forwardRate": "远期利率",
       "nsCurveNote": "金色 = 即期利率曲线 · 青色虚线 = 瞬时远期利率 · 调节参数观察形态变化",
       "loadings": "因子载荷函数",
-      "loadingsNote": "Level=1（常数）· Slope 短端=1 长端→0 · Curvature 中间凸起 · λ 控制衰减速度"
+      "loadingsNote": "Level=1（常数）· Slope 短端=1 长端→0 · Curvature 中间凸起 · λ 控制衰减速度",
+      "benchNote": "参考值来自 src/lib/quant/bond.ts（已通过 vitest 单元测试，对照 Fabozzi 教科书算例）。"
     },
     "rateModel": {
       "title": "利率模型模拟器",

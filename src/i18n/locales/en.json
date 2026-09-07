@@ -596,7 +596,8 @@
       "forwardRate": "Forward rate",
       "nsCurveNote": "Gold = spot curve · teal dashed = instantaneous forward rate · move the sliders to reshape the curve",
       "loadings": "Factor loading functions",
-      "loadingsNote": "Level = 1 (constant) · Slope = 1 at the short end and →0 at the long end · Curvature humps in the middle · λ sets the decay speed"
+      "loadingsNote": "Level = 1 (constant) · Slope = 1 at the short end and →0 at the long end · Curvature humps in the middle · λ sets the decay speed",
+      "benchNote": "Reference values come from src/lib/quant/bond.ts, unit-tested against the Fabozzi textbook examples."
     },
     "rateModel": {
       "title": "Short-Rate Model Simulator",

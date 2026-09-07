@@ -428,7 +428,7 @@ const BondCalculator = () => {
                     <BenchmarkDrawer
                       label="Bond Math"
                       title={t("labs.bondCalc.benchTitle")}
-                      description={`${t("labs.bondCalc.params")}: F=${face}, c=${couponRate}%, y=${ytm}%, T=${maturity}y, m=${freq}。参考值来自 src/lib/quant/bond.ts(已通过 vitest 单元测试,对照 Fabozzi 教科书算例)。`}
+                      description={`${t("labs.bondCalc.params")}: F=${face}, c=${couponRate}%, y=${ytm}%, T=${maturity}y, m=${freq} — ${t("labs.bondCalc.benchNote")}`}
                       rows={[
                         { metric: t("labs.bondCalc.benchPrice"), ours: metrics.price, reference: refPrice, source: t("labs.bondCalc.benchDcf"), digits: 4, tol: 1e-6 },
                         { metric: t("labs.bondCalc.macDur"), ours: metrics.dMac, reference: refDur.macaulay, source: t("labs.bondCalc.benchWeighted"), digits: 4, tol: 1e-6 },
