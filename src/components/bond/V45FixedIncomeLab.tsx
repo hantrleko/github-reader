@@ -40,6 +40,7 @@ export default function V45FixedIncomeLab() {
             <button
               key={t.id}
               onClick={() => setTab(t.id)}
+              title={isEn ? t.descEn : t.desc}
               className={`px-3.5 py-2 rounded-lg border text-xs font-mono transition-colors ${
                 tab === t.id
                   ? "bg-gold/15 border-gold/60 text-gold"
