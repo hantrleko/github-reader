@@ -1,4 +1,6 @@
 import { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { useToolTab } from "@/lib/useToolTab";
 import { motion } from "framer-motion";
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -15,29 +17,30 @@ import {
 
 type Tab = "credit" | "rates" | "oas" | "curve";
 
-const TABS: { id: Tab; title: string; kicker: string; desc: string }[] = [
-  { id: "credit", title: "信用债 & CDS", kicker: "Credit", desc: "Merton 结构化模型 + CDS par spread / hazard 反推" },
-  { id: "rates", title: "短率模型", kicker: "Rate Models", desc: "Vasicek / CIR / Hull-White 期限结构与路径模拟" },
-  { id: "oas", title: "OAS & 含权债", kicker: "Callable/MBS", desc: "Ho-Lee 树上可赎回债 OAS + PSA 提前偿付 MBS" },
-  { id: "curve", title: "通胀与曲线策略", kicker: "Inflation/Curve", desc: "Breakeven、2-5-10 蝶式、carry-roll 分解" },
+const TABS: { id: Tab; title: string; titleEn: string; kicker: string; desc: string; descEn: string }[] = [
+  { id: "credit", title: "信用债 & CDS", titleEn: "Credit & CDS", kicker: "Credit", desc: "Merton 结构化模型 + CDS par spread / hazard 反推" , descEn: "Merton structural model plus CDS par spread / hazard inversion" },
+  { id: "rates", title: "短率模型", titleEn: "Short-Rate Models", kicker: "Rate Models", desc: "Vasicek / CIR / Hull-White 期限结构与路径模拟" , descEn: "Vasicek / CIR / Hull-White term structure and path simulation" },
+  { id: "oas", title: "OAS & 含权债", titleEn: "OAS & Callable / MBS", kicker: "Callable/MBS", desc: "Ho-Lee 树上可赎回债 OAS + PSA 提前偿付 MBS" , descEn: "Callable-bond OAS on a Ho-Lee tree plus PSA prepayment MBS" },
+  { id: "curve", title: "通胀与曲线策略", titleEn: "Inflation & Curve Strategies", kicker: "Inflation/Curve", desc: "Breakeven、2-5-10 蝶式、carry-roll 分解" , descEn: "Breakeven inflation, 2-5-10 butterfly, carry-roll decomposition" },
 ];
+const TAB_IDS: Tab[] = ["credit", "rates", "oas", "curve"];
 
 export default function V45FixedIncomeLab() {
-  const [tab, setTab] = useState<Tab>("credit");
+  const { t: tr, i18n } = useTranslation();
+  const isEn = i18n.language?.startsWith("en");
+  const [tab, setTab] = useToolTab<Tab>(TAB_IDS, "credit");
   return (
     <section className="space-y-6">
       <div className="rounded-2xl border border-border bg-card/50 p-5">
         <p className="text-[10px] font-mono uppercase tracking-[0.2em] text-gold mb-1">V4.5 · Fixed Income Lab</p>
-        <h2 className="text-2xl font-serif text-foreground">固定收益高阶实验室</h2>
-        <p className="text-sm text-muted-foreground mt-2 max-w-3xl">
-          围绕四个研究支柱构建：信用违约（Merton / CDS bootstrap）、随机短率（Vasicek / CIR / HW）、含权债 OAS
-          （Ho-Lee 树 + PSA MBS），以及通胀挂钩与曲线相对价值策略。
-        </p>
+        <h2 className="text-2xl font-serif text-foreground">{tr("labs.fiLab.title")}</h2>
+        <p className="text-sm text-muted-foreground mt-2 max-w-3xl">{tr("labs.fiLab.intro")}</p>
         <div className="mt-4 flex flex-wrap gap-2">
           {TABS.map((t) => (
             <button
               key={t.id}
               onClick={() => setTab(t.id)}
+              title={isEn ? t.descEn : t.desc}
               className={`px-3.5 py-2 rounded-lg border text-xs font-mono transition-colors ${
                 tab === t.id
                   ? "bg-gold/15 border-gold/60 text-gold"
@@ -45,7 +48,7 @@ export default function V45FixedIncomeLab() {
               }`}
             >
               <span className="uppercase tracking-wider mr-2">{t.kicker}</span>
-              {t.title}
+              {isEn ? t.titleEn : t.title}
             </button>
           ))}
         </div>
@@ -59,7 +62,7 @@ export default function V45FixedIncomeLab() {
       </motion.div>
 
       <div className="rounded-lg border border-border bg-card/60 p-4 text-[11px] font-mono text-muted-foreground leading-relaxed">
-        <p className="text-gold uppercase tracking-wider mb-2">参考文献</p>
+        <p className="text-gold uppercase tracking-wider mb-2">{tr("labs.nav.references")}</p>
         <p>Merton (1974) · Vasicek (1977) · Cox-Ingersoll-Ross (1985) · Hull &amp; White (1990) · Fabozzi (2012) Bond Markets, Analysis and Strategies.</p>
       </div>
     </section>
