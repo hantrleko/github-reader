@@ -179,11 +179,11 @@ const RateModelSimulator = () => {
       setTheta(parseFloat(mean.toFixed(2)));
       setSigma(Math.min(5, Math.max(0.1, parseFloat(sd.toFixed(2)))));
       toast({
-        title: "FRED 校准",
-        description: `${fredSeries} · 当前 ${d.latest.toFixed(2)}% · 长期均值 ${mean.toFixed(2)}%`,
+        title: t("labs.rateModel.fredCalib"),
+        description: `${fredSeries} · ${d.latest.toFixed(2)}% · θ ${mean.toFixed(2)}%`,
       });
     } catch {
-      toast({ title: "拉取失败", description: "回退到合成参数", variant: "destructive" });
+      toast({ title: t("labs.rateModel.fetchFailed"), description: t("labs.rateModel.fallbackSynthetic"), variant: "destructive" });
     }
   };
 
@@ -204,7 +204,7 @@ const RateModelSimulator = () => {
   useBusConsume(["r"], (vals, source) => {
     if (vals.r != null) {
       setR0(+(vals.r * 100).toFixed(3));
-      toast({ title: "已接收短端利率", description: `r₀ = ${(vals.r * 100).toFixed(2)}% · 来自 ${source}` });
+      toast({ title: t("labs.rateModel.receivedShortRate"), description: `r₀ = ${(vals.r * 100).toFixed(2)}% · ${source}` });
     }
   });
 
@@ -290,7 +290,7 @@ const RateModelSimulator = () => {
             Interest Rate Models
           </p>
           <h2 className="text-3xl md:text-5xl font-display font-bold text-foreground">
-            利率模型模拟器
+            {t("labs.rateModel.title")}
           </h2>
         </motion.div>
 
@@ -374,23 +374,23 @@ const RateModelSimulator = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
             {/* Parameters */}
             <div className="space-y-4">
-              <p className="text-xs font-mono text-muted-foreground uppercase tracking-wider mb-2">模型参数</p>
+              <p className="text-xs font-mono text-muted-foreground uppercase tracking-wider mb-2">{t("labs.rateModel.modelParams")}</p>
               {/* FRED real-data calibration */}
               <div className="flex flex-wrap items-center gap-2 p-2.5 rounded-md border border-border/60 bg-muted/30 text-[11px] font-mono">
                 <span className="flex items-center gap-1.5 text-gold">
                   <Database className="w-3.5 h-3.5" />
-                  FRED 实测利率校准
+                  {t("labs.rateModel.fredLabel")}
                 </span>
                 <select
                   value={fredSeries}
                   onChange={(e) => setFredSeries(e.target.value as any)}
                   className="px-2 py-1 rounded bg-background border border-border focus:border-gold/60 outline-none"
                 >
-                  <option value="DGS10">10Y 国债 (DGS10)</option>
-                  <option value="DGS2">2Y 国债 (DGS2)</option>
-                  <option value="DGS5">5Y 国债 (DGS5)</option>
-                  <option value="DGS30">30Y 国债 (DGS30)</option>
-                  <option value="FEDFUNDS">联邦基金利率</option>
+                  <option value="DGS10">{t("labs.rateModel.dgs10")}</option>
+                  <option value="DGS2">{t("labs.rateModel.dgs2")}</option>
+                  <option value="DGS5">{t("labs.rateModel.dgs5")}</option>
+                  <option value="DGS30">{t("labs.rateModel.dgs30")}</option>
+                  <option value="FEDFUNDS">{t("labs.rateModel.fedfunds")}</option>
                 </select>
                 <button
                   onClick={loadFredCalibration}
@@ -398,7 +398,7 @@ const RateModelSimulator = () => {
                   className="px-2.5 py-1 rounded bg-primary/90 text-primary-foreground hover:bg-primary disabled:opacity-50 flex items-center gap-1"
                 >
                   {fredQuery.isFetching ? <Loader2 className="w-3 h-3 animate-spin" /> : null}
-                  {fredQuery.isFetching ? "拉取中…" : "校准"}
+                  {fredQuery.isFetching ? t("labs.rateModel.fetching") : t("labs.rateModel.calibrate")}
                 </button>
                 {fredActive && fredQuery.data && !fredQuery.error && (
                   <span className="flex items-center gap-1 text-gold">
@@ -408,21 +408,21 @@ const RateModelSimulator = () => {
                 )}
               </div>
               <PresetButtons presets={[
-                { name: "Vasicek经典", description: "r₀=5%, κ=0.3, θ=5%, σ=1%", apply: () => { setModel("vasicek"); setR0(5); setKappa(0.3); setTheta(5); setSigma(1); setT(10); } },
-                { name: "CIR低利率", description: "r₀=1%, κ=0.5, θ=3%, σ=0.8%", apply: () => { setModel("cir"); setR0(1); setKappa(0.5); setTheta(3); setSigma(0.8); setT(10); } },
-                { name: "高波动环境", description: "r₀=8%, κ=0.2, θ=6%, σ=3%", apply: () => { setModel("vasicek"); setR0(8); setKappa(0.2); setTheta(6); setSigma(3); setT(15); } },
+                { name: t("labs.rateModel.presetVasicek"), description: "r₀=5%, κ=0.3, θ=5%, σ=1%", apply: () => { setModel("vasicek"); setR0(5); setKappa(0.3); setTheta(5); setSigma(1); setT(10); } },
+                { name: t("labs.rateModel.presetCir"), description: "r₀=1%, κ=0.5, θ=3%, σ=0.8%", apply: () => { setModel("cir"); setR0(1); setKappa(0.5); setTheta(3); setSigma(0.8); setT(10); } },
+                { name: t("labs.rateModel.presetHighVol"), description: "r₀=8%, κ=0.2, θ=6%, σ=3%", apply: () => { setModel("vasicek"); setR0(8); setKappa(0.2); setTheta(6); setSigma(3); setT(15); } },
               ]} />
-              {renderSlider("初始利率 r₀", r0, 0.1, 15, 0.1, setR0, "%")}
-              {renderSlider("均值回复速度 κ", kappa, 0.05, 3, 0.05, setKappa)}
-              {renderSlider("长期均值 θ", theta, 0.5, 15, 0.1, setTheta, "%")}
-              {renderSlider("波动率 σ", sigma, 0.1, 5, 0.1, setSigma, "%")}
-              {renderSlider("模拟期限 T", T, 1, 30, 1, setT, " 年")}
-              {renderSlider("展示路径数", nPaths, 1, 10, 1, setNPaths)}
+              {renderSlider(t("labs.rateModel.r0"), r0, 0.1, 15, 0.1, setR0, "%")}
+              {renderSlider(t("labs.rateModel.kappa"), kappa, 0.05, 3, 0.05, setKappa)}
+              {renderSlider(t("labs.rateModel.theta"), theta, 0.5, 15, 0.1, setTheta, "%")}
+              {renderSlider(t("labs.rateModel.sigma"), sigma, 0.1, 5, 0.1, setSigma, "%")}
+              {renderSlider(t("labs.rateModel.horizon"), T, 1, 30, 1, setT, ` ${t("labs.rateModel.years")}`)}
+              {renderSlider(t("labs.rateModel.nPaths"), nPaths, 1, 10, 1, setNPaths)}
               <button
                 onClick={() => setSeed(s => s + 1)}
                 className="w-full py-2 text-xs font-mono rounded-lg border border-gold/20 text-gold hover:bg-gold/10 transition-all"
               >
-                🎲 重新模拟（Seed: {seed}）
+                🎲 {t("labs.rateModel.resim")} (Seed: {seed})
               </button>
             </div>
 
@@ -458,7 +458,7 @@ const RateModelSimulator = () => {
                         key={`path-${i}`}
                         type="monotone"
                         dataKey={`p${i}`}
-                        name={`路径 ${i + 1}`}
+                        name={`${t("labs.rateModel.path")} ${i + 1}`}
                         stroke={PATH_COLORS[i % PATH_COLORS.length]}
                         strokeWidth={1.2}
                         strokeOpacity={0.7}
@@ -468,14 +468,14 @@ const RateModelSimulator = () => {
                     ))}
 
                     {/* Mean path */}
-                    <Line type="monotone" dataKey="mean" name="均值路径" stroke="white" strokeWidth={2.5} dot={false} />
+                    <Line type="monotone" dataKey="mean" name={t("labs.rateModel.meanPath")} stroke="white" strokeWidth={2.5} dot={false} />
                     <Line type="monotone" dataKey="upper" name="+2σ" stroke={CHART_GOLD} strokeWidth={1} strokeDasharray="3 3" dot={false} />
                     <Line type="monotone" dataKey="lower" name="−2σ" stroke={CHART_GOLD} strokeWidth={1} strokeDasharray="3 3" dot={false} />
                   </LineChart>
                 </ResponsiveContainer>
               </div>
               <p className="text-[10px] text-muted-foreground font-mono mt-2 text-center">
-                白色 = 均值路径 · 金色虚线 = ±2σ 置信带 · 灰色虚线 = 长期均值 θ
+                {t("labs.rateModel.pathsNote")}
               </p>
             </div>
           </div>
@@ -485,13 +485,13 @@ const RateModelSimulator = () => {
             {/* Stats cards */}
             <div className="grid grid-cols-2 gap-3">
               {[
-                { label: "终值均值 E[r(T)]", value: `${(simResult.terminalMean * 100).toFixed(2)}%`, color: "text-gold", border: "border-gold/20", bg: "bg-gold/[0.03]" },
-                { label: "终值标准差", value: `${(simResult.terminalStd * 100).toFixed(2)}%`, color: "text-teal-400", border: "border-teal-400/20", bg: "bg-teal-400/[0.03]" },
-                { label: "理论均值", value: `${(theta + (r0 - theta) * Math.exp(-kappa * T)).toFixed(2)}%`, color: "text-blue-400", border: "border-blue-400/20", bg: "bg-blue-400/[0.03]" },
-                { label: model === "vasicek" ? "理论方差 σ²∞" : "Feller 条件", 
+                { label: t("labs.rateModel.terminalMean"), value: `${(simResult.terminalMean * 100).toFixed(2)}%`, color: "text-gold", border: "border-gold/20", bg: "bg-gold/[0.03]" },
+                { label: t("labs.rateModel.terminalStd"), value: `${(simResult.terminalStd * 100).toFixed(2)}%`, color: "text-teal-400", border: "border-teal-400/20", bg: "bg-teal-400/[0.03]" },
+                { label: t("labs.rateModel.theoMean"), value: `${(theta + (r0 - theta) * Math.exp(-kappa * T)).toFixed(2)}%`, color: "text-blue-400", border: "border-blue-400/20", bg: "bg-blue-400/[0.03]" },
+                { label: model === "vasicek" ? t("labs.rateModel.theoVar") : t("labs.rateModel.feller"), 
                   value: model === "vasicek" 
                     ? `${((sigma / 100) ** 2 / (2 * kappa) * 10000).toFixed(2)} bp²` 
-                    : fellerCondition ? "✓ 满足" : "✗ 不满足",
+                    : fellerCondition ? `✓ ${t("labs.rateModel.satisfied")}` : `✗ ${t("labs.rateModel.notSatisfied")}`,
                   color: model === "cir" ? (fellerCondition ? "text-emerald-400" : "text-red-400") : "text-purple-400",
                   border: model === "cir" ? (fellerCondition ? "border-emerald-400/20" : "border-red-400/20") : "border-purple-400/20",
                   bg: model === "cir" ? (fellerCondition ? "bg-emerald-400/[0.03]" : "bg-red-400/[0.03]") : "bg-purple-400/[0.03]",
@@ -507,11 +507,11 @@ const RateModelSimulator = () => {
               <div className="col-span-2 rounded-xl border border-border bg-secondary/30 p-4">
                 <div className="grid grid-cols-3 gap-4 text-center">
                   <div>
-                    <p className="text-[10px] font-mono text-muted-foreground">半衰期</p>
-                    <p className="text-sm font-mono font-bold text-foreground">{(Math.log(2) / kappa).toFixed(2)} 年</p>
+                    <p className="text-[10px] font-mono text-muted-foreground">{t("labs.rateModel.halfLife")}</p>
+                    <p className="text-sm font-mono font-bold text-foreground">{(Math.log(2) / kappa).toFixed(2)} {t("labs.rateModel.years")}</p>
                   </div>
                   <div>
-                    <p className="text-[10px] font-mono text-muted-foreground">稳态方差</p>
+                    <p className="text-[10px] font-mono text-muted-foreground">{t("labs.rateModel.steadyVar")}</p>
                     <p className="text-sm font-mono font-bold text-foreground">
                       {model === "vasicek"
                         ? `${((sigma / 100) ** 2 / (2 * kappa) * 10000).toFixed(1)} bp²`
@@ -530,7 +530,7 @@ const RateModelSimulator = () => {
             {/* Terminal distribution */}
             <div>
               <p className="text-xs font-mono text-muted-foreground uppercase tracking-wider mb-3">
-                终端利率分布 r(T={T})
+                {t("labs.rateModel.terminalDist")} r(T={T})
               </p>
               <div className="rounded-xl bg-secondary/30 border border-border p-4">
                 <ResponsiveContainer width="100%" height={220}>
@@ -544,7 +544,7 @@ const RateModelSimulator = () => {
                     <ReferenceLine x={parseFloat((simResult.terminalMean * 100).toFixed(2))} stroke={CHART_GOLD} strokeDasharray="4 4"
                       label={{ value: "E[r]", position: "top", style: { fontSize: 9, fill: CHART_GOLD, fontFamily: "var(--font-mono)" } }}
                     />
-                    <Area type="monotone" dataKey="count" name="频次" stroke={CHART_TEAL} fill={CHART_TEAL} fillOpacity={0.3} strokeWidth={2} />
+                    <Area type="monotone" dataKey="count" name={t("labs.rateModel.frequency")} stroke={CHART_TEAL} fill={CHART_TEAL} fillOpacity={0.3} strokeWidth={2} />
                   </AreaChart>
                 </ResponsiveContainer>
               </div>
@@ -555,21 +555,21 @@ const RateModelSimulator = () => {
           {model === "vasicek" && termStructure && (
             <div>
               <p className="text-xs font-mono text-muted-foreground uppercase tracking-wider mb-3">
-                Vasicek 解析收益率曲线
+                {t("labs.rateModel.vasicekCurve")}
               </p>
               <div className="rounded-xl bg-secondary/30 border border-border p-4">
                 <ResponsiveContainer width="100%" height={200}>
                   <LineChart data={termStructure} margin={{ top: 5, right: 10, left: 5, bottom: 5 }}>
                     <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID} />
                     <XAxis dataKey="tau" stroke={CHART_TEXT} tick={{ fontSize: 9, fontFamily: "var(--font-mono)" }}
-                      label={{ value: "期限 τ (年)", position: "insideBottom", offset: -2, style: { fontSize: 10, fill: CHART_TEXT, fontFamily: "var(--font-mono)" } }}
+                      label={{ value: t("labs.rateModel.tenorTau"), position: "insideBottom", offset: -2, style: { fontSize: 10, fill: CHART_TEXT, fontFamily: "var(--font-mono)" } }}
                     />
                     <YAxis stroke={CHART_TEXT} tick={{ fontSize: 9, fontFamily: "var(--font-mono)" }} width={40}
                       label={{ value: "y (%)", angle: -90, position: "insideLeft", offset: 10, style: { fontSize: 10, fill: CHART_TEXT, fontFamily: "var(--font-mono)" } }}
                     />
                     <Tooltip contentStyle={{ backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 11, fontFamily: "var(--font-mono)" }} />
                     <ReferenceLine y={theta} stroke={CHART_TEXT} strokeDasharray="3 6" strokeOpacity={0.3} />
-                    <Line type="monotone" dataKey="yield_analytical" name="解析收益率" stroke={CHART_GOLD} strokeWidth={2.5} dot={false} />
+                    <Line type="monotone" dataKey="yield_analytical" name={t("labs.rateModel.analyticalYield")} stroke={CHART_GOLD} strokeWidth={2.5} dot={false} />
                     <Legend wrapperStyle={{ fontSize: 10, fontFamily: "var(--font-mono)" }} />
                   </LineChart>
                 </ResponsiveContainer>
