@@ -220,15 +220,15 @@ const BondCalculator = () => {
   }, [b0, b1, b2, lambda]);
 
   const tabs: { id: TabId; name: string; nameEn: string; formula: string }[] = [
-    { id: "pricing", name: "债券定价", nameEn: "Bond Pricing — Discounted Cash Flow",
+    { id: "pricing", name: t("labs.bondCalc.tabPricing"), nameEn: "Bond Pricing — Discounted Cash Flow",
       formula: String.raw`P = \sum_{i=1}^{n}\frac{C}{(1+y)^{i}} + \frac{F}{(1+y)^{n}}` },
-    { id: "duration", name: "久期 & 凸性", nameEn: "Modified Duration & Convexity",
+    { id: "duration", name: t("labs.bondCalc.tabDuration"), nameEn: "Modified Duration & Convexity",
       formula: String.raw`D_{\mathrm{mod}} = \dfrac{D_{\mathrm{Mac}}}{1+y},\quad \dfrac{\Delta P}{P} \approx -D_{\mathrm{mod}}\,\Delta y + \tfrac{1}{2}\,\mathrm{Conv}\,(\Delta y)^2` },
-    { id: "curve", name: "收益率曲线", nameEn: "Nelson-Siegel Yield Curve",
+    { id: "curve", name: t("labs.bondCalc.tabCurve"), nameEn: "Nelson-Siegel Yield Curve",
       formula: String.raw`y(\tau) = \beta_0 + \beta_1\,\dfrac{1-e^{-\tau/\lambda}}{\tau/\lambda} + \beta_2\,\Bigl[\dfrac{1-e^{-\tau/\lambda}}{\tau/\lambda} - e^{-\tau/\lambda}\Bigr]` },
-    { id: "nsfit", name: "曲线拟合器", nameEn: "Nelson-Siegel / Svensson Curve Fitting — OLS β + λ Grid Search",
+    { id: "nsfit", name: t("labs.bondCalc.tabNsfit"), nameEn: "Nelson-Siegel / Svensson Curve Fitting — OLS β + λ Grid Search",
       formula: String.raw`\min_{\beta,\lambda}\ \sum_i\bigl[y_i - \hat y(\tau_i;\beta,\lambda)\bigr]^2,\quad \hat y_{\text{NSS}}(\tau)=\beta_0+\beta_1 L_1+\beta_2 L_2+\beta_3\Bigl[\tfrac{1-e^{-\tau/\lambda_2}}{\tau/\lambda_2}-e^{-\tau/\lambda_2}\Bigr]` },
-    { id: "krd", name: "关键利率久期", nameEn: "Key-Rate Duration — Non-Parallel Curve Risk Decomposition",
+    { id: "krd", name: t("labs.bondCalc.tabKrd"), nameEn: "Key-Rate Duration — Non-Parallel Curve Risk Decomposition",
       formula: String.raw`\mathrm{KRD}_k = -\dfrac{1}{P}\dfrac{\Delta P}{\Delta y_k},\qquad \sum_k \mathrm{KRD}_k \approx D_{\mathrm{eff}}` },
     { id: "termstruct", name: "Hull-White & Bootstrapping", nameEn: "Term Structure — Bootstrapping & Hull-White (1990)",
       formula: String.raw`\text{Bootstrap: }P(0,T_i)=\dfrac{1-c\sum_{j<i}P(0,T_j)}{1+c}\quad\Big|\quad \text{HW: }dr_t=(\theta(t)-a\,r_t)\,dt+\sigma\,dW_t` },
@@ -336,21 +336,21 @@ const BondCalculator = () => {
             <>
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
                 <div className="space-y-5">
-                  <p className="text-xs font-mono text-muted-foreground uppercase tracking-wider mb-2">债券参数</p>
+                  <p className="text-xs font-mono text-muted-foreground uppercase tracking-wider mb-2">{t("labs.bondCalc.bondParams")}</p>
                   <PresetButtons presets={[
-                    { name: "国债标准", description: "F=100, c=3%, YTM=4%, 10Y半年付", apply: () => { setFace(100); setCouponRate(3); setYtm(4); setMaturity(10); setFreq(2); } },
-                    { name: "高收益债", description: "F=100, c=8%, YTM=6%, 5Y", apply: () => { setFace(100); setCouponRate(8); setYtm(6); setMaturity(5); setFreq(2); } },
-                    { name: "零息债券", description: "F=100, c=0%, YTM=5%, 20Y", apply: () => { setFace(100); setCouponRate(0); setYtm(5); setMaturity(20); setFreq(1); } },
-                    { name: "溢价债券", description: "F=100, c=7%, YTM=4%, 15Y", apply: () => { setFace(100); setCouponRate(7); setYtm(4); setMaturity(15); setFreq(2); } },
+                    { name: t("labs.bondCalc.presetTreasury"), description: t("labs.bondCalc.presetTreasuryDesc"), apply: () => { setFace(100); setCouponRate(3); setYtm(4); setMaturity(10); setFreq(2); } },
+                    { name: t("labs.bondCalc.presetHy"), description: "F=100, c=8%, YTM=6%, 5Y", apply: () => { setFace(100); setCouponRate(8); setYtm(6); setMaturity(5); setFreq(2); } },
+                    { name: t("labs.bondCalc.presetZero"), description: "F=100, c=0%, YTM=5%, 20Y", apply: () => { setFace(100); setCouponRate(0); setYtm(5); setMaturity(20); setFreq(1); } },
+                    { name: t("labs.bondCalc.presetPremium"), description: "F=100, c=7%, YTM=4%, 15Y", apply: () => { setFace(100); setCouponRate(7); setYtm(4); setMaturity(15); setFreq(2); } },
                   ]} />
-                  {renderSlider("面值 F", "F", "", face, 100, 10000, 100, setFace)}
-                  {renderSlider("票面利率", "c", "%", couponRate, 0, 15, 0.1, setCouponRate)}
-                  {renderSlider("到期收益率 YTM", "y", "%", ytm, 0.1, 20, 0.1, setYtm)}
-                  {renderSlider("到期期限", "T", "年", maturity, 1, 30, 1, setMaturity)}
+                  {renderSlider(t("labs.bondCalc.face"), "F", "", face, 100, 10000, 100, setFace)}
+                  {renderSlider(t("labs.bondCalc.coupon"), "c", "%", couponRate, 0, 15, 0.1, setCouponRate)}
+                  {renderSlider(t("labs.bondCalc.ytm"), "y", "%", ytm, 0.1, 20, 0.1, setYtm)}
+                  {renderSlider(t("labs.bondCalc.maturity"), "T", t("labs.bondCalc.years"), maturity, 1, 30, 1, setMaturity)}
                   <div>
-                    <label className="text-sm text-secondary-foreground font-medium mb-2 block">付息频率</label>
+                    <label className="text-sm text-secondary-foreground font-medium mb-2 block">{t("labs.bondCalc.freq")}</label>
                     <div className="flex gap-2">
-                      {[{ v: 1, l: "年付" }, { v: 2, l: "半年付" }, { v: 4, l: "季付" }].map((f) => (
+                      {[{ v: 1, l: t("labs.bondCalc.annual") }, { v: 2, l: t("labs.bondCalc.semi") }, { v: 4, l: t("labs.bondCalc.quarterly") }].map((f) => (
                         <button
                           key={f.v}
                           onClick={() => setFreq(f.v)}
@@ -368,7 +368,7 @@ const BondCalculator = () => {
                 {/* Price-Yield chart */}
                 <div>
                   <p className="text-xs font-mono text-muted-foreground uppercase tracking-wider mb-3">
-                    价格-收益率关系
+                    {t("labs.bondCalc.priceYield")}
                   </p>
                   <div className="rounded-xl bg-secondary/30 border border-border p-4">
                     <ResponsiveContainer width="100%" height={300}>
@@ -378,19 +378,19 @@ const BondCalculator = () => {
                           label={{ value: "YTM (%)", position: "insideBottom", offset: -2, style: { fontSize: 11, fill: CHART_TEXT, fontFamily: "var(--font-mono)" } }}
                         />
                         <YAxis stroke={CHART_TEXT} tick={{ fontSize: 9, fontFamily: "var(--font-mono)" }} width={50}
-                          label={{ value: "价格", angle: -90, position: "insideLeft", offset: 10, style: { fontSize: 11, fill: CHART_TEXT, fontFamily: "var(--font-mono)" } }}
+                          label={{ value: t("labs.bondCalc.price"), angle: -90, position: "insideLeft", offset: 10, style: { fontSize: 11, fill: CHART_TEXT, fontFamily: "var(--font-mono)" } }}
                         />
                         <Tooltip contentStyle={{ backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 11, fontFamily: "var(--font-mono)" }} />
                         <ReferenceLine x={ytm} stroke={CHART_GOLD} strokeDasharray="4 4" strokeOpacity={0.5} />
                         <ReferenceLine y={face} stroke={CHART_TEXT} strokeDasharray="2 4" strokeOpacity={0.3} />
-                        <Line type="monotone" dataKey="price" name="实际价格" stroke={CHART_GOLD} strokeWidth={2.5} dot={false} />
-                        <Line type="monotone" dataKey="duration_approx" name="久期近似" stroke={CHART_TEAL} strokeWidth={1.5} strokeDasharray="5 3" dot={false} />
+                        <Line type="monotone" dataKey="price" name={t("labs.bondCalc.actualPrice")} stroke={CHART_GOLD} strokeWidth={2.5} dot={false} />
+                        <Line type="monotone" dataKey="duration_approx" name={t("labs.bondCalc.durApprox")} stroke={CHART_TEAL} strokeWidth={1.5} strokeDasharray="5 3" dot={false} />
                         <Legend wrapperStyle={{ fontSize: 10, fontFamily: "var(--font-mono)" }} />
                       </LineChart>
                     </ResponsiveContainer>
                   </div>
                   <p className="text-[10px] text-muted-foreground font-mono mt-2 text-center">
-                    金色 = 真实凸曲线 · 青色虚线 = 久期线性近似 · 差距 = 凸性效应
+                    {t("labs.bondCalc.priceYieldNote")}
                   </p>
                 </div>
               </div>
@@ -398,12 +398,12 @@ const BondCalculator = () => {
               {/* Metrics cards */}
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-8">
                 {[
-                  { label: "债券价格", value: metrics.price.toFixed(2), color: "text-gold", border: "border-gold/20", bg: "bg-gold/[0.03]" },
-                  { label: "Macaulay 久期", value: `${metrics.dMac.toFixed(3)} 年`, color: "text-teal-400", border: "border-teal-400/20", bg: "bg-teal-400/[0.03]" },
-                  { label: "修正久期", value: metrics.dMod.toFixed(3), color: "text-blue-400", border: "border-blue-400/20", bg: "bg-blue-400/[0.03]" },
-                  { label: "凸性", value: metrics.conv.toFixed(2), color: "text-purple-400", border: "border-purple-400/20", bg: "bg-purple-400/[0.03]" },
+                  { label: t("labs.bondCalc.bondPrice"), value: metrics.price.toFixed(2), color: "text-gold", border: "border-gold/20", bg: "bg-gold/[0.03]" },
+                  { label: t("labs.bondCalc.macDur"), value: `${metrics.dMac.toFixed(3)} ${t("labs.bondCalc.years")}`, color: "text-teal-400", border: "border-teal-400/20", bg: "bg-teal-400/[0.03]" },
+                  { label: t("labs.bondCalc.modDur"), value: metrics.dMod.toFixed(3), color: "text-blue-400", border: "border-blue-400/20", bg: "bg-blue-400/[0.03]" },
+                  { label: t("labs.bondCalc.convexity"), value: metrics.conv.toFixed(2), color: "text-purple-400", border: "border-purple-400/20", bg: "bg-purple-400/[0.03]" },
                   { label: "DV01", value: metrics.dv01.toFixed(4), color: "text-red-400", border: "border-red-400/20", bg: "bg-red-400/[0.03]" },
-                  { label: "当前收益率", value: `${metrics.currentYield.toFixed(2)}%`, color: "text-emerald-400", border: "border-emerald-400/20", bg: "bg-emerald-400/[0.03]" },
+                  { label: t("labs.bondCalc.currentYield"), value: `${metrics.currentYield.toFixed(2)}%`, color: "text-emerald-400", border: "border-emerald-400/20", bg: "bg-emerald-400/[0.03]" },
                 ].map((m) => (
                   <div key={m.label} className={`rounded-xl border ${m.border} ${m.bg} p-4 text-center`}>
                     <p className={`text-[10px] font-mono ${m.color} mb-1 uppercase tracking-wider`}>{m.label}</p>
@@ -427,12 +427,12 @@ const BondCalculator = () => {
                   return (
                     <BenchmarkDrawer
                       label="Bond Math"
-                      title="债券定价 · 闭式解对照"
-                      description={`当前输入: F=${face}, c=${couponRate}%, y=${ytm}%, T=${maturity}y, m=${freq}。参考值来自 src/lib/quant/bond.ts(已通过 vitest 单元测试,对照 Fabozzi 教科书算例)。`}
+                      title={t("labs.bondCalc.benchTitle")}
+                      description={`${t("labs.bondCalc.params")}: F=${face}, c=${couponRate}%, y=${ytm}%, T=${maturity}y, m=${freq}。参考值来自 src/lib/quant/bond.ts(已通过 vitest 单元测试,对照 Fabozzi 教科书算例)。`}
                       rows={[
-                        { metric: "债券价格 P", ours: metrics.price, reference: refPrice, source: "DCF 闭式解", digits: 4, tol: 1e-6 },
-                        { metric: "Macaulay 久期", ours: metrics.dMac, reference: refDur.macaulay, source: "加权平均回收时间", digits: 4, tol: 1e-6 },
-                        { metric: "修正久期", ours: metrics.dMod, reference: refDur.modified, source: "D_mod = D_mac/(1+y/m)", digits: 4, tol: 1e-6 },
+                        { metric: t("labs.bondCalc.benchPrice"), ours: metrics.price, reference: refPrice, source: t("labs.bondCalc.benchDcf"), digits: 4, tol: 1e-6 },
+                        { metric: t("labs.bondCalc.macDur"), ours: metrics.dMac, reference: refDur.macaulay, source: t("labs.bondCalc.benchWeighted"), digits: 4, tol: 1e-6 },
+                        { metric: t("labs.bondCalc.modDur"), ours: metrics.dMod, reference: refDur.modified, source: "D_mod = D_mac/(1+y/m)", digits: 4, tol: 1e-6 },
                       ]}
                     />
                   );
@@ -462,11 +462,11 @@ price = bond_price(face=${face}, coupon_rate=${couponRate},
                   result={
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs">
                       <div className="rounded-md border border-gold/20 bg-gold/5 p-3">
-                        <div className="text-[10px] uppercase tracking-wider text-gold/80">价格 P</div>
+                        <div className="text-[10px] uppercase tracking-wider text-gold/80">{t("labs.bondCalc.priceP")}</div>
                         <div className="text-base text-gold font-bold">{metrics.price.toFixed(4)}</div>
                       </div>
                       <div className="rounded-md border border-border bg-card/50 p-3">
-                        <div className="text-[10px] uppercase tracking-wider text-muted-foreground">修正久期</div>
+                        <div className="text-[10px] uppercase tracking-wider text-muted-foreground">{t("labs.bondCalc.modDur")}</div>
                         <div className="text-base text-foreground font-bold">{metrics.dMod.toFixed(4)}</div>
                       </div>
                       <div className="rounded-md border border-border bg-card/50 p-3">
@@ -481,25 +481,25 @@ price = bond_price(face=${face}, coupon_rate=${couponRate},
               {/* Cash flow waterfall */}
               <div>
                 <p className="text-xs font-mono text-muted-foreground uppercase tracking-wider mb-3">
-                  现金流与现值分解
+                  {t("labs.bondCalc.cashflowPv")}
                 </p>
                 <div className="rounded-xl bg-secondary/30 border border-border p-4">
                   <ResponsiveContainer width="100%" height={200}>
                     <BarChart data={cfData} margin={{ top: 5, right: 10, left: 5, bottom: 5 }}>
                       <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID} />
                       <XAxis dataKey="period" stroke={CHART_TEXT} tick={{ fontSize: 9, fontFamily: "var(--font-mono)" }}
-                        label={{ value: "年", position: "insideBottom", offset: -2, style: { fontSize: 10, fill: CHART_TEXT, fontFamily: "var(--font-mono)" } }}
+                        label={{ value: t("labs.bondCalc.years"), position: "insideBottom", offset: -2, style: { fontSize: 10, fill: CHART_TEXT, fontFamily: "var(--font-mono)" } }}
                       />
                       <YAxis stroke={CHART_TEXT} tick={{ fontSize: 9, fontFamily: "var(--font-mono)" }} width={45} />
                       <Tooltip contentStyle={{ backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 11, fontFamily: "var(--font-mono)" }} />
-                      <Bar dataKey="cashflow" name="现金流" fill={CHART_GOLD} fillOpacity={0.3} stroke={CHART_GOLD} strokeWidth={1} />
-                      <Bar dataKey="pv" name="现值" fill={CHART_TEAL} fillOpacity={0.6} />
+                      <Bar dataKey="cashflow" name={t("labs.bondCalc.cashflow")} fill={CHART_GOLD} fillOpacity={0.3} stroke={CHART_GOLD} strokeWidth={1} />
+                      <Bar dataKey="pv" name={t("labs.bondCalc.pv")} fill={CHART_TEAL} fillOpacity={0.6} />
                       <Legend wrapperStyle={{ fontSize: 10, fontFamily: "var(--font-mono)" }} />
                     </BarChart>
                   </ResponsiveContainer>
                 </div>
                 <p className="text-[10px] text-muted-foreground font-mono mt-2 text-center">
-                  金色 = 名义现金流 · 青色 = 折现后现值 · 最后一期含本金偿还
+                  {t("labs.bondCalc.cashflowNote")}
                 </p>
               </div>
             </>
@@ -510,13 +510,13 @@ price = bond_price(face=${face}, coupon_rate=${couponRate},
             <>
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
                 <div className="space-y-5">
-                  <p className="text-xs font-mono text-muted-foreground uppercase tracking-wider mb-2">参数设置</p>
-                  {renderSlider("票面利率", "c", "%", couponRate, 0, 15, 0.1, setCouponRate)}
-                  {renderSlider("到期收益率 YTM", "y", "%", ytm, 0.1, 20, 0.1, setYtm)}
+                  <p className="text-xs font-mono text-muted-foreground uppercase tracking-wider mb-2">{t("labs.bondCalc.params")}</p>
+                  {renderSlider(t("labs.bondCalc.coupon"), "c", "%", couponRate, 0, 15, 0.1, setCouponRate)}
+                  {renderSlider(t("labs.bondCalc.ytm"), "y", "%", ytm, 0.1, 20, 0.1, setYtm)}
                   <div>
-                    <label className="text-sm text-secondary-foreground font-medium mb-2 block">付息频率</label>
+                    <label className="text-sm text-secondary-foreground font-medium mb-2 block">{t("labs.bondCalc.freq")}</label>
                     <div className="flex gap-2">
-                      {[{ v: 1, l: "年付" }, { v: 2, l: "半年付" }, { v: 4, l: "季付" }].map((f) => (
+                      {[{ v: 1, l: t("labs.bondCalc.annual") }, { v: 2, l: t("labs.bondCalc.semi") }, { v: 4, l: t("labs.bondCalc.quarterly") }].map((f) => (
                         <button key={f.v} onClick={() => setFreq(f.v)}
                           className={`px-3 py-1.5 text-xs font-mono rounded-lg transition-all ${freq === f.v ? "bg-gold/20 text-gold border border-gold/30" : "bg-secondary text-muted-foreground"}`}
                         >{f.l}</button>
@@ -526,7 +526,7 @@ price = bond_price(face=${face}, coupon_rate=${couponRate},
 
                   {/* Price change estimator */}
                   <div className="mt-6 rounded-xl border border-border bg-secondary/30 p-5">
-                    <p className="text-xs font-mono text-gold mb-3 uppercase tracking-wider">利率冲击模拟</p>
+                    <p className="text-xs font-mono text-gold mb-3 uppercase tracking-wider">{t("labs.bondCalc.shock")}</p>
                     {(() => {
                       const shocks = [-200, -100, -50, 50, 100, 200];
                       const p0 = bondPrice(face, couponRate, ytm, maturity, freq);
@@ -535,7 +535,7 @@ price = bond_price(face=${face}, coupon_rate=${couponRate},
                       return (
                         <div className="space-y-1.5">
                           <div className="grid grid-cols-4 gap-1 text-[9px] xs:text-[10px] font-mono text-muted-foreground border-b border-border pb-1">
-                            <span className="truncate">Δy (bp)</span><span className="truncate">久期近似</span><span className="truncate">久期+凸性</span><span className="truncate">精确值</span>
+                            <span className="truncate">Δy (bp)</span><span className="truncate">{t("labs.bondCalc.durApprox")}</span><span className="truncate">{t("labs.bondCalc.durConv")}</span><span className="truncate">{t("labs.bondCalc.exact")}</span>
                           </div>
                           {shocks.map((s) => {
                             const dy = s / 10000;
@@ -560,42 +560,42 @@ price = bond_price(face=${face}, coupon_rate=${couponRate},
                 {/* Duration by maturity chart */}
                 <div>
                   <p className="text-xs font-mono text-muted-foreground uppercase tracking-wider mb-3">
-                    久期-期限关系
+                    {t("labs.bondCalc.durMaturity")}
                   </p>
                   <div className="rounded-xl bg-secondary/30 border border-border p-4">
                     <ResponsiveContainer width="100%" height={280}>
                       <LineChart data={durData} margin={{ top: 5, right: 10, left: 5, bottom: 5 }}>
                         <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID} />
                         <XAxis dataKey="maturity" stroke={CHART_TEXT} tick={{ fontSize: 9, fontFamily: "var(--font-mono)" }}
-                          label={{ value: "到期期限 (年)", position: "insideBottom", offset: -2, style: { fontSize: 11, fill: CHART_TEXT, fontFamily: "var(--font-mono)" } }}
+                          label={{ value: t("labs.bondCalc.maturityYears"), position: "insideBottom", offset: -2, style: { fontSize: 11, fill: CHART_TEXT, fontFamily: "var(--font-mono)" } }}
                         />
                         <YAxis yAxisId="left" stroke={CHART_TEXT} tick={{ fontSize: 9, fontFamily: "var(--font-mono)" }} width={40} />
                         <YAxis yAxisId="right" orientation="right" stroke={CHART_TEXT} tick={{ fontSize: 9, fontFamily: "var(--font-mono)" }} width={45} />
                         <Tooltip contentStyle={{ backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 11, fontFamily: "var(--font-mono)" }} />
                         <ReferenceLine x={maturity} stroke={CHART_GOLD} strokeDasharray="4 4" strokeOpacity={0.4} yAxisId="left" />
-                        <Line yAxisId="left" type="monotone" dataKey="macDur" name="Macaulay 久期" stroke={CHART_GOLD} strokeWidth={2} dot={false} />
-                        <Line yAxisId="left" type="monotone" dataKey="modDur" name="修正久期" stroke={CHART_TEAL} strokeWidth={2} dot={false} />
-                        <Line yAxisId="right" type="monotone" dataKey="convex" name="凸性" stroke={CHART_BLUE} strokeWidth={1.5} strokeDasharray="5 3" dot={false} />
+                        <Line yAxisId="left" type="monotone" dataKey="macDur" name={t("labs.bondCalc.macDur")} stroke={CHART_GOLD} strokeWidth={2} dot={false} />
+                        <Line yAxisId="left" type="monotone" dataKey="modDur" name={t("labs.bondCalc.modDur")} stroke={CHART_TEAL} strokeWidth={2} dot={false} />
+                        <Line yAxisId="right" type="monotone" dataKey="convex" name={t("labs.bondCalc.convexity")} stroke={CHART_BLUE} strokeWidth={1.5} strokeDasharray="5 3" dot={false} />
                         <Legend wrapperStyle={{ fontSize: 10, fontFamily: "var(--font-mono)" }} />
                       </LineChart>
                     </ResponsiveContainer>
                   </div>
                   <p className="text-[10px] text-muted-foreground font-mono mt-2 text-center">
-                    金色虚线 = 当前期限 · 零息债券久期 = 到期时间（对角线）
+                    {t("labs.bondCalc.durMaturityNote")}
                   </p>
 
                   {/* Zero coupon comparison */}
                   <div className="mt-4 rounded-xl bg-secondary/30 border border-border p-4">
-                    <p className="text-[11px] font-mono text-muted-foreground mb-2">附息 vs 零息债券 (当前期限 {maturity} 年)</p>
+                    <p className="text-[11px] font-mono text-muted-foreground mb-2">{t("labs.bondCalc.couponVsZero")} ({t("labs.bondCalc.currentMaturity")} {maturity} {t("labs.bondCalc.years")})</p>
                     <div className="grid grid-cols-2 gap-3">
                       <div className="text-center">
-                        <p className="text-[10px] font-mono text-gold">附息债券 (c={couponRate}%)</p>
-                        <p className="text-sm font-mono font-bold text-foreground">D = {metrics.dMac.toFixed(3)} 年</p>
+                        <p className="text-[10px] font-mono text-gold">{t("labs.bondCalc.couponBond")} (c={couponRate}%)</p>
+                        <p className="text-sm font-mono font-bold text-foreground">D = {metrics.dMac.toFixed(3)} {t("labs.bondCalc.years")}</p>
                         <p className="text-[10px] font-mono text-muted-foreground">Conv = {metrics.conv.toFixed(2)}</p>
                       </div>
                       <div className="text-center">
-                        <p className="text-[10px] font-mono text-teal-400">零息债券</p>
-                        <p className="text-sm font-mono font-bold text-foreground">D = {maturity.toFixed(3)} 年</p>
+                        <p className="text-[10px] font-mono text-teal-400">{t("labs.bondCalc.zeroBond")}</p>
+                        <p className="text-sm font-mono font-bold text-foreground">D = {maturity.toFixed(3)} {t("labs.bondCalc.years")}</p>
                         <p className="text-[10px] font-mono text-muted-foreground">Conv = {(maturity * (maturity + 1 / freq) / Math.pow(1 + ytm / 100 / freq, 2)).toFixed(2)}</p>
                       </div>
                     </div>
@@ -611,20 +611,20 @@ price = bond_price(face=${face}, coupon_rate=${couponRate},
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
                 <div className="space-y-5">
                   <p className="text-xs font-mono text-muted-foreground uppercase tracking-wider mb-2">
-                    Nelson-Siegel 参数
+                    {t("labs.bondCalc.nsParams")}
                   </p>
-                  {renderSlider("水平因子 β₀ (Level)", "β₀", "%", b0, 0, 10, 0.1, setB0)}
-                  {renderSlider("斜率因子 β₁ (Slope)", "β₁", "%", b1, -8, 5, 0.1, setB1)}
-                  {renderSlider("曲率因子 β₂ (Curvature)", "β₂", "%", b2, -5, 8, 0.1, setB2)}
-                  {renderSlider("衰减参数 λ", "λ", "", lambda, 0.5, 5, 0.1, setLambda)}
+                  {renderSlider(t("labs.bondCalc.level"), "β₀", "%", b0, 0, 10, 0.1, setB0)}
+                  {renderSlider(t("labs.bondCalc.slope"), "β₁", "%", b1, -8, 5, 0.1, setB1)}
+                  {renderSlider(t("labs.bondCalc.curvature"), "β₂", "%", b2, -5, 8, 0.1, setB2)}
+                  {renderSlider(t("labs.bondCalc.decay"), "λ", "", lambda, 0.5, 5, 0.1, setLambda)}
 
                   <div className="rounded-xl border border-border bg-secondary/30 p-4 mt-4">
-                    <p className="text-xs font-mono text-gold mb-2">因子解读</p>
+                    <p className="text-xs font-mono text-gold mb-2">{t("labs.bondCalc.factorRead")}</p>
                     <div className="space-y-1 text-[11px] font-mono text-muted-foreground">
-                      <p>τ→∞: y → β₀ = <span className="text-gold">{b0.toFixed(1)}%</span> (长端利率)</p>
-                      <p>τ→0: y → β₀+β₁ = <span className="text-gold">{(b0 + b1).toFixed(1)}%</span> (短端利率)</p>
-                      <p>斜率: β₁ = <span className={b1 < 0 ? "text-emerald-400" : "text-red-400"}>{b1.toFixed(1)}%</span> {b1 < 0 ? "(正常向上)" : "(倒挂)"}</p>
-                      <p>驼峰: β₂ = <span className="text-blue-400">{b2.toFixed(1)}%</span> {b2 > 0 ? "(凸起)" : "(凹陷)"}</p>
+                      <p>τ→∞: y → β₀ = <span className="text-gold">{b0.toFixed(1)}%</span> {t("labs.bondCalc.longEnd")}</p>
+                      <p>τ→0: y → β₀+β₁ = <span className="text-gold">{(b0 + b1).toFixed(1)}%</span> {t("labs.bondCalc.shortEnd")}</p>
+                      <p>{t("labs.bondCalc.slopeLabel")}: β₁ = <span className={b1 < 0 ? "text-emerald-400" : "text-red-400"}>{b1.toFixed(1)}%</span> {b1 < 0 ? t("labs.bondCalc.normalUp") : t("labs.bondCalc.inverted")}</p>
+                      <p>{t("labs.bondCalc.hump")}: β₂ = <span className="text-blue-400">{b2.toFixed(1)}%</span> {b2 > 0 ? t("labs.bondCalc.convex") : t("labs.bondCalc.concave")}</p>
                     </div>
                   </div>
                 </div>
@@ -632,27 +632,27 @@ price = bond_price(face=${face}, coupon_rate=${couponRate},
                 {/* NS Yield Curve chart */}
                 <div>
                   <p className="text-xs font-mono text-muted-foreground uppercase tracking-wider mb-3">
-                    Nelson-Siegel 收益率曲线
+                    {t("labs.bondCalc.nsCurve")}
                   </p>
                   <div className="rounded-xl bg-secondary/30 border border-border p-4">
                     <ResponsiveContainer width="100%" height={300}>
                       <AreaChart data={nsData} margin={{ top: 5, right: 10, left: 5, bottom: 5 }}>
                         <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID} />
                         <XAxis dataKey="tau" stroke={CHART_TEXT} tick={{ fontSize: 9, fontFamily: "var(--font-mono)" }}
-                          label={{ value: "期限 τ (年)", position: "insideBottom", offset: -2, style: { fontSize: 11, fill: CHART_TEXT, fontFamily: "var(--font-mono)" } }}
+                          label={{ value: t("labs.bondCalc.tenorTau"), position: "insideBottom", offset: -2, style: { fontSize: 11, fill: CHART_TEXT, fontFamily: "var(--font-mono)" } }}
                         />
                         <YAxis stroke={CHART_TEXT} tick={{ fontSize: 9, fontFamily: "var(--font-mono)" }} width={40}
-                          label={{ value: "利率 (%)", angle: -90, position: "insideLeft", offset: 10, style: { fontSize: 11, fill: CHART_TEXT, fontFamily: "var(--font-mono)" } }}
+                          label={{ value: t("labs.bondCalc.ratePct"), angle: -90, position: "insideLeft", offset: 10, style: { fontSize: 11, fill: CHART_TEXT, fontFamily: "var(--font-mono)" } }}
                         />
                         <Tooltip contentStyle={{ backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 11, fontFamily: "var(--font-mono)" }} />
-                        <Area type="monotone" dataKey="yield" name="即期利率" stroke={CHART_GOLD} fill={CHART_GOLD} fillOpacity={0.1} strokeWidth={2.5} dot={false} />
-                        <Line type="monotone" dataKey="forward" name="远期利率" stroke={CHART_TEAL} strokeWidth={1.5} strokeDasharray="5 3" dot={false} />
+                        <Area type="monotone" dataKey="yield" name={t("labs.bondCalc.spotRate")} stroke={CHART_GOLD} fill={CHART_GOLD} fillOpacity={0.1} strokeWidth={2.5} dot={false} />
+                        <Line type="monotone" dataKey="forward" name={t("labs.bondCalc.forwardRate")} stroke={CHART_TEAL} strokeWidth={1.5} strokeDasharray="5 3" dot={false} />
                         <Legend wrapperStyle={{ fontSize: 10, fontFamily: "var(--font-mono)" }} />
                       </AreaChart>
                     </ResponsiveContainer>
                   </div>
                   <p className="text-[10px] text-muted-foreground font-mono mt-2 text-center">
-                    金色 = 即期利率曲线 · 青色虚线 = 瞬时远期利率 · 调节参数观察形态变化
+                    {t("labs.bondCalc.nsCurveNote")}
                   </p>
                 </div>
               </div>
@@ -660,7 +660,7 @@ price = bond_price(face=${face}, coupon_rate=${couponRate},
               {/* Factor loadings */}
               <div>
                 <p className="text-xs font-mono text-muted-foreground uppercase tracking-wider mb-3">
-                  因子载荷函数
+                  {t("labs.bondCalc.loadings")}
                 </p>
                 <div className="rounded-xl bg-secondary/30 border border-border p-4">
                   <ResponsiveContainer width="100%" height={200}>
@@ -680,7 +680,7 @@ price = bond_price(face=${face}, coupon_rate=${couponRate},
                     >
                       <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID} />
                       <XAxis dataKey="tau" stroke={CHART_TEXT} tick={{ fontSize: 9, fontFamily: "var(--font-mono)" }}
-                        label={{ value: "期限 τ (年)", position: "insideBottom", offset: -2, style: { fontSize: 10, fill: CHART_TEXT, fontFamily: "var(--font-mono)" } }}
+                        label={{ value: t("labs.bondCalc.tenorTau"), position: "insideBottom", offset: -2, style: { fontSize: 10, fill: CHART_TEXT, fontFamily: "var(--font-mono)" } }}
                       />
                       <YAxis stroke={CHART_TEXT} tick={{ fontSize: 9, fontFamily: "var(--font-mono)" }} width={35} />
                       <Tooltip contentStyle={{ backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 11, fontFamily: "var(--font-mono)" }} />
@@ -693,7 +693,7 @@ price = bond_price(face=${face}, coupon_rate=${couponRate},
                   </ResponsiveContainer>
                 </div>
                 <p className="text-[10px] text-muted-foreground font-mono mt-2 text-center">
-                  Level=1（常数）· Slope 短端=1 长端→0 · Curvature 中间凸起 · λ 控制衰减速度
+                  {t("labs.bondCalc.loadingsNote")}
                 </p>
               </div>
             </>
