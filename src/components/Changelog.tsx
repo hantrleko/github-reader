@@ -5,9 +5,31 @@ import { useMemo, useState } from "react";
 
 const RELEASES = [
   {
-    version: "V6.9",
+    version: "V7.0",
     date: "2026-09",
     tag: "Current",
+    highlights: [
+      {
+        icon: Sparkles,
+        title: "固收工具全进目录",
+        items: [
+          "固收实验室与固收前沿实验室共 22 个工具补入工具目录",
+          "债券、短率、两个固收实验室支持 ?t=<toolId> 深链",
+        ],
+      },
+      {
+        icon: FileText,
+        title: "固收模块双语化",
+        items: [
+          "债券计算器与利率模型模拟器的界面文案迁入中英词条",
+          "固收实验室分类名、工具名与描述支持中英文",
+        ],
+      },
+    ],
+  },
+  {
+    version: "V6.9",
+    date: "2026-09",
     highlights: [
       {
         icon: Sparkles,
@@ -2061,7 +2083,7 @@ const Changelog = () => {
             {t("changelog.title")}
           </h2>
           <p className="text-sm text-muted-foreground font-mono">
-            {t("changelog.subtitle")} — V1.0 → V6.9
+            {t("changelog.subtitle")} — V1.0 → V7.0
           </p>
         </motion.div>
 
