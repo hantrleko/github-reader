@@ -2,6 +2,7 @@ import { useState, useMemo, useRef, useCallback } from "react";
 
 import "katex/dist/katex.min.css";
 import { ShareExportToolbar, useSharedState } from "@/lib/calculatorTools";
+import { useToolTab } from "@/lib/useToolTab";
 import { useBusConsume } from "@/lib/toolBus";
 import { HistoryDrawer } from "./common/HistoryDrawer";
 import PresetButtons, { Preset } from "./PresetButtons";
@@ -39,6 +40,7 @@ const PATH_COLORS = [
 ];
 
 type ModelId = "vasicek" | "cir";
+const MODEL_IDS: ModelId[] = ["vasicek", "cir"];
 
 // Seeded PRNG
 function mulberry32(seed: number) {
@@ -147,7 +149,7 @@ function vasicekBondPrice(r: number, kappa: number, theta: number, sigma: number
 }
 
 const RateModelSimulator = () => {
-  const [model, setModel] = useState<ModelId>("vasicek");
+  const [model, setModel] = useToolTab<ModelId>(MODEL_IDS, "vasicek");
   const [r0, setR0] = useState(3);       // %
   const [kappa, setKappa] = useState(0.5);
   const [theta, setTheta] = useState(4);  // %

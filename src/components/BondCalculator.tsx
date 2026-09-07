@@ -1,5 +1,6 @@
 import { useState, useMemo, useRef, useCallback } from "react";
 import { ShareExportToolbar, useSharedState } from "@/lib/calculatorTools";
+import { useToolTab } from "@/lib/useToolTab";
 import PresetButtons, { Preset } from "./PresetButtons";
 import { FormulaCodeView } from "./common/FormulaCodeView";
 import { HistoryDrawer } from "./common/HistoryDrawer";
@@ -39,6 +40,7 @@ const CHART_GRID = "hsl(var(--border))";
 const CHART_TEXT = "hsl(var(--muted-foreground))";
 
 type TabId = "pricing" | "duration" | "curve" | "nsfit" | "krd" | "termstruct";
+const TAB_IDS: TabId[] = ["pricing", "duration", "curve", "nsfit", "krd", "termstruct"];
 
 // ─── Bond Pricing ───
 function bondPrice(face: number, coupon: number, ytm: number, n: number, freq: number) {
@@ -152,7 +154,7 @@ function cashFlowData(face: number, coupon: number, ytm: number, n: number, freq
 
 const BondCalculator = () => {
   const { t } = useTranslation();
-  const [tab, setTab] = useState<TabId>("pricing");
+  const [tab, setTab] = useToolTab<TabId>(TAB_IDS, "pricing");
 
   // Bond params
   const [face, setFace] = useState(100);
