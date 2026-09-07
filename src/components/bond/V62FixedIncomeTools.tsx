@@ -34,25 +34,25 @@ const CATS: { id: Cat; label: string; labelEn: string; kicker: string }[] = [
   { id: "book",   label: "组合与制度",   labelEn: "Portfolio & Regime",   kicker: "Portfolio & Regime" },
 ];
 
-const TABS: { id: Tab; cat: Cat; title: string; titleEn: string; desc: string }[] = [
-  { id: "bootstrap",   cat: "curve",  title: "票息剥离自举",     titleEn: "Par-Curve Bootstrapping",   desc: "par 曲线 → 贴现因子 → 零息与远期" },
-  { id: "interp",      cat: "curve",  title: "插值方法对比",     titleEn: "Interpolation Methods",     desc: "线性零率 / 分段常数远期 / 三次样条的远期平滑性" },
-  { id: "roll",        cat: "curve",  title: "Carry 与滚动收益", titleEn: "Carry & Roll-Down",         desc: "曲线不变假设下的持有期收益分解" },
-  { id: "taxonomy",    cat: "spread", title: "利差四口径",       titleEn: "Spread Taxonomy",           desc: "名义 / Z-spread / ASW / OAS 与期权成本" },
-  { id: "effrisk",     cat: "spread", title: "有效久期与凸性",   titleEn: "Effective Duration & Convexity", desc: "曲线扰动法：含权债的正确风险口径" },
-  { id: "krd",         cat: "spread", title: "关键利率久期对冲", titleEn: "Key-Rate Duration Hedging", desc: "逐桶中性化的对冲名义求解" },
-  { id: "immunize",    cat: "spread", title: "免疫与久期缺口",   titleEn: "Immunization & Duration Gap", desc: "Redington 条件下盈余对平行移动的敏感性" },
-  { id: "embedded",    cat: "option", title: "可赎回 / 可回售债", titleEn: "Callable & Putable Bonds",  desc: "对数正态短率树：期权价值与不对称性" },
-  { id: "convertible", cat: "option", title: "可转债分解",       titleEn: "Convertible Decomposition", desc: "债底 + 转换期权、转换平价与债性/股性区间" },
-  { id: "creditdec",   cat: "credit", title: "信用利差分解",     titleEn: "Credit Spread Decomposition", desc: "预期损失 / 风险溢价 / 流动性 / 税收与信用利差之谜" },
-  { id: "migration",   cat: "credit", title: "评级迁移矩阵",     titleEn: "Rating Migration Matrix",   desc: "多期演化、违约累积与迁移风险 VaR" },
-  { id: "waterfall",   cat: "credit", title: "分层瀑布与 OC 触发", titleEn: "Waterfall & OC Triggers", desc: "顺序偿付、超额抵押触发与减记顺位" },
-  { id: "copula",      cat: "credit", title: "高斯 copula 分层",  titleEn: "Gaussian Copula Tranches", desc: "单因子相关性对股权/夹层/优先层的再分配" },
-  { id: "basis",       cat: "credit", title: "CDS-债券基差",     titleEn: "CDS-Bond Basis",            desc: "现券 vs 合成的融资口径与套利方向" },
-  { id: "mbs",         cat: "book",   title: "MBS 负凸性",       titleEn: "MBS Negative Convexity",    desc: "提前还款加速 → 利率下行时久期反而缩短" },
-  { id: "repo",        cat: "book",   title: "回购杠杆与螺旋",   titleEn: "Repo Leverage & Spiral",    desc: "杠杆放大 carry 与风险；折扣率上升的追缴螺旋" },
-  { id: "rfr",         cat: "book",   title: "RFR 改革与负利率", titleEn: "RFR Reform & Negative Rates", desc: "后视复利 vs 定盘、fallback 利差、位移对数正态 caplet" },
-  { id: "green",       cat: "book",   title: "气候与流动性利差", titleEn: "Climate & Liquidity Spreads", desc: "绿色溢价、转型贴水与债券流动性溢价" },
+const TABS: { id: Tab; cat: Cat; title: string; titleEn: string; desc: string; descEn: string }[] = [
+  { id: "bootstrap",   cat: "curve",  title: "票息剥离自举",     titleEn: "Par-Curve Bootstrapping",   desc: "par 曲线 → 贴现因子 → 零息与远期", descEn: "Par curve to discount factors, zeros and forwards" },
+  { id: "interp",      cat: "curve",  title: "插值方法对比",     titleEn: "Interpolation Methods",     desc: "线性零率 / 分段常数远期 / 三次样条的远期平滑性", descEn: "Linear zero vs piecewise-constant forward vs cubic spline smoothness" },
+  { id: "roll",        cat: "curve",  title: "Carry 与滚动收益", titleEn: "Carry & Roll-Down",         desc: "曲线不变假设下的持有期收益分解", descEn: "Holding-period return decomposition under an unchanged curve" },
+  { id: "taxonomy",    cat: "spread", title: "利差四口径",       titleEn: "Spread Taxonomy",           desc: "名义 / Z-spread / ASW / OAS 与期权成本", descEn: "Nominal / Z-spread / ASW / OAS and the cost of optionality" },
+  { id: "effrisk",     cat: "spread", title: "有效久期与凸性",   titleEn: "Effective Duration & Convexity", desc: "曲线扰动法：含权债的正确风险口径", descEn: "Curve-shock approach: the right risk metric for embedded options" },
+  { id: "krd",         cat: "spread", title: "关键利率久期对冲", titleEn: "Key-Rate Duration Hedging", desc: "逐桶中性化的对冲名义求解", descEn: "Solving hedge notionals that neutralise each key-rate bucket" },
+  { id: "immunize",    cat: "spread", title: "免疫与久期缺口",   titleEn: "Immunization & Duration Gap", desc: "Redington 条件下盈余对平行移动的敏感性", descEn: "Surplus sensitivity to parallel shifts under Redington conditions" },
+  { id: "embedded",    cat: "option", title: "可赎回 / 可回售债", titleEn: "Callable & Putable Bonds",  desc: "对数正态短率树：期权价值与不对称性", descEn: "Lognormal short-rate tree: option value and asymmetry" },
+  { id: "convertible", cat: "option", title: "可转债分解",       titleEn: "Convertible Decomposition", desc: "债底 + 转换期权、转换平价与债性/股性区间", descEn: "Bond floor plus conversion option, parity, debt vs equity regions" },
+  { id: "creditdec",   cat: "credit", title: "信用利差分解",     titleEn: "Credit Spread Decomposition", desc: "预期损失 / 风险溢价 / 流动性 / 税收与信用利差之谜", descEn: "Expected loss / risk premium / liquidity / tax and the credit spread puzzle" },
+  { id: "migration",   cat: "credit", title: "评级迁移矩阵",     titleEn: "Rating Migration Matrix",   desc: "多期演化、违约累积与迁移风险 VaR", descEn: "Multi-period evolution, cumulative default and migration VaR" },
+  { id: "waterfall",   cat: "credit", title: "分层瀑布与 OC 触发", titleEn: "Waterfall & OC Triggers", desc: "顺序偿付、超额抵押触发与减记顺位", descEn: "Sequential pay, overcollateralisation triggers and write-down order" },
+  { id: "copula",      cat: "credit", title: "高斯 copula 分层",  titleEn: "Gaussian Copula Tranches", desc: "单因子相关性对股权/夹层/优先层的再分配", descEn: "One-factor correlation reshaping equity / mezzanine / senior tranches" },
+  { id: "basis",       cat: "credit", title: "CDS-债券基差",     titleEn: "CDS-Bond Basis",            desc: "现券 vs 合成的融资口径与套利方向", descEn: "Cash vs synthetic funding and the direction of the arbitrage" },
+  { id: "mbs",         cat: "book",   title: "MBS 负凸性",       titleEn: "MBS Negative Convexity",    desc: "提前还款加速 → 利率下行时久期反而缩短", descEn: "Prepayment speed-up: duration shortens as rates fall" },
+  { id: "repo",        cat: "book",   title: "回购杠杆与螺旋",   titleEn: "Repo Leverage & Spiral",    desc: "杠杆放大 carry 与风险；折扣率上升的追缴螺旋", descEn: "Leverage amplifies carry and risk; haircut spirals into margin calls" },
+  { id: "rfr",         cat: "book",   title: "RFR 改革与负利率", titleEn: "RFR Reform & Negative Rates", desc: "后视复利 vs 定盘、fallback 利差、位移对数正态 caplet", descEn: "Backward compounding vs fixings, fallback spreads, shifted-lognormal caplets" },
+  { id: "green",       cat: "book",   title: "气候与流动性利差", titleEn: "Climate & Liquidity Spreads", desc: "绿色溢价、转型贴水与债券流动性溢价", descEn: "Greenium, transition discount and the bond liquidity premium" },
 ];
 const TAB_IDS: Tab[] = [
   "bootstrap", "interp", "roll",
@@ -990,7 +990,7 @@ export default function V62FixedIncomeTools() {
                              : "bg-transparent border-border/60 text-muted-foreground hover:text-foreground"
               }`}>
               {isEn ? t.titleEn : t.title}
-              <span className="ml-2 text-[10px] text-muted-foreground/70 hidden md:inline">{t.desc}</span>
+              <span className="ml-2 text-[10px] text-muted-foreground/70 hidden md:inline">{isEn ? t.descEn : t.desc}</span>
             </button>
           ))}
         </div>
