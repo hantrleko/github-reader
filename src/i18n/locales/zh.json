@@ -669,6 +669,10 @@
       "vasicekCurve": "Vasicek 解析收益率曲线",
       "analyticalYield": "解析收益率",
       "pathsTitle": "利率路径 · Monte Carlo"
+    },
+    "assetPricing": {
+      "title": "资产定价",
+      "intro": "21 个交互工具，从无套利基础 (状态价格 · 风险中性测度 · SDF-因子对偶 · HJ 距离) 出发，贯通均衡定价 (CAPM · 零β · ICAPM)、因子与实证 (APT · Fama-French · Fama-MacBeth · 异象排序 · GRS)、现代 SDF 框架，直到结构性谜题 (长期风险 · 习惯形成 · 罕见灾难) 与实证前沿 (Campbell-Shiller 分解 · 因子动物园 · 货币 Carry)。"
     }
   }
 }

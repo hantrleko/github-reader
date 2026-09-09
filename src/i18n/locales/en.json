@@ -667,6 +667,10 @@
       "vasicekCurve": "Vasicek analytical yield curve",
       "analyticalYield": "Analytical yield",
       "pathsTitle": "Rate paths · Monte Carlo"
+    },
+    "assetPricing": {
+      "title": "Asset Pricing",
+      "intro": "21 interactive tools: from no-arbitrage foundations (state prices · risk-neutral measure · SDF-factor duality · HJ distance) through equilibrium pricing (CAPM · zero-beta · ICAPM), factors and empirics (APT · Fama-French · Fama-MacBeth · anomaly sorts · GRS), the modern SDF framework, and on to structural puzzles (long-run risk · habit formation · rare disasters) and the empirical frontier (Campbell-Shiller decomposition · factor zoo · currency carry)."
     }
   }
 }
