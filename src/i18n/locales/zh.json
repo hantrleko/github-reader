@@ -673,6 +673,59 @@
     "assetPricing": {
       "title": "资产定价",
       "intro": "21 个交互工具，从无套利基础 (状态价格 · 风险中性测度 · SDF-因子对偶 · HJ 距离) 出发，贯通均衡定价 (CAPM · 零β · ICAPM)、因子与实证 (APT · Fama-French · Fama-MacBeth · 异象排序 · GRS)、现代 SDF 框架，直到结构性谜题 (长期风险 · 习惯形成 · 罕见灾难) 与实证前沿 (Campbell-Shiller 分解 · 因子动物园 · 货币 Carry)。"
+    },
+    "frontier": {
+      "ret": "收益",
+      "vol": "波动率",
+      "newAsset": "资产 {{letter}}",
+      "gmvPoint": "GMV (最小方差)",
+      "tangentPoint": "切线组合 (SR={{sr}})",
+      "summary": "{{n}} 资产 · ρ={{rho}} · {{mode}}",
+      "short": "允许做空",
+      "longOnly": "仅做多",
+      "presets": {
+        "twoAsset": "经典双资产",
+        "twoAssetDesc": "股票+债券, ρ=0.2",
+        "global": "全球配置",
+        "globalDesc": "美股/国债/新兴/商品",
+        "markowitz": "Markowitz 示例",
+        "markowitzDesc": "允许卖空, ρ=0.5"
+      },
+      "assetsHeader": "资产配置（{{n}}/8）",
+      "addAsset": "添加资产",
+      "rho": "统一相关系数 ρ",
+      "allowShort": "允许卖空",
+      "space": "均值-标准差空间",
+      "volAxis": "波动率 σ (%)",
+      "retAxis": "收益 μ (%)",
+      "frontierSeries": "有效前沿",
+      "assetsSeries": "资产",
+      "tangentSeries": "切线组合",
+      "chartNote": "Rᶠ = 2% · 点击金色前沿上的点查看权重分配 · 菱形 = GMV · 星形 = 切线组合 · 虚线 = CML",
+      "weightsTitle": "组合权重分配",
+      "weightsSub": "目标收益 μ = {{ret}}% · 波动率 σ = {{vol}}%",
+      "close": "关闭",
+      "gmvCard": "最小方差组合 (GMV)",
+      "tangentCard": "切线组合 (Max Sharpe)",
+      "diversification": "分散化效应",
+      "diversificationSub": "风险降低（GMV vs 等权平均波动率）",
+      "frontierPoints": "前沿点数",
+      "assetNames": {
+        "a": "股票 A",
+        "b": "债券 B",
+        "c": "商品 C",
+        "equity": "股票",
+        "bond": "债券",
+        "usEquity": "美股",
+        "treasury": "国债",
+        "em": "新兴市场",
+        "commodity": "商品",
+        "genA": "资产 A",
+        "genB": "资产 B",
+        "genC": "资产 C"
+      },
+      "pyAssets": "# {{n}} 资产 · ρ={{rho}} · {{mode}}",
+      "pySigma": "# Σ 由各资产 σ 与相关系数 ρ={{rho}} 构造"
     }
   }
 }

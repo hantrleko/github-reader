@@ -671,6 +671,59 @@
     "assetPricing": {
       "title": "Asset Pricing",
       "intro": "21 interactive tools: from no-arbitrage foundations (state prices · risk-neutral measure · SDF-factor duality · HJ distance) through equilibrium pricing (CAPM · zero-beta · ICAPM), factors and empirics (APT · Fama-French · Fama-MacBeth · anomaly sorts · GRS), the modern SDF framework, and on to structural puzzles (long-run risk · habit formation · rare disasters) and the empirical frontier (Campbell-Shiller decomposition · factor zoo · currency carry)."
+    },
+    "frontier": {
+      "ret": "Return",
+      "vol": "Volatility",
+      "newAsset": "Asset {{letter}}",
+      "gmvPoint": "GMV (min variance)",
+      "tangentPoint": "Tangency (SR={{sr}})",
+      "summary": "{{n}} assets · ρ={{rho}} · {{mode}}",
+      "short": "short allowed",
+      "longOnly": "long-only",
+      "presets": {
+        "twoAsset": "Classic two-asset",
+        "twoAssetDesc": "Equity + bonds, ρ=0.2",
+        "global": "Global allocation",
+        "globalDesc": "US equity / Treasuries / EM / commodities",
+        "markowitz": "Markowitz example",
+        "markowitzDesc": "Shorting allowed, ρ=0.5"
+      },
+      "assetsHeader": "Asset allocation ({{n}}/8)",
+      "addAsset": "Add asset",
+      "rho": "Uniform correlation ρ",
+      "allowShort": "Allow short selling",
+      "space": "Mean–standard-deviation space",
+      "volAxis": "Volatility σ (%)",
+      "retAxis": "Return μ (%)",
+      "frontierSeries": "Efficient frontier",
+      "assetsSeries": "Assets",
+      "tangentSeries": "Tangency portfolio",
+      "chartNote": "Rᶠ = 2% · click a point on the gold frontier to see its weights · diamond = GMV · star = tangency portfolio · dashed = CML",
+      "weightsTitle": "Portfolio weights",
+      "weightsSub": "Target return μ = {{ret}}% · volatility σ = {{vol}}%",
+      "close": "Close",
+      "gmvCard": "Global minimum-variance (GMV)",
+      "tangentCard": "Tangency portfolio (max Sharpe)",
+      "diversification": "Diversification effect",
+      "diversificationSub": "Risk reduction (GMV vs equal-weight average volatility)",
+      "frontierPoints": "Frontier points",
+      "assetNames": {
+        "a": "Equity A",
+        "b": "Bond B",
+        "c": "Commodity C",
+        "equity": "Equity",
+        "bond": "Bond",
+        "usEquity": "US equity",
+        "treasury": "Treasuries",
+        "em": "Emerging markets",
+        "commodity": "Commodities",
+        "genA": "Asset A",
+        "genB": "Asset B",
+        "genC": "Asset C"
+      },
+      "pyAssets": "# {{n}} assets · ρ={{rho}} · {{mode}}",
+      "pySigma": "# Σ built from each asset's σ and correlation ρ={{rho}}"
     }
   }
 }
