@@ -31,10 +31,10 @@ interface Asset {
   vol: number; // volatility %
 }
 
-const defaultAssets: Asset[] = [
-  { id: "1", name: "labs.frontier.assetNames.a", ret: 12, vol: 20 },
-  { id: "2", name: "labs.frontier.assetNames.b", ret: 5, vol: 8 },
-  { id: "3", name: "labs.frontier.assetNames.c", ret: 8, vol: 18 },
+const makeDefaultAssets = (t: (k: string) => string): Asset[] => [
+  { id: "1", name: t("labs.frontier.assetNames.a"), ret: 12, vol: 20 },
+  { id: "2", name: t("labs.frontier.assetNames.b"), ret: 5, vol: 8 },
+  { id: "3", name: t("labs.frontier.assetNames.c"), ret: 8, vol: 18 },
   { id: "4", name: "REITs D", ret: 9, vol: 15 },
 ];
 
@@ -215,7 +215,7 @@ let nextId = 5;
 
 const EfficientFrontier = () => {
   const { t } = useTranslation();
-  const [assets, setAssets] = useState<Asset[]>(defaultAssets);
+  const [assets, setAssets] = useState<Asset[]>(() => makeDefaultAssets(t));
   const [rho, setRho] = useState(0.3);
   const [allowShort, setAllowShort] = useState(true);
   const [selectedIdx, setSelectedIdx] = useState<number | null>(null);
