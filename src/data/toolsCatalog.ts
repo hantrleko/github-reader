@@ -940,7 +940,7 @@ export const TOOLS_CATALOG: ToolEntry[] = [
   // ── V3.1: Asset Pricing ──
   {
     id: "capm", name: "CAPM / SML", nameEn: "CAPM & Security Market Line",
-    category: "asset-pricing", difficulty: "core", anchor: "/#asset-pricing",
+    category: "asset-pricing", difficulty: "core", anchor: "/#asset-pricing?t=capm",
     tags: ["β", "证券市场线", "Jensen α"],
     refs: ["Sharpe (1964)", "Lintner (1965)"],
     blurb: "证券市场线 + 要求收益 + Jensen's α + Treynor。",
@@ -948,7 +948,7 @@ export const TOOLS_CATALOG: ToolEntry[] = [
   },
   {
     id: "apt", name: "APT 多因子", nameEn: "Arbitrage Pricing Theory",
-    category: "asset-pricing", difficulty: "advanced", anchor: "/#asset-pricing",
+    category: "asset-pricing", difficulty: "advanced", anchor: "/#asset-pricing?t=apt",
     tags: ["多因子", "无套利", "收益分解"],
     refs: ["Ross (1976)"],
     blurb: "多因子线性定价 + 各因子收益贡献分解。",
@@ -956,7 +956,7 @@ export const TOOLS_CATALOG: ToolEntry[] = [
   },
   {
     id: "famafrench", name: "Fama-French 回归", nameEn: "Fama-French 3/5-Factor",
-    category: "asset-pricing", difficulty: "advanced", anchor: "/#asset-pricing",
+    category: "asset-pricing", difficulty: "advanced", anchor: "/#asset-pricing?t=famafrench",
     tags: ["SMB", "HML", "RMW", "CMA", "归因"],
     refs: ["Fama & French (1993)", "Fama & French (2015)"],
     blurb: "三/五因子 OLS 回归 + α 显著性 + 载荷归因。",
@@ -965,7 +965,7 @@ export const TOOLS_CATALOG: ToolEntry[] = [
   // ── V3.6: Asset Pricing expansion ──
   {
     id: "zerobeta", name: "Zero-Beta CAPM", nameEn: "Black (1972) Zero-Beta CAPM",
-    category: "asset-pricing", difficulty: "advanced", anchor: "/#asset-pricing",
+    category: "asset-pricing", difficulty: "advanced", anchor: "/#asset-pricing?t=zerobeta",
     tags: ["零β组合", "无无风险资产", "平坦 SML"],
     refs: ["Black (1972)", "Black-Jensen-Scholes (1972)"],
     blurb: "放松无风险资产假设，用零β组合收益替代 Rf，解释更平坦的 SML。",
@@ -973,7 +973,7 @@ export const TOOLS_CATALOG: ToolEntry[] = [
   },
   {
     id: "icapm", name: "ICAPM 跨期", nameEn: "Merton (1973) Intertemporal CAPM",
-    category: "asset-pricing", difficulty: "research", anchor: "/#asset-pricing",
+    category: "asset-pricing", difficulty: "research", anchor: "/#asset-pricing?t=icapm",
     tags: ["多期", "状态变量", "对冲需求"],
     refs: ["Merton (1973)"],
     blurb: "多期设定引入状态变量对冲因子，为多因子模型提供理论根基。",
@@ -981,7 +981,7 @@ export const TOOLS_CATALOG: ToolEntry[] = [
   },
   {
     id: "anomaly", name: "异象排序组合", nameEn: "Anomaly Quantile-Sort Long-Short",
-    category: "asset-pricing", difficulty: "research", anchor: "/#asset-pricing",
+    category: "asset-pricing", difficulty: "research", anchor: "/#asset-pricing?t=anomaly",
     tags: ["规模", "价值", "动量", "低波动", "多空"],
     refs: ["Banz (1981)", "Jegadeesh-Titman (1993)", "Ang et al. (2006)"],
     blurb: "按特征分位排序构建多空组合，复现 SMB/HML/UMD 的因子构建逻辑。",
@@ -989,7 +989,7 @@ export const TOOLS_CATALOG: ToolEntry[] = [
   },
   {
     id: "grs", name: "GRS 联合检验", nameEn: "Gibbons-Ross-Shanken Joint α Test",
-    category: "asset-pricing", difficulty: "research", anchor: "/#asset-pricing",
+    category: "asset-pricing", difficulty: "research", anchor: "/#asset-pricing?t=grs",
     tags: ["联合检验", "定价误差", "F 统计量"],
     refs: ["Gibbons, Ross & Shanken (1989)"],
     blurb: "联合检验一组测试组合的 α 是否全为零，判断因子模型是否被拒绝。",
@@ -997,7 +997,7 @@ export const TOOLS_CATALOG: ToolEntry[] = [
   },
   {
     id: "sdf", name: "随机折现因子 SDF", nameEn: "Stochastic Discount Factor p=E[MX]",
-    category: "asset-pricing", difficulty: "research", anchor: "/#asset-pricing",
+    category: "asset-pricing", difficulty: "research", anchor: "/#asset-pricing?t=sdf",
     tags: ["定价核", "beta 表示", "统一框架"],
     refs: ["Cochrane (2005)", "Hansen-Richard (1987)"],
     blurb: "统一定价框架 p=E[MX]；CAPM、CCAPM 均为线性/消费 SDF 的特例。",
@@ -1005,7 +1005,7 @@ export const TOOLS_CATALOG: ToolEntry[] = [
   },
   {
     id: "ccapm", name: "CCAPM + 股权溢价之谜", nameEn: "Consumption CAPM & Equity Premium Puzzle",
-    category: "asset-pricing", difficulty: "research", anchor: "/#asset-pricing",
+    category: "asset-pricing", difficulty: "research", anchor: "/#asset-pricing?t=ccapm",
     tags: ["幂效用", "消费增长", "股权溢价之谜"],
     refs: ["Breeden (1979)", "Lucas (1978)", "Mehra-Prescott (1985)"],
     blurb: "幂效用消费 SDF；演示需要极大风险厌恶才能匹配历史股权溢价。",
@@ -1013,7 +1013,7 @@ export const TOOLS_CATALOG: ToolEntry[] = [
   },
   {
     id: "hj", name: "Hansen-Jagannathan 边界", nameEn: "Hansen-Jagannathan SDF Bound",
-    category: "asset-pricing", difficulty: "research", anchor: "/#asset-pricing",
+    category: "asset-pricing", difficulty: "research", anchor: "/#asset-pricing?t=hj",
     tags: ["SDF 波动率下界", "Sharpe", "诊断"],
     refs: ["Hansen & Jagannathan (1991)"],
     blurb: "σ(M)/E(M) ≥ 最大 Sharpe；给合法定价核设定波动率下界。",
@@ -1137,7 +1137,7 @@ export const TOOLS_CATALOG: ToolEntry[] = [
   },
   {
     id: "famamacbeth", name: "Fama-MacBeth 回归", nameEn: "Fama-MacBeth Two-Pass Regression",
-    category: "asset-pricing", difficulty: "research", anchor: "/#asset-pricing",
+    category: "asset-pricing", difficulty: "research", anchor: "/#asset-pricing?t=famamacbeth",
     tags: ["横截面回归", "风险溢价", "Shanken 修正", "两阶段"],
     refs: ["Fama & MacBeth (1973)", "Shanken (1992)"],
     blurb: "两阶段横截面回归估计因子风险溢价，含 Shanken errors-in-variables 修正。",
@@ -1346,7 +1346,7 @@ export const TOOLS_CATALOG: ToolEntry[] = [
   // ── V5.3: Asset Pricing completion ──
   {
     id: "stateprice", name: "状态价格与风险中性测度", nameEn: "State Prices & Risk-Neutral Measure",
-    category: "asset-pricing", difficulty: "research", anchor: "/s/asset-pricing",
+    category: "asset-pricing", difficulty: "research", anchor: "/#asset-pricing?t=stateprice",
     tags: ["无套利", "完备市场", "状态价格", "风险中性"],
     refs: ["Arrow (1964)", "Debreu (1959)", "Harrison & Kreps (1979)"],
     blurb: "有限状态市场反解状态价格 q、SDF m=q/π 与风险中性概率 Q；判定无套利与完备性，不完备时给出价格区间。",
@@ -1354,7 +1354,7 @@ export const TOOLS_CATALOG: ToolEntry[] = [
   },
   {
     id: "sdf-factor", name: "SDF–因子对偶", nameEn: "SDF & Linear Factor Model Duality",
-    category: "asset-pricing", difficulty: "research", anchor: "/s/asset-pricing",
+    category: "asset-pricing", difficulty: "research", anchor: "/#asset-pricing?t=duality",
     tags: ["定价核", "β 表示", "风险价格"],
     refs: ["Cochrane (2005) ch.6"],
     blurb: "m=a−b'f 与 E[R]=Rf+β'λ 的双向映射，展示 b 与风险价格 λ 的等价关系。",
@@ -1362,7 +1362,7 @@ export const TOOLS_CATALOG: ToolEntry[] = [
   },
   {
     id: "hjdist", name: "HJ 距离与模型比较", nameEn: "Hansen-Jagannathan Distance",
-    category: "asset-pricing", difficulty: "research", anchor: "/s/asset-pricing",
+    category: "asset-pricing", difficulty: "research", anchor: "/#asset-pricing?t=hjdist",
     tags: ["HJ 距离", "GMM", "定价误差", "模型比较"],
     refs: ["Hansen & Jagannathan (1997)"],
     blurb: "以 E[RR']⁻¹ 加权的定价误差范数，在同一尺度上比较 CAPM / FF3 / FF5。",
@@ -1370,7 +1370,7 @@ export const TOOLS_CATALOG: ToolEntry[] = [
   },
   {
     id: "longrunrisk", name: "长期风险 (Epstein-Zin)", nameEn: "Long-Run Risk & Recursive Utility",
-    category: "asset-pricing", difficulty: "research", anchor: "/s/asset-pricing",
+    category: "asset-pricing", difficulty: "research", anchor: "/#asset-pricing?t=lrr",
     tags: ["递归效用", "IES", "长期风险", "股权溢价"],
     refs: ["Epstein & Zin (1989)", "Bansal & Yaron (2004)"],
     blurb: "分离风险厌恶 γ 与跨期替代弹性 ψ，可变增长与波动状态下输出 ERP、无风险利率与 SDF 波动。",
@@ -1378,7 +1378,7 @@ export const TOOLS_CATALOG: ToolEntry[] = [
   },
   {
     id: "habit", name: "习惯形成 (Campbell-Cochrane)", nameEn: "External Habit Formation",
-    category: "asset-pricing", difficulty: "research", anchor: "/s/asset-pricing",
+    category: "asset-pricing", difficulty: "research", anchor: "/#asset-pricing?t=habit",
     tags: ["外部习惯", "盈余消费比", "时变风险厌恶"],
     refs: ["Campbell & Cochrane (1999)"],
     blurb: "盈余消费比 s 的动态生成时变风险厌恶与时变风险溢价，解释溢价的顺周期波动。",
@@ -1386,7 +1386,7 @@ export const TOOLS_CATALOG: ToolEntry[] = [
   },
   {
     id: "disaster", name: "罕见灾难 (Rietz-Barro)", nameEn: "Rare Disasters",
-    category: "asset-pricing", difficulty: "research", anchor: "/s/asset-pricing",
+    category: "asset-pricing", difficulty: "research", anchor: "/#asset-pricing?t=disaster",
     tags: ["尾部风险", "灾难概率", "无风险利率之谜"],
     refs: ["Rietz (1988)", "Barro (2006)"],
     blurb: "小概率大幅消费崩塌同时抬高股权溢价、压低无风险利率，展示对灾难分布的敏感性。",
@@ -1394,7 +1394,7 @@ export const TOOLS_CATALOG: ToolEntry[] = [
   },
   {
     id: "puzzles", name: "三大谜题对照面板", nameEn: "Three Puzzles Scoreboard",
-    category: "asset-pricing", difficulty: "research", anchor: "/s/asset-pricing",
+    category: "asset-pricing", difficulty: "research", anchor: "/#asset-pricing?t=scoreboard",
     tags: ["股权溢价之谜", "无风险利率之谜", "超额波动"],
     refs: ["Mehra & Prescott (1985)", "Weil (1989)", "Shiller (1981)"],
     blurb: "CRRA / 长期风险 / 习惯 / 灾难四条路线并排比较三大谜题的解释力与所需 γ。",
@@ -1402,7 +1402,7 @@ export const TOOLS_CATALOG: ToolEntry[] = [
   },
   {
     id: "campbellshiller", name: "Campbell-Shiller 分解", nameEn: "Campbell-Shiller Decomposition",
-    category: "asset-pricing", difficulty: "research", anchor: "/s/asset-pricing",
+    category: "asset-pricing", difficulty: "research", anchor: "/#asset-pricing?t=cs",
     tags: ["股利价格比", "折现率新闻", "收益可预测性"],
     refs: ["Campbell & Shiller (1988)", "Cochrane (2008)"],
     blurb: "对数线性分解 dp 为现金流新闻与折现率新闻，并做长期收益预测回归 (Hodrick 标准误)。",
@@ -1410,7 +1410,7 @@ export const TOOLS_CATALOG: ToolEntry[] = [
   },
   {
     id: "factorzoo", name: "因子动物园与高维筛选", nameEn: "Factor Zoo & High-Dimensional Screening",
-    category: "asset-pricing", difficulty: "research", anchor: "/s/asset-pricing",
+    category: "asset-pricing", difficulty: "research", anchor: "/#asset-pricing?t=zoo",
     tags: ["主成分", "Ridge", "LASSO", "多重检验"],
     refs: ["Harvey, Liu & Zhu (2016)", "Gu, Kelly & Xiu (2020)"],
     blurb: "PCA 与收缩估计压缩多因子集合，用 t>3 门槛做多重检验校正，展示因子冗余。",
@@ -1418,7 +1418,7 @@ export const TOOLS_CATALOG: ToolEntry[] = [
   },
   {
     id: "carry", name: "货币 Carry 与国际定价", nameEn: "Currency Carry & International Pricing",
-    category: "asset-pricing", difficulty: "research", anchor: "/s/asset-pricing",
+    category: "asset-pricing", difficulty: "research", anchor: "/#asset-pricing?t=carry",
     tags: ["UIP 偏离", "Carry", "跨国 SDF"],
     refs: ["Backus, Foresi & Telmer (2001)", "Lustig & Verdelhan (2007)"],
     blurb: "UIP 偏离与利差排序 Carry 组合，把汇率变动写成两国定价核之差。",

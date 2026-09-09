@@ -31,10 +31,10 @@ interface Asset {
   vol: number; // volatility %
 }
 
-const defaultAssets: Asset[] = [
-  { id: "1", name: "股票 A", ret: 12, vol: 20 },
-  { id: "2", name: "债券 B", ret: 5, vol: 8 },
-  { id: "3", name: "商品 C", ret: 8, vol: 18 },
+const makeDefaultAssets = (t: (k: string) => string): Asset[] => [
+  { id: "1", name: t("labs.frontier.assetNames.a"), ret: 12, vol: 20 },
+  { id: "2", name: t("labs.frontier.assetNames.b"), ret: 5, vol: 8 },
+  { id: "3", name: t("labs.frontier.assetNames.c"), ret: 8, vol: 18 },
   { id: "4", name: "REITs D", ret: 9, vol: 15 },
 ];
 
@@ -188,6 +188,7 @@ function computeEfficientFrontier(
 }
 
 const FrontierTooltip = ({ active, payload }: any) => {
+  const { t } = useTranslation();
   if (!active || !payload?.length) return null;
   const d = payload[0]?.payload;
   return (
@@ -196,10 +197,10 @@ const FrontierTooltip = ({ active, payload }: any) => {
         <p className="text-xs font-mono text-gold mb-1">{d.name}</p>
       )}
       <p className="text-xs font-mono text-muted-foreground">
-        收益: {d?.ret?.toFixed(2)}%
+        {t("labs.frontier.ret")}: {d?.ret?.toFixed(2)}%
       </p>
       <p className="text-xs font-mono text-muted-foreground">
-        波动率: {d?.vol?.toFixed(2)}%
+        {t("labs.frontier.vol")}: {d?.vol?.toFixed(2)}%
       </p>
       {d?.sharpe !== undefined && (
         <p className="text-xs font-mono text-gold">
@@ -214,7 +215,7 @@ let nextId = 5;
 
 const EfficientFrontier = () => {
   const { t } = useTranslation();
-  const [assets, setAssets] = useState<Asset[]>(defaultAssets);
+  const [assets, setAssets] = useState<Asset[]>(() => makeDefaultAssets(t));
   const [rho, setRho] = useState(0.3);
   const [allowShort, setAllowShort] = useState(true);
   const [selectedIdx, setSelectedIdx] = useState<number | null>(null);
@@ -231,7 +232,7 @@ const EfficientFrontier = () => {
     if (assets.length >= 8) return;
     setAssets(prev => [
       ...prev,
-      { id: String(nextId++), name: `资产 ${String.fromCharCode(65 + prev.length)}`, ret: 7, vol: 12 },
+      { id: String(nextId++), name: t("labs.frontier.newAsset", { letter: String.fromCharCode(65 + prev.length) }), ret: 7, vol: 12 },
     ]);
   };
 
@@ -271,8 +272,8 @@ const EfficientFrontier = () => {
     name: a.name,
   }));
 
-  const gmvPoint = [{ ...gmv, name: "GMV (最小方差)" }];
-  const tangentPoint = tangent ? [{ ...tangent, name: `切线组合 (SR=${tangent.sharpe.toFixed(2)})` }] : [];
+  const gmvPoint = [{ ...gmv, name: t("labs.frontier.gmvPoint") }];
+  const tangentPoint = tangent ? [{ ...tangent, name: t("labs.frontier.tangentPoint", { sr: tangent.sharpe.toFixed(2) }) }] : [];
 
   // CML line if tangent exists
   const cmlData = tangent
@@ -318,7 +319,7 @@ const EfficientFrontier = () => {
                   if (typeof s.allowShort === "boolean") setAllowShort(s.allowShort);
                 }}
                 summarize={(s: any) =>
-                  `${(s.assets || []).length} 资产 · ρ=${s.rho} · ${s.allowShort ? "允许做空" : "仅做多"}`
+                  t("labs.frontier.summary", { n: (s.assets || []).length, rho: s.rho, mode: t(s.allowShort ? "labs.frontier.short" : "labs.frontier.longOnly") })
                 }
               />
               <ShareExportToolbar
@@ -341,9 +342,9 @@ const EfficientFrontier = () => {
           </div>
 
           <PresetButtons presets={[
-            { name: "经典双资产", description: "股票+债券, ρ=0.2", apply: () => { setAssets([{ id: "1", name: "股票", ret: 12, vol: 20 }, { id: "2", name: "债券", ret: 5, vol: 8 }]); setRho(0.2); setAllowShort(false); } },
-            { name: "全球配置", description: "美股/国债/新兴/商品", apply: () => { setAssets([{ id: "1", name: "美股", ret: 10, vol: 16 }, { id: "2", name: "国债", ret: 4, vol: 5 }, { id: "3", name: "新兴市场", ret: 14, vol: 25 }, { id: "4", name: "商品", ret: 7, vol: 18 }]); setRho(0.3); setAllowShort(false); } },
-            { name: "Markowitz示例", description: "允许卖空, ρ=0.5", apply: () => { setAssets([{ id: "1", name: "资产 A", ret: 15, vol: 22 }, { id: "2", name: "资产 B", ret: 8, vol: 12 }, { id: "3", name: "资产 C", ret: 11, vol: 18 }]); setRho(0.5); setAllowShort(true); } },
+            { name: t("labs.frontier.presets.twoAsset"), description: t("labs.frontier.presets.twoAssetDesc"), apply: () => { setAssets([{ id: "1", name: t("labs.frontier.assetNames.equity"), ret: 12, vol: 20 }, { id: "2", name: t("labs.frontier.assetNames.bond"), ret: 5, vol: 8 }]); setRho(0.2); setAllowShort(false); } },
+            { name: t("labs.frontier.presets.global"), description: t("labs.frontier.presets.globalDesc"), apply: () => { setAssets([{ id: "1", name: t("labs.frontier.assetNames.usEquity"), ret: 10, vol: 16 }, { id: "2", name: t("labs.frontier.assetNames.treasury"), ret: 4, vol: 5 }, { id: "3", name: t("labs.frontier.assetNames.em"), ret: 14, vol: 25 }, { id: "4", name: t("labs.frontier.assetNames.commodity"), ret: 7, vol: 18 }]); setRho(0.3); setAllowShort(false); } },
+            { name: t("labs.frontier.presets.markowitz"), description: t("labs.frontier.presets.markowitzDesc"), apply: () => { setAssets([{ id: "1", name: t("labs.frontier.assetNames.genA"), ret: 15, vol: 22 }, { id: "2", name: t("labs.frontier.assetNames.genB"), ret: 8, vol: 12 }, { id: "3", name: t("labs.frontier.assetNames.genC"), ret: 11, vol: 18 }]); setRho(0.5); setAllowShort(true); } },
           ]} />
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
@@ -351,14 +352,14 @@ const EfficientFrontier = () => {
             <div>
               <div className="flex items-center justify-between mb-4">
                 <p className="text-xs font-mono text-muted-foreground uppercase tracking-wider">
-                  资产配置（{assets.length}/8）
+                  {t("labs.frontier.assetsHeader", { n: assets.length })}
                 </p>
                 <button
                   onClick={addAsset}
                   disabled={assets.length >= 8}
                   className="flex items-center gap-1 px-3 py-1.5 text-[11px] font-mono rounded-lg bg-gold/10 text-gold border border-gold/20 hover:bg-gold/20 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
                 >
-                  <Plus className="w-3 h-3" /> 添加资产
+                  <Plus className="w-3 h-3" /> {t("labs.frontier.addAsset")}
                 </button>
               </div>
 
@@ -418,7 +419,7 @@ const EfficientFrontier = () => {
                 <div>
                   <div className="flex justify-between items-baseline mb-2">
                     <label className="text-sm text-secondary-foreground font-medium">
-                      统一相关系数 ρ
+                      {t("labs.frontier.rho")}
                     </label>
                     <span className="text-sm font-mono text-gold">{rho.toFixed(2)}</span>
                   </div>
@@ -444,7 +445,7 @@ const EfficientFrontier = () => {
                     onChange={(e) => setAllowShort(e.target.checked)}
                     className="w-4 h-4 rounded border-border accent-gold"
                   />
-                  <span className="text-sm text-secondary-foreground">允许卖空</span>
+                  <span className="text-sm text-secondary-foreground">{t("labs.frontier.allowShort")}</span>
                 </label>
               </div>
             </div>
@@ -452,7 +453,7 @@ const EfficientFrontier = () => {
             {/* Chart */}
             <div>
               <p className="text-xs font-mono text-muted-foreground uppercase tracking-wider mb-3">
-                均值-标准差空间
+                {t("labs.frontier.space")}
               </p>
               <div className="rounded-xl bg-secondary/30 border border-border p-4">
                 <ResponsiveContainer width="100%" height={380}>
@@ -464,7 +465,7 @@ const EfficientFrontier = () => {
                       stroke={CHART_TEXT}
                       tick={{ fontSize: 10, fontFamily: "var(--font-mono)" }}
                       label={{
-                        value: "波动率 σ (%)",
+                        value: t("labs.frontier.volAxis"),
                         position: "insideBottom",
                         offset: -5,
                         style: { fontSize: 11, fill: CHART_TEXT, fontFamily: "var(--font-mono)" },
@@ -478,7 +479,7 @@ const EfficientFrontier = () => {
                       tick={{ fontSize: 10, fontFamily: "var(--font-mono)" }}
                       width={45}
                       label={{
-                        value: "收益 μ (%)",
+                        value: t("labs.frontier.retAxis"),
                         angle: -90,
                         position: "insideLeft",
                         offset: 10,
@@ -501,7 +502,7 @@ const EfficientFrontier = () => {
 
                     {/* Efficient Frontier - clickable dots */}
                     <Scatter
-                      name="有效前沿"
+                      name={t("labs.frontier.frontierSeries")}
                       data={frontier.map((p, i) => ({ ...p, idx: i }))}
                       line={{ stroke: CHART_GOLD, strokeWidth: 2.5 }}
                       shape={(props: any) => {
@@ -525,7 +526,7 @@ const EfficientFrontier = () => {
 
                     {/* Individual assets */}
                     <Scatter
-                      name="资产"
+                      name={t("labs.frontier.assetsSeries")}
                       data={assetPoints}
                       fill={CHART_TEAL}
                       shape="circle"
@@ -544,7 +545,7 @@ const EfficientFrontier = () => {
                     {/* Tangent */}
                     {tangentPoint.length > 0 && (
                       <Scatter
-                        name="切线组合"
+                        name={t("labs.frontier.tangentSeries")}
                         data={tangentPoint}
                         fill={CHART_RED}
                         shape="star"
@@ -559,7 +560,7 @@ const EfficientFrontier = () => {
                 </ResponsiveContainer>
               </div>
               <p className="text-[10px] text-muted-foreground font-mono mt-2 text-center">
-                Rᶠ = 2% · 点击金色前沿上的点查看权重分配 · 菱形 = GMV · 星形 = 切线组合 · 虚线 = CML
+                {t("labs.frontier.chartNote")}
               </p>
             </div>
           </div>
@@ -574,17 +575,17 @@ const EfficientFrontier = () => {
               <div className="flex items-center justify-between mb-4">
                 <div>
                   <p className="text-xs font-mono text-gold uppercase tracking-wider mb-1">
-                    组合权重分配
+                    {t("labs.frontier.weightsTitle")}
                   </p>
                   <p className="text-sm font-mono text-muted-foreground">
-                    目标收益 μ = {frontier[selectedIdx]?.ret?.toFixed(2)}% · 波动率 σ = {frontier[selectedIdx]?.vol?.toFixed(2)}%
+                    {t("labs.frontier.weightsSub", { ret: frontier[selectedIdx]?.ret?.toFixed(2), vol: frontier[selectedIdx]?.vol?.toFixed(2) })}
                   </p>
                 </div>
                 <button
                   onClick={() => setSelectedIdx(null)}
                   className="text-xs font-mono px-3 py-1.5 rounded-lg border border-border text-muted-foreground hover:text-foreground hover:border-gold/40 transition-all"
                 >
-                  关闭
+                  {t("labs.frontier.close")}
                 </button>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
@@ -643,7 +644,7 @@ const EfficientFrontier = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="rounded-xl border border-blue-400/20 bg-blue-400/[0.03] p-5 text-center">
               <p className="text-xs font-mono text-blue-400 mb-1 uppercase tracking-wider">
-                最小方差组合 (GMV)
+                {t("labs.frontier.gmvCard")}
               </p>
               <p className="text-xl font-mono font-bold text-foreground">
                 μ = {gmv.ret.toFixed(2)}%
@@ -656,7 +657,7 @@ const EfficientFrontier = () => {
             {tangent && (
               <div className="rounded-xl border border-gold/20 bg-gold/[0.03] p-5 text-center">
                 <p className="text-xs font-mono text-gold mb-1 uppercase tracking-wider">
-                  切线组合 (Max Sharpe)
+                  {t("labs.frontier.tangentCard")}
                 </p>
                 <p className="text-xl font-mono font-bold text-foreground">
                   SR = {tangent.sharpe.toFixed(3)}
@@ -669,13 +670,13 @@ const EfficientFrontier = () => {
 
             <div className="rounded-xl border border-teal-400/20 bg-teal-400/[0.03] p-5 text-center">
               <p className="text-xs font-mono text-teal-400 mb-1 uppercase tracking-wider">
-                分散化效应
+                {t("labs.frontier.diversification")}
               </p>
               <p className="text-xl font-mono font-bold text-foreground">
                 {((1 - gmv.vol / (assets.reduce((s, a) => s + a.vol, 0) / assets.length)) * 100).toFixed(1)}%
               </p>
               <p className="text-sm font-mono text-muted-foreground">
-                风险降低（GMV vs 等权平均波动率）
+                {t("labs.frontier.diversificationSub")}
               </p>
             </div>
           </div>
@@ -702,9 +703,9 @@ def efficient_frontier(mu, Sigma, n_points=100, allow_short=True):
     vols = np.sqrt(np.einsum('ij,jk,ik->i', weights, Sigma, weights))
     return targets, vols, weights
 
-# ${assets.length} 资产 · ρ=${rho} · ${allowShort ? "允许做空" : "仅做多"}
+${t("labs.frontier.pyAssets", { n: assets.length, rho, mode: t(allowShort ? "labs.frontier.short" : "labs.frontier.longOnly") })}
 mu    = np.array([${assets.map(a => (a.ret / 100).toFixed(4)).join(", ")}])
-# Σ 由各资产 σ 与 相关系数 ρ=${rho} 构造
+${t("labs.frontier.pySigma", { rho })}
 # GMV: σ ≈ ${gmv.vol.toFixed(2)}%, μ ≈ ${gmv.ret.toFixed(2)}%
 # Tangency Sharpe ≈ ${tangent ? tangent.sharpe.toFixed(3) : "n/a"}`}
               result={
@@ -718,7 +719,7 @@ mu    = np.array([${assets.map(a => (a.ret / 100).toFixed(4)).join(", ")}])
                     <div className="text-base text-gold font-bold">{tangent ? tangent.sharpe.toFixed(3) : "—"}</div>
                   </div>
                   <div className="rounded-md border border-teal-400/30 bg-teal-400/5 p-3">
-                    <div className="text-[10px] uppercase tracking-wider text-teal-400">前沿点数</div>
+                    <div className="text-[10px] uppercase tracking-wider text-teal-400">{t("labs.frontier.frontierPoints")}</div>
                     <div className="text-base text-foreground font-bold">{frontier.length}</div>
                   </div>
                 </div>
