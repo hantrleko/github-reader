@@ -5,9 +5,31 @@ import { useMemo, useState } from "react";
 
 const RELEASES = [
   {
-    version: "V7.0",
+    version: "V7.1",
     date: "2026-09",
     tag: "Current",
+    highlights: [
+      {
+        icon: Sparkles,
+        title: "资产定价工具深链",
+        items: [
+          "资产定价目录 21 个条目改为 ?t=<toolId> 深链，可直达具体工具",
+          "工具导航分类与名称补齐英文，随语言切换",
+        ],
+      },
+      {
+        icon: FileText,
+        title: "资产定价与前沿页双语化",
+        items: [
+          "有效前沿（Markowitz）页面文案全部迁入中英词条",
+          "零β CAPM、ICAPM、状态价格、SDF–因子对偶、HJ 距离面板双语化",
+        ],
+      },
+    ],
+  },
+  {
+    version: "V7.0",
+    date: "2026-09",
     highlights: [
       {
         icon: Sparkles,
