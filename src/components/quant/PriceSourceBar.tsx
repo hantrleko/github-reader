@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Loader2, AlertTriangle, RefreshCw, Database } from "lucide-react";
 import { PRICE_SOURCES, PRICE_SOURCE_MAP, type PriceSource } from "@/lib/priceSeries";
 
@@ -20,6 +21,7 @@ export default function PriceSourceBar({
   source, symbol, range, isFetching, error, n,
   onSource, onSymbol, onRange, onRefetch, onUseDemo,
 }: Props) {
+  const { t } = useTranslation();
   const meta = PRICE_SOURCE_MAP[source];
   return (
     <div className="rounded-xl border border-border bg-card/60 p-4 space-y-3">
@@ -75,25 +77,25 @@ export default function PriceSourceBar({
           className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-[11px] font-mono border border-border hover:border-gold/40 hover:text-gold transition-colors disabled:opacity-50"
         >
           {isFetching ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <RefreshCw className="w-3.5 h-3.5" />}
-          拉取
+          {t("labs.quant.priceSource.fetch")}
         </button>
         {onUseDemo && (
           <button
             onClick={onUseDemo}
             className="px-2.5 py-1.5 rounded-md text-[11px] font-mono border border-border text-muted-foreground hover:text-foreground transition-colors"
           >
-            用示例数据
+            {t("labs.quant.priceSource.useDemo")}
           </button>
         )}
         {n != null && n > 0 && (
-          <span className="text-[10px] font-mono text-muted-foreground">{n} 个交易日</span>
+          <span className="text-[10px] font-mono text-muted-foreground">{t("labs.quant.priceSource.nDays", { n })}</span>
         )}
       </div>
 
       {error != null && (
         <div className="flex items-center gap-2 text-[11px] font-mono text-destructive">
           <AlertTriangle className="w-3.5 h-3.5" />
-          数据拉取失败,请稍后重试或更换数据源 / 标的(也可使用示例数据)。
+          {t("labs.quant.priceSource.fetchError")}
         </div>
       )}
     </div>

@@ -37,7 +37,7 @@ export interface ToolEntry {
   related?: string[];
   /** true once unit tests vs a closed-form benchmark exist in src/lib/quant */
   verified?: boolean;
-  version: "V1.0" | "V2.0" | "V2.1" | "V2.2" | "V2.3" | "V2.4" | "V2.5" | "V2.6" | "V2.7" | "V2.8" | "V3.0" | "V3.1" | "V3.2" | "V3.3" | "V3.4" | "V3.5" | "V3.6" | "V3.7" | "V3.8" | "V3.9" | "V4.0" | "V4.1" | "V4.2" | "V4.3" | "V5.3" | "V5.4" | "V5.5" | "V5.6" | "V6.8" | "V6.9" | "V7.0";
+  version: "V1.0" | "V2.0" | "V2.1" | "V2.2" | "V2.3" | "V2.4" | "V2.5" | "V2.6" | "V2.7" | "V2.8" | "V3.0" | "V3.1" | "V3.2" | "V3.3" | "V3.4" | "V3.5" | "V3.6" | "V3.7" | "V3.8" | "V3.9" | "V4.0" | "V4.1" | "V4.2" | "V4.3" | "V5.3" | "V5.4" | "V5.5" | "V5.6" | "V6.5" | "V6.8" | "V6.9" | "V7.0" | "V7.1" | "V7.2";
 }
 
 export const CATEGORY_LABEL: Record<ToolCategory, { zh: string; en: string }> = {
@@ -311,7 +311,7 @@ export const TOOLS_CATALOG: ToolEntry[] = [
   {
     id: "bl-full", name: "Black-Litterman 完整版",
     nameEn: "Black-Litterman (Full) with Idzorek Confidence",
-    category: "portfolio", difficulty: "advanced", anchor: "/s/quant",
+    category: "portfolio", difficulty: "advanced", anchor: "/#quant?t=bl-full",
     tags: ["贝叶斯", "先验", "观点", "Idzorek", "τ"],
     refs: ["Black & Litterman (1992)", "He & Litterman (1999)", "Idzorek (2005)"],
     blurb: "市场隐含 π + 绝对/相对观点 P/Q + Idzorek 信心反解 Ω，输出后验 μ̃、Σ̃ 与前后权重对比。",
@@ -320,7 +320,7 @@ export const TOOLS_CATALOG: ToolEntry[] = [
   {
     id: "cvar", name: "Mean-CVaR 尾部优化",
     nameEn: "Mean-CVaR Optimisation — Rockafellar-Uryasev",
-    category: "portfolio", difficulty: "advanced", anchor: "/s/quant",
+    category: "portfolio", difficulty: "advanced", anchor: "/#quant?t=cvar",
     tags: ["CVaR", "尾部风险", "投影次梯度"],
     refs: ["Rockafellar & Uryasev (2000)"],
     blurb: "R-U 线性化 CVaR@α 长仓优化：VaR/CVaR、损失分布与等权对比。",
@@ -329,7 +329,7 @@ export const TOOLS_CATALOG: ToolEntry[] = [
   {
     id: "shrinkage", name: "稳健协方差收缩",
     nameEn: "Ledoit-Wolf & OAS Covariance Shrinkage",
-    category: "portfolio", difficulty: "core", anchor: "/s/quant",
+    category: "portfolio", difficulty: "core", anchor: "/#quant?t=shrinkage",
     tags: ["Ledoit-Wolf", "OAS", "条件数", "样本外"],
     refs: ["Ledoit & Wolf (2003)", "Chen et al. (2010)"],
     blurb: "常相关目标 + Schäfer-Strimmer λ*：收缩强度、条件数改善与对角方差对比。",
@@ -338,7 +338,7 @@ export const TOOLS_CATALOG: ToolEntry[] = [
   {
     id: "resampled", name: "Michaud 重采样前沿",
     nameEn: "Michaud Resampled Efficient Frontier",
-    category: "portfolio", difficulty: "advanced", anchor: "/s/quant",
+    category: "portfolio", difficulty: "advanced", anchor: "/#quant?t=resampled",
     tags: ["Bootstrap", "参数不确定性", "权重稳定性"],
     refs: ["Michaud (1998)"],
     blurb: "B 次 bootstrap 抽样 (μ̂,Σ̂)，对齐分位求平均权重，缓解角解与过度集中。",
@@ -347,7 +347,7 @@ export const TOOLS_CATALOG: ToolEntry[] = [
   {
     id: "factor-budget", name: "因子风险预算",
     nameEn: "Factor Risk Budgeting",
-    category: "portfolio", difficulty: "advanced", anchor: "/s/quant",
+    category: "portfolio", difficulty: "advanced", anchor: "/#quant?t=factor-budget",
     tags: ["因子", "MKT/HML/RMW", "风险分解", "预算"],
     refs: ["Roncalli (2013)"],
     blurb: "Var(w) = wᵀBFBᵀw + wᵀDw；目标因子风险贡献匹配 → 因子倾斜/中性组合。",
@@ -356,7 +356,7 @@ export const TOOLS_CATALOG: ToolEntry[] = [
   {
     id: "kelly", name: "Kelly & 破产风险",
     nameEn: "Kelly Criterion & Ruin Probability",
-    category: "portfolio", difficulty: "research", anchor: "/s/quant",
+    category: "portfolio", difficulty: "research", anchor: "/#quant?t=kelly",
     tags: ["Kelly", "log-utility", "破产", "蒙特卡洛"],
     refs: ["Kelly (1956)", "Thorp (1971)"],
     blurb: "多资产 Kelly k*=Σ⁻¹(μ−rf)、分数 Kelly 终值分布与破产概率蒙特卡洛。",
@@ -588,29 +588,55 @@ export const TOOLS_CATALOG: ToolEntry[] = [
   },
   // ── Chapter 6: Quant ──
   {
-    id: "backtest",
-    name: "策略回测",
-    nameEn: "Strategy Backtest",
+    id: "q-backtest",
+    name: "策略回测引擎",
+    nameEn: "Strategy Backtester — Momentum / Mean-Reversion / Pairs",
     category: "quant",
     difficulty: "core",
-    anchor: "/#quant",
+    anchor: "/#quant?t=backtest",
     tags: ["Sharpe", "Max DD", "回测"],
     refs: ["Bailey & López de Prado (2014)"],
-    blurb: "动量 / 均值回归回测 + 滚动指标。",
-    related: ["risk-parity"],
+    blurb: "动量 / 均值回归 / 配对策略回测 + 滚动指标与成本假设。",
+    related: ["risk-parity", "walkforward"],
     version: "V1.0",
   },
   {
     id: "risk-parity",
-    name: "Risk Parity",
-    nameEn: "Risk Parity",
+    name: "Risk Parity / HRP",
+    nameEn: "Risk Parity (ERC) & Hierarchical Risk Parity",
     category: "quant",
     difficulty: "advanced",
-    anchor: "/#quant",
-    tags: ["等风险贡献", "迭代"],
-    refs: ["Maillard, Roncalli, Teïletche (2010)"],
-    blurb: "等风险贡献组合 + 与等权 / MV 对比。",
+    anchor: "/#quant?t=rp",
+    tags: ["等风险贡献", "迭代", "HRP"],
+    refs: ["Maillard, Roncalli, Teïletche (2010)", "López de Prado (2016)"],
+    blurb: "等风险贡献组合与层次风险平价，和等权 / MV 对比。",
     related: ["frontier"],
+    version: "V2.4",
+  },
+  {
+    id: "bl",
+    name: "Black-Litterman 贝叶斯组合",
+    nameEn: "Black-Litterman Bayesian Portfolio Construction",
+    category: "quant",
+    difficulty: "advanced",
+    anchor: "/#quant?t=bl",
+    tags: ["贝叶斯", "均衡收益", "观点"],
+    refs: ["Black & Litterman (1992)"],
+    blurb: "由市场权重反解均衡收益 π，叠加主观观点得到后验期望收益与权重。",
+    related: ["bl-full", "frontier"],
+    version: "V2.4",
+  },
+  {
+    id: "ff5",
+    name: "Fama-French 5 因子归因",
+    nameEn: "Fama-French 5-Factor Performance Attribution",
+    category: "quant",
+    difficulty: "core",
+    anchor: "/#quant?t=ff5",
+    tags: ["因子归因", "alpha", "MKT/SMB/HML/RMW/CMA"],
+    refs: ["Fama & French (2015)"],
+    blurb: "对组合超额收益做五因子回归，拆出 alpha 与各因子暴露。",
+    related: ["factor-budget", "famafrench"],
     version: "V2.4",
   },
   // ── Chapter 7: Macro ──
@@ -1152,8 +1178,8 @@ export const TOOLS_CATALOG: ToolEntry[] = [
     related: ["coint", "arima"], verified: true, version: "V3.1",
   },
   {
-    id: "walkforward", name: "Walk-Forward 检验", nameEn: "Walk-Forward Out-of-Sample Validation",
-    category: "quant", difficulty: "advanced", anchor: "/#quant",
+    id: "walkforward", name: "Walk-Forward 样本外检验", nameEn: "Walk-Forward Analysis — Rolling Out-of-Sample Validation",
+    category: "quant", difficulty: "advanced", anchor: "/#quant?t=walkforward",
     tags: ["样本外", "过拟合", "滚动检验", "walk-forward"],
     refs: ["Pardo (2008)", "Bailey et al. (2014)"],
     blurb: "滚动 IS 训练 / OOS 测试，量化策略样本外衰减与过拟合落差。",
@@ -1206,6 +1232,38 @@ export const TOOLS_CATALOG: ToolEntry[] = [
     refs: ["Bollerslev (1986)", "Merton (1976)", "Vasicek (1977)", "Cox-Ingersoll-Ross (1985)"],
     blurb: "把 GARCH/EWMA/Merton 拟合到价格收益、Vasicek/CIR 拟合到 FRED 真实利率,附标准化残差 QQ 图与 ACF 诊断,校准的 σ/r 一键发送到定价工具。",
     related: ["garch", "rate-model", "bond", "bs", "mc", "backtest"], verified: true, version: "V3.5",
+  },
+  {
+    id: "bt-scan", name: "参数网格扫描", nameEn: "Parameter Grid Scan & Heatmap",
+    category: "quant", difficulty: "advanced", anchor: "/#backtest?t=scan",
+    tags: ["参数扫描", "热力图", "过拟合", "稳健区间"],
+    refs: ["Bailey et al. (2014)"],
+    blurb: "在两维参数网格上扫描夏普/CAGR/卡玛/最大回撤，用热力图辨认稳健区间而非单点最优。",
+    related: ["backtest", "walkforward"], verified: true, version: "V3.5",
+  },
+  {
+    id: "bt-portfolio", name: "多资产组合回测", nameEn: "Multi-Asset Portfolio Backtest",
+    category: "quant", difficulty: "advanced", anchor: "/#backtest?t=portfolio",
+    tags: ["组合回测", "再平衡", "风险平价", "最小方差"],
+    refs: ["Maillard et al. (2010)"],
+    blurb: "等权 / 风险平价 / 最小方差 / 均值方差组合的周期再平衡回测与风险贡献分解。",
+    related: ["backtest", "risk-parity", "frontier"], verified: true, version: "V3.5",
+  },
+  {
+    id: "cal-rate", name: "短率模型校准", nameEn: "Short-Rate Calibration — Vasicek / CIR",
+    category: "quant", difficulty: "research", anchor: "/#calibration?t=vasicek",
+    tags: ["Vasicek", "CIR", "FRED", "均值回复"],
+    refs: ["Vasicek (1977)", "Cox, Ingersoll & Ross (1985)"],
+    blurb: "用 FRED 真实利率序列估计 κ/θ/σ，比较 OU 与平方根扩散的残差诊断。",
+    related: ["calibration", "rate-model"], verified: true, version: "V3.5",
+  },
+  {
+    id: "qlib-pipeline", name: "Qlib 流水线实验室", nameEn: "Qlib Pipeline Lab — Factors to Portfolio",
+    category: "quant", difficulty: "advanced", anchor: "/#qlib-lab?t=ridge",
+    tags: ["Qlib", "因子", "IC", "TopK-Drop", "流水线"],
+    refs: ["Yang et al. (2020, Microsoft Qlib)"],
+    blurb: "合成面板上的因子构建 → 模型训练 (Ridge/等权/单因子) → IC 评估 → TopK-Drop 组合与成本后净值。",
+    related: ["backtest", "ff5", "walkforward"], verified: true, version: "V6.5",
   },
   {
     id: "granger", name: "Granger 因果 / Toda-Yamamoto", nameEn: "Granger Causality & Toda-Yamamoto",
@@ -1555,7 +1613,7 @@ export const TOOLS_CATALOG: ToolEntry[] = [
   },
   {
     id: "frontier-geo", name: "有效前沿几何与两基金分离", nameEn: "Frontier Geometry, CAL & Two-Fund Separation",
-    category: "portfolio", difficulty: "core", anchor: "/s/quant",
+    category: "portfolio", difficulty: "core", anchor: "/#quant?t=frontier-geo",
     tags: ["有效前沿", "CAL", "两基金分离", "零贝塔 CAPM"],
     refs: ["Markowitz (1952)", "Tobin (1958)", "Merton (1972)", "Black (1972)"],
     blurb: "解析双曲线前沿、资本配置线与切点组合，并在禁止借款时切换到零贝塔 CAPM 的 SML 读法。",
@@ -1563,7 +1621,7 @@ export const TOOLS_CATALOG: ToolEntry[] = [
   },
   {
     id: "single-index", name: "单指数模型降维台", nameEn: "Sharpe Single-Index Model",
-    category: "portfolio", difficulty: "core", anchor: "/s/quant",
+    category: "portfolio", difficulty: "core", anchor: "/#quant?t=single-index",
     tags: ["单指数", "β", "结构化协方差", "降维"],
     refs: ["Sharpe (1963)", "Elton & Gruber (1973)"],
     blurb: "把 N(N+1)/2 个协方差压缩为 2N+1 个参数，量化结构化估计在短样本下的样本外优势。",
@@ -1571,7 +1629,7 @@ export const TOOLS_CATALOG: ToolEntry[] = [
   },
   {
     id: "est-error", name: "估计误差与滚动优化", nameEn: "Estimation Error & the 1/N Benchmark",
-    category: "portfolio", difficulty: "advanced", anchor: "/s/quant",
+    category: "portfolio", difficulty: "advanced", anchor: "/#quant?t=est-error",
     tags: ["估计误差", "1/N", "样本外", "蒙特卡洛"],
     refs: ["Michaud (1989)", "Chopra & Ziemba (1993)", "DeMiguel, Garlappi & Uppal (2009)"],
     blurb: "蒙特卡洛比较插件式均值-方差、最小方差与等权的真实样本外 Sharpe，复现 1/N 强基准现象。",
@@ -1579,7 +1637,7 @@ export const TOOLS_CATALOG: ToolEntry[] = [
   },
   {
     id: "rebal-cost", name: "约束与再平衡成本", nameEn: "Constraints, Rebalancing & Turnover Cost",
-    category: "portfolio", difficulty: "advanced", anchor: "/s/quant",
+    category: "portfolio", difficulty: "advanced", anchor: "/#quant?t=rebal-cost",
     tags: ["再平衡", "交易成本", "跟踪误差", "权重上限"],
     refs: ["Perold & Sharpe (1988)", "Donohue & Yip (2003)", "Jagannathan & Ma (2003)"],
     blurb: "日历规则与阈值带宽的成本—跟踪误差前沿，并展示权重上限如何充当隐性正则化。",
@@ -1587,7 +1645,7 @@ export const TOOLS_CATALOG: ToolEntry[] = [
   },
   {
     id: "active-ir", name: "主动管理与信息比率", nameEn: "Fundamental Law & Treynor-Black",
-    category: "portfolio", difficulty: "advanced", anchor: "/s/quant",
+    category: "portfolio", difficulty: "advanced", anchor: "/#quant?t=active-ir",
     tags: ["信息比率", "IC", "广度", "Treynor-Black"],
     refs: ["Grinold (1989)", "Grinold & Kahn (1999)", "Clarke, de Silva & Thorley (2002)", "Treynor & Black (1973)"],
     blurb: "IR ≈ TC·IC·√BR 的广度网格、最优跟踪误差与附加价值，以及 Treynor-Black 主动组合权重。",
@@ -1595,7 +1653,7 @@ export const TOOLS_CATALOG: ToolEntry[] = [
   },
   {
     id: "downside-sd", name: "下行风险与随机占优", nameEn: "Downside Risk & Stochastic Dominance",
-    category: "portfolio", difficulty: "advanced", anchor: "/s/quant",
+    category: "portfolio", difficulty: "advanced", anchor: "/#quant?t=downside-sd",
     tags: ["下偏矩", "Sortino", "Omega", "随机占优", "CRRA"],
     refs: ["Markowitz (1959)", "Bawa (1975)", "Fishburn (1977)", "Keating & Shadwick (2002)"],
     blurb: "LPM(n,τ)、Sortino/Omega 与 FSD/SSD 判据并排比较两个分布，并用 CRRA 确定性等价选出最优混合。",
@@ -1603,7 +1661,7 @@ export const TOOLS_CATALOG: ToolEntry[] = [
   },
   {
     id: "dynamic-alloc", name: "多期与动态配置", nameEn: "Merton Dynamic Allocation & Glide Path",
-    category: "portfolio", difficulty: "research", anchor: "/s/quant",
+    category: "portfolio", difficulty: "research", anchor: "/#quant?t=dynamic-alloc",
     tags: ["Merton", "对冲需求", "生命周期", "路径依赖"],
     refs: ["Merton (1969, 1971)", "Samuelson (1969)", "Campbell & Viceira (2002)", "Bodie, Merton & Samuelson (1992)"],
     blurb: "短视需求 + 跨期对冲需求的期限结构、人力资本驱动的下滑轨道，以及再平衡 vs 买入持有的终值分布。",
@@ -1611,7 +1669,7 @@ export const TOOLS_CATALOG: ToolEntry[] = [
   },
   {
     id: "regularise", name: "高维正则化与最大分散化", nameEn: "Norm-Constrained Portfolios & Maximum Diversification",
-    category: "portfolio", difficulty: "research", anchor: "/s/quant",
+    category: "portfolio", difficulty: "research", anchor: "/#quant?t=regularise",
     tags: ["L1", "L2", "稀疏", "最大分散化", "高维"],
     refs: ["DeMiguel, Garlappi, Nogales & Uppal (2009)", "Jagannathan & Ma (2003)", "Choueifaty & Coignard (2008)"],
     blurb: "L1/L2 惩罚的权重路径与稀疏解，与长仓约束、最大分散化 MDP 及等权在样本外正面比较。",

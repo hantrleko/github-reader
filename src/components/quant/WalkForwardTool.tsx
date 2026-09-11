@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   Legend, BarChart, Bar, Cell, ReferenceLine,
@@ -38,6 +39,7 @@ function stratReturns(rets: number[], k: number, cost: number) {
 }
 
 export const WalkForwardTool = () => {
+  const { t } = useTranslation();
   const [phi, setPhi] = useState(0.08); // momentum autocorrelation strength
   const [noise, setNoise] = useState(1.0);
   const [isWin, setIsWin] = useState(250);
@@ -105,35 +107,35 @@ export const WalkForwardTool = () => {
   return (
     <div className="space-y-6">
       <PresetButtons presets={[
-        { name: "真实动量", description: "φ=0.08 适中", apply: () => { setPhi(0.08); setNoise(1); setIsWin(250); setOosWin(60); } },
-        { name: "强信号", description: "φ=0.18", apply: () => { setPhi(0.18); setNoise(0.8); } },
-        { name: "纯噪声 (无 alpha)", description: "φ=0 → OOS 崩塌", apply: () => { setPhi(0); setNoise(1.2); } },
-        { name: "短训练窗", description: "IS=120 易过拟合", apply: () => { setIsWin(120); setOosWin(40); } },
-        { name: "高交易成本", description: "cost=20bp", apply: () => { setCost(0.002); } },
+        { name: t("labs.quant.walkforward.p1"), description: t("labs.quant.walkforward.p1d"), apply: () => { setPhi(0.08); setNoise(1); setIsWin(250); setOosWin(60); } },
+        { name: t("labs.quant.walkforward.p2"), description: t("labs.quant.walkforward.p2d"), apply: () => { setPhi(0.18); setNoise(0.8); } },
+        { name: t("labs.quant.walkforward.p3"), description: t("labs.quant.walkforward.p3d"), apply: () => { setPhi(0); setNoise(1.2); } },
+        { name: t("labs.quant.walkforward.p4"), description: t("labs.quant.walkforward.p4d"), apply: () => { setIsWin(120); setOosWin(40); } },
+        { name: t("labs.quant.walkforward.p5"), description: t("labs.quant.walkforward.p5d"), apply: () => { setCost(0.002); } },
       ]} />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="space-y-3">
-          <p className="text-xs font-mono text-gold uppercase tracking-wider">数据生成与窗口</p>
+          <p className="text-xs font-mono text-gold uppercase tracking-wider">{t("labs.quant.walkforward.dataAndWindows")}</p>
           <div className="grid grid-cols-2 gap-3">
-            <Slider label="φ 动量强度" sub="AR(1)" value={phi} min={0} max={0.25} step={0.01} onChange={setPhi} />
-            <Slider label="噪声" value={noise} min={0.5} max={2} step={0.1} onChange={setNoise} />
-            <Slider label="IS 训练窗" value={isWin} min={80} max={400} step={10} onChange={setIsWin} />
-            <Slider label="OOS 测试窗" value={oosWin} min={20} max={120} step={10} onChange={setOosWin} />
-            <Slider label="交易成本" sub="单边" value={cost} min={0} max={0.003} step={0.0001} fmt={(v) => (v * 10000).toFixed(0) + "bp"} onChange={setCost} />
-            <Slider label="随机种子" value={seed} min={1} max={99} step={1} fmt={(v) => v.toFixed(0)} onChange={setSeed} />
+            <Slider label={t("labs.quant.walkforward.phi")} sub="AR(1)" value={phi} min={0} max={0.25} step={0.01} onChange={setPhi} />
+            <Slider label={t("labs.quant.walkforward.noise")} value={noise} min={0.5} max={2} step={0.1} onChange={setNoise} />
+            <Slider label={t("labs.quant.walkforward.isWin")} value={isWin} min={80} max={400} step={10} onChange={setIsWin} />
+            <Slider label={t("labs.quant.walkforward.oosWin")} value={oosWin} min={20} max={120} step={10} onChange={setOosWin} />
+            <Slider label={t("labs.quant.walkforward.cost")} sub={t("labs.quant.walkforward.costSub")} value={cost} min={0} max={0.003} step={0.0001} fmt={(v) => (v * 10000).toFixed(0) + "bp"} onChange={setCost} />
+            <Slider label={t("labs.quant.walkforward.seed")} value={seed} min={1} max={99} step={1} fmt={(v) => v.toFixed(0)} onChange={setSeed} />
           </div>
         </div>
         <div className="grid grid-cols-2 gap-2 content-start">
-          <Stat label="全样本最优 Sharpe" value={res.isSharpe.toFixed(2)} color={C.gold} sub={`k*=${res.bestK} (过拟合)`} />
-          <Stat label="Walk-forward OOS Sharpe" value={res.wfSharpe.toFixed(2)} color={res.wfSharpe > 0.5 ? C.green : C.red} sub="样本外真实表现" />
-          <Stat label="过拟合落差" value={res.overfitGap.toFixed(2)} color={C.red} sub="IS − OOS" />
-          <Stat label="折数" value={res.folds.length.toFixed(0)} color={C.blue} />
+          <Stat label={t("labs.quant.walkforward.isSharpe")} value={res.isSharpe.toFixed(2)} color={C.gold} sub={t("labs.quant.walkforward.isSharpeSub", { k: res.bestK })} />
+          <Stat label={t("labs.quant.walkforward.wfSharpe")} value={res.wfSharpe.toFixed(2)} color={res.wfSharpe > 0.5 ? C.green : C.red} sub={t("labs.quant.walkforward.wfSharpeSub")} />
+          <Stat label={t("labs.quant.walkforward.overfitGap")} value={res.overfitGap.toFixed(2)} color={C.red} sub="IS − OOS" />
+          <Stat label={t("labs.quant.walkforward.foldsCount")} value={res.folds.length.toFixed(0)} color={C.blue} />
         </div>
       </div>
 
       <div className="rounded-xl border border-border bg-secondary/20 p-4">
-        <h4 className="text-sm font-semibold text-foreground mb-2">样本外净值 — Walk-forward 策略 vs 买入持有</h4>
+        <h4 className="text-sm font-semibold text-foreground mb-2">{t("labs.quant.walkforward.equityChartTitle")}</h4>
         <div className="h-[260px]">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={res.equity}>
@@ -142,8 +144,8 @@ export const WalkForwardTool = () => {
               <YAxis stroke={C.text} tick={{ fontSize: 10 }} />
               <Tooltip contentStyle={tooltipStyle} />
               <Legend wrapperStyle={{ fontSize: 11 }} />
-              <Line type="monotone" dataKey="wf" name="Walk-forward" stroke={C.gold} strokeWidth={2} dot={false} />
-              <Line type="monotone" dataKey="bh" name="买入持有" stroke={C.blue} strokeWidth={1.5} dot={false} strokeDasharray="4 3" />
+              <Line type="monotone" dataKey="wf" name={t("labs.quant.walkforward.walkForward")} stroke={C.gold} strokeWidth={2} dot={false} />
+              <Line type="monotone" dataKey="bh" name={t("labs.quant.walkforward.buyHold")} stroke={C.blue} strokeWidth={1.5} dot={false} strokeDasharray="4 3" />
               <ReferenceLine y={1} stroke={C.text} />
             </LineChart>
           </ResponsiveContainer>
@@ -151,7 +153,7 @@ export const WalkForwardTool = () => {
       </div>
 
       <div className="rounded-xl border border-border bg-secondary/20 p-4">
-        <h4 className="text-sm font-semibold text-foreground mb-2">各折 IS vs OOS Sharpe — 样本外衰减</h4>
+        <h4 className="text-sm font-semibold text-foreground mb-2">{t("labs.quant.walkforward.foldsChartTitle")}</h4>
         <div className="h-[220px]">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={res.folds}>
@@ -161,16 +163,16 @@ export const WalkForwardTool = () => {
               <Tooltip contentStyle={tooltipStyle} />
               <Legend wrapperStyle={{ fontSize: 11 }} />
               <ReferenceLine y={0} stroke={C.text} />
-              <Bar dataKey="isS" name="IS Sharpe" fill={C.teal} />
-              <Bar dataKey="oosS" name="OOS Sharpe" fill={C.gold} />
+              <Bar dataKey="isS" name={t("labs.quant.walkforward.isSharpeLabel")} fill={C.teal} />
+              <Bar dataKey="oosS" name={t("labs.quant.walkforward.oosSharpeLabel")} fill={C.gold} />
             </BarChart>
           </ResponsiveContainer>
         </div>
       </div>
 
       <div className="text-xs font-mono text-muted-foreground p-3 rounded-lg bg-secondary/40 border border-border leading-relaxed">
-        <p><span className="text-gold">Walk-forward 分析：</span>滚动用 IS 窗口选参数，仅在紧随其后的 OOS 窗口评估，拼接所有 OOS 段得到无前视偏差的真实业绩。</p>
-        <p><span className="text-gold">过拟合诊断：</span>全样本最优 Sharpe 远高于 OOS（落差大）即过拟合信号；纯噪声 (φ=0) 时 OOS 应回落到 0 附近。</p>
+        <p><span className="text-gold">{t("labs.quant.walkforward.noteWfLabel")}</span>{t("labs.quant.walkforward.noteWf")}</p>
+        <p><span className="text-gold">{t("labs.quant.walkforward.noteOverfitLabel")}</span>{t("labs.quant.walkforward.noteOverfit")}</p>
       </div>
     </div>
   );

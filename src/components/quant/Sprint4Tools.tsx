@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   Legend, ReferenceLine, ScatterChart, Scatter, ComposedChart, Area, BarChart, Bar, Cell, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar,
@@ -131,6 +132,7 @@ function olsMulti(X: number[][], y: number[]): { beta: number[]; resid: number[]
 type Strategy = "momentum" | "meanrev" | "pairs";
 
 export const BacktestTool = () => {
+  const { t } = useTranslation();
   const [strategy, setStrategy] = useState<Strategy>("momentum");
   const [years, setYears] = useState(5);
   const [seed, setSeed] = useState(7);
@@ -283,19 +285,19 @@ export const BacktestTool = () => {
   return (
     <div className="space-y-6">
       <PresetButtons presets={[
-        { name: "动量 60D", description: "趋势跟随经典", apply: () => { setStrategy("momentum"); setLookback(60); setMu(0.10); setSigma(0.18); } },
-        { name: "均值回归 1.5σ", description: "短期反转", apply: () => { setStrategy("meanrev"); setZThr(1.5); setMrLook(20); setMu(0.05); setSigma(0.25); } },
-        { name: "配对交易", description: "市场中性 spread", apply: () => { setStrategy("pairs"); setHalflife(15); setZThr(1.5); } },
-        { name: "高摩擦", description: "TC=20bp 测试", apply: () => { setTcBp(20); } },
+        { name: t("labs.quant.sprint4.backtest.p1"), description: t("labs.quant.sprint4.backtest.p1d"), apply: () => { setStrategy("momentum"); setLookback(60); setMu(0.10); setSigma(0.18); } },
+        { name: t("labs.quant.sprint4.backtest.p2"), description: t("labs.quant.sprint4.backtest.p2d"), apply: () => { setStrategy("meanrev"); setZThr(1.5); setMrLook(20); setMu(0.05); setSigma(0.25); } },
+        { name: t("labs.quant.sprint4.backtest.p3"), description: t("labs.quant.sprint4.backtest.p3d"), apply: () => { setStrategy("pairs"); setHalflife(15); setZThr(1.5); } },
+        { name: t("labs.quant.sprint4.backtest.p4"), description: t("labs.quant.sprint4.backtest.p4d"), apply: () => { setTcBp(20); } },
       ]} />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="space-y-3">
           <div className="flex gap-2 flex-wrap">
             {([
-              { id: "momentum", label: "动量" },
-              { id: "meanrev", label: "均值回归" },
-              { id: "pairs", label: "配对交易" },
+              { id: "momentum", label: t("labs.quant.sprint4.backtest.momentum") },
+              { id: "meanrev", label: t("labs.quant.sprint4.backtest.meanrev") },
+              { id: "pairs", label: t("labs.quant.sprint4.backtest.pairs") },
             ] as const).map(m => (
               <button key={m.id} onClick={() => setStrategy(m.id)}
                 className={"text-xs px-3 py-1.5 rounded border font-mono transition-colors " +
@@ -304,56 +306,56 @@ export const BacktestTool = () => {
               </button>
             ))}
           </div>
-          <Slider label="样本年数" value={years} min={1} max={15} step={1} onChange={setYears} />
-          <Slider label="标的年化漂移 μ" value={mu} min={-0.2} max={0.30} step={0.01} onChange={setMu} />
-          <Slider label="标的年化波动率 σ" value={sigma} min={0.05} max={0.60} step={0.01} onChange={setSigma} />
-          {strategy === "momentum" && <Slider label="动量回看天数" value={lookback} min={5} max={252} step={5} onChange={setLookback} />}
+          <Slider label={t("labs.quant.sprint4.backtest.years")} value={years} min={1} max={15} step={1} onChange={setYears} />
+          <Slider label={t("labs.quant.sprint4.backtest.mu")} value={mu} min={-0.2} max={0.30} step={0.01} onChange={setMu} />
+          <Slider label={t("labs.quant.sprint4.backtest.sigma")} value={sigma} min={0.05} max={0.60} step={0.01} onChange={setSigma} />
+          {strategy === "momentum" && <Slider label={t("labs.quant.sprint4.backtest.lookback")} value={lookback} min={5} max={252} step={5} onChange={setLookback} />}
           {strategy === "meanrev" && (
             <>
-              <Slider label="z 阈值" value={zThr} min={0.5} max={3} step={0.1} onChange={setZThr} />
-              <Slider label="均值回归窗口" value={mrLook} min={5} max={120} step={5} onChange={setMrLook} />
+              <Slider label={t("labs.quant.sprint4.backtest.zthr")} value={zThr} min={0.5} max={3} step={0.1} onChange={setZThr} />
+              <Slider label={t("labs.quant.sprint4.backtest.mrlook")} value={mrLook} min={5} max={120} step={5} onChange={setMrLook} />
             </>
           )}
           {strategy === "pairs" && (
             <>
-              <Slider label="OU 半衰期 (天)" value={halflife} min={3} max={60} step={1} onChange={setHalflife} />
-              <Slider label="入场 z 阈值" value={zThr} min={0.5} max={3} step={0.1} onChange={setZThr} />
+              <Slider label={t("labs.quant.sprint4.backtest.halflife")} value={halflife} min={3} max={60} step={1} onChange={setHalflife} />
+              <Slider label={t("labs.quant.sprint4.backtest.zthrEntry")} value={zThr} min={0.5} max={3} step={0.1} onChange={setZThr} />
             </>
           )}
-          <Slider label="交易成本 (bp/边)" value={tcBp} min={0} max={50} step={1} onChange={setTcBp} />
-          <Slider label="种子" value={seed} min={1} max={999} step={1} onChange={setSeed} />
+          <Slider label={t("labs.quant.sprint4.backtest.tcbp")} value={tcBp} min={0} max={50} step={1} onChange={setTcBp} />
+          <Slider label={t("labs.quant.sprint4.backtest.seed")} value={seed} min={1} max={999} step={1} onChange={setSeed} />
         </div>
 
         <div className="space-y-3">
           <div className="grid grid-cols-2 gap-2">
-            <Stat label="累计净值" value={result.finalEquity.toFixed(3)} color={CHART_GOLD} sub={`B&H: ${result.finalBh.toFixed(3)}`} />
-            <Stat label="年化收益" value={`${(result.annR * 100).toFixed(2)}%`} color={result.annR > 0 ? CHART_TEAL : CHART_RED} />
-            <Stat label="年化波动" value={`${(result.annV * 100).toFixed(2)}%`} />
-            <Stat label="Sharpe" value={result.sharpe.toFixed(2)} color={CHART_GOLD} sub="无风险=0" />
-            <Stat label="最大回撤" value={`${(result.maxDD * 100).toFixed(2)}%`} color={CHART_RED} />
-            <Stat label="Calmar" value={result.calmar.toFixed(2)} sub="annR / MaxDD" />
-            <Stat label="胜率 (日)" value={`${(result.winRate * 100).toFixed(1)}%`} />
-            <Stat label="年化换手" value={result.turnover.toFixed(1)} sub="单边次/年" />
+            <Stat label={t("labs.quant.sprint4.backtest.finalEquity")} value={result.finalEquity.toFixed(3)} color={CHART_GOLD} sub={t("labs.quant.sprint4.backtest.bhSub", { v: result.finalBh.toFixed(3) })} />
+            <Stat label={t("labs.quant.sprint4.backtest.annR")} value={`${(result.annR * 100).toFixed(2)}%`} color={result.annR > 0 ? CHART_TEAL : CHART_RED} />
+            <Stat label={t("labs.quant.sprint4.backtest.annV")} value={`${(result.annV * 100).toFixed(2)}%`} />
+            <Stat label={t("labs.quant.sprint4.backtest.sharpe")} value={result.sharpe.toFixed(2)} color={CHART_GOLD} sub={t("labs.quant.sprint4.backtest.rfZero")} />
+            <Stat label={t("labs.quant.sprint4.backtest.maxdd")} value={`${(result.maxDD * 100).toFixed(2)}%`} color={CHART_RED} />
+            <Stat label={t("labs.quant.sprint4.backtest.calmar")} value={result.calmar.toFixed(2)} sub={t("labs.quant.sprint4.backtest.calmarSub")} />
+            <Stat label={t("labs.quant.sprint4.backtest.winrate")} value={`${(result.winRate * 100).toFixed(1)}%`} />
+            <Stat label={t("labs.quant.sprint4.backtest.turnover")} value={result.turnover.toFixed(1)} sub={t("labs.quant.sprint4.backtest.turnoverSub")} />
           </div>
           <div className="text-xs font-mono text-muted-foreground p-3 rounded-lg bg-secondary/40 border border-border leading-relaxed space-y-1">
-            <p><span className="text-gold">动量：</span>signal = sign(Σ rₜ₋ₖ:ₜ)。<span className="text-gold">均值回归：</span>z = (rₜ - MA)/SD，超阈反向。</p>
-            <p><span className="text-gold">配对：</span>spread = log(P₂/P₁)，OU 过程 dz = -κz·dt + σ·dW，做多/做空 spread。</p>
-            <p>所有策略包含双边交易成本与 daily mark-to-market。</p>
+            <p><span className="text-gold">{t("labs.quant.sprint4.backtest.noteMomentumLabel")}</span>{t("labs.quant.sprint4.backtest.noteMomentum")}<span className="text-gold">{t("labs.quant.sprint4.backtest.noteMeanrevLabel")}</span>{t("labs.quant.sprint4.backtest.noteMeanrev")}</p>
+            <p><span className="text-gold">{t("labs.quant.sprint4.backtest.notePairsLabel")}</span>{t("labs.quant.sprint4.backtest.notePairs")}</p>
+            <p>{t("labs.quant.sprint4.backtest.noteCost")}</p>
           </div>
         </div>
       </div>
 
       <div className="rounded-xl border border-border bg-secondary/20 p-4">
-        <h4 className="text-sm font-semibold text-foreground mb-2">净值曲线 vs Buy &amp; Hold</h4>
+        <h4 className="text-sm font-semibold text-foreground mb-2">{t("labs.quant.sprint4.backtest.equityChartTitle")}</h4>
         <div className="h-[280px]">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={result.equityChart}>
               <CartesianGrid stroke={CHART_GRID} strokeDasharray="3 3" />
-              <XAxis dataKey="t" stroke={CHART_TEXT} tick={{ fontSize: 10 }} label={{ value: "Year", position: "insideBottom", offset: -5, fill: CHART_TEXT, fontSize: 10 }} />
+              <XAxis dataKey="t" stroke={CHART_TEXT} tick={{ fontSize: 10 }} label={{ value: t("labs.quant.sprint4.year"), position: "insideBottom", offset: -5, fill: CHART_TEXT, fontSize: 10 }} />
               <YAxis stroke={CHART_TEXT} tick={{ fontSize: 10 }} />
               <Tooltip contentStyle={{ background: "hsl(220 15% 12%)", border: `1px solid ${CHART_GRID}`, fontSize: 11 }} />
               <Legend wrapperStyle={{ fontSize: 11 }} />
-              <Line type="monotone" dataKey="strat" name="策略" stroke={CHART_GOLD} strokeWidth={2.5} dot={false} />
+              <Line type="monotone" dataKey="strat" name={t("labs.quant.sprint4.backtest.strategy")} stroke={CHART_GOLD} strokeWidth={2.5} dot={false} />
               <Line type="monotone" dataKey="bh" name="Buy &amp; Hold" stroke={CHART_TEAL} strokeWidth={1.5} dot={false} strokeDasharray="4 3" />
               <ReferenceLine y={1} stroke={CHART_TEXT} strokeDasharray="2 2" />
             </LineChart>
@@ -363,7 +365,7 @@ export const BacktestTool = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <div className="rounded-xl border border-border bg-secondary/20 p-4">
-          <h4 className="text-sm font-semibold text-foreground mb-2">回撤曲线 (%)</h4>
+          <h4 className="text-sm font-semibold text-foreground mb-2">{t("labs.quant.sprint4.backtest.ddChartTitle")}</h4>
           <div className="h-[200px]">
             <ResponsiveContainer width="100%" height="100%">
               <ComposedChart data={result.equityChart}>
@@ -377,7 +379,7 @@ export const BacktestTool = () => {
           </div>
         </div>
         <div className="rounded-xl border border-border bg-secondary/20 p-4">
-          <h4 className="text-sm font-semibold text-foreground mb-2">仓位时序</h4>
+          <h4 className="text-sm font-semibold text-foreground mb-2">{t("labs.quant.sprint4.backtest.posChartTitle")}</h4>
           <div className="h-[200px]">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={result.posChart}>
@@ -400,6 +402,7 @@ export const BacktestTool = () => {
    2. Black-Litterman Bayesian Portfolio
    ════════════════════════════════════════════════════════════ */
 export const BlackLittermanTool = () => {
+  const { t } = useTranslation();
   const N = 5;
   const assetNames = ["Equity-US", "Equity-EU", "Equity-EM", "Bonds-Govt", "Commodities"];
   const [mktCaps, setMktCaps] = useState<number[]>([45, 25, 15, 10, 5]);
@@ -513,18 +516,18 @@ export const BlackLittermanTool = () => {
   return (
     <div className="space-y-6">
       <PresetButtons presets={[
-        { name: "强观点", description: "高置信 + 大幅偏离", apply: () => { setConf1(0.9); setConf2(0.85); setQ1(0.05); setQ2(0.10); setTau(0.05); } },
-        { name: "弱观点", description: "贝叶斯收缩到市场", apply: () => { setConf1(0.2); setConf2(0.2); setTau(0.025); } },
-        { name: "无观点", description: "退化为市场组合", apply: () => { setView1On(false); setView2On(false); } },
-        { name: "保守 δ=4", description: "高风险厌恶", apply: () => { setRiskAversion(4); } },
+        { name: t("labs.quant.sprint4.bl.p1"), description: t("labs.quant.sprint4.bl.p1d"), apply: () => { setConf1(0.9); setConf2(0.85); setQ1(0.05); setQ2(0.10); setTau(0.05); } },
+        { name: t("labs.quant.sprint4.bl.p2"), description: t("labs.quant.sprint4.bl.p2d"), apply: () => { setConf1(0.2); setConf2(0.2); setTau(0.025); } },
+        { name: t("labs.quant.sprint4.bl.p3"), description: t("labs.quant.sprint4.bl.p3d"), apply: () => { setView1On(false); setView2On(false); } },
+        { name: t("labs.quant.sprint4.bl.p4"), description: t("labs.quant.sprint4.bl.p4d"), apply: () => { setRiskAversion(4); } },
       ]} />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="space-y-3">
-          <p className="text-xs font-mono text-gold uppercase tracking-wider">市场参数</p>
-          <Slider label="风险厌恶 δ" sub="δ ≈ (E[Rₘ]-Rf)/σ²ₘ" value={riskAversion} min={1} max={6} step={0.25} onChange={setRiskAversion} />
-          <Slider label="τ (先验不确定性)" value={tau} min={0.01} max={0.20} step={0.005} onChange={setTau} />
-          <p className="text-xs font-mono text-gold uppercase tracking-wider mt-3">市值权重 (%)</p>
+          <p className="text-xs font-mono text-gold uppercase tracking-wider">{t("labs.quant.sprint4.bl.marketParams")}</p>
+          <Slider label={t("labs.quant.sprint4.bl.riskAversion")} sub={t("labs.quant.sprint4.bl.riskAversionSub")} value={riskAversion} min={1} max={6} step={0.25} onChange={setRiskAversion} />
+          <Slider label={t("labs.quant.sprint4.bl.tau")} value={tau} min={0.01} max={0.20} step={0.005} onChange={setTau} />
+          <p className="text-xs font-mono text-gold uppercase tracking-wider mt-3">{t("labs.quant.sprint4.bl.mktCapWeights")}</p>
           {assetNames.map((nm, i) => (
             <Slider key={i} label={nm} value={mktCaps[i]} min={0} max={80} step={1}
               onChange={(v) => { const m = [...mktCaps]; m[i] = v; setMktCaps(m); }} />
@@ -532,10 +535,10 @@ export const BlackLittermanTool = () => {
         </div>
 
         <div className="space-y-3">
-          <p className="text-xs font-mono text-gold uppercase tracking-wider">投资观点</p>
+          <p className="text-xs font-mono text-gold uppercase tracking-wider">{t("labs.quant.sprint4.bl.views")}</p>
           <div className="rounded-lg border border-border p-3 space-y-2 bg-secondary/30">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-mono">观点 1: US 股票 vs EU 股票 (相对)</span>
+              <span className="text-xs font-mono">{t("labs.quant.sprint4.bl.view1")}</span>
               <button onClick={() => setView1On(!view1On)}
                 className={"text-[10px] px-2 py-0.5 rounded border " + (view1On ? "border-gold text-gold" : "border-border text-muted-foreground")}>
                 {view1On ? "ON" : "OFF"}
@@ -543,14 +546,14 @@ export const BlackLittermanTool = () => {
             </div>
             {view1On && (
               <>
-                <Slider label="预期超额 Q₁" value={q1} min={-0.10} max={0.15} step={0.005} onChange={setQ1} />
-                <Slider label="置信度" value={conf1} min={0.05} max={0.95} step={0.05} onChange={setConf1} />
+                <Slider label={t("labs.quant.sprint4.bl.q1")} value={q1} min={-0.10} max={0.15} step={0.005} onChange={setQ1} />
+                <Slider label={t("labs.quant.sprint4.bl.confidence")} value={conf1} min={0.05} max={0.95} step={0.05} onChange={setConf1} />
               </>
             )}
           </div>
           <div className="rounded-lg border border-border p-3 space-y-2 bg-secondary/30">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-mono">观点 2: EM 股票 (绝对)</span>
+              <span className="text-xs font-mono">{t("labs.quant.sprint4.bl.view2")}</span>
               <button onClick={() => setView2On(!view2On)}
                 className={"text-[10px] px-2 py-0.5 rounded border " + (view2On ? "border-gold text-gold" : "border-border text-muted-foreground")}>
                 {view2On ? "ON" : "OFF"}
@@ -558,21 +561,21 @@ export const BlackLittermanTool = () => {
             </div>
             {view2On && (
               <>
-                <Slider label="预期年化收益 Q₂" value={q2} min={-0.10} max={0.20} step={0.005} onChange={setQ2} />
-                <Slider label="置信度" value={conf2} min={0.05} max={0.95} step={0.05} onChange={setConf2} />
+                <Slider label={t("labs.quant.sprint4.bl.q2")} value={q2} min={-0.10} max={0.20} step={0.005} onChange={setQ2} />
+                <Slider label={t("labs.quant.sprint4.bl.confidence")} value={conf2} min={0.05} max={0.95} step={0.05} onChange={setConf2} />
               </>
             )}
           </div>
           <div className="text-xs font-mono text-muted-foreground p-3 rounded-lg bg-secondary/40 border border-border leading-relaxed">
-            <p><span className="text-gold">BL 框架：</span>从 CAPM 反推隐含均衡收益 π = δΣwₘₖₜ，再用观点 (P, Q, Ω) 做贝叶斯更新。</p>
-            <p>置信度高 → Ω 小 → 后验更靠近观点；τ 控制先验扩散程度。</p>
+            <p><span className="text-gold">{t("labs.quant.sprint4.bl.frameworkLabel")}</span>{t("labs.quant.sprint4.bl.framework")}</p>
+            <p>{t("labs.quant.sprint4.bl.confNote")}</p>
           </div>
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <div className="rounded-xl border border-border bg-secondary/20 p-4">
-          <h4 className="text-sm font-semibold text-foreground mb-2">权重对比 (%)</h4>
+          <h4 className="text-sm font-semibold text-foreground mb-2">{t("labs.quant.sprint4.bl.weightCompareTitle")}</h4>
           <div className="h-[280px]">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={result.compareData}>
@@ -581,15 +584,15 @@ export const BlackLittermanTool = () => {
                 <YAxis stroke={CHART_TEXT} tick={{ fontSize: 10 }} />
                 <Tooltip contentStyle={{ background: "hsl(220 15% 12%)", border: `1px solid ${CHART_GRID}`, fontSize: 11 }} />
                 <Legend wrapperStyle={{ fontSize: 11 }} />
-                <Bar dataKey="market" name="市场" fill={CHART_TEAL} />
-                <Bar dataKey="bl" name="BL 后验" fill={CHART_GOLD} />
+                <Bar dataKey="market" name={t("labs.quant.sprint4.bl.market")} fill={CHART_TEAL} />
+                <Bar dataKey="bl" name={t("labs.quant.sprint4.bl.blPosterior")} fill={CHART_GOLD} />
                 <ReferenceLine y={0} stroke={CHART_TEXT} />
               </BarChart>
             </ResponsiveContainer>
           </div>
         </div>
         <div className="rounded-xl border border-border bg-secondary/20 p-4">
-          <h4 className="text-sm font-semibold text-foreground mb-2">隐含收益 vs 后验收益 (%)</h4>
+          <h4 className="text-sm font-semibold text-foreground mb-2">{t("labs.quant.sprint4.bl.returnsCompareTitle")}</h4>
           <div className="h-[280px]">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={result.returnsData}>
@@ -598,8 +601,8 @@ export const BlackLittermanTool = () => {
                 <YAxis stroke={CHART_TEXT} tick={{ fontSize: 10 }} />
                 <Tooltip contentStyle={{ background: "hsl(220 15% 12%)", border: `1px solid ${CHART_GRID}`, fontSize: 11 }} />
                 <Legend wrapperStyle={{ fontSize: 11 }} />
-                <Bar dataKey="pi" name="π (隐含)" fill={CHART_TEAL} />
-                <Bar dataKey="posterior" name="μ̃ (后验)" fill={CHART_GOLD} />
+                <Bar dataKey="pi" name={t("labs.quant.sprint4.bl.piImplied")} fill={CHART_TEAL} />
+                <Bar dataKey="posterior" name={t("labs.quant.sprint4.bl.muPosterior")} fill={CHART_GOLD} />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -615,6 +618,7 @@ export const BlackLittermanTool = () => {
 type FFLoadings = { mkt: number; smb: number; hml: number; rmw: number; cma: number };
 
 export const FamaFrenchTool = () => {
+  const { t } = useTranslation();
   // True portfolio loadings to simulate
   const [loadings, setLoadings] = useState<FFLoadings>({ mkt: 1.1, smb: 0.4, hml: -0.2, rmw: 0.3, cma: 0.1 });
   const [trueAlpha, setTrueAlpha] = useState(0.002); // monthly alpha
@@ -638,9 +642,9 @@ export const FamaFrenchTool = () => {
       const variance = mktVals.reduce((s, v) => s + (v - mean) ** 2, 0) / Math.max(mktVals.length - 1, 1);
       setMonths(rows.length);
       setResVol(parseFloat(Math.sqrt(variance).toFixed(4)));
-      setFfStatus(`Ken French · ${rows.length} 月 · ${res.data.from}→${res.data.to}`);
+      setFfStatus(t("labs.quant.sprint4.ff.statusLoaded", { n: rows.length, from: res.data.from, to: res.data.to }));
     } catch {
-      setFfStatus("拉取失败,使用合成数据");
+      setFfStatus(t("labs.quant.sprint4.ff.statusFailed"));
     }
   };
 
@@ -685,7 +689,7 @@ export const FamaFrenchTool = () => {
     const X = factors.map(f => [1, f[0], f[1], f[2], f[3], f[4]]);
     const reg = olsMulti(X, port);
     const [aHat, bMkt, bSmb, bHml, bRmw, bCma] = reg.beta;
-    const labels = ["α (月)", "MKT", "SMB", "HML", "RMW", "CMA"];
+    const labels = [t("labs.quant.sprint4.ff.alphaMonthly"), "MKT", "SMB", "HML", "RMW", "CMA"];
 
     const coefData = labels.map((lab, i) => ({
       name: lab,
@@ -742,7 +746,7 @@ export const FamaFrenchTool = () => {
       <div className="flex flex-wrap items-center gap-2 p-2.5 rounded-md border border-border/60 bg-muted/30 text-[11px] font-mono">
         <span className="flex items-center gap-1.5 text-gold">
           <Database className="w-3.5 h-3.5" />
-          Ken French 真实 5 因子月度数据
+          {t("labs.quant.sprint4.ff.dataSourceLabel")}
         </span>
         <button
           onClick={loadRealFF}
@@ -750,7 +754,7 @@ export const FamaFrenchTool = () => {
           className="px-2.5 py-1 rounded bg-primary/90 text-primary-foreground hover:bg-primary disabled:opacity-50 flex items-center gap-1"
         >
           {ffQuery.isFetching ? <Loader2 className="w-3 h-3 animate-spin" /> : null}
-          {ffQuery.isFetching ? "拉取中…" : "加载真实 F-F"}
+          {ffQuery.isFetching ? t("labs.quant.sprint4.ff.fetching") : t("labs.quant.sprint4.ff.loadReal")}
         </button>
         {ffStatus && (
           <span className="flex items-center gap-1 text-gold">
@@ -760,55 +764,55 @@ export const FamaFrenchTool = () => {
         )}
       </div>
       <PresetButtons presets={[
-        { name: "小盘价值", description: "SMB+, HML+", apply: () => { setLoadings({ mkt: 1.0, smb: 0.6, hml: 0.5, rmw: 0.2, cma: 0.3 }); setTrueAlpha(0.001); } },
-        { name: "大盘成长", description: "SMB-, HML-", apply: () => { setLoadings({ mkt: 1.1, smb: -0.3, hml: -0.4, rmw: 0.4, cma: -0.3 }); setTrueAlpha(0.002); } },
-        { name: "防御质量", description: "RMW++, β<1", apply: () => { setLoadings({ mkt: 0.8, smb: -0.1, hml: 0.2, rmw: 0.7, cma: 0.4 }); setTrueAlpha(0.003); } },
-        { name: "高 alpha", description: "α=50bp/月", apply: () => { setTrueAlpha(0.005); } },
+        { name: t("labs.quant.sprint4.ff.p1"), description: t("labs.quant.sprint4.ff.p1d"), apply: () => { setLoadings({ mkt: 1.0, smb: 0.6, hml: 0.5, rmw: 0.2, cma: 0.3 }); setTrueAlpha(0.001); } },
+        { name: t("labs.quant.sprint4.ff.p2"), description: t("labs.quant.sprint4.ff.p2d"), apply: () => { setLoadings({ mkt: 1.1, smb: -0.3, hml: -0.4, rmw: 0.4, cma: -0.3 }); setTrueAlpha(0.002); } },
+        { name: t("labs.quant.sprint4.ff.p3"), description: t("labs.quant.sprint4.ff.p3d"), apply: () => { setLoadings({ mkt: 0.8, smb: -0.1, hml: 0.2, rmw: 0.7, cma: 0.4 }); setTrueAlpha(0.003); } },
+        { name: t("labs.quant.sprint4.ff.p4"), description: t("labs.quant.sprint4.ff.p4d"), apply: () => { setTrueAlpha(0.005); } },
       ]} />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="space-y-3">
-          <p className="text-xs font-mono text-gold uppercase tracking-wider">真实因子载荷 (DGP)</p>
-          <Slider label="MKT (市场 β)" value={loadings.mkt} min={-0.5} max={2} step={0.05} onChange={(v) => setLoadings({ ...loadings, mkt: v })} />
-          <Slider label="SMB (规模)" value={loadings.smb} min={-1} max={1.2} step={0.05} onChange={(v) => setLoadings({ ...loadings, smb: v })} />
-          <Slider label="HML (价值)" value={loadings.hml} min={-1} max={1.2} step={0.05} onChange={(v) => setLoadings({ ...loadings, hml: v })} />
-          <Slider label="RMW (盈利)" value={loadings.rmw} min={-1} max={1.2} step={0.05} onChange={(v) => setLoadings({ ...loadings, rmw: v })} />
-          <Slider label="CMA (投资)" value={loadings.cma} min={-1} max={1.2} step={0.05} onChange={(v) => setLoadings({ ...loadings, cma: v })} />
-          <Slider label="月度真实 α" value={trueAlpha} min={-0.005} max={0.010} step={0.0005} onChange={setTrueAlpha} />
-          <Slider label="样本月数" value={months} min={36} max={360} step={12} onChange={setMonths} />
-          <Slider label="残差波动率" value={resVol} min={0.005} max={0.05} step={0.001} onChange={setResVol} />
-          <Slider label="种子" value={seed} min={1} max={999} step={1} onChange={setSeed} />
+          <p className="text-xs font-mono text-gold uppercase tracking-wider">{t("labs.quant.sprint4.ff.dgpLoadings")}</p>
+          <Slider label={t("labs.quant.sprint4.ff.mkt")} value={loadings.mkt} min={-0.5} max={2} step={0.05} onChange={(v) => setLoadings({ ...loadings, mkt: v })} />
+          <Slider label={t("labs.quant.sprint4.ff.smb")} value={loadings.smb} min={-1} max={1.2} step={0.05} onChange={(v) => setLoadings({ ...loadings, smb: v })} />
+          <Slider label={t("labs.quant.sprint4.ff.hml")} value={loadings.hml} min={-1} max={1.2} step={0.05} onChange={(v) => setLoadings({ ...loadings, hml: v })} />
+          <Slider label={t("labs.quant.sprint4.ff.rmw")} value={loadings.rmw} min={-1} max={1.2} step={0.05} onChange={(v) => setLoadings({ ...loadings, rmw: v })} />
+          <Slider label={t("labs.quant.sprint4.ff.cma")} value={loadings.cma} min={-1} max={1.2} step={0.05} onChange={(v) => setLoadings({ ...loadings, cma: v })} />
+          <Slider label={t("labs.quant.sprint4.ff.trueAlpha")} value={trueAlpha} min={-0.005} max={0.010} step={0.0005} onChange={setTrueAlpha} />
+          <Slider label={t("labs.quant.sprint4.ff.months")} value={months} min={36} max={360} step={12} onChange={setMonths} />
+          <Slider label={t("labs.quant.sprint4.ff.resVol")} value={resVol} min={0.005} max={0.05} step={0.001} onChange={setResVol} />
+          <Slider label={t("labs.quant.sprint4.ff.seed")} value={seed} min={1} max={999} step={1} onChange={setSeed} />
         </div>
 
         <div className="space-y-3">
           <div className="grid grid-cols-2 gap-2">
-            <Stat label="α̂ 年化" value={`${(result.annAlpha * 100).toFixed(2)}%`} color={result.annAlpha > 0 ? CHART_GOLD : CHART_RED} sub={`月 t = ${result.annAlphaTstat.toFixed(2)}`} />
-            <Stat label="R²" value={result.reg.r2.toFixed(3)} sub="模型拟合度" />
-            <Stat label="MKT β̂" value={result.reg.beta[1].toFixed(3)} color={CHART_TEAL} sub={`t=${result.reg.tStats[1].toFixed(1)}`} />
-            <Stat label="SMB β̂" value={result.reg.beta[2].toFixed(3)} sub={`t=${result.reg.tStats[2].toFixed(1)}`} />
-            <Stat label="HML β̂" value={result.reg.beta[3].toFixed(3)} sub={`t=${result.reg.tStats[3].toFixed(1)}`} />
-            <Stat label="RMW β̂" value={result.reg.beta[4].toFixed(3)} sub={`t=${result.reg.tStats[4].toFixed(1)}`} />
-            <Stat label="CMA β̂" value={result.reg.beta[5].toFixed(3)} sub={`t=${result.reg.tStats[5].toFixed(1)}`} />
-            <Stat label="显著因子" value={`${result.reg.tStats.slice(1).filter(t => Math.abs(t) > 1.96).length} / 5`} sub="|t| > 1.96" />
+            <Stat label={t("labs.quant.sprint4.ff.alphaAnn")} value={`${(result.annAlpha * 100).toFixed(2)}%`} color={result.annAlpha > 0 ? CHART_GOLD : CHART_RED} sub={t("labs.quant.sprint4.ff.tStatSub", { v: result.annAlphaTstat.toFixed(2) })} />
+            <Stat label="R²" value={result.reg.r2.toFixed(3)} sub={t("labs.quant.sprint4.ff.fitSub")} />
+            <Stat label={t("labs.quant.sprint4.ff.mktBeta")} value={result.reg.beta[1].toFixed(3)} color={CHART_TEAL} sub={`t=${result.reg.tStats[1].toFixed(1)}`} />
+            <Stat label={t("labs.quant.sprint4.ff.smbBeta")} value={result.reg.beta[2].toFixed(3)} sub={`t=${result.reg.tStats[2].toFixed(1)}`} />
+            <Stat label={t("labs.quant.sprint4.ff.hmlBeta")} value={result.reg.beta[3].toFixed(3)} sub={`t=${result.reg.tStats[3].toFixed(1)}`} />
+            <Stat label={t("labs.quant.sprint4.ff.rmwBeta")} value={result.reg.beta[4].toFixed(3)} sub={`t=${result.reg.tStats[4].toFixed(1)}`} />
+            <Stat label={t("labs.quant.sprint4.ff.cmaBeta")} value={result.reg.beta[5].toFixed(3)} sub={`t=${result.reg.tStats[5].toFixed(1)}`} />
+            <Stat label={t("labs.quant.sprint4.ff.sigFactors")} value={`${result.reg.tStats.slice(1).filter(t => Math.abs(t) > 1.96).length} / 5`} sub={t("labs.quant.sprint4.ff.tThreshold")} />
           </div>
           <div className="text-xs font-mono text-muted-foreground p-3 rounded-lg bg-secondary/40 border border-border leading-relaxed space-y-1">
-            <p><span className="text-gold">FF5 (2015)：</span>R_p - R_f = α + β_MKT·MKT + β_SMB·SMB + β_HML·HML + β_RMW·RMW + β_CMA·CMA + ε</p>
-            <p>α 显著正 → 真实选股能力；若 |t_α| &lt; 2 → α 不可与零区分。</p>
+            <p><span className="text-gold">{t("labs.quant.sprint4.ff.ff5Label")}</span>R_p - R_f = α + β_MKT·MKT + β_SMB·SMB + β_HML·HML + β_RMW·RMW + β_CMA·CMA + ε</p>
+            <p>{t("labs.quant.sprint4.ff.alphaNote")}</p>
           </div>
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <div className="rounded-xl border border-border bg-secondary/20 p-4">
-          <h4 className="text-sm font-semibold text-foreground mb-2">载荷估计 vs 真实 (Radar)</h4>
+          <h4 className="text-sm font-semibold text-foreground mb-2">{t("labs.quant.sprint4.ff.radarTitle")}</h4>
           <div className="h-[280px]">
             <ResponsiveContainer width="100%" height="100%">
               <RadarChart data={result.radar}>
                 <PolarGrid stroke={CHART_GRID} />
                 <PolarAngleAxis dataKey="factor" tick={{ fontSize: 11, fill: CHART_TEXT }} />
                 <PolarRadiusAxis tick={{ fontSize: 9, fill: CHART_TEXT }} />
-                <Radar name="真实" dataKey="true_" stroke={CHART_TEAL} fill={CHART_TEAL} fillOpacity={0.25} />
-                <Radar name="OLS 估计" dataKey="est" stroke={CHART_GOLD} fill={CHART_GOLD} fillOpacity={0.35} />
+                <Radar name={t("labs.quant.sprint4.ff.trueLabel")} dataKey="true_" stroke={CHART_TEAL} fill={CHART_TEAL} fillOpacity={0.25} />
+                <Radar name={t("labs.quant.sprint4.ff.olsEst")} dataKey="est" stroke={CHART_GOLD} fill={CHART_GOLD} fillOpacity={0.35} />
                 <Legend wrapperStyle={{ fontSize: 11 }} />
                 <Tooltip contentStyle={{ background: "hsl(220 15% 12%)", border: `1px solid ${CHART_GRID}`, fontSize: 11 }} />
               </RadarChart>
@@ -816,16 +820,16 @@ export const FamaFrenchTool = () => {
           </div>
         </div>
         <div className="rounded-xl border border-border bg-secondary/20 p-4">
-          <h4 className="text-sm font-semibold text-foreground mb-2">累计因子贡献 (%)</h4>
+          <h4 className="text-sm font-semibold text-foreground mb-2">{t("labs.quant.sprint4.ff.cumContribTitle")}</h4>
           <div className="h-[280px]">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={result.factorContrib}>
                 <CartesianGrid stroke={CHART_GRID} strokeDasharray="3 3" />
-                <XAxis dataKey="t" stroke={CHART_TEXT} tick={{ fontSize: 10 }} label={{ value: "Year", position: "insideBottom", offset: -5, fill: CHART_TEXT, fontSize: 10 }} />
+                <XAxis dataKey="t" stroke={CHART_TEXT} tick={{ fontSize: 10 }} label={{ value: t("labs.quant.sprint4.year"), position: "insideBottom", offset: -5, fill: CHART_TEXT, fontSize: 10 }} />
                 <YAxis stroke={CHART_TEXT} tick={{ fontSize: 10 }} />
                 <Tooltip contentStyle={{ background: "hsl(220 15% 12%)", border: `1px solid ${CHART_GRID}`, fontSize: 11 }} />
                 <Legend wrapperStyle={{ fontSize: 10 }} />
-                <Line type="monotone" dataKey="port" name="组合" stroke="#ffffff" strokeWidth={2.5} dot={false} />
+                <Line type="monotone" dataKey="port" name={t("labs.quant.sprint4.ff.portfolio")} stroke="#ffffff" strokeWidth={2.5} dot={false} />
                 <Line type="monotone" dataKey="mkt" name="MKT" stroke={CHART_GOLD} dot={false} />
                 <Line type="monotone" dataKey="smb" name="SMB" stroke={CHART_TEAL} dot={false} />
                 <Line type="monotone" dataKey="hml" name="HML" stroke={CHART_RED} dot={false} />
