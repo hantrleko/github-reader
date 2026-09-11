@@ -5,9 +5,31 @@ import { useMemo, useState } from "react";
 
 const RELEASES = [
   {
-    version: "V7.1",
+    version: "V7.2",
     date: "2026-09",
     tag: "Current",
+    highlights: [
+      {
+        icon: Sparkles,
+        title: "量化交易工具深链",
+        items: [
+          "19 个量化 / 组合工具改为 /#quant?t=<toolId> 深链，目录可直达具体工具",
+          "回测引擎、校准实验室、Qlib 流水线的视图与模型进入 URL，可分享",
+        ],
+      },
+      {
+        icon: FileText,
+        title: "量化模块双语化",
+        items: [
+          "量化导航分类与工具名补齐英文，随语言切换",
+          "策略回测、Walk-Forward、风险平价、V4.1 与 V5.6 组合工具面板文案迁入中英词条",
+        ],
+      },
+    ],
+  },
+  {
+    version: "V7.1",
+    date: "2026-09",
     highlights: [
       {
         icon: Sparkles,
@@ -2105,7 +2127,7 @@ const Changelog = () => {
             {t("changelog.title")}
           </h2>
           <p className="text-sm text-muted-foreground font-mono">
-            {t("changelog.subtitle")} — V1.0 → V7.1
+            {t("changelog.subtitle")} — V1.0 → V7.2
           </p>
         </motion.div>
 

@@ -1,10 +1,12 @@
 import { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   AreaChart, Area, BarChart, Bar, ScatterChart, Scatter, Line, ComposedChart,
   XAxis, YAxis, ZAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine, Legend,
 } from "recharts";
 import { Gauge, Activity, Loader2, RefreshCw } from "lucide-react";
 import SectionHeader from "@/components/common/SectionHeader";
+import { useToolTab } from "@/lib/useToolTab";
 import EquationBlock from "@/components/common/EquationBlock";
 import { Stat, C } from "@/components/frontier/ui";
 import { AXIS_PROPS, GRID_PROPS, ThemedTooltip } from "@/components/common/ChartTheme";
@@ -20,28 +22,27 @@ import {
 } from "@/lib/quant/calibration";
 
 type ModelId = "garch" | "ewma" | "merton" | "vasicek" | "cir";
-const VOL_MODELS: { id: ModelId; label: string; desc: string }[] = [
-  { id: "garch", label: "GARCH(1,1) · MLE", desc: "高斯极大似然拟合 ω/α/β,估计条件波动与长期波动。" },
-  { id: "ewma", label: "EWMA / RiskMetrics", desc: "网格搜索最优衰减因子 λ,对比 RiskMetrics 0.94。" },
-  { id: "merton", label: "Merton 跳跃扩散", desc: "阈值分解出扩散波动与跳跃强度/幅度。" },
-];
-const RATE_MODELS: { id: ModelId; label: string; desc: string }[] = [
-  { id: "vasicek", label: "Vasicek 短率", desc: "OU 均值回复,离散 OLS 估计 κ/θ/σ。" },
-  { id: "cir", label: "CIR 短率", desc: "平方根扩散,√r 标准化残差估计。" },
-];
+const VOL_MODEL_IDS: ModelId[] = ["garch", "ewma", "merton"];
+const RATE_MODEL_IDS: ModelId[] = ["vasicek", "cir"];
+const FRED_RATE_IDS = ["DGS3MO", "DGS1", "DGS2", "DGS5"] as const;
 
-const FRED_RATES: { id: string; label: string }[] = [
-  { id: "DGS3MO", label: "3M 美债" },
-  { id: "DGS1", label: "1Y 美债" },
-  { id: "DGS2", label: "2Y 美债" },
-  { id: "DGS5", label: "5Y 美债" },
-];
+const MODEL_IDS = ["garch", "ewma", "merton", "vasicek", "cir"] as const;
 
 const pct = (x: number) => (x * 100).toFixed(1) + "%";
 const isRate = (m: ModelId) => m === "vasicek" || m === "cir";
 
 export default function CalibrationLab() {
-  const [model, setModel] = useState<ModelId>("garch");
+  const { t } = useTranslation();
+  const VOL_MODELS: { id: ModelId; label: string; desc: string }[] = VOL_MODEL_IDS.map((id) => ({
+    id, label: t(`labs.quant.calibrationLab.model.${id}.label`), desc: t(`labs.quant.calibrationLab.model.${id}.desc`),
+  }));
+  const RATE_MODELS: { id: ModelId; label: string; desc: string }[] = RATE_MODEL_IDS.map((id) => ({
+    id, label: t(`labs.quant.calibrationLab.model.${id}.label`), desc: t(`labs.quant.calibrationLab.model.${id}.desc`),
+  }));
+  const FRED_RATES: { id: string; label: string }[] = FRED_RATE_IDS.map((id) => ({
+    id, label: t(`labs.quant.calibrationLab.fredRate.${id}`),
+  }));
+  const [model, setModel] = useToolTab<ModelId>(MODEL_IDS, "garch");
 
   // --- volatility (price) data
   const [source, setSource] = useState<PriceSource>("yahoo");
@@ -117,14 +118,14 @@ export default function CalibrationLab() {
       <SectionHeader
         chapter="Lab"
         kicker="Calibration · Fit to Real Data"
-        title="模型校准实验室"
-        subtitle="把波动率与短率模型直接拟合到真实行情:GARCH/EWMA/Merton 用价格收益,Vasicek/CIR 用 FRED 真实利率序列。GARCH/EWMA 附标准化残差 QQ 图与 ACF 诊断,拟合得到的 σ / r 可一键发送到定价工具。"
+        title={t("labs.quant.calibrationLab.title")}
+        subtitle={t("labs.quant.calibrationLab.subtitle")}
       />
 
       <div className="container max-w-6xl px-6 space-y-5">
         {isRate(model) ? (
           <div className="rounded-xl border border-border bg-card/60 p-4 space-y-3">
-            <p className="text-[10px] font-mono uppercase tracking-[0.2em] text-gold">FRED 短率序列</p>
+            <p className="text-[10px] font-mono uppercase tracking-[0.2em] text-gold">{t("labs.quant.calibrationLab.fredSeriesLabel")}</p>
             <div className="flex flex-wrap items-center gap-2">
               {FRED_RATES.map((r) => (
                 <button key={r.id} onClick={() => setRateSeries(r.id)}
@@ -136,11 +137,11 @@ export default function CalibrationLab() {
               <button onClick={() => fred.refetch()} disabled={fred.isFetching}
                 className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-[11px] font-mono border border-border hover:border-gold/40 hover:text-gold transition-colors disabled:opacity-50">
                 {fred.isFetching ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <RefreshCw className="w-3.5 h-3.5" />}
-                拉取
+                {t("labs.quant.priceSource.fetch")}
               </button>
-              {rates.length > 0 && <span className="text-[10px] font-mono text-muted-foreground">{rates.length} 个观测</span>}
+              {rates.length > 0 && <span className="text-[10px] font-mono text-muted-foreground">{t("labs.quant.calibrationLab.observations", { n: rates.length })}</span>}
             </div>
-            <p className="text-[10px] font-mono text-muted-foreground">来自 FRED 的日频国债收益率,作为短率代理(已转为小数)。</p>
+            <p className="text-[10px] font-mono text-muted-foreground">{t("labs.quant.calibrationLab.fredHint")}</p>
           </div>
         ) : (
           <PriceSourceBar
@@ -158,7 +159,7 @@ export default function CalibrationLab() {
         <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-5">
           <aside className="rounded-xl border border-border bg-card/60 p-4 space-y-3 h-fit">
             <div className="space-y-2">
-              <p className="text-[10px] font-mono uppercase tracking-[0.2em] text-gold">波动率模型</p>
+              <p className="text-[10px] font-mono uppercase tracking-[0.2em] text-gold">{t("labs.quant.calibrationLab.volModelLabel")}</p>
               {VOL_MODELS.map((mo) => (
                 <button key={mo.id} onClick={() => setModel(mo.id)}
                   className={"w-full text-left px-3 py-2 rounded-md border transition-colors " +
@@ -169,7 +170,7 @@ export default function CalibrationLab() {
               ))}
             </div>
             <div className="space-y-2 pt-1">
-              <p className="text-[10px] font-mono uppercase tracking-[0.2em] text-gold">短率模型</p>
+              <p className="text-[10px] font-mono uppercase tracking-[0.2em] text-gold">{t("labs.quant.calibrationLab.rateModelLabel")}</p>
               {RATE_MODELS.map((mo) => (
                 <button key={mo.id} onClick={() => setModel(mo.id)}
                   className={"w-full text-left px-3 py-2 rounded-md border transition-colors " +
@@ -185,31 +186,31 @@ export default function CalibrationLab() {
             {isRate(model) ? (
               rates.length <= 60 ? (
                 <div className="rounded-xl border border-border bg-card/60 p-10 text-center text-sm text-muted-foreground">
-                  {fred.isFetching ? "正在拉取 FRED 利率…" : "请拉取至少约 60 个利率观测后再拟合。"}
+                  {fred.isFetching ? t("labs.quant.calibrationLab.fetchingFred") : t("labs.quant.calibrationLab.needRateObs")}
                 </div>
               ) : shortRate && (
                 <>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                    <Stat label="均值回复速度 κ" value={shortRate.kappa.toFixed(3)} color={C.blue} />
-                    <Stat label="长期均值 θ" value={pct(shortRate.theta)} color={C.gold} />
-                    <Stat label="波动 σ" value={pct(shortRate.sigma)} color={C.teal} />
-                    <Stat label="半衰期(年)" value={Number.isFinite(shortRate.halfLife) ? shortRate.halfLife.toFixed(2) : "∞"} color={C.text} />
+                    <Stat label={t("labs.quant.calibrationLab.metric.kappa")} value={shortRate.kappa.toFixed(3)} color={C.blue} />
+                    <Stat label={t("labs.quant.calibrationLab.metric.theta")} value={pct(shortRate.theta)} color={C.gold} />
+                    <Stat label={t("labs.quant.calibrationLab.metric.sigma")} value={pct(shortRate.sigma)} color={C.teal} />
+                    <Stat label={t("labs.quant.calibrationLab.metric.halfLife")} value={Number.isFinite(shortRate.halfLife) ? shortRate.halfLife.toFixed(2) : "∞"} color={C.text} />
                   </div>
                   <div className="rounded-xl border border-border bg-card/60 p-4 space-y-2">
-                    <p className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">{model === "cir" ? "CIR" : "Vasicek"} 模型 SDE</p>
+                    <p className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">{t("labs.quant.calibrationLab.modelSde", { m: model === "cir" ? "CIR" : "Vasicek" })}</p>
                     <EquationBlock variant="gold" math={model === "cir"
                       ? "dr_t = \\kappa(\\theta - r_t)\\,dt + \\sigma\\sqrt{r_t}\\,dW_t"
                       : "dr_t = \\kappa(\\theta - r_t)\\,dt + \\sigma\\,dW_t"} />
                     <p className="text-[11px] text-muted-foreground">
-                      离散回归 r_t = a + b·r_{"{t-1}"} + ε,由 κ = −ln(b)/Δt、θ = a/(1−b) 还原参数;{model === "cir" ? "残差以 √r 标准化得到 σ。" : "由残差方差得到 σ。"}
+                      {t("labs.quant.calibrationLab.discreteRegression")} {model === "cir" ? t("labs.quant.calibrationLab.cirResidual") : t("labs.quant.calibrationLab.vasicekResidual")}
                     </p>
                   </div>
                   <div className="flex justify-end">
-                    <SendToTool fromId="calibration" label={model === "cir" ? "CIR 校准" : "Vasicek 校准"} outputs={{ r: busR }} targets={["bs", "mc", "greeks-desk", "bond"]} />
+                    <SendToTool fromId="calibration" label={model === "cir" ? t("labs.quant.calibrationLab.cirCalibration") : t("labs.quant.calibrationLab.vasicekCalibration")} outputs={{ r: busR }} targets={["bs", "mc", "greeks-desk", "bond"]} />
                   </div>
                   <div className="rounded-xl border border-border bg-card/60 p-4">
                     <p className="text-xs font-mono uppercase tracking-wider text-muted-foreground mb-3 flex items-center gap-1.5">
-                      <Gauge className="w-3.5 h-3.5 text-gold" /> 短率序列 vs 长期均值 θ(%)
+                      <Gauge className="w-3.5 h-3.5 text-gold" /> {t("labs.quant.calibrationLab.shortRateChartTitle")}
                     </p>
                     <ResponsiveContainer width="100%" height={280}>
                       <ComposedChart data={rateChart}>
@@ -217,54 +218,54 @@ export default function CalibrationLab() {
                         <XAxis dataKey="date" {...AXIS_PROPS} minTickGap={48} />
                         <YAxis {...AXIS_PROPS} width={48} />
                         <Tooltip content={<ThemedTooltip />} />
-                        <Area type="monotone" dataKey="rate" name="短率" stroke={C.gold} fill={C.gold} fillOpacity={0.12} />
+                        <Area type="monotone" dataKey="rate" name={t("labs.quant.calibrationLab.shortRate")} stroke={C.gold} fill={C.gold} fillOpacity={0.12} />
                         <Line type="monotone" dataKey="theta" name="θ" stroke={C.text} dot={false} strokeDasharray="4 3" />
                       </ComposedChart>
                     </ResponsiveContainer>
                   </div>
-                  <p className="text-[10px] font-mono text-muted-foreground">FRED {rateSeries} · {rates.length} 个观测 · 教学用途,离散估计对采样频率敏感。</p>
+                  <p className="text-[10px] font-mono text-muted-foreground">{t("labs.quant.calibrationLab.fredFootnote", { rateSeries, n: rates.length })}</p>
                 </>
               )
             ) : returns.length <= 60 ? (
               <div className="rounded-xl border border-border bg-card/60 p-10 text-center text-sm text-muted-foreground">
-                {isFetching ? "正在拉取真实数据…" : "请拉取至少约 60 个交易日的价格数据后再拟合。"}
+                {isFetching ? t("labs.quant.backtestLab.fetchingReal") : t("labs.quant.calibrationLab.needPriceObs")}
               </div>
             ) : (
               <>
                 {garch && (
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                     <Stat label="ω" value={garch.omega.toExponential(2)} color={C.text} />
-                    <Stat label="α (ARCH)" value={garch.alpha.toFixed(3)} color={C.blue} />
-                    <Stat label="β (GARCH)" value={garch.beta.toFixed(3)} color={C.teal} />
-                    <Stat label="持续性 α+β" value={garch.persistence.toFixed(3)} color={garch.persistence < 1 ? C.green : C.red} />
-                    <Stat label="长期年化波动" value={pct(garch.longRunVol)} color={C.gold} />
-                    <Stat label="对数似然" value={garch.logLik.toFixed(1)} color={C.text} />
-                    <Stat label="最新条件波动" value={pct(garch.condVol[garch.condVol.length - 1])} color={C.gold} />
-                    <Stat label="样本均值(日)" value={pct(garch.mu)} color={C.text} />
+                    <Stat label={t("labs.quant.calibrationLab.metric.alpha")} value={garch.alpha.toFixed(3)} color={C.blue} />
+                    <Stat label={t("labs.quant.calibrationLab.metric.beta")} value={garch.beta.toFixed(3)} color={C.teal} />
+                    <Stat label={t("labs.quant.calibrationLab.metric.persistence")} value={garch.persistence.toFixed(3)} color={garch.persistence < 1 ? C.green : C.red} />
+                    <Stat label={t("labs.quant.calibrationLab.metric.longRunVol")} value={pct(garch.longRunVol)} color={C.gold} />
+                    <Stat label={t("labs.quant.calibrationLab.metric.logLik")} value={garch.logLik.toFixed(1)} color={C.text} />
+                    <Stat label={t("labs.quant.calibrationLab.metric.latestCondVol")} value={pct(garch.condVol[garch.condVol.length - 1])} color={C.gold} />
+                    <Stat label={t("labs.quant.calibrationLab.metric.sampleMeanDaily")} value={pct(garch.mu)} color={C.text} />
                   </div>
                 )}
                 {ewma && (
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                    <Stat label="最优 λ" value={ewma.lambda.toFixed(3)} color={C.gold} />
-                    <Stat label="最新波动(拟合λ)" value={pct(ewma.latestVol)} color={C.blue} />
-                    <Stat label="RiskMetrics(λ=0.94)" value={pct(ewma.riskMetricsVol)} color={C.teal} />
-                    <Stat label="对数似然" value={ewma.logLik.toFixed(1)} color={C.text} />
+                    <Stat label={t("labs.quant.calibrationLab.metric.optimalLambda")} value={ewma.lambda.toFixed(3)} color={C.gold} />
+                    <Stat label={t("labs.quant.calibrationLab.metric.latestVolFitted")} value={pct(ewma.latestVol)} color={C.blue} />
+                    <Stat label="RiskMetrics (λ=0.94)" value={pct(ewma.riskMetricsVol)} color={C.teal} />
+                    <Stat label={t("labs.quant.calibrationLab.metric.logLik")} value={ewma.logLik.toFixed(1)} color={C.text} />
                   </div>
                 )}
                 {merton && (
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                    <Stat label="扩散年化波动" value={pct(merton.sigmaDiffusion)} color={C.gold} />
-                    <Stat label="跳跃强度 λ(年)" value={merton.lambda.toFixed(2)} color={C.blue} />
-                    <Stat label="跳跃均值" value={pct(merton.jumpMean)} color={merton.jumpMean >= 0 ? C.green : C.red} />
-                    <Stat label="跳跃标准差" value={pct(merton.jumpStd)} color={C.teal} />
-                    <Stat label="跳跃次数" value={String(merton.nJumps)} color={C.text} sub={`阈值 ±${pct(merton.threshold)}`} />
+                    <Stat label={t("labs.quant.calibrationLab.metric.diffusionVol")} value={pct(merton.sigmaDiffusion)} color={C.gold} />
+                    <Stat label={t("labs.quant.calibrationLab.metric.jumpIntensity")} value={merton.lambda.toFixed(2)} color={C.blue} />
+                    <Stat label={t("labs.quant.calibrationLab.metric.jumpMean")} value={pct(merton.jumpMean)} color={merton.jumpMean >= 0 ? C.green : C.red} />
+                    <Stat label={t("labs.quant.calibrationLab.metric.jumpStd")} value={pct(merton.jumpStd)} color={C.teal} />
+                    <Stat label={t("labs.quant.calibrationLab.metric.nJumps")} value={String(merton.nJumps)} color={C.text} sub={t("labs.quant.calibrationLab.thresholdSub", { v: pct(merton.threshold) })} />
                   </div>
                 )}
 
                 <div className="flex justify-end">
                   <SendToTool
                     fromId="calibration"
-                    label="模型校准"
+                    label={t("labs.quant.calibrationLab.modelCalibration")}
                     outputs={{ sigma: busSigma, mu: garch ? garch.mu * 252 : undefined }}
                     targets={["bs", "mc", "greeks-desk", "iv"]}
                   />
@@ -273,7 +274,7 @@ export default function CalibrationLab() {
                 {volChart.length > 0 && (
                   <div className="rounded-xl border border-border bg-card/60 p-4">
                     <p className="text-xs font-mono uppercase tracking-wider text-muted-foreground mb-3 flex items-center gap-1.5">
-                      <Gauge className="w-3.5 h-3.5 text-gold" /> 条件波动率(年化 %)
+                      <Gauge className="w-3.5 h-3.5 text-gold" /> {t("labs.quant.calibrationLab.condVolChartTitle")}
                     </p>
                     <ResponsiveContainer width="100%" height={260}>
                       <AreaChart data={volChart}>
@@ -282,7 +283,7 @@ export default function CalibrationLab() {
                         <YAxis {...AXIS_PROPS} width={48} />
                         <Tooltip content={<ThemedTooltip />} />
                         {garch && <ReferenceLine y={garch.longRunVol * 100} stroke={C.text} strokeDasharray="4 3" />}
-                        <Area type="monotone" dataKey="vol" name="条件波动" stroke={C.gold} fill={C.gold} fillOpacity={0.15} />
+                        <Area type="monotone" dataKey="vol" name={t("labs.quant.calibrationLab.condVol")} stroke={C.gold} fill={C.gold} fillOpacity={0.15} />
                       </AreaChart>
                     </ResponsiveContainer>
                   </div>
@@ -292,23 +293,23 @@ export default function CalibrationLab() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                     <div className="rounded-xl border border-border bg-card/60 p-4">
                       <p className="text-xs font-mono uppercase tracking-wider text-muted-foreground mb-3 flex items-center gap-1.5">
-                        <Activity className="w-3.5 h-3.5 text-gold" /> 标准化残差 Q-Q 图
+                        <Activity className="w-3.5 h-3.5 text-gold" /> {t("labs.quant.calibrationLab.qqTitle")}
                       </p>
                       <ResponsiveContainer width="100%" height={240}>
                         <ScatterChart>
                           <CartesianGrid {...GRID_PROPS} />
-                          <XAxis type="number" dataKey="theoretical" name="理论分位" {...AXIS_PROPS} />
-                          <YAxis type="number" dataKey="sample" name="样本分位" {...AXIS_PROPS} width={40} />
+                          <XAxis type="number" dataKey="theoretical" name={t("labs.quant.calibrationLab.theoreticalQuantile")} {...AXIS_PROPS} />
+                          <YAxis type="number" dataKey="sample" name={t("labs.quant.calibrationLab.sampleQuantile")} {...AXIS_PROPS} width={40} />
                           <ZAxis range={[12, 12]} />
                           <Tooltip content={<ThemedTooltip />} />
                           <ReferenceLine segment={[{ x: -4, y: -4 }, { x: 4, y: 4 }]} stroke={C.text} strokeDasharray="4 3" />
                           <Scatter data={diag.qq} fill={C.gold} fillOpacity={0.6} />
                         </ScatterChart>
                       </ResponsiveContainer>
-                      <p className="text-[10px] text-muted-foreground mt-1">点贴近对角线说明残差接近正态;尾部偏离提示厚尾。</p>
+                      <p className="text-[10px] text-muted-foreground mt-1">{t("labs.quant.calibrationLab.qqFootnote")}</p>
                     </div>
                     <div className="rounded-xl border border-border bg-card/60 p-4">
-                      <p className="text-xs font-mono uppercase tracking-wider text-muted-foreground mb-3">残差平方 ACF(检验剩余 ARCH)</p>
+                      <p className="text-xs font-mono uppercase tracking-wider text-muted-foreground mb-3">{t("labs.quant.calibrationLab.acfTitle")}</p>
                       <ResponsiveContainer width="100%" height={240}>
                         <BarChart data={diag.ac.map((v, i) => ({ lag: i + 1, acf: v }))}>
                           <CartesianGrid {...GRID_PROPS} />
@@ -320,13 +321,13 @@ export default function CalibrationLab() {
                           <Bar dataKey="acf" fill={C.teal} />
                         </BarChart>
                       </ResponsiveContainer>
-                      <p className="text-[10px] text-muted-foreground mt-1">柱大多落在 ±1.96/√n(红线)内说明波动聚集已被模型吸收。</p>
+                      <p className="text-[10px] text-muted-foreground mt-1">{t("labs.quant.calibrationLab.acfFootnote")}</p>
                     </div>
                   </div>
                 )}
 
                 <p className="text-[10px] font-mono text-muted-foreground">
-                  标的 {series?.symbol} · 数据源 {source} · {returns.length} 个日收益 · 教学用途,拟合结果对样本与窗口敏感。
+                  {t("labs.quant.calibrationLab.footnote", { symbol: series?.symbol, source, n: returns.length })}
                 </p>
               </>
             )}

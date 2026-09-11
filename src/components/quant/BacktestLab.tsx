@@ -1,9 +1,11 @@
 import { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   ComposedChart, Area, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend,
 } from "recharts";
 import { Activity, Grid3x3, CalendarDays, Trophy, Umbrella } from "lucide-react";
 import SectionHeader from "@/components/common/SectionHeader";
+import { useToolTab } from "@/lib/useToolTab";
 import { Slider, Stat, C } from "@/components/frontier/ui";
 import { AXIS_PROPS, GRID_PROPS, ThemedTooltip } from "@/components/common/ChartTheme";
 import SendToTool from "@/components/common/SendToTool";
@@ -18,29 +20,25 @@ import {
   type StrategyId, type BacktestParams, type ScanMetric, type GridScanResult,
 } from "@/lib/quant/backtest";
 
-const STRATEGIES: { id: StrategyId; label: string; desc: string }[] = [
-  { id: "buyhold", label: "买入持有", desc: "始终满仓,作为基准对照。" },
-  { id: "sma", label: "双均线交叉", desc: "快线上穿慢线做多,下穿离场/做空。" },
-  { id: "momentum", label: "时序动量", desc: "回看期收益为正则持有,捕捉趋势延续。" },
-  { id: "meanrev", label: "均值回归", desc: "价格偏离 z 分数过大时反向押注回归。" },
-  { id: "voltarget", label: "波动率目标", desc: "按目标波动率反比调节仓位杠杆。" },
-];
-
-const SCAN_METRICS: { id: ScanMetric; label: string }[] = [
-  { id: "sharpe", label: "夏普" },
-  { id: "cagr", label: "CAGR" },
-  { id: "calmar", label: "卡玛" },
-  { id: "maxDrawdown", label: "最大回撤" },
-];
+const STRATEGY_IDS: StrategyId[] = ["buyhold", "sma", "momentum", "meanrev", "voltarget"];
+const SCAN_METRIC_IDS: ScanMetric[] = ["sharpe", "cagr", "calmar", "maxDrawdown"];
 
 const MONTHS = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"];
 const pct = (x: number) => (x * 100).toFixed(1) + "%";
 const num = (x: number) => x.toFixed(2);
 
 type View = "single" | "scan" | "portfolio";
+const VIEW_IDS = ["single", "scan", "portfolio"] as const;
 
 export default function BacktestLab() {
-  const [view, setView] = useState<View>("single");
+  const { t } = useTranslation();
+  const STRATEGIES: { id: StrategyId; label: string; desc: string }[] = STRATEGY_IDS.map((id) => ({
+    id, label: t(`labs.quant.backtestLab.strategy.${id}.label`), desc: t(`labs.quant.backtestLab.strategy.${id}.desc`),
+  }));
+  const SCAN_METRICS: { id: ScanMetric; label: string }[] = SCAN_METRIC_IDS.map((id) => ({
+    id, label: t(`labs.quant.backtestLab.scanMetric.${id}`),
+  }));
+  const [view, setView] = useToolTab<View>(VIEW_IDS, "single");
   const [source, setSource] = useState<PriceSource>("yahoo");
   const [symbol, setSymbol] = useState("AAPL");
   const [range, setRange] = useState("5y");
@@ -175,14 +173,14 @@ export default function BacktestLab() {
       <SectionHeader
         chapter="Lab"
         kicker="Backtest · Portfolio & Strategy Engine"
-        title="组合回测与优化引擎"
-        subtitle="用真实历史价格回测单标的策略或多资产组合:单标的支持双均线/动量/均值回归/波动率目标并计入交易成本与滑点,组合支持等权/风险平价/最小方差/均值方差并周期再平衡。信号 T+1 执行规避前视偏差,参数网格扫描可视化稳健区,结果可一键发送到定价工具。"
+        title={t("labs.quant.backtestLab.title")}
+        subtitle={t("labs.quant.backtestLab.subtitle")}
       />
 
       <div className="container max-w-6xl px-6 space-y-5">
         {/* view tabs */}
         <div className="flex flex-wrap gap-1 rounded-lg border border-border bg-card/60 p-1 w-fit">
-          {([["single", "单标的策略"], ["scan", "参数扫描"], ["portfolio", "组合回测"]] as [View, string][]).map(([v, label]) => (
+          {([["single", t("labs.quant.backtestLab.tab.single")], ["scan", t("labs.quant.backtestLab.tab.scan")], ["portfolio", t("labs.quant.backtestLab.tab.portfolio")]] as [View, string][]).map(([v, label]) => (
             <button key={v} onClick={() => setView(v)}
               className={"px-3.5 py-1.5 rounded-md text-xs font-mono transition-colors " +
                 (view === v ? "bg-gold/15 text-gold" : "text-muted-foreground hover:text-foreground")}>
@@ -210,7 +208,7 @@ export default function BacktestLab() {
               {/* Controls */}
               <aside className="space-y-4">
                 <div className="rounded-xl border border-border bg-card/60 p-4 space-y-2">
-                  <p className="text-[10px] font-mono uppercase tracking-[0.2em] text-gold">策略</p>
+                  <p className="text-[10px] font-mono uppercase tracking-[0.2em] text-gold">{t("labs.quant.backtestLab.strategyLabel")}</p>
                   {STRATEGIES.map((s) => (
                     <button
                       key={s.id}
@@ -227,43 +225,43 @@ export default function BacktestLab() {
                 </div>
 
                 <div className="rounded-xl border border-border bg-card/60 p-4 space-y-4">
-                  <p className="text-[10px] font-mono uppercase tracking-[0.2em] text-gold">参数</p>
+                  <p className="text-[10px] font-mono uppercase tracking-[0.2em] text-gold">{t("labs.quant.backtestLab.paramsLabel")}</p>
                   {strategy === "sma" && (
                     <>
-                      <Slider label="快线" value={fast} min={3} max={60} step={1} onChange={(v) => setFast(Math.min(v, slow - 1))} />
-                      <Slider label="慢线" value={slow} min={10} max={250} step={1} onChange={(v) => setSlow(Math.max(v, fast + 1))} />
+                      <Slider label={t("labs.quant.backtestLab.param.fast")} value={fast} min={3} max={60} step={1} onChange={(v) => setFast(Math.min(v, slow - 1))} />
+                      <Slider label={t("labs.quant.backtestLab.param.slow")} value={slow} min={10} max={250} step={1} onChange={(v) => setSlow(Math.max(v, fast + 1))} />
                     </>
                   )}
                   {strategy === "momentum" && (
-                    <Slider label="回看期(交易日)" value={lookback} min={10} max={250} step={5} onChange={setLookback} />
+                    <Slider label={t("labs.quant.backtestLab.param.lookback")} value={lookback} min={10} max={250} step={5} onChange={setLookback} />
                   )}
                   {strategy === "meanrev" && (
                     <>
-                      <Slider label="窗口" value={window} min={5} max={120} step={1} onChange={setWindow} />
-                      <Slider label="入场 z 分数" value={entryZ} min={0.5} max={3} step={0.1} onChange={setEntryZ} />
+                      <Slider label={t("labs.quant.backtestLab.param.window")} value={window} min={5} max={120} step={1} onChange={setWindow} />
+                      <Slider label={t("labs.quant.backtestLab.param.entryZ")} value={entryZ} min={0.5} max={3} step={0.1} onChange={setEntryZ} />
                     </>
                   )}
                   {strategy === "voltarget" && (
                     <>
-                      <Slider label="目标年化波动率" value={targetVol} min={0.05} max={0.5} step={0.01} fmt={pct} onChange={setTargetVol} />
-                      <Slider label="波动率窗口" value={volWindow} min={10} max={120} step={1} onChange={setVolWindow} />
+                      <Slider label={t("labs.quant.backtestLab.param.targetVol")} value={targetVol} min={0.05} max={0.5} step={0.01} fmt={pct} onChange={setTargetVol} />
+                      <Slider label={t("labs.quant.backtestLab.param.volWindow")} value={volWindow} min={10} max={120} step={1} onChange={setVolWindow} />
                     </>
                   )}
                   {strategy === "buyhold" && (
-                    <p className="text-[11px] text-muted-foreground">买入持有无可调参数。</p>
+                    <p className="text-[11px] text-muted-foreground">{t("labs.quant.backtestLab.buyholdNoParams")}</p>
                   )}
                   {(strategy === "sma" || strategy === "momentum" || strategy === "meanrev") && (
                     <label className="flex items-center gap-2 text-xs cursor-pointer">
                       <input type="checkbox" checked={allowShort} onChange={(e) => setAllowShort(e.target.checked)} className="accent-gold" />
-                      允许做空(否则离场为空仓)
+                      {t("labs.quant.backtestLab.allowShort")}
                     </label>
                   )}
                 </div>
 
                 <div className="rounded-xl border border-border bg-card/60 p-4 space-y-4">
-                  <p className="text-[10px] font-mono uppercase tracking-[0.2em] text-gold">交易成本</p>
-                  <Slider label="手续费" sub="单边 bps" value={costBps} min={0} max={50} step={1} fmt={(v) => v + "bps"} onChange={setCostBps} />
-                  <Slider label="滑点" sub="单边 bps" value={slippageBps} min={0} max={50} step={1} fmt={(v) => v + "bps"} onChange={setSlippageBps} />
+                  <p className="text-[10px] font-mono uppercase tracking-[0.2em] text-gold">{t("labs.quant.backtestLab.tradingCost")}</p>
+                  <Slider label={t("labs.quant.backtestLab.fee")} sub={t("labs.quant.backtestLab.perSideBps")} value={costBps} min={0} max={50} step={1} fmt={(v) => v + "bps"} onChange={setCostBps} />
+                  <Slider label={t("labs.quant.backtestLab.slippage")} sub={t("labs.quant.backtestLab.perSideBps")} value={slippageBps} min={0} max={50} step={1} fmt={(v) => v + "bps"} onChange={setSlippageBps} />
                 </div>
               </aside>
 
@@ -271,14 +269,14 @@ export default function BacktestLab() {
               <div className="space-y-5">
                 {!result ? (
                   <div className="rounded-xl border border-border bg-card/60 p-10 text-center text-sm text-muted-foreground">
-                    {isFetching ? "正在拉取真实数据…" : "请选择数据源并拉取至少 30 个交易日的价格数据。"}
+                    {isFetching ? t("labs.quant.backtestLab.fetchingReal") : t("labs.quant.backtestLab.needData")}
                   </div>
                 ) : view === "scan" ? (
                   <div className="space-y-5">
                     <div className="rounded-xl border border-border bg-card/60 p-4">
                       <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
                         <p className="text-xs font-mono uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
-                          <Grid3x3 className="w-3.5 h-3.5 text-gold" /> 参数网格扫描
+                          <Grid3x3 className="w-3.5 h-3.5 text-gold" /> {t("labs.quant.backtestLab.gridScanTitle")}
                         </p>
                         <div className="flex gap-1">
                           {SCAN_METRICS.map((sm) => (
@@ -291,7 +289,7 @@ export default function BacktestLab() {
                         </div>
                       </div>
                       {!scan || !scanConfig ? (
-                        <p className="text-sm text-muted-foreground py-6 text-center">买入持有无参数可扫描,请切换到其它策略。</p>
+                        <p className="text-sm text-muted-foreground py-6 text-center">{t("labs.quant.backtestLab.buyholdNoScan")}</p>
                       ) : (
                         <>
                           <HeatmapGrid
@@ -309,7 +307,7 @@ export default function BacktestLab() {
                             }}
                           />
                           <p className="text-[11px] font-mono text-muted-foreground mt-3">
-                            最优 {SCAN_METRICS.find((s) => s.id === scanMetric)?.label} = {fmtScan(scan.best.value)} @ {String(scan.xParam)}={scan.xParam === "targetVol" ? pct(scan.best.x) : scan.best.x}, {String(scan.yParam)}={scan.yParam === "targetVol" ? pct(scan.best.y) : scan.best.y}。点击任意格子即应用该参数组合并回到单标的视图。
+                            {t("labs.quant.backtestLab.bestScan", { metric: SCAN_METRICS.find((s) => s.id === scanMetric)?.label, value: fmtScan(scan.best.value), xParam: String(scan.xParam), xVal: scan.xParam === "targetVol" ? pct(scan.best.x) : scan.best.x, yParam: String(scan.yParam), yVal: scan.yParam === "targetVol" ? pct(scan.best.y) : scan.best.y })}
                           </p>
                         </>
                       )}
@@ -318,24 +316,24 @@ export default function BacktestLab() {
                 ) : (
                   <>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                      <Stat label="总收益(净)" value={pct(m!.totalReturn)} color={m!.totalReturn >= 0 ? C.green : C.red} />
-                      <Stat label="年化(CAGR)" value={pct(m!.cagr)} color={m!.cagr >= 0 ? C.green : C.red} />
-                      <Stat label="年化波动" value={pct(m!.annVol)} color={C.blue} />
-                      <Stat label="夏普" value={num(m!.sharpe)} color={C.gold} />
-                      <Stat label="索提诺" value={num(m!.sortino)} color={C.gold} />
-                      <Stat label="最大回撤" value={pct(m!.maxDrawdown)} color={C.red} />
-                      <Stat label="卡玛 / 成本拖累" value={`${num(m!.calmar)} / ${pct(m!.costDrag)}`} color={C.teal} />
-                      <Stat label="胜率 / 暴露" value={`${pct(m!.winRate)} / ${pct(m!.exposure)}`} color={C.text} sub={`年换手 ${num(m!.turnover)}x`} />
+                      <Stat label={t("labs.quant.backtestLab.metric.totalReturnNet")} value={pct(m!.totalReturn)} color={m!.totalReturn >= 0 ? C.green : C.red} />
+                      <Stat label={t("labs.quant.backtestLab.metric.cagr")} value={pct(m!.cagr)} color={m!.cagr >= 0 ? C.green : C.red} />
+                      <Stat label={t("labs.quant.backtestLab.metric.annVol")} value={pct(m!.annVol)} color={C.blue} />
+                      <Stat label={t("labs.quant.backtestLab.metric.sharpe")} value={num(m!.sharpe)} color={C.gold} />
+                      <Stat label={t("labs.quant.backtestLab.metric.sortino")} value={num(m!.sortino)} color={C.gold} />
+                      <Stat label={t("labs.quant.backtestLab.metric.maxDrawdown")} value={pct(m!.maxDrawdown)} color={C.red} />
+                      <Stat label={t("labs.quant.backtestLab.metric.calmarCostDrag")} value={`${num(m!.calmar)} / ${pct(m!.costDrag)}`} color={C.teal} />
+                      <Stat label={t("labs.quant.backtestLab.metric.winRateExposure")} value={`${pct(m!.winRate)} / ${pct(m!.exposure)}`} color={C.text} sub={t("labs.quant.backtestLab.annTurnover", { v: num(m!.turnover) })} />
                     </div>
 
                     <div className="rounded-xl border border-border bg-card/60 p-4">
                       <div className="flex items-center justify-between mb-3">
                         <p className="text-xs font-mono uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
-                          <Activity className="w-3.5 h-3.5 text-gold" /> 净值曲线(毛/净)vs 买入持有
+                          <Activity className="w-3.5 h-3.5 text-gold" /> {t("labs.quant.backtestLab.equityChartTitle")}
                         </p>
                         <SendToTool
                           fromId="backtest"
-                          label="回测引擎"
+                          label={t("labs.quant.backtestLab.sendToToolLabel")}
                           outputs={busOutputs}
                           targets={["bs", "mc", "greeks-desk"]}
                         />
@@ -347,22 +345,22 @@ export default function BacktestLab() {
                           <YAxis {...AXIS_PROPS} width={48} />
                           <Tooltip content={<ThemedTooltip />} />
                           <Legend wrapperStyle={{ fontSize: 11 }} />
-                          <Line type="monotone" dataKey="strategy" name="策略(净)" stroke={C.gold} dot={false} strokeWidth={1.8} />
-                          <Line type="monotone" dataKey="gross" name="策略(毛)" stroke={C.teal} dot={false} strokeWidth={1} strokeDasharray="2 2" />
-                          <Line type="monotone" dataKey="benchmark" name="买入持有" stroke={C.text} dot={false} strokeWidth={1.2} strokeDasharray="4 3" />
+                          <Line type="monotone" dataKey="strategy" name={t("labs.quant.backtestLab.strategyNet")} stroke={C.gold} dot={false} strokeWidth={1.8} />
+                          <Line type="monotone" dataKey="gross" name={t("labs.quant.backtestLab.strategyGross")} stroke={C.teal} dot={false} strokeWidth={1} strokeDasharray="2 2" />
+                          <Line type="monotone" dataKey="benchmark" name={t("labs.quant.backtestLab.buyhold")} stroke={C.text} dot={false} strokeWidth={1.2} strokeDasharray="4 3" />
                         </ComposedChart>
                       </ResponsiveContainer>
                     </div>
 
                     <div className="rounded-xl border border-border bg-card/60 p-4">
-                      <p className="text-xs font-mono uppercase tracking-wider text-muted-foreground mb-3">回撤(%)</p>
+                      <p className="text-xs font-mono uppercase tracking-wider text-muted-foreground mb-3">{t("labs.quant.backtestLab.drawdownPct")}</p>
                       <ResponsiveContainer width="100%" height={150}>
                         <ComposedChart data={chartData}>
                           <CartesianGrid {...GRID_PROPS} />
                           <XAxis dataKey="date" {...AXIS_PROPS} minTickGap={48} />
                           <YAxis {...AXIS_PROPS} width={48} />
                           <Tooltip content={<ThemedTooltip />} />
-                          <Area type="monotone" dataKey="dd" name="回撤" stroke={C.red} fill={C.red} fillOpacity={0.18} />
+                          <Area type="monotone" dataKey="dd" name={t("labs.quant.backtestLab.drawdown")} stroke={C.red} fill={C.red} fillOpacity={0.18} />
                         </ComposedChart>
                       </ResponsiveContainer>
                     </div>
@@ -370,15 +368,15 @@ export default function BacktestLab() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                       <div className="rounded-xl border border-border bg-card/60 p-4">
                         <p className="text-xs font-mono uppercase tracking-wider text-muted-foreground mb-3 flex items-center gap-1.5">
-                          <Trophy className="w-3.5 h-3.5 text-gold" /> 多策略对比(同数据/成本)
+                          <Trophy className="w-3.5 h-3.5 text-gold" /> {t("labs.quant.backtestLab.compareTitle")}
                         </p>
                         <table className="w-full text-xs font-mono">
                           <thead>
                             <tr className="text-[10px] uppercase text-muted-foreground">
-                              <th className="text-left py-1">策略</th>
+                              <th className="text-left py-1">{t("labs.quant.backtestLab.table.strategy")}</th>
                               <th className="text-right">CAGR</th>
-                              <th className="text-right">夏普</th>
-                              <th className="text-right">回撤</th>
+                              <th className="text-right">{t("labs.quant.backtestLab.table.sharpe")}</th>
+                              <th className="text-right">{t("labs.quant.backtestLab.table.drawdown")}</th>
                             </tr>
                           </thead>
                           <tbody>
@@ -398,7 +396,7 @@ export default function BacktestLab() {
 
                       <div className="rounded-xl border border-border bg-card/60 p-4">
                         <p className="text-xs font-mono uppercase tracking-wider text-muted-foreground mb-3 flex items-center gap-1.5">
-                          <CalendarDays className="w-3.5 h-3.5 text-gold" /> 月度收益(%)
+                          <CalendarDays className="w-3.5 h-3.5 text-gold" /> {t("labs.quant.backtestLab.monthlyReturns")}
                         </p>
                         {monthly && monthly.years.length > 0 ? (
                           <HeatmapGrid
@@ -410,7 +408,7 @@ export default function BacktestLab() {
                             fmt={(v) => (v * 100).toFixed(1) + "%"}
                           />
                         ) : (
-                          <p className="text-sm text-muted-foreground py-6 text-center">数据不足以聚合月度收益。</p>
+                          <p className="text-sm text-muted-foreground py-6 text-center">{t("labs.quant.backtestLab.insufficientMonthly")}</p>
                         )}
                       </div>
                     </div>
@@ -418,30 +416,30 @@ export default function BacktestLab() {
                     {cone && (
                       <div className="rounded-xl border border-border bg-card/60 p-4">
                         <p className="text-xs font-mono uppercase tracking-wider text-muted-foreground mb-1 flex items-center gap-1.5">
-                          <Umbrella className="w-3.5 h-3.5 text-gold" /> Bootstrap 风险锥 — 未来 252 交易日 ({cone.nSims} 次块自助法模拟)
+                          <Umbrella className="w-3.5 h-3.5 text-gold" /> {t("labs.quant.backtestLab.riskConeTitle", { n: cone.nSims })}
                         </p>
                         <p className="text-[10px] font-mono text-muted-foreground mb-3">
-                          1 年后中位数净值 {cone.terminal.p50.toFixed(2)} · P5–P95 [{cone.terminal.p5.toFixed(2)}, {cone.terminal.p95.toFixed(2)}] · 亏损概率 {(cone.terminal.probLoss * 100).toFixed(1)}%
+                          {t("labs.quant.backtestLab.riskConeStats", { p50: cone.terminal.p50.toFixed(2), p5: cone.terminal.p5.toFixed(2), p95: cone.terminal.p95.toFixed(2), probLoss: (cone.terminal.probLoss * 100).toFixed(1) })}
                         </p>
                         <ResponsiveContainer width="100%" height={220}>
                           <ComposedChart data={coneChart}>
                             <CartesianGrid {...GRID_PROPS} />
-                            <XAxis dataKey="day" {...AXIS_PROPS} label={{ value: "交易日", position: "insideBottomRight", fontSize: 10, fill: "hsl(var(--muted-foreground))" }} />
+                            <XAxis dataKey="day" {...AXIS_PROPS} label={{ value: t("labs.quant.backtestLab.tradingDaysAxis"), position: "insideBottomRight", fontSize: 10, fill: "hsl(var(--muted-foreground))" }} />
                             <YAxis {...AXIS_PROPS} width={48} domain={["auto", "auto"]} />
                             <Tooltip content={<ThemedTooltip />} />
                             <Area type="monotone" dataKey="band90" name="P5–P95" stroke="none" fill={C.blue} fillOpacity={0.12} isAnimationActive={false} />
                             <Area type="monotone" dataKey="band50" name="P25–P75" stroke="none" fill={C.blue} fillOpacity={0.22} isAnimationActive={false} />
-                            <Line type="monotone" dataKey="p50" name="中位数" stroke={C.gold} dot={false} strokeWidth={1.8} isAnimationActive={false} />
+                            <Line type="monotone" dataKey="p50" name={t("labs.quant.backtestLab.median")} stroke={C.gold} dot={false} strokeWidth={1.8} isAnimationActive={false} />
                           </ComposedChart>
                         </ResponsiveContainer>
                         <p className="text-[10px] font-mono text-muted-foreground mt-2">
-                          块自助法 (block=10) 重采样策略净收益,保留短期自相关。锥体越宽,参数过拟合 / 小样本风险越大。
+                          {t("labs.quant.backtestLab.riskConeFootnote")}
                         </p>
                       </div>
                     )}
 
                     <p className="text-[10px] font-mono text-muted-foreground">
-                      标的 {series?.symbol} · 数据源 {source} · 已计入 {costBps + slippageBps}bps 单边成本+滑点。教学用途,历史表现不代表未来收益。
+                      {t("labs.quant.backtestLab.footnote", { symbol: series?.symbol, source, cost: costBps + slippageBps })}
                     </p>
                   </>
                 )}

@@ -1,5 +1,13 @@
 # EF Lab 版本日志
 
+## V7.2 — 量化交易模块升级：19 个量化工具深链、目录补全与双语化
+
+- 量化策略板块 19 个工具（回测、Walk-Forward、BL、Risk Parity、FF5、V4.1 与 V5.6 组合工具）全部改为 `/#quant?t=<toolId>` 深链
+- `QuantStrategyTools` 接入 `useToolTab`，切换工具同步 URL（replace），保留 Tool Bus 与历史抽屉
+- 目录补入 Black-Litterman、Fama-French 5 因子、参数网格扫描、多资产组合回测、短率校准与 Qlib 流水线条目
+- 回测引擎视图、校准模型、Qlib 模型进入 URL，可直接分享
+- 5 个分类与 19 个工具补齐英文标签；量化面板文案分批迁入中英词条
+
 ## V7.1 — 资产定价模块升级：21 个工具深链、双语导航与前沿页文案
 
 - 资产定价目录 21 个条目全部改为 `/#asset-pricing?t=<toolId>` 深链，可直达具体工具

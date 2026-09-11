@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   Legend, Cell, LineChart, Line,
@@ -204,6 +205,7 @@ const Slider = ({ label, sub, unit, value, min, max, step, onChange }: {
 );
 
 export const RiskParityTool = () => {
+  const { t } = useTranslation();
   const [n, setN] = useState(8);
   const [seed, setSeed] = useState(42);
   const [corrStrength, setCorrStrength] = useState(0.6);
@@ -252,41 +254,41 @@ export const RiskParityTool = () => {
   return (
     <div className="space-y-6">
       <PresetButtons presets={[
-        { name: "标准多资产", description: "8 资产, ρ=0.6", apply: () => { setN(8); setCorrStrength(0.6); setVolDisp(0.5); } },
-        { name: "高相关 (危机)", description: "ρ=0.85", apply: () => { setN(8); setCorrStrength(0.85); setVolDisp(0.3); } },
-        { name: "低相关 (分散有效)", description: "ρ=0.2", apply: () => { setN(10); setCorrStrength(0.2); setVolDisp(0.6); } },
-        { name: "波动悬殊", description: "高 σ 离散度", apply: () => { setN(8); setVolDisp(1.0); setCorrStrength(0.5); } },
+        { name: t("labs.quant.riskparity.p1"), description: t("labs.quant.riskparity.p1d"), apply: () => { setN(8); setCorrStrength(0.6); setVolDisp(0.5); } },
+        { name: t("labs.quant.riskparity.p2"), description: t("labs.quant.riskparity.p2d"), apply: () => { setN(8); setCorrStrength(0.85); setVolDisp(0.3); } },
+        { name: t("labs.quant.riskparity.p3"), description: t("labs.quant.riskparity.p3d"), apply: () => { setN(10); setCorrStrength(0.2); setVolDisp(0.6); } },
+        { name: t("labs.quant.riskparity.p4"), description: t("labs.quant.riskparity.p4d"), apply: () => { setN(8); setVolDisp(1.0); setCorrStrength(0.5); } },
       ]} />
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-3">
-        <Slider label="资产数 N" value={n} min={4} max={12} step={1} onChange={setN} />
-        <Slider label="平均相关性" sub="0=独立 1=完全" value={corrStrength} min={0.05} max={0.95} step={0.05} onChange={setCorrStrength} />
-        <Slider label="波动率离散度" value={volDisp} min={0.1} max={1.5} step={0.05} onChange={setVolDisp} />
-        <Slider label="种子" value={seed} min={1} max={999} step={1} onChange={setSeed} />
+        <Slider label={t("labs.quant.riskparity.numAssets")} value={n} min={4} max={12} step={1} onChange={setN} />
+        <Slider label={t("labs.quant.riskparity.avgCorr")} sub={t("labs.quant.riskparity.avgCorrSub")} value={corrStrength} min={0.05} max={0.95} step={0.05} onChange={setCorrStrength} />
+        <Slider label={t("labs.quant.riskparity.volDisp")} value={volDisp} min={0.1} max={1.5} step={0.05} onChange={setVolDisp} />
+        <Slider label={t("labs.quant.riskparity.seed")} value={seed} min={1} max={999} step={1} onChange={setSeed} />
       </div>
 
       {/* Summary cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {([
-          { k: "ew", name: "Equal Weight (EW)", color: CHART_BLUE },
-          { k: "mv", name: "Min-Variance", color: CHART_RED },
-          { k: "erc", name: "Risk Parity (ERC)", color: CHART_GOLD },
-          { k: "hrp", name: "HRP (Lopez de Prado)", color: CHART_TEAL },
+          { k: "ew", name: t("labs.quant.riskparity.ewName"), color: CHART_BLUE },
+          { k: "mv", name: t("labs.quant.riskparity.mvName"), color: CHART_RED },
+          { k: "erc", name: t("labs.quant.riskparity.ercName"), color: CHART_GOLD },
+          { k: "hrp", name: t("labs.quant.riskparity.hrpName"), color: CHART_TEAL },
         ] as const).map(({ k, name, color }) => {
           const p = (portfolios as any)[k];
           return (
             <div key={k} className="rounded-lg border border-border bg-secondary/30 p-3">
               <p className="text-[10px] font-mono uppercase tracking-wider" style={{ color }}>{name}</p>
-              <p className="text-base font-mono text-foreground mt-1">σ_p = {(p.vol * 100).toFixed(2)}%</p>
-              <p className="text-[11px] font-mono text-muted-foreground">N_eff (w) = {p.heffWeights.toFixed(2)}</p>
-              <p className="text-[11px] font-mono text-muted-foreground">N_eff (RC) = {p.heffRisk.toFixed(2)}</p>
+              <p className="text-base font-mono text-foreground mt-1">{t("labs.quant.riskparity.sigmaP", { v: (p.vol * 100).toFixed(2) })}</p>
+              <p className="text-[11px] font-mono text-muted-foreground">{t("labs.quant.riskparity.neffW", { v: p.heffWeights.toFixed(2) })}</p>
+              <p className="text-[11px] font-mono text-muted-foreground">{t("labs.quant.riskparity.neffRC", { v: p.heffRisk.toFixed(2) })}</p>
             </div>
           );
         })}
       </div>
 
       <div className="rounded-xl border border-border bg-secondary/20 p-4">
-        <h4 className="text-sm font-semibold text-foreground mb-2">资产配置权重 (%)</h4>
+        <h4 className="text-sm font-semibold text-foreground mb-2">{t("labs.quant.riskparity.weightsChartTitle")}</h4>
         <div className="h-[280px]">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={weightChart}>
@@ -305,7 +307,7 @@ export const RiskParityTool = () => {
       </div>
 
       <div className="rounded-xl border border-border bg-secondary/20 p-4">
-        <h4 className="text-sm font-semibold text-foreground mb-2">风险贡献分解 (%) — ERC 应近似水平线</h4>
+        <h4 className="text-sm font-semibold text-foreground mb-2">{t("labs.quant.riskparity.rcChartTitle")}</h4>
         <div className="h-[260px]">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={rcChart}>
@@ -324,9 +326,9 @@ export const RiskParityTool = () => {
       </div>
 
       <div className="text-xs font-mono text-muted-foreground p-3 rounded-lg bg-secondary/40 border border-border leading-relaxed">
-        <p><span className="text-gold">Maillard et al. (2010) ERC：</span>权重满足 wᵢ·(Σw)ᵢ = const ⇒ 每资产对组合方差贡献相同。</p>
-        <p><span className="text-gold">Lopez de Prado (2016) HRP：</span>无需求逆 Σ⁻¹，对噪声协方差更稳健；通过分层聚类避开 Markowitz 的 ill-conditioning。</p>
-        <p>风险贡献条形图中 ERC 几近水平 → 风险均衡；Min-Var 高度集中于低 σ 资产。</p>
+        <p><span className="text-gold">{t("labs.quant.riskparity.ercNoteLabel")}</span>{t("labs.quant.riskparity.ercNote")}</p>
+        <p><span className="text-gold">{t("labs.quant.riskparity.hrpNoteLabel")}</span>{t("labs.quant.riskparity.hrpNote")}</p>
+        <p>{t("labs.quant.riskparity.rcNote")}</p>
       </div>
     </div>
   );

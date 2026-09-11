@@ -1,9 +1,11 @@
 import { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   ComposedChart, Line, Bar, BarChart, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, Cell,
 } from "recharts";
 import { Layers, LineChart as LineChartIcon, Boxes } from "lucide-react";
 import SectionHeader from "@/components/common/SectionHeader";
+import { useToolTab } from "@/lib/useToolTab";
 import { Slider, Stat, C } from "@/components/frontier/ui";
 import { AXIS_PROPS, GRID_PROPS, ThemedTooltip } from "@/components/common/ChartTheme";
 import {
@@ -11,21 +13,23 @@ import {
   type FactorId, type ModelId,
 } from "@/lib/quant/qlibPipeline";
 
-const MODELS: { id: ModelId; label: string; desc: string }[] = [
-  { id: "ridge", label: "Ridge 线性模型", desc: "在训练区间最小化 L2 惩罚下的预测误差,对应 Qlib 的 LinearModel。" },
-  { id: "equal", label: "等权合成", desc: "所有因子 z-score 等权相加,作为无学习的对照基准。" },
-  { id: "single", label: "单因子", desc: "只用第一个勾选的因子,观察单一 alpha 的信息含量。" },
-];
+const MODEL_LIST: ModelId[] = ["ridge", "equal", "single"];
+
+const MODEL_IDS = ["ridge", "equal", "single"] as const;
 
 const pct = (x: number) => (x * 100).toFixed(2) + "%";
 const num = (x: number, d = 3) => x.toFixed(d);
 
 export default function QlibLab() {
+  const { t } = useTranslation();
+  const MODELS: { id: ModelId; label: string; desc: string }[] = MODEL_LIST.map((id) => ({
+    id, label: t(`labs.quant.qlibLab.model.${id}.label`), desc: t(`labs.quant.qlibLab.model.${id}.desc`),
+  }));
   const [nAssets, setNAssets] = useState(30);
   const [nDays, setNDays] = useState(750);
   const [seed, setSeed] = useState(42);
   const [horizon, setHorizon] = useState(5);
-  const [model, setModel] = useState<ModelId>("ridge");
+  const [model, setModel] = useToolTab<ModelId>(MODEL_IDS, "ridge");
   const [lambda, setLambda] = useState(1);
   const [trainRatio, setTrainRatio] = useState(0.6);
   const [topk, setTopk] = useState(5);
@@ -84,8 +88,8 @@ export default function QlibLab() {
       <SectionHeader
         chapter="QUANT TRADING"
         kicker="Qlib Pipeline"
-        title="Qlib 研究流水线实验室"
-        subtitle="按 Microsoft Qlib 的工作流复现一次完整研究：Alpha158 式表达式因子 → 截面归一化 → 模型拟合 → IC / RankIC 评估 → TopK-Dropout 组合回测。训练与测试严格按时间切分，所有指标均为样本外。"
+        title={t("labs.quant.qlibLab.title")}
+        subtitle={t("labs.quant.qlibLab.subtitle")}
       />
 
       <div className="container max-w-6xl px-6 pb-24 space-y-6">
@@ -93,20 +97,20 @@ export default function QlibLab() {
         <div className="grid lg:grid-cols-3 gap-4">
           <div className="rounded-2xl border border-border bg-card/40 p-5 space-y-4">
             <p className="text-[11px] font-mono uppercase tracking-[0.2em] text-gold flex items-center gap-2">
-              <Boxes className="w-3.5 h-3.5" /> Data Layer · 模拟股票池
+              <Boxes className="w-3.5 h-3.5" /> {t("labs.quant.qlibLab.dataLayer")}
             </p>
-            <Slider label="标的数量" value={nAssets} min={10} max={80} step={5} onChange={setNAssets} />
-            <Slider label="历史天数" value={nDays} min={400} max={1500} step={50} onChange={setNDays} />
-            <Slider label="随机种子" value={seed} min={1} max={99} step={1} onChange={setSeed} />
-            <Slider label="预测期 (交易日)" value={horizon} min={1} max={20} step={1} onChange={setHorizon} />
+            <Slider label={t("labs.quant.qlibLab.nAssets")} value={nAssets} min={10} max={80} step={5} onChange={setNAssets} />
+            <Slider label={t("labs.quant.qlibLab.nDays")} value={nDays} min={400} max={1500} step={50} onChange={setNDays} />
+            <Slider label={t("labs.quant.qlibLab.seed")} value={seed} min={1} max={99} step={1} onChange={setSeed} />
+            <Slider label={t("labs.quant.qlibLab.horizon")} value={horizon} min={1} max={20} step={1} onChange={setHorizon} />
             <p className="text-[11px] text-muted-foreground leading-relaxed">
-              股票池由市场因子、动量延续与弱均值回归合成，结构可学习但信噪比接近真实截面数据。
+              {t("labs.quant.qlibLab.poolDesc")}
             </p>
           </div>
 
           <div className="rounded-2xl border border-border bg-card/40 p-5 space-y-4">
             <p className="text-[11px] font-mono uppercase tracking-[0.2em] text-gold flex items-center gap-2">
-              <LineChartIcon className="w-3.5 h-3.5" /> Model Layer
+              <LineChartIcon className="w-3.5 h-3.5" /> {t("labs.quant.qlibLab.modelLayer")}
             </p>
             <div className="flex flex-wrap gap-2">
               {MODELS.map((m) => (
@@ -126,9 +130,9 @@ export default function QlibLab() {
             <p className="text-[11px] text-muted-foreground leading-relaxed">
               {MODELS.find((m) => m.id === model)?.desc}
             </p>
-            <Slider label="Ridge 惩罚 λ" value={lambda} min={0.01} max={50} step={0.01} onChange={setLambda} />
+            <Slider label={t("labs.quant.qlibLab.ridgeLambda")} value={lambda} min={0.01} max={50} step={0.01} onChange={setLambda} />
             <Slider
-              label="训练集占比"
+              label={t("labs.quant.qlibLab.trainRatio")}
               value={trainRatio}
               min={0.3}
               max={0.8}
@@ -140,19 +144,19 @@ export default function QlibLab() {
 
           <div className="rounded-2xl border border-border bg-card/40 p-5 space-y-4">
             <p className="text-[11px] font-mono uppercase tracking-[0.2em] text-gold flex items-center gap-2">
-              <Layers className="w-3.5 h-3.5" /> TopK-Dropout 策略
+              <Layers className="w-3.5 h-3.5" /> {t("labs.quant.qlibLab.topkStrategy")}
             </p>
-            <Slider label="持仓数 TopK" value={topk} min={2} max={20} step={1} onChange={setTopk} />
-            <Slider label="每次换出 n_drop" value={nDrop} min={0} max={10} step={1} onChange={setNDrop} />
-            <Slider label="调仓间隔 (交易日)" value={freq} min={1} max={20} step={1} onChange={setFreq} />
-            <Slider label="单边成本 (bp)" value={costBps} min={0} max={50} step={1} onChange={setCostBps} />
+            <Slider label={t("labs.quant.qlibLab.topk")} value={topk} min={2} max={20} step={1} onChange={setTopk} />
+            <Slider label={t("labs.quant.qlibLab.nDrop")} value={nDrop} min={0} max={10} step={1} onChange={setNDrop} />
+            <Slider label={t("labs.quant.qlibLab.freq")} value={freq} min={1} max={20} step={1} onChange={setFreq} />
+            <Slider label={t("labs.quant.qlibLab.costBps")} value={costBps} min={0} max={50} step={1} onChange={setCostBps} />
           </div>
         </div>
 
         {/* ── factor selection ── */}
         <div className="rounded-2xl border border-border bg-card/40 p-5">
           <p className="text-[11px] font-mono uppercase tracking-[0.2em] text-gold mb-3">
-            Alpha158-lite · 表达式因子
+            {t("labs.quant.qlibLab.alphaFactors")}
           </p>
           <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-2">
             {FACTOR_IDS.map((f) => {
@@ -179,29 +183,29 @@ export default function QlibLab() {
             })}
           </div>
           <p className="text-[11px] text-muted-foreground mt-3">
-            右上角数字为该因子在模型中的权重（Ridge 系数 / 等权值）。至少保留一个因子。
+            {t("labs.quant.qlibLab.factorWeightHint")}
           </p>
         </div>
 
         {!res ? (
           <div className="rounded-2xl border border-border bg-card/40 p-8 text-center text-sm text-muted-foreground">
-            请至少勾选一个因子，或增加历史天数以获得足够的截面样本。
+            {t("labs.quant.qlibLab.needFactor")}
           </div>
         ) : (
           <>
             {/* ── signal evaluation ── */}
             <div className="grid md:grid-cols-3 lg:grid-cols-6 gap-3">
-              <Stat label="样本外 IC" value={num(res.test.meanIc)} />
-              <Stat label="样本外 RankIC" value={num(res.test.meanRankIc)} color={C.teal} />
+              <Stat label={t("labs.quant.qlibLab.metric.oosIc")} value={num(res.test.meanIc)} />
+              <Stat label={t("labs.quant.qlibLab.metric.oosRankIc")} value={num(res.test.meanRankIc)} color={C.teal} />
               <Stat label="ICIR" value={num(res.test.icir, 2)} color={C.blue} />
-              <Stat label="IC 胜率" value={pct(res.test.hitRate)} color={C.green} />
-              <Stat label="训练集 IC" value={num(res.train.meanIc)} sub="对比过拟合" color={C.text} />
-              <Stat label="截面样本数" value={`${res.nTest} / ${res.nDates}`} sub="测试 / 全部" color={C.text} />
+              <Stat label={t("labs.quant.qlibLab.metric.icHitRate")} value={pct(res.test.hitRate)} color={C.green} />
+              <Stat label={t("labs.quant.qlibLab.metric.trainIc")} value={num(res.train.meanIc)} sub={t("labs.quant.qlibLab.overfitCompare")} color={C.text} />
+              <Stat label={t("labs.quant.qlibLab.metric.crossSectionSamples")} value={`${res.nTest} / ${res.nDates}`} sub={t("labs.quant.qlibLab.testAll")} color={C.text} />
             </div>
 
             <div className="grid lg:grid-cols-3 gap-4">
               <div className="lg:col-span-2 rounded-2xl border border-border bg-card/40 p-5">
-                <p className="text-sm text-foreground mb-3">样本外 IC 时间序列</p>
+                <p className="text-sm text-foreground mb-3">{t("labs.quant.qlibLab.oosIcSeries")}</p>
                 <ResponsiveContainer width="100%" height={220}>
                   <ComposedChart data={icData}>
                     <CartesianGrid {...GRID_PROPS} />
@@ -215,14 +219,14 @@ export default function QlibLab() {
                 </ResponsiveContainer>
               </div>
               <div className="rounded-2xl border border-border bg-card/40 p-5">
-                <p className="text-sm text-foreground mb-3">信号分组的未来收益 (%)</p>
+                <p className="text-sm text-foreground mb-3">{t("labs.quant.qlibLab.quantileReturns")}</p>
                 <ResponsiveContainer width="100%" height={220}>
                   <BarChart data={quantData}>
                     <CartesianGrid {...GRID_PROPS} />
                     <XAxis dataKey="g" {...AXIS_PROPS} />
                     <YAxis {...AXIS_PROPS} />
                     <Tooltip content={<ThemedTooltip />} />
-                    <Bar dataKey="r" name="平均未来收益">
+                    <Bar dataKey="r" name={t("labs.quant.qlibLab.avgFutureReturn")}>
                       {quantData.map((d, i) => (
                         <Cell key={i} fill={d.r >= 0 ? C.green : C.red} />
                       ))}
@@ -230,25 +234,25 @@ export default function QlibLab() {
                   </BarChart>
                 </ResponsiveContainer>
                 <p className="text-[11px] text-muted-foreground mt-2">
-                  单调递增说明信号在整个截面上有序，而不只是尾部有效。
+                  {t("labs.quant.qlibLab.monotonicHint")}
                 </p>
               </div>
             </div>
 
             {/* ── backtest ── */}
             <div className="grid md:grid-cols-3 lg:grid-cols-5 gap-3">
-              <Stat label="年化收益" value={pct(res.backtest.metrics.cagr)} />
-              <Stat label="年化波动" value={pct(res.backtest.metrics.vol)} color={C.text} />
-              <Stat label="夏普" value={num(res.backtest.metrics.sharpe, 2)} color={C.blue} />
-              <Stat label="最大回撤" value={pct(res.backtest.metrics.maxDrawdown)} color={C.red} />
-              <Stat label="超额 (vs 等权池)" value={pct(res.backtest.metrics.excess)} color={C.green} />
+              <Stat label={t("labs.quant.qlibLab.metric.cagr")} value={pct(res.backtest.metrics.cagr)} />
+              <Stat label={t("labs.quant.qlibLab.metric.annVol")} value={pct(res.backtest.metrics.vol)} color={C.text} />
+              <Stat label={t("labs.quant.qlibLab.metric.sharpe")} value={num(res.backtest.metrics.sharpe, 2)} color={C.blue} />
+              <Stat label={t("labs.quant.qlibLab.metric.maxDrawdown")} value={pct(res.backtest.metrics.maxDrawdown)} color={C.red} />
+              <Stat label={t("labs.quant.qlibLab.metric.excess")} value={pct(res.backtest.metrics.excess)} color={C.green} />
             </div>
 
             <div className="rounded-2xl border border-border bg-card/40 p-5">
               <div className="flex items-baseline justify-between mb-3">
-                <p className="text-sm text-foreground">TopK-Dropout 净值 (样本外)</p>
+                <p className="text-sm text-foreground">{t("labs.quant.qlibLab.topkEquityTitle")}</p>
                 <p className="text-[11px] font-mono text-muted-foreground">
-                  平均单次换手 {pct(res.backtest.turnover)}
+                  {t("labs.quant.qlibLab.avgTurnover", { v: pct(res.backtest.turnover) })}
                 </p>
               </div>
               <ResponsiveContainer width="100%" height={300}>
@@ -259,12 +263,11 @@ export default function QlibLab() {
                   <Tooltip content={<ThemedTooltip />} />
                   <Legend wrapperStyle={{ fontSize: 11 }} />
                   <Line dataKey="strategy" name="TopK-Dropout" stroke={C.gold} dot={false} strokeWidth={1.8} />
-                  <Line dataKey="benchmark" name="等权股票池" stroke={C.text} dot={false} strokeWidth={1.2} />
+                  <Line dataKey="benchmark" name={t("labs.quant.qlibLab.equalWeightPool")} stroke={C.text} dot={false} strokeWidth={1.2} />
                 </ComposedChart>
               </ResponsiveContainer>
               <p className="text-[11px] text-muted-foreground mt-3 leading-relaxed">
-                怎么读：先看 RankIC 与分组单调性判断信号是否成立，再看净值是否跑赢等权基准。
-                若 IC 为正但净值落后，问题通常出在换手与成本，而不是因子本身；把 n_drop 调小或延长调仓间隔即可验证。
+                {t("labs.quant.qlibLab.howToRead")}
               </p>
             </div>
           </>
