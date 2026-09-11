@@ -1506,6 +1506,305 @@
           "note3Bold": "Σwᵢσᵢ / σ_p",
           "note3b": "，等价于在相关系数矩阵上求最小方差再按波动率还原，天然规避高相关拥挤交易。"
         }
+      },
+      "priceSource": {
+        "fetch": "拉取",
+        "useDemo": "用示例数据",
+        "nDays": "{{n}} 个交易日",
+        "fetchError": "数据拉取失败,请稍后重试或更换数据源 / 标的(也可使用示例数据)。"
+      },
+      "backtestLab": {
+        "title": "组合回测与优化引擎",
+        "subtitle": "用真实历史价格回测单标的策略或多资产组合:单标的支持双均线/动量/均值回归/波动率目标并计入交易成本与滑点,组合支持等权/风险平价/最小方差/均值方差并周期再平衡。信号 T+1 执行规避前视偏差,参数网格扫描可视化稳健区,结果可一键发送到定价工具。",
+        "strategy": {
+          "buyhold": {
+            "label": "买入持有",
+            "desc": "始终满仓,作为基准对照。"
+          },
+          "sma": {
+            "label": "双均线交叉",
+            "desc": "快线上穿慢线做多,下穿离场/做空。"
+          },
+          "momentum": {
+            "label": "时序动量",
+            "desc": "回看期收益为正则持有,捕捉趋势延续。"
+          },
+          "meanrev": {
+            "label": "均值回归",
+            "desc": "价格偏离 z 分数过大时反向押注回归。"
+          },
+          "voltarget": {
+            "label": "波动率目标",
+            "desc": "按目标波动率反比调节仓位杠杆。"
+          }
+        },
+        "scanMetric": {
+          "sharpe": "夏普",
+          "cagr": "CAGR",
+          "calmar": "卡玛",
+          "maxDrawdown": "最大回撤"
+        },
+        "tab": {
+          "single": "单标的策略",
+          "scan": "参数扫描",
+          "portfolio": "组合回测"
+        },
+        "strategyLabel": "策略",
+        "paramsLabel": "参数",
+        "param": {
+          "fast": "快线",
+          "slow": "慢线",
+          "lookback": "回看期(交易日)",
+          "window": "窗口",
+          "entryZ": "入场 z 分数",
+          "targetVol": "目标年化波动率",
+          "volWindow": "波动率窗口"
+        },
+        "buyholdNoParams": "买入持有无可调参数。",
+        "allowShort": "允许做空(否则离场为空仓)",
+        "tradingCost": "交易成本",
+        "fee": "手续费",
+        "slippage": "滑点",
+        "perSideBps": "单边 bps",
+        "fetchingReal": "正在拉取真实数据…",
+        "needData": "请选择数据源并拉取至少 30 个交易日的价格数据。",
+        "gridScanTitle": "参数网格扫描",
+        "buyholdNoScan": "买入持有无参数可扫描,请切换到其它策略。",
+        "bestScan": "最优 {{metric}} = {{value}} @ {{xParam}}={{xVal}}, {{yParam}}={{yVal}}。点击任意格子即应用该参数组合并回到单标的视图。",
+        "metric": {
+          "totalReturnNet": "总收益(净)",
+          "cagr": "年化(CAGR)",
+          "annVol": "年化波动",
+          "sharpe": "夏普",
+          "sortino": "索提诺",
+          "maxDrawdown": "最大回撤",
+          "calmarCostDrag": "卡玛 / 成本拖累",
+          "winRateExposure": "胜率 / 暴露"
+        },
+        "annTurnover": "年换手 {{v}}x",
+        "equityChartTitle": "净值曲线(毛/净)vs 买入持有",
+        "sendToToolLabel": "回测引擎",
+        "strategyNet": "策略(净)",
+        "strategyGross": "策略(毛)",
+        "buyhold": "买入持有",
+        "drawdownPct": "回撤(%)",
+        "drawdown": "回撤",
+        "compareTitle": "多策略对比(同数据/成本)",
+        "table": {
+          "strategy": "策略",
+          "sharpe": "夏普",
+          "drawdown": "回撤"
+        },
+        "monthlyReturns": "月度收益(%)",
+        "insufficientMonthly": "数据不足以聚合月度收益。",
+        "riskConeTitle": "Bootstrap 风险锥 — 未来 252 交易日 ({{n}} 次块自助法模拟)",
+        "riskConeStats": "1 年后中位数净值 {{p50}} · P5–P95 [{{p5}}, {{p95}}] · 亏损概率 {{probLoss}}%",
+        "tradingDaysAxis": "交易日",
+        "median": "中位数",
+        "riskConeFootnote": "块自助法 (block=10) 重采样策略净收益,保留短期自相关。锥体越宽,参数过拟合 / 小样本风险越大。",
+        "footnote": "标的 {{symbol}} · 数据源 {{source}} · 已计入 {{cost}}bps 单边成本+滑点。教学用途,历史表现不代表未来收益。"
+      },
+      "calibrationLab": {
+        "title": "模型校准实验室",
+        "subtitle": "把波动率与短率模型直接拟合到真实行情:GARCH/EWMA/Merton 用价格收益,Vasicek/CIR 用 FRED 真实利率序列。GARCH/EWMA 附标准化残差 QQ 图与 ACF 诊断,拟合得到的 σ / r 可一键发送到定价工具。",
+        "model": {
+          "garch": {
+            "label": "GARCH(1,1) · MLE",
+            "desc": "高斯极大似然拟合 ω/α/β,估计条件波动与长期波动。"
+          },
+          "ewma": {
+            "label": "EWMA / RiskMetrics",
+            "desc": "网格搜索最优衰减因子 λ,对比 RiskMetrics 0.94。"
+          },
+          "merton": {
+            "label": "Merton 跳跃扩散",
+            "desc": "阈值分解出扩散波动与跳跃强度/幅度。"
+          },
+          "vasicek": {
+            "label": "Vasicek 短率",
+            "desc": "OU 均值回复,离散 OLS 估计 κ/θ/σ。"
+          },
+          "cir": {
+            "label": "CIR 短率",
+            "desc": "平方根扩散,√r 标准化残差估计。"
+          }
+        },
+        "fredRate": {
+          "DGS3MO": "3M 美债",
+          "DGS1": "1Y 美债",
+          "DGS2": "2Y 美债",
+          "DGS5": "5Y 美债"
+        },
+        "fredSeriesLabel": "FRED 短率序列",
+        "observations": "{{n}} 个观测",
+        "fredHint": "来自 FRED 的日频国债收益率,作为短率代理(已转为小数)。",
+        "volModelLabel": "波动率模型",
+        "rateModelLabel": "短率模型",
+        "fetchingFred": "正在拉取 FRED 利率…",
+        "needRateObs": "请拉取至少约 60 个利率观测后再拟合。",
+        "metric": {
+          "kappa": "均值回复速度 κ",
+          "theta": "长期均值 θ",
+          "sigma": "波动 σ",
+          "halfLife": "半衰期(年)",
+          "alpha": "α (ARCH)",
+          "beta": "β (GARCH)",
+          "persistence": "持续性 α+β",
+          "longRunVol": "长期年化波动",
+          "logLik": "对数似然",
+          "latestCondVol": "最新条件波动",
+          "sampleMeanDaily": "样本均值(日)",
+          "optimalLambda": "最优 λ",
+          "latestVolFitted": "最新波动(拟合λ)",
+          "diffusionVol": "扩散年化波动",
+          "jumpIntensity": "跳跃强度 λ(年)",
+          "jumpMean": "跳跃均值",
+          "jumpStd": "跳跃标准差",
+          "nJumps": "跳跃次数"
+        },
+        "modelSde": "{{m}} 模型 SDE",
+        "discreteRegression": "离散回归 r_t = a + b·r_{t-1} + ε,由 κ = −ln(b)/Δt、θ = a/(1−b) 还原参数;",
+        "cirResidual": "残差以 √r 标准化得到 σ。",
+        "vasicekResidual": "由残差方差得到 σ。",
+        "cirCalibration": "CIR 校准",
+        "vasicekCalibration": "Vasicek 校准",
+        "shortRateChartTitle": "短率序列 vs 长期均值 θ(%)",
+        "shortRate": "短率",
+        "fredFootnote": "FRED {{rateSeries}} · {{n}} 个观测 · 教学用途,离散估计对采样频率敏感。",
+        "needPriceObs": "请拉取至少约 60 个交易日的价格数据后再拟合。",
+        "thresholdSub": "阈值 ±{{v}}",
+        "modelCalibration": "模型校准",
+        "condVolChartTitle": "条件波动率(年化 %)",
+        "condVol": "条件波动",
+        "qqTitle": "标准化残差 Q-Q 图",
+        "theoreticalQuantile": "理论分位",
+        "sampleQuantile": "样本分位",
+        "qqFootnote": "点贴近对角线说明残差接近正态;尾部偏离提示厚尾。",
+        "acfTitle": "残差平方 ACF(检验剩余 ARCH)",
+        "acfFootnote": "柱大多落在 ±1.96/√n(红线)内说明波动聚集已被模型吸收。",
+        "footnote": "标的 {{symbol}} · 数据源 {{source}} · {{n}} 个日收益 · 教学用途,拟合结果对样本与窗口敏感。"
+      },
+      "qlibLab": {
+        "title": "Qlib 研究流水线实验室",
+        "subtitle": "按 Microsoft Qlib 的工作流复现一次完整研究：Alpha158 式表达式因子 → 截面归一化 → 模型拟合 → IC / RankIC 评估 → TopK-Dropout 组合回测。训练与测试严格按时间切分，所有指标均为样本外。",
+        "model": {
+          "ridge": {
+            "label": "Ridge 线性模型",
+            "desc": "在训练区间最小化 L2 惩罚下的预测误差,对应 Qlib 的 LinearModel。"
+          },
+          "equal": {
+            "label": "等权合成",
+            "desc": "所有因子 z-score 等权相加,作为无学习的对照基准。"
+          },
+          "single": {
+            "label": "单因子",
+            "desc": "只用第一个勾选的因子,观察单一 alpha 的信息含量。"
+          }
+        },
+        "dataLayer": "Data Layer · 模拟股票池",
+        "nAssets": "标的数量",
+        "nDays": "历史天数",
+        "seed": "随机种子",
+        "horizon": "预测期 (交易日)",
+        "poolDesc": "股票池由市场因子、动量延续与弱均值回归合成，结构可学习但信噪比接近真实截面数据。",
+        "modelLayer": "Model Layer",
+        "ridgeLambda": "Ridge 惩罚 λ",
+        "trainRatio": "训练集占比",
+        "topkStrategy": "TopK-Dropout 策略",
+        "topk": "持仓数 TopK",
+        "nDrop": "每次换出 n_drop",
+        "freq": "调仓间隔 (交易日)",
+        "costBps": "单边成本 (bp)",
+        "alphaFactors": "Alpha158-lite · 表达式因子",
+        "factorWeightHint": "右上角数字为该因子在模型中的权重（Ridge 系数 / 等权值）。至少保留一个因子。",
+        "needFactor": "请至少勾选一个因子，或增加历史天数以获得足够的截面样本。",
+        "metric": {
+          "oosIc": "样本外 IC",
+          "oosRankIc": "样本外 RankIC",
+          "icHitRate": "IC 胜率",
+          "trainIc": "训练集 IC",
+          "crossSectionSamples": "截面样本数",
+          "cagr": "年化收益",
+          "annVol": "年化波动",
+          "sharpe": "夏普",
+          "maxDrawdown": "最大回撤",
+          "excess": "超额 (vs 等权池)"
+        },
+        "overfitCompare": "对比过拟合",
+        "testAll": "测试 / 全部",
+        "oosIcSeries": "样本外 IC 时间序列",
+        "quantileReturns": "信号分组的未来收益 (%)",
+        "avgFutureReturn": "平均未来收益",
+        "monotonicHint": "单调递增说明信号在整个截面上有序，而不只是尾部有效。",
+        "topkEquityTitle": "TopK-Dropout 净值 (样本外)",
+        "avgTurnover": "平均单次换手 {{v}}",
+        "equalWeightPool": "等权股票池",
+        "howToRead": "怎么读：先看 RankIC 与分组单调性判断信号是否成立，再看净值是否跑赢等权基准。若 IC 为正但净值落后，问题通常出在换手与成本，而不是因子本身；把 n_drop 调小或延长调仓间隔即可验证。"
+      },
+      "portfolioBacktest": {
+        "method": {
+          "equal": {
+            "label": "等权",
+            "desc": "1/N 均分,稳健基准。"
+          },
+          "riskparity": {
+            "label": "风险平价",
+            "desc": "各资产风险贡献相等(ERC)。"
+          },
+          "minvar": {
+            "label": "最小方差",
+            "desc": "长仓约束下最小化组合方差。"
+          },
+          "meanvar": {
+            "label": "均值方差",
+            "desc": "切点组合 Σ⁻¹μ,投影到长仓单纯形。"
+          }
+        },
+        "freq": {
+          "none": "不再平衡",
+          "monthly": "每月",
+          "quarterly": "每季",
+          "yearly": "每年"
+        },
+        "symbolsPlaceholder": "逗号分隔,最多 6 个,如 AAPL, MSFT, GOOGL",
+        "loadPortfolio": "载入组合",
+        "selectedSymbols": "已选 {{list}}",
+        "needTwoSymbols": "请输入至少 2 个标的",
+        "commonDays": " · 共同交易日 {{n}}",
+        "allocMethod": "配置方法",
+        "rebalanceCost": "再平衡 & 成本",
+        "costSlippage": "交易成本+滑点",
+        "perSideBps": "单边 bps",
+        "estWindow": "估计窗口",
+        "tradingDays": "交易日",
+        "fetchingReal": "正在拉取真实数据…",
+        "needPortfolio": "请输入至少 2 个同源标的并载入组合(需 ≥30 个共同交易日)。",
+        "metric": {
+          "totalReturn": "总收益",
+          "cagr": "年化(CAGR)",
+          "annVol": "年化波动",
+          "sharpe": "夏普",
+          "maxDrawdown": "最大回撤",
+          "calmar": "卡玛",
+          "turnover": "年换手",
+          "costDrag": "成本拖累"
+        },
+        "grossNetCagr": "毛-净 CAGR",
+        "equityChartTitle": "组合净值 vs 等权基准",
+        "sendToToolLabel": "组合回测",
+        "portfolio": "组合",
+        "equalWeightBenchmark": "等权基准",
+        "weightEvolution": "权重演化(%)",
+        "targetWeightsRisk": "目标权重 & 风险贡献",
+        "table": {
+          "symbol": "标的",
+          "weight": "权重",
+          "riskContribution": "风险贡献"
+        },
+        "portfolioAnnVol": "组合年化波动 σ ≈ {{v}}",
+        "corrMatrix": "相关系数矩阵",
+        "periodicRebalance": "周期再平衡",
+        "footnote": "数据源 {{source}} · {{n}} 资产 · 权重按 {{win}} 日滚动重估,{{rebal}},含 {{cost}}bps 单边成本。教学用途,历史表现不代表未来收益。"
       }
     }
   }

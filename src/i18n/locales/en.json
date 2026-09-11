@@ -1504,6 +1504,305 @@
           "note3Bold": "Σwᵢσᵢ / σ_p",
           "note3b": ", equivalent to solving min-variance on the correlation matrix and rescaling by volatility, naturally avoiding crowded high-correlation trades."
         }
+      },
+      "priceSource": {
+        "fetch": "Fetch",
+        "useDemo": "Use sample data",
+        "nDays": "{{n}} trading days",
+        "fetchError": "Data fetch failed. Please retry later or switch data source / symbol (you can also use sample data)."
+      },
+      "backtestLab": {
+        "title": "Portfolio Backtesting & Optimization Engine",
+        "subtitle": "Backtest single-asset strategies or multi-asset portfolios on real historical prices: single-asset supports dual moving average / momentum / mean reversion / volatility targeting with trading costs and slippage; portfolios support equal weight / risk parity / minimum variance / mean-variance with periodic rebalancing. Signals execute T+1 to avoid look-ahead bias, parameter grid scans visualize robust regions, and results can be sent to the pricing tool with one click.",
+        "strategy": {
+          "buyhold": {
+            "label": "Buy & Hold",
+            "desc": "Always fully invested, used as a benchmark."
+          },
+          "sma": {
+            "label": "Dual MA Crossover",
+            "desc": "Go long when the fast line crosses above the slow line; exit/short on cross below."
+          },
+          "momentum": {
+            "label": "Time-Series Momentum",
+            "desc": "Hold when lookback return is positive, capturing trend continuation."
+          },
+          "meanrev": {
+            "label": "Mean Reversion",
+            "desc": "Bet on reversion when price deviates too far in z-score terms."
+          },
+          "voltarget": {
+            "label": "Volatility Targeting",
+            "desc": "Scale leverage inversely to realized volatility to hit a target vol."
+          }
+        },
+        "scanMetric": {
+          "sharpe": "Sharpe",
+          "cagr": "CAGR",
+          "calmar": "Calmar",
+          "maxDrawdown": "Max Drawdown"
+        },
+        "tab": {
+          "single": "Single-Asset Strategy",
+          "scan": "Parameter Scan",
+          "portfolio": "Portfolio Backtest"
+        },
+        "strategyLabel": "Strategy",
+        "paramsLabel": "Parameters",
+        "param": {
+          "fast": "Fast MA",
+          "slow": "Slow MA",
+          "lookback": "Lookback (trading days)",
+          "window": "Window",
+          "entryZ": "Entry Z-score",
+          "targetVol": "Target Annualized Vol",
+          "volWindow": "Volatility Window"
+        },
+        "buyholdNoParams": "Buy & hold has no tunable parameters.",
+        "allowShort": "Allow shorting (otherwise exit to flat)",
+        "tradingCost": "Trading Costs",
+        "fee": "Fee",
+        "slippage": "Slippage",
+        "perSideBps": "bps per side",
+        "fetchingReal": "Fetching real data…",
+        "needData": "Please select a data source and fetch at least 30 trading days of price data.",
+        "gridScanTitle": "Parameter Grid Scan",
+        "buyholdNoScan": "Buy & hold has no parameters to scan; switch to another strategy.",
+        "bestScan": "Best {{metric}} = {{value}} @ {{xParam}}={{xVal}}, {{yParam}}={{yVal}}. Click any cell to apply that parameter combination and return to the single-asset view.",
+        "metric": {
+          "totalReturnNet": "Total Return (Net)",
+          "cagr": "Annualized (CAGR)",
+          "annVol": "Annualized Vol",
+          "sharpe": "Sharpe",
+          "sortino": "Sortino",
+          "maxDrawdown": "Max Drawdown",
+          "calmarCostDrag": "Calmar / Cost Drag",
+          "winRateExposure": "Win Rate / Exposure"
+        },
+        "annTurnover": "Annual turnover {{v}}x",
+        "equityChartTitle": "Equity Curve (Gross/Net) vs Buy & Hold",
+        "sendToToolLabel": "Backtest Engine",
+        "strategyNet": "Strategy (Net)",
+        "strategyGross": "Strategy (Gross)",
+        "buyhold": "Buy & Hold",
+        "drawdownPct": "Drawdown (%)",
+        "drawdown": "Drawdown",
+        "compareTitle": "Multi-Strategy Comparison (Same Data/Costs)",
+        "table": {
+          "strategy": "Strategy",
+          "sharpe": "Sharpe",
+          "drawdown": "Drawdown"
+        },
+        "monthlyReturns": "Monthly Returns (%)",
+        "insufficientMonthly": "Not enough data to aggregate monthly returns.",
+        "riskConeTitle": "Bootstrap Risk Cone — Next 252 Trading Days ({{n}} Block-Bootstrap Simulations)",
+        "riskConeStats": "Median equity after 1Y {{p50}} · P5–P95 [{{p5}}, {{p95}}] · Probability of loss {{probLoss}}%",
+        "tradingDaysAxis": "Trading Days",
+        "median": "Median",
+        "riskConeFootnote": "Block bootstrap (block=10) resamples strategy net returns, preserving short-term autocorrelation. Wider cones indicate greater risk of parameter overfitting / small-sample bias.",
+        "footnote": "Symbol {{symbol}} · Source {{source}} · Includes {{cost}}bps per-side cost + slippage. For educational purposes only; past performance does not guarantee future results."
+      },
+      "calibrationLab": {
+        "title": "Model Calibration Lab",
+        "subtitle": "Fit volatility and short-rate models directly to real market data: GARCH/EWMA/Merton use price returns, Vasicek/CIR use real FRED interest rate series. GARCH/EWMA include standardized residual QQ plots and ACF diagnostics; fitted σ / r can be sent to the pricing tool with one click.",
+        "model": {
+          "garch": {
+            "label": "GARCH(1,1) · MLE",
+            "desc": "Fit ω/α/β via Gaussian maximum likelihood, estimating conditional and long-run volatility."
+          },
+          "ewma": {
+            "label": "EWMA / RiskMetrics",
+            "desc": "Grid-search the optimal decay factor λ, compared against RiskMetrics 0.94."
+          },
+          "merton": {
+            "label": "Merton Jump Diffusion",
+            "desc": "Threshold decomposition separates diffusion volatility from jump intensity/size."
+          },
+          "vasicek": {
+            "label": "Vasicek Short Rate",
+            "desc": "OU mean reversion; κ/θ/σ estimated via discretized OLS."
+          },
+          "cir": {
+            "label": "CIR Short Rate",
+            "desc": "Square-root diffusion; residuals standardized by √r."
+          }
+        },
+        "fredRate": {
+          "DGS3MO": "3M Treasury",
+          "DGS1": "1Y Treasury",
+          "DGS2": "2Y Treasury",
+          "DGS5": "5Y Treasury"
+        },
+        "fredSeriesLabel": "FRED Short-Rate Series",
+        "observations": "{{n}} observations",
+        "fredHint": "Daily Treasury yields from FRED, used as a short-rate proxy (converted to decimal).",
+        "volModelLabel": "Volatility Model",
+        "rateModelLabel": "Short-Rate Model",
+        "fetchingFred": "Fetching FRED rates…",
+        "needRateObs": "Please fetch at least about 60 rate observations before fitting.",
+        "metric": {
+          "kappa": "Mean Reversion Speed κ",
+          "theta": "Long-Run Mean θ",
+          "sigma": "Volatility σ",
+          "halfLife": "Half-Life (years)",
+          "alpha": "α (ARCH)",
+          "beta": "β (GARCH)",
+          "persistence": "Persistence α+β",
+          "longRunVol": "Long-Run Annualized Vol",
+          "logLik": "Log-Likelihood",
+          "latestCondVol": "Latest Conditional Vol",
+          "sampleMeanDaily": "Sample Mean (Daily)",
+          "optimalLambda": "Optimal λ",
+          "latestVolFitted": "Latest Vol (Fitted λ)",
+          "diffusionVol": "Diffusion Annualized Vol",
+          "jumpIntensity": "Jump Intensity λ (annual)",
+          "jumpMean": "Jump Mean",
+          "jumpStd": "Jump Std Dev",
+          "nJumps": "Number of Jumps"
+        },
+        "modelSde": "{{m}} Model SDE",
+        "discreteRegression": "Discrete regression r_t = a + b·r_{t-1} + ε, from which κ = −ln(b)/Δt and θ = a/(1−b) are recovered;",
+        "cirResidual": "residuals standardized by √r to obtain σ.",
+        "vasicekResidual": "σ obtained from residual variance.",
+        "cirCalibration": "CIR Calibration",
+        "vasicekCalibration": "Vasicek Calibration",
+        "shortRateChartTitle": "Short Rate Series vs Long-Run Mean θ (%)",
+        "shortRate": "Short Rate",
+        "fredFootnote": "FRED {{rateSeries}} · {{n}} observations · For educational purposes; discrete estimation is sensitive to sampling frequency.",
+        "needPriceObs": "Please fetch at least about 60 trading days of price data before fitting.",
+        "thresholdSub": "Threshold ±{{v}}",
+        "modelCalibration": "Model Calibration",
+        "condVolChartTitle": "Conditional Volatility (Annualized %)",
+        "condVol": "Conditional Vol",
+        "qqTitle": "Standardized Residual Q-Q Plot",
+        "theoreticalQuantile": "Theoretical Quantile",
+        "sampleQuantile": "Sample Quantile",
+        "qqFootnote": "Points close to the diagonal indicate residuals near normal; tail deviations suggest fat tails.",
+        "acfTitle": "Squared Residual ACF (Testing Remaining ARCH)",
+        "acfFootnote": "Bars mostly within ±1.96/√n (red lines) indicate volatility clustering has been absorbed by the model.",
+        "footnote": "Symbol {{symbol}} · Source {{source}} · {{n}} daily returns · For educational purposes; fit results are sensitive to sample and window."
+      },
+      "qlibLab": {
+        "title": "Qlib Research Pipeline Lab",
+        "subtitle": "Reproduce a full research workflow following Microsoft Qlib: Alpha158-style expression factors → cross-sectional normalization → model fitting → IC / RankIC evaluation → TopK-Dropout portfolio backtest. Training and testing are strictly split by time; all metrics are out-of-sample.",
+        "model": {
+          "ridge": {
+            "label": "Ridge Linear Model",
+            "desc": "Minimizes prediction error with L2 penalty on the training window, corresponding to Qlib's LinearModel."
+          },
+          "equal": {
+            "label": "Equal-Weight Combination",
+            "desc": "Sum of z-scored factors with equal weights, used as a no-learning control benchmark."
+          },
+          "single": {
+            "label": "Single Factor",
+            "desc": "Uses only the first checked factor, to observe the information content of a single alpha."
+          }
+        },
+        "dataLayer": "Data Layer · Simulated Stock Universe",
+        "nAssets": "Number of Assets",
+        "nDays": "Historical Days",
+        "seed": "Random Seed",
+        "horizon": "Forecast Horizon (trading days)",
+        "poolDesc": "The universe is synthesized from a market factor, momentum continuation, and weak mean reversion; the structure is learnable but with signal-to-noise close to real cross-sectional data.",
+        "modelLayer": "Model Layer",
+        "ridgeLambda": "Ridge Penalty λ",
+        "trainRatio": "Training Set Ratio",
+        "topkStrategy": "TopK-Dropout Strategy",
+        "topk": "Holdings Count TopK",
+        "nDrop": "Positions Dropped per Rebalance n_drop",
+        "freq": "Rebalance Interval (trading days)",
+        "costBps": "Per-Side Cost (bp)",
+        "alphaFactors": "Alpha158-lite · Expression Factors",
+        "factorWeightHint": "The number in the top-right corner is the factor's weight in the model (Ridge coefficient / equal weight). At least one factor must be kept.",
+        "needFactor": "Please check at least one factor, or increase historical days to get enough cross-sectional samples.",
+        "metric": {
+          "oosIc": "Out-of-Sample IC",
+          "oosRankIc": "Out-of-Sample RankIC",
+          "icHitRate": "IC Hit Rate",
+          "trainIc": "Training IC",
+          "crossSectionSamples": "Cross-Sectional Samples",
+          "cagr": "Annualized Return",
+          "annVol": "Annualized Vol",
+          "sharpe": "Sharpe",
+          "maxDrawdown": "Max Drawdown",
+          "excess": "Excess (vs Equal-Weight Pool)"
+        },
+        "overfitCompare": "Overfit Comparison",
+        "testAll": "Test / All",
+        "oosIcSeries": "Out-of-Sample IC Time Series",
+        "quantileReturns": "Future Returns by Signal Bucket (%)",
+        "avgFutureReturn": "Avg Future Return",
+        "monotonicHint": "Monotonic increase indicates the signal is ordered across the whole cross-section, not just effective in the tails.",
+        "topkEquityTitle": "TopK-Dropout Equity Curve (Out-of-Sample)",
+        "avgTurnover": "Avg turnover per rebalance {{v}}",
+        "equalWeightPool": "Equal-Weight Pool",
+        "howToRead": "How to read: first check RankIC and bucket monotonicity to see if the signal holds, then check whether the equity curve beats the equal-weight benchmark. If IC is positive but equity lags, the issue is usually turnover and costs rather than the factor itself; try reducing n_drop or lengthening the rebalance interval to verify."
+      },
+      "portfolioBacktest": {
+        "method": {
+          "equal": {
+            "label": "Equal Weight",
+            "desc": "1/N split, a robust benchmark."
+          },
+          "riskparity": {
+            "label": "Risk Parity",
+            "desc": "Equal risk contribution across assets (ERC)."
+          },
+          "minvar": {
+            "label": "Minimum Variance",
+            "desc": "Minimizes portfolio variance under long-only constraints."
+          },
+          "meanvar": {
+            "label": "Mean-Variance",
+            "desc": "Tangency portfolio Σ⁻¹μ, projected onto the long-only simplex."
+          }
+        },
+        "freq": {
+          "none": "No Rebalancing",
+          "monthly": "Monthly",
+          "quarterly": "Quarterly",
+          "yearly": "Yearly"
+        },
+        "symbolsPlaceholder": "Comma-separated, up to 6, e.g. AAPL, MSFT, GOOGL",
+        "loadPortfolio": "Load Portfolio",
+        "selectedSymbols": "Selected {{list}}",
+        "needTwoSymbols": "Please enter at least 2 symbols",
+        "commonDays": " · Common trading days {{n}}",
+        "allocMethod": "Allocation Method",
+        "rebalanceCost": "Rebalancing & Costs",
+        "costSlippage": "Trading Cost + Slippage",
+        "perSideBps": "bps per side",
+        "estWindow": "Estimation Window",
+        "tradingDays": "Trading Days",
+        "fetchingReal": "Fetching real data…",
+        "needPortfolio": "Please enter at least 2 symbols from the same source and load the portfolio (requires ≥30 common trading days).",
+        "metric": {
+          "totalReturn": "Total Return",
+          "cagr": "Annualized (CAGR)",
+          "annVol": "Annualized Vol",
+          "sharpe": "Sharpe",
+          "maxDrawdown": "Max Drawdown",
+          "calmar": "Calmar",
+          "turnover": "Annual Turnover",
+          "costDrag": "Cost Drag"
+        },
+        "grossNetCagr": "Gross-Net CAGR",
+        "equityChartTitle": "Portfolio Equity vs Equal-Weight Benchmark",
+        "sendToToolLabel": "Portfolio Backtest",
+        "portfolio": "Portfolio",
+        "equalWeightBenchmark": "Equal-Weight Benchmark",
+        "weightEvolution": "Weight Evolution (%)",
+        "targetWeightsRisk": "Target Weights & Risk Contribution",
+        "table": {
+          "symbol": "Symbol",
+          "weight": "Weight",
+          "riskContribution": "Risk Contribution"
+        },
+        "portfolioAnnVol": "Portfolio annualized vol σ ≈ {{v}}",
+        "corrMatrix": "Correlation Matrix",
+        "periodicRebalance": "Periodic Rebalancing",
+        "footnote": "Source {{source}} · {{n}} assets · Weights re-estimated on a {{win}}-day rolling window, {{rebal}}, including {{cost}}bps per-side cost. For educational purposes only; past performance does not guarantee future results."
       }
     }
   }
