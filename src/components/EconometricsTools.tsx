@@ -3325,19 +3325,21 @@ const PythonReference = ({ code }: { code: string }) => {
 };
 
 const ECON_CATEGORIES: ToolCategory[] = [
-  { id: "ident", label: "识别与推断", toolIds: ["weakiv", "heckman", "trinity", "selab", "hausman", "fwl", "pdslasso", "htediag"] },
-  { id: "causal", label: "因果推断", toolIds: ["olsiv", "did", "eventdid", "sdid", "rdd", "synth", "psm"] },
-  { id: "timeseries", label: "时间序列", toolIds: ["svar", "coint", "unitroot", "urootsuite", "panelroot", "armaident", "difflab", "kalman", "midas", "arima", "lp", "dlm", "granger", "spectral", "expsmooth", "longmem"] },
-  { id: "nonlinear", label: "非线性 / 断点 / 预测评价", toolIds: ["setar", "baiperron", "denseval", "mcs", "dmtest"] },
-  { id: "vol", label: "波动率 / 高频", toolIds: ["garch", "dcc", "regime", "svgarch", "harrv", "hawkes", "kyle"] },
-  { id: "discrete", label: "离散选择 / 面板", toolIds: ["gmm", "logit", "qreg", "qreglab", "panel", "tobit", "dynpanel"] },
-  { id: "ml", label: "机器学习计量", toolIds: ["lasso", "dml", "cforest", "bayes"] },
-  { id: "diag", label: "诊断 / 非参数", toolIds: ["diagnostics", "diagreport", "kernelreg"] },
+  { id: "ident", label: "识别与推断", labelEn: "Identification & Inference", toolIds: ["weakiv", "heckman", "trinity", "selab", "hausman", "fwl", "pdslasso", "htediag"] },
+  { id: "causal", label: "因果推断", labelEn: "Causal Inference", toolIds: ["olsiv", "did", "eventdid", "sdid", "rdd", "synth", "psm"] },
+  { id: "timeseries", label: "时间序列", labelEn: "Time Series", toolIds: ["svar", "coint", "unitroot", "urootsuite", "panelroot", "armaident", "difflab", "kalman", "midas", "arima", "lp", "dlm", "granger", "spectral", "expsmooth", "longmem"] },
+  { id: "nonlinear", label: "非线性 / 断点 / 预测评价", labelEn: "Non-linear, Breaks & Forecast Evaluation", toolIds: ["setar", "baiperron", "denseval", "mcs", "dmtest"] },
+  { id: "vol", label: "波动率 / 高频", labelEn: "Volatility & High-Frequency", toolIds: ["garch", "dcc", "regime", "svgarch", "harrv", "hawkes", "kyle"] },
+  { id: "discrete", label: "离散选择 / 面板", labelEn: "Discrete Choice & Panel", toolIds: ["gmm", "logit", "qreg", "qreglab", "panel", "tobit", "dynpanel"] },
+  { id: "ml", label: "机器学习计量", labelEn: "Machine-Learning Econometrics", toolIds: ["lasso", "dml", "cforest", "bayes"] },
+  { id: "diag", label: "诊断 / 非参数", labelEn: "Diagnostics & Nonparametrics", toolIds: ["diagnostics", "diagreport", "kernelreg"] },
 ];
+
+const ECON_TOOL_IDS = TOOLS.map((x) => x.id);
 
 const EconometricsTools = () => {
   const { t } = useTranslation();
-  const [tool, setTool] = useState<ToolId>("olsiv");
+  const [tool, setTool] = useToolTab<ToolId>(ECON_TOOL_IDS, "olsiv");
   const captureRef = useRef<HTMLDivElement>(null);
   const apply = useCallback((s: { tool: ToolId }) => {
     if (s?.tool) setTool(s.tool);
