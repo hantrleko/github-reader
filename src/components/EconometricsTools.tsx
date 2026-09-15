@@ -3366,7 +3366,7 @@ const EconometricsTools = () => {
             {t("sections.econ.title")}
           </h2>
           <p className="text-sm text-muted-foreground mt-3 max-w-2xl mx-auto">
-            实时模拟数据生成过程 (DGP)，可视化估计量在不同场景下的偏差与方差
+            {t("labs.econ.subtitle")}
           </p>
         </motion.div>
 
