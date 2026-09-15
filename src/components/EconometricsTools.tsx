@@ -3391,7 +3391,7 @@ const EconometricsTools = () => {
               storageKey="econ"
               currentState={{ tool }}
               onApply={(s: any) => { if (s?.tool) setTool(s.tool); }}
-              summarize={(s: any) => `工具: ${s.tool}`}
+              summarize={(s: any) => t("labs.econ.historySummary", { tool: s.tool })}
             />
             <ShareExportToolbar
               storageKey="econ"
