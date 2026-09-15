@@ -1485,7 +1485,7 @@ export const TOOLS_CATALOG: ToolEntry[] = [
   // ── V5.4: Econometrics identification & inference ──
   {
     id: "weakiv", name: "弱工具变量诊断", nameEn: "Weak Instrument Diagnostics",
-    category: "econometrics", difficulty: "research", anchor: "/s/econometrics",
+    category: "econometrics", difficulty: "research", anchor: "/#econometrics?t=weakiv",
     tags: ["工具变量", "一阶段 F", "Cragg-Donald", "Anderson-Rubin"],
     refs: ["Staiger & Stock (1997)", "Stock & Yogo (2005)", "Anderson & Rubin (1949)"],
     blurb: "一阶段 F / Cragg-Donald 与 Stock-Yogo 临界值判定工具强度，AR 反转检验给出弱工具稳健置信集。",
@@ -1493,7 +1493,7 @@ export const TOOLS_CATALOG: ToolEntry[] = [
   },
   {
     id: "heckman", name: "Heckman 样本选择", nameEn: "Heckman Sample Selection",
-    category: "econometrics", difficulty: "research", anchor: "/s/econometrics",
+    category: "econometrics", difficulty: "research", anchor: "/#econometrics?t=heckman",
     tags: ["样本选择", "逆米尔斯比", "probit", "排除约束"],
     refs: ["Heckman (1979)"],
     blurb: "两步法：probit 选择方程估 λ=φ/Φ，再放入结果方程修正选择偏误；可调排除约束强度观察识别脆弱性。",
@@ -1501,7 +1501,7 @@ export const TOOLS_CATALOG: ToolEntry[] = [
   },
   {
     id: "trinity", name: "Wald / LR / LM 三大检验", nameEn: "Wald, LR & LM Testing Trinity",
-    category: "econometrics", difficulty: "core", anchor: "/s/econometrics",
+    category: "econometrics", difficulty: "core", anchor: "/#econometrics?t=trinity",
     tags: ["假设检验", "似然比", "得分检验"],
     refs: ["Engle (1984)", "Buse (1982)"],
     blurb: "同一原假设的三种几何视角，可视化小样本分歧与 W ≥ LR ≥ LM 的经典排序。",
@@ -1509,7 +1509,7 @@ export const TOOLS_CATALOG: ToolEntry[] = [
   },
   {
     id: "selab", name: "标准误实验室", nameEn: "Standard Error Lab",
-    category: "econometrics", difficulty: "research", anchor: "/s/econometrics",
+    category: "econometrics", difficulty: "research", anchor: "/#econometrics?t=selab",
     tags: ["稳健标准误", "聚类", "wild bootstrap", "覆盖率"],
     refs: ["White (1980)", "Cameron, Gelbach & Miller (2008)", "MacKinnon & Webb (2017)"],
     blurb: "蒙特卡洛比较 iid / HC1 / HC3 / 聚类 / wild cluster bootstrap 的真实 95% 覆盖率，复现少簇失效。",
@@ -1517,7 +1517,7 @@ export const TOOLS_CATALOG: ToolEntry[] = [
   },
   {
     id: "hausman", name: "固定效应 vs 随机效应", nameEn: "Fixed vs Random Effects",
-    category: "econometrics", difficulty: "core", anchor: "/s/econometrics",
+    category: "econometrics", difficulty: "core", anchor: "/#econometrics?t=hausman",
     tags: ["面板", "Hausman", "Mundlak", "组内估计"],
     refs: ["Hausman (1978)", "Mundlak (1978)"],
     blurb: "组内 / 组间 / RE / 混合四种估计量对比，Hausman χ² 与 Mundlak CRE 等价检验决定模型选择。",
@@ -1525,7 +1525,7 @@ export const TOOLS_CATALOG: ToolEntry[] = [
   },
   {
     id: "fwl", name: "FWL 定理与共线性几何", nameEn: "Frisch-Waugh-Lovell & Collinearity",
-    category: "econometrics", difficulty: "core", anchor: "/s/econometrics",
+    category: "econometrics", difficulty: "core", anchor: "/#econometrics?t=fwl",
     tags: ["FWL", "残差化", "VIF", "多重共线"],
     refs: ["Frisch & Waugh (1933)", "Lovell (1963)"],
     blurb: "残差化散点证明多元系数 = 净效应回归斜率，并量化共线性带来的方差膨胀 √VIF。",
@@ -1533,7 +1533,7 @@ export const TOOLS_CATALOG: ToolEntry[] = [
   },
   {
     id: "pdslasso", name: "双重选择 LASSO", nameEn: "Post-Double-Selection LASSO",
-    category: "econometrics", difficulty: "research", anchor: "/s/econometrics",
+    category: "econometrics", difficulty: "research", anchor: "/#econometrics?t=pdslasso",
     tags: ["高维", "LASSO", "变量选择", "正交化"],
     refs: ["Belloni, Chernozhukov & Hansen (2014)"],
     blurb: "对结果方程与处理方程分别 LASSO 后取并集回归，修复朴素单次选择造成的遗漏偏误。",
@@ -1541,7 +1541,7 @@ export const TOOLS_CATALOG: ToolEntry[] = [
   },
   {
     id: "htediag", name: "异质性处理效应诊断", nameEn: "HTE Diagnostics — GATES & BLP",
-    category: "econometrics", difficulty: "research", anchor: "/s/econometrics",
+    category: "econometrics", difficulty: "research", anchor: "/#econometrics?t=htediag",
     tags: ["异质性", "GATES", "BLP", "校准"],
     refs: ["Chernozhukov, Demirer, Duflo & Fernandez-Val (2018)"],
     blurb: "按样本外 CATE 分位分组比较实际效应，并用 BLP 校准回归检验学习器是否真有预测力。",
@@ -1549,7 +1549,7 @@ export const TOOLS_CATALOG: ToolEntry[] = [
   },
   {
     id: "urootsuite", name: "单位根检验全家桶", nameEn: "Unit-Root Test Suite",
-    category: "econometrics", difficulty: "advanced", anchor: "/s/econometrics",
+    category: "econometrics", difficulty: "advanced", anchor: "/#econometrics?t=urootsuite",
     tags: ["单位根", "ADF", "KPSS", "DF-GLS", "Zivot-Andrews", "HEGY"],
     refs: ["Dickey & Fuller (1979)", "Phillips & Perron (1988)", "KPSS (1992)", "Zivot & Andrews (1992)", "Hylleberg et al. (1990)"],
     blurb: "同一序列上并排跑 ADF / PP / DF-GLS / KPSS / Zivot-Andrews / HEGY，读出两种原假设组合下的四种结论，包括「证据不足」。",
@@ -1557,7 +1557,7 @@ export const TOOLS_CATALOG: ToolEntry[] = [
   },
   {
     id: "armaident", name: "Wold 分解与 ARMA 识别台", nameEn: "Wold Decomposition & ARMA Identification",
-    category: "econometrics", difficulty: "advanced", anchor: "/s/econometrics",
+    category: "econometrics", difficulty: "advanced", anchor: "/#econometrics?t=armaident",
     tags: ["Wold", "ACF", "PACF", "特征根", "AIC/BIC"],
     refs: ["Wold (1938)", "Box & Jenkins (1970)", "Hannan & Rissanen (1982)"],
     blurb: "理论与样本 ACF/PACF 对照、ψ 权重冲击传播、AR/MA 特征根与单位圆，以及 AIC/BIC/HQ 阶数网格。",
@@ -1565,7 +1565,7 @@ export const TOOLS_CATALOG: ToolEntry[] = [
   },
   {
     id: "difflab", name: "差分决策实验室", nameEn: "Differencing Decision Lab",
-    category: "econometrics", difficulty: "advanced", anchor: "/s/econometrics",
+    category: "econometrics", difficulty: "advanced", anchor: "/#econometrics?t=difflab",
     tags: ["伪回归", "过度差分", "趋势平稳", "蒙特卡洛"],
     refs: ["Granger & Newbold (1974)", "Nelson & Plosser (1982)"],
     blurb: "蒙特卡洛复现伪回归的拒绝率发散，并量化过度差分带来的 −1 附近 MA 根与预测误差恶化。",
@@ -1573,7 +1573,7 @@ export const TOOLS_CATALOG: ToolEntry[] = [
   },
   {
     id: "setar", name: "门限自回归 SETAR / LSTAR", nameEn: "Threshold Autoregression — SETAR / LSTAR",
-    category: "econometrics", difficulty: "research", anchor: "/s/econometrics",
+    category: "econometrics", difficulty: "research", anchor: "/#econometrics?t=setar",
     tags: ["非线性", "门限", "制度", "自助检验"],
     refs: ["Tong (1983)", "Hansen (1996, 1999)", "Teräsvirta (1994)"],
     blurb: "门限网格搜索最小化分段 SSR，Hansen 自助 supF 解决 Davies 未识别参数问题，并给出 LSTAR 平滑转换函数。",
@@ -1581,7 +1581,7 @@ export const TOOLS_CATALOG: ToolEntry[] = [
   },
   {
     id: "baiperron", name: "Bai-Perron 多重结构断点", nameEn: "Bai-Perron Multiple Structural Breaks",
-    category: "econometrics", difficulty: "research", anchor: "/s/econometrics",
+    category: "econometrics", difficulty: "research", anchor: "/#econometrics?t=baiperron",
     tags: ["结构断点", "动态规划", "supF", "BIC/LWZ"],
     refs: ["Bai & Perron (1998, 2003)", "Liu, Wu & Zidek (1997)"],
     blurb: "用动态规划在 O(T²) 内同时估计断点位置与个数，配 BIC/LWZ 与序贯 supF(l+1|l) 检验。",
@@ -1589,7 +1589,7 @@ export const TOOLS_CATALOG: ToolEntry[] = [
   },
   {
     id: "denseval", name: "密度预测评价", nameEn: "Density Forecast Evaluation — PIT, CRPS & Log Score",
-    category: "econometrics", difficulty: "research", anchor: "/s/econometrics",
+    category: "econometrics", difficulty: "research", anchor: "/#econometrics?t=denseval",
     tags: ["PIT", "CRPS", "对数得分", "校准", "评分规则"],
     refs: ["Diebold, Gunther & Tay (1998)", "Gneiting & Raftery (2007)"],
     blurb: "用 PIT 均匀性、对数得分、CRPS、pinball 与覆盖率评价正态 / t / GARCH 三种条件密度的校准质量。",
@@ -1597,7 +1597,7 @@ export const TOOLS_CATALOG: ToolEntry[] = [
   },
   {
     id: "mcs", name: "模型置信集与预测组合", nameEn: "Model Confidence Set & Forecast Combination",
-    category: "econometrics", difficulty: "research", anchor: "/s/econometrics",
+    category: "econometrics", difficulty: "research", anchor: "/#econometrics?t=mcs",
     tags: ["MCS", "Diebold-Mariano", "预测组合", "多重比较"],
     refs: ["Hansen, Lunde & Nason (2011)", "Diebold & Mariano (1995)", "Bates & Granger (1969)"],
     blurb: "块自助序贯等价检验筛出模型置信集，并对比等权、逆 MSE 与最优权重组合——等权常常胜出。",
@@ -1605,7 +1605,7 @@ export const TOOLS_CATALOG: ToolEntry[] = [
   },
   {
     id: "svgarch", name: "随机波动率 vs GARCH", nameEn: "Stochastic Volatility vs GARCH — Particle Filter",
-    category: "econometrics", difficulty: "research", anchor: "/s/econometrics",
+    category: "econometrics", difficulty: "research", anchor: "/#econometrics?t=svgarch",
     tags: ["随机波动率", "粒子滤波", "状态空间", "GARCH"],
     refs: ["Taylor (1986)", "Kim, Shephard & Chib (1998)", "Gordon, Salmond & Smith (1993)"],
     blurb: "自举粒子滤波估计对数波动潜在状态，与 GARCH(1,1) 在滤波精度与对数得分上正面对比。",
