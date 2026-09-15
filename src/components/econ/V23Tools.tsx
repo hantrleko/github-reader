@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   Legend, ReferenceLine, Area, ComposedChart,
@@ -309,18 +310,19 @@ function mleVariances(
    DLMTool component
    ════════════════════════════════════════════════════════════════ */
 
-const dlmPresets = (set: (v: { n: number; S: number; trueLevel: number; trueSlope: number; seasonAmp: number; sigObs: number; sigSlope: number; sigSeason: number; seed: number }) => void): Preset[] => [
-  { name: "明显趋势 + 季节",    description: "n=120, S=12, 强季节性",
+const dlmPresets = (set: (v: { n: number; S: number; trueLevel: number; trueSlope: number; seasonAmp: number; sigObs: number; sigSlope: number; sigSeason: number; seed: number }) => void, t: (k: string) => string): Preset[] => [
+  { name: t("labs.econ.v23.dlm.presets.trendSeason.name"),    description: t("labs.econ.v23.dlm.presets.trendSeason.desc"),
     apply: () => set({ n: 120, S: 12, trueLevel: 100, trueSlope: 0.4, seasonAmp: 6, sigObs: 1.5, sigSlope: 0.02, sigSeason: 0.3, seed: 7 }) },
-  { name: "纯局部水平 (random walk)", description: "无趋势无季节,只有水平随机游走",
+  { name: t("labs.econ.v23.dlm.presets.localLevel.name"), description: t("labs.econ.v23.dlm.presets.localLevel.desc"),
     apply: () => set({ n: 100, S: 4, trueLevel: 50, trueSlope: 0, seasonAmp: 0, sigObs: 1, sigSlope: 0, sigSeason: 0, seed: 11 }) },
-  { name: "弱信号 / 噪声大",    description: "观测噪声主导,信号难提取",
+  { name: t("labs.econ.v23.dlm.presets.weakSignal.name"),    description: t("labs.econ.v23.dlm.presets.weakSignal.desc"),
     apply: () => set({ n: 150, S: 12, trueLevel: 50, trueSlope: 0.1, seasonAmp: 2, sigObs: 4, sigSlope: 0.005, sigSeason: 0.1, seed: 21 }) },
-  { name: "季度数据",           description: "S=4 季节,GDP 风格",
+  { name: t("labs.econ.v23.dlm.presets.quarterly.name"),           description: t("labs.econ.v23.dlm.presets.quarterly.desc"),
     apply: () => set({ n: 80, S: 4, trueLevel: 100, trueSlope: 0.3, seasonAmp: 4, sigObs: 1, sigSlope: 0.01, sigSeason: 0.2, seed: 33 }) },
 ];
 
 export const DLMTool = () => {
+  const { t } = useTranslation();
   // DGP params
   const [n, setN] = useState(120);
   const [S, setS] = useState(12);
@@ -378,7 +380,7 @@ export const DLMTool = () => {
   }, [sim.ys, S, hSigEps, hSigEta, hSigZeta, hSigOmega]);
 
   const onFitMLE = () => {
-    setMleStatus("拟合中…");
+    setMleStatus(t("labs.econ.v23.dlm.fittingStatus"));
     setTimeout(() => {
       const r = mleVariances(sim.ys, S, {
         sigEps: hSigEps, sigEta: hSigEta, sigZeta: hSigZeta, sigOmega: hSigOmega,
@@ -387,7 +389,7 @@ export const DLMTool = () => {
       setHSigEta(+r.sigEta.toFixed(4));
       setHSigZeta(+r.sigZeta.toFixed(4));
       setHSigOmega(+r.sigOmega.toFixed(4));
-      setMleStatus(`完成 · log-lik = ${r.loglik.toFixed(2)}`);
+      setMleStatus(t("labs.econ.v23.dlm.doneStatus", { ll: r.loglik.toFixed(2) }));
     }, 30);
   };
 
@@ -452,37 +454,37 @@ export const DLMTool = () => {
         setSeed(v.seed);
         setHSigEps(v.sigObs); setHSigEta(0.1); setHSigZeta(Math.max(v.sigSlope, 1e-3)); setHSigOmega(Math.max(v.sigSeason, 1e-3));
         setMleStatus(null);
-      })} />
+      }, t)} />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* DGP controls */}
         <div className="space-y-3 p-4 rounded-xl border border-border bg-secondary/20">
-          <p className="text-[11px] font-mono uppercase tracking-[0.2em] text-gold/80">真实数据生成过程 (DGP)</p>
-          <Slider label="样本量 n"     value={n}         min={40}  max={300} step={10} onChange={setN} />
-          <Slider label="季节周期 S"   value={S}         min={2}   max={12}  step={1}  onChange={(v) => setS(Math.round(v))} />
-          <Slider label="初始水平 μ₀"  value={trueLevel} min={0}   max={200} step={1}  onChange={setTrueLevel} />
-          <Slider label="初始斜率 ν₀"  value={trueSlope} min={-1}  max={1}   step={0.05} onChange={setTrueSlope} />
-          <Slider label="季节振幅"     value={seasonAmp} min={0}   max={15}  step={0.5}  onChange={setSeasonAmp} />
-          <Slider label="σ_ε (观测噪声)" value={sigObs}    min={0.1} max={6}   step={0.1}  onChange={setSigObs} />
-          <Slider label="σ_ζ (斜率漂移)" value={sigSlope}  min={0}   max={0.1} step={0.005} onChange={setSigSlope} />
-          <Slider label="σ_ω (季节漂移)" value={sigSeason} min={0}   max={1}   step={0.05}  onChange={setSigSeason} />
-          <Slider label="随机种子"      value={seed}      min={1}   max={999} step={1}    onChange={setSeed} />
+          <p className="text-[11px] font-mono uppercase tracking-[0.2em] text-gold/80">{t("labs.econ.v23.dlm.dgpTitle")}</p>
+          <Slider label={t("labs.econ.v23.dlm.sampleSize")}     value={n}         min={40}  max={300} step={10} onChange={setN} />
+          <Slider label={t("labs.econ.v23.dlm.seasonPeriod")}   value={S}         min={2}   max={12}  step={1}  onChange={(v) => setS(Math.round(v))} />
+          <Slider label={t("labs.econ.v23.dlm.initLevel")}  value={trueLevel} min={0}   max={200} step={1}  onChange={setTrueLevel} />
+          <Slider label={t("labs.econ.v23.dlm.initSlope")}  value={trueSlope} min={-1}  max={1}   step={0.05} onChange={setTrueSlope} />
+          <Slider label={t("labs.econ.v23.dlm.seasonAmp")}     value={seasonAmp} min={0}   max={15}  step={0.5}  onChange={setSeasonAmp} />
+          <Slider label={t("labs.econ.v23.dlm.sigmaEps")} value={sigObs}    min={0.1} max={6}   step={0.1}  onChange={setSigObs} />
+          <Slider label={t("labs.econ.v23.dlm.sigmaZeta")} value={sigSlope}  min={0}   max={0.1} step={0.005} onChange={setSigSlope} />
+          <Slider label={t("labs.econ.v23.dlm.sigmaOmega")} value={sigSeason} min={0}   max={1}   step={0.05}  onChange={setSigSeason} />
+          <Slider label={t("labs.econ.v23.dlm.randomSeed")}      value={seed}      min={1}   max={999} step={1}    onChange={setSeed} />
         </div>
 
         {/* Estimation controls */}
         <div className="space-y-3 p-4 rounded-xl border border-border bg-secondary/20">
           <div className="flex items-center justify-between">
-            <p className="text-[11px] font-mono uppercase tracking-[0.2em] text-gold/80">估计端方差超参数</p>
+            <p className="text-[11px] font-mono uppercase tracking-[0.2em] text-gold/80">{t("labs.econ.v23.dlm.estVarTitle")}</p>
             <button onClick={onFitMLE}
               className="text-[11px] px-3 py-1.5 rounded-md border border-gold/40 bg-gold/10 text-gold hover:bg-gold/20 transition-colors font-mono">
-              一键 MLE 拟合
+              {t("labs.econ.v23.dlm.mleButton")}
             </button>
           </div>
           <Slider label="σ̂_ε (irregular)" value={hSigEps}   min={0.05} max={6}   step={0.05} onChange={setHSigEps} />
           <Slider label="σ̂_η (level)"     value={hSigEta}   min={0}    max={2}   step={0.01} onChange={setHSigEta} />
           <Slider label="σ̂_ζ (slope)"     value={hSigZeta}  min={0}    max={0.5} step={0.005} onChange={setHSigZeta} />
           <Slider label="σ̂_ω (seasonal)"  value={hSigOmega} min={0}    max={1}   step={0.01} onChange={setHSigOmega} />
-          <Slider label="预测步数 h"        value={horizon}   min={4}    max={48}  step={2}    onChange={setHorizon} />
+          <Slider label={t("labs.econ.v23.dlm.horizonLabel")}        value={horizon}   min={4}    max={48}  step={2}    onChange={setHorizon} />
           {mleStatus && (
             <div className="text-[11px] font-mono text-gold/80 px-3 py-2 rounded-md bg-secondary/40 border border-gold/20">
               {mleStatus}
@@ -492,7 +494,7 @@ export const DLMTool = () => {
           <div className="grid grid-cols-2 gap-2 pt-2">
             <Stat label="log-lik"        value={fit.filt.loglik.toFixed(2)} color={CHART_GOLD} />
             <Stat label="AIC"            value={(-2 * fit.filt.loglik + 2 * 4).toFixed(2)} color={CHART_TEAL} />
-            <Stat label="信号-噪声 q_η/ε" value={((hSigEta / hSigEps) ** 2).toFixed(4)} color={CHART_BLUE} sub="水平 / irregular" />
+            <Stat label={t("labs.econ.v23.dlm.snrLabel")} value={((hSigEta / hSigEps) ** 2).toFixed(4)} color={CHART_BLUE} sub={t("labs.econ.v23.dlm.snrSub")} />
             <Stat label="Ljung-Box Q(10)" value={ljungQ.toFixed(2)} color={ljungQ > 18.31 ? CHART_RED : CHART_TEAL} sub="χ²₀.₀₅ = 18.31" />
           </div>
         </div>
@@ -501,7 +503,7 @@ export const DLMTool = () => {
       {/* Observed vs filtered + forecast */}
       <div>
         <p className="text-[11px] font-mono uppercase tracking-[0.2em] text-gold/80 mb-2">
-          观测 y_t · 平滑拟合 · {horizon} 期前向预测 ± 95% PI
+          {t("labs.econ.v23.dlm.chartTitle", { horizon })}
         </p>
         <ResponsiveContainer width="100%" height={300}>
           <ComposedChart data={combined} margin={{ top: 10, right: 20, bottom: 10, left: 0 }}>
@@ -510,11 +512,11 @@ export const DLMTool = () => {
             <YAxis stroke={CHART_TEXT} tick={{ fontSize: 11 }} />
             <Tooltip contentStyle={{ background: "hsl(var(--popover))", border: "1px solid hsl(var(--border))", fontSize: 11 }} />
             <Legend wrapperStyle={{ fontSize: 11 }} />
-            <ReferenceLine x={sim.ys.length - 0.5} stroke={CHART_GOLD} strokeDasharray="4 3" label={{ value: "预测起点", position: "insideTopRight", fill: CHART_GOLD, fontSize: 10 }} />
-            <Area dataKey="band" stroke="none" fill={CHART_GOLD} fillOpacity={0.13} name="95% 预测区间" />
-            <Line type="monotone" dataKey="y"      stroke={CHART_TEAL} strokeWidth={1.5} dot={false} name="观测 y_t" connectNulls={false} />
-            <Line type="monotone" dataKey="fitted" stroke={CHART_RED}  strokeWidth={1.5} dot={false} name="平滑拟合 μ̂+γ̂" connectNulls={false} />
-            <Line type="monotone" dataKey="mean"   stroke={CHART_GOLD} strokeWidth={2}   dot={false} name="预测均值" connectNulls={false} />
+            <ReferenceLine x={sim.ys.length - 0.5} stroke={CHART_GOLD} strokeDasharray="4 3" label={{ value: t("labs.econ.v23.dlm.forecastStart"), position: "insideTopRight", fill: CHART_GOLD, fontSize: 10 }} />
+            <Area dataKey="band" stroke="none" fill={CHART_GOLD} fillOpacity={0.13} name={t("labs.econ.v23.dlm.piName")} />
+            <Line type="monotone" dataKey="y"      stroke={CHART_TEAL} strokeWidth={1.5} dot={false} name={t("labs.econ.v23.dlm.obsName")} connectNulls={false} />
+            <Line type="monotone" dataKey="fitted" stroke={CHART_RED}  strokeWidth={1.5} dot={false} name={t("labs.econ.v23.dlm.fittedName")} connectNulls={false} />
+            <Line type="monotone" dataKey="mean"   stroke={CHART_GOLD} strokeWidth={2}   dot={false} name={t("labs.econ.v23.dlm.forecastMeanName")} connectNulls={false} />
           </ComposedChart>
         </ResponsiveContainer>
       </div>
@@ -523,7 +525,7 @@ export const DLMTool = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <div>
           <p className="text-[11px] font-mono uppercase tracking-[0.2em] text-gold/80 mb-2">
-            分量 I — 平滑水平 μ̂_t (vs 真实)
+            {t("labs.econ.v23.dlm.compILabel")}
           </p>
           <ResponsiveContainer width="100%" height={220}>
             <LineChart data={decompData} margin={{ top: 10, right: 20, bottom: 10, left: 0 }}>
@@ -532,14 +534,14 @@ export const DLMTool = () => {
               <YAxis stroke={CHART_TEXT} tick={{ fontSize: 10 }} />
               <Tooltip contentStyle={{ background: "hsl(var(--popover))", border: "1px solid hsl(var(--border))", fontSize: 11 }} />
               <Legend wrapperStyle={{ fontSize: 10 }} />
-              <Line type="monotone" dataKey="trueLevel" stroke={CHART_TEAL} strokeWidth={1} dot={false} strokeDasharray="3 3" name="真实 μ_t" />
-              <Line type="monotone" dataKey="level"     stroke={CHART_GOLD} strokeWidth={2} dot={false} name="平滑 μ̂_t" />
+              <Line type="monotone" dataKey="trueLevel" stroke={CHART_TEAL} strokeWidth={1} dot={false} strokeDasharray="3 3" name={t("labs.econ.v23.dlm.trueLevelName")} />
+              <Line type="monotone" dataKey="level"     stroke={CHART_GOLD} strokeWidth={2} dot={false} name={t("labs.econ.v23.dlm.smoothLevelName")} />
             </LineChart>
           </ResponsiveContainer>
         </div>
         <div>
           <p className="text-[11px] font-mono uppercase tracking-[0.2em] text-gold/80 mb-2">
-            分量 II — 平滑季节 γ̂_t
+            {t("labs.econ.v23.dlm.compIILabel")}
           </p>
           <ResponsiveContainer width="100%" height={220}>
             <LineChart data={decompData} margin={{ top: 10, right: 20, bottom: 10, left: 0 }}>
@@ -557,7 +559,7 @@ export const DLMTool = () => {
       {/* Standardised innovations diagnostics */}
       <div>
         <p className="text-[11px] font-mono uppercase tracking-[0.2em] text-gold/80 mb-2">
-          诊断 — 标准化新息 ε̃_t = v_t / √F_t (理想 ~ N(0,1))
+          {t("labs.econ.v23.dlm.diagLabel")}
         </p>
         <ResponsiveContainer width="100%" height={180}>
           <LineChart data={innovStd} margin={{ top: 10, right: 20, bottom: 10, left: 0 }}>
@@ -574,12 +576,12 @@ export const DLMTool = () => {
       </div>
 
       <div className="rounded-lg border border-gold/20 bg-secondary/20 p-4 text-xs text-muted-foreground space-y-2">
-        <p><strong className="text-foreground">DLM / 结构时间序列 (Harvey 1989; Durbin & Koopman 2012):</strong></p>
-        <p>• 状态向量 <em>x_t = [μ_t, ν_t, γ_t, γ_{"{t-1}"}, ..., γ_{"{t-S+2}"}]'</em>,水平 + 斜率 + 季节三个不可观测分量,Kalman 滤波递推 + RTS 平滑分解</p>
-        <p>• 与 ARIMA 的区别:DLM 显式建模 <em>趋势 / 季节 / irregular</em>,可分别提取并外推;ARIMA 只对 ∆ⁿyᵗ 建模 ARMA 结构,不分解</p>
-        <p>• <strong>q_η/ε = σ²_η / σ²_ε</strong>:信号-噪声比,大 ⇒ 水平活跃 (接近 random walk),小 ⇒ 接近常数水平</p>
-        <p>• <strong>一键 MLE</strong>:在 log-σ 空间做坐标搜索最大化 prediction error decomposition log-likelihood (Schweppe 1965)</p>
-        <p>• <strong>诊断</strong>:标准化新息 ε̃_t 应近似 N(0,1) 白噪声;Ljung-Box Q(10) &lt; 18.31 (5%) 表示残差无序列相关</p>
+        <p><strong className="text-foreground">{t("labs.econ.v23.dlm.footerTitle")}</strong></p>
+        <p>• {t("labs.econ.v23.dlm.footer1a")} <em>x_t = [μ_t, ν_t, γ_t, γ_{"{t-1}"}, ..., γ_{"{t-S+2}"}]'</em>{t("labs.econ.v23.dlm.footer1b")}</p>
+        <p>• {t("labs.econ.v23.dlm.footer2a")} <em>{t("labs.econ.v23.dlm.footer2trend")}</em>{t("labs.econ.v23.dlm.footer2b")}</p>
+        <p>• <strong>q_η/ε = σ²_η / σ²_ε</strong>{t("labs.econ.v23.dlm.footer3")}</p>
+        <p>• <strong>{t("labs.econ.v23.dlm.mleStrong")}</strong>{t("labs.econ.v23.dlm.footer4")}</p>
+        <p>• <strong>{t("labs.econ.v23.dlm.diagStrong")}</strong>{t("labs.econ.v23.dlm.footer5")}</p>
         <p className="text-[11px] text-muted-foreground/80">Reference: Harvey A.C. (1989) <em>Forecasting, Structural Time Series Models and the Kalman Filter</em>, CUP;
           Durbin J. &amp; Koopman S.J. (2012) <em>Time Series Analysis by State Space Methods</em>, 2nd ed.</p>
       </div>

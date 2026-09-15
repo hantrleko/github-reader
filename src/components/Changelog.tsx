@@ -5,9 +5,31 @@ import { useMemo, useState } from "react";
 
 const RELEASES = [
   {
-    version: "V7.2",
+    version: "V7.3",
     date: "2026-09",
     tag: "Current",
+    highlights: [
+      {
+        icon: Sparkles,
+        title: "计量经济学工具深链",
+        items: [
+          "57 个计量工具改为 /#econometrics?t=<toolId> 深链，目录可直达具体工具",
+          "目录补入 RDD、交错 DID、合成对照、DML、因果森林、面板单位根等 16 个条目",
+        ],
+      },
+      {
+        icon: FileText,
+        title: "计量模块双语化",
+        items: [
+          "8 个导航分类补齐英文标签，随语言切换",
+          "计量面板文案分批迁入 labs.econ.* 中英词条",
+        ],
+      },
+    ],
+  },
+  {
+    version: "V7.2",
+    date: "2026-09",
     highlights: [
       {
         icon: Sparkles,

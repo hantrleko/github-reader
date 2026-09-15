@@ -5,6 +5,7 @@ import {
 } from "recharts";
 import "katex/dist/katex.min.css";
 import PresetButtons, { Preset } from "../PresetButtons";
+import { useTranslation } from "react-i18next";
 
 const CHART_GOLD = "hsl(43, 80%, 55%)";
 const CHART_TEAL = "hsl(180, 50%, 40%)";
@@ -159,6 +160,7 @@ function fitBinaryGLM(X: number[][], y: number[], family: "logit" | "probit") {
 }
 
 export const LogitProbitTool = () => {
+  const { t } = useTranslation();
   const [n, setN] = useState(500);
   const [b0, setB0] = useState(-0.5);
   const [b1, setB1] = useState(1.2);    // effect of x1 (continuous)
@@ -254,17 +256,17 @@ export const LogitProbitTool = () => {
   }, [n, b0, b1, b2, dgp, seed]);
 
   const presets: Preset[] = [
-    { name: "标准 Logit", description: "中等样本, 强 x1 效应", apply: () => { setN(500); setB0(-0.5); setB1(1.2); setB2(0.8); setDgp("logit"); } },
-    { name: "Probit DGP", description: "数据由 Probit 生成", apply: () => { setN(500); setDgp("probit"); setB0(-0.3); setB1(1.0); setB2(0.6); } },
-    { name: "稀有事件", description: "截距很负, y=1 比例低", apply: () => { setB0(-2.5); setB1(1.0); setB2(0.5); setN(800); } },
-    { name: "小样本", description: "n=80, SE 大", apply: () => { setN(80); setB0(0); setB1(1.0); setB2(0.6); } },
+    { name: t("labs.econ.logitprobit.presets.stdLogit.name"), description: t("labs.econ.logitprobit.presets.stdLogit.desc"), apply: () => { setN(500); setB0(-0.5); setB1(1.2); setB2(0.8); setDgp("logit"); } },
+    { name: t("labs.econ.logitprobit.presets.probitDgp.name"), description: t("labs.econ.logitprobit.presets.probitDgp.desc"), apply: () => { setN(500); setDgp("probit"); setB0(-0.3); setB1(1.0); setB2(0.6); } },
+    { name: t("labs.econ.logitprobit.presets.rareEvent.name"), description: t("labs.econ.logitprobit.presets.rareEvent.desc"), apply: () => { setB0(-2.5); setB1(1.0); setB2(0.5); setN(800); } },
+    { name: t("labs.econ.logitprobit.presets.smallSample.name"), description: t("labs.econ.logitprobit.presets.smallSample.desc"), apply: () => { setN(80); setB0(0); setB1(1.0); setB2(0.6); } },
   ];
 
   return (
     <div className="space-y-6">
       <PresetButtons presets={presets} />
       <div className="flex items-center gap-2 flex-wrap">
-        <span className="text-[10px] font-mono text-muted-foreground uppercase tracking-wider">DGP</span>
+        <span className="text-[10px] font-mono text-muted-foreground uppercase tracking-wider">{t("labs.econ.logitprobit.dgpLabel")}</span>
         {(["logit", "probit"] as const).map((d) => (
           <button
             key={d}
@@ -273,38 +275,38 @@ export const LogitProbitTool = () => {
               dgp === d ? "border-gold/40 bg-gold/10 text-gold" : "border-border bg-secondary/50 text-muted-foreground hover:text-gold"
             }`}
           >
-            {d === "logit" ? "Logistic" : "Probit (Φ)"}
+            {d === "logit" ? t("labs.econ.logitprobit.logisticLabel") : t("labs.econ.logitprobit.probitLabel")}
           </button>
         ))}
       </div>
 
       <div className="grid lg:grid-cols-3 gap-6">
         <div className="space-y-4">
-          <Slider label="样本量 n" value={n} min={50} max={2000} step={10} onChange={setN} />
-          <Slider label="截距 β₀" value={b0} min={-3} max={3} step={0.05} onChange={setB0} />
-          <Slider label="x₁ 系数 β₁" sub="连续变量" value={b1} min={-3} max={3} step={0.05} onChange={setB1} />
-          <Slider label="x₂ 系数 β₂" sub="二元变量" value={b2} min={-3} max={3} step={0.05} onChange={setB2} />
-          <Slider label="随机种子" value={seed} min={1} max={200} step={1} onChange={setSeed} />
+          <Slider label={t("labs.econ.logitprobit.nLabel")} value={n} min={50} max={2000} step={10} onChange={setN} />
+          <Slider label={t("labs.econ.logitprobit.b0Label")} value={b0} min={-3} max={3} step={0.05} onChange={setB0} />
+          <Slider label={t("labs.econ.logitprobit.b1Label")} sub={t("labs.econ.logitprobit.continuousVar")} value={b1} min={-3} max={3} step={0.05} onChange={setB1} />
+          <Slider label={t("labs.econ.logitprobit.b2Label")} sub={t("labs.econ.logitprobit.binaryVar")} value={b2} min={-3} max={3} step={0.05} onChange={setB2} />
+          <Slider label={t("labs.econ.logitprobit.seedLabel")} value={seed} min={1} max={200} step={1} onChange={setSeed} />
 
           <div className="space-y-2 mt-4">
-            <Stat label="y=1 比例" value={(data.ybar * 100).toFixed(1) + "%"} color={CHART_TEAL} />
-            <Stat label="Logit Pseudo-R²" value={data.r2L.toFixed(3)} color={CHART_GOLD} sub="McFadden" />
-            <Stat label="Probit Pseudo-R²" value={data.r2P.toFixed(3)} color={CHART_BLUE} />
-            <Stat label="Logit 准确率" value={(data.accL * 100).toFixed(1) + "%"} color={CHART_GOLD} sub="0.5 阈值" />
-            <Stat label="Probit 准确率" value={(data.accP * 100).toFixed(1) + "%"} color={CHART_BLUE} />
+            <Stat label={t("labs.econ.logitprobit.y1Share")} value={(data.ybar * 100).toFixed(1) + "%"} color={CHART_TEAL} />
+            <Stat label={t("labs.econ.logitprobit.logitPseudoR2")} value={data.r2L.toFixed(3)} color={CHART_GOLD} sub="McFadden" />
+            <Stat label={t("labs.econ.logitprobit.probitPseudoR2")} value={data.r2P.toFixed(3)} color={CHART_BLUE} />
+            <Stat label={t("labs.econ.logitprobit.logitAccuracy")} value={(data.accL * 100).toFixed(1) + "%"} color={CHART_GOLD} sub={t("labs.econ.logitprobit.threshold05")} />
+            <Stat label={t("labs.econ.logitprobit.probitAccuracy")} value={(data.accP * 100).toFixed(1) + "%"} color={CHART_BLUE} />
           </div>
         </div>
 
         <div className="lg:col-span-2 space-y-6">
           {/* Coefficient table */}
           <div>
-            <p className="text-[11px] font-mono uppercase tracking-[0.2em] text-gold/80 mb-2">系数估计 (β̂ ± SE)</p>
+            <p className="text-[11px] font-mono uppercase tracking-[0.2em] text-gold/80 mb-2">{t("labs.econ.logitprobit.coefTableTitle")}</p>
             <div className="overflow-x-auto rounded-lg border border-border">
               <table className="w-full text-[11px] font-mono tabular-nums">
                 <thead className="bg-secondary/40 text-muted-foreground">
                   <tr>
-                    <th className="text-left px-3 py-2">参数</th>
-                    <th className="text-right px-3 py-2">真值</th>
+                    <th className="text-left px-3 py-2">{t("labs.econ.logitprobit.paramCol")}</th>
+                    <th className="text-right px-3 py-2">{t("labs.econ.logitprobit.trueValueCol")}</th>
                     <th className="text-right px-3 py-2 text-gold">Logit</th>
                     <th className="text-right px-3 py-2 text-gold">SE</th>
                     <th className="text-right px-3 py-2" style={{ color: CHART_BLUE }}>Probit</th>
@@ -314,9 +316,9 @@ export const LogitProbitTool = () => {
                 </thead>
                 <tbody>
                   {[
-                    { name: "β₀ (截距)", truth: b0, idx: 0 },
-                    { name: "β₁ (x₁)", truth: b1, idx: 1 },
-                    { name: "β₂ (x₂)", truth: b2, idx: 2 },
+                    { name: t("labs.econ.logitprobit.beta0Row"), truth: b0, idx: 0 },
+                    { name: t("labs.econ.logitprobit.beta1Row"), truth: b1, idx: 1 },
+                    { name: t("labs.econ.logitprobit.beta2Row"), truth: b2, idx: 2 },
                   ].map((row) => (
                     <tr key={row.idx} className="border-t border-border/60">
                       <td className="px-3 py-2 text-foreground">{row.name}</td>
@@ -332,20 +334,20 @@ export const LogitProbitTool = () => {
               </table>
             </div>
             <p className="text-[10px] text-muted-foreground mt-1.5 leading-relaxed">
-              注:Logit 与 Probit 系数不可直接比较 (尺度不同),要看下方边际效应。Logit β̂ ≈ 1.6 × Probit β̂ 是经验法则。
+              {t("labs.econ.logitprobit.coefNote")}
             </p>
           </div>
 
           {/* Marginal effects */}
           <div>
             <p className="text-[11px] font-mono uppercase tracking-[0.2em] text-gold/80 mb-2">
-              边际效应 ∂P(y=1)/∂x — AME 与 MEM
+              {t("labs.econ.logitprobit.marginalEffectsTitle")}
             </p>
             <div className="overflow-x-auto rounded-lg border border-border">
               <table className="w-full text-[11px] font-mono tabular-nums">
                 <thead className="bg-secondary/40 text-muted-foreground">
                   <tr>
-                    <th className="text-left px-3 py-2">变量</th>
+                    <th className="text-left px-3 py-2">{t("labs.econ.logitprobit.variableCol")}</th>
                     <th className="text-right px-3 py-2 text-gold">Logit AME</th>
                     <th className="text-right px-3 py-2 text-gold">Logit MEM</th>
                     <th className="text-right px-3 py-2" style={{ color: CHART_BLUE }}>Probit AME</th>
@@ -355,7 +357,7 @@ export const LogitProbitTool = () => {
                 </thead>
                 <tbody>
                   <tr className="border-t border-border/60">
-                    <td className="px-3 py-2">x₁ (连续)</td>
+                    <td className="px-3 py-2">{t("labs.econ.logitprobit.x1Row")}</td>
                     <td className="px-3 py-2 text-right text-gold">{data.meLogit.ame1.toFixed(4)}</td>
                     <td className="px-3 py-2 text-right text-muted-foreground">{data.meLogit.mem1.toFixed(4)}</td>
                     <td className="px-3 py-2 text-right" style={{ color: CHART_BLUE }}>{data.meProbit.ame1.toFixed(4)}</td>
@@ -363,7 +365,7 @@ export const LogitProbitTool = () => {
                     <td className="px-3 py-2 text-right text-muted-foreground">{data.lpm[1].toFixed(4)}</td>
                   </tr>
                   <tr className="border-t border-border/60">
-                    <td className="px-3 py-2">x₂ (二元)</td>
+                    <td className="px-3 py-2">{t("labs.econ.logitprobit.x2Row")}</td>
                     <td className="px-3 py-2 text-right text-gold">{data.meLogit.ame2.toFixed(4)}</td>
                     <td className="px-3 py-2 text-right text-muted-foreground">{data.meLogit.mem2.toFixed(4)}</td>
                     <td className="px-3 py-2 text-right" style={{ color: CHART_BLUE }}>{data.meProbit.ame2.toFixed(4)}</td>
@@ -374,14 +376,14 @@ export const LogitProbitTool = () => {
               </table>
             </div>
             <p className="text-[10px] text-muted-foreground mt-1.5 leading-relaxed">
-              AME = (1/n)Σᵢ f(xᵢ'β)·βₖ;MEM = f(x̄'β)·βₖ。LPM 系数本身就是边际效应,通常落在 AME 附近 (常被作为快速近似)。
+              {t("labs.econ.logitprobit.marginalEffectsNote")}
             </p>
           </div>
 
           {/* Predicted probability curve */}
           <div>
             <p className="text-[11px] font-mono uppercase tracking-[0.2em] text-gold/80 mb-2">
-              预测概率曲线 (固定 x₂=0)
+              {t("labs.econ.logitprobit.predictedProbTitle")}
             </p>
             <ResponsiveContainer width="100%" height={260}>
               <LineChart data={data.grid} margin={{ top: 8, right: 12, left: -8, bottom: 0 }}>
@@ -392,27 +394,27 @@ export const LogitProbitTool = () => {
                 <Legend wrapperStyle={{ fontSize: 10 }} />
                 <ReferenceLine y={0} stroke={CHART_GRID} />
                 <ReferenceLine y={1} stroke={CHART_GRID} />
-                <Line type="monotone" dataKey="truth" stroke={CHART_TEXT} strokeDasharray="4 3" dot={false} name="真实 P(y=1)" />
-                <Line type="monotone" dataKey="logit" stroke={CHART_GOLD} strokeWidth={2} dot={false} name="Logit 预测" />
-                <Line type="monotone" dataKey="probit" stroke={CHART_BLUE} strokeWidth={2} dot={false} name="Probit 预测" />
+                <Line type="monotone" dataKey="truth" stroke={CHART_TEXT} strokeDasharray="4 3" dot={false} name={t("labs.econ.logitprobit.truthLegend")} />
+                <Line type="monotone" dataKey="logit" stroke={CHART_GOLD} strokeWidth={2} dot={false} name={t("labs.econ.logitprobit.logitPredLegend")} />
+                <Line type="monotone" dataKey="probit" stroke={CHART_BLUE} strokeWidth={2} dot={false} name={t("labs.econ.logitprobit.probitPredLegend")} />
                 <Line type="monotone" dataKey="lpm" stroke={CHART_RED} strokeDasharray="2 2" dot={false} name="LPM (OLS)" />
               </LineChart>
             </ResponsiveContainer>
             <p className="text-[10px] text-muted-foreground mt-1.5 leading-relaxed">
-              LPM 在两端常溢出 [0,1] 区间(此处已截断显示);Logit/Probit 形状几乎重叠,体现两者拟合差异通常很小。
+              {t("labs.econ.logitprobit.predictedProbNote")}
             </p>
           </div>
         </div>
       </div>
 
       <div className="rounded-xl border border-gold/20 bg-gradient-to-br from-secondary/30 to-transparent p-4 md:p-5 text-[12px] leading-relaxed text-muted-foreground space-y-2">
-        <p className="text-gold/90 font-mono uppercase tracking-[0.2em] text-[10px]">教学要点</p>
+        <p className="text-gold/90 font-mono uppercase tracking-[0.2em] text-[10px]">{t("labs.econ.logitprobit.keyTakeawaysTitle")}</p>
         <ul className="list-disc pl-5 space-y-1">
-          <li><span className="text-foreground">链接函数:</span> Logit 用 logistic CDF Λ(z) = 1/(1+e⁻ᶻ),Probit 用标准正态 CDF Φ(z)。两者尾部行为不同 (Logit 尾部更厚)。</li>
-          <li><span className="text-foreground">为什么不用 OLS (LPM):</span> 异方差;预测概率可能 &lt;0 或 &gt;1;边际效应被假设为常数,与现实矛盾。</li>
-          <li><span className="text-foreground">边际效应才是经济量:</span> 直接看 β̂ 没有量纲意义,要看 AME 或 MEM,才能回答 "x 增加 1 单位对概率的影响约几个百分点"。</li>
-          <li><span className="text-foreground">最大似然估计:</span> 此工具用 Newton-Raphson (IRLS) 迭代求解 ∂L/∂β = 0;SE 来自 Fisher 信息矩阵 I(β̂)⁻¹ 的对角线。</li>
-          <li><span className="text-foreground">Pseudo-R² (McFadden):</span> 1 − ll(完整) / ll(只含截距);0.2-0.4 在二元选择已属强拟合。</li>
+          <li><span className="text-foreground">{t("labs.econ.logitprobit.takeaways.linkFnTitle")}</span> {t("labs.econ.logitprobit.takeaways.linkFnBody")}</li>
+          <li><span className="text-foreground">{t("labs.econ.logitprobit.takeaways.whyNotOlsTitle")}</span> {t("labs.econ.logitprobit.takeaways.whyNotOlsBody")}</li>
+          <li><span className="text-foreground">{t("labs.econ.logitprobit.takeaways.marginalTitle")}</span> {t("labs.econ.logitprobit.takeaways.marginalBody")}</li>
+          <li><span className="text-foreground">{t("labs.econ.logitprobit.takeaways.mleTitle")}</span> {t("labs.econ.logitprobit.takeaways.mleBody")}</li>
+          <li><span className="text-foreground">{t("labs.econ.logitprobit.takeaways.pseudoR2Title")}</span> {t("labs.econ.logitprobit.takeaways.pseudoR2Body")}</li>
         </ul>
       </div>
     </div>

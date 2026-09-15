@@ -9,6 +9,7 @@ import { InlineMath } from "react-katex";
 import "katex/dist/katex.min.css";
 import PresetButtons, { Preset } from "./PresetButtons";
 import { ShareExportToolbar, useSharedState } from "@/lib/calculatorTools";
+import { useToolTab } from "@/lib/useToolTab";
 import { HistoryDrawer } from "@/components/common/HistoryDrawer";
 import { GARCHTool, CointTool, KalmanTool } from "./econ/Sprint1Tools";
 import { MIDASTool } from "./econ/MIDASTool";
@@ -3325,19 +3326,21 @@ const PythonReference = ({ code }: { code: string }) => {
 };
 
 const ECON_CATEGORIES: ToolCategory[] = [
-  { id: "ident", label: "识别与推断", toolIds: ["weakiv", "heckman", "trinity", "selab", "hausman", "fwl", "pdslasso", "htediag"] },
-  { id: "causal", label: "因果推断", toolIds: ["olsiv", "did", "eventdid", "sdid", "rdd", "synth", "psm"] },
-  { id: "timeseries", label: "时间序列", toolIds: ["svar", "coint", "unitroot", "urootsuite", "panelroot", "armaident", "difflab", "kalman", "midas", "arima", "lp", "dlm", "granger", "spectral", "expsmooth", "longmem"] },
-  { id: "nonlinear", label: "非线性 / 断点 / 预测评价", toolIds: ["setar", "baiperron", "denseval", "mcs", "dmtest"] },
-  { id: "vol", label: "波动率 / 高频", toolIds: ["garch", "dcc", "regime", "svgarch", "harrv", "hawkes", "kyle"] },
-  { id: "discrete", label: "离散选择 / 面板", toolIds: ["gmm", "logit", "qreg", "qreglab", "panel", "tobit", "dynpanel"] },
-  { id: "ml", label: "机器学习计量", toolIds: ["lasso", "dml", "cforest", "bayes"] },
-  { id: "diag", label: "诊断 / 非参数", toolIds: ["diagnostics", "diagreport", "kernelreg"] },
+  { id: "ident", label: "识别与推断", labelEn: "Identification & Inference", toolIds: ["weakiv", "heckman", "trinity", "selab", "hausman", "fwl", "pdslasso", "htediag"] },
+  { id: "causal", label: "因果推断", labelEn: "Causal Inference", toolIds: ["olsiv", "did", "eventdid", "sdid", "rdd", "synth", "psm"] },
+  { id: "timeseries", label: "时间序列", labelEn: "Time Series", toolIds: ["svar", "coint", "unitroot", "urootsuite", "panelroot", "armaident", "difflab", "kalman", "midas", "arima", "lp", "dlm", "granger", "spectral", "expsmooth", "longmem"] },
+  { id: "nonlinear", label: "非线性 / 断点 / 预测评价", labelEn: "Non-linear, Breaks & Forecast Evaluation", toolIds: ["setar", "baiperron", "denseval", "mcs", "dmtest"] },
+  { id: "vol", label: "波动率 / 高频", labelEn: "Volatility & High-Frequency", toolIds: ["garch", "dcc", "regime", "svgarch", "harrv", "hawkes", "kyle"] },
+  { id: "discrete", label: "离散选择 / 面板", labelEn: "Discrete Choice & Panel", toolIds: ["gmm", "logit", "qreg", "qreglab", "panel", "tobit", "dynpanel"] },
+  { id: "ml", label: "机器学习计量", labelEn: "Machine-Learning Econometrics", toolIds: ["lasso", "dml", "cforest", "bayes"] },
+  { id: "diag", label: "诊断 / 非参数", labelEn: "Diagnostics & Nonparametrics", toolIds: ["diagnostics", "diagreport", "kernelreg"] },
 ];
+
+const ECON_TOOL_IDS = TOOLS.map((x) => x.id);
 
 const EconometricsTools = () => {
   const { t } = useTranslation();
-  const [tool, setTool] = useState<ToolId>("olsiv");
+  const [tool, setTool] = useToolTab<ToolId>(ECON_TOOL_IDS, "olsiv");
   const captureRef = useRef<HTMLDivElement>(null);
   const apply = useCallback((s: { tool: ToolId }) => {
     if (s?.tool) setTool(s.tool);
@@ -3363,7 +3366,7 @@ const EconometricsTools = () => {
             {t("sections.econ.title")}
           </h2>
           <p className="text-sm text-muted-foreground mt-3 max-w-2xl mx-auto">
-            实时模拟数据生成过程 (DGP)，可视化估计量在不同场景下的偏差与方差
+            {t("labs.econ.subtitle")}
           </p>
         </motion.div>
 
@@ -3388,7 +3391,7 @@ const EconometricsTools = () => {
               storageKey="econ"
               currentState={{ tool }}
               onApply={(s: any) => { if (s?.tool) setTool(s.tool); }}
-              summarize={(s: any) => `工具: ${s.tool}`}
+              summarize={(s: any) => t("labs.econ.historySummary", { tool: s.tool })}
             />
             <ShareExportToolbar
               storageKey="econ"

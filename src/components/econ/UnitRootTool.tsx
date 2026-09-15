@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine,
 } from "recharts";
@@ -25,6 +26,7 @@ const KPSS_CV = {
 };
 
 export const UnitRootTool = () => {
+  const { t } = useTranslation();
   const [rho, setRho] = useState(1.0); // AR(1) coefficient: 1 = unit root
   const [drift, setDrift] = useState(0);
   const [n, setN] = useState(200);
@@ -85,48 +87,48 @@ export const UnitRootTool = () => {
   }, [rho, drift, n, lags, trend, seed]);
 
   const conclusion =
-    !res.adfReject && res.kpssReject ? "一致：存在单位根 (非平稳 I(1))"
-    : res.adfReject && !res.kpssReject ? "一致：平稳 I(0)"
-    : "结论冲突 — 可能近单位根或趋势平稳，需谨慎";
+    !res.adfReject && res.kpssReject ? t("labs.econ.unitroot.conclusion.unitRoot")
+    : res.adfReject && !res.kpssReject ? t("labs.econ.unitroot.conclusion.stationary")
+    : t("labs.econ.unitroot.conclusion.conflict");
 
   return (
     <div className="space-y-6">
       <PresetButtons presets={[
-        { name: "随机游走 I(1)", description: "ρ=1 单位根", apply: () => { setRho(1); setDrift(0); setTrend(false); } },
-        { name: "平稳 AR(1)", description: "ρ=0.6", apply: () => { setRho(0.6); setDrift(0); setTrend(false); } },
-        { name: "带漂移随机游走", description: "ρ=1, drift", apply: () => { setRho(1); setDrift(0.3); setTrend(true); } },
-        { name: "趋势平稳", description: "ρ=0.5 + 趋势", apply: () => { setRho(0.5); setDrift(0.2); setTrend(true); } },
-        { name: "近单位根", description: "ρ=0.95 (难辨)", apply: () => { setRho(0.95); setTrend(false); } },
+        { name: t("labs.econ.unitroot.presets.randomWalk.name"), description: t("labs.econ.unitroot.presets.randomWalk.desc"), apply: () => { setRho(1); setDrift(0); setTrend(false); } },
+        { name: t("labs.econ.unitroot.presets.stationaryAr1.name"), description: t("labs.econ.unitroot.presets.stationaryAr1.desc"), apply: () => { setRho(0.6); setDrift(0); setTrend(false); } },
+        { name: t("labs.econ.unitroot.presets.driftedWalk.name"), description: t("labs.econ.unitroot.presets.driftedWalk.desc"), apply: () => { setRho(1); setDrift(0.3); setTrend(true); } },
+        { name: t("labs.econ.unitroot.presets.trendStationary.name"), description: t("labs.econ.unitroot.presets.trendStationary.desc"), apply: () => { setRho(0.5); setDrift(0.2); setTrend(true); } },
+        { name: t("labs.econ.unitroot.presets.nearUnitRoot.name"), description: t("labs.econ.unitroot.presets.nearUnitRoot.desc"), apply: () => { setRho(0.95); setTrend(false); } },
       ]} />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="space-y-3">
-          <p className="text-xs font-mono text-gold uppercase tracking-wider">数据生成参数</p>
+          <p className="text-xs font-mono text-gold uppercase tracking-wider">{t("labs.econ.unitroot.dgpParams")}</p>
           <div className="grid grid-cols-2 gap-3">
-            <Slider label="ρ (AR 系数)" sub="1=单位根" value={rho} min={0.3} max={1.05} step={0.01} onChange={setRho} />
-            <Slider label="漂移 / 趋势" value={drift} min={0} max={0.5} step={0.05} onChange={setDrift} />
-            <Slider label="样本量 T" value={n} min={50} max={500} step={10} onChange={setN} />
-            <Slider label="ADF 滞后阶 p" value={lags} min={0} max={6} step={1} onChange={setLags} />
+            <Slider label={t("labs.econ.unitroot.rho.label")} sub={t("labs.econ.unitroot.rho.sub")} value={rho} min={0.3} max={1.05} step={0.01} onChange={setRho} />
+            <Slider label={t("labs.econ.unitroot.driftLabel")} value={drift} min={0} max={0.5} step={0.05} onChange={setDrift} />
+            <Slider label={t("labs.econ.unitroot.nLabel")} value={n} min={50} max={500} step={10} onChange={setN} />
+            <Slider label={t("labs.econ.unitroot.lagsLabel")} value={lags} min={0} max={6} step={1} onChange={setLags} />
           </div>
           <button onClick={() => setTrend((v) => !v)} className={`px-3 py-1.5 rounded-md text-xs font-mono border transition-colors ${trend ? "border-gold/40 bg-gold/10 text-gold" : "border-border bg-secondary/50 text-muted-foreground"}`}>
-            {trend ? "✓ 含趋势项 (constant + trend)" : "仅常数项 (constant)"}
+            {trend ? t("labs.econ.unitroot.trendOn") : t("labs.econ.unitroot.trendOff")}
           </button>
-          <Slider label="随机种子" value={seed} min={1} max={99} step={1} fmt={(v) => v.toFixed(0)} onChange={setSeed} />
+          <Slider label={t("labs.econ.unitroot.seedLabel")} value={seed} min={1} max={99} step={1} fmt={(v) => v.toFixed(0)} onChange={setSeed} />
         </div>
         <div className="grid grid-cols-2 gap-2 content-start">
-          <Stat label="ADF 统计量" value={res.adfStat.toFixed(3)} color={res.adfReject ? C.green : C.red} sub={`5% 临界 ${res.adfCv["5%"]}`} />
-          <Stat label="ADF 结论" value={res.adfReject ? "拒绝单位根" : "不能拒绝"} color={res.adfReject ? C.green : C.red} sub="H₀: 有单位根" />
-          <Stat label="KPSS 统计量" value={res.kpssStat.toFixed(3)} color={res.kpssReject ? C.red : C.green} sub={`5% 临界 ${res.kpssCv["5%"]}`} />
-          <Stat label="KPSS 结论" value={res.kpssReject ? "拒绝平稳" : "不能拒绝"} color={res.kpssReject ? C.red : C.green} sub="H₀: 平稳" />
+          <Stat label={t("labs.econ.unitroot.stat.adfStat")} value={res.adfStat.toFixed(3)} color={res.adfReject ? C.green : C.red} sub={t("labs.econ.unitroot.stat.criticalAt5", { value: res.adfCv["5%"] })} />
+          <Stat label={t("labs.econ.unitroot.stat.adfConclusion")} value={res.adfReject ? t("labs.econ.unitroot.stat.rejectUnitRoot") : t("labs.econ.unitroot.stat.cannotReject")} color={res.adfReject ? C.green : C.red} sub={t("labs.econ.unitroot.stat.h0UnitRoot")} />
+          <Stat label={t("labs.econ.unitroot.stat.kpssStat")} value={res.kpssStat.toFixed(3)} color={res.kpssReject ? C.red : C.green} sub={t("labs.econ.unitroot.stat.criticalAt5", { value: res.kpssCv["5%"] })} />
+          <Stat label={t("labs.econ.unitroot.stat.kpssConclusion")} value={res.kpssReject ? t("labs.econ.unitroot.stat.rejectStationary") : t("labs.econ.unitroot.stat.cannotReject")} color={res.kpssReject ? C.red : C.green} sub={t("labs.econ.unitroot.stat.h0Stationary")} />
         </div>
       </div>
 
       <div className="rounded-lg border border-gold/25 bg-gold/[0.04] p-3">
-        <p className="text-xs font-mono text-gold">综合判断：<span className="text-foreground">{conclusion}</span></p>
+        <p className="text-xs font-mono text-gold">{t("labs.econ.unitroot.overallJudgment")}<span className="text-foreground">{conclusion}</span></p>
       </div>
 
       <div className="rounded-xl border border-border bg-secondary/20 p-4">
-        <h4 className="text-sm font-semibold text-foreground mb-2">模拟时间序列</h4>
+        <h4 className="text-sm font-semibold text-foreground mb-2">{t("labs.econ.unitroot.simulatedSeries")}</h4>
         <div className="h-[260px]">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={res.series}>
@@ -142,9 +144,9 @@ export const UnitRootTool = () => {
       </div>
 
       <div className="text-xs font-mono text-muted-foreground p-3 rounded-lg bg-secondary/40 border border-border leading-relaxed">
-        <p><span className="text-gold">ADF (Dickey-Fuller)：</span>H₀ = 存在单位根 (非平稳)；统计量越负越拒绝。检验 γ=0 于 Δyₜ = α + γyₜ₋₁ + Σδᵢ·Δyₜ₋ᵢ。</p>
-        <p><span className="text-gold">KPSS：</span>H₀ = 平稳；统计量越大越拒绝。两者互补——ADF 与 KPSS 结论一致时判断更稳健。</p>
-        <p><span className="text-gold">近单位根：</span>ρ=0.95 时两检验都可能失效，反映单位根检验的低功效问题。</p>
+        <p><span className="text-gold">{t("labs.econ.unitroot.notes.adfTitle")}</span>{t("labs.econ.unitroot.notes.adfBody")}</p>
+        <p><span className="text-gold">{t("labs.econ.unitroot.notes.kpssTitle")}</span>{t("labs.econ.unitroot.notes.kpssBody")}</p>
+        <p><span className="text-gold">{t("labs.econ.unitroot.notes.nearTitle")}</span>{t("labs.econ.unitroot.notes.nearBody")}</p>
       </div>
     </div>
   );

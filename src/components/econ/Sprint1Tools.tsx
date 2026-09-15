@@ -82,6 +82,7 @@ const Tip = ({ active, payload, label }: any) => {
    1) GARCH(1,1) / EGARCH(1,1) Volatility Modeling
    ════════════════════════════════════════════════════════════ */
 export const GARCHTool = () => {
+  const { t } = useTranslation();
   const [model, setModel] = useState<"garch" | "egarch">("garch");
   const [omega, setOmega] = useState(0.05);
   const [alpha, setAlpha] = useState(0.1);
@@ -91,13 +92,13 @@ export const GARCHTool = () => {
   const [seed, setSeed] = useState(42);
 
   const presets: Preset[] = [
-    { name: "教材参数", description: "ω=0.05, α=0.1, β=0.85 (典型股票)",
+    { name: t("labs.econ.garch.presets.textbook.name"), description: t("labs.econ.garch.presets.textbook.desc"),
       apply: () => { setModel("garch"); setOmega(0.05); setAlpha(0.1); setBeta(0.85); setN(500); } },
-    { name: "高持续性", description: "α+β≈0.99 接近 IGARCH",
+    { name: t("labs.econ.garch.presets.highPersistence.name"), description: t("labs.econ.garch.presets.highPersistence.desc"),
       apply: () => { setModel("garch"); setOmega(0.02); setAlpha(0.08); setBeta(0.91); setN(500); } },
-    { name: "杠杆效应", description: "EGARCH γ=−0.15 负冲击放大波动",
+    { name: t("labs.econ.garch.presets.leverage.name"), description: t("labs.econ.garch.presets.leverage.desc"),
       apply: () => { setModel("egarch"); setOmega(-0.1); setAlpha(0.15); setBeta(0.95); setGammaLev(-0.15); setN(500); } },
-    { name: "低持续性", description: "α=0.05, β=0.5 波动快速衰减",
+    { name: t("labs.econ.garch.presets.lowPersistence.name"), description: t("labs.econ.garch.presets.lowPersistence.desc"),
       apply: () => { setModel("garch"); setOmega(0.3); setAlpha(0.05); setBeta(0.5); setN(500); } },
   ];
 
@@ -190,12 +191,12 @@ export const GARCHTool = () => {
           <div className="text-muted-foreground leading-relaxed flex-1 min-w-[280px]">
             {model === "garch" ? (
               <>
-                条件方差递推：<InlineMath math={String.raw`\sigma_t^2 = \omega + \alpha\,r_{t-1}^2 + \beta\,\sigma_{t-1}^2`} />
+                {t("labs.econ.garch.condVarianceLabel")}<InlineMath math={String.raw`\sigma_t^2 = \omega + \alpha\,r_{t-1}^2 + \beta\,\sigma_{t-1}^2`} />
                 <span className="text-foreground/70 ml-1">(Symmetric volatility clustering)</span>
               </>
             ) : (
               <>
-                对数方差含杠杆：<InlineMath math={String.raw`\ln\sigma_t^2 = \omega + \beta\ln\sigma_{t-1}^2 + \alpha(|z_{t-1}|-E|z|) + \gamma z_{t-1}`} />
+                {t("labs.econ.garch.logVarianceLabel")}<InlineMath math={String.raw`\ln\sigma_t^2 = \omega + \beta\ln\sigma_{t-1}^2 + \alpha(|z_{t-1}|-E|z|) + \gamma z_{t-1}`} />
                 <span className="text-foreground/70 ml-1">(Asymmetric leverage effect, γ {"<"} 0)</span>
               </>
             )}
@@ -206,7 +207,7 @@ export const GARCHTool = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
         {/* Controls */}
         <div className="space-y-4">
-          <p className="text-[10px] font-mono text-muted-foreground uppercase tracking-wider">参数设置</p>
+          <p className="text-[10px] font-mono text-muted-foreground uppercase tracking-wider">{t("labs.econ.garch.paramsTitle")}</p>
           <PresetButtons presets={presets} />
 
           <div className="flex gap-2 mb-2">
@@ -220,31 +221,31 @@ export const GARCHTool = () => {
             ))}
           </div>
 
-          <Slider label="ω (常数)" sub={model === "egarch" ? "(对数尺度)" : ""}
+          <Slider label={t("labs.econ.garch.omegaLabel")} sub={model === "egarch" ? t("labs.econ.garch.logScale") : ""}
             value={omega} min={model === "egarch" ? -0.5 : 0.001}
             max={model === "egarch" ? 0.5 : 1} step={0.005} onChange={setOmega} />
-          <Slider label="α (ARCH)" sub="新息冲击系数" value={alpha} min={0} max={0.5} step={0.005} onChange={setAlpha} />
-          <Slider label="β (GARCH)" sub="持续性" value={beta} min={0} max={0.99} step={0.005} onChange={setBeta} />
+          <Slider label={t("labs.econ.garch.alphaLabel")} sub={t("labs.econ.garch.alphaSub")} value={alpha} min={0} max={0.5} step={0.005} onChange={setAlpha} />
+          <Slider label={t("labs.econ.garch.betaLabel")} sub={t("labs.econ.garch.betaSub")} value={beta} min={0} max={0.99} step={0.005} onChange={setBeta} />
           {model === "egarch" && (
-            <Slider label="γ (杠杆)" sub="负值=负冲击放大波动" value={gammaLev} min={-0.5} max={0.5} step={0.01} onChange={setGammaLev} />
+            <Slider label={t("labs.econ.garch.gammaLabel")} sub={t("labs.econ.garch.gammaSub")} value={gammaLev} min={-0.5} max={0.5} step={0.01} onChange={setGammaLev} />
           )}
-          <Slider label="样本量 n" value={n} min={200} max={2000} step={50} onChange={setN} />
-          <Slider label="随机种子" value={seed} min={1} max={999} step={1} onChange={setSeed} />
+          <Slider label={t("labs.econ.garch.nLabel")} value={n} min={200} max={2000} step={50} onChange={setN} />
+          <Slider label={t("labs.econ.garch.seedLabel")} value={seed} min={1} max={999} step={1} onChange={setSeed} />
         </div>
 
         {/* Stats */}
         <div className="lg:col-span-2 space-y-4">
-          <p className="text-[10px] font-mono text-muted-foreground uppercase tracking-wider">模型诊断</p>
+          <p className="text-[10px] font-mono text-muted-foreground uppercase tracking-wider">{t("labs.econ.garch.diagnosticsTitle")}</p>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
             <div className="rounded-lg border border-border bg-card p-3">
-              <div className="text-[10px] font-mono text-muted-foreground uppercase mb-1">持续性 (α+β)</div>
+              <div className="text-[10px] font-mono text-muted-foreground uppercase mb-1">{t("labs.econ.garch.persistenceLabel")}</div>
               <div className="text-xl font-mono text-gold">{sim.persistence.toFixed(4)}</div>
               <div className="text-[10px] text-muted-foreground mt-1">
-                {sim.persistence >= 1 ? "⚠ 非平稳 (IGARCH)" : sim.persistence > 0.95 ? "高持续" : "正常"}
+                {sim.persistence >= 1 ? t("labs.econ.garch.nonstationary") : sim.persistence > 0.95 ? t("labs.econ.garch.highPersistence") : t("labs.econ.garch.normal")}
               </div>
             </div>
             <div className="rounded-lg border border-border bg-card p-3">
-              <div className="text-[10px] font-mono text-muted-foreground uppercase mb-1">无条件方差</div>
+              <div className="text-[10px] font-mono text-muted-foreground uppercase mb-1">{t("labs.econ.garch.uncondVarLabel")}</div>
               <div className="text-xl font-mono text-foreground">
                 {isFinite(sim.uncondVar) ? sim.uncondVar.toFixed(4) : "∞"}
               </div>
@@ -253,17 +254,17 @@ export const GARCHTool = () => {
               </div>
             </div>
             <div className="rounded-lg border border-border bg-card p-3">
-              <div className="text-[10px] font-mono text-muted-foreground uppercase mb-1">半衰期 (天)</div>
+              <div className="text-[10px] font-mono text-muted-foreground uppercase mb-1">{t("labs.econ.garch.halfLifeLabel")}</div>
               <div className="text-xl font-mono text-foreground">
                 {sim.persistence < 1 ? (Math.log(0.5) / Math.log(sim.persistence)).toFixed(1) : "∞"}
               </div>
-              <div className="text-[10px] text-muted-foreground mt-1">冲击衰减一半所需时间</div>
+              <div className="text-[10px] text-muted-foreground mt-1">{t("labs.econ.garch.halfLifeNote")}</div>
             </div>
           </div>
 
           {/* Returns + sigma band */}
           <div>
-            <p className="text-[10px] font-mono text-muted-foreground uppercase mb-2">收益率序列与 ±2σ 条件波动带</p>
+            <p className="text-[10px] font-mono text-muted-foreground uppercase mb-2">{t("labs.econ.garch.returnsChartTitle")}</p>
             <div className="h-[220px]">
               <ResponsiveContainer width="100%" height="100%">
                 <ComposedChart data={sim.data}>
@@ -286,7 +287,7 @@ export const GARCHTool = () => {
       {/* ACF chart */}
       <div className="rounded-lg border border-border bg-card p-4">
         <p className="text-[10px] font-mono text-muted-foreground uppercase mb-2">
-          自相关函数 ACF — 验证波动率聚类 (|rₜ| 应显著正相关，rₜ 应接近 0)
+          {t("labs.econ.garch.acfChartTitle")}
         </p>
         <div className="h-[220px]">
           <ResponsiveContainer width="100%" height="100%">
@@ -304,7 +305,7 @@ export const GARCHTool = () => {
           </ResponsiveContainer>
         </div>
         <p className="text-[10px] font-mono text-muted-foreground mt-2 text-center">
-          金色柱 = |rₜ| 的 ACF (波动率聚类)；青色线 = rₜ 的 ACF (应在红色 95% 置信带内 ≈ 白噪声)
+          {t("labs.econ.garch.acfChartNote")}
         </p>
       </div>
     </>
@@ -315,6 +316,7 @@ export const GARCHTool = () => {
    2) Cointegration + VECM (Engle-Granger 2-step)
    ════════════════════════════════════════════════════════════ */
 export const CointTool = () => {
+  const { t } = useTranslation();
   const [n, setN] = useState(200);
   const [betaTrue, setBetaTrue] = useState(1.5);
   const [alphaTrue, setAlphaTrue] = useState(2);
@@ -324,13 +326,13 @@ export const CointTool = () => {
   const [spurious, setSpurious] = useState(false);
 
   const presets: Preset[] = [
-    { name: "强协整", description: "调整速度 −0.5, 误差快速回归",
+    { name: t("labs.econ.coint.presets.strong.name"), description: t("labs.econ.coint.presets.strong.desc"),
       apply: () => { setSpurious(false); setBetaTrue(1.5); setAlphaTrue(2); setAdjustSpeed(-0.5); setSigmaEps(0.5); setN(200); } },
-    { name: "弱协整", description: "调整速度 −0.1, 缓慢回归",
+    { name: t("labs.econ.coint.presets.weak.name"), description: t("labs.econ.coint.presets.weak.desc"),
       apply: () => { setSpurious(false); setBetaTrue(1.2); setAlphaTrue(1); setAdjustSpeed(-0.1); setSigmaEps(0.5); setN(200); } },
-    { name: "伪回归", description: "两个独立 I(1) 序列, 无协整",
+    { name: t("labs.econ.coint.presets.spurious.name"), description: t("labs.econ.coint.presets.spurious.desc"),
       apply: () => { setSpurious(true); setSigmaEps(1); setN(200); } },
-    { name: "长样本", description: "n=500 提高检验功效",
+    { name: t("labs.econ.coint.presets.longSample.name"), description: t("labs.econ.coint.presets.longSample.desc"),
       apply: () => { setSpurious(false); setBetaTrue(1.5); setAdjustSpeed(-0.3); setN(500); } },
   ];
 
@@ -455,8 +457,8 @@ export const CointTool = () => {
         <div className="flex flex-wrap gap-x-4 gap-y-2 items-baseline">
           <span className="font-mono text-gold uppercase tracking-wider text-[10px]">Engle-Granger (1987)</span>
           <div className="text-muted-foreground leading-relaxed flex-1 min-w-[300px]">
-            两步法：① OLS 估计长期均衡 <InlineMath math="y_t = \alpha + \beta x_t + u_t" />；
-            ② 对残差 ADF 检验单位根；③ 若拒绝 → 估计 VECM
+            {t("labs.econ.coint.methodDesc")} <InlineMath math="y_t = \alpha + \beta x_t + u_t" />；
+            {t("labs.econ.coint.methodDesc2")}
             <InlineMath math={String.raw`\;\Delta y_t = \alpha_{\mathrm{ec}}\, u_{t-1} + \gamma\,\Delta x_t + \varepsilon_t`} />
           </div>
         </div>
@@ -464,28 +466,28 @@ export const CointTool = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
         <div className="space-y-4">
-          <p className="text-[10px] font-mono text-muted-foreground uppercase tracking-wider">DGP 参数</p>
+          <p className="text-[10px] font-mono text-muted-foreground uppercase tracking-wider">{t("labs.econ.coint.dgpParamsTitle")}</p>
           <PresetButtons presets={presets} />
           <div className="flex items-center gap-2 text-xs">
             <input type="checkbox" id="spur" checked={spurious} onChange={e => setSpurious(e.target.checked)} className="accent-gold" />
-            <label htmlFor="spur" className="text-secondary-foreground">伪回归模式 (两独立 I(1))</label>
+            <label htmlFor="spur" className="text-secondary-foreground">{t("labs.econ.coint.spuriousModeLabel")}</label>
           </div>
           {!spurious && (
             <>
-              <Slider label="α (截距)" value={alphaTrue} min={-5} max={5} step={0.1} onChange={setAlphaTrue} />
-              <Slider label="β (协整向量)" value={betaTrue} min={-3} max={3} step={0.05} onChange={setBetaTrue} />
-              <Slider label="调整速度" sub="VECM 中 αₑc, 越负越快" value={adjustSpeed} min={-0.9} max={-0.02} step={0.02} onChange={setAdjustSpeed} />
-              <Slider label="σ_ε (新息标准差)" value={sigmaEps} min={0.1} max={2} step={0.05} onChange={setSigmaEps} />
+              <Slider label={t("labs.econ.coint.alphaLabel")} value={alphaTrue} min={-5} max={5} step={0.1} onChange={setAlphaTrue} />
+              <Slider label={t("labs.econ.coint.betaLabel")} value={betaTrue} min={-3} max={3} step={0.05} onChange={setBetaTrue} />
+              <Slider label={t("labs.econ.coint.adjustSpeedLabel")} sub={t("labs.econ.coint.adjustSpeedSub")} value={adjustSpeed} min={-0.9} max={-0.02} step={0.02} onChange={setAdjustSpeed} />
+              <Slider label={t("labs.econ.coint.sigmaEpsLabel")} value={sigmaEps} min={0.1} max={2} step={0.05} onChange={setSigmaEps} />
             </>
           )}
-          <Slider label="样本量 n" value={n} min={50} max={500} step={10} onChange={setN} />
-          <Slider label="随机种子" value={seed} min={1} max={999} step={1} onChange={setSeed} />
+          <Slider label={t("labs.econ.coint.nLabel")} value={n} min={50} max={500} step={10} onChange={setN} />
+          <Slider label={t("labs.econ.coint.seedLabel")} value={seed} min={1} max={999} step={1} onChange={setSeed} />
         </div>
 
         <div className="lg:col-span-2 space-y-4">
           {/* Two series chart */}
           <div>
-            <p className="text-[10px] font-mono text-muted-foreground uppercase mb-2">两序列原始路径 (I(1) 非平稳)</p>
+            <p className="text-[10px] font-mono text-muted-foreground uppercase mb-2">{t("labs.econ.coint.pathChartTitle")}</p>
             <div className="h-[180px]">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={sim.seriesData}>
@@ -504,7 +506,7 @@ export const CointTool = () => {
           {/* Residual chart */}
           <div>
             <p className="text-[10px] font-mono text-muted-foreground uppercase mb-2">
-              残差 uₜ = yₜ − α̂ − β̂ xₜ {sim.cointReject ? "(平稳 ✓ 协整)" : "(非平稳 ✗ 伪回归)"}
+              {t("labs.econ.coint.residSeriesTitle")} {sim.cointReject ? t("labs.econ.coint.residStationary") : t("labs.econ.coint.residNonstationary")}
             </p>
             <div className="h-[160px]">
               <ResponsiveContainer width="100%" height="100%">
@@ -525,61 +527,61 @@ export const CointTool = () => {
       {/* Test results */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="rounded-lg border border-border bg-card p-4">
-          <p className="text-[10px] font-mono text-gold uppercase tracking-wider mb-3">协整检验 (Engle-Granger ADF)</p>
+          <p className="text-[10px] font-mono text-gold uppercase tracking-wider mb-3">{t("labs.econ.coint.testTitle")}</p>
           <div className="space-y-2 text-xs font-mono">
             <div className="flex justify-between">
-              <span className="text-muted-foreground">长期关系 β̂</span>
+              <span className="text-muted-foreground">{t("labs.econ.coint.longRunBeta")}</span>
               <span className="text-foreground tabular-nums">{sim.bHat.toFixed(4)}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-muted-foreground">截距 α̂</span>
+              <span className="text-muted-foreground">{t("labs.econ.coint.interceptAlpha")}</span>
               <span className="text-foreground tabular-nums">{sim.aHat.toFixed(4)}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-muted-foreground">ADF 统计量 t</span>
+              <span className="text-muted-foreground">{t("labs.econ.coint.adfStatLabel")}</span>
               <span className="text-foreground tabular-nums">{sim.tStat.toFixed(3)}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-muted-foreground">5% 临界值</span>
+              <span className="text-muted-foreground">{t("labs.econ.coint.crit5Label")}</span>
               <span className="text-foreground/70 tabular-nums">{sim.crit5.toFixed(2)}</span>
             </div>
             <div className={`mt-2 px-2 py-1.5 rounded text-center font-mono ${
               sim.cointReject ? "bg-gold/15 text-gold" : "bg-destructive/10 text-destructive"
             }`}>
-              {sim.cointReject ? "✓ 拒绝 H₀: 序列协整" : "✗ 不拒绝 H₀: 无协整"}
+              {sim.cointReject ? t("labs.econ.coint.rejectH0") : t("labs.econ.coint.notRejectH0")}
             </div>
           </div>
         </div>
         <div className="rounded-lg border border-border bg-card p-4">
           <p className="text-[10px] font-mono uppercase tracking-wider mb-3" style={{ color: CHART_TEAL }}>
-            VECM 误差修正模型
+            {t("labs.econ.coint.vecmTitle")}
           </p>
           <div className="space-y-2 text-xs font-mono">
             <div className="text-[10px] text-muted-foreground mb-2">
               <InlineMath math={String.raw`\Delta y_t = c + \alpha_{\mathrm{ec}}\,u_{t-1} + \gamma\,\Delta x_t + \varepsilon_t`} />
             </div>
             <div className="flex justify-between">
-              <span className="text-muted-foreground">调整速度 α̂_ec</span>
+              <span className="text-muted-foreground">{t("labs.econ.coint.vecmAdjustSpeed")}</span>
               <span className="text-foreground tabular-nums">{sim.alphaVECM.toFixed(4)}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-muted-foreground">SE(α̂_ec)</span>
+              <span className="text-muted-foreground">{t("labs.econ.coint.vecmSe")}</span>
               <span className="text-foreground/70 tabular-nums">{sim.seAlpha.toFixed(4)}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-muted-foreground">t 统计量</span>
+              <span className="text-muted-foreground">{t("labs.econ.coint.vecmTStat")}</span>
               <span className="text-foreground tabular-nums">{sim.tAlpha.toFixed(2)}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-muted-foreground">短期效应 γ̂</span>
+              <span className="text-muted-foreground">{t("labs.econ.coint.vecmShortRun")}</span>
               <span className="text-foreground tabular-nums">{sim.gammaVECM.toFixed(4)}</span>
             </div>
             <div className={`mt-2 px-2 py-1.5 rounded text-center font-mono ${
               sim.alphaVECM < 0 && Math.abs(sim.tAlpha) > 1.96 ? "bg-gold/15 text-gold" : "bg-secondary text-muted-foreground"
             }`}>
               {sim.alphaVECM < 0 && Math.abs(sim.tAlpha) > 1.96
-                ? "✓ 显著负调整，向均衡回归"
-                : "调整效应不显著"}
+                ? t("labs.econ.coint.vecmSignificant")
+                : t("labs.econ.coint.vecmNotSignificant")}
             </div>
           </div>
         </div>
@@ -592,6 +594,7 @@ export const CointTool = () => {
    3) Kalman Filter — Dynamic β + HP Filter
    ════════════════════════════════════════════════════════════ */
 export const KalmanTool = () => {
+  const { t } = useTranslation();
   const [mode, setMode] = useState<"beta" | "hp">("beta");
   // Dynamic β params
   const [n, setN] = useState(250);

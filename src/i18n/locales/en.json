@@ -1804,6 +1804,10 @@
         "periodicRebalance": "Periodic Rebalancing",
         "footnote": "Source {{source}} · {{n}} assets · Weights re-estimated on a {{win}}-day rolling window, {{rebal}}, including {{cost}}bps per-side cost. For educational purposes only; past performance does not guarantee future results."
       }
+    },
+    "econ": {
+      "subtitle": "Simulate the data-generating process live and watch estimator bias and variance across scenarios.",
+      "historySummary": "Tool: {{tool}}"
     }
   }
 }

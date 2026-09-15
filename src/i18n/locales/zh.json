@@ -1806,6 +1806,10 @@
         "periodicRebalance": "周期再平衡",
         "footnote": "数据源 {{source}} · {{n}} 资产 · 权重按 {{win}} 日滚动重估,{{rebal}},含 {{cost}}bps 单边成本。教学用途,历史表现不代表未来收益。"
       }
+    },
+    "econ": {
+      "subtitle": "实时模拟数据生成过程 (DGP)，可视化估计量在不同场景下的偏差与方差",
+      "historySummary": "工具: {{tool}}"
     }
   }
 }

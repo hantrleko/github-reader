@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, Scatter, ComposedChart, ReferenceLine } from "recharts";
 import PresetButtons from "../PresetButtons";
+import { useTranslation } from "react-i18next";
 
 const CHART_GOLD = "hsl(43, 80%, 55%)";
 const CHART_TEAL = "hsl(180, 50%, 40%)";
@@ -77,6 +78,7 @@ function quantileRegression(xs: number[], ys: number[], tau: number, iters = 60)
 type DGP = "homo" | "hetero" | "outlier" | "skew";
 
 export const QuantileRegTool = () => {
+  const { t } = useTranslation();
   const [n, setN] = useState(200);
   const [trueB0, setTrueB0] = useState(1.0);
   const [trueB1, setTrueB1] = useState(2.0);
@@ -131,42 +133,42 @@ export const QuantileRegTool = () => {
   return (
     <div className="space-y-6">
       <PresetButtons presets={[
-        { name: "异方差 (经典案例)", description: "σ(x) ∝ |x|", apply: () => { setDgp("hetero"); setN(200); } },
-        { name: "同方差", description: "OLS = QR (退化)", apply: () => { setDgp("homo"); } },
-        { name: "异常值", description: "8% 厚尾,τ=0.5 鲁棒", apply: () => { setDgp("outlier"); } },
-        { name: "右偏分布", description: "log-normal-like", apply: () => { setDgp("skew"); } },
+        { name: t("labs.econ.quantilereg.presets.hetero.name"), description: t("labs.econ.quantilereg.presets.hetero.desc"), apply: () => { setDgp("hetero"); setN(200); } },
+        { name: t("labs.econ.quantilereg.presets.homo.name"), description: t("labs.econ.quantilereg.presets.homo.desc"), apply: () => { setDgp("homo"); } },
+        { name: t("labs.econ.quantilereg.presets.outlier.name"), description: t("labs.econ.quantilereg.presets.outlier.desc"), apply: () => { setDgp("outlier"); } },
+        { name: t("labs.econ.quantilereg.presets.skew.name"), description: t("labs.econ.quantilereg.presets.skew.desc"), apply: () => { setDgp("skew"); } },
       ]} />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="space-y-3">
           <div className="grid grid-cols-2 gap-3">
-            <Slider label="样本量 n" value={n} min={50} max={600} step={50} onChange={setN} />
-            <Slider label="真实 β₀" value={trueB0} min={-2} max={3} step={0.1} onChange={setTrueB0} />
-            <Slider label="真实 β₁" value={trueB1} min={-1} max={4} step={0.1} onChange={setTrueB1} />
-            <Slider label="随机种子" value={seed} min={1} max={999} step={1} onChange={setSeed} />
+            <Slider label={t("labs.econ.quantilereg.nLabel")} value={n} min={50} max={600} step={50} onChange={setN} />
+            <Slider label={t("labs.econ.quantilereg.trueB0Label")} value={trueB0} min={-2} max={3} step={0.1} onChange={setTrueB0} />
+            <Slider label={t("labs.econ.quantilereg.trueB1Label")} value={trueB1} min={-1} max={4} step={0.1} onChange={setTrueB1} />
+            <Slider label={t("labs.econ.quantilereg.seedLabel")} value={seed} min={1} max={999} step={1} onChange={setSeed} />
           </div>
           <div className="flex flex-wrap gap-2">
-            <span className="text-[10px] font-mono text-muted-foreground self-center uppercase tracking-wider">DGP:</span>
+            <span className="text-[10px] font-mono text-muted-foreground self-center uppercase tracking-wider">{t("labs.econ.quantilereg.dgpLabel")}</span>
             {(["homo", "hetero", "outlier", "skew"] as const).map(s => (
               <button key={s} onClick={() => setDgp(s)}
                 className={`px-3 py-1.5 text-xs font-mono rounded-md border transition-all ${dgp === s ? "bg-gold/20 border-gold text-gold" : "bg-secondary/50 border-border text-muted-foreground hover:text-foreground"}`}>
-                {s === "homo" ? "同方差" : s === "hetero" ? "异方差" : s === "outlier" ? "异常值" : "右偏"}
+                {s === "homo" ? t("labs.econ.quantilereg.dgpNames.homo") : s === "hetero" ? t("labs.econ.quantilereg.dgpNames.hetero") : s === "outlier" ? t("labs.econ.quantilereg.dgpNames.outlier") : t("labs.econ.quantilereg.dgpNames.skew")}
               </button>
             ))}
           </div>
           <div className="text-xs font-mono text-muted-foreground p-3 rounded-lg bg-secondary/40 border border-border leading-relaxed">
-            <p><span className="text-gold">分位数回归 (Koenker-Bassett 1978)：</span>min Σ ρ<sub>τ</sub>(y − Xβ)，其中 ρ<sub>τ</sub>(u) = u·(τ − 1{`{u<0}`})。</p>
-            <p>OLS 拟合 E[Y|X]，QR 拟合 Q<sub>τ</sub>(Y|X)。<u>异方差</u>下 β<sub>τ</sub> 随 τ 改变 — 这是 OLS 看不见的信息。</p>
-            <p>本工具采用 Schlossmacher (1973) IRLS 迭代加权最小二乘求解（教学用，与单纯形等价）。</p>
+            <p><span className="text-gold">{t("labs.econ.quantilereg.notes.qrTitle")}</span>{t("labs.econ.quantilereg.notes.qrBody")}</p>
+            <p>{t("labs.econ.quantilereg.notes.olsVsQr")}</p>
+            <p>{t("labs.econ.quantilereg.notes.irls")}</p>
           </div>
         </div>
 
         <div className="space-y-2">
-          <p className="text-xs font-mono text-gold uppercase tracking-wider mb-1">分位数回归系数</p>
+          <p className="text-xs font-mono text-gold uppercase tracking-wider mb-1">{t("labs.econ.quantilereg.coefTableTitle")}</p>
           <div className="rounded-lg border border-border overflow-hidden">
             <table className="w-full text-xs font-mono">
               <thead className="bg-secondary/60 text-muted-foreground">
-                <tr><th className="py-1.5 px-2 text-left">τ</th><th className="py-1.5 px-2 text-right">β₀</th><th className="py-1.5 px-2 text-right">β₁</th><th className="py-1.5 px-2 text-right">vs OLS β₁</th></tr>
+                <tr><th className="py-1.5 px-2 text-left">τ</th><th className="py-1.5 px-2 text-right">β₀</th><th className="py-1.5 px-2 text-right">β₁</th><th className="py-1.5 px-2 text-right">{t("labs.econ.quantilereg.vsOlsB1")}</th></tr>
               </thead>
               <tbody>
                 <tr className="border-t border-border bg-secondary/20">
@@ -191,7 +193,7 @@ export const QuantileRegTool = () => {
 
       {/* Scatter + quantile lines */}
       <div className="rounded-xl border border-border bg-secondary/20 p-4">
-        <h4 className="text-sm font-semibold text-foreground mb-2">分位数拟合 — τ ∈ {`{0.10, 0.25, 0.50, 0.75, 0.90}`}</h4>
+        <h4 className="text-sm font-semibold text-foreground mb-2">{t("labs.econ.quantilereg.fitChartTitle")} τ ∈ {`{0.10, 0.25, 0.50, 0.75, 0.90}`}</h4>
         <div className="h-[340px]">
           <ResponsiveContainer width="100%" height="100%">
             <ComposedChart>
@@ -200,11 +202,11 @@ export const QuantileRegTool = () => {
               <YAxis stroke={CHART_TEXT} tick={{ fontSize: 10 }} />
               <Tooltip contentStyle={{ background: "hsl(var(--card))", border: `1px solid ${CHART_GRID}`, fontSize: 11 }} />
               <Legend wrapperStyle={{ fontSize: 11 }} />
-              <Scatter data={data.pts} dataKey="y" fill={CHART_TEXT} fillOpacity={0.4} name="样本" />
-              <Line data={data.lines} dataKey="ols" stroke={CHART_RED} strokeWidth={2.5} dot={false} name="OLS (条件均值)" />
+              <Scatter data={data.pts} dataKey="y" fill={CHART_TEXT} fillOpacity={0.4} name={t("labs.econ.quantilereg.sampleLegend")} />
+              <Line data={data.lines} dataKey="ols" stroke={CHART_RED} strokeWidth={2.5} dot={false} name={t("labs.econ.quantilereg.olsLegend")} />
               <Line data={data.lines} dataKey="q10" stroke={CHART_BLUE} strokeWidth={1.5} dot={false} name="τ=0.10" strokeDasharray="3 3" />
               <Line data={data.lines} dataKey="q25" stroke={CHART_BLUE} strokeWidth={1.5} dot={false} name="τ=0.25" strokeDasharray="5 3" />
-              <Line data={data.lines} dataKey="q50" stroke={CHART_GOLD} strokeWidth={2.5} dot={false} name="τ=0.50 (中位数)" />
+              <Line data={data.lines} dataKey="q50" stroke={CHART_GOLD} strokeWidth={2.5} dot={false} name={t("labs.econ.quantilereg.medianLegend")} />
               <Line data={data.lines} dataKey="q75" stroke={CHART_TEAL} strokeWidth={1.5} dot={false} name="τ=0.75" strokeDasharray="5 3" />
               <Line data={data.lines} dataKey="q90" stroke={CHART_TEAL} strokeWidth={1.5} dot={false} name="τ=0.90" strokeDasharray="3 3" />
             </ComposedChart>
@@ -214,7 +216,7 @@ export const QuantileRegTool = () => {
 
       {/* Coefficient path */}
       <div className="rounded-xl border border-border bg-secondary/20 p-4">
-        <h4 className="text-sm font-semibold text-foreground mb-2">斜率 β₁(τ) 曲线 — 异方差检验</h4>
+        <h4 className="text-sm font-semibold text-foreground mb-2">{t("labs.econ.quantilereg.slopeChartTitle")}</h4>
         <div className="h-[240px]">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={data.path}>
@@ -223,14 +225,14 @@ export const QuantileRegTool = () => {
               <YAxis stroke={CHART_TEXT} tick={{ fontSize: 10 }} />
               <Tooltip contentStyle={{ background: "hsl(var(--card))", border: `1px solid ${CHART_GRID}`, fontSize: 11 }} />
               <Legend wrapperStyle={{ fontSize: 11 }} />
-              <Line type="monotone" dataKey="b1" name="β₁(τ) 分位斜率" stroke={CHART_GOLD} strokeWidth={2.5} dot={{ r: 3 }} />
-              <Line type="monotone" dataKey="ols" name="OLS β₁ (常数)" stroke={CHART_RED} strokeWidth={1.8} strokeDasharray="5 3" dot={false} />
-              <ReferenceLine y={trueB1} stroke={CHART_TEAL} strokeDasharray="2 2" label={{ value: `真值 ${trueB1.toFixed(2)}`, fill: CHART_TEAL, fontSize: 10 }} />
+              <Line type="monotone" dataKey="b1" name={t("labs.econ.quantilereg.b1Legend")} stroke={CHART_GOLD} strokeWidth={2.5} dot={{ r: 3 }} />
+              <Line type="monotone" dataKey="ols" name={t("labs.econ.quantilereg.olsB1Legend")} stroke={CHART_RED} strokeWidth={1.8} strokeDasharray="5 3" dot={false} />
+              <ReferenceLine y={trueB1} stroke={CHART_TEAL} strokeDasharray="2 2" label={{ value: `${t("labs.econ.quantilereg.trueValue")} ${trueB1.toFixed(2)}`, fill: CHART_TEAL, fontSize: 10 }} />
             </LineChart>
           </ResponsiveContainer>
         </div>
         <p className="text-[10px] font-mono text-muted-foreground mt-2 leading-relaxed">
-          若 β₁(τ) 曲线随 τ 变化 ⇒ 存在<u>异方差</u>或位置-尺度依赖；若与 OLS 水平线吻合 ⇒ 同方差，OLS 与 QR 等价。
+          {t("labs.econ.quantilereg.slopeChartNote")}
         </p>
       </div>
     </div>
