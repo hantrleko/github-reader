@@ -9,6 +9,7 @@ import { InlineMath } from "react-katex";
 import "katex/dist/katex.min.css";
 import PresetButtons, { Preset } from "./PresetButtons";
 import { ShareExportToolbar, useSharedState } from "@/lib/calculatorTools";
+import { useToolTab } from "@/lib/useToolTab";
 import { HistoryDrawer } from "@/components/common/HistoryDrawer";
 import { GARCHTool, CointTool, KalmanTool } from "./econ/Sprint1Tools";
 import { MIDASTool } from "./econ/MIDASTool";
