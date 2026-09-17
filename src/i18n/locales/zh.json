@@ -1809,7 +1809,337 @@
     },
     "econ": {
       "subtitle": "实时模拟数据生成过程 (DGP)，可视化估计量在不同场景下的偏差与方差",
-      "historySummary": "工具: {{tool}}"
+      "historySummary": "工具: {{tool}}",
+      "quantilereg": {
+        "presets": {
+          "hetero": {
+            "name": "异方差 (经典案例)",
+            "desc": "σ(x) ∝ |x|"
+          },
+          "homo": {
+            "name": "同方差",
+            "desc": "OLS = QR (退化)"
+          },
+          "outlier": {
+            "name": "异常值",
+            "desc": "8% 厚尾,τ=0.5 鲁棒"
+          },
+          "skew": {
+            "name": "右偏分布",
+            "desc": "log-normal-like"
+          }
+        },
+        "nLabel": "样本量 n",
+        "trueB0Label": "真实 β₀",
+        "trueB1Label": "真实 β₁",
+        "seedLabel": "随机种子",
+        "dgpLabel": "DGP:",
+        "dgpNames": {
+          "homo": "同方差",
+          "hetero": "异方差",
+          "outlier": "异常值",
+          "skew": "右偏"
+        },
+        "notes": {
+          "qrTitle": "分位数回归 (Koenker-Bassett 1978)：",
+          "qrBody": "min Σ ρ<sub>τ</sub>(y − Xβ)，其中 ρ<sub>τ</sub>(u) = u·(τ − 1{u<0})。",
+          "olsVsQr": "OLS 拟合 E[Y|X]，QR 拟合 Q<sub>τ</sub>(Y|X)。<u>异方差</u>下 β<sub>τ</sub> 随 τ 改变 — 这是 OLS 看不见的信息。",
+          "irls": "本工具采用 Schlossmacher (1973) IRLS 迭代加权最小二乘求解（教学用，与单纯形等价）。"
+        },
+        "coefTableTitle": "分位数回归系数",
+        "vsOlsB1": "vs OLS β₁",
+        "fitChartTitle": "分位数拟合 —",
+        "sampleLegend": "样本",
+        "olsLegend": "OLS (条件均值)",
+        "medianLegend": "τ=0.50 (中位数)",
+        "slopeChartTitle": "斜率 β₁(τ) 曲线 — 异方差检验",
+        "b1Legend": "β₁(τ) 分位斜率",
+        "olsB1Legend": "OLS β₁ (常数)",
+        "trueValue": "真值",
+        "slopeChartNote": "若 β₁(τ) 曲线随 τ 变化 ⇒ 存在<u>异方差</u>或位置-尺度依赖；若与 OLS 水平线吻合 ⇒ 同方差，OLS 与 QR 等价。"
+      },
+      "logitprobit": {
+        "presets": {
+          "stdLogit": {
+            "name": "标准 Logit",
+            "desc": "中等样本, 强 x1 效应"
+          },
+          "probitDgp": {
+            "name": "Probit DGP",
+            "desc": "数据由 Probit 生成"
+          },
+          "rareEvent": {
+            "name": "稀有事件",
+            "desc": "截距很负, y=1 比例低"
+          },
+          "smallSample": {
+            "name": "小样本",
+            "desc": "n=80, SE 大"
+          }
+        },
+        "dgpLabel": "DGP",
+        "logisticLabel": "Logistic",
+        "probitLabel": "Probit (Φ)",
+        "nLabel": "样本量 n",
+        "b0Label": "截距 β₀",
+        "b1Label": "x₁ 系数 β₁",
+        "continuousVar": "连续变量",
+        "b2Label": "x₂ 系数 β₂",
+        "binaryVar": "二元变量",
+        "seedLabel": "随机种子",
+        "y1Share": "y=1 比例",
+        "logitPseudoR2": "Logit Pseudo-R²",
+        "probitPseudoR2": "Probit Pseudo-R²",
+        "logitAccuracy": "Logit 准确率",
+        "threshold05": "0.5 阈值",
+        "probitAccuracy": "Probit 准确率",
+        "coefTableTitle": "系数估计 (β̂ ± SE)",
+        "paramCol": "参数",
+        "trueValueCol": "真值",
+        "beta0Row": "β₀ (截距)",
+        "beta1Row": "β₁ (x₁)",
+        "beta2Row": "β₂ (x₂)",
+        "coefNote": "注:Logit 与 Probit 系数不可直接比较 (尺度不同),要看下方边际效应。Logit β̂ ≈ 1.6 × Probit β̂ 是经验法则。",
+        "marginalEffectsTitle": "边际效应 ∂P(y=1)/∂x — AME 与 MEM",
+        "variableCol": "变量",
+        "x1Row": "x₁ (连续)",
+        "x2Row": "x₂ (二元)",
+        "marginalEffectsNote": "AME = (1/n)Σᵢ f(xᵢ'β)·βₖ;MEM = f(x̄'β)·βₖ。LPM 系数本身就是边际效应,通常落在 AME 附近 (常被作为快速近似)。",
+        "predictedProbTitle": "预测概率曲线 (固定 x₂=0)",
+        "truthLegend": "真实 P(y=1)",
+        "logitPredLegend": "Logit 预测",
+        "probitPredLegend": "Probit 预测",
+        "predictedProbNote": "LPM 在两端常溢出 [0,1] 区间(此处已截断显示);Logit/Probit 形状几乎重叠,体现两者拟合差异通常很小。",
+        "keyTakeawaysTitle": "教学要点",
+        "takeaways": {
+          "linkFnTitle": "链接函数:",
+          "linkFnBody": "Logit 用 logistic CDF Λ(z) = 1/(1+e⁻ᶻ),Probit 用标准正态 CDF Φ(z)。两者尾部行为不同 (Logit 尾部更厚)。",
+          "whyNotOlsTitle": "为什么不用 OLS (LPM):",
+          "whyNotOlsBody": "异方差;预测概率可能 <0 或 >1;边际效应被假设为常数,与现实矛盾。",
+          "marginalTitle": "边际效应才是经济量:",
+          "marginalBody": "直接看 β̂ 没有量纲意义,要看 AME 或 MEM,才能回答 \"x 增加 1 单位对概率的影响约几个百分点\"。",
+          "mleTitle": "最大似然估计:",
+          "mleBody": "此工具用 Newton-Raphson (IRLS) 迭代求解 ∂L/∂β = 0;SE 来自 Fisher 信息矩阵 I(β̂)⁻¹ 的对角线。",
+          "pseudoR2Title": "Pseudo-R² (McFadden):",
+          "pseudoR2Body": "1 − ll(完整) / ll(只含截距);0.2-0.4 在二元选择已属强拟合。"
+        }
+      },
+      "v23": {
+        "dlm": {
+          "chartTitle": "观测 y_t · 平滑拟合 · {{horizon}} 期前向预测 ± 95% PI",
+          "compIILabel": "分量 II — 平滑季节 γ̂_t",
+          "compILabel": "分量 I — 平滑水平 μ̂_t (vs 真实)",
+          "dgpTitle": "真实数据生成过程 (DGP)",
+          "diagLabel": "诊断 — 标准化新息 ε̃_t = v_t / √F_t (理想 ~ N(0,1))",
+          "diagStrong": "诊断",
+          "doneStatus": "完成 · log-lik = {{ll}}",
+          "estVarTitle": "估计端方差超参数",
+          "fittedName": "平滑拟合 μ̂+γ̂",
+          "fittingStatus": "拟合中…",
+          "footer1a": "状态向量 ",
+          "footer1b": ",水平 + 斜率 + 季节三个不可观测分量,Kalman 滤波递推 + RTS 平滑分解",
+          "footer2a": "与 ARIMA 的区别:DLM 显式建模 ",
+          "footer2b": ",可分别提取并外推;ARIMA 只对 ∆ⁿyᵗ 建模 ARMA 结构,不分解",
+          "footer2trend": "趋势 / 季节 / irregular",
+          "footer3": ":信号-噪声比,大 ⇒ 水平活跃 (接近 random walk),小 ⇒ 接近常数水平",
+          "footer4": ":在 log-σ 空间做坐标搜索最大化 prediction error decomposition log-likelihood (Schweppe 1965)",
+          "footer5": ":标准化新息 ε̃_t 应近似 N(0,1) 白噪声;Ljung-Box Q(10) < 18.31 (5%) 表示残差无序列相关",
+          "footerTitle": "DLM / 结构时间序列 (Harvey 1989; Durbin & Koopman 2012):",
+          "forecastMeanName": "预测均值",
+          "forecastStart": "预测起点",
+          "horizonLabel": "预测步数 h",
+          "initLevel": "初始水平 μ₀",
+          "initSlope": "初始斜率 ν₀",
+          "mleButton": "一键 MLE 拟合",
+          "mleStrong": "一键 MLE",
+          "obsName": "观测 y_t",
+          "piName": "95% 预测区间",
+          "presets": {
+            "localLevel": {
+              "desc": "无趋势无季节,只有水平随机游走",
+              "name": "纯局部水平 (random walk)"
+            },
+            "quarterly": {
+              "desc": "S=4 季节,GDP 风格",
+              "name": "季度数据"
+            },
+            "trendSeason": {
+              "desc": "n=120, S=12, 强季节性",
+              "name": "明显趋势 + 季节"
+            },
+            "weakSignal": {
+              "desc": "观测噪声主导,信号难提取",
+              "name": "弱信号 / 噪声大"
+            }
+          },
+          "randomSeed": "随机种子",
+          "sampleSize": "样本量 n",
+          "seasonAmp": "季节振幅",
+          "seasonPeriod": "季节周期 S",
+          "sigmaEps": "σ_ε (观测噪声)",
+          "sigmaOmega": "σ_ω (季节漂移)",
+          "sigmaZeta": "σ_ζ (斜率漂移)",
+          "smoothLevelName": "平滑 μ̂_t",
+          "snrLabel": "信号-噪声 q_η/ε",
+          "snrSub": "水平 / irregular",
+          "trueLevelName": "真实 μ_t"
+        }
+      },
+      "garch": {
+        "presets": {
+          "textbook": {
+            "name": "教材参数",
+            "desc": "ω=0.05, α=0.1, β=0.85 (典型股票)"
+          },
+          "highPersistence": {
+            "name": "高持续性",
+            "desc": "α+β≈0.99 接近 IGARCH"
+          },
+          "leverage": {
+            "name": "杠杆效应",
+            "desc": "EGARCH γ=−0.15 负冲击放大波动"
+          },
+          "lowPersistence": {
+            "name": "低持续性",
+            "desc": "α=0.05, β=0.5 波动快速衰减"
+          }
+        },
+        "condVarianceLabel": "条件方差递推：",
+        "logVarianceLabel": "对数方差含杠杆：",
+        "paramsTitle": "参数设置",
+        "omegaLabel": "ω (常数)",
+        "logScale": "(对数尺度)",
+        "alphaLabel": "α (ARCH)",
+        "alphaSub": "新息冲击系数",
+        "betaLabel": "β (GARCH)",
+        "betaSub": "持续性",
+        "gammaLabel": "γ (杠杆)",
+        "gammaSub": "负值=负冲击放大波动",
+        "nLabel": "样本量 n",
+        "seedLabel": "随机种子",
+        "diagnosticsTitle": "模型诊断",
+        "persistenceLabel": "持续性 (α+β)",
+        "nonstationary": "⚠ 非平稳 (IGARCH)",
+        "highPersistence": "高持续",
+        "normal": "正常",
+        "uncondVarLabel": "无条件方差",
+        "halfLifeLabel": "半衰期 (天)",
+        "halfLifeNote": "冲击衰减一半所需时间",
+        "returnsChartTitle": "收益率序列与 ±2σ 条件波动带",
+        "acfChartTitle": "自相关函数 ACF — 验证波动率聚类 (|rₜ| 应显著正相关，rₜ 应接近 0)",
+        "acfChartNote": "金色柱 = |rₜ| 的 ACF (波动率聚类)；青色线 = rₜ 的 ACF (应在红色 95% 置信带内 ≈ 白噪声)"
+      },
+      "coint": {
+        "methodDesc": "两步法：① OLS 估计长期均衡",
+        "methodDesc2": "；② 对残差 ADF 检验单位根；③ 若拒绝 → 估计 VECM",
+        "dgpParamsTitle": "DGP 参数",
+        "spuriousModeLabel": "伪回归模式 (两独立 I(1))",
+        "alphaLabel": "α (截距)",
+        "betaLabel": "β (协整向量)",
+        "adjustSpeedLabel": "调整速度",
+        "adjustSpeedSub": "VECM 中 αₑc, 越负越快",
+        "sigmaEpsLabel": "σ_ε (新息标准差)",
+        "nLabel": "样本量 n",
+        "seedLabel": "随机种子",
+        "presets": {
+          "strong": {
+            "name": "强协整",
+            "desc": "调整速度 −0.5, 误差快速回归"
+          },
+          "weak": {
+            "name": "弱协整",
+            "desc": "调整速度 −0.1, 缓慢回归"
+          },
+          "spurious": {
+            "name": "伪回归",
+            "desc": "两个独立 I(1) 序列, 无协整"
+          },
+          "longSample": {
+            "name": "长样本",
+            "desc": "n=500 提高检验功效"
+          }
+        },
+        "pathChartTitle": "两序列原始路径 (I(1) 非平稳)",
+        "residSeriesTitle": "残差 uₜ = yₜ − α̂ − β̂ xₜ",
+        "residStationary": "(平稳 ✓ 协整)",
+        "residNonstationary": "(非平稳 ✗ 伪回归)",
+        "testTitle": "协整检验 (Engle-Granger ADF)",
+        "longRunBeta": "长期关系 β̂",
+        "interceptAlpha": "截距 α̂",
+        "adfStatLabel": "ADF 统计量 t",
+        "crit5Label": "5% 临界值",
+        "rejectH0": "✓ 拒绝 H₀: 序列协整",
+        "notRejectH0": "✗ 不拒绝 H₀: 无协整",
+        "vecmTitle": "VECM 误差修正模型",
+        "vecmAdjustSpeed": "调整速度 α̂_ec",
+        "vecmSe": "SE(α̂_ec)",
+        "vecmTStat": "t 统计量",
+        "vecmShortRun": "短期效应 γ̂",
+        "vecmSignificant": "✓ 显著负调整，向均衡回归",
+        "vecmNotSignificant": "调整效应不显著"
+      },
+      "unitroot": {
+        "conclusion": {
+          "unitRoot": "单位根存在 (非平稳)",
+          "stationary": "平稳",
+          "conflict": "检验结果冲突"
+        },
+        "presets": {
+          "randomWalk": {
+            "name": "随机游走",
+            "desc": "无漂移，AR(1) 系数为 1"
+          },
+          "stationaryAr1": {
+            "name": "平稳 AR(1)",
+            "desc": "AR(1) 系数 0.6"
+          },
+          "driftedWalk": {
+            "name": "漂移随机游走",
+            "desc": "有漂移且包含趋势"
+          },
+          "trendStationary": {
+            "name": "趋势平稳",
+            "desc": "趋势平稳过程"
+          },
+          "nearUnitRoot": {
+            "name": "近单位根",
+            "desc": "AR(1) 系数 0.95"
+          }
+        },
+        "dgpParams": "DGP 参数",
+        "rho": {
+          "label": "ρ (AR系数)",
+          "sub": "1 = 单位根"
+        },
+        "driftLabel": "漂移项 (drift)",
+        "nLabel": "样本量 n",
+        "lagsLabel": "滞后阶数",
+        "trendOn": "趋势项: 开",
+        "trendOff": "趋势项: 关",
+        "seedLabel": "随机种子",
+        "stat": {
+          "adfStat": "ADF 统计量",
+          "criticalAt5": "5% 临界值: {{value}}",
+          "adfConclusion": "ADF 结论",
+          "rejectUnitRoot": "拒绝单位根",
+          "cannotReject": "无法拒绝",
+          "h0UnitRoot": "H₀: 单位根",
+          "kpssStat": "KPSS 统计量",
+          "kpssConclusion": "KPSS 结论",
+          "rejectStationary": "拒绝平稳",
+          "h0Stationary": "H₀: 平稳"
+        },
+        "overallJudgment": "综合判断: ",
+        "simulatedSeries": "模拟序列",
+        "notes": {
+          "adfTitle": "ADF 检验: ",
+          "adfBody": "Dickey-Fuller 检验单位根。若统计量 < 临界值，则拒绝单位根假设。",
+          "kpssTitle": "KPSS 检验: ",
+          "kpssBody": "KPSS 检验平稳性。若统计量 > 临界值，则拒绝平稳假设。",
+          "nearTitle": "近单位根: ",
+          "nearBody": "ρ接近1时，ADF检验功效较低，常无法拒绝单位根。"
+        }
+      }
     }
   }
 }
