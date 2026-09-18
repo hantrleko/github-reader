@@ -2140,6 +2140,10 @@
           "nearBody": "ρ接近1时，ADF检验功效较低，常无法拒绝单位根。"
         }
       }
+    },
+    "risk": {
+      "subtitle": "从 VaR 与极值尾部，到信用、流动性螺旋、Basel 资本与恢复计划的完整风险语言。",
+      "historySummary": "工具: {{tool}}"
     }
   }
 }

@@ -2138,6 +2138,10 @@
           "nearBody": "When ρ is close to 1, ADF power is low; often fails to reject unit root."
         }
       }
+    },
+    "risk": {
+      "subtitle": "From VaR and extreme-value tails to credit, liquidity spirals, Basel capital and recovery planning.",
+      "historySummary": "Tool: {{tool}}"
     }
   }
 }
