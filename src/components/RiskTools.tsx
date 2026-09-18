@@ -11,6 +11,8 @@ import PresetButtons from "./PresetButtons";
 import { ShareExportToolbar, useSharedState } from "@/lib/calculatorTools";
 import { HistoryDrawer } from "@/components/common/HistoryDrawer";
 import { EquationBlock } from "@/components/common/EquationBlock";
+import { useToolTab } from "@/lib/useToolTab";
+import CategorizedToolNav, { type ToolCategory } from "@/components/common/CategorizedToolNav";
 import { ESBacktestTool } from "./risk/ESBacktestTool";
 import { CVAXVATool, CreditCopulaTool } from "./risk/V26Tools";
 import { VaRTool } from "./risk/VaRTool";
