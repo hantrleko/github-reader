@@ -37,7 +37,7 @@ export interface ToolEntry {
   related?: string[];
   /** true once unit tests vs a closed-form benchmark exist in src/lib/quant */
   verified?: boolean;
-  version: "V1.0" | "V2.0" | "V2.1" | "V2.2" | "V2.3" | "V2.4" | "V2.5" | "V2.6" | "V2.7" | "V2.8" | "V2.9" | "V3.0" | "V3.1" | "V3.2" | "V3.3" | "V3.4" | "V3.5" | "V3.6" | "V3.7" | "V3.8" | "V3.9" | "V4.0" | "V4.1" | "V4.2" | "V4.3" | "V5.3" | "V5.4" | "V5.5" | "V5.6" | "V6.5" | "V6.8" | "V6.9" | "V7.0" | "V7.1" | "V7.2" | "V7.3";
+  version: "V1.0" | "V2.0" | "V2.1" | "V2.2" | "V2.3" | "V2.4" | "V2.5" | "V2.6" | "V2.7" | "V2.8" | "V2.9" | "V3.0" | "V3.1" | "V3.2" | "V3.3" | "V3.4" | "V3.5" | "V3.6" | "V3.7" | "V3.8" | "V3.9" | "V4.0" | "V4.1" | "V4.2" | "V4.3" | "V5.3" | "V5.4" | "V5.5" | "V5.6" | "V6.5" | "V6.8" | "V6.9" | "V7.0" | "V7.1" | "V7.2" | "V7.3" | "V7.4";
 }
 
 export const CATEGORY_LABEL: Record<ToolCategory, { zh: string; en: string }> = {
@@ -514,7 +514,7 @@ export const TOOLS_CATALOG: ToolEntry[] = [
     nameEn: "Merton Structural",
     category: "risk",
     difficulty: "core",
-    anchor: "/#risk",
+    anchor: "/#risk?t=merton",
     tags: ["违约距离", "结构化"],
     refs: ["Merton (1974)"],
     blurb: "权益看涨期权视角的违约距离 DD 与 PD。",
@@ -527,7 +527,7 @@ export const TOOLS_CATALOG: ToolEntry[] = [
     nameEn: "Gaussian Copula",
     category: "risk",
     difficulty: "advanced",
-    anchor: "/#risk",
+    anchor: "/#risk?t=copula",
     tags: ["相依结构", "尾部"],
     refs: ["Li (2000)"],
     blurb: "二维联合违约 + 尾部相关性可视化。",
@@ -540,7 +540,7 @@ export const TOOLS_CATALOG: ToolEntry[] = [
     nameEn: "Stress Testing",
     category: "risk",
     difficulty: "core",
-    anchor: "/#risk",
+    anchor: "/#risk?t=stress",
     tags: ["情景分析", "PnL"],
     refs: ["BIS (2009)"],
     blurb: "市场冲击场景 → 组合 PnL 分解。",
@@ -553,7 +553,7 @@ export const TOOLS_CATALOG: ToolEntry[] = [
     nameEn: "ES Backtest",
     category: "risk",
     difficulty: "advanced",
-    anchor: "/#risk",
+    anchor: "/#risk?t=esback",
     tags: ["Expected Shortfall", "回测"],
     refs: ["Acerbi & Szekely (2014)"],
     blurb: "ES 三种回测统计量 + Kupiec / Christoffersen。",
@@ -566,7 +566,7 @@ export const TOOLS_CATALOG: ToolEntry[] = [
     nameEn: "CVA / XVA",
     category: "risk",
     difficulty: "research",
-    anchor: "/#risk",
+    anchor: "/#risk?t=cva",
     tags: ["对手风险", "WWR", "BCVA"],
     refs: ["Hull & White (2012)", "Gregory (2015)"],
     blurb: "CVA / DVA / BCVA + 错向风险 (WWR) 蒙特卡洛。",
@@ -579,7 +579,7 @@ export const TOOLS_CATALOG: ToolEntry[] = [
     nameEn: "Credit Portfolio Copula",
     category: "risk",
     difficulty: "research",
-    anchor: "/#risk",
+    anchor: "/#risk?t=credit_copula",
     tags: ["Vasicek", "t-Copula", "VaR/ES"],
     refs: ["Vasicek (2002)", "Li (2000)"],
     blurb: "Gaussian / t-Copula 组合违约 + Vasicek 解析对照。",
@@ -1089,7 +1089,7 @@ export const TOOLS_CATALOG: ToolEntry[] = [
   // ── V3.1: Risk ──
   {
     id: "var", name: "VaR 三法对比", nameEn: "Value-at-Risk (3 methods)",
-    category: "risk", difficulty: "core", anchor: "/#risk",
+    category: "risk", difficulty: "core", anchor: "/#risk?t=var",
     tags: ["参数法", "历史模拟", "蒙特卡洛", "ES"],
     refs: ["RiskMetrics (1996)", "Jorion (2006)"],
     blurb: "参数/历史/MC 三法 VaR+ES 对比 + 厚尾损失分布。",
@@ -1155,7 +1155,7 @@ export const TOOLS_CATALOG: ToolEntry[] = [
   },
   {
     id: "evt", name: "极值理论 (EVT/POT)", nameEn: "Extreme Value Theory — Peaks-over-Threshold",
-    category: "risk", difficulty: "research", anchor: "/#risk",
+    category: "risk", difficulty: "research", anchor: "/#risk?t=evt",
     tags: ["极值理论", "GPD", "尾部风险", "POT"],
     refs: ["Pickands (1975)", "McNeil & Frey (2000)"],
     blurb: "峰值超阈 GPD 拟合，外推 99.9% 极端分位的 VaR/ES，对比正态与历史法。",
@@ -1355,7 +1355,7 @@ export const TOOLS_CATALOG: ToolEntry[] = [
   // ── V4.3 Risk Reinforcement ──
   {
     id: "systemic", name: "系统性风险 (CoVaR/MES/SRISK)", nameEn: "Systemic Risk — CoVaR & SRISK",
-    category: "risk", difficulty: "research", anchor: "/s/risk",
+    category: "risk", difficulty: "research", anchor: "/#risk?t=systemic",
     tags: ["系统性", "CoVaR", "MES", "SRISK", "分位数回归"],
     refs: ["Adrian & Brunnermeier (2016)", "Acharya et al. (2017)", "Brownlees & Engle (2017)"],
     blurb: "分位数回归求 CoVaR/ΔCoVaR，MES 尾部条件均值，SRISK=k·D−(1−k)(1−LRMES)·E 识别系统性重要机构。",
@@ -1363,7 +1363,7 @@ export const TOOLS_CATALOG: ToolEntry[] = [
   },
   {
     id: "lvar", name: "流动性 VaR + Almgren-Chriss", nameEn: "Liquidity-Adjusted VaR & Optimal Execution",
-    category: "risk", difficulty: "advanced", anchor: "/s/risk",
+    category: "risk", difficulty: "advanced", anchor: "/#risk?t=lvar",
     tags: ["流动性", "LVaR", "最优清算", "Almgren-Chriss", "冲击成本"],
     refs: ["Almgren & Chriss (2000)", "Bangia et al. (1999)"],
     blurb: "外生 spread LVaR + 内生 Almgren-Chriss 最优清算轨迹，成本-风险有效前沿与 λ 敏感度。",
@@ -1371,7 +1371,7 @@ export const TOOLS_CATALOG: ToolEntry[] = [
   },
   {
     id: "frtb", name: "FRTB IMA ES97.5 + 交通灯", nameEn: "FRTB IMA — Expected Shortfall & Basel Traffic Light",
-    category: "risk", difficulty: "research", anchor: "/s/risk",
+    category: "risk", difficulty: "research", anchor: "/#risk?t=frtb",
     tags: ["FRTB", "ES", "监管资本", "Basel", "Kupiec"],
     refs: ["BCBS d457 (2019)", "Kupiec (1995)", "Christoffersen (1998)"],
     blurb: "97.5% Expected Shortfall + 流动性区间加权 (10/20/40/60/120天)，Kupiec/Christoffersen 回测与 Basel 交通灯资本乘数。",
@@ -1379,7 +1379,7 @@ export const TOOLS_CATALOG: ToolEntry[] = [
   },
   {
     id: "opvar", name: "操作风险 LDA (OpVaR 99.9%)", nameEn: "Operational Risk — LDA Poisson × Lognormal",
-    category: "risk", difficulty: "advanced", anchor: "/s/risk",
+    category: "risk", difficulty: "advanced", anchor: "/#risk?t=opvar",
     tags: ["操作风险", "LDA", "Poisson", "Lognormal", "AMA"],
     refs: ["Frachot et al. (2001)", "Basel III AMA"],
     blurb: "Poisson 频率 × Lognormal 严重度蒙特卡洛卷积得年度总损失分布，输出 99.9% OpVaR/ES。",
@@ -1387,7 +1387,7 @@ export const TOOLS_CATALOG: ToolEntry[] = [
   },
   {
     id: "reverse_stress", name: "反向压力测试", nameEn: "Reverse Stress Testing",
-    category: "risk", difficulty: "research", anchor: "/s/risk",
+    category: "risk", difficulty: "research", anchor: "/#risk?t=reverse_stress",
     tags: ["反向压测", "Mahalanobis", "情景", "监管"],
     refs: ["Grundke (2011)", "EBA Guidelines"],
     blurb: "闭式 δ*=(L*/bᵀΣb)·Σb：给定目标损失 L*，求最不利但仍可信 (Mahalanobis 最小) 的因子冲击。",
@@ -1395,11 +1395,76 @@ export const TOOLS_CATALOG: ToolEntry[] = [
   },
   {
     id: "concentration", name: "集中度 & Component VaR", nameEn: "Concentration Risk & Euler Component VaR",
-    category: "risk", difficulty: "core", anchor: "/s/risk",
+    category: "risk", difficulty: "core", anchor: "/#risk?t=concentration",
     tags: ["集中度", "HHI", "Component VaR", "Euler", "边际"],
     refs: ["Tasche (2007)", "Litterman (1996)"],
     blurb: "HHI 与有效资产数 1/HHI + Euler 分解 Component VaR (∑=VaR)，识别单一资产尾部贡献。",
     related: ["var", "risk-parity"], verified: true, version: "V4.3",
+  },
+  // ── V7.4: Risk module completion (V5.8 labs now in the catalog) ──
+  {
+    id: "rk-coherence", name: "一致性风险度量与谱风险", nameEn: "Coherent & Spectral Risk Measures, Elicitability",
+    category: "risk", difficulty: "research", anchor: "/#risk?t=coherence",
+    tags: ["次可加性", "谱风险", "扭曲度量", "可诱导性"],
+    refs: ["Artzner et al. (1999)", "Acerbi (2002)", "Gneiting (2011)"],
+    blurb: "VaR 次可加性反例 + 谱/扭曲风险度量与 pinball 损失，说明 ES 为何取代 VaR。",
+    related: ["var", "es-backtest"], verified: true, version: "V7.4",
+  },
+  {
+    id: "rk-vol-fhs", name: "波动率建模与 FHS", nameEn: "EWMA / GARCH / HAR Vol & Filtered Historical Simulation",
+    category: "risk", difficulty: "advanced", anchor: "/#risk?t=vol_fhs",
+    tags: ["EWMA", "GARCH", "HAR", "FHS", "波动率聚集"],
+    refs: ["Barone-Adesi et al. (1999)", "Corsi (2009)", "RiskMetrics (1996)"],
+    blurb: "EWMA / GARCH(1,1) / HAR 波动率滤波，再用标准化残差做滤波历史模拟得到条件 VaR/ES。",
+    related: ["var", "evt"], verified: true, version: "V7.4",
+  },
+  {
+    id: "rk-irb", name: "A-IRB 资本计提与 Vasicek", nameEn: "Basel A-IRB Capital & Vasicek Loss Quantile",
+    category: "risk", difficulty: "research", anchor: "/#risk?t=irb",
+    tags: ["A-IRB", "监管资本", "Vasicek", "PIT/TTC", "资产相关性"],
+    refs: ["BCBS (2006)", "Vasicek (2002)", "Gordy (2003)"],
+    blurb: "监管公式下的 K/RWA 计提，与 Vasicek 单因子组合损失分位数及 PIT/TTC PD 转换对照。",
+    related: ["credit-copula", "rk-migration"], verified: true, version: "V7.4",
+  },
+  {
+    id: "rk-migration", name: "评级迁移与 CreditMetrics", nameEn: "Rating Migration Matrices & CreditMetrics",
+    category: "risk", difficulty: "advanced", anchor: "/#risk?t=migration",
+    tags: ["评级迁移", "转移矩阵", "CreditMetrics", "生成矩阵"],
+    refs: ["Gupton et al. (1997)", "Jarrow et al. (1997)"],
+    blurb: "S&P 迁移矩阵幂次与生成矩阵外推多期违约，CreditMetrics 重定价得到信用 VaR。",
+    related: ["rk-irb", "merton"], verified: true, version: "V7.4",
+  },
+  {
+    id: "rk-spiral", name: "融资流动性与去杠杆螺旋", nameEn: "Funding Liquidity, Margin Spirals & Survival Horizon",
+    category: "risk", difficulty: "research", anchor: "/#risk?t=spiral",
+    tags: ["融资流动性", "去杠杆", "保证金螺旋", "放大倍数"],
+    refs: ["Brunnermeier & Pedersen (2009)", "Geanakoplos (2010)"],
+    blurb: "冲击 → 折价上升 → 抛售 → 价格再跌的螺旋迭代，量化放大倍数与生存期限。",
+    related: ["lvar", "systemic"], verified: true, version: "V7.4",
+  },
+  {
+    id: "rk-basel", name: "Basel 资本栈与 LCR / NSFR", nameEn: "CET1 / AT1 / T2 Stack, Buffers & Liquidity Ratios",
+    category: "risk", difficulty: "core", anchor: "/#risk?t=basel",
+    tags: ["Basel III", "CET1", "杠杆率", "LCR", "NSFR"],
+    refs: ["BCBS (2019)", "Basel III Framework"],
+    blurb: "CET1/T1/总资本比率、缓冲要求、杠杆率与 LCR/NSFR 一屏体检，标出触发限制分红的区间。",
+    related: ["frtb", "rk-irb"], verified: true, version: "V7.4",
+  },
+  {
+    id: "rk-model-risk", name: "模型风险与稳健决策", nameEn: "Model Uncertainty Bands, ε-Contamination & SR 11-7",
+    category: "risk", difficulty: "research", anchor: "/#risk?t=model_risk",
+    tags: ["模型风险", "稳健决策", "ε-污染", "SR 11-7"],
+    refs: ["Hansen & Sargent (2008)", "Fed SR 11-7 (2011)"],
+    blurb: "多模型风险估计的离散带宽 + ε-污染稳健取值，换算成应计提的模型风险缓冲。",
+    related: ["rk-coherence", "var"], verified: true, version: "V7.4",
+  },
+  {
+    id: "rk-resilience", name: "韧性与恢复计划", nameEn: "Multi-Period Capital Trajectory & Recovery Triggers",
+    category: "risk", difficulty: "advanced", anchor: "/#risk?t=resilience",
+    tags: ["韧性", "恢复计划", "资本轨迹", "缓冲释放"],
+    refs: ["BCBS (2019)", "Fed CCAR"],
+    blurb: "多期 CET1 轨迹在 PPNR、损失与分红下的演化，标出触发恢复措施与缓冲释放的时点。",
+    related: ["rk-basel", "stress"], verified: true, version: "V7.4",
   },
   // ── V5.3: Asset Pricing completion ──
   {

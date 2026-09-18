@@ -111,7 +111,7 @@
     },
     "latestUpdate": {
       "label": "Latest Update · {{version}}",
-      "description": "V6.9 completes the pricing module: 11 more derivatives labs join the catalog and search, ?t= deep links open any of the 25 experiments, and the calculator, implied-vol and Monte Carlo tools are now fully bilingual.",
+      "description": "V7.4 completes the risk module: all 22 risk tools support ?t= deep links, the nav is regrouped into market, credit, liquidity, regulatory-capital and governance tracks, and 8 new entries join the catalog.",
       "cta": "View Changelog"
     }
   },
@@ -2138,6 +2138,10 @@
           "nearBody": "When ρ is close to 1, ADF power is low; often fails to reject unit root."
         }
       }
+    },
+    "risk": {
+      "subtitle": "From VaR and extreme-value tails to credit, liquidity spirals, Basel capital and recovery planning.",
+      "historySummary": "Tool: {{tool}}"
     }
   }
 }

@@ -11,6 +11,8 @@ import PresetButtons from "./PresetButtons";
 import { ShareExportToolbar, useSharedState } from "@/lib/calculatorTools";
 import { HistoryDrawer } from "@/components/common/HistoryDrawer";
 import { EquationBlock } from "@/components/common/EquationBlock";
+import { useToolTab } from "@/lib/useToolTab";
+import CategorizedToolNav, { type ToolCategory } from "@/components/common/CategorizedToolNav";
 import { ESBacktestTool } from "./risk/ESBacktestTool";
 import { CVAXVATool, CreditCopulaTool } from "./risk/V26Tools";
 import { VaRTool } from "./risk/VaRTool";
@@ -1134,13 +1136,50 @@ const PythonReference = ({ code }: { code: string }) => {
   );
 };
 
+/** Five learning tracks across the 22 risk tools. */
+const RISK_CATEGORIES: ToolCategory[] = [
+  { id: "market", label: "市场风险与极值", labelEn: "Market Risk & Extremes", toolIds: ["var", "evt", "esback", "vol_fhs", "coherence"] },
+  { id: "credit", label: "信用与对手方", labelEn: "Credit & Counterparty", toolIds: ["merton", "copula", "credit_copula", "cva", "migration", "irb"] },
+  { id: "liquidity", label: "流动性与系统性", labelEn: "Liquidity & Systemic", toolIds: ["lvar", "systemic", "spiral", "concentration"] },
+  { id: "regcap", label: "压力测试与监管资本", labelEn: "Stress & Regulatory Capital", toolIds: ["stress", "reverse_stress", "frtb", "opvar", "basel"] },
+  { id: "governance", label: "治理与韧性", labelEn: "Governance & Resilience", toolIds: ["model_risk", "resilience"] },
+];
+
+/** Short English nav labels (the formula bar still shows the full titles). */
+const RISK_NAV_EN: Record<ToolId, string> = {
+  var: "VaR (3 methods)",
+  evt: "EVT / POT",
+  esback: "ES Backtest",
+  vol_fhs: "Vol & FHS",
+  coherence: "Coherent Measures",
+  merton: "Merton Structural",
+  copula: "Gaussian Copula",
+  credit_copula: "Credit Portfolio Copula",
+  cva: "CVA / XVA",
+  migration: "CreditMetrics Migration",
+  irb: "A-IRB Capital",
+  lvar: "Liquidity VaR",
+  systemic: "CoVaR / MES / SRISK",
+  spiral: "Deleveraging Spiral",
+  concentration: "Concentration & CVaR",
+  stress: "Stress Testing",
+  reverse_stress: "Reverse Stress",
+  frtb: "FRTB IMA",
+  opvar: "Operational Risk LDA",
+  basel: "Basel Stack & LCR",
+  model_risk: "Model Risk",
+  resilience: "Resilience & Recovery",
+};
+
+const RISK_TOOL_IDS = TOOLS.map((x) => x.id);
+
 const RiskTools = () => {
   const { t } = useTranslation();
-  const [tool, setTool] = useState<ToolId>("merton");
+  const [tool, setTool] = useToolTab<ToolId>(RISK_TOOL_IDS, "merton");
   const captureRef = useRef<HTMLDivElement>(null);
   const apply = useCallback((s: { tool: ToolId }) => {
     if (s?.tool) setTool(s.tool);
-  }, []);
+  }, [setTool]);
   useSharedState<{ tool: ToolId }>("risk", apply);
 
   const Active = TOOLS.find(t => t.id === tool)!;
@@ -1162,25 +1201,18 @@ const RiskTools = () => {
             {t("sections.risk.title")}
           </h2>
           <p className="text-sm text-muted-foreground mt-3 max-w-2xl mx-auto">
-            VaR 三法 · Merton 信用违约 · Copula 尾相依 · ES 回测 · Basel/CCAR 压力测试
+            {t("labs.risk.subtitle")}
           </p>
         </motion.div>
 
-        <div className="flex flex-wrap justify-center gap-2 mb-8">
-          {TOOLS.map(t => (
-            <button
-              key={t.id}
-              onClick={() => setTool(t.id)}
-              className={`px-5 py-2.5 rounded-lg text-sm font-mono transition-all duration-300 ${
-                tool === t.id
-                  ? "bg-primary text-primary-foreground shadow-lg"
-                  : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
-              }`}
-            >
-              {t.name}
-            </button>
-          ))}
-        </div>
+        {/* Tool tabs — categorized + searchable */}
+        <CategorizedToolNav
+          tools={TOOLS.map(({ id, name }) => ({ id, name, nameEn: RISK_NAV_EN[id] }))}
+          categories={RISK_CATEGORIES}
+          activeId={tool}
+          onSelect={(id) => setTool(id as ToolId)}
+        />
+
 
         <motion.div
           key={tool}
@@ -1195,7 +1227,7 @@ const RiskTools = () => {
               storageKey="risk"
               currentState={{ tool }}
               onApply={(s: any) => { if (s?.tool) setTool(s.tool); }}
-              summarize={(s: any) => `工具: ${s.tool}`}
+              summarize={(s: any) => t("labs.risk.historySummary", { tool: s.tool })}
             />
             <ShareExportToolbar
               storageKey="risk"

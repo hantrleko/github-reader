@@ -5,9 +5,31 @@ import { useMemo, useState } from "react";
 
 const RELEASES = [
   {
-    version: "V7.3",
+    version: "V7.4",
     date: "2026-09",
     tag: "Current",
+    highlights: [
+      {
+        icon: Shield,
+        title: "风险工具深链与分类导航",
+        items: [
+          "22 个风险工具改为 /#risk?t=<toolId> 深链，目录可直达具体工具",
+          "导航重构为市场、信用、流动性、监管资本、治理韧性五大主线，并支持搜索",
+        ],
+      },
+      {
+        icon: FileText,
+        title: "风险目录补全与双语化",
+        items: [
+          "目录补入一致性度量、FHS、A-IRB、评级迁移、去杠杆螺旋、Basel 资本栈、模型风险、韧性 8 个条目",
+          "板块副标题与历史摘要迁入 labs.risk.* 中英词条，工具补齐英文导航名",
+        ],
+      },
+    ],
+  },
+  {
+    version: "V7.3",
+    date: "2026-09",
     highlights: [
       {
         icon: Sparkles,
