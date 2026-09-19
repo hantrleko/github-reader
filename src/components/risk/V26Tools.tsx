@@ -375,10 +375,10 @@ export const CreditCopulaTool = () => {
   return (
     <div className="space-y-6">
       <PresetButtons presets={[
-        { name: "投资级组合", description: "PD 1%, ρ=0.15", apply: () => { setPd(0.01); setRho(0.15); setLGD(0.45); setFamily("gaussian"); } },
-        { name: "高收益组合", description: "PD 5%, ρ=0.3", apply: () => { setPd(0.05); setRho(0.30); setLGD(0.65); } },
-        { name: "尾部相依 (t-Copula)", description: "df=4, ρ=0.25", apply: () => { setFamily("t"); setDf(4); setRho(0.25); setPd(0.03); } },
-        { name: "Basel IRB 参数", description: "ρ=0.24 (公司)", apply: () => { setRho(0.24); setPd(0.02); setLGD(0.45); setFamily("gaussian"); } },
+        { name: t("labs.risk.v26.copula.presets.ig.name"), description: t("labs.risk.v26.copula.presets.ig.description"), apply: () => { setPd(0.01); setRho(0.15); setLGD(0.45); setFamily("gaussian"); } },
+        { name: t("labs.risk.v26.copula.presets.hy.name"), description: t("labs.risk.v26.copula.presets.hy.description"), apply: () => { setPd(0.05); setRho(0.30); setLGD(0.65); } },
+        { name: t("labs.risk.v26.copula.presets.tailDep.name"), description: t("labs.risk.v26.copula.presets.tailDep.description"), apply: () => { setFamily("t"); setDf(4); setRho(0.25); setPd(0.03); } },
+        { name: t("labs.risk.v26.copula.presets.baselIrb.name"), description: t("labs.risk.v26.copula.presets.baselIrb.description"), apply: () => { setRho(0.24); setPd(0.02); setLGD(0.45); setFamily("gaussian"); } },
       ]} />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -387,37 +387,37 @@ export const CreditCopulaTool = () => {
             {(["gaussian","t"] as const).map(f=>(
               <button key={f} onClick={()=>setFamily(f)}
                 className={`flex-1 px-3 py-1.5 text-xs font-mono rounded ${family===f?"bg-gold text-background":"bg-secondary text-secondary-foreground"}`}>
-                {f==="gaussian"?"Gaussian (Vasicek/Li)":"Student-t"}
+                {f==="gaussian"?t("labs.risk.v26.copula.family.gaussian"):t("labs.risk.v26.copula.family.studentT")}
               </button>
             ))}
           </div>
-          <Slider label="组合规模 n" value={n} min={20} max={500} step={10} onChange={setN} />
-          <Slider label="边际 PD" value={pd} min={0.001} max={0.20} step={0.005} onChange={setPd} fmt={v=>`${(v*100).toFixed(2)}%`} />
-          <Slider label="资产相关 ρ" value={rho} min={0.01} max={0.7} step={0.01} onChange={setRho} />
-          <Slider label="LGD" value={LGD} min={0.1} max={1} step={0.05} onChange={setLGD} />
-          <Slider label="单户 EAD" value={EAD} min={0.1} max={5} step={0.1} onChange={setEAD} />
-          {family==="t" && <Slider label="自由度 df" value={df} min={3} max={30} step={1} onChange={setDf} />}
-          <Slider label="模拟次数" value={nSim} min={1000} max={20000} step={1000} onChange={setNSim} />
-          <Slider label="VaR/ES 置信度 α" value={alpha} min={0.90} max={0.999} step={0.005} onChange={setAlpha} fmt={v=>v.toFixed(3)} />
-          <Slider label="种子" value={seed} min={1} max={999} step={1} onChange={setSeed} />
+          <Slider label={t("labs.risk.v26.copula.sliders.n")} value={n} min={20} max={500} step={10} onChange={setN} />
+          <Slider label={t("labs.risk.v26.copula.sliders.pd")} value={pd} min={0.001} max={0.20} step={0.005} onChange={setPd} fmt={v=>`${(v*100).toFixed(2)}%`} />
+          <Slider label={t("labs.risk.v26.copula.sliders.rho")} value={rho} min={0.01} max={0.7} step={0.01} onChange={setRho} />
+          <Slider label={t("labs.risk.v26.copula.sliders.lgd")} value={LGD} min={0.1} max={1} step={0.05} onChange={setLGD} />
+          <Slider label={t("labs.risk.v26.copula.sliders.ead")} value={EAD} min={0.1} max={5} step={0.1} onChange={setEAD} />
+          {family==="t" && <Slider label={t("labs.risk.v26.copula.sliders.df")} value={df} min={3} max={30} step={1} onChange={setDf} />}
+          <Slider label={t("labs.risk.v26.copula.sliders.nSim")} value={nSim} min={1000} max={20000} step={1000} onChange={setNSim} />
+          <Slider label={t("labs.risk.v26.copula.sliders.alpha")} value={alpha} min={0.90} max={0.999} step={0.005} onChange={setAlpha} fmt={v=>v.toFixed(3)} />
+          <Slider label={t("labs.risk.v26.copula.sliders.seed")} value={seed} min={1} max={999} step={1} onChange={setSeed} />
         </div>
         <div className="space-y-3">
-          <Stat label="期望损失 EL" value={result.mean.toFixed(2)} color={CHART_GOLD} sub={`= n·PD·LGD·EAD ≈ ${(n*pd*LGD*EAD).toFixed(2)}`} />
-          <Stat label="损失标准差" value={result.stdev.toFixed(2)} sub="尾相依放大效应" />
-          <Stat label={`VaR_${alpha.toFixed(3)} (MC)`} value={result.VaR.toFixed(2)} color={CHART_RED} />
-          <Stat label={`ES_${alpha.toFixed(3)}`} value={result.ES.toFixed(2)} color={CHART_RED} sub="条件尾损失均值" />
-          <Stat label="Vasicek 解析 VaR" value={result.VaR_vasicek.toFixed(2)} color={CHART_TEAL} sub="大组合极限公式" />
+          <Stat label={t("labs.risk.v26.copula.stats.elLabel")} value={result.mean.toFixed(2)} color={CHART_GOLD} sub={t("labs.risk.v26.copula.stats.elSub", { value: (n*pd*LGD*EAD).toFixed(2) })} />
+          <Stat label={t("labs.risk.v26.copula.stats.stdevLabel")} value={result.stdev.toFixed(2)} sub={t("labs.risk.v26.copula.stats.stdevSub")} />
+          <Stat label={t("labs.risk.v26.copula.stats.varMcLabel", { alpha: alpha.toFixed(3) })} value={result.VaR.toFixed(2)} color={CHART_RED} />
+          <Stat label={t("labs.risk.v26.copula.stats.esLabel", { alpha: alpha.toFixed(3) })} value={result.ES.toFixed(2)} color={CHART_RED} sub={t("labs.risk.v26.copula.stats.esSub")} />
+          <Stat label={t("labs.risk.v26.copula.stats.vasicekLabel")} value={result.VaR_vasicek.toFixed(2)} color={CHART_TEAL} sub={t("labs.risk.v26.copula.stats.vasicekSub")} />
           <div className="text-xs font-mono text-muted-foreground p-3 rounded-lg bg-secondary/40 border border-border leading-relaxed">
-            <p><span className="text-gold">Vasicek 1987 / Li 2000：</span>X_i = √ρ·M + √(1−ρ)·ε_i,违约当 X_i ≤ Φ⁻¹(PD)。</p>
-            <p>t-Copula 引入共同尺度因子 W ~ χ²_df/df,产生强尾相依 → 极端共同违约概率显著抬升,2008 危机超额损失的核心来源。</p>
-            <p>Basel II IRB 公式即由 Vasicek 大组合极限推导:K = LGD·[Φ((Φ⁻¹(PD)+√ρ·Φ⁻¹(0.999))/√(1−ρ)) − PD]。</p>
+            <p><span className="text-gold">{t("labs.risk.v26.copula.explain.vasicekTitle")}</span>{t("labs.risk.v26.copula.explain.vasicekFormula")}</p>
+            <p>{t("labs.risk.v26.copula.explain.tCopula")}</p>
+            <p>{t("labs.risk.v26.copula.explain.baselIrb")}</p>
           </div>
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <div className="rounded-xl border border-border bg-secondary/20 p-4">
-          <h4 className="text-sm font-semibold text-foreground mb-2">组合损失分布</h4>
+          <h4 className="text-sm font-semibold text-foreground mb-2">{t("labs.risk.v26.copula.chart.lossDistTitle")}</h4>
           <div className="h-[260px]">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={result.histData}>
@@ -426,19 +426,19 @@ export const CreditCopulaTool = () => {
                 <YAxis stroke={CHART_TEXT} tick={{ fontSize: 10 }} />
                 <Tooltip contentStyle={{ background: "hsl(220 15% 12%)", border: `1px solid ${CHART_GRID}`, fontSize: 11 }} />
                 <Bar dataKey="n" fill={CHART_GOLD} />
-                <Bar dataKey="tail" fill={CHART_RED} name={`尾部 > VaR_${alpha.toFixed(2)}`} />
+                <Bar dataKey="tail" fill={CHART_RED} name={t("labs.risk.v26.copula.chart.tailName", { alpha: alpha.toFixed(2) })} />
                 <ReferenceLine x={+result.VaR.toFixed(2)} stroke={CHART_RED} strokeDasharray="3 3" />
               </BarChart>
             </ResponsiveContainer>
           </div>
         </div>
         <div className="rounded-xl border border-border bg-secondary/20 p-4">
-          <h4 className="text-sm font-semibold text-foreground mb-2">违约相关性 ρ_D vs 资产 ρ (按 PD)</h4>
+          <h4 className="text-sm font-semibold text-foreground mb-2">{t("labs.risk.v26.copula.chart.corrTitle")}</h4>
           <div className="h-[260px]">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={result.surfData}>
                 <CartesianGrid stroke={CHART_GRID} strokeDasharray="3 3" />
-                <XAxis dataKey="pd" stroke={CHART_TEXT} tick={{ fontSize: 10 }} label={{value:"PD %",position:"insideBottom",offset:-2,fill:CHART_TEXT,fontSize:10}} />
+                <XAxis dataKey="pd" stroke={CHART_TEXT} tick={{ fontSize: 10 }} label={{value:t("labs.risk.v26.copula.chart.pdAxisLabel"),position:"insideBottom",offset:-2,fill:CHART_TEXT,fontSize:10}} />
                 <YAxis stroke={CHART_TEXT} tick={{ fontSize: 10 }} />
                 <Tooltip contentStyle={{ background: "hsl(220 15% 12%)", border: `1px solid ${CHART_GRID}`, fontSize: 11 }} />
                 <Legend wrapperStyle={{ fontSize: 10 }} />
