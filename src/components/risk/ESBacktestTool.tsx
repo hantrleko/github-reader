@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   Legend, ReferenceLine, Scatter, ComposedChart, BarChart, Bar, Cell,
@@ -129,6 +130,7 @@ const Stat = ({ label, value, color = "hsl(var(--gold))", sub }: { label: string
 );
 
 export const ESBacktestTool = () => {
+  const { t } = useTranslation();
   const [N, setN] = useState(500);
   const [alpha, setAlpha] = useState(0.99);
   const [trueDF, setTrueDF] = useState(4); // actual P&L is t-distributed (heavy tails)
@@ -225,8 +227,8 @@ export const ESBacktestTool = () => {
   }, [N, alpha, trueDF, muTrue, sigmaTrue, sigmaForecast, seed]);
 
   const verdict = (p: number) => p > 0.05
-    ? { ok: true, msg: `不拒绝 H₀ (p=${p.toFixed(3)})`, color: CHART_TEAL }
-    : { ok: false, msg: `拒绝 H₀ (p=${p.toFixed(3)})`, color: CHART_RED };
+    ? { ok: true, msg: t("labs.risk.esback.verdict.notReject", { p: p.toFixed(3) }), color: CHART_TEAL }
+    : { ok: false, msg: t("labs.risk.esback.verdict.reject", { p: p.toFixed(3) }), color: CHART_RED };
 
   const vUC = verdict(data.pVal_uc);
   const vIND = verdict(data.pVal_ind);
@@ -235,49 +237,49 @@ export const ESBacktestTool = () => {
   return (
     <div className="space-y-6">
       <PresetButtons presets={[
-        { name: "正常市场 (df=30)", description: "近高斯, 模型应通过", apply: () => { setTrueDF(30); setSigmaTrue(1); setSigmaForecast(1); setAlpha(0.99); } },
-        { name: "肥尾真实 (df=4)", description: "Kupiec 拒绝", apply: () => { setTrueDF(4); setSigmaTrue(1); setSigmaForecast(1); setAlpha(0.99); } },
-        { name: "波动低估", description: "σ̂=0.7·真实", apply: () => { setTrueDF(8); setSigmaTrue(1); setSigmaForecast(0.7); setAlpha(0.99); } },
-        { name: "VaR 95% 视图", description: "α=0.95", apply: () => { setAlpha(0.95); setTrueDF(5); setSigmaForecast(1); } },
+        { name: t("labs.risk.esback.presets.normal.name"), description: t("labs.risk.esback.presets.normal.description"), apply: () => { setTrueDF(30); setSigmaTrue(1); setSigmaForecast(1); setAlpha(0.99); } },
+        { name: t("labs.risk.esback.presets.fatTail.name"), description: t("labs.risk.esback.presets.fatTail.description"), apply: () => { setTrueDF(4); setSigmaTrue(1); setSigmaForecast(1); setAlpha(0.99); } },
+        { name: t("labs.risk.esback.presets.underestVol.name"), description: t("labs.risk.esback.presets.underestVol.description"), apply: () => { setTrueDF(8); setSigmaTrue(1); setSigmaForecast(0.7); setAlpha(0.99); } },
+        { name: t("labs.risk.esback.presets.var95.name"), description: t("labs.risk.esback.presets.var95.description"), apply: () => { setAlpha(0.95); setTrueDF(5); setSigmaForecast(1); } },
       ]} />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="space-y-3">
-          <p className="text-xs font-mono text-gold uppercase tracking-wider">回测窗口与置信水平</p>
+          <p className="text-xs font-mono text-gold uppercase tracking-wider">{t("labs.risk.esback.section.windowConfidence")}</p>
           <div className="grid grid-cols-2 gap-3">
-            <Slider label="样本期 N" value={N} min={100} max={2000} step={50} onChange={setN} />
-            <Slider label="VaR 置信水平 α" value={alpha} min={0.9} max={0.995} step={0.005} onChange={setAlpha} />
+            <Slider label={t("labs.risk.esback.slider.sampleSize")} value={N} min={100} max={2000} step={50} onChange={setN} />
+            <Slider label={t("labs.risk.esback.slider.confidenceAlpha")} value={alpha} min={0.9} max={0.995} step={0.005} onChange={setAlpha} />
           </div>
-          <p className="text-xs font-mono text-gold uppercase tracking-wider mt-2">真实 P&L 分布 (Student-t)</p>
+          <p className="text-xs font-mono text-gold uppercase tracking-wider mt-2">{t("labs.risk.esback.section.truePnl")}</p>
           <div className="grid grid-cols-2 gap-3">
-            <Slider label="自由度 df (真实)" sub="↓ → 肥尾" value={trueDF} min={3} max={30} step={1} onChange={setTrueDF} />
-            <Slider label="μ 真实" value={muTrue} min={-0.5} max={0.5} step={0.05} onChange={setMuTrue} />
-            <Slider label="σ 真实" value={sigmaTrue} min={0.5} max={2.5} step={0.1} onChange={setSigmaTrue} />
-            <Slider label="σ̂ 模型预测" sub="假设 Normal" value={sigmaForecast} min={0.4} max={2.5} step={0.1} onChange={setSigmaForecast} />
+            <Slider label={t("labs.risk.esback.slider.trueDf")} sub={t("labs.risk.esback.slider.trueDfSub")} value={trueDF} min={3} max={30} step={1} onChange={setTrueDF} />
+            <Slider label={t("labs.risk.esback.slider.muTrue")} value={muTrue} min={-0.5} max={0.5} step={0.05} onChange={setMuTrue} />
+            <Slider label={t("labs.risk.esback.slider.sigmaTrue")} value={sigmaTrue} min={0.5} max={2.5} step={0.1} onChange={setSigmaTrue} />
+            <Slider label={t("labs.risk.esback.slider.sigmaForecast")} sub={t("labs.risk.esback.slider.sigmaForecastSub")} value={sigmaForecast} min={0.4} max={2.5} step={0.1} onChange={setSigmaForecast} />
           </div>
-          <Slider label="种子" value={seed} min={1} max={999} step={1} onChange={setSeed} />
+          <Slider label={t("labs.risk.esback.slider.seed")} value={seed} min={1} max={999} step={1} onChange={setSeed} />
         </div>
 
         <div className="space-y-3">
           <div className="grid grid-cols-2 gap-2">
-            <Stat label={`VaR_${(alpha*100).toFixed(0)} (Normal)`} value={data.varNormal.toFixed(3)} color={CHART_GOLD} />
-            <Stat label={`ES_${(alpha*100).toFixed(0)} (Normal)`} value={data.esNormal.toFixed(3)} color={CHART_RED} sub="ES = E[L | L>VaR]" />
-            <Stat label="实际穿越次数 x" value={`${data.x} / ${N}`} sub={`期望 ≈ ${data.expN.toFixed(1)}`} />
-            <Stat label="经验 ES" value={isFinite(data.empES) ? data.empES.toFixed(3) : "—"} color={CHART_TEAL}
-              sub="实测尾部均值" />
+            <Stat label={t("labs.risk.esback.stat.varLabel", { level: (alpha*100).toFixed(0) })} value={data.varNormal.toFixed(3)} color={CHART_GOLD} />
+            <Stat label={t("labs.risk.esback.stat.esLabel", { level: (alpha*100).toFixed(0) })} value={data.esNormal.toFixed(3)} color={CHART_RED} sub={t("labs.risk.esback.stat.esSub")} />
+            <Stat label={t("labs.risk.esback.stat.breaches")} value={t("labs.risk.esback.stat.breachesValue", { x: data.x, n: N })} sub={t("labs.risk.esback.stat.breachesSub", { exp: data.expN.toFixed(1) })} />
+            <Stat label={t("labs.risk.esback.stat.empES")} value={isFinite(data.empES) ? data.empES.toFixed(3) : "—"} color={CHART_TEAL}
+              sub={t("labs.risk.esback.stat.empESSub")} />
           </div>
           <div className="rounded-lg border border-border bg-secondary/40 p-3 text-[11px] font-mono space-y-1.5">
-            <p className="text-gold uppercase tracking-wider text-[10px]">Kupiec / Christoffersen 检验</p>
-            <p>POF (无条件覆盖) LR={data.LRuc.toFixed(2)} <span style={{ color: vUC.color }}>· {vUC.msg}</span></p>
-            <p>独立性 LR={data.LRind.toFixed(2)} <span style={{ color: vIND.color }}>· {vIND.msg}</span></p>
-            <p>条件覆盖 LR={data.LRcc.toFixed(2)} <span style={{ color: vCC.color }}>· {vCC.msg}</span></p>
+            <p className="text-gold uppercase tracking-wider text-[10px]">{t("labs.risk.esback.tests.title")}</p>
+            <p>{t("labs.risk.esback.tests.pof", { lr: data.LRuc.toFixed(2) })} <span style={{ color: vUC.color }}>· {vUC.msg}</span></p>
+            <p>{t("labs.risk.esback.tests.ind", { lr: data.LRind.toFixed(2) })} <span style={{ color: vIND.color }}>· {vIND.msg}</span></p>
+            <p>{t("labs.risk.esback.tests.cc", { lr: data.LRcc.toFixed(2) })} <span style={{ color: vCC.color }}>· {vCC.msg}</span></p>
           </div>
         </div>
       </div>
 
       {/* Time series with VaR line and exceedances */}
       <div className="rounded-xl border border-border bg-secondary/20 p-4">
-        <h4 className="text-sm font-semibold text-foreground mb-2">损失时序 — VaR 线 / ES 线 / 穿越点</h4>
+        <h4 className="text-sm font-semibold text-foreground mb-2">{t("labs.risk.esback.chart.timeseriesTitle")}</h4>
         <div className="h-[280px]">
           <ResponsiveContainer width="100%" height="100%">
             <ComposedChart data={data.series}>
@@ -286,10 +288,10 @@ export const ESBacktestTool = () => {
               <YAxis stroke={CHART_TEXT} tick={{ fontSize: 10 }} />
               <Tooltip contentStyle={{ background: "hsl(220 15% 12%)", border: `1px solid ${CHART_GRID}`, fontSize: 11 }} />
               <Legend wrapperStyle={{ fontSize: 10 }} />
-              <Line type="monotone" dataKey="loss" name="损失 L_t" stroke={CHART_BLUE} strokeOpacity={0.55} strokeWidth={1} dot={false} />
-              <Line type="monotone" dataKey="var" name="VaR" stroke={CHART_GOLD} strokeWidth={2} dot={false} />
-              <Line type="monotone" dataKey="es" name="ES" stroke={CHART_RED} strokeWidth={1.5} strokeDasharray="5 4" dot={false} />
-              <Scatter dataKey="breach" name="穿越事件" fill={CHART_RED} />
+              <Line type="monotone" dataKey="loss" name={t("labs.risk.esback.chart.lossLine")} stroke={CHART_BLUE} strokeOpacity={0.55} strokeWidth={1} dot={false} />
+              <Line type="monotone" dataKey="var" name={t("labs.risk.esback.chart.varLine")} stroke={CHART_GOLD} strokeWidth={2} dot={false} />
+              <Line type="monotone" dataKey="es" name={t("labs.risk.esback.chart.esLine")} stroke={CHART_RED} strokeWidth={1.5} strokeDasharray="5 4" dot={false} />
+              <Scatter dataKey="breach" name={t("labs.risk.esback.chart.breachEvent")} fill={CHART_RED} />
               <ReferenceLine y={0} stroke={CHART_TEXT} strokeOpacity={0.3} />
             </ComposedChart>
           </ResponsiveContainer>
@@ -298,7 +300,7 @@ export const ESBacktestTool = () => {
 
       {/* Loss histogram */}
       <div className="rounded-xl border border-border bg-secondary/20 p-4">
-        <h4 className="text-sm font-semibold text-foreground mb-2">损失分布与尾部 — 红色 bin 含穿越事件</h4>
+        <h4 className="text-sm font-semibold text-foreground mb-2">{t("labs.risk.esback.chart.histogramTitle")}</h4>
         <div className="h-[220px]">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={data.bins}>
@@ -312,18 +314,18 @@ export const ESBacktestTool = () => {
                 ))}
               </Bar>
               <ReferenceLine x={data.varNormal} stroke={CHART_GOLD} strokeWidth={2}
-                label={{ value: `VaR=${data.varNormal.toFixed(2)}`, fill: CHART_GOLD, fontSize: 10, position: "top" }} />
+                label={{ value: t("labs.risk.esback.chart.varRefLabel", { val: data.varNormal.toFixed(2) }), fill: CHART_GOLD, fontSize: 10, position: "top" }} />
               <ReferenceLine x={data.esNormal} stroke={CHART_RED} strokeWidth={2} strokeDasharray="4 3"
-                label={{ value: `ES=${data.esNormal.toFixed(2)}`, fill: CHART_RED, fontSize: 10, position: "top" }} />
+                label={{ value: t("labs.risk.esback.chart.esRefLabel", { val: data.esNormal.toFixed(2) }), fill: CHART_RED, fontSize: 10, position: "top" }} />
             </BarChart>
           </ResponsiveContainer>
         </div>
       </div>
 
       <div className="text-xs font-mono text-muted-foreground p-3 rounded-lg bg-secondary/40 border border-border leading-relaxed">
-        <p><span className="text-gold">教学要点：</span>FRTB 用 ES (97.5%) 代替 VaR (99%) 作为资本计量基准，因为 VaR 不次可加且忽略尾部形状。</p>
-        <p>当真实 P&L 为肥尾 (df↓)，假设 Normal 的 VaR 被系统性低估 → Kupiec POF 拒绝 H₀。</p>
-        <p>Christoffersen 独立性检验通过 2×2 转移矩阵识别穿越聚集（聚集 = 模型对波动变化反应过慢）。</p>
+        <p><span className="text-gold">{t("labs.risk.esback.footer.teachingPointLabel")}</span>{t("labs.risk.esback.footer.teachingPoint")}</p>
+        <p>{t("labs.risk.esback.footer.fatTailNote")}</p>
+        <p>{t("labs.risk.esback.footer.independenceNote")}</p>
       </div>
     </div>
   );

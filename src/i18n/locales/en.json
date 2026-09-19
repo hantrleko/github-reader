@@ -2141,7 +2141,73 @@
     },
     "risk": {
       "subtitle": "From VaR and extreme-value tails to credit, liquidity spirals, Basel capital and recovery planning.",
-      "historySummary": "Tool: {{tool}}"
+      "historySummary": "Tool: {{tool}}",
+      "evt": {
+        "tailHeavy": "Heavy tail (Fréchet)",
+        "tailMedium": "Medium tail",
+        "tailLight": "Light tail",
+        "presets": {
+          "heavyTail": {
+            "name": "Heavy-tail market (df=3)",
+            "description": "Frequent extreme events"
+          },
+          "mildMarket": {
+            "name": "Mild market (df=10)",
+            "description": "Close to normal"
+          },
+          "crisisTail": {
+            "name": "Crisis tail (df=2.5)",
+            "description": "Extremely heavy tail"
+          },
+          "highThreshold": {
+            "name": "High threshold",
+            "description": "u=95%"
+          },
+          "lowThreshold": {
+            "name": "Low threshold",
+            "description": "u=85%"
+          }
+        },
+        "sectionLossDistribution": "Loss distribution and threshold",
+        "sliders": {
+          "dfLabel": "Degrees of freedom df",
+          "dfSub": "Smaller = heavier tail",
+          "scaleLabel": "Scale σ",
+          "thresholdLabel": "Threshold percentile u",
+          "thresholdSub": "POT starting point",
+          "seedLabel": "Random seed"
+        },
+        "stats": {
+          "threshold": "Threshold u",
+          "exceedCount": "Exceedances Nu",
+          "shape": "Shape ξ (xi)",
+          "scaleBeta": "Scale β (beta)"
+        },
+        "comparisonTitle": "Tail risk comparison — Normal vs Historical vs EVT (POT)",
+        "table": {
+          "confidenceLevel": "Confidence level",
+          "normalVaR": "Normal VaR",
+          "historicalVaR": "Historical VaR",
+          "evtVaR": "EVT VaR",
+          "evtES": "EVT ES"
+        },
+        "comparisonNote": "The normal method typically understates tail risk at 99.9%; EVT extrapolates extreme quantiles more accurately by fitting the exceedance distribution.",
+        "meanExcessTitle": "Mean excess plot e(u) — linearity supports the GPD",
+        "tailFitTitle": "Tail fit — empirical vs GPD survival function",
+        "chart": {
+          "thresholdAxis": "Threshold u",
+          "meanExcess": "Mean excess",
+          "lossAxis": "Loss",
+          "empirical": "Empirical P(X>x)",
+          "gpdFit": "GPD fit"
+        },
+        "notes": {
+          "potLabel": "Peaks-Over-Threshold (POT): ",
+          "potText": "Exceedances above a high threshold u follow a Generalized Pareto Distribution GPD(ξ, β) (Pickands–Balkema–de Haan theorem).",
+          "xiLabel": "Tail index ξ: ",
+          "xiText": "ξ>0 indicates a heavy tail (Fréchet), governing extreme-quantile extrapolation; EVT is more robust than normal/historical methods at extreme confidence levels such as 99.9%."
+        }
+      }
     }
   }
 }

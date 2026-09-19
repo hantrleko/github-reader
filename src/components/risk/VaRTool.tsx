@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   Legend, ReferenceLine, Cell,
@@ -71,6 +72,7 @@ function quantile(sorted: number[], p: number): number {
  * Losses defined as L = −V·r. VaR_α = quantile of L at level α; ES = mean loss beyond VaR.
  */
 export const VaRTool = () => {
+  const { t } = useTranslation();
   const [V, setV] = useState(1_000_000);
   const [mu, setMu] = useState(8);       // annual drift %
   const [sigma, setSigma] = useState(20); // annual vol %
@@ -133,65 +135,65 @@ export const VaRTool = () => {
 
   const fmt = (x: number) => `$${Math.round(x).toLocaleString()}`;
   const methods = [
-    { name: "参数法 (正态)", var: r.varParam, es: r.esParam, color: CHART_GOLD },
-    { name: "历史模拟 (厚尾)", var: r.varHist, es: r.esHist, color: CHART_RED },
-    { name: "蒙特卡洛", var: r.varMC, es: r.esMC, color: CHART_BLUE },
+    { name: t("labs.risk.var.method.parametric"), var: r.varParam, es: r.esParam, color: CHART_GOLD },
+    { name: t("labs.risk.var.method.historical"), var: r.varHist, es: r.esHist, color: CHART_RED },
+    { name: t("labs.risk.var.method.monteCarlo"), var: r.varMC, es: r.esMC, color: CHART_BLUE },
   ];
 
   return (
     <div className="space-y-6">
       <PresetButtons presets={[
-        { name: "标准 1 日", description: "99% 1日", apply: () => { setMu(8); setSigma(20); setHorizon(1); setAlpha(0.99); setDf(5); } },
-        { name: "10 日监管", description: "巴塞尔 10日", apply: () => { setHorizon(10); setAlpha(0.99); } },
-        { name: "极厚尾", description: "df=3 危机", apply: () => { setDf(3); setSigma(35); } },
-        { name: "95% 置信", description: "更宽松", apply: () => { setAlpha(0.95); } },
+        { name: t("labs.risk.var.presets.standard1d.name"), description: t("labs.risk.var.presets.standard1d.description"), apply: () => { setMu(8); setSigma(20); setHorizon(1); setAlpha(0.99); setDf(5); } },
+        { name: t("labs.risk.var.presets.reg10d.name"), description: t("labs.risk.var.presets.reg10d.description"), apply: () => { setHorizon(10); setAlpha(0.99); } },
+        { name: t("labs.risk.var.presets.fatTail.name"), description: t("labs.risk.var.presets.fatTail.description"), apply: () => { setDf(3); setSigma(35); } },
+        { name: t("labs.risk.var.presets.conf95.name"), description: t("labs.risk.var.presets.conf95.description"), apply: () => { setAlpha(0.95); } },
       ]} />
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="space-y-3">
-          <Slider label="组合价值 V ($)" value={V} min={100000} max={5000000} step={100000} onChange={setV} />
-          <Slider label="年化收益 μ (%)" value={mu} min={-10} max={20} step={1} onChange={setMu} />
-          <Slider label="年化波动 σ (%)" value={sigma} min={5} max={60} step={1} onChange={setSigma} />
-          <Slider label="持有期 (交易日)" value={horizon} min={1} max={20} step={1} onChange={setHorizon} />
-          <Slider label="置信水平 α" value={alpha} min={0.9} max={0.999} step={0.005} onChange={setAlpha} />
-          <Slider label="厚尾自由度 df" sub="历史样本" value={df} min={3} max={30} step={1} onChange={setDf} />
-          <Slider label="随机种子" value={seed} min={1} max={999} step={1} onChange={setSeed} />
+          <Slider label={t("labs.risk.var.slider.portfolioValue")} value={V} min={100000} max={5000000} step={100000} onChange={setV} />
+          <Slider label={t("labs.risk.var.slider.annualReturn")} value={mu} min={-10} max={20} step={1} onChange={setMu} />
+          <Slider label={t("labs.risk.var.slider.annualVol")} value={sigma} min={5} max={60} step={1} onChange={setSigma} />
+          <Slider label={t("labs.risk.var.slider.horizon")} value={horizon} min={1} max={20} step={1} onChange={setHorizon} />
+          <Slider label={t("labs.risk.var.slider.confidence")} value={alpha} min={0.9} max={0.999} step={0.005} onChange={setAlpha} />
+          <Slider label={t("labs.risk.var.slider.dof")} sub={t("labs.risk.var.slider.dofSub")} value={df} min={3} max={30} step={1} onChange={setDf} />
+          <Slider label={t("labs.risk.var.slider.seed")} value={seed} min={1} max={999} step={1} onChange={setSeed} />
         </div>
         <div className="space-y-3">
           <div className="grid grid-cols-3 gap-2">
             {methods.map(m => (
-              <Stat key={m.name} label={m.name} value={fmt(m.var)} color={m.color} sub={`ES ${fmt(m.es)}`} />
+              <Stat key={m.name} label={m.name} value={fmt(m.var)} color={m.color} sub={t("labs.risk.var.stat.esSub", { value: fmt(m.es) })} />
             ))}
           </div>
           <div className="text-xs font-mono text-muted-foreground p-3 rounded-lg bg-secondary/40 border border-border leading-relaxed space-y-1">
-            <p><span className="text-gold">参数法：</span>VaR = V·(z·σ_h − μ_h)，计算快但假设正态，低估尾部风险。</p>
-            <p><span className="text-gold">历史模拟：</span>取历史收益分位数，无分布假设但依赖样本（此处用 t 分布模拟厚尾）。</p>
-            <p><span className="text-gold">蒙特卡洛：</span>模拟随机路径，灵活但计算量大。</p>
-            <p><span className="text-gold">ES (期望损失)：</span>超过 VaR 的平均损失，满足次可加性，比 VaR 更稳健。</p>
+            <p><span className="text-gold">{t("labs.risk.var.explain.parametricLabel")}</span>{t("labs.risk.var.explain.parametricText")}</p>
+            <p><span className="text-gold">{t("labs.risk.var.explain.historicalLabel")}</span>{t("labs.risk.var.explain.historicalText")}</p>
+            <p><span className="text-gold">{t("labs.risk.var.explain.monteCarloLabel")}</span>{t("labs.risk.var.explain.monteCarloText")}</p>
+            <p><span className="text-gold">{t("labs.risk.var.explain.esLabel")}</span>{t("labs.risk.var.explain.esText")}</p>
           </div>
         </div>
       </div>
 
       <div className="rounded-xl border border-border bg-secondary/20 p-4">
-        <h4 className="text-sm font-semibold text-foreground mb-2">蒙特卡洛损失分布与 VaR 阈值</h4>
+        <h4 className="text-sm font-semibold text-foreground mb-2">{t("labs.risk.var.chart.title")}</h4>
         <div className="h-[300px]">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={r.hist}>
               <CartesianGrid stroke={CHART_GRID} strokeDasharray="3 3" />
-              <XAxis dataKey="x" stroke={CHART_TEXT} tick={{ fontSize: 9 }} label={{ value: "损失 L ($)", position: "insideBottom", offset: -5, fill: CHART_TEXT, fontSize: 10 }} />
+              <XAxis dataKey="x" stroke={CHART_TEXT} tick={{ fontSize: 9 }} label={{ value: t("labs.risk.var.chart.xAxisLabel"), position: "insideBottom", offset: -5, fill: CHART_TEXT, fontSize: 10 }} />
               <YAxis stroke={CHART_TEXT} tick={{ fontSize: 10 }} />
               <Tooltip contentStyle={{ background: "hsl(var(--card))", border: `1px solid ${CHART_GRID}`, fontSize: 11 }} />
               <Legend wrapperStyle={{ fontSize: 11 }} />
-              <Bar dataKey="c" name="频数">
+              <Bar dataKey="c" name={t("labs.risk.var.chart.frequency")}>
                 {r.hist.map((b, i) => <Cell key={i} fill={b.x >= r.varMC ? CHART_RED : CHART_TEAL} fillOpacity={0.6} />)}
               </Bar>
-              <ReferenceLine x={+r.varParam.toFixed(0)} stroke={CHART_GOLD} strokeDasharray="4 3" label={{ value: "参数", fill: CHART_GOLD, fontSize: 9 }} />
-              <ReferenceLine x={+r.varMC.toFixed(0)} stroke={CHART_BLUE} strokeDasharray="4 3" label={{ value: "MC VaR", fill: CHART_BLUE, fontSize: 9 }} />
-              <ReferenceLine x={+r.varHist.toFixed(0)} stroke={CHART_RED} strokeDasharray="4 3" label={{ value: "历史", fill: CHART_RED, fontSize: 9 }} />
+              <ReferenceLine x={+r.varParam.toFixed(0)} stroke={CHART_GOLD} strokeDasharray="4 3" label={{ value: t("labs.risk.var.chart.parametricRef"), fill: CHART_GOLD, fontSize: 9 }} />
+              <ReferenceLine x={+r.varMC.toFixed(0)} stroke={CHART_BLUE} strokeDasharray="4 3" label={{ value: t("labs.risk.var.chart.mcVarRef"), fill: CHART_BLUE, fontSize: 9 }} />
+              <ReferenceLine x={+r.varHist.toFixed(0)} stroke={CHART_RED} strokeDasharray="4 3" label={{ value: t("labs.risk.var.chart.historicalRef"), fill: CHART_RED, fontSize: 9 }} />
             </BarChart>
           </ResponsiveContainer>
         </div>
         <p className="text-[10px] font-mono text-muted-foreground mt-2 leading-relaxed">
-          红色区域为超过蒙特卡洛 VaR 的尾部损失。厚尾历史模拟的 VaR/ES 通常高于正态参数法，凸显正态假设对尾部风险的低估。
+          {t("labs.risk.var.chart.footnote")}
         </p>
       </div>
     </div>
