@@ -5,6 +5,7 @@ import {
 } from "recharts";
 import "katex/dist/katex.min.css";
 import PresetButtons from "../PresetButtons";
+import { useTranslation } from "react-i18next";
 
 const CHART_GOLD = "hsl(43, 80%, 55%)";
 const CHART_TEAL = "hsl(180, 50%, 40%)";
@@ -87,6 +88,7 @@ const Stat = ({ label, value, color = CHART_GOLD, sub }:
    1. CVA / DVA / Bilateral XVA — Swap exposure simulation
    ════════════════════════════════════════════════════════════ */
 export const CVAXVATool = () => {
+  const { t } = useTranslation();
   const [notional, setNotional] = useState(100); // 100M
   const [tenor, setTenor] = useState(5);         // years
   const [r0, setR0] = useState(0.04);
@@ -182,7 +184,7 @@ export const CVAXVATool = () => {
       { name: "CVA", val: +totalCVA.toFixed(3), color: CHART_RED },
       { name: "DVA", val: +totalDVA.toFixed(3), color: CHART_TEAL },
       { name: "BCVA (CVA−DVA)", val: +bcva.toFixed(3), color: CHART_GOLD },
-      { name: "WWR 增量", val: +wwr_impact.toFixed(3), color: CHART_BLUE },
+      { name: t("labs.risk.v26.cva.chart.wwrDelta"), val: +wwr_impact.toFixed(3), color: CHART_BLUE },
     ];
 
     return { totalCVA, totalDVA, bcva, totalCVA_naive, wwr_impact, epeCurve, xvaBar };
@@ -191,44 +193,44 @@ export const CVAXVATool = () => {
   return (
     <div className="space-y-6">
       <PresetButtons presets={[
-        { name: "无 WWR", description: "ρ=0, 独立违约", apply: () => { setRhoWW(0); setHazardC(0.02); } },
-        { name: "Wrong-way 强", description: "ρ=0.7, 利率↑→违约↑", apply: () => { setRhoWW(0.7); setHazardC(0.025); } },
-        { name: "Right-way", description: "ρ=−0.6", apply: () => { setRhoWW(-0.6); } },
-        { name: "投资级对手", description: "λ_C=0.005", apply: () => { setHazardC(0.005); setLGD(0.4); setRhoWW(0.2); } },
+        { name: t("labs.risk.v26.cva.presets.noWwr.name"), description: t("labs.risk.v26.cva.presets.noWwr.description"), apply: () => { setRhoWW(0); setHazardC(0.02); } },
+        { name: t("labs.risk.v26.cva.presets.strongWrongWay.name"), description: t("labs.risk.v26.cva.presets.strongWrongWay.description"), apply: () => { setRhoWW(0.7); setHazardC(0.025); } },
+        { name: t("labs.risk.v26.cva.presets.rightWay.name"), description: t("labs.risk.v26.cva.presets.rightWay.description"), apply: () => { setRhoWW(-0.6); } },
+        { name: t("labs.risk.v26.cva.presets.igCounterparty.name"), description: t("labs.risk.v26.cva.presets.igCounterparty.description"), apply: () => { setHazardC(0.005); setLGD(0.4); setRhoWW(0.2); } },
       ]} />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="space-y-3">
-          <Slider label="名义本金 (M)" value={notional} min={10} max={500} step={10} onChange={setNotional} />
-          <Slider label="期限 (年)" value={tenor} min={1} max={10} step={1} onChange={setTenor} />
-          <Slider label="初始利率 r₀" value={r0} min={0} max={0.1} step={0.005} onChange={setR0} fmt={v=>`${(v*100).toFixed(2)}%`} />
-          <Slider label="利率波动 σ_r" value={sigmaR} min={0.002} max={0.04} step={0.001} onChange={setSigmaR} />
-          <Slider label="固定支付 K" value={Kfix} min={0} max={0.1} step={0.005} onChange={setKfix} fmt={v=>`${(v*100).toFixed(2)}%`} />
-          <Slider label="对手风险率 λ_C" sub="counterparty hazard" value={hazardC} min={0.001} max={0.1} step={0.001} onChange={setHazardC} />
-          <Slider label="自身风险率 λ_B" sub="bank own hazard" value={hazardB} min={0} max={0.05} step={0.001} onChange={setHazardB} />
-          <Slider label="LGD" value={LGD} min={0.1} max={1.0} step={0.05} onChange={setLGD} />
-          <Slider label="WWR ρ(利率, λ)" sub="wrong-way risk" value={rho_WW} min={-0.9} max={0.9} step={0.05} onChange={setRhoWW} />
-          <Slider label="路径数" value={nPaths} min={500} max={5000} step={500} onChange={setNPaths} />
-          <Slider label="种子" value={seed} min={1} max={999} step={1} onChange={setSeed} />
+          <Slider label={t("labs.risk.v26.cva.sliders.notional")} value={notional} min={10} max={500} step={10} onChange={setNotional} />
+          <Slider label={t("labs.risk.v26.cva.sliders.tenor")} value={tenor} min={1} max={10} step={1} onChange={setTenor} />
+          <Slider label={t("labs.risk.v26.cva.sliders.r0")} value={r0} min={0} max={0.1} step={0.005} onChange={setR0} fmt={v=>`${(v*100).toFixed(2)}%`} />
+          <Slider label={t("labs.risk.v26.cva.sliders.sigmaR")} value={sigmaR} min={0.002} max={0.04} step={0.001} onChange={setSigmaR} />
+          <Slider label={t("labs.risk.v26.cva.sliders.kfix")} value={Kfix} min={0} max={0.1} step={0.005} onChange={setKfix} fmt={v=>`${(v*100).toFixed(2)}%`} />
+          <Slider label={t("labs.risk.v26.cva.sliders.hazardC")} sub={t("labs.risk.v26.cva.sliders.hazardCSub")} value={hazardC} min={0.001} max={0.1} step={0.001} onChange={setHazardC} />
+          <Slider label={t("labs.risk.v26.cva.sliders.hazardB")} sub={t("labs.risk.v26.cva.sliders.hazardBSub")} value={hazardB} min={0} max={0.05} step={0.001} onChange={setHazardB} />
+          <Slider label={t("labs.risk.v26.cva.sliders.lgd")} value={LGD} min={0.1} max={1.0} step={0.05} onChange={setLGD} />
+          <Slider label={t("labs.risk.v26.cva.sliders.rhoWw")} sub={t("labs.risk.v26.cva.sliders.rhoWwSub")} value={rho_WW} min={-0.9} max={0.9} step={0.05} onChange={setRhoWW} />
+          <Slider label={t("labs.risk.v26.cva.sliders.nPaths")} value={nPaths} min={500} max={5000} step={500} onChange={setNPaths} />
+          <Slider label={t("labs.risk.v26.cva.sliders.seed")} value={seed} min={1} max={999} step={1} onChange={setSeed} />
         </div>
 
         <div className="space-y-3">
-          <Stat label="CVA" value={result.totalCVA.toFixed(3)+" M"} color={CHART_RED} sub="对手违约成本" />
-          <Stat label="DVA" value={result.totalDVA.toFixed(3)+" M"} color={CHART_TEAL} sub="自身违约收益" />
-          <Stat label="BCVA = CVA − DVA" value={result.bcva.toFixed(3)+" M"} color={CHART_GOLD} sub="双边 XVA" />
-          <Stat label="CVA (无 WWR 朴素)" value={result.totalCVA_naive.toFixed(3)+" M"} sub="独立违约假设" />
-          <Stat label="WWR 增量" value={`${result.wwr_impact>=0?"+":""}${result.wwr_impact.toFixed(3)} M`} color={result.wwr_impact>=0?CHART_RED:CHART_TEAL} sub="ρ ≠ 0 与朴素之差" />
+          <Stat label="CVA" value={result.totalCVA.toFixed(3)+" M"} color={CHART_RED} sub={t("labs.risk.v26.cva.stats.cvaSub")} />
+          <Stat label="DVA" value={result.totalDVA.toFixed(3)+" M"} color={CHART_TEAL} sub={t("labs.risk.v26.cva.stats.dvaSub")} />
+          <Stat label={t("labs.risk.v26.cva.stats.bcvaLabel")} value={result.bcva.toFixed(3)+" M"} color={CHART_GOLD} sub={t("labs.risk.v26.cva.stats.bcvaSub")} />
+          <Stat label={t("labs.risk.v26.cva.stats.naiveLabel")} value={result.totalCVA_naive.toFixed(3)+" M"} sub={t("labs.risk.v26.cva.stats.naiveSub")} />
+          <Stat label={t("labs.risk.v26.cva.stats.wwrDeltaLabel")} value={`${result.wwr_impact>=0?"+":""}${result.wwr_impact.toFixed(3)} M`} color={result.wwr_impact>=0?CHART_RED:CHART_TEAL} sub={t("labs.risk.v26.cva.stats.wwrDeltaSub")} />
           <div className="text-xs font-mono text-muted-foreground p-3 rounded-lg bg-secondary/40 border border-border leading-relaxed">
-            <p><span className="text-gold">CVA：</span>CVA = LGD · ∫ EPE(t) · dPD_C(t) · D(0,t)。</p>
-            <p>Wrong-way risk:当违约强度 λ_C 与利率 r 正相关时,违约更易发生在敞口大的时刻 → CVA 显著放大。</p>
-            <p>BCVA = CVA − DVA(Hull-White 2012):银行自身违约下未付出的损失抵消部分 CVA。</p>
+            <p><span className="text-gold">{t("labs.risk.v26.cva.explain.cvaTitle")}</span>{t("labs.risk.v26.cva.explain.cvaFormula")}</p>
+            <p>{t("labs.risk.v26.cva.explain.wwr")}</p>
+            <p>{t("labs.risk.v26.cva.explain.bcva")}</p>
           </div>
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <div className="rounded-xl border border-border bg-secondary/20 p-4">
-          <h4 className="text-sm font-semibold text-foreground mb-2">EPE 期望正暴露</h4>
+          <h4 className="text-sm font-semibold text-foreground mb-2">{t("labs.risk.v26.cva.chart.epeTitle")}</h4>
           <div className="h-[260px]">
             <ResponsiveContainer width="100%" height="100%">
               <ComposedChart data={result.epeCurve}>
@@ -242,7 +244,7 @@ export const CVAXVATool = () => {
           </div>
         </div>
         <div className="rounded-xl border border-border bg-secondary/20 p-4">
-          <h4 className="text-sm font-semibold text-foreground mb-2">XVA 组分</h4>
+          <h4 className="text-sm font-semibold text-foreground mb-2">{t("labs.risk.v26.cva.chart.xvaTitle")}</h4>
           <div className="h-[260px]">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={result.xvaBar}>
@@ -267,6 +269,7 @@ export const CVAXVATool = () => {
    2. Credit Portfolio Copula — Vasicek / Li (Gaussian vs t)
    ════════════════════════════════════════════════════════════ */
 export const CreditCopulaTool = () => {
+  const { t } = useTranslation();
   const [n, setN] = useState(100);       // n obligors
   const [pd, setPd] = useState(0.03);    // marginal PD
   const [rho, setRho] = useState(0.2);   // asset correlation
