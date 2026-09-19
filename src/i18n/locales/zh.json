@@ -2143,7 +2143,73 @@
     },
     "risk": {
       "subtitle": "从 VaR 与极值尾部，到信用、流动性螺旋、Basel 资本与恢复计划的完整风险语言。",
-      "historySummary": "工具: {{tool}}"
+      "historySummary": "工具: {{tool}}",
+      "evt": {
+        "tailHeavy": "重尾 (Fréchet)",
+        "tailMedium": "中等尾",
+        "tailLight": "轻尾",
+        "presets": {
+          "heavyTail": {
+            "name": "重尾市场 (df=3)",
+            "description": "极端事件频繁"
+          },
+          "mildMarket": {
+            "name": "温和市场 (df=10)",
+            "description": "接近正态"
+          },
+          "crisisTail": {
+            "name": "危机尾部 (df=2.5)",
+            "description": "极重尾"
+          },
+          "highThreshold": {
+            "name": "高阈值",
+            "description": "u=95%"
+          },
+          "lowThreshold": {
+            "name": "低阈值",
+            "description": "u=85%"
+          }
+        },
+        "sectionLossDistribution": "损失分布与阈值",
+        "sliders": {
+          "dfLabel": "自由度 df",
+          "dfSub": "越小尾越重",
+          "scaleLabel": "尺度 σ",
+          "thresholdLabel": "阈值分位 u",
+          "thresholdSub": "POT 起点",
+          "seedLabel": "随机种子"
+        },
+        "stats": {
+          "threshold": "阈值 u",
+          "exceedCount": "超阈值数 Nu",
+          "shape": "形状 ξ (xi)",
+          "scaleBeta": "尺度 β (beta)"
+        },
+        "comparisonTitle": "尾部风险对比 — Normal vs Historical vs EVT(POT)",
+        "table": {
+          "confidenceLevel": "置信水平",
+          "normalVaR": "正态 VaR",
+          "historicalVaR": "历史 VaR",
+          "evtVaR": "EVT VaR",
+          "evtES": "EVT ES"
+        },
+        "comparisonNote": "正态法在 99.9% 处通常低估尾部风险；EVT 通过拟合超阈值分布更准确地外推极端分位。",
+        "meanExcessTitle": "平均超额图 e(u) — 线性即支持 GPD",
+        "tailFitTitle": "尾部拟合 — 经验 vs GPD 生存函数",
+        "chart": {
+          "thresholdAxis": "阈值 u",
+          "meanExcess": "平均超额",
+          "lossAxis": "损失",
+          "empirical": "经验 P(X>x)",
+          "gpdFit": "GPD 拟合"
+        },
+        "notes": {
+          "potLabel": "峰值超阈 (POT)：",
+          "potText": "超过高阈值 u 的超额量服从广义帕累托分布 GPD(ξ, β)（Pickands-Balkema-de Haan 定理）。",
+          "xiLabel": "尾指数 ξ：",
+          "xiText": "ξ>0 为重尾 (Fréchet)，决定极端分位外推；EVT 在 99.9% 等极端置信水平比正态/历史法更稳健。"
+        }
+      }
     }
   }
 }
