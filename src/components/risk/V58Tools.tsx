@@ -3,6 +3,7 @@
  * 1 CoherenceTool 2 VolFhsTool 3 IrbCapitalTool 4 CreditMetricsTool
  * 5 FundingSpiralTool 6 BaselStackTool 7 ModelRiskTool 8 ResilienceTool
  */
+import { useTranslation } from "react-i18next";
 import { useMemo, useState } from "react";
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -48,6 +49,7 @@ function lossSample(n: number, sigma: number, df: number, seed: number) {
 }
 
 /* ═══════════ 1. Coherence, spectral & elicitability ═══════════ */
+  const { t } = useTranslation();
 export const CoherenceTool = () => {
   const [gamma, setGamma] = useState(25);
   const [alpha, setAlpha] = useState(0.975);
@@ -82,32 +84,32 @@ export const CoherenceTool = () => {
   return (
     <div className="space-y-6">
       <PresetButtons presets={[
-        { name: "监管标准 (97.5% ES)", description: "FRTB 基准", apply: () => { setAlpha(0.975); setGamma(25); setDf(5); } },
-        { name: "极端厌恶", description: "γ=80 谱测度", apply: () => { setGamma(80); setAlpha(0.99); } },
-        { name: "重尾世界", description: "df=3", apply: () => { setDf(3); setGamma(30); } },
-        { name: "次可加性反例", description: "违约债组合", apply: () => { setPd(4); } },
+        { name: t("labs.risk.v58.coherence.regulatoryStandard"), description: t("labs.risk.v58.coherence.frtbBenchmark"), apply: () => { setAlpha(0.975); setGamma(25); setDf(5); } },
+        { name: t("labs.risk.v58.coherence.extremeAversion"), description: t("labs.risk.v58.coherence.spectralMeasureGamma80"), apply: () => { setGamma(80); setAlpha(0.99); } },
+        { name: t("labs.risk.v58.coherence.heavyTailWorld"), description: t("labs.risk.v58.coherence.df3"), apply: () => { setDf(3); setGamma(30); } },
+        { name: t("labs.risk.v58.coherence.subadditivityCounterexample"), description: t("labs.risk.v58.coherence.defaultBondPortfolio"), apply: () => { setPd(4); } },
       ]} />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="space-y-3">
-          <p className="text-xs font-mono text-gold uppercase tracking-wider">度量参数</p>
-          <Slider label="置信水平 α" value={alpha} min={0.9} max={0.999} step={0.005} fmt={(v) => pct(v, 1)} onChange={setAlpha} />
-          <Slider label="风险厌恶 γ" sub="谱测度" value={gamma} min={2} max={100} step={1} fmt={(v) => v.toFixed(0)} onChange={setGamma} />
-          <Slider label="Wang 变换 λ" value={wang} min={0} max={1.2} step={0.05} onChange={setWang} />
-          <Slider label="损失分布自由度 df" value={df} min={2.5} max={20} step={0.5} onChange={setDf} />
-          <Slider label="反例违约率 p" value={pd} min={1} max={9} step={0.5} fmt={(v) => v.toFixed(1) + "%"} onChange={setPd} />
+          <p className="text-xs font-mono text-gold uppercase tracking-wider">t("labs.risk.v58.coherence.measurementParameters")</p>
+          <Slider label={t("labs.risk.v58.coherence.confidenceLevelAlpha")} value={alpha} min={0.9} max={0.999} step={0.005} fmt={(v) => pct(v, 1)} onChange={setAlpha} />
+          <Slider label={t("labs.risk.v58.coherence.riskAversionGamma")} sub={t("labs.risk.v58.coherence.spectralMeasure")} value={gamma} min={2} max={100} step={1} fmt={(v) => v.toFixed(0)} onChange={setGamma} />
+          <Slider label={t("labs.risk.v58.coherence.wangTransformLambda")} value={wang} min={0} max={1.2} step={0.05} onChange={setWang} />
+          <Slider label={t("labs.risk.v58.coherence.lossDistributionDf")} value={df} min={2.5} max={20} step={0.5} onChange={setDf} />
+          <Slider label={t("labs.risk.v58.coherence.counterexamplePd")} value={pd} min={1} max={9} step={0.5} fmt={(v) => v.toFixed(1) + "%"} onChange={setPd} />
         </div>
         <div className="grid grid-cols-2 gap-2 content-start">
           <Stat label={`VaR ${pct(alpha, 1)}`} value={pct(res.v)} />
           <Stat label={`ES ${pct(alpha, 1)}`} value={pct(res.e)} color={C.red} />
-          <Stat label="VaR 次可加性" value={res.sub.violatesVaR ? "违反 ✗" : "满足 ✓"} color={res.sub.violatesVaR ? C.red : C.green}
+          <Stat label={t("labs.risk.v58.coherence.varSubadditivity")} value={res.sub.violatesVaR ? "违反 ✗" : "满足 ✓"} color={res.sub.violatesVaR ? C.red : C.green}
             sub={`VaR(A)+VaR(B)=${res.sub.varSum.toFixed(2)} vs VaR(A+B)=${res.sub.varPool.toFixed(2)}`} />
-          <Stat label="ES 次可加性" value={res.sub.violatesES ? "违反 ✗" : "满足 ✓"} color={res.sub.violatesES ? C.red : C.green}
-            sub="一致性风险测度" />
+          <Stat label={t("labs.risk.v58.coherence.esSubadditivity")} value={res.sub.violatesES ? "违反 ✗" : "满足 ✓"} color={res.sub.violatesES ? C.red : C.green}
+            sub={t("labs.risk.v58.coherence.coherentRiskMeasure")} />
         </div>
       </div>
 
-      <Panel title="风险测度谱系 — 同一损失分布下的不同尺度 (%)">
+      <Panel title={t("labs.risk.v58.coherence.riskMeasureSpectrum")}>
         <div className="h-[240px]">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={res.measures}>
@@ -115,17 +117,17 @@ export const CoherenceTool = () => {
               <XAxis dataKey="name" stroke={C.text} tick={{ fontSize: 10 }} />
               <YAxis stroke={C.text} tick={{ fontSize: 10 }} />
               <Tooltip contentStyle={tooltipStyle} />
-              <Bar dataKey="v" name="风险值 %" radius={[4, 4, 0, 0]}>
+              <Bar dataKey="v" name={t("labs.risk.v58.coherence.riskValuePct")} radius={[4, 4, 0, 0]}>
                 {res.measures.map((m, i) => <Cell key={i} fill={m.coherent ? C.gold : C.red} />)}
               </Bar>
             </BarChart>
           </ResponsiveContainer>
         </div>
-        <p className="text-[10px] font-mono text-muted-foreground mt-2">红色 = 非一致性 (VaR 缺少次可加性)；金色 = 满足单调性、平移不变、正齐次与次可加性。</p>
+        <p className="text-[10px] font-mono text-muted-foreground mt-2">t("labs.risk.v58.coherence.coherenceNote")</p>
       </Panel>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-        <Panel title="谱权重 φ(u) — 越靠近 1 越重视尾部">
+        <Panel title={t("labs.risk.v58.coherence.spectralWeights")}>
           <div className="h-[200px]">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={res.sp}>
@@ -138,7 +140,7 @@ export const CoherenceTool = () => {
             </ResponsiveContainer>
           </div>
         </Panel>
-        <Panel title="可引出性 — Pinball 打分在真实分位处最小 (×10⁻⁴)">
+        <Panel title={t("labs.risk.v58.coherence.elicitabilityPinball")}>
           <div className="h-[200px]">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={res.score}>
@@ -155,8 +157,8 @@ export const CoherenceTool = () => {
       </div>
 
       <Note>
-        <p><span className="text-gold">一致性四公理：</span>单调性、次可加性、正齐次性、平移不变性 (Artzner et al. 1999)。VaR 一般不满足次可加性，因此分散化可能"看起来"增加风险。</p>
-        <p><span className="text-gold">可引出性：</span>VaR 可由 pinball 打分单独引出，ES 不可单独引出，但 (VaR, ES) 联合可引出 (Fissler-Ziegel)，这正是 FRTB 用 VaR 回测配合 ES 计量的原因。</p>
+        <p><span className="text-gold">t("labs.risk.v58.coherence.coherenceFourAxioms")</span>t("labs.risk.v58.coherence.axiomsDescription")</p>
+        <p><span className="text-gold">t("labs.risk.v58.coherence.elicitabilityHeader")</span>t("labs.risk.v58.coherence.elicitabilityDescription")</p>
       </Note>
     </div>
   );
@@ -164,6 +166,7 @@ export const CoherenceTool = () => {
 
 /* ═══════════ 2. Volatility models + FHS ═══════════ */
 export const VolFhsTool = () => {
+  const { t } = useTranslation();
   const [lambda, setLambda] = useState(0.94);
   const [alpha, setAlpha] = useState(0.99);
   const [horizon, setHorizon] = useState(1);
@@ -201,9 +204,9 @@ export const VolFhsTool = () => {
     const normVar = sNext * Math.sqrt(horizon) * (alpha >= 0.99 ? 2.3263 : 1.96);
 
     const compare = [
-      { name: "静态历史法", var: +(histVar * 100).toFixed(3), es: +(histEs * 100).toFixed(3) },
-      { name: "条件正态", var: +(normVar * 100).toFixed(3), es: +(normVar * 1.15 * 100).toFixed(3) },
-      { name: "FHS", var: +(fhs.var * 100).toFixed(3), es: +(fhs.es * 100).toFixed(3) },
+      { name: t("labs.risk.v58.vol.staticHistorical"), var: +(histVar * 100).toFixed(3), es: +(histEs * 100).toFixed(3) },
+      { name: t("labs.risk.v58.vol.conditionalNormal"), var: +(normVar * 100).toFixed(3), es: +(normVar * 1.15 * 100).toFixed(3) },
+      { name: t("labs.risk.v58.vol.fhs"), var: +(fhs.var * 100).toFixed(3), es: +(fhs.es * 100).toFixed(3) },
     ];
     return { series, fit, fhs, compare, sNext, ewLast: ew[ew.length - 1], harLast: har[har.length - 1] };
   }, [lambda, alpha, horizon, shockSize, seed]);
@@ -211,30 +214,30 @@ export const VolFhsTool = () => {
   return (
     <div className="space-y-6">
       <PresetButtons presets={[
-        { name: "RiskMetrics λ=0.94", description: "日频标准", apply: () => { setLambda(0.94); setHorizon(1); } },
-        { name: "10 日监管持有期", description: "Basel MRA", apply: () => { setHorizon(10); setAlpha(0.99); } },
-        { name: "危机爆发", description: "波动率 6× 冲击", apply: () => { setShockSize(6); } },
-        { name: "平静市场", description: "无冲击", apply: () => { setShockSize(1); } },
+        { name: t("labs.risk.v58.vol.riskMetricsLambda"), description: t("labs.risk.v58.vol.dailyStandard"), apply: () => { setLambda(0.94); setHorizon(1); } },
+        { name: t("labs.risk.v58.vol.tenDayRegulatoryHorizon"), description: t("labs.risk.v58.vol.baselMra"), apply: () => { setHorizon(10); setAlpha(0.99); } },
+        { name: t("labs.risk.v58.vol.crisisOutbreak"), description: t("labs.risk.v58.vol.volShock6x"), apply: () => { setShockSize(6); } },
+        { name: t("labs.risk.v58.vol.calmMarket"), description: t("labs.risk.v58.vol.noShock"), apply: () => { setShockSize(1); } },
       ]} />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="space-y-3">
-          <p className="text-xs font-mono text-gold uppercase tracking-wider">建模参数</p>
-          <Slider label="EWMA 衰减 λ" value={lambda} min={0.85} max={0.99} step={0.005} onChange={setLambda} />
-          <Slider label="置信水平 α" value={alpha} min={0.9} max={0.999} step={0.005} fmt={(v) => pct(v, 1)} onChange={setAlpha} />
-          <Slider label="持有期 h (天)" value={horizon} min={1} max={20} step={1} fmt={(v) => v.toFixed(0)} onChange={setHorizon} />
-          <Slider label="冲击幅度" sub="制造波动率簇" value={shockSize} min={1} max={8} step={0.5} onChange={setShockSize} />
-          <Slider label="随机种子" value={seed} min={1} max={99} step={1} fmt={(v) => v.toFixed(0)} onChange={setSeed} />
+          <p className="text-xs font-mono text-gold uppercase tracking-wider">t("labs.risk.v58.vol.modelingParameters")</p>
+          <Slider label={t("labs.risk.v58.vol.ewmaDecayLambda")} value={lambda} min={0.85} max={0.99} step={0.005} onChange={setLambda} />
+          <Slider label={t("labs.risk.v58.coherence.confidenceLevelAlpha")} value={alpha} min={0.9} max={0.999} step={0.005} fmt={(v) => pct(v, 1)} onChange={setAlpha} />
+          <Slider label={t("labs.risk.v58.vol.holdingPeriodH")} value={horizon} min={1} max={20} step={1} fmt={(v) => v.toFixed(0)} onChange={setHorizon} />
+          <Slider label={t("labs.risk.v58.vol.shockMagnitude")} sub={t("labs.risk.v58.vol.createVolClusters")} value={shockSize} min={1} max={8} step={0.5} onChange={setShockSize} />
+          <Slider label={t("labs.risk.v58.vol.randomSeed")} value={seed} min={1} max={99} step={1} fmt={(v) => v.toFixed(0)} onChange={setSeed} />
         </div>
         <div className="grid grid-cols-2 gap-2 content-start">
-          <Stat label="GARCH ω / α / β" value={`${res.fit.alpha.toFixed(3)} / ${res.fit.beta.toFixed(3)}`} sub={`持续性 ${res.fit.persistence.toFixed(3)}`} />
-          <Stat label="条件波动率预测" value={pct(res.sNext)} color={C.blue} sub="日频 σ_{t+1}" />
+          <Stat label={t("labs.risk.v58.vol.garchParams")} value={`${res.fit.alpha.toFixed(3)} / ${res.fit.beta.toFixed(3)}`} sub={t("labs.risk.v58.vol.persistence", { value: res.fit.persistence.toFixed(3) })} />
+          <Stat label={t("labs.risk.v58.vol.conditionalVolForecast")} value={pct(res.sNext)} color={C.blue} sub={t("labs.risk.v58.vol.dailySigmaNext")} />
           <Stat label={`FHS VaR ${pct(alpha, 1)}`} value={pct(res.fhs.var)} color={C.gold} />
           <Stat label={`FHS ES ${pct(alpha, 1)}`} value={pct(res.fhs.es)} color={C.red} />
         </div>
       </div>
 
-      <Panel title="条件波动率对比 — EWMA / GARCH(1,1) / HAR (%)">
+      <Panel title={t("labs.risk.v58.vol.conditionalVolComparison")}>
         <div className="h-[250px]">
           <ResponsiveContainer width="100%" height="100%">
             <ComposedChart data={res.series}>
@@ -243,7 +246,7 @@ export const VolFhsTool = () => {
               <YAxis stroke={C.text} tick={{ fontSize: 10 }} />
               <Tooltip contentStyle={tooltipStyle} />
               <Legend wrapperStyle={{ fontSize: 11 }} />
-              <Area type="monotone" dataKey="ret" name="收益率" fill={C.grid} stroke={C.grid} />
+              <Area type="monotone" dataKey="ret" name={t("labs.risk.v58.vol.returns")} fill={C.grid} stroke={C.grid} />
               <Line type="monotone" dataKey="ewma" name="EWMA" stroke={C.gold} strokeWidth={2} dot={false} />
               <Line type="monotone" dataKey="garch" name="GARCH" stroke={C.red} strokeWidth={2} dot={false} />
               <Line type="monotone" dataKey="har" name="HAR" stroke={C.teal} strokeWidth={1.6} dot={false} strokeDasharray="4 3" />
@@ -253,7 +256,7 @@ export const VolFhsTool = () => {
       </Panel>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-        <Panel title="FHS 损失分布">
+        <Panel title={t("labs.risk.v58.vol.fhsLossDistribution")}>
           <div className="h-[220px]">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={res.fhs.hist}>
@@ -267,7 +270,7 @@ export const VolFhsTool = () => {
             </ResponsiveContainer>
           </div>
         </Panel>
-        <Panel title="方法对比 — VaR / ES (%)">
+        <Panel title={t("labs.risk.v58.vol.methodComparison")}>
           <div className="h-[220px]">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={res.compare}>
@@ -285,8 +288,8 @@ export const VolFhsTool = () => {
       </div>
 
       <Note>
-        <p><span className="text-gold">过滤式历史模拟 (FHS)：</span>用 GARCH 条件波动率标准化历史收益得到 z_t，再自助抽样并用当前 σ_{"{t+1}"} 还原，兼顾"厚尾非参数形状"与"波动率聚集"。</p>
-        <p><span className="text-gold">为何静态历史法失灵：</span>平静期样本会低估危机风险，危机后又长期高估——风险度量必须是条件的。</p>
+        <p><span className="text-gold">t("labs.risk.v58.vol.fhsHeader")</span>用 GARCH 条件波动率标准化历史收益得到 z_t，再自助抽样并用当前 σ_{"{t+1}"} 还原，兼顾"厚尾非参数形状"与"波动率聚集"。</p>
+        <p><span className="text-gold">t("labs.risk.v58.vol.whyStaticFailsHeader")</span>t("labs.risk.v58.vol.whyStaticFailsDescription")</p>
       </Note>
     </div>
   );
@@ -294,6 +297,7 @@ export const VolFhsTool = () => {
 
 /* ═══════════ 3. PD / LGD / EAD + IRB ═══════════ */
 export const IrbCapitalTool = () => {
+  const { t } = useTranslation();
   const [pd, setPd] = useState(1.5);
   const [lgd, setLgd] = useState(45);
   const [ead, setEad] = useState(100);
@@ -325,41 +329,41 @@ export const IrbCapitalTool = () => {
   return (
     <div className="space-y-6">
       <PresetButtons presets={[
-        { name: "投资级公司 (PD 0.3%)", description: "BBB 区间", apply: () => { setPd(0.3); setLgd(45); setMaturity(2.5); setKind("corporate"); } },
-        { name: "高收益 (PD 5%)", description: "B 区间", apply: () => { setPd(5); setLgd(60); setKind("corporate"); } },
-        { name: "住房按揭", description: "R=15% 固定", apply: () => { setKind("retail_mortgage"); setPd(1); setLgd(25); } },
-        { name: "衰退情景 z=-2", description: "PIT 顺周期", apply: () => { setZ(-2); } },
+        { name: t("labs.risk.v58.irb.investmentGradeCorporate"), description: t("labs.risk.v58.irb.bbbRange"), apply: () => { setPd(0.3); setLgd(45); setMaturity(2.5); setKind("corporate"); } },
+        { name: t("labs.risk.v58.irb.highYield"), description: t("labs.risk.v58.irb.bRange"), apply: () => { setPd(5); setLgd(60); setKind("corporate"); } },
+        { name: t("labs.risk.v58.irb.residentialMortgage"), description: t("labs.risk.v58.irb.r15Fixed"), apply: () => { setKind("retail_mortgage"); setPd(1); setLgd(25); } },
+        { name: t("labs.risk.v58.irb.recessionScenario"), description: t("labs.risk.v58.irb.pitProcyclical"), apply: () => { setZ(-2); } },
       ]} />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="space-y-3">
-          <p className="text-xs font-mono text-gold uppercase tracking-wider">风险参数</p>
+          <p className="text-xs font-mono text-gold uppercase tracking-wider">t("labs.risk.v58.irb.riskParameters")</p>
           <div className="flex flex-wrap gap-2">
-            {([["corporate", "公司"], ["sme", "中小企业"], ["retail_mortgage", "住房按揭"], ["retail_other", "其他零售"]] as const).map(([k, l]) => (
+            {([["corporate", t("labs.risk.v58.irb.corporate")], ["sme", t("labs.risk.v58.irb.sme")], ["retail_mortgage", t("labs.risk.v58.irb.retailMortgage")], ["retail_other", t("labs.risk.v58.irb.retailOther")]] as const).map(([k, l]) => (
               <button key={k} onClick={() => setKind(k)}
                 className={`px-3 py-1.5 rounded-lg text-[11px] font-mono transition-colors ${kind === k ? "bg-primary text-primary-foreground" : "bg-secondary text-secondary-foreground hover:bg-secondary/80"}`}>
                 {l}
               </button>
             ))}
           </div>
-          <Slider label="违约概率 PD" value={pd} min={0.03} max={15} step={0.01} fmt={(v) => v.toFixed(2) + "%"} onChange={setPd} />
-          <Slider label="违约损失率 LGD" value={lgd} min={5} max={100} step={1} fmt={(v) => v.toFixed(0) + "%"} onChange={setLgd} />
-          <Slider label="违约风险敞口 EAD" value={ead} min={10} max={500} step={10} fmt={(v) => v.toFixed(0)} onChange={setEad} />
-          <Slider label="有效期限 M (年)" value={maturity} min={1} max={5} step={0.25} onChange={setMaturity} />
-          <Slider label="宏观状态 z" sub="负值=衰退" value={z} min={-3} max={3} step={0.25} onChange={setZ} />
+          <Slider label={t("labs.risk.v58.irb.pd")} value={pd} min={0.03} max={15} step={0.01} fmt={(v) => v.toFixed(2) + "%"} onChange={setPd} />
+          <Slider label={t("labs.risk.v58.irb.lgd")} value={lgd} min={5} max={100} step={1} fmt={(v) => v.toFixed(0) + "%"} onChange={setLgd} />
+          <Slider label={t("labs.risk.v58.irb.ead")} value={ead} min={10} max={500} step={10} fmt={(v) => v.toFixed(0)} onChange={setEad} />
+          <Slider label={t("labs.risk.v58.irb.maturityM")} value={maturity} min={1} max={5} step={0.25} onChange={setMaturity} />
+          <Slider label={t("labs.risk.v58.irb.macroStateZ")} sub={t("labs.risk.v58.irb.negativeEqualsRecession")} value={z} min={-3} max={3} step={0.25} onChange={setZ} />
         </div>
         <div className="grid grid-cols-2 gap-2 content-start">
-          <Stat label="预期损失 EL" value={res.out.el.toFixed(3)} sub="PD × LGD × EAD" />
-          <Stat label="资产相关性 R" value={pct(res.out.correlation)} color={C.teal} />
-          <Stat label="条件 PD (99.9%)" value={pct(res.out.conditionalPd)} color={C.red} />
-          <Stat label="资本要求 K" value={pct(res.out.k)} color={C.gold} sub={`期限调整 ${res.out.maturityAdj.toFixed(3)}`} />
-          <Stat label="RWA" value={res.out.rwa.toFixed(2)} sub={`风险权重 ${pct(res.out.k * 12.5)}`} />
-          <Stat label={`PIT PD (z=${z})`} value={pct(res.pit)} color={res.pit > pd / 100 ? C.red : C.green} sub={`RWA ${res.pitOut.rwa.toFixed(1)}`} />
+          <Stat label={t("labs.risk.v58.irb.expectedLossEl")} value={res.out.el.toFixed(3)} sub={t("labs.risk.v58.irb.elFormula")} />
+          <Stat label={t("labs.risk.v58.irb.assetCorrelationR")} value={pct(res.out.correlation)} color={C.teal} />
+          <Stat label={t("labs.risk.v58.irb.conditionalPd")} value={pct(res.out.conditionalPd)} color={C.red} />
+          <Stat label={t("labs.risk.v58.irb.capitalRequirementK")} value={pct(res.out.k)} color={C.gold} sub={t("labs.risk.v58.irb.maturityAdjustment", { value: res.out.maturityAdj.toFixed(3) })} />
+          <Stat label={t("labs.risk.v58.irb.rwa")} value={res.out.rwa.toFixed(2)} sub={t("labs.risk.v58.irb.riskWeight", { value: pct(res.out.k * 12.5) })} />
+          <Stat label={t("labs.risk.v58.irb.pitPd", { z })} value={pct(res.pit)} color={res.pit > pd / 100 ? C.red : C.green} sub={`RWA ${res.pitOut.rwa.toFixed(1)}`} />
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-        <Panel title="IRB 风险权重函数 — K(PD) 与相关性 R(PD)">
+        <Panel title={t("labs.risk.v58.irb.irbRiskWeightFunction")}>
           <div className="h-[230px]">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={res.curve}>
@@ -369,14 +373,14 @@ export const IrbCapitalTool = () => {
                 <YAxis yAxisId="r" orientation="right" stroke={C.text} tick={{ fontSize: 10 }} />
                 <Tooltip contentStyle={tooltipStyle} />
                 <Legend wrapperStyle={{ fontSize: 11 }} />
-                <Line yAxisId="l" type="monotone" dataKey="rw" name="风险权重 %" stroke={C.gold} strokeWidth={2.5} dot={false} />
-                <Line yAxisId="r" type="monotone" dataKey="corr" name="相关性 R %" stroke={C.teal} strokeWidth={2} dot={false} strokeDasharray="4 3" />
+                <Line yAxisId="l" type="monotone" dataKey="rw" name={t("labs.risk.v58.irb.riskWeightPct")} stroke={C.gold} strokeWidth={2.5} dot={false} />
+                <Line yAxisId="r" type="monotone" dataKey="corr" name={t("labs.risk.v58.irb.correlationRPct")} stroke={C.teal} strokeWidth={2} dot={false} strokeDasharray="4 3" />
                 <ReferenceLine yAxisId="l" x={+pd.toFixed(2)} stroke={C.red} strokeDasharray="3 3" />
               </LineChart>
             </ResponsiveContainer>
           </div>
         </Panel>
-        <Panel title="顺周期性 — 宏观状态 z 对 PIT PD 与 RWA 的放大">
+        <Panel title={t("labs.risk.v58.irb.procyclicality")}>
           <div className="h-[230px]">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={res.cyc}>
@@ -386,7 +390,7 @@ export const IrbCapitalTool = () => {
                 <YAxis yAxisId="r" orientation="right" stroke={C.text} tick={{ fontSize: 10 }} />
                 <Tooltip contentStyle={tooltipStyle} />
                 <Legend wrapperStyle={{ fontSize: 11 }} />
-                <Line yAxisId="l" type="monotone" dataKey="pd" name="PIT PD %" stroke={C.red} strokeWidth={2.5} dot={false} />
+                <Line yAxisId="l" type="monotone" dataKey="pd" name={t("labs.risk.v58.irb.pitPdPct")} stroke={C.red} strokeWidth={2.5} dot={false} />
                 <Line yAxisId="r" type="monotone" dataKey="rwa" name="RWA" stroke={C.blue} strokeWidth={2} dot={false} />
                 <ReferenceLine yAxisId="l" x={z} stroke={C.gold} strokeDasharray="3 3" />
               </LineChart>
@@ -395,9 +399,9 @@ export const IrbCapitalTool = () => {
         </Panel>
       </div>
 
-      <Panel title="Vasicek 组合损失分位 (%)">
+      <Panel title={t("labs.risk.v58.irb.vasicekPortfolioLossQuantile")}>
         <table className="w-full text-xs font-mono border-collapse">
-          <thead><tr className="text-gold text-left"><th className="p-2 border-b border-border">置信水平</th><th className="p-2 border-b border-border">组合损失率</th><th className="p-2 border-b border-border">超出 EL 的非预期损失</th></tr></thead>
+          <thead><tr className="text-gold text-left"><th className="p-2 border-b border-border">t("labs.risk.v58.irb.confidenceLevel")}</th><th className="p-2 border-b border-border">t("labs.risk.v58.irb.portfolioLossRate")}</th><th className="p-2 border-b border-border">t("labs.risk.v58.irb.unexpectedLossAboveEl")}</th></tr></thead>
           <tbody className="text-muted-foreground">
             {res.q.map((r) => (
               <tr key={r.conf}>
@@ -411,8 +415,8 @@ export const IrbCapitalTool = () => {
       </Panel>
 
       <Note>
-        <p><span className="text-gold">监管资本只覆盖非预期损失：</span>EL 由拨备与定价吸收，K = LGD·[Φ((Φ⁻¹(PD)+√R Φ⁻¹(0.999))/√(1−R)) − PD] × 期限调整，RWA = 12.5·K·EAD。</p>
-        <p><span className="text-gold">顺周期陷阱：</span>PIT PD 在衰退中飙升 → RWA 上升 → 资本紧张 → 收缩信贷，这正是逆周期缓冲与 TTC 评级要缓解的问题。</p>
+        <p><span className="text-gold">t("labs.risk.v58.irb.regulatoryCapitalElNote")</span>t("labs.risk.v58.irb.elNoteDescription")</p>
+        <p><span className="text-gold">t("labs.risk.v58.irb.procyclicalTrapHeader")</span>t("labs.risk.v58.irb.procyclicalTrapDescription")</p>
       </Note>
     </div>
   );
@@ -420,6 +424,7 @@ export const IrbCapitalTool = () => {
 
 /* ═══════════ 4. Migration & CreditMetrics ═══════════ */
 export const MigrationCreditMetricsTool = () => {
+  const { t } = useTranslation();
   const [ratingIdx, setRatingIdx] = useState(4);
   const [rho, setRho] = useState(0.2);
   const [n, setN] = useState(50);
@@ -532,6 +537,7 @@ export const MigrationCreditMetricsTool = () => {
 
 /* ═══════════ 5. Funding liquidity & spiral ═══════════ */
 export const FundingSpiralTool = () => {
+  const { t } = useTranslation();
   const [leverage, setLeverage] = useState(10);
   const [haircut, setHaircut] = useState(8);
   const [haircutShock, setHaircutShock] = useState(3);
@@ -640,6 +646,7 @@ export const FundingSpiralTool = () => {
 
 /* ═══════════ 6. Basel capital stack + LCR / NSFR ═══════════ */
 export const BaselStackTool = () => {
+  const { t } = useTranslation();
   const [cet1, setCet1] = useState(11);
   const [at1, setAt1] = useState(1.8);
   const [t2, setT2] = useState(2.5);
@@ -678,7 +685,7 @@ export const BaselStackTool = () => {
           <Slider label="CET1 (核心一级)" value={cet1} min={3} max={20} step={0.1} onChange={setCet1} />
           <Slider label="AT1 (其他一级)" value={at1} min={0} max={5} step={0.1} onChange={setAt1} />
           <Slider label="Tier 2 (二级)" value={t2} min={0} max={6} step={0.1} onChange={setT2} />
-          <Slider label="RWA" value={rwa} min={60} max={160} step={5} fmt={(v) => v.toFixed(0)} onChange={setRwa} />
+          <Slider label={t("labs.risk.v58.irb.rwa")} value={rwa} min={60} max={160} step={5} fmt={(v) => v.toFixed(0)} onChange={setRwa} />
           <Slider label="杠杆敞口" value={exposure} min={150} max={600} step={10} fmt={(v) => v.toFixed(0)} onChange={setExposure} />
         </div>
         <div className="space-y-3">
@@ -752,6 +759,7 @@ const GOVERNANCE = [
 ];
 
 export const ModelRiskTool = () => {
+  const { t } = useTranslation();
   const [eps, setEps] = useState(0.15);
   const [stressMult, setStressMult] = useState(1.4);
   const [df, setDf] = useState(4);
@@ -865,6 +873,7 @@ export const ModelRiskTool = () => {
 
 /* ═══════════ 8. Resilience & recovery planning ═══════════ */
 export const ResilienceTool = () => {
+  const { t } = useTranslation();
   const [cet1, setCet1] = useState(12);
   const [ppnr, setPpnr] = useState(0.45);
   const [peakLoss, setPeakLoss] = useState(1.8);

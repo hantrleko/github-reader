@@ -2207,6 +2207,473 @@
           "xiLabel": "Tail index ξ: ",
           "xiText": "ξ>0 indicates a heavy tail (Fréchet), governing extreme-quantile extrapolation; EVT is more robust than normal/historical methods at extreme confidence levels such as 99.9%."
         }
+      },
+      "var": {
+        "presets": {
+          "standard1d": {
+            "name": "Standard 1-Day",
+            "description": "99% 1-day"
+          },
+          "reg10d": {
+            "name": "10-Day Regulatory",
+            "description": "Basel 10-day"
+          },
+          "fatTail": {
+            "name": "Extreme Fat Tail",
+            "description": "df=3 crisis"
+          },
+          "conf95": {
+            "name": "95% Confidence",
+            "description": "Looser bound"
+          }
+        },
+        "slider": {
+          "portfolioValue": "Portfolio Value V ($)",
+          "annualReturn": "Annualized Return μ (%)",
+          "annualVol": "Annualized Volatility σ (%)",
+          "horizon": "Holding Period (trading days)",
+          "confidence": "Confidence Level α",
+          "dof": "Fat-Tail Degrees of Freedom df",
+          "dofSub": "historical sample",
+          "seed": "Random Seed"
+        },
+        "method": {
+          "parametric": "Parametric (Normal)",
+          "historical": "Historical Simulation (Fat-Tailed)",
+          "monteCarlo": "Monte Carlo"
+        },
+        "stat": {
+          "esSub": "ES {{value}}"
+        },
+        "explain": {
+          "parametricLabel": "Parametric:",
+          "parametricText": "VaR = V·(z·σ_h − μ_h); fast to compute but assumes normality, underestimating tail risk.",
+          "historicalLabel": "Historical Simulation:",
+          "historicalText": "Uses the empirical quantile of historical returns—distribution-free but sample-dependent (here a Student-t distribution simulates fat tails).",
+          "monteCarloLabel": "Monte Carlo:",
+          "monteCarloText": "Simulates random paths; flexible but computationally intensive.",
+          "esLabel": "ES (Expected Shortfall):",
+          "esText": "The average loss beyond VaR; satisfies subadditivity and is more robust than VaR."
+        },
+        "chart": {
+          "title": "Monte Carlo Loss Distribution and VaR Threshold",
+          "xAxisLabel": "Loss L ($)",
+          "frequency": "Frequency",
+          "parametricRef": "Parametric",
+          "mcVarRef": "MC VaR",
+          "historicalRef": "Historical",
+          "footnote": "The red region marks tail losses exceeding the Monte Carlo VaR. Fat-tailed historical simulation VaR/ES is typically higher than the normal parametric method, highlighting how the normality assumption understates tail risk."
+        }
+      },
+      "esback": {
+        "presets": {
+          "normal": {
+            "name": "Normal Market (df=30)",
+            "description": "Near-Gaussian, model should pass"
+          },
+          "fatTail": {
+            "name": "Fat-Tailed Reality (df=4)",
+            "description": "Kupiec rejection"
+          },
+          "underestVol": {
+            "name": "Volatility Underestimation",
+            "description": "σ̂=0.7·true"
+          },
+          "var95": {
+            "name": "VaR 95% View",
+            "description": "α=0.95"
+          }
+        },
+        "section": {
+          "windowConfidence": "Backtest Window & Confidence Level",
+          "truePnl": "True P&L Distribution (Student-t)"
+        },
+        "slider": {
+          "sampleSize": "Sample Size N",
+          "confidenceAlpha": "VaR Confidence Level α",
+          "trueDf": "Degrees of Freedom df (true)",
+          "trueDfSub": "↓ → fatter tails",
+          "muTrue": "μ True",
+          "sigmaTrue": "σ True",
+          "sigmaForecast": "σ̂ Model Forecast",
+          "sigmaForecastSub": "Assumes Normal",
+          "seed": "Seed"
+        },
+        "stat": {
+          "varLabel": "VaR_{{level}} (Normal)",
+          "esLabel": "ES_{{level}} (Normal)",
+          "esSub": "ES = E[L | L>VaR]",
+          "breaches": "Actual Breaches x",
+          "breachesValue": "{{x}} / {{n}}",
+          "breachesSub": "Expected ≈ {{exp}}",
+          "empES": "Empirical ES",
+          "empESSub": "Realized tail mean"
+        },
+        "tests": {
+          "title": "Kupiec / Christoffersen Tests",
+          "pof": "POF (Unconditional Coverage) LR={{lr}}",
+          "ind": "Independence LR={{lr}}",
+          "cc": "Conditional Coverage LR={{lr}}"
+        },
+        "verdict": {
+          "notReject": "Fail to reject H₀ (p={{p}})",
+          "reject": "Reject H₀ (p={{p}})"
+        },
+        "chart": {
+          "timeseriesTitle": "Loss Time Series — VaR Line / ES Line / Breach Points",
+          "lossLine": "Loss L_t",
+          "varLine": "VaR",
+          "esLine": "ES",
+          "breachEvent": "Breach Event",
+          "histogramTitle": "Loss Distribution & Tail — Red Bins Contain Breaches",
+          "varRefLabel": "VaR={{val}}",
+          "esRefLabel": "ES={{val}}"
+        },
+        "footer": {
+          "teachingPointLabel": "Teaching point:",
+          "teachingPoint": "FRTB uses ES (97.5%) instead of VaR (99%) as the capital measurement benchmark, because VaR is not subadditive and ignores tail shape.",
+          "fatTailNote": "When true P&L is fat-tailed (df↓), VaR under the Normal assumption is systematically underestimated → Kupiec POF rejects H₀.",
+          "independenceNote": "The Christoffersen independence test identifies breach clustering via a 2×2 transition matrix (clustering = model reacts too slowly to volatility changes)."
+        }
+      },
+      "v26": {
+        "cva": {
+          "chart": {
+            "wwrDelta": "WWR Delta",
+            "epeTitle": "EPE — Expected Positive Exposure",
+            "xvaTitle": "XVA Components"
+          },
+          "presets": {
+            "noWwr": {
+              "name": "No WWR",
+              "description": "ρ=0, independent default"
+            },
+            "strongWrongWay": {
+              "name": "Strong Wrong-Way",
+              "description": "ρ=0.7, rates↑ → default↑"
+            },
+            "rightWay": {
+              "name": "Right-Way",
+              "description": "ρ=−0.6"
+            },
+            "igCounterparty": {
+              "name": "Investment-Grade Counterparty",
+              "description": "λ_C=0.005"
+            }
+          },
+          "sliders": {
+            "notional": "Notional (M)",
+            "tenor": "Tenor (yrs)",
+            "r0": "Initial Rate r₀",
+            "sigmaR": "Rate Volatility σ_r",
+            "kfix": "Fixed Rate K",
+            "hazardC": "Counterparty Hazard λ_C",
+            "hazardCSub": "counterparty hazard",
+            "hazardB": "Own Hazard λ_B",
+            "hazardBSub": "bank own hazard",
+            "lgd": "LGD",
+            "rhoWw": "WWR ρ(rate, λ)",
+            "rhoWwSub": "wrong-way risk",
+            "nPaths": "Number of Paths",
+            "seed": "Seed"
+          },
+          "stats": {
+            "cvaSub": "Counterparty default cost",
+            "dvaSub": "Own default benefit",
+            "bcvaLabel": "BCVA = CVA − DVA",
+            "bcvaSub": "Bilateral XVA",
+            "naiveLabel": "CVA (Naive, No WWR)",
+            "naiveSub": "Independent default assumption",
+            "wwrDeltaLabel": "WWR Delta",
+            "wwrDeltaSub": "Difference between ρ≠0 and naive case"
+          },
+          "explain": {
+            "cvaTitle": "CVA:",
+            "cvaFormula": "CVA = LGD · ∫ EPE(t) · dPD_C(t) · D(0,t).",
+            "wwr": "Wrong-way risk: when default intensity λ_C is positively correlated with the interest rate r, defaults are more likely to occur at times of large exposure → CVA is significantly amplified.",
+            "bcva": "BCVA = CVA − DVA (Hull-White 2012): the bank's own default losses that are not paid out offset part of the CVA."
+          }
+        },
+        "copula": {
+          "presets": {
+            "ig": {
+              "name": "Investment-Grade Portfolio",
+              "description": "PD 1%, ρ=0.15"
+            },
+            "hy": {
+              "name": "High-Yield Portfolio",
+              "description": "PD 5%, ρ=0.3"
+            },
+            "tailDep": {
+              "name": "Tail Dependence (t-Copula)",
+              "description": "df=4, ρ=0.25"
+            },
+            "baselIrb": {
+              "name": "Basel IRB Parameters",
+              "description": "ρ=0.24 (Corporate)"
+            }
+          },
+          "family": {
+            "gaussian": "Gaussian (Vasicek/Li)",
+            "studentT": "Student-t"
+          },
+          "sliders": {
+            "n": "Portfolio Size n",
+            "pd": "Marginal PD",
+            "rho": "Asset Correlation ρ",
+            "lgd": "LGD",
+            "ead": "Per-Obligor EAD",
+            "df": "Degrees of Freedom df",
+            "nSim": "Number of Simulations",
+            "alpha": "VaR/ES Confidence Level α",
+            "seed": "Seed"
+          },
+          "stats": {
+            "elLabel": "Expected Loss (EL)",
+            "elSub": "= n·PD·LGD·EAD ≈ {{value}}",
+            "stdevLabel": "Loss Std. Dev.",
+            "stdevSub": "Tail-dependence amplification effect",
+            "varMcLabel": "VaR_{{alpha}} (MC)",
+            "esLabel": "ES_{{alpha}}",
+            "esSub": "Mean conditional tail loss",
+            "vasicekLabel": "Vasicek Analytical VaR",
+            "vasicekSub": "Large-portfolio limit formula"
+          },
+          "explain": {
+            "vasicekTitle": "Vasicek 1987 / Li 2000:",
+            "vasicekFormula": "X_i = √ρ·M + √(1−ρ)·ε_i, default occurs when X_i ≤ Φ⁻¹(PD).",
+            "tCopula": "The t-Copula introduces a common scale factor W ~ χ²_df/df, producing strong tail dependence → extreme joint default probabilities rise significantly, a key driver of the excess losses in the 2008 crisis.",
+            "baselIrb": "The Basel II IRB formula is derived from the Vasicek large-portfolio limit: K = LGD·[Φ((Φ⁻¹(PD)+√ρ·Φ⁻¹(0.999))/√(1−ρ)) − PD]."
+          },
+          "chart": {
+            "lossDistTitle": "Portfolio Loss Distribution",
+            "tailName": "Tail > VaR_{{alpha}}",
+            "corrTitle": "Default Correlation ρ_D vs Asset ρ (by PD)",
+            "pdAxisLabel": "PD %"
+          }
+        }
+      },
+      "v43": {
+        "systemic": {
+          "presets": {
+            "gsib": {
+              "name": "G-SIB High Correlation"
+            },
+            "regional": {
+              "name": "Regional Bank"
+            },
+            "hedgeFund": {
+              "name": "Hedge Fund"
+            }
+          },
+          "sliders": {
+            "rho": "System-Institution Correlation ρ",
+            "alpha": "Tail Level α",
+            "alphaSub": "0.05 = 5% left tail",
+            "mktCap": "Market Cap ($bn)",
+            "debt": "Debt ($bn)",
+            "k": "Capital Ratio Requirement k",
+            "seed": "Random Seed"
+          },
+          "stats": {
+            "varI": "VaR (Institution)",
+            "varSys": "VaR (System)",
+            "coVaR": "CoVaR",
+            "deltaCoVaR": "ΔCoVaR",
+            "deltaCoVaRSub": "Systemic Contribution",
+            "mes": "MES",
+            "lrmes": "LRMES",
+            "srisk": "SRISK ($bn)",
+            "capitalShortfall": "Capital Shortfall",
+            "capitalSurplus": "Capital Surplus",
+            "esSys": "ES (System)"
+          },
+          "charts": {
+            "rhoCurveTitle": "ΔCoVaR & MES vs. Correlation"
+          }
+        },
+        "liquidity": {
+          "presets": {
+            "largeCap": {
+              "name": "Liquid Large-Cap"
+            },
+            "smallCap": {
+              "name": "Small-Cap / Emerging"
+            },
+            "crisis": {
+              "name": "Crisis Mode",
+              "description": "Wide spread, fast liquidation"
+            }
+          },
+          "sliders": {
+            "v": "Position Value V",
+            "sigma": "σ (Daily Volatility)",
+            "alpha": "VaR Confidence α",
+            "spread": "Bid-Ask Spread (bp)",
+            "lambda": "Risk Aversion λ",
+            "eta": "Temporary Impact η",
+            "tdays": "Liquidation Horizon T (days)",
+            "n": "Number of Slices N"
+          },
+          "stats": {
+            "var": "VaR",
+            "liquidityCost": "Liquidity Cost",
+            "liquidityCostSub": "{{spread}} bp spread",
+            "lvar": "LVaR",
+            "lvarSub": "= VaR + LC",
+            "kappa": "κ (AC Parameter)",
+            "expCost": "Expected Cost E[C]",
+            "riskCost": "Risk √Var[C]"
+          },
+          "charts": {
+            "trajectoryTitle": "Optimal Liquidation Trajectory x(t)",
+            "tAxisLabel": "t (days)",
+            "remainingPosition": "Remaining Position",
+            "frontierTitle": "Cost-Risk Efficient Frontier (varying λ)"
+          }
+        },
+        "frtb": {
+          "presets": {
+            "lowVol": {
+              "name": "Low Volatility"
+            },
+            "highVol": {
+              "name": "High Volatility"
+            },
+            "fatTail": {
+              "name": "Fat Tail (more breaches)"
+            }
+          },
+          "sliders": {
+            "drift": "Daily Drift μ",
+            "vol": "Daily Volatility σ",
+            "alpha": "ES Confidence Level",
+            "nDays": "Sample Days",
+            "notional": "Portfolio Notional",
+            "seed": "Random Seed"
+          },
+          "stats": {
+            "var975": "VaR97.5",
+            "es975": "ES97.5 (10d)",
+            "esLiq": "ES_liq (LH-weighted)",
+            "exceptions": "Exceptions (99% / 250d)",
+            "trafficLight": "Basel Traffic Light",
+            "kupiecP": "Kupiec p-value",
+            "rejectH0": "Reject H₀",
+            "pass": "Pass",
+            "capital": "Capital Requirement",
+            "capitalSub": "mult × ES_liq"
+          },
+          "charts": {
+            "lhTitle": "Liquidity-Horizon ES (FRTB 10/20/40/60/120 days)",
+            "lhAxisLabel": "LH (days)"
+          }
+        },
+        "opRisk": {
+          "presets": {
+            "retailBank": {
+              "name": "Retail Bank",
+              "description": "High frequency / low severity"
+            },
+            "investmentBank": {
+              "name": "Investment Banking",
+              "description": "Low frequency / high severity"
+            },
+            "cyberSecurity": {
+              "name": "Cybersecurity"
+            }
+          },
+          "sliders": {
+            "lambda": "Frequency λ (Poisson, events/yr)",
+            "mu": "Severity μ (LogN log-mean)",
+            "sigma": "Severity σ (LogN log-SD)",
+            "nSims": "Monte Carlo Simulated Years"
+          },
+          "stats": {
+            "meanLoss": "Mean Annual Loss",
+            "var995": "VaR 99.5%",
+            "opVar999": "OpVaR 99.9%",
+            "es999": "ES 99.9%"
+          },
+          "charts": {
+            "lossDistTitle": "Annual Aggregate Loss Distribution (99% truncated)"
+          }
+        },
+        "reverseStress": {
+          "presets": {
+            "equityLong": {
+              "name": "Equity Long"
+            },
+            "globalMacro": {
+              "name": "Global Macro",
+              "description": "Mixed"
+            },
+            "creditDriven": {
+              "name": "Credit-Driven"
+            }
+          },
+          "sliders": {
+            "lstar": "Target Loss L*",
+            "wEq": "Equity β",
+            "wRates": "Rates β (DV01×100)",
+            "wCredit": "Credit β",
+            "wFx": "FX β"
+          },
+          "stats": {
+            "plausibility": "Plausibility Δ' Σ⁻¹ Δ",
+            "plausibilitySub": "Lower is more plausible",
+            "equivSigma": "Equivalent σ (√)",
+            "mahalanobis": "Mahalanobis Distance",
+            "targetLoss": "Target Loss",
+            "constraintCheck": "Constraint Satisfaction"
+          },
+          "charts": {
+            "title": "Least-Favorable Yet Plausible Factor Shock",
+            "shockLegend": "Shock δ (%)",
+            "contribLegend": "Loss Contribution"
+          }
+        },
+        "concentration": {
+          "assets": {
+            "stockA": "Stock A",
+            "stockB": "Stock B",
+            "bond": "Bond",
+            "commodity": "Commodity"
+          },
+          "presets": {
+            "balanced": {
+              "name": "Balanced Diversification"
+            },
+            "equityConcentrated": {
+              "name": "Equity Concentrated"
+            },
+            "classic6040": {
+              "name": "60/40",
+              "description": "Classic Stock/Bond"
+            }
+          },
+          "sliders": {
+            "w1": "w₁ Stock A",
+            "w2": "w₂ Stock B",
+            "w3": "w₃ Bond",
+            "rho": "Average Correlation ρ",
+            "alpha": "VaR Confidence α",
+            "w4Display": "w₄ Commodity = {{value}}%"
+          },
+          "stats": {
+            "portSigma": "Portfolio σ",
+            "varLabel": "VaR{{pct}}%",
+            "hhi": "HHI Concentration",
+            "effectiveN": "Effective N Assets 1/HHI",
+            "eulerCheck": "Euler Sum Check",
+            "eulerCheckSub": "≈ Portfolio VaR",
+            "maxContrib": "Max Contribution Share"
+          },
+          "charts": {
+            "title": "Component VaR Decomposition (Euler)",
+            "contribLegend": "Contribution (%)"
+          }
+        }
       }
     }
   }
