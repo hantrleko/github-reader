@@ -2209,6 +2209,473 @@
           "xiLabel": "尾指数 ξ：",
           "xiText": "ξ>0 为重尾 (Fréchet)，决定极端分位外推；EVT 在 99.9% 等极端置信水平比正态/历史法更稳健。"
         }
+      },
+      "var": {
+        "presets": {
+          "standard1d": {
+            "name": "标准 1 日",
+            "description": "99% 1日"
+          },
+          "reg10d": {
+            "name": "10 日监管",
+            "description": "巴塞尔 10日"
+          },
+          "fatTail": {
+            "name": "极厚尾",
+            "description": "df=3 危机"
+          },
+          "conf95": {
+            "name": "95% 置信",
+            "description": "更宽松"
+          }
+        },
+        "slider": {
+          "portfolioValue": "组合价值 V ($)",
+          "annualReturn": "年化收益 μ (%)",
+          "annualVol": "年化波动 σ (%)",
+          "horizon": "持有期 (交易日)",
+          "confidence": "置信水平 α",
+          "dof": "厚尾自由度 df",
+          "dofSub": "历史样本",
+          "seed": "随机种子"
+        },
+        "method": {
+          "parametric": "参数法 (正态)",
+          "historical": "历史模拟 (厚尾)",
+          "monteCarlo": "蒙特卡洛"
+        },
+        "stat": {
+          "esSub": "ES {{value}}"
+        },
+        "explain": {
+          "parametricLabel": "参数法：",
+          "parametricText": "VaR = V·(z·σ_h − μ_h)，计算快但假设正态，低估尾部风险。",
+          "historicalLabel": "历史模拟：",
+          "historicalText": "取历史收益分位数，无分布假设但依赖样本（此处用 t 分布模拟厚尾）。",
+          "monteCarloLabel": "蒙特卡洛：",
+          "monteCarloText": "模拟随机路径，灵活但计算量大。",
+          "esLabel": "ES (期望损失)：",
+          "esText": "超过 VaR 的平均损失，满足次可加性，比 VaR 更稳健。"
+        },
+        "chart": {
+          "title": "蒙特卡洛损失分布与 VaR 阈值",
+          "xAxisLabel": "损失 L ($)",
+          "frequency": "频数",
+          "parametricRef": "参数",
+          "mcVarRef": "MC VaR",
+          "historicalRef": "历史",
+          "footnote": "红色区域为超过蒙特卡洛 VaR 的尾部损失。厚尾历史模拟的 VaR/ES 通常高于正态参数法，凸显正态假设对尾部风险的低估。"
+        }
+      },
+      "esback": {
+        "presets": {
+          "normal": {
+            "name": "正常市场 (df=30)",
+            "description": "近高斯, 模型应通过"
+          },
+          "fatTail": {
+            "name": "肥尾真实 (df=4)",
+            "description": "Kupiec 拒绝"
+          },
+          "underestVol": {
+            "name": "波动低估",
+            "description": "σ̂=0.7·真实"
+          },
+          "var95": {
+            "name": "VaR 95% 视图",
+            "description": "α=0.95"
+          }
+        },
+        "section": {
+          "windowConfidence": "回测窗口与置信水平",
+          "truePnl": "真实 P&L 分布 (Student-t)"
+        },
+        "slider": {
+          "sampleSize": "样本期 N",
+          "confidenceAlpha": "VaR 置信水平 α",
+          "trueDf": "自由度 df (真实)",
+          "trueDfSub": "↓ → 肥尾",
+          "muTrue": "μ 真实",
+          "sigmaTrue": "σ 真实",
+          "sigmaForecast": "σ̂ 模型预测",
+          "sigmaForecastSub": "假设 Normal",
+          "seed": "种子"
+        },
+        "stat": {
+          "varLabel": "VaR_{{level}} (Normal)",
+          "esLabel": "ES_{{level}} (Normal)",
+          "esSub": "ES = E[L | L>VaR]",
+          "breaches": "实际穿越次数 x",
+          "breachesValue": "{{x}} / {{n}}",
+          "breachesSub": "期望 ≈ {{exp}}",
+          "empES": "经验 ES",
+          "empESSub": "实测尾部均值"
+        },
+        "tests": {
+          "title": "Kupiec / Christoffersen 检验",
+          "pof": "POF (无条件覆盖) LR={{lr}}",
+          "ind": "独立性 LR={{lr}}",
+          "cc": "条件覆盖 LR={{lr}}"
+        },
+        "verdict": {
+          "notReject": "不拒绝 H₀ (p={{p}})",
+          "reject": "拒绝 H₀ (p={{p}})"
+        },
+        "chart": {
+          "timeseriesTitle": "损失时序 — VaR 线 / ES 线 / 穿越点",
+          "lossLine": "损失 L_t",
+          "varLine": "VaR",
+          "esLine": "ES",
+          "breachEvent": "穿越事件",
+          "histogramTitle": "损失分布与尾部 — 红色 bin 含穿越事件",
+          "varRefLabel": "VaR={{val}}",
+          "esRefLabel": "ES={{val}}"
+        },
+        "footer": {
+          "teachingPointLabel": "教学要点：",
+          "teachingPoint": "FRTB 用 ES (97.5%) 代替 VaR (99%) 作为资本计量基准，因为 VaR 不次可加且忽略尾部形状。",
+          "fatTailNote": "当真实 P&L 为肥尾 (df↓)，假设 Normal 的 VaR 被系统性低估 → Kupiec POF 拒绝 H₀。",
+          "independenceNote": "Christoffersen 独立性检验通过 2×2 转移矩阵识别穿越聚集（聚集 = 模型对波动变化反应过慢）。"
+        }
+      },
+      "v26": {
+        "cva": {
+          "chart": {
+            "wwrDelta": "WWR 增量",
+            "epeTitle": "EPE 期望正暴露",
+            "xvaTitle": "XVA 组分"
+          },
+          "presets": {
+            "noWwr": {
+              "name": "无 WWR",
+              "description": "ρ=0, 独立违约"
+            },
+            "strongWrongWay": {
+              "name": "Wrong-way 强",
+              "description": "ρ=0.7, 利率↑→违约↑"
+            },
+            "rightWay": {
+              "name": "Right-way",
+              "description": "ρ=−0.6"
+            },
+            "igCounterparty": {
+              "name": "投资级对手",
+              "description": "λ_C=0.005"
+            }
+          },
+          "sliders": {
+            "notional": "名义本金 (M)",
+            "tenor": "期限 (年)",
+            "r0": "初始利率 r₀",
+            "sigmaR": "利率波动 σ_r",
+            "kfix": "固定支付 K",
+            "hazardC": "对手风险率 λ_C",
+            "hazardCSub": "counterparty hazard",
+            "hazardB": "自身风险率 λ_B",
+            "hazardBSub": "bank own hazard",
+            "lgd": "LGD",
+            "rhoWw": "WWR ρ(利率, λ)",
+            "rhoWwSub": "wrong-way risk",
+            "nPaths": "路径数",
+            "seed": "种子"
+          },
+          "stats": {
+            "cvaSub": "对手违约成本",
+            "dvaSub": "自身违约收益",
+            "bcvaLabel": "BCVA = CVA − DVA",
+            "bcvaSub": "双边 XVA",
+            "naiveLabel": "CVA (无 WWR 朴素)",
+            "naiveSub": "独立违约假设",
+            "wwrDeltaLabel": "WWR 增量",
+            "wwrDeltaSub": "ρ ≠ 0 与朴素之差"
+          },
+          "explain": {
+            "cvaTitle": "CVA：",
+            "cvaFormula": "CVA = LGD · ∫ EPE(t) · dPD_C(t) · D(0,t)。",
+            "wwr": "Wrong-way risk:当违约强度 λ_C 与利率 r 正相关时,违约更易发生在敞口大的时刻 → CVA 显著放大。",
+            "bcva": "BCVA = CVA − DVA(Hull-White 2012):银行自身违约下未付出的损失抵消部分 CVA。"
+          }
+        },
+        "copula": {
+          "presets": {
+            "ig": {
+              "name": "投资级组合",
+              "description": "PD 1%, ρ=0.15"
+            },
+            "hy": {
+              "name": "高收益组合",
+              "description": "PD 5%, ρ=0.3"
+            },
+            "tailDep": {
+              "name": "尾部相依 (t-Copula)",
+              "description": "df=4, ρ=0.25"
+            },
+            "baselIrb": {
+              "name": "Basel IRB 参数",
+              "description": "ρ=0.24 (公司)"
+            }
+          },
+          "family": {
+            "gaussian": "Gaussian (Vasicek/Li)",
+            "studentT": "Student-t"
+          },
+          "sliders": {
+            "n": "组合规模 n",
+            "pd": "边际 PD",
+            "rho": "资产相关 ρ",
+            "lgd": "LGD",
+            "ead": "单户 EAD",
+            "df": "自由度 df",
+            "nSim": "模拟次数",
+            "alpha": "VaR/ES 置信度 α",
+            "seed": "种子"
+          },
+          "stats": {
+            "elLabel": "期望损失 EL",
+            "elSub": "= n·PD·LGD·EAD ≈ {{value}}",
+            "stdevLabel": "损失标准差",
+            "stdevSub": "尾相依放大效应",
+            "varMcLabel": "VaR_{{alpha}} (MC)",
+            "esLabel": "ES_{{alpha}}",
+            "esSub": "条件尾损失均值",
+            "vasicekLabel": "Vasicek 解析 VaR",
+            "vasicekSub": "大组合极限公式"
+          },
+          "explain": {
+            "vasicekTitle": "Vasicek 1987 / Li 2000：",
+            "vasicekFormula": "X_i = √ρ·M + √(1−ρ)·ε_i,违约当 X_i ≤ Φ⁻¹(PD)。",
+            "tCopula": "t-Copula 引入共同尺度因子 W ~ χ²_df/df,产生强尾相依 → 极端共同违约概率显著抬升,2008 危机超额损失的核心来源。",
+            "baselIrb": "Basel II IRB 公式即由 Vasicek 大组合极限推导:K = LGD·[Φ((Φ⁻¹(PD)+√ρ·Φ⁻¹(0.999))/√(1−ρ)) − PD]。"
+          },
+          "chart": {
+            "lossDistTitle": "组合损失分布",
+            "tailName": "尾部 > VaR_{{alpha}}",
+            "corrTitle": "违约相关性 ρ_D vs 资产 ρ (按 PD)",
+            "pdAxisLabel": "PD %"
+          }
+        }
+      },
+      "v43": {
+        "systemic": {
+          "presets": {
+            "gsib": {
+              "name": "GSIB 高关联"
+            },
+            "regional": {
+              "name": "区域银行"
+            },
+            "hedgeFund": {
+              "name": "对冲基金"
+            }
+          },
+          "sliders": {
+            "rho": "系统-机构相关系数 ρ",
+            "alpha": "尾部水平 α",
+            "alphaSub": "0.05 = 5% 左尾",
+            "mktCap": "市值 (亿)",
+            "debt": "负债 (亿)",
+            "k": "资本比要求 k",
+            "seed": "随机种子"
+          },
+          "stats": {
+            "varI": "VaR (机构)",
+            "varSys": "VaR (系统)",
+            "coVaR": "CoVaR",
+            "deltaCoVaR": "ΔCoVaR",
+            "deltaCoVaRSub": "系统性贡献",
+            "mes": "MES",
+            "lrmes": "LRMES",
+            "srisk": "SRISK (亿)",
+            "capitalShortfall": "资本短缺",
+            "capitalSurplus": "资本盈余",
+            "esSys": "ES (系统)"
+          },
+          "charts": {
+            "rhoCurveTitle": "ΔCoVaR 与 MES 随相关系数变化"
+          }
+        },
+        "liquidity": {
+          "presets": {
+            "largeCap": {
+              "name": "流动大盘"
+            },
+            "smallCap": {
+              "name": "小盘/新兴"
+            },
+            "crisis": {
+              "name": "危机模式",
+              "description": "宽 spread, 快清算"
+            }
+          },
+          "sliders": {
+            "v": "头寸价值 V",
+            "sigma": "σ (日波动)",
+            "alpha": "VaR 置信度 α",
+            "spread": "Bid-Ask Spread (bp)",
+            "lambda": "风险厌恶 λ",
+            "eta": "临时冲击 η",
+            "tdays": "清算区间 T (天)",
+            "n": "分段数 N"
+          },
+          "stats": {
+            "var": "VaR",
+            "liquidityCost": "流动性成本",
+            "liquidityCostSub": "{{spread}} bp spread",
+            "lvar": "LVaR",
+            "lvarSub": "= VaR + LC",
+            "kappa": "κ (AC 参数)",
+            "expCost": "预期成本 E[C]",
+            "riskCost": "风险 √Var[C]"
+          },
+          "charts": {
+            "trajectoryTitle": "最优清算轨迹 x(t)",
+            "tAxisLabel": "t (天)",
+            "remainingPosition": "剩余持仓",
+            "frontierTitle": "成本 - 风险有效前沿 (变 λ)"
+          }
+        },
+        "frtb": {
+          "presets": {
+            "lowVol": {
+              "name": "低波动"
+            },
+            "highVol": {
+              "name": "高波动"
+            },
+            "fatTail": {
+              "name": "尾部厚 (更多突破)"
+            }
+          },
+          "sliders": {
+            "drift": "日均漂移 μ",
+            "vol": "日波动 σ",
+            "alpha": "ES 置信度",
+            "nDays": "样本天数",
+            "notional": "组合名义",
+            "seed": "随机种子"
+          },
+          "stats": {
+            "var975": "VaR97.5",
+            "es975": "ES97.5 (10d)",
+            "esLiq": "ES_liq (LH 加权)",
+            "exceptions": "突破次数 (99% / 250d)",
+            "trafficLight": "Basel 交通灯",
+            "kupiecP": "Kupiec p-value",
+            "rejectH0": "拒绝 H₀",
+            "pass": "通过",
+            "capital": "资本占用",
+            "capitalSub": "mult × ES_liq"
+          },
+          "charts": {
+            "lhTitle": "流动性区间 ES (FRTB 10/20/40/60/120 天)",
+            "lhAxisLabel": "LH (天)"
+          }
+        },
+        "opRisk": {
+          "presets": {
+            "retailBank": {
+              "name": "零售银行",
+              "description": "高频/低severity"
+            },
+            "investmentBank": {
+              "name": "投行交易",
+              "description": "低频/高 severity"
+            },
+            "cyberSecurity": {
+              "name": "网络安全"
+            }
+          },
+          "sliders": {
+            "lambda": "频率 λ (Poisson, 事件/年)",
+            "mu": "严重度 μ (LogN 对数均值)",
+            "sigma": "严重度 σ (LogN 对数SD)",
+            "nSims": "Monte Carlo 模拟年数"
+          },
+          "stats": {
+            "meanLoss": "平均年损失",
+            "var995": "VaR 99.5%",
+            "opVar999": "OpVaR 99.9%",
+            "es999": "ES 99.9%"
+          },
+          "charts": {
+            "lossDistTitle": "年度总损失分布 (99% 截断)"
+          }
+        },
+        "reverseStress": {
+          "presets": {
+            "equityLong": {
+              "name": "股票多头"
+            },
+            "globalMacro": {
+              "name": "全球宏观",
+              "description": "混合"
+            },
+            "creditDriven": {
+              "name": "信用主导"
+            }
+          },
+          "sliders": {
+            "lstar": "目标损失 L*",
+            "wEq": "Equity β",
+            "wRates": "Rates β (DV01×100)",
+            "wCredit": "Credit β",
+            "wFx": "FX β"
+          },
+          "stats": {
+            "plausibility": "可信度 Δ' Σ⁻¹ Δ",
+            "plausibilitySub": "越小越可信",
+            "equivSigma": "等价 σ (√)",
+            "mahalanobis": "Mahalanobis 距离",
+            "targetLoss": "目标损失",
+            "constraintCheck": "约束满足"
+          },
+          "charts": {
+            "title": "最不利但仍可信的因子冲击",
+            "shockLegend": "冲击 δ (%)",
+            "contribLegend": "损失贡献"
+          }
+        },
+        "concentration": {
+          "assets": {
+            "stockA": "股票 A",
+            "stockB": "股票 B",
+            "bond": "债券",
+            "commodity": "商品"
+          },
+          "presets": {
+            "balanced": {
+              "name": "均衡分散"
+            },
+            "equityConcentrated": {
+              "name": "股票集中"
+            },
+            "classic6040": {
+              "name": "60/40",
+              "description": "股债经典"
+            }
+          },
+          "sliders": {
+            "w1": "w₁ 股票 A",
+            "w2": "w₂ 股票 B",
+            "w3": "w₃ 债券",
+            "rho": "平均相关系数 ρ",
+            "alpha": "VaR 置信度 α",
+            "w4Display": "w₄ 商品 = {{value}}%"
+          },
+          "stats": {
+            "portSigma": "组合 σ",
+            "varLabel": "VaR{{pct}}%",
+            "hhi": "HHI 集中度",
+            "effectiveN": "有效资产数 1/HHI",
+            "eulerCheck": "Euler 求和检验",
+            "eulerCheckSub": "≈ 组合 VaR",
+            "maxContrib": "最大贡献占比"
+          },
+          "charts": {
+            "title": "Component VaR 分解 (Euler)",
+            "contribLegend": "贡献 (%)"
+          }
+        }
       }
     }
   }
