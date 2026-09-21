@@ -26,25 +26,24 @@ const TABS: { id: Tab; title: string; kicker: string; desc: string }[] = [
 ];
 
 export default function V47BehaviorMicroLab() {
-  const [tab, setTab] = useState<Tab>("behavior");
+  const { t } = useTranslation();
+  const [tab, setTab] = useToolTab<Tab>(["behavior", "micro"], "behavior");
   return (
     <section className="space-y-6">
       <div className="rounded-2xl border border-border bg-card/50 p-5">
         <p className="text-[10px] font-mono uppercase tracking-[0.2em] text-gold mb-1">V4.7 · Behavior &amp; Microstructure Lab</p>
-        <h2 className="text-2xl font-serif text-foreground">行为金融与市场微观结构实验室</h2>
+        <h2 className="text-2xl font-serif text-foreground">{t("labs.behaviorMicro.title")}</h2>
         <p className="text-sm text-muted-foreground mt-2 max-w-3xl">
-          从投资者心理 (双曲贴现 / 过度自信 / 处置效应 / DSSW 噪声交易者) 到订单流微观机制
-          (Kyle 私有信息、Glosten-Milgrom 序贯交易、Roll 有效价差、Almgren-Chriss 最优执行、
-          Amihud 非流动性)，用可交互闭式解把行为异象与市场微观机制并置观察。
+          {t("labs.behaviorMicro.subtitle")}
         </p>
         <div className="mt-4 flex flex-wrap gap-2">
-          {TABS.map((t) => (
-            <button key={t.id} onClick={() => setTab(t.id)}
+          {TABS.map((tb) => (
+            <button key={tb.id} onClick={() => setTab(tb.id)}
               className={`px-3.5 py-2 rounded-lg border text-xs font-mono transition-colors ${
-                tab === t.id ? "bg-gold/15 border-gold/60 text-gold"
+                tab === tb.id ? "bg-gold/15 border-gold/60 text-gold"
                              : "bg-secondary/40 border-border text-muted-foreground hover:text-foreground"
               }`}>
-              <span className="uppercase tracking-wider mr-2">{t.kicker}</span>{t.title}
+              <span className="uppercase tracking-wider mr-2">{tb.kicker}</span>{t(`labs.behaviorMicro.tab.${tb.id}`)}
             </button>
           ))}
         </div>
@@ -55,7 +54,7 @@ export default function V47BehaviorMicroLab() {
       </motion.div>
 
       <div className="rounded-lg border border-border bg-card/60 p-4 text-[11px] font-mono text-muted-foreground leading-relaxed">
-        <p className="text-gold uppercase tracking-wider mb-2">参考文献</p>
+        <p className="text-gold uppercase tracking-wider mb-2">{t("labs.behaviorMicro.references")}</p>
         <p>
           Laibson (1997) Golden Eggs and Hyperbolic Discounting · De Long, Shleifer, Summers, Waldmann (1990)
           Noise Trader Risk · Odean (1998), Barber-Odean (2001) Trading is Hazardous to Your Wealth ·
