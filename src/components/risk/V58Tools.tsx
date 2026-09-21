@@ -401,7 +401,7 @@ export const IrbCapitalTool = () => {
 
       <Panel title={t("labs.risk.v58.irb.vasicekPortfolioLossQuantile")}>
         <table className="w-full text-xs font-mono border-collapse">
-          <thead><tr className="text-gold text-left"><th className="p-2 border-b border-border">t("labs.risk.v58.irb.confidenceLevel")}</th><th className="p-2 border-b border-border">t("labs.risk.v58.irb.portfolioLossRate")}</th><th className="p-2 border-b border-border">t("labs.risk.v58.irb.unexpectedLossAboveEl")}</th></tr></thead>
+          <thead><tr className="text-gold text-left"><th className="p-2 border-b border-border">{t("labs.risk.v58.irb.confidenceLevel")}</th><th className="p-2 border-b border-border">{t("labs.risk.v58.irb.portfolioLossRate")}</th><th className="p-2 border-b border-border">{t("labs.risk.v58.irb.unexpectedLossAboveEl")}</th></tr></thead>
           <tbody className="text-muted-foreground">
             {res.q.map((r) => (
               <tr key={r.conf}>
