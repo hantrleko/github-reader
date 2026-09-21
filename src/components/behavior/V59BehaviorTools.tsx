@@ -51,31 +51,50 @@ const GROUPS: { id: Group; label: string; en: string; desc: string }[] = [
   { id: "corporate", label: "行为公司金融", en: "Behavioral Corporate", desc: "管理者过度自信 · 市场时机" },
 ];
 
+type PanelId = "cpt" | "mla" | "bsv" | "dhs" | "hs" | "limits" | "sentiment" | "corporate";
+
+const PANEL_GROUP: Record<PanelId, Group> = {
+  cpt: "preferences", mla: "preferences",
+  bsv: "beliefs", dhs: "beliefs", hs: "beliefs",
+  limits: "arbitrage", sentiment: "arbitrage",
+  corporate: "corporate",
+};
+
+const PANEL_IDS = Object.keys(PANEL_GROUP) as PanelId[];
+
 export default function V59BehaviorTools() {
-  const [group, setGroup] = useState<Group>("preferences");
+  const { t, i18n } = useTranslation();
+  const en = i18n.language.startsWith("en");
+  const [panel, setPanel] = useToolTab<PanelId>(PANEL_IDS, "cpt");
+  const group = PANEL_GROUP[panel];
+
+  useEffect(() => {
+    const el = document.getElementById(panel);
+    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, [panel]);
+
   return (
     <section className="space-y-6">
       <div className="rounded-2xl border border-border bg-card/50 p-5">
         <p className="text-[10px] font-mono uppercase tracking-[0.2em] text-gold mb-1">V5.9 · Behavioral Finance Lab</p>
-        <h2 className="text-2xl font-display text-foreground">行为金融实验室</h2>
+        <h2 className="text-2xl font-display text-foreground">{t("labs.behavior.title")}</h2>
         <p className="text-sm text-muted-foreground mt-2 max-w-3xl leading-relaxed">
-          按「心理机制 → 信念/偏好扭曲 → 交易与公司决策 → 在套利约束下的价格后果」这条因果链组织的八个可交互实验：
-          从累积前景理论与短视损失厌恶，到 BSV / DHS / Hong-Stein 三大信念模型，再到有限套利、投资者情绪截面与行为公司金融。
-          每个实验都给出理性基准，用于区分「行为解释」与「风险解释」。
+          {t("labs.behavior.subtitle")}
         </p>
         <div className="mt-4 flex flex-wrap gap-2">
           {GROUPS.map((g) => (
-            <button key={g.id} onClick={() => setGroup(g.id)}
+            <button key={g.id} onClick={() => setPanel(PANEL_IDS.find((p) => PANEL_GROUP[p] === g.id)!)}
               className={`px-3.5 py-2 rounded-lg border text-xs font-mono text-left transition-colors ${
                 group === g.id ? "bg-gold/15 border-gold/60 text-gold"
                                : "bg-secondary/40 border-border text-muted-foreground hover:text-foreground"
               }`}>
-              <span className="uppercase tracking-wider mr-2">{g.en}</span>{g.label}
-              <span className="block text-[10px] opacity-70 mt-0.5">{g.desc}</span>
+              <span className="uppercase tracking-wider mr-2">{g.en}</span>{en ? "" : g.label}
+              <span className="block text-[10px] opacity-70 mt-0.5">{t(`labs.behavior.group.${g.id}`)}</span>
             </button>
           ))}
         </div>
       </div>
+
 
       <motion.div key={group} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
         {group === "preferences" && <><CptPanel /><MlaPanel /></>}
