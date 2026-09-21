@@ -106,7 +106,7 @@ export default function V59BehaviorTools() {
       </motion.div>
 
       <div className="rounded-lg border border-border bg-card/60 p-4 text-[11px] font-mono text-muted-foreground leading-relaxed">
-        <p className="text-gold uppercase tracking-wider mb-2">参考文献</p>
+        <p className="text-gold uppercase tracking-wider mb-2">{t("labs.behavior.references")}</p>
         <p>
           Kahneman &amp; Tversky (1979); Tversky &amp; Kahneman (1992) Cumulative Prospect Theory ·
           Benartzi &amp; Thaler (1995) Myopic Loss Aversion and the Equity Premium Puzzle ·
