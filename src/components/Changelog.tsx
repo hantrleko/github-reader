@@ -5,9 +5,31 @@ import { useMemo, useState } from "react";
 
 const RELEASES = [
   {
-    version: "V7.4",
+    version: "V7.5",
     date: "2026-09",
     tag: "Current",
+    highlights: [
+      {
+        icon: Sparkles,
+        title: "行为金融工具深链",
+        items: [
+          "行为金融实验室 8 个模型支持 /#behavior-lab?t=<toolId> 深链",
+          "行为与微观结构实验室支持 /#behavior-microstructure?t=behavior|micro 深链",
+        ],
+      },
+      {
+        icon: FileText,
+        title: "行为金融目录与双语化",
+        items: [
+          "工具目录新增“行为金融”分类，补入 17 条先前完全缺失的行为金融条目",
+          "两个实验室标题、副标题、分组与标签迁入 labs.behavior.* / labs.behaviorMicro.* 中英词条",
+        ],
+      },
+    ],
+  },
+  {
+    version: "V7.4",
+    date: "2026-09",
     highlights: [
       {
         icon: Shield,

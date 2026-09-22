@@ -1,5 +1,12 @@
 # EF Lab 版本日志
 
+## V7.5 — 行为金融模块升级：17 个行为工具进目录、深链与双语化
+
+- 行为金融实验室 8 个模型（累积前景理论、短视损失厌恶、BSV、DHS、Hong-Stein、有限套利、Baker-Wurgler 情绪、行为公司金融）支持 `/#behavior-lab?t=<toolId>` 深链
+- 行为与微观结构实验室支持 `/#behavior-microstructure?t=behavior|micro` 深链
+- 工具目录新增「行为金融」分类，补入 17 条先前完全缺失的行为金融条目，全站搜索与命令面板可检索
+- 两个实验室的标题、副标题、分组与标签迁入 `labs.behavior.*` / `labs.behaviorMicro.*` 中英词条
+
 ## V7.4 — 风险模块升级：22 个风险工具深链、五大分类导航与双语化
 
 - 风险板块 22 个工具全部支持 `/#risk?t=<toolId>` 深链，目录卡片可直达具体工具
