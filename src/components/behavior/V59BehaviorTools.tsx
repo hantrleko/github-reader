@@ -123,6 +123,7 @@ export default function V59BehaviorTools() {
 
 /* ═══════════════ 1. Cumulative Prospect Theory ═══════════════ */
 function CptPanel() {
+  const { t } = useTranslation();
   const [alpha, setAlpha] = useState(0.88);
   const [beta, setBeta] = useState(0.88);
   const [lambda, setLambda] = useState(2.25);
@@ -146,39 +147,39 @@ function CptPanel() {
   }, [gamma]);
 
   return (
-    <Panel id="cpt" en="Cumulative Prospect Theory" title="累积前景理论：价值函数、概率权重与四重风险态度"
-      desc="v(x) 相对参照点定义，收益域凹、损失域凸、损失侧更陡 (λ>1)；w(p) 高估小概率、低估中高概率。二者叠加产生四重风险态度，也是彩票与保险同时存在的解释。">
+    <Panel id="cpt" en="Cumulative Prospect Theory" title={t("labs.behavior.cpt.title")}
+      desc={t("labs.behavior.cpt.desc")}>
       <PresetButtons presets={[
-        { name: "TK 1992 标定", description: "α=β=.88, λ=2.25, γ=.61", apply: () => { setAlpha(0.88); setBeta(0.88); setLambda(2.25); setGamma(0.61); } },
-        { name: "期望效用基准", description: "α=β=λ=γ=1", apply: () => { setAlpha(1); setBeta(1); setLambda(1); setGamma(1); } },
-        { name: "强损失厌恶", description: "λ=3.5", apply: () => setLambda(3.5) },
-        { name: "彩票型", description: "p=.02 大奖", apply: () => { setP(0.02); setGain(5000); setLoss(100); } },
+        { name: t("labs.behavior.cpt.preset1.name"), description: t("labs.behavior.cpt.preset1.desc"), apply: () => { setAlpha(0.88); setBeta(0.88); setLambda(2.25); setGamma(0.61); } },
+        { name: t("labs.behavior.cpt.preset2.name"), description: t("labs.behavior.cpt.preset2.desc"), apply: () => { setAlpha(1); setBeta(1); setLambda(1); setGamma(1); } },
+        { name: t("labs.behavior.cpt.preset3.name"), description: t("labs.behavior.cpt.preset3.desc"), apply: () => setLambda(3.5) },
+        { name: t("labs.behavior.cpt.preset4.name"), description: t("labs.behavior.cpt.preset4.desc"), apply: () => { setP(0.02); setGain(5000); setLoss(100); } },
       ]} />
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
         <div className="space-y-3">
           <div className="grid grid-cols-2 gap-3">
-            <Slider label="α 收益凹性" value={alpha} min={0.3} max={1} step={0.01} onChange={setAlpha} />
-            <Slider label="β 损失凸性" value={beta} min={0.3} max={1} step={0.01} onChange={setBeta} />
-            <Slider label="λ 损失厌恶" value={lambda} min={1} max={4} step={0.05} onChange={setLambda} />
-            <Slider label="γ 概率加权" value={gamma} min={0.3} max={1} step={0.01} onChange={setGamma} />
+            <Slider label={t("labs.behavior.cpt.alpha")} value={alpha} min={0.3} max={1} step={0.01} onChange={setAlpha} />
+            <Slider label={t("labs.behavior.cpt.beta")} value={beta} min={0.3} max={1} step={0.01} onChange={setBeta} />
+            <Slider label={t("labs.behavior.cpt.lambda")} value={lambda} min={1} max={4} step={0.05} onChange={setLambda} />
+            <Slider label={t("labs.behavior.cpt.gamma")} value={gamma} min={0.3} max={1} step={0.01} onChange={setGamma} />
           </div>
           <div className="grid grid-cols-3 gap-3">
-            <Slider label="赢 G" value={gain} min={10} max={5000} step={10} fmt={(v) => v.toFixed(0)} onChange={setGain} />
-            <Slider label="输 L" value={loss} min={10} max={5000} step={10} fmt={(v) => v.toFixed(0)} onChange={setLoss} />
-            <Slider label="p(赢)" value={p} min={0.01} max={0.99} step={0.01} onChange={setP} />
+            <Slider label={t("labs.behavior.cpt.gain")} value={gain} min={10} max={5000} step={10} fmt={(v) => v.toFixed(0)} onChange={setGain} />
+            <Slider label={t("labs.behavior.cpt.loss")} value={loss} min={10} max={5000} step={10} fmt={(v) => v.toFixed(0)} onChange={setLoss} />
+            <Slider label={t("labs.behavior.cpt.pWin")} value={p} min={0.01} max={0.99} step={0.01} onChange={setP} />
           </div>
         </div>
         <div className="grid grid-cols-2 gap-2 content-start">
-          <Stat label="前景价值 V" value={g.prospectValue.toFixed(2)} color={g.prospectValue >= 0 ? C.green : C.red} />
-          <Stat label="期望值 EV" value={g.expectedValue.toFixed(2)} color={C.blue} sub="理性基准" />
-          <Stat label="确定性等值 CE" value={g.certaintyEquivalent.toFixed(2)} color={C.gold} sub="v(CE)=V" />
-          <Stat label="行为风险溢价" value={g.riskPremium.toFixed(2)} color={C.red} sub="EV − CE" />
-          <Stat label="w(p) 决策权重" value={g.wGain.toFixed(3)} color={C.teal} sub={`客观 p=${p.toFixed(2)}`} />
-          <Stat label="w(1−p)" value={g.wLoss.toFixed(3)} color={C.teal} sub={`客观 ${(1 - p).toFixed(2)}`} />
+          <Stat label={t("labs.behavior.cpt.stat.prospectValue")} value={g.prospectValue.toFixed(2)} color={g.prospectValue >= 0 ? C.green : C.red} />
+          <Stat label={t("labs.behavior.cpt.stat.ev")} value={g.expectedValue.toFixed(2)} color={C.blue} sub={t("labs.behavior.cpt.stat.evSub")} />
+          <Stat label={t("labs.behavior.cpt.stat.ce")} value={g.certaintyEquivalent.toFixed(2)} color={C.gold} sub={t("labs.behavior.cpt.stat.ceSub")} />
+          <Stat label={t("labs.behavior.cpt.stat.riskPremium")} value={g.riskPremium.toFixed(2)} color={C.red} sub={t("labs.behavior.cpt.stat.riskPremiumSub")} />
+          <Stat label={t("labs.behavior.cpt.stat.wGain")} value={g.wGain.toFixed(3)} color={C.teal} sub={t("labs.behavior.cpt.stat.wGainSub", { p: p.toFixed(2) })} />
+          <Stat label={t("labs.behavior.cpt.stat.wLoss")} value={g.wLoss.toFixed(3)} color={C.teal} sub={t("labs.behavior.cpt.stat.wLossSub", { p: (1 - p).toFixed(2) })} />
         </div>
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-        <Chart title="价值函数 v(x) vs 线性效用">
+        <Chart title={t("labs.behavior.cpt.chart.value")}>
           <LineChart data={valueCurve}>
             <CartesianGrid stroke={C.grid} strokeDasharray="3 3" />
             <XAxis dataKey="x" stroke={C.text} tick={{ fontSize: 10 }} />
@@ -186,19 +187,19 @@ function CptPanel() {
             <Tooltip contentStyle={tooltipStyle} />
             <Legend wrapperStyle={{ fontSize: 11 }} />
             <ReferenceLine x={0} stroke={C.text} /><ReferenceLine y={0} stroke={C.text} />
-            <Line type="monotone" dataKey="v" name="v(x)" stroke={C.gold} strokeWidth={2.5} dot={false} />
-            <Line type="monotone" dataKey="eu" name="线性效用" stroke={C.text} strokeWidth={1} dot={false} strokeDasharray="4 3" />
+            <Line type="monotone" dataKey="v" name={t("labs.behavior.cpt.legend.vx")} stroke={C.gold} strokeWidth={2.5} dot={false} />
+            <Line type="monotone" dataKey="eu" name={t("labs.behavior.cpt.legend.linear")} stroke={C.text} strokeWidth={1} dot={false} strokeDasharray="4 3" />
           </LineChart>
         </Chart>
-        <Chart title="概率权重 w(p)">
+        <Chart title={t("labs.behavior.cpt.chart.weight")}>
           <LineChart data={weightCurve}>
             <CartesianGrid stroke={C.grid} strokeDasharray="3 3" />
             <XAxis dataKey="p" stroke={C.text} tick={{ fontSize: 10 }} />
             <YAxis stroke={C.text} tick={{ fontSize: 10 }} domain={[0, 1]} />
             <Tooltip contentStyle={tooltipStyle} />
             <Legend wrapperStyle={{ fontSize: 11 }} />
-            <Line type="monotone" dataKey="w" name="w(p)" stroke={C.blue} strokeWidth={2.5} dot={false} />
-            <Line type="monotone" dataKey="lin" name="45°" stroke={C.text} strokeWidth={1} dot={false} strokeDasharray="4 3" />
+            <Line type="monotone" dataKey="w" name={t("labs.behavior.cpt.legend.wp")} stroke={C.blue} strokeWidth={2.5} dot={false} />
+            <Line type="monotone" dataKey="lin" name={t("labs.behavior.cpt.legend.diag")} stroke={C.text} strokeWidth={1} dot={false} strokeDasharray="4 3" />
           </LineChart>
         </Chart>
       </div>
@@ -206,17 +207,17 @@ function CptPanel() {
         {cells.map((c, i) => (
           <div key={i} className="rounded-lg border border-border bg-secondary/30 p-3">
             <p className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">
-              {c.domain === "gain" ? "收益域" : "损失域"} · p={c.probability.toFixed(2)}
+              {c.domain === "gain" ? t("labs.behavior.cpt.domain.gain") : t("labs.behavior.cpt.domain.loss")} · p={c.probability.toFixed(2)}
             </p>
             <p className="text-sm font-mono mt-1" style={{ color: c.attitude === "risk-seeking" ? C.red : C.green }}>
-              {c.attitude === "risk-seeking" ? "风险寻求" : c.attitude === "risk-averse" ? "风险厌恶" : "风险中性"}
+              {c.attitude === "risk-seeking" ? t("labs.behavior.cpt.attitude.seeking") : c.attitude === "risk-averse" ? t("labs.behavior.cpt.attitude.averse") : t("labs.behavior.cpt.attitude.neutral")}
             </p>
             <p className="text-[10px] font-mono text-muted-foreground mt-0.5">CE {c.ce.toFixed(1)} vs EV {c.ev.toFixed(1)}</p>
           </div>
         ))}
       </div>
       <Note>
-        <p><span className="text-gold">局限：</span>参照点 r 不可直接观察，也非外生；不同参照点会导出完全不同的预测。把「不愿止损」一律归为损失厌恶，会忽略税收、交易成本、私有信息与学习等理性解释。</p>
+        <p><span className="text-gold">{t("labs.behavior.cpt.note.label")}</span>{t("labs.behavior.cpt.note.text")}</p>
       </Note>
     </Panel>
   );
@@ -224,143 +225,146 @@ function CptPanel() {
 
 /* ═══════════════ 2. Myopic loss aversion ═══════════════ */
 function MlaPanel() {
+  const { t } = useTranslation();
   const [lambda, setLambda] = useState(2.25);
   const [sigma, setSigma] = useState(0.2);
   const [freq, setFreq] = useState(12);
   const o = useMemo(() => myopicLossAversion({ lambda, sigmaAnnual: sigma, evaluationsPerYear: freq, riskFree: 0.02 }), [lambda, sigma, freq]);
   const sweep = useMemo(() => [1, 2, 4, 12, 52, 252].map((n) => ({
-    n: n === 1 ? "年" : n === 2 ? "半年" : n === 4 ? "季" : n === 12 ? "月" : n === 52 ? "周" : "日",
+    n: n === 1 ? t("labs.behavior.mla.freq.year") : n === 2 ? t("labs.behavior.mla.freq.half") : n === 4 ? t("labs.behavior.mla.freq.quarter") : n === 12 ? t("labs.behavior.mla.freq.month") : n === 52 ? t("labs.behavior.mla.freq.week") : t("labs.behavior.mla.freq.day"),
     premium: +(myopicLossAversion({ lambda, sigmaAnnual: sigma, evaluationsPerYear: n, riskFree: 0.02 }).impliedEquityPremium * 100).toFixed(2),
-  })), [lambda, sigma]);
+  })), [lambda, sigma, t]);
 
   return (
-    <Panel id="mla" en="Myopic Loss Aversion" title="短视损失厌恶与股权溢价之谜"
-      desc="Benartzi-Thaler：损失厌恶 λ 与「评估频率」结合，就能内生出很高的股票要求回报。评估越频繁，看到亏损的概率越大，心理成本越高——这为股权溢价之谜提供了一种行为解释。">
+    <Panel id="mla" en="Myopic Loss Aversion" title={t("labs.behavior.mla.title")}
+      desc={t("labs.behavior.mla.desc")}>
       <PresetButtons presets={[
-        { name: "BT 1995 基准", description: "λ=2.25, 年度评估", apply: () => { setLambda(2.25); setFreq(1); setSigma(0.2); } },
-        { name: "每日盯盘", description: "252 次/年", apply: () => setFreq(252) },
-        { name: "无损失厌恶", description: "λ=1 → 溢价归零", apply: () => setLambda(1) },
+        { name: t("labs.behavior.mla.preset1.name"), description: t("labs.behavior.mla.preset1.desc"), apply: () => { setLambda(2.25); setFreq(1); setSigma(0.2); } },
+        { name: t("labs.behavior.mla.preset2.name"), description: t("labs.behavior.mla.preset2.desc"), apply: () => setFreq(252) },
+        { name: t("labs.behavior.mla.preset3.name"), description: t("labs.behavior.mla.preset3.desc"), apply: () => setLambda(1) },
       ]} />
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
         <div className="space-y-3">
-          <Slider label="λ 损失厌恶" value={lambda} min={1} max={4} step={0.05} onChange={setLambda} />
-          <Slider label="σ 股票年化波动" value={sigma} min={0.05} max={0.5} step={0.01} fmt={(v) => `${(v * 100).toFixed(0)}%`} onChange={setSigma} />
-          <Slider label="评估频率 (次/年)" value={freq} min={1} max={252} step={1} fmt={(v) => v.toFixed(0)} onChange={setFreq} />
+          <Slider label={t("labs.behavior.mla.lambda")} value={lambda} min={1} max={4} step={0.05} onChange={setLambda} />
+          <Slider label={t("labs.behavior.mla.sigma")} value={sigma} min={0.05} max={0.5} step={0.01} fmt={(v) => `${(v * 100).toFixed(0)}%`} onChange={setSigma} />
+          <Slider label={t("labs.behavior.mla.freqLabel")} value={freq} min={1} max={252} step={1} fmt={(v) => v.toFixed(0)} onChange={setFreq} />
         </div>
         <div className="grid grid-cols-2 gap-2 content-start">
-          <Stat label="隐含股权溢价" value={`${(o.impliedEquityPremium * 100).toFixed(2)}%`} color={C.gold} sub="使前景效用=0" />
-          <Stat label="单期见亏概率" value={`${(o.lossProbability * 100).toFixed(1)}%`} color={C.red} />
-          <Stat label="单期波动" value={`${(o.periodSigma * 100).toFixed(2)}%`} color={C.blue} sub="σ/√n" />
-          <Stat label="理性基准溢价" value="0%" color={C.text} sub="λ=1 时" />
+          <Stat label={t("labs.behavior.mla.stat.premium")} value={`${(o.impliedEquityPremium * 100).toFixed(2)}%`} color={C.gold} sub={t("labs.behavior.mla.stat.premiumSub")} />
+          <Stat label={t("labs.behavior.mla.stat.lossProb")} value={`${(o.lossProbability * 100).toFixed(1)}%`} color={C.red} />
+          <Stat label={t("labs.behavior.mla.stat.periodVol")} value={`${(o.periodSigma * 100).toFixed(2)}%`} color={C.blue} sub="σ/√n" />
+          <Stat label={t("labs.behavior.mla.stat.rationalPremium")} value="0%" color={C.text} sub={t("labs.behavior.mla.stat.rationalPremiumSub")} />
         </div>
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-        <Chart title="评估频率 → 隐含股权溢价 (%)">
+        <Chart title={t("labs.behavior.mla.chart.premium")}>
           <BarChart data={sweep}>
             <CartesianGrid stroke={C.grid} strokeDasharray="3 3" />
             <XAxis dataKey="n" stroke={C.text} tick={{ fontSize: 10 }} />
             <YAxis stroke={C.text} tick={{ fontSize: 10 }} />
             <Tooltip contentStyle={tooltipStyle} />
-            <Bar dataKey="premium" name="隐含溢价 %" fill={C.gold} />
+            <Bar dataKey="premium" name={t("labs.behavior.mla.legend.premium")} fill={C.gold} />
           </BarChart>
         </Chart>
-        <Chart title="前景效用随溢价的变化（零点即均衡溢价）">
+        <Chart title={t("labs.behavior.mla.chart.utility")}>
           <LineChart data={o.utilityCurve}>
             <CartesianGrid stroke={C.grid} strokeDasharray="3 3" />
             <XAxis dataKey="premium" stroke={C.text} tick={{ fontSize: 10 }} tickFormatter={(v) => `${(v * 100).toFixed(0)}%`} />
             <YAxis stroke={C.text} tick={{ fontSize: 10 }} />
             <Tooltip contentStyle={tooltipStyle} />
             <ReferenceLine y={0} stroke={C.red} strokeDasharray="4 3" />
-            <Line type="monotone" dataKey="utility" name="前景效用" stroke={C.blue} strokeWidth={2.5} dot={false} />
+            <Line type="monotone" dataKey="utility" name={t("labs.behavior.mla.legend.utility")} stroke={C.blue} strokeWidth={2.5} dot={false} />
           </LineChart>
         </Chart>
       </div>
-      <Note><p><span className="text-gold">争议：</span>评估频率并不可观测，且长期投资者未必按日结算；实证上机构与散户的评估周期差异是否真的映射到定价，仍有分歧。</p></Note>
+      <Note><p><span className="text-gold">{t("labs.behavior.mla.note.label")}</span>{t("labs.behavior.mla.note.text")}</p></Note>
     </Panel>
   );
 }
 
 /* ═══════════════ 3. BSV ═══════════════ */
 function BsvPanel() {
+  const { t } = useTranslation();
   const [piL, setPiL] = useState(0.8);
   const [piH, setPiH] = useState(0.7);
   const [lambda1, setLambda1] = useState(0.6);
   const o = useMemo(() => bsvBeliefs({ piL, piH, lambda1, shock: 1, horizon: 48 }), [piL, piH, lambda1]);
-  const data = o.t.map((t, i) => ({ t, car: +o.car[i].toFixed(4), rational: o.rationalCar[i] }));
+  const data = o.t.map((tt, i) => ({ t: tt, car: +o.car[i].toFixed(4), rational: o.rationalCar[i] }));
   return (
-    <Panel id="bsv" en="Barberis-Shleifer-Vishny (1998)" title="BSV：保守主义 + 代表性 → 反应不足接过度反应"
-      desc="投资者以为盈利在「均值回复」与「趋势」两个制度间切换。保守主义使公告当期反应不足，随后缓慢漂移；代表性使连续好消息被外推，价格冲过基本面，长期再反转。">
+    <Panel id="bsv" en="Barberis-Shleifer-Vishny (1998)" title={t("labs.behavior.bsv.title")}
+      desc={t("labs.behavior.bsv.desc")}>
       <PresetButtons presets={[
-        { name: "BSV 原始标定", description: "π_L=.8, π_H=.7, λ₁=.6", apply: () => { setPiL(0.8); setPiH(0.7); setLambda1(0.6); } },
-        { name: "纯保守主义", description: "λ₁=1 → 只有漂移", apply: () => setLambda1(1) },
-        { name: "纯代表性", description: "λ₁=0 → 强过度反应", apply: () => setLambda1(0) },
+        { name: t("labs.behavior.bsv.preset1.name"), description: t("labs.behavior.bsv.preset1.desc"), apply: () => { setPiL(0.8); setPiH(0.7); setLambda1(0.6); } },
+        { name: t("labs.behavior.bsv.preset2.name"), description: t("labs.behavior.bsv.preset2.desc"), apply: () => setLambda1(1) },
+        { name: t("labs.behavior.bsv.preset3.name"), description: t("labs.behavior.bsv.preset3.desc"), apply: () => setLambda1(0) },
       ]} />
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
         <div className="space-y-3">
-          <Slider label="π_L 均值回复制度持续性" value={piL} min={0.5} max={0.99} step={0.01} onChange={setPiL} />
-          <Slider label="π_H 趋势制度持续性" value={piH} min={0.5} max={0.99} step={0.01} onChange={setPiH} />
-          <Slider label="λ₁ 保守主义权重" value={lambda1} min={0} max={1} step={0.01} onChange={setLambda1} />
+          <Slider label={t("labs.behavior.bsv.piL")} value={piL} min={0.5} max={0.99} step={0.01} onChange={setPiL} />
+          <Slider label={t("labs.behavior.bsv.piH")} value={piH} min={0.5} max={0.99} step={0.01} onChange={setPiH} />
+          <Slider label={t("labs.behavior.bsv.lambda1")} value={lambda1} min={0} max={1} step={0.01} onChange={setLambda1} />
         </div>
         <div className="grid grid-cols-2 gap-2 content-start">
-          <Stat label="短期反应不足" value={o.underreaction.toFixed(3)} color={C.blue} sub="理性 CAR − 实际" />
-          <Stat label="峰值过度反应" value={o.overreaction.toFixed(3)} color={C.red} sub="max CAR − 基本面" />
-          <Stat label="是否长期反转" value={o.reversal ? "是" : "否"} color={o.reversal ? C.gold : C.text} />
-          <Stat label="终值 CAR" value={o.car[o.car.length - 1].toFixed(3)} color={C.green} />
+          <Stat label={t("labs.behavior.bsv.stat.underreaction")} value={o.underreaction.toFixed(3)} color={C.blue} sub={t("labs.behavior.bsv.stat.underreactionSub")} />
+          <Stat label={t("labs.behavior.bsv.stat.overreaction")} value={o.overreaction.toFixed(3)} color={C.red} sub={t("labs.behavior.bsv.stat.overreactionSub")} />
+          <Stat label={t("labs.behavior.bsv.stat.reversal")} value={o.reversal ? t("labs.behavior.common.yes") : t("labs.behavior.common.no")} color={o.reversal ? C.gold : C.text} />
+          <Stat label={t("labs.behavior.bsv.stat.finalCar")} value={o.car[o.car.length - 1].toFixed(3)} color={C.green} />
         </div>
       </div>
-      <Chart title="事件后累计异常收益 CAR vs 理性基准" height={280}>
+      <Chart title={t("labs.behavior.bsv.chart.car")} height={280}>
         <LineChart data={data}>
           <CartesianGrid stroke={C.grid} strokeDasharray="3 3" />
           <XAxis dataKey="t" stroke={C.text} tick={{ fontSize: 10 }} />
           <YAxis stroke={C.text} tick={{ fontSize: 10 }} />
           <Tooltip contentStyle={tooltipStyle} />
           <Legend wrapperStyle={{ fontSize: 11 }} />
-          <Line type="monotone" dataKey="car" name="行为 CAR" stroke={C.gold} strokeWidth={2.5} dot={false} />
-          <Line type="monotone" dataKey="rational" name="理性基准" stroke={C.text} strokeWidth={1.5} dot={false} strokeDasharray="4 3" />
+          <Line type="monotone" dataKey="car" name={t("labs.behavior.bsv.legend.car")} stroke={C.gold} strokeWidth={2.5} dot={false} />
+          <Line type="monotone" dataKey="rational" name={t("labs.behavior.bsv.legend.rational")} stroke={C.text} strokeWidth={1.5} dot={false} strokeDasharray="4 3" />
         </LineChart>
       </Chart>
-      <Note><p><span className="text-gold">检验要点：</span>BSV 的可证伪含义在截面——在信息更模糊、分析师覆盖更少的股票上，漂移与反转都应更强。这才是与「风险溢价解释」的分水岭。</p></Note>
+      <Note><p><span className="text-gold">{t("labs.behavior.bsv.note.label")}</span>{t("labs.behavior.bsv.note.text")}</p></Note>
     </Panel>
   );
 }
 
 /* ═══════════════ 4. DHS ═══════════════ */
 function DhsPanel() {
+  const { t } = useTranslation();
   const [k, setK] = useState(2);
   const [psi, setPsi] = useState(0.6);
   const [corr, setCorr] = useState(0.15);
   const o = useMemo(() => dhsOverconfidence({ overconfidence: k, selfAttribution: psi, signal: 1, horizon: 48, correctionRate: corr }), [k, psi, corr]);
-  const data = o.t.map((t, i) => ({ t, price: +o.price[i].toFixed(4), fundamental: o.fundamental[i] }));
+  const data = o.t.map((tt, i) => ({ t: tt, price: +o.price[i].toFixed(4), fundamental: o.fundamental[i] }));
   return (
-    <Panel id="dhs" en="Daniel-Hirshleifer-Subrahmanyam (1998)" title="DHS：过度自信与自我归因偏差"
-      desc="投资者高估私有信号精度 (k>1) 造成即时过度反应；自我归因使确认性公开信息进一步强化信念（延续的动量），而最终公开信息把价格拉回基本面——长期反转。">
+    <Panel id="dhs" en="Daniel-Hirshleifer-Subrahmanyam (1998)" title={t("labs.behavior.dhs.title")}
+      desc={t("labs.behavior.dhs.desc")}>
       <PresetButtons presets={[
-        { name: "标准过度自信", description: "k=2, ψ=.6", apply: () => { setK(2); setPsi(0.6); setCorr(0.15); } },
-        { name: "理性基准", description: "k=1, ψ=0", apply: () => { setK(1); setPsi(0); } },
-        { name: "极端自我归因", description: "ψ=.95", apply: () => setPsi(0.95) },
+        { name: t("labs.behavior.dhs.preset1.name"), description: t("labs.behavior.dhs.preset1.desc"), apply: () => { setK(2); setPsi(0.6); setCorr(0.15); } },
+        { name: t("labs.behavior.dhs.preset2.name"), description: t("labs.behavior.dhs.preset2.desc"), apply: () => { setK(1); setPsi(0); } },
+        { name: t("labs.behavior.dhs.preset3.name"), description: t("labs.behavior.dhs.preset3.desc"), apply: () => setPsi(0.95) },
       ]} />
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
         <div className="space-y-3">
-          <Slider label="k 过度自信（信号精度膨胀）" value={k} min={1} max={4} step={0.05} onChange={setK} />
-          <Slider label="ψ 自我归因强度" value={psi} min={0} max={0.95} step={0.01} onChange={setPsi} />
-          <Slider label="λ 公开信息纠偏速度" value={corr} min={0.02} max={0.6} step={0.01} onChange={setCorr} />
+          <Slider label={t("labs.behavior.dhs.k")} value={k} min={1} max={4} step={0.05} onChange={setK} />
+          <Slider label={t("labs.behavior.dhs.psi")} value={psi} min={0} max={0.95} step={0.01} onChange={setPsi} />
+          <Slider label={t("labs.behavior.dhs.corr")} value={corr} min={0.02} max={0.6} step={0.01} onChange={setCorr} />
         </div>
         <div className="grid grid-cols-2 gap-2 content-start">
-          <Stat label="动量持续期" value={`${o.momentumPhase} 期`} color={C.blue} />
-          <Stat label="峰值过冲" value={o.peakOvershoot.toFixed(3)} color={C.red} />
-          <Stat label="长期反转幅度" value={o.longRunReversal.toFixed(3)} color={C.gold} />
-          <Stat label="终值 / 基本面" value={o.price[o.price.length - 1].toFixed(3)} color={C.green} sub="基本面 = 1.000" />
+          <Stat label={t("labs.behavior.dhs.stat.momentumPhase")} value={t("labs.behavior.dhs.stat.periods", { n: o.momentumPhase })} color={C.blue} />
+          <Stat label={t("labs.behavior.dhs.stat.peakOvershoot")} value={o.peakOvershoot.toFixed(3)} color={C.red} />
+          <Stat label={t("labs.behavior.dhs.stat.longRunReversal")} value={o.longRunReversal.toFixed(3)} color={C.gold} />
+          <Stat label={t("labs.behavior.dhs.stat.finalVsFundamental")} value={o.price[o.price.length - 1].toFixed(3)} color={C.green} sub={t("labs.behavior.dhs.stat.finalVsFundamentalSub")} />
         </div>
       </div>
-      <Chart title="价格路径：过度反应 → 动量 → 反转" height={280}>
+      <Chart title={t("labs.behavior.dhs.chart.price")} height={280}>
         <ComposedChart data={data}>
           <CartesianGrid stroke={C.grid} strokeDasharray="3 3" />
           <XAxis dataKey="t" stroke={C.text} tick={{ fontSize: 10 }} />
           <YAxis stroke={C.text} tick={{ fontSize: 10 }} />
           <Tooltip contentStyle={tooltipStyle} />
           <Legend wrapperStyle={{ fontSize: 11 }} />
-          <Area type="monotone" dataKey="price" name="价格" stroke={C.gold} fill={C.gold} fillOpacity={0.12} strokeWidth={2.5} />
-          <Line type="monotone" dataKey="fundamental" name="基本面" stroke={C.text} strokeWidth={1.5} dot={false} strokeDasharray="4 3" />
+          <Area type="monotone" dataKey="price" name={t("labs.behavior.dhs.legend.price")} stroke={C.gold} fill={C.gold} fillOpacity={0.12} strokeWidth={2.5} />
+          <Line type="monotone" dataKey="fundamental" name={t("labs.behavior.dhs.legend.fundamental")} stroke={C.text} strokeWidth={1.5} dot={false} strokeDasharray="4 3" />
         </ComposedChart>
       </Chart>
     </Panel>
@@ -369,41 +373,42 @@ function DhsPanel() {
 
 /* ═══════════════ 5. Hong-Stein ═══════════════ */
 function HsPanel() {
+  const { t } = useTranslation();
   const [z, setZ] = useState(6);
   const [mu, setMu] = useState(0.6);
   const [j, setJ] = useState(3);
   const o = useMemo(() => hongSteinDiffusion({ diffusionPeriods: z, momentumShare: mu, momentumLookback: j, shock: 1, horizon: 48 }), [z, mu, j]);
-  const data = o.t.map((t, i) => ({ t, price: +o.price[i].toFixed(4), fundamental: o.fundamental[i] }));
+  const data = o.t.map((tt, i) => ({ t: tt, price: +o.price[i].toFixed(4), fundamental: o.fundamental[i] }));
   return (
-    <Panel id="hs" en="Hong-Stein (1999)" title="信息缓慢扩散 + 动量交易者的统一解释"
-      desc="新闻在 z 期内逐步扩散到「新闻观察者」，造成天然的反应不足；动量交易者观察到过去 j 期的价格趋势并追随，把反应不足放大为过冲，最终反转。无需任何个体层面的认知偏差。">
+    <Panel id="hs" en="Hong-Stein (1999)" title={t("labs.behavior.hs.title")}
+      desc={t("labs.behavior.hs.desc")}>
       <PresetButtons presets={[
-        { name: "HS 基准", description: "z=6, μ=.6, j=3", apply: () => { setZ(6); setMu(0.6); setJ(3); } },
-        { name: "无动量交易者", description: "μ=0 → 只有反应不足", apply: () => setMu(0) },
-        { name: "信息瞬时扩散", description: "z=1", apply: () => setZ(1) },
+        { name: t("labs.behavior.hs.preset1.name"), description: t("labs.behavior.hs.preset1.desc"), apply: () => { setZ(6); setMu(0.6); setJ(3); } },
+        { name: t("labs.behavior.hs.preset2.name"), description: t("labs.behavior.hs.preset2.desc"), apply: () => setMu(0) },
+        { name: t("labs.behavior.hs.preset3.name"), description: t("labs.behavior.hs.preset3.desc"), apply: () => setZ(1) },
       ]} />
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
         <div className="space-y-3">
-          <Slider label="z 信息扩散期数" value={z} min={1} max={20} step={1} fmt={(v) => v.toFixed(0)} onChange={setZ} />
-          <Slider label="μ 动量交易者占比" value={mu} min={0} max={0.95} step={0.01} onChange={setMu} />
-          <Slider label="j 动量回看窗口" value={j} min={1} max={12} step={1} fmt={(v) => v.toFixed(0)} onChange={setJ} />
+          <Slider label={t("labs.behavior.hs.z")} value={z} min={1} max={20} step={1} fmt={(v) => v.toFixed(0)} onChange={setZ} />
+          <Slider label={t("labs.behavior.hs.mu")} value={mu} min={0} max={0.95} step={0.01} onChange={setMu} />
+          <Slider label={t("labs.behavior.hs.j")} value={j} min={1} max={12} step={1} fmt={(v) => v.toFixed(0)} onChange={setJ} />
         </div>
         <div className="grid grid-cols-2 gap-2 content-start">
-          <Stat label="过冲幅度" value={o.momentumStrength.toFixed(3)} color={o.overshoot ? C.red : C.text} />
-          <Stat label="是否过冲" value={o.overshoot ? "是" : "否"} color={o.overshoot ? C.gold : C.text} />
-          <Stat label="扩散完成期" value={`${z} 期`} color={C.blue} />
-          <Stat label="终值" value={o.price[o.price.length - 1].toFixed(3)} color={C.green} sub="基本面 = 1.000" />
+          <Stat label={t("labs.behavior.hs.stat.overshoot")} value={o.momentumStrength.toFixed(3)} color={o.overshoot ? C.red : C.text} />
+          <Stat label={t("labs.behavior.hs.stat.isOvershoot")} value={o.overshoot ? t("labs.behavior.common.yes") : t("labs.behavior.common.no")} color={o.overshoot ? C.gold : C.text} />
+          <Stat label={t("labs.behavior.hs.stat.diffusionEnd")} value={t("labs.behavior.dhs.stat.periods", { n: z })} color={C.blue} />
+          <Stat label={t("labs.behavior.hs.stat.final")} value={o.price[o.price.length - 1].toFixed(3)} color={C.green} sub={t("labs.behavior.dhs.stat.finalVsFundamentalSub")} />
         </div>
       </div>
-      <Chart title="缓慢扩散 + 趋势追随的价格路径" height={280}>
+      <Chart title={t("labs.behavior.hs.chart.price")} height={280}>
         <LineChart data={data}>
           <CartesianGrid stroke={C.grid} strokeDasharray="3 3" />
           <XAxis dataKey="t" stroke={C.text} tick={{ fontSize: 10 }} />
           <YAxis stroke={C.text} tick={{ fontSize: 10 }} />
           <Tooltip contentStyle={tooltipStyle} />
           <Legend wrapperStyle={{ fontSize: 11 }} />
-          <Line type="monotone" dataKey="price" name="价格" stroke={C.blue} strokeWidth={2.5} dot={false} />
-          <Line type="monotone" dataKey="fundamental" name="基本面" stroke={C.text} strokeWidth={1.5} dot={false} strokeDasharray="4 3" />
+          <Line type="monotone" dataKey="price" name={t("labs.behavior.hs.legend.price")} stroke={C.blue} strokeWidth={2.5} dot={false} />
+          <Line type="monotone" dataKey="fundamental" name={t("labs.behavior.dhs.legend.fundamental")} stroke={C.text} strokeWidth={1.5} dot={false} strokeDasharray="4 3" />
         </LineChart>
       </Chart>
     </Panel>
