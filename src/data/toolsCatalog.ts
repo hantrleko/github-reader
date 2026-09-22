@@ -18,6 +18,7 @@ export type ToolCategory =
   | "risk"
   | "quant"
   | "macro"
+  | "behavior"
   | "platform";
 
 export type Difficulty = "intro" | "core" | "advanced" | "research";
@@ -37,7 +38,7 @@ export interface ToolEntry {
   related?: string[];
   /** true once unit tests vs a closed-form benchmark exist in src/lib/quant */
   verified?: boolean;
-  version: "V1.0" | "V2.0" | "V2.1" | "V2.2" | "V2.3" | "V2.4" | "V2.5" | "V2.6" | "V2.7" | "V2.8" | "V2.9" | "V3.0" | "V3.1" | "V3.2" | "V3.3" | "V3.4" | "V3.5" | "V3.6" | "V3.7" | "V3.8" | "V3.9" | "V4.0" | "V4.1" | "V4.2" | "V4.3" | "V5.3" | "V5.4" | "V5.5" | "V5.6" | "V6.5" | "V6.8" | "V6.9" | "V7.0" | "V7.1" | "V7.2" | "V7.3" | "V7.4";
+  version: "V1.0" | "V2.0" | "V2.1" | "V2.2" | "V2.3" | "V2.4" | "V2.5" | "V2.6" | "V2.7" | "V2.8" | "V2.9" | "V3.0" | "V3.1" | "V3.2" | "V3.3" | "V3.4" | "V3.5" | "V3.6" | "V3.7" | "V3.8" | "V3.9" | "V4.0" | "V4.1" | "V4.2" | "V4.3" | "V5.3" | "V5.4" | "V5.5" | "V5.6" | "V6.5" | "V6.8" | "V6.9" | "V7.0" | "V7.1" | "V7.2" | "V7.3" | "V7.4" | "V7.5";
 }
 
 export const CATEGORY_LABEL: Record<ToolCategory, { zh: string; en: string }> = {
@@ -51,6 +52,7 @@ export const CATEGORY_LABEL: Record<ToolCategory, { zh: string; en: string }> = 
   risk: { zh: "风险管理", en: "Risk" },
   quant: { zh: "量化策略", en: "Quant" },
   macro: { zh: "宏观经济", en: "Macro" },
+  behavior: { zh: "行为金融", en: "Behavioral Finance" },
   platform: { zh: "平台增强", en: "Platform" },
 };
 
