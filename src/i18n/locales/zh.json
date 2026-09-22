@@ -2992,6 +2992,26 @@
           "procyclicalityDescription": "缓冲在繁荣期累积、危机中释放，才能避免\"资本要求在最坏时点最紧\"的悖论。"
         }
       }
+    },
+    "behavior": {
+      "title": "行为金融实验室",
+      "subtitle": "从前景理论与短视损失厌恶，到 BSV / DHS / Hong-Stein 信念模型、有限套利约束、投资者情绪与行为公司金融——八个可交互实验，把有限理性与有限套利变成可复现的价格路径。",
+      "references": "参考文献",
+      "group": {
+        "preferences": "前景理论 · 短视损失厌恶",
+        "beliefs": "BSV · DHS · Hong-Stein",
+        "arbitrage": "有限套利 · 投资者情绪",
+        "corporate": "管理者过度自信 · 市场时机"
+      }
+    },
+    "behaviorMicro": {
+      "title": "行为金融与市场微观结构实验室",
+      "subtitle": "投资者偏差如何进入价格，做市商与知情交易者又如何决定价差、深度与冲击成本。",
+      "references": "参考文献",
+      "tab": {
+        "behavior": "行为金融",
+        "micro": "市场微观结构"
+      }
     }
   }
 }

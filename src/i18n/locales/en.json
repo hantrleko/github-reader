@@ -2990,6 +2990,26 @@
           "procyclicalityDescription": "Buffers must be built in good times and released in crises to avoid the paradox of capital requirements being tightest when they are hardest to meet."
         }
       }
+    },
+    "behavior": {
+      "title": "Behavioral Finance Lab",
+      "subtitle": "From prospect theory and myopic loss aversion to the BSV / DHS / Hong-Stein belief models, limits to arbitrage, investor sentiment and behavioral corporate finance — eight interactive experiments turning bounded rationality into reproducible price paths.",
+      "references": "References",
+      "group": {
+        "preferences": "Prospect theory · Myopic loss aversion",
+        "beliefs": "BSV · DHS · Hong-Stein",
+        "arbitrage": "Limits to arbitrage · Investor sentiment",
+        "corporate": "Managerial overconfidence · Market timing"
+      }
+    },
+    "behaviorMicro": {
+      "title": "Behavior & Market Microstructure Lab",
+      "subtitle": "How investor biases enter prices, and how market makers and informed traders set spreads, depth and impact costs.",
+      "references": "References",
+      "tab": {
+        "behavior": "Behavioral finance",
+        "micro": "Market microstructure"
+      }
     }
   }
 }
