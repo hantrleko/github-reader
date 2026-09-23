@@ -3011,6 +3011,188 @@
       "tab": {
         "behavior": "行为金融",
         "micro": "市场微观结构"
+      },
+      "hyperbolic": {
+        "title": "心理账户 & 双曲贴现",
+        "preset": {
+          "laibsonName": "Laibson 校准",
+          "laibsonDesc": "β=.7, δ=.96",
+          "presentBiasName": "强现时偏好",
+          "presentBiasDesc": "β=.5",
+          "exponentialName": "指数一致",
+          "exponentialDesc": "β=1"
+        },
+        "betaLabel": "β 现时偏好",
+        "deltaLabel": "δ 长期折扣",
+        "windowLabel": "窗口 T (年)",
+        "d1HypLabel": "D(1) 双曲",
+        "d1ExpLabel": "D(1) 指数",
+        "reversalLabel": "偏好反转",
+        "exists": "存在",
+        "none": "无",
+        "dtHypLabel": "D(T) 双曲",
+        "yearAxis": "年",
+        "hypLineName": "β·δᵗ 双曲",
+        "expLineName": "δᵗ 指数"
+      },
+      "dssw": {
+        "title": "有限套利 · DSSW 噪声交易者",
+        "preset": {
+          "persistentName": "持续偏差",
+          "persistentDesc": "ρ=.9",
+          "fastRevertName": "快速回归",
+          "fastRevertDesc": "ρ=.3",
+          "deepPocketName": "深口袋套利者",
+          "deepPocketDesc": "σ=.8"
+        },
+        "rhoLabel": "ρ 情绪持续性",
+        "shockLabel": "情绪冲击",
+        "arbShareLabel": "σ_arb 套利者份额",
+        "t0Label": "t=0 定价误差",
+        "t12Label": "t=12 定价误差",
+        "mispricingName": "定价误差",
+        "sentimentName": "情绪 ρ_t"
+      },
+      "overconfidence": {
+        "title": "过度自信 & 换手率-alpha 侵蚀",
+        "preset": {
+          "barberOdeanName": "Barber-Odean 男性",
+          "barberOdeanDesc": "k=2.5",
+          "extremeName": "极端过度自信",
+          "extremeDesc": "k=4",
+          "wellCalibratedName": "校准良好",
+          "wellCalibratedDesc": "k=1"
+        },
+        "kLabel": "k 信号精度膨胀",
+        "baseTurnoverLabel": "基线换手率",
+        "grossAlphaLabel": "毛 α",
+        "perTradeCostLabel": "单次交易成本",
+        "actualTurnoverLabel": "实际换手率",
+        "costDragLabel": "成本拖累",
+        "grossAlphaStatLabel": "毛 α",
+        "netAlphaLabel": "净 α",
+        "netAlphaChartName": "净 α (%)",
+        "costDragChartName": "成本拖累 (%)"
+      },
+      "disposition": {
+        "title": "处置效应蒙特卡洛",
+        "preset": {
+          "typicalName": "典型处置",
+          "typicalDesc": "PGR/PLR = 3",
+          "symmetricName": "对称基准",
+          "symmetricDesc": "无处置效应",
+          "reverseName": "反向 (止损)",
+          "reverseDesc": "PGR<PLR"
+        },
+        "gainProbLabel": "P(卖出 | 盈利)",
+        "lossProbLabel": "P(卖出 | 亏损)",
+        "driftLabel": "μ 年化漂移",
+        "sigmaLabel": "σ 年化波动",
+        "nSimLabel": "模拟次数 N",
+        "pgrLabel": "PGR",
+        "plrLabel": "PLR",
+        "pgrPlrLabel": "PGR / PLR",
+        "dispositionSub": "处置效应",
+        "noneSub": "无",
+        "holdDaysAxis": "持有天数",
+        "cumReturnAxis": "累积回报%",
+        "soldName": "已卖出",
+        "heldName": "仍持有"
+      },
+      "kyle": {
+        "title": "Kyle 1985 批量拍卖",
+        "formula": "λ = σ_v / (2 σ_u),   x* = (v − p₀) / (2λ),   利润 = (v − p₀)² / (4λ)",
+        "preset": {
+          "stealthyName": "隐蔽性高",
+          "stealthyDesc": "σ_u=5",
+          "extremeAsymName": "极端不对称",
+          "extremeAsymDesc": "σ_v=3",
+          "smallEdgeName": "小信息优势",
+          "smallEdgeDesc": "v=101"
+        },
+        "sigmaVLabel": "σ_v 私有信息不确定性",
+        "sigmaULabel": "σ_u 噪声流动性",
+        "vLabel": "v 内在价值",
+        "p0Label": "p₀ 先验价格",
+        "lambdaLabel": "λ 价格冲击",
+        "depthLabel": "市场深度 1/λ",
+        "xStarLabel": "x* 知情单量",
+        "expProfitLabel": "E[知情利润]",
+        "depthChartName": "深度 1/λ",
+        "profitChartName": "知情利润 (右)"
+      },
+      "glostenMilgrom": {
+        "title": "Glosten-Milgrom 序贯交易",
+        "formula": "Ask = E[V | buy],  Bid = E[V | sell];  spread ↑ with 知情比例 α",
+        "preset": {
+          "lowInformedName": "低知情",
+          "lowInformedDesc": "α=.1",
+          "highInformedName": "高知情 (盘前)",
+          "highInformedDesc": "α=.6",
+          "pessimisticName": "偏悲观",
+          "pessimisticDesc": "π=.3"
+        },
+        "alphaLabel": "α 知情交易者比例",
+        "piLabel": "π 先验 P(V=vH)",
+        "askLabel": "Ask",
+        "bidLabel": "Bid",
+        "spreadLabel": "价差 S",
+        "midLabel": "Mid",
+        "spreadChartName": "Bid-Ask 价差"
+      },
+      "roll": {
+        "title": "Roll 1984 有效价差反推",
+        "preset": {
+          "wideSpreadName": "宽价差 (小盘)",
+          "wideSpreadDesc": "s=0.8",
+          "tightSpreadName": "紧价差 (大盘)",
+          "tightSpreadDesc": "s=0.05",
+          "trendingName": "有趋势 (低翻转)",
+          "trendingDesc": "flip=0.2"
+        },
+        "trueSpreadLabel": "真实有效价差",
+        "flipRateLabel": "买卖翻转率",
+        "sampleSizeLabel": "样本量",
+        "seedLabel": "随机种子",
+        "trueSLabel": "真实 s",
+        "rollEstLabel": "Roll ŝ",
+        "covLabel": "cov(Δpₜ,Δpₜ₋₁)",
+        "covSub": "负号 → 价差存在",
+        "errorLabel": "估计误差"
+      },
+      "almgrenChriss": {
+        "title": "Almgren-Chriss 最优执行 & Amihud 非流动性",
+        "formula": "x_t = sinh(κ(T−t)) / sinh(κT) · X,   κ² = λσ² / η̃",
+        "preset": {
+          "riskNeutralName": "风险中性 (VWAP)",
+          "riskNeutralDesc": "λ=0",
+          "aggressiveName": "激进 (紧急清仓)",
+          "aggressiveDesc": "λ=50",
+          "highImpactName": "高冲击市场",
+          "highImpactDesc": "η=0.3",
+          "lowVolName": "低波动",
+          "lowVolDesc": "σ=0.1"
+        },
+        "xLabel": "X 总仓位 (股)",
+        "tLabel": "T 时限 (日)",
+        "nLabel": "N 划分步数",
+        "etaLabel": "η 临时冲击",
+        "gammaLabel": "γ 永久冲击",
+        "sigmaLabel": "σ 波动率",
+        "lambdaLabel": "λ 风险厌恶",
+        "kappaLabel": "κ",
+        "expCostLabel": "E[成本]",
+        "stdCostLabel": "σ[成本]",
+        "optimalChartName": "最优 x_t",
+        "vwapChartName": "线性 VWAP",
+        "stdCostAxisName": "σ[成本]",
+        "stdCostAxisLabel": "σ[成本]",
+        "expCostAxisName": "E[成本]",
+        "frontierChartName": "有效前沿 (λ 扫描)"
+      },
+      "amihud": {
+        "illiqLabel": "Amihud ILLIQ (示例)",
+        "illiqSub": "×10⁻⁹"
       }
     }
   }
