@@ -3009,6 +3009,188 @@
       "tab": {
         "behavior": "Behavioral finance",
         "micro": "Market microstructure"
+      },
+      "hyperbolic": {
+        "title": "Mental Accounting & Hyperbolic Discounting",
+        "preset": {
+          "laibsonName": "Laibson Calibration",
+          "laibsonDesc": "β=.7, δ=.96",
+          "presentBiasName": "Strong Present Bias",
+          "presentBiasDesc": "β=.5",
+          "exponentialName": "Exponential-Consistent",
+          "exponentialDesc": "β=1"
+        },
+        "betaLabel": "β Present Bias",
+        "deltaLabel": "δ Long-run Discount",
+        "windowLabel": "Window T (years)",
+        "d1HypLabel": "D(1) Hyperbolic",
+        "d1ExpLabel": "D(1) Exponential",
+        "reversalLabel": "Preference Reversal",
+        "exists": "Present",
+        "none": "None",
+        "dtHypLabel": "D(T) Hyperbolic",
+        "yearAxis": "Years",
+        "hypLineName": "β·δᵗ Hyperbolic",
+        "expLineName": "δᵗ Exponential"
+      },
+      "dssw": {
+        "title": "Limited Arbitrage · DSSW Noise Trader",
+        "preset": {
+          "persistentName": "Persistent Bias",
+          "persistentDesc": "ρ=.9",
+          "fastRevertName": "Fast Mean Reversion",
+          "fastRevertDesc": "ρ=.3",
+          "deepPocketName": "Deep-Pocket Arbitrageurs",
+          "deepPocketDesc": "σ=.8"
+        },
+        "rhoLabel": "ρ Sentiment Persistence",
+        "shockLabel": "Sentiment Shock",
+        "arbShareLabel": "σ_arb Arbitrageur Share",
+        "t0Label": "t=0 Mispricing",
+        "t12Label": "t=12 Mispricing",
+        "mispricingName": "Mispricing",
+        "sentimentName": "Sentiment ρ_t"
+      },
+      "overconfidence": {
+        "title": "Overconfidence & Turnover-Alpha Erosion",
+        "preset": {
+          "barberOdeanName": "Barber-Odean Male Investors",
+          "barberOdeanDesc": "k=2.5",
+          "extremeName": "Extreme Overconfidence",
+          "extremeDesc": "k=4",
+          "wellCalibratedName": "Well-Calibrated",
+          "wellCalibratedDesc": "k=1"
+        },
+        "kLabel": "k Signal-Precision Inflation",
+        "baseTurnoverLabel": "Baseline Turnover",
+        "grossAlphaLabel": "Gross α",
+        "perTradeCostLabel": "Per-Trade Cost",
+        "actualTurnoverLabel": "Actual Turnover",
+        "costDragLabel": "Cost Drag",
+        "grossAlphaStatLabel": "Gross α",
+        "netAlphaLabel": "Net α",
+        "netAlphaChartName": "Net α (%)",
+        "costDragChartName": "Cost Drag (%)"
+      },
+      "disposition": {
+        "title": "Disposition Effect Monte Carlo",
+        "preset": {
+          "typicalName": "Typical Disposition",
+          "typicalDesc": "PGR/PLR = 3",
+          "symmetricName": "Symmetric Baseline",
+          "symmetricDesc": "No Disposition Effect",
+          "reverseName": "Reverse (Stop-Loss)",
+          "reverseDesc": "PGR<PLR"
+        },
+        "gainProbLabel": "P(Sell | Gain)",
+        "lossProbLabel": "P(Sell | Loss)",
+        "driftLabel": "μ Annualized Drift",
+        "sigmaLabel": "σ Annualized Volatility",
+        "nSimLabel": "Number of Simulations N",
+        "pgrLabel": "PGR",
+        "plrLabel": "PLR",
+        "pgrPlrLabel": "PGR / PLR",
+        "dispositionSub": "Disposition Effect",
+        "noneSub": "None",
+        "holdDaysAxis": "Holding Days",
+        "cumReturnAxis": "Cumulative Return %",
+        "soldName": "Sold",
+        "heldName": "Still Held"
+      },
+      "kyle": {
+        "title": "Kyle 1985 Batch Auction",
+        "formula": "λ = σ_v / (2 σ_u),   x* = (v − p₀) / (2λ),   profit = (v − p₀)² / (4λ)",
+        "preset": {
+          "stealthyName": "High Concealment",
+          "stealthyDesc": "σ_u=5",
+          "extremeAsymName": "Extreme Asymmetry",
+          "extremeAsymDesc": "σ_v=3",
+          "smallEdgeName": "Small Information Edge",
+          "smallEdgeDesc": "v=101"
+        },
+        "sigmaVLabel": "σ_v Private Information Uncertainty",
+        "sigmaULabel": "σ_u Noise Liquidity",
+        "vLabel": "v Intrinsic Value",
+        "p0Label": "p₀ Prior Price",
+        "lambdaLabel": "λ Price Impact",
+        "depthLabel": "Market Depth 1/λ",
+        "xStarLabel": "x* Informed Order Size",
+        "expProfitLabel": "E[Informed Profit]",
+        "depthChartName": "Depth 1/λ",
+        "profitChartName": "Informed Profit (right)"
+      },
+      "glostenMilgrom": {
+        "title": "Glosten-Milgrom Sequential Trade",
+        "formula": "Ask = E[V | buy],  Bid = E[V | sell];  spread ↑ with informed share α",
+        "preset": {
+          "lowInformedName": "Low Informed Share",
+          "lowInformedDesc": "α=.1",
+          "highInformedName": "High Informed Share (Pre-Market)",
+          "highInformedDesc": "α=.6",
+          "pessimisticName": "Pessimistic Bias",
+          "pessimisticDesc": "π=.3"
+        },
+        "alphaLabel": "α Informed Trader Share",
+        "piLabel": "π Prior P(V=vH)",
+        "askLabel": "Ask",
+        "bidLabel": "Bid",
+        "spreadLabel": "Spread S",
+        "midLabel": "Mid",
+        "spreadChartName": "Bid-Ask Spread"
+      },
+      "roll": {
+        "title": "Roll 1984 Effective Spread Estimator",
+        "preset": {
+          "wideSpreadName": "Wide Spread (Small-cap)",
+          "wideSpreadDesc": "s=0.8",
+          "tightSpreadName": "Tight Spread (Large-cap)",
+          "tightSpreadDesc": "s=0.05",
+          "trendingName": "Trending (Low Flip Rate)",
+          "trendingDesc": "flip=0.2"
+        },
+        "trueSpreadLabel": "True Effective Spread",
+        "flipRateLabel": "Buy-Sell Flip Rate",
+        "sampleSizeLabel": "Sample Size",
+        "seedLabel": "Random Seed",
+        "trueSLabel": "True s",
+        "rollEstLabel": "Roll ŝ",
+        "covLabel": "cov(Δpₜ,Δpₜ₋₁)",
+        "covSub": "Negative sign → spread present",
+        "errorLabel": "Estimation Error"
+      },
+      "almgrenChriss": {
+        "title": "Almgren-Chriss Optimal Execution & Amihud Illiquidity",
+        "formula": "x_t = sinh(κ(T−t)) / sinh(κT) · X,   κ² = λσ² / η̃",
+        "preset": {
+          "riskNeutralName": "Risk-Neutral (VWAP)",
+          "riskNeutralDesc": "λ=0",
+          "aggressiveName": "Aggressive (Urgent Liquidation)",
+          "aggressiveDesc": "λ=50",
+          "highImpactName": "High-Impact Market",
+          "highImpactDesc": "η=0.3",
+          "lowVolName": "Low Volatility",
+          "lowVolDesc": "σ=0.1"
+        },
+        "xLabel": "X Total Position (shares)",
+        "tLabel": "T Time Horizon (days)",
+        "nLabel": "N Number of Slices",
+        "etaLabel": "η Temporary Impact",
+        "gammaLabel": "γ Permanent Impact",
+        "sigmaLabel": "σ Volatility",
+        "lambdaLabel": "λ Risk Aversion",
+        "kappaLabel": "κ",
+        "expCostLabel": "E[Cost]",
+        "stdCostLabel": "σ[Cost]",
+        "optimalChartName": "Optimal x_t",
+        "vwapChartName": "Linear VWAP",
+        "stdCostAxisName": "σ[Cost]",
+        "stdCostAxisLabel": "σ[Cost]",
+        "expCostAxisName": "E[Cost]",
+        "frontierChartName": "Efficient Frontier (λ sweep)"
+      },
+      "amihud": {
+        "illiqLabel": "Amihud ILLIQ (Example)",
+        "illiqSub": "×10⁻⁹"
       }
     }
   }
