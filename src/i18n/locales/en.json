@@ -3217,6 +3217,135 @@
         "legend": {
           "price": "Price"
         }
+      },
+      "limits": {
+        "title": "Limits to arbitrage: margins, redemptions and forced liquidation",
+        "desc": "Shleifer-Vishny: spotting a mispricing is not the same as correcting it. Noise-trader risk first widens the mispricing, paper losses trigger redemptions that erode capital, and margins squeeze positions further — so mispricing can persist over economically meaningful horizons.",
+        "preset1": {
+          "name": "Normal market",
+          "desc": "Low noise, loose margins"
+        },
+        "preset2": {
+          "name": "1998 LTCM-style",
+          "desc": "High noise + high redemption sensitivity"
+        },
+        "preset3": {
+          "name": "Frictionless benchmark",
+          "desc": "Noise = 0, redemptions = 0"
+        },
+        "noise": "σ noise-trader risk",
+        "kappa": "κ natural convergence speed",
+        "margin": "m margin requirement",
+        "beta": "β redemption sensitivity",
+        "stat": {
+          "halfLife": "Mispricing half-life",
+          "forced": "Forced liquidation?",
+          "maxPos": "Max position",
+          "maxPosSub": "Capital / margin cap",
+          "finalCap": "Final capital",
+          "finalCapSub": "Initial 100",
+          "noConv": "Did not converge",
+          "yesAt": "Yes (t={{t}})"
+        },
+        "chart": {
+          "mis": "Mispricing path: constrained vs frictionless arbitrage",
+          "cap": "Arbitrageur capital path"
+        },
+        "legend": {
+          "mis": "Constrained mispricing",
+          "unc": "Frictionless benchmark",
+          "cap": "Capital"
+        },
+        "note": {
+          "head": "Heterogeneity test: ",
+          "body": "The key to a credible behavioral explanation is that the effect is stronger where arbitrage is harder (high short-sale costs, poor substitutes, low institutional ownership); otherwise a risk-premium explanation is hard to rule out."
+        }
+      },
+      "sentiment": {
+        "title": "Investor sentiment and the cross-section of returns",
+        "desc": "When sentiment is high, hard-to-value, hard-to-arbitrage stocks (small, young, unprofitable, volatile, extreme growth) get bid up and later earn lower returns; the reverse holds when sentiment is low. Sentiment does not price risk, but it determines whose mispricing survives.",
+        "preset1": {
+          "name": "High sentiment",
+          "desc": "S = +1.5, bubble phase"
+        },
+        "preset2": {
+          "name": "Low sentiment",
+          "desc": "S = −1.5, panic phase"
+        },
+        "preset3": {
+          "name": "Neutral benchmark",
+          "desc": "S = 0 → no spread"
+        },
+        "preset4": {
+          "name": "Arbitrage blocked",
+          "desc": "High short-selling costs"
+        },
+        "sent": "S sentiment index (standardized)",
+        "b": "b speculative-leg sentiment sensitivity",
+        "cost": "c arbitrage friction (short-sale limits)",
+        "stat": {
+          "hard": "Hard-to-value leg subsequent return",
+          "easy": "Easy-to-value leg subsequent return",
+          "spread": "Long-short spread",
+          "spreadSub": "Hard − easy",
+          "regime": "Sentiment regime"
+        },
+        "chart": "Cumulative return over next 12 months (%)",
+        "legend": {
+          "hard": "Hard to value / arbitrage",
+          "easy": "Easy to value / arbitrage"
+        },
+        "regime": {
+          "high": "High",
+          "low": "Low",
+          "neutral": "Neutral"
+        },
+        "note": {
+          "head": "Measurement issue: ",
+          "body": "Each sentiment proxy (closed-end fund discount, IPO first-day returns, turnover, consumer confidence) is noisy and endogenous; the robust approach is cross-validating several proxies rather than relying on a single index."
+        }
+      },
+      "corporate": {
+        "title": "Managerial overconfidence and market timing",
+        "desc": "A two-way framework: on one side, \"irrational managers + rational markets\" — overconfident CEOs believe external finance is undervalued, so investment is highly sensitive to internal cash flow and takeover premiums are too high; on the other, \"rational managers + irrational markets\" — managers time equity issues, making capital structure the cumulative outcome of past valuations.",
+        "preset1": {
+          "desc": "High overconfidence κ = 2"
+        },
+        "preset2": {
+          "name": "Baker-Wurgler timing",
+          "desc": "κ = 0, strong market timing"
+        },
+        "preset3": {
+          "name": "Rational benchmark",
+          "desc": "κ = 0, no timing"
+        },
+        "kappa": "κ managerial overconfidence",
+        "wedge": "External finance cost wedge",
+        "timing": "Market timing intensity",
+        "sentAmp": "Market sentiment amplitude",
+        "stat": {
+          "icf": "Investment–cash flow sensitivity",
+          "rational": "Rational benchmark sensitivity",
+          "issue": "Cumulative equity issuance",
+          "issueSub": "Within timing windows",
+          "lev": "Final leverage",
+          "levSub": "Initial 0.400"
+        },
+        "chart": {
+          "inv": "Investment path vs rational benchmark (cash flow in grey)",
+          "timing": "Market timing: equity issuance and leverage dynamics"
+        },
+        "legend": {
+          "inv": "Overconfident investment",
+          "rat": "Rational investment",
+          "cf": "Internal cash flow",
+          "issue": "Equity issuance",
+          "lev": "Book leverage"
+        },
+        "note": {
+          "head": "Identification challenge: ",
+          "body": "Investment–cash flow sensitivity can also be explained by financing constraints; overconfidence proxies (late option exercise, insider buying, press wording) may capture private information rather than bias. Credible designs need exogenous shocks or institutional changes."
+        }
       }
     },
     "behaviorMicro": {

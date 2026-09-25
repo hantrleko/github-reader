@@ -417,6 +417,7 @@ function HsPanel() {
 
 /* ═══════════════ 6. Limits to arbitrage ═══════════════ */
 function LimitsPanel() {
+  const { t } = useTranslation();
   const [noise, setNoise] = useState(0.12);
   const [kappa, setKappa] = useState(0.2);
   const [margin, setMargin] = useState(0.4);
@@ -425,88 +426,89 @@ function LimitsPanel() {
     mispricing: 1, noiseVol: noise, convergenceRate: kappa, capital: 100,
     marginRequirement: margin, redemptionSensitivity: beta, horizon: 40,
   }), [noise, kappa, margin, beta]);
-  const data = o.t.map((t, i) => ({
-    t, mis: +o.mispricing[i].toFixed(4), unc: +o.unconstrained[i].toFixed(4), cap: +o.capitalPath[i].toFixed(2),
+  const data = o.t.map((tt, i) => ({
+    t: tt, mis: +o.mispricing[i].toFixed(4), unc: +o.unconstrained[i].toFixed(4), cap: +o.capitalPath[i].toFixed(2),
   }));
   return (
-    <Panel id="limits" en="Limits of Arbitrage" title="有限套利：保证金、赎回与被迫平仓"
-      desc="Shleifer-Vishny：正确识别错价不等于能纠正它。噪声交易者风险使错价先扩大，浮亏触发赎回并侵蚀资本，保证金进一步压缩头寸——错价因此可以在经济上重要的时间尺度内持续存在。">
+    <Panel id="limits" en="Limits of Arbitrage" title={t("labs.behavior.limits.title")}
+      desc={t("labs.behavior.limits.desc")}>
       <PresetButtons presets={[
-        { name: "正常市况", description: "低噪声、宽保证金", apply: () => { setNoise(0.05); setMargin(0.25); setBeta(0.2); } },
-        { name: "1998 LTCM 式", description: "高噪声 + 高赎回敏感", apply: () => { setNoise(0.28); setMargin(0.8); setBeta(1.2); } },
-        { name: "无摩擦基准", description: "噪声=0, 赎回=0", apply: () => { setNoise(0); setBeta(0); setMargin(0.2); } },
+        { name: t("labs.behavior.limits.preset1.name"), description: t("labs.behavior.limits.preset1.desc"), apply: () => { setNoise(0.05); setMargin(0.25); setBeta(0.2); } },
+        { name: t("labs.behavior.limits.preset2.name"), description: t("labs.behavior.limits.preset2.desc"), apply: () => { setNoise(0.28); setMargin(0.8); setBeta(1.2); } },
+        { name: t("labs.behavior.limits.preset3.name"), description: t("labs.behavior.limits.preset3.desc"), apply: () => { setNoise(0); setBeta(0); setMargin(0.2); } },
       ]} />
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
         <div className="space-y-3 grid grid-cols-2 gap-3">
-          <Slider label="σ 噪声交易者风险" value={noise} min={0} max={0.4} step={0.01} onChange={setNoise} />
-          <Slider label="κ 自然收敛速度" value={kappa} min={0.02} max={0.6} step={0.01} onChange={setKappa} />
-          <Slider label="m 保证金要求" value={margin} min={0.05} max={1} step={0.01} onChange={setMargin} />
-          <Slider label="β 赎回敏感度" value={beta} min={0} max={2} step={0.05} onChange={setBeta} />
+          <Slider label={t("labs.behavior.limits.noise")} value={noise} min={0} max={0.4} step={0.01} onChange={setNoise} />
+          <Slider label={t("labs.behavior.limits.kappa")} value={kappa} min={0.02} max={0.6} step={0.01} onChange={setKappa} />
+          <Slider label={t("labs.behavior.limits.margin")} value={margin} min={0.05} max={1} step={0.01} onChange={setMargin} />
+          <Slider label={t("labs.behavior.limits.beta")} value={beta} min={0} max={2} step={0.05} onChange={setBeta} />
         </div>
         <div className="grid grid-cols-2 gap-2 content-start">
-          <Stat label="错价半衰期" value={Number.isFinite(o.halfLife) ? `${o.halfLife} 期` : "未收敛"} color={Number.isFinite(o.halfLife) ? C.green : C.red} />
-          <Stat label="是否被迫平仓" value={o.forcedLiquidation ? `是 (t=${o.liquidationPeriod})` : "否"} color={o.forcedLiquidation ? C.red : C.green} />
-          <Stat label="最大头寸" value={o.maxPosition.toFixed(1)} color={C.blue} sub="资本/保证金上限" />
-          <Stat label="期末资本" value={o.capitalPath[o.capitalPath.length - 1].toFixed(1)} color={C.gold} sub="初始 100" />
+          <Stat label={t("labs.behavior.limits.stat.halfLife")} value={Number.isFinite(o.halfLife) ? t("labs.behavior.dhs.stat.periods", { n: o.halfLife }) : t("labs.behavior.limits.stat.noConv")} color={Number.isFinite(o.halfLife) ? C.green : C.red} />
+          <Stat label={t("labs.behavior.limits.stat.forced")} value={o.forcedLiquidation ? t("labs.behavior.limits.stat.yesAt", { t: o.liquidationPeriod }) : t("labs.behavior.common.no")} color={o.forcedLiquidation ? C.red : C.green} />
+          <Stat label={t("labs.behavior.limits.stat.maxPos")} value={o.maxPosition.toFixed(1)} color={C.blue} sub={t("labs.behavior.limits.stat.maxPosSub")} />
+          <Stat label={t("labs.behavior.limits.stat.finalCap")} value={o.capitalPath[o.capitalPath.length - 1].toFixed(1)} color={C.gold} sub={t("labs.behavior.limits.stat.finalCapSub")} />
         </div>
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-        <Chart title="错价路径：受约束 vs 无摩擦套利">
+        <Chart title={t("labs.behavior.limits.chart.mis")}>
           <LineChart data={data}>
             <CartesianGrid stroke={C.grid} strokeDasharray="3 3" />
             <XAxis dataKey="t" stroke={C.text} tick={{ fontSize: 10 }} />
             <YAxis stroke={C.text} tick={{ fontSize: 10 }} />
             <Tooltip contentStyle={tooltipStyle} />
             <Legend wrapperStyle={{ fontSize: 11 }} />
-            <Line type="monotone" dataKey="mis" name="受约束错价" stroke={C.red} strokeWidth={2.5} dot={false} />
-            <Line type="monotone" dataKey="unc" name="无摩擦基准" stroke={C.text} strokeWidth={1.5} dot={false} strokeDasharray="4 3" />
+            <Line type="monotone" dataKey="mis" name={t("labs.behavior.limits.legend.mis")} stroke={C.red} strokeWidth={2.5} dot={false} />
+            <Line type="monotone" dataKey="unc" name={t("labs.behavior.limits.legend.unc")} stroke={C.text} strokeWidth={1.5} dot={false} strokeDasharray="4 3" />
           </LineChart>
         </Chart>
-        <Chart title="套利者资本路径">
+        <Chart title={t("labs.behavior.limits.chart.cap")}>
           <ComposedChart data={data}>
             <CartesianGrid stroke={C.grid} strokeDasharray="3 3" />
             <XAxis dataKey="t" stroke={C.text} tick={{ fontSize: 10 }} />
             <YAxis stroke={C.text} tick={{ fontSize: 10 }} />
             <Tooltip contentStyle={tooltipStyle} />
-            <Area type="monotone" dataKey="cap" name="资本" stroke={C.gold} fill={C.gold} fillOpacity={0.15} strokeWidth={2} />
+            <Area type="monotone" dataKey="cap" name={t("labs.behavior.limits.legend.cap")} stroke={C.gold} fill={C.gold} fillOpacity={0.15} strokeWidth={2} />
           </ComposedChart>
         </Chart>
       </div>
-      <Note><p><span className="text-gold">异质性检验：</span>行为解释可信度的关键，是在「套利更难」的截面（卖空成本高、替代证券差、机构持股低）上效应更强；否则很难排除风险溢价解释。</p></Note>
+      <Note><p><span className="text-gold">{t("labs.behavior.limits.note.head")}</span>{t("labs.behavior.limits.note.body")}</p></Note>
     </Panel>
   );
 }
 
 /* ═══════════════ 7. Sentiment cross-section ═══════════════ */
 function SentimentPanel() {
+  const { t } = useTranslation();
   const [sent, setSent] = useState(1.2);
   const [b, setB] = useState(0.05);
   const [cost, setCost] = useState(0.3);
   const o = useMemo(() => sentimentCrossSection({ sentiment: sent, sensitivity: b, arbitrageCost: cost, baseReturn: 0.08, horizon: 12 }), [sent, b, cost]);
   const data = o.path.map((r) => ({ t: r.t, hard: +(r.hard * 100).toFixed(2), easy: +(r.easy * 100).toFixed(2) }));
   return (
-    <Panel id="sentiment" en="Baker-Wurgler Sentiment" title="投资者情绪与截面收益"
-      desc="情绪高涨时，难以估值、难以套利的股票（小盘、年轻、不盈利、高波动、极端成长）被推高，随后收益更低；情绪低迷时相反。情绪本身不定价风险，但决定谁的错价能存活。">
+    <Panel id="sentiment" en="Baker-Wurgler Sentiment" title={t("labs.behavior.sentiment.title")}
+      desc={t("labs.behavior.sentiment.desc")}>
       <PresetButtons presets={[
-        { name: "情绪高涨", description: "S=+1.5，泡沫期", apply: () => setSent(1.5) },
-        { name: "情绪低迷", description: "S=−1.5，恐慌期", apply: () => setSent(-1.5) },
-        { name: "中性基准", description: "S=0 → 无价差", apply: () => setSent(0) },
-        { name: "套利受阻", description: "卖空成本高", apply: () => setCost(0.8) },
+        { name: t("labs.behavior.sentiment.preset1.name"), description: t("labs.behavior.sentiment.preset1.desc"), apply: () => setSent(1.5) },
+        { name: t("labs.behavior.sentiment.preset2.name"), description: t("labs.behavior.sentiment.preset2.desc"), apply: () => setSent(-1.5) },
+        { name: t("labs.behavior.sentiment.preset3.name"), description: t("labs.behavior.sentiment.preset3.desc"), apply: () => setSent(0) },
+        { name: t("labs.behavior.sentiment.preset4.name"), description: t("labs.behavior.sentiment.preset4.desc"), apply: () => setCost(0.8) },
       ]} />
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
         <div className="space-y-3">
-          <Slider label="S 情绪指数（标准化）" value={sent} min={-2} max={2} step={0.05} onChange={setSent} />
-          <Slider label="b 投机腿情绪敏感度" value={b} min={0} max={0.15} step={0.005} onChange={setB} />
-          <Slider label="c 套利摩擦（卖空限制）" value={cost} min={0} max={1} step={0.01} onChange={setCost} />
+          <Slider label={t("labs.behavior.sentiment.sent")} value={sent} min={-2} max={2} step={0.05} onChange={setSent} />
+          <Slider label={t("labs.behavior.sentiment.b")} value={b} min={0} max={0.15} step={0.005} onChange={setB} />
+          <Slider label={t("labs.behavior.sentiment.cost")} value={cost} min={0} max={1} step={0.01} onChange={setCost} />
         </div>
         <div className="grid grid-cols-2 gap-2 content-start">
-          <Stat label="难估值腿后续收益" value={`${(o.hardToValueReturn * 100).toFixed(2)}%`} color={o.hardToValueReturn < 0.08 ? C.red : C.green} />
-          <Stat label="易估值腿后续收益" value={`${(o.easyToValueReturn * 100).toFixed(2)}%`} color={C.blue} />
-          <Stat label="多空价差" value={`${(o.spread * 100).toFixed(2)}%`} color={C.gold} sub="难 − 易" />
-          <Stat label="情绪区间" value={o.regime === "high" ? "高情绪" : o.regime === "low" ? "低情绪" : "中性"} color={C.teal} />
+          <Stat label={t("labs.behavior.sentiment.stat.hard")} value={`${(o.hardToValueReturn * 100).toFixed(2)}%`} color={o.hardToValueReturn < 0.08 ? C.red : C.green} />
+          <Stat label={t("labs.behavior.sentiment.stat.easy")} value={`${(o.easyToValueReturn * 100).toFixed(2)}%`} color={C.blue} />
+          <Stat label={t("labs.behavior.sentiment.stat.spread")} value={`${(o.spread * 100).toFixed(2)}%`} color={C.gold} sub={t("labs.behavior.sentiment.stat.spreadSub")} />
+          <Stat label={t("labs.behavior.sentiment.stat.regime")} value={o.regime === "high" ? t("labs.behavior.sentiment.regime.high") : o.regime === "low" ? t("labs.behavior.sentiment.regime.low") : t("labs.behavior.sentiment.regime.neutral")} color={C.teal} />
         </div>
       </div>
-      <Chart title="后续 12 个月累计收益（%）" height={260}>
+      <Chart title={t("labs.behavior.sentiment.chart")} height={260}>
         <LineChart data={data}>
           <CartesianGrid stroke={C.grid} strokeDasharray="3 3" />
           <XAxis dataKey="t" stroke={C.text} tick={{ fontSize: 10 }} />
@@ -514,17 +516,18 @@ function SentimentPanel() {
           <Tooltip contentStyle={tooltipStyle} />
           <Legend wrapperStyle={{ fontSize: 11 }} />
           <ReferenceLine y={0} stroke={C.text} />
-          <Line type="monotone" dataKey="hard" name="难估值 / 难套利" stroke={C.red} strokeWidth={2.5} dot={false} />
-          <Line type="monotone" dataKey="easy" name="易估值 / 易套利" stroke={C.blue} strokeWidth={2.5} dot={false} />
+          <Line type="monotone" dataKey="hard" name={t("labs.behavior.sentiment.legend.hard")} stroke={C.red} strokeWidth={2.5} dot={false} />
+          <Line type="monotone" dataKey="easy" name={t("labs.behavior.sentiment.legend.easy")} stroke={C.blue} strokeWidth={2.5} dot={false} />
         </LineChart>
       </Chart>
-      <Note><p><span className="text-gold">测度问题：</span>情绪代理变量（封闭式基金折价、IPO 首日收益、换手率、消费者信心）各自都有噪声与内生性，稳健做法是多代理交叉验证，而不是单一指数。</p></Note>
+      <Note><p><span className="text-gold">{t("labs.behavior.sentiment.note.head")}</span>{t("labs.behavior.sentiment.note.body")}</p></Note>
     </Panel>
   );
 }
 
 /* ═══════════════ 8. Behavioral corporate ═══════════════ */
 function CorporatePanel() {
+  const { t } = useTranslation();
   const [kappa, setKappa] = useState(1.2);
   const [wedge, setWedge] = useState(0.25);
   const [timing, setTiming] = useState(0.5);
@@ -546,54 +549,54 @@ function CorporatePanel() {
   }));
 
   return (
-    <Panel id="corporate" en="Behavioral Corporate Finance" title="管理者过度自信与市场时机"
-      desc="双向框架：一边是「非理性管理者 + 理性市场」——过度自信的 CEO 认为外部融资被低估，因而投资对内部现金流高度敏感、并购溢价过高；另一边是「理性管理者 + 非理性市场」——管理者择时发行，使资本结构成为历史市值的累积产物。">
+    <Panel id="corporate" en="Behavioral Corporate Finance" title={t("labs.behavior.corporate.title")}
+      desc={t("labs.behavior.corporate.desc")}>
       <PresetButtons presets={[
-        { name: "Malmendier-Tate", description: "高过度自信 κ=2", apply: () => { setKappa(2); setTiming(0); } },
-        { name: "Baker-Wurgler 择时", description: "κ=0，强市场时机", apply: () => { setKappa(0); setTiming(1); } },
-        { name: "理性基准", description: "κ=0，无择时", apply: () => { setKappa(0); setTiming(0); } },
+        { name: "Malmendier-Tate", description: t("labs.behavior.corporate.preset1.desc"), apply: () => { setKappa(2); setTiming(0); } },
+        { name: t("labs.behavior.corporate.preset2.name"), description: t("labs.behavior.corporate.preset2.desc"), apply: () => { setKappa(0); setTiming(1); } },
+        { name: t("labs.behavior.corporate.preset3.name"), description: t("labs.behavior.corporate.preset3.desc"), apply: () => { setKappa(0); setTiming(0); } },
       ]} />
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
         <div className="grid grid-cols-2 gap-3">
-          <Slider label="κ 管理者过度自信" value={kappa} min={0} max={3} step={0.05} onChange={setKappa} />
-          <Slider label="外部融资成本楔子" value={wedge} min={0} max={1} step={0.01} onChange={setWedge} />
-          <Slider label="市场时机强度" value={timing} min={0} max={1.5} step={0.05} onChange={setTiming} />
-          <Slider label="市场情绪振幅" value={sentAmp} min={0} max={2} step={0.05} onChange={setSentAmp} />
+          <Slider label={t("labs.behavior.corporate.kappa")} value={kappa} min={0} max={3} step={0.05} onChange={setKappa} />
+          <Slider label={t("labs.behavior.corporate.wedge")} value={wedge} min={0} max={1} step={0.01} onChange={setWedge} />
+          <Slider label={t("labs.behavior.corporate.timing")} value={timing} min={0} max={1.5} step={0.05} onChange={setTiming} />
+          <Slider label={t("labs.behavior.corporate.sentAmp")} value={sentAmp} min={0} max={2} step={0.05} onChange={setSentAmp} />
         </div>
         <div className="grid grid-cols-2 gap-2 content-start">
-          <Stat label="投资—现金流敏感性" value={o.investmentCashFlowSensitivity.toFixed(3)} color={C.gold} />
-          <Stat label="理性基准敏感性" value={o.rationalSensitivity.toFixed(3)} color={C.text} />
-          <Stat label="累计股权发行" value={o.equityIssuance.reduce((s, v) => s + v, 0).toFixed(2)} color={C.blue} sub="择时窗口内" />
-          <Stat label="期末杠杆" value={o.leverage[o.leverage.length - 1].toFixed(3)} color={C.teal} sub="初始 0.400" />
+          <Stat label={t("labs.behavior.corporate.stat.icf")} value={o.investmentCashFlowSensitivity.toFixed(3)} color={C.gold} />
+          <Stat label={t("labs.behavior.corporate.stat.rational")} value={o.rationalSensitivity.toFixed(3)} color={C.text} />
+          <Stat label={t("labs.behavior.corporate.stat.issue")} value={o.equityIssuance.reduce((s, v) => s + v, 0).toFixed(2)} color={C.blue} sub={t("labs.behavior.corporate.stat.issueSub")} />
+          <Stat label={t("labs.behavior.corporate.stat.lev")} value={o.leverage[o.leverage.length - 1].toFixed(3)} color={C.teal} sub={t("labs.behavior.corporate.stat.levSub")} />
         </div>
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-        <Chart title="投资路径 vs 理性基准（现金流为灰线）">
+        <Chart title={t("labs.behavior.corporate.chart.inv")}>
           <ComposedChart data={data}>
             <CartesianGrid stroke={C.grid} strokeDasharray="3 3" />
             <XAxis dataKey="t" stroke={C.text} tick={{ fontSize: 10 }} />
             <YAxis stroke={C.text} tick={{ fontSize: 10 }} />
             <Tooltip contentStyle={tooltipStyle} />
             <Legend wrapperStyle={{ fontSize: 11 }} />
-            <Line type="monotone" dataKey="inv" name="过度自信投资" stroke={C.gold} strokeWidth={2.5} dot={false} />
-            <Line type="monotone" dataKey="rat" name="理性投资" stroke={C.blue} strokeWidth={2} dot={false} strokeDasharray="4 3" />
-            <Line type="monotone" dataKey="cf" name="内部现金流" stroke={C.text} strokeWidth={1} dot={false} />
+            <Line type="monotone" dataKey="inv" name={t("labs.behavior.corporate.legend.inv")} stroke={C.gold} strokeWidth={2.5} dot={false} />
+            <Line type="monotone" dataKey="rat" name={t("labs.behavior.corporate.legend.rat")} stroke={C.blue} strokeWidth={2} dot={false} strokeDasharray="4 3" />
+            <Line type="monotone" dataKey="cf" name={t("labs.behavior.corporate.legend.cf")} stroke={C.text} strokeWidth={1} dot={false} />
           </ComposedChart>
         </Chart>
-        <Chart title="市场时机：股权发行与杠杆演化">
+        <Chart title={t("labs.behavior.corporate.chart.timing")}>
           <ComposedChart data={data}>
             <CartesianGrid stroke={C.grid} strokeDasharray="3 3" />
             <XAxis dataKey="t" stroke={C.text} tick={{ fontSize: 10 }} />
             <YAxis stroke={C.text} tick={{ fontSize: 10 }} />
             <Tooltip contentStyle={tooltipStyle} />
             <Legend wrapperStyle={{ fontSize: 11 }} />
-            <Bar dataKey="issue" name="股权发行" fill={C.green} />
-            <Line type="monotone" dataKey="lev" name="账面杠杆" stroke={C.red} strokeWidth={2.5} dot={false} />
+            <Bar dataKey="issue" name={t("labs.behavior.corporate.legend.issue")} fill={C.green} />
+            <Line type="monotone" dataKey="lev" name={t("labs.behavior.corporate.legend.lev")} stroke={C.red} strokeWidth={2.5} dot={false} />
           </ComposedChart>
         </Chart>
       </div>
       <Note>
-        <p><span className="text-gold">识别难点：</span>投资—现金流敏感性同时可由融资约束解释；过度自信的代理变量（推迟行权、内部人增持、媒体措辞）都可能捕捉私有信息而非偏差。可信设计需要外生冲击或制度变化。</p>
+        <p><span className="text-gold">{t("labs.behavior.corporate.note.head")}</span>{t("labs.behavior.corporate.note.body")}</p>
       </Note>
     </Panel>
   );
