@@ -3002,6 +3002,223 @@
         "beliefs": "BSV · DHS · Hong-Stein",
         "arbitrage": "有限套利 · 投资者情绪",
         "corporate": "管理者过度自信 · 市场时机"
+      },
+      "common": {
+        "yes": "是",
+        "no": "否"
+      },
+      "cpt": {
+        "title": "累积前景理论：价值函数、概率权重与四重风险态度",
+        "desc": "v(x) 相对参照点定义，收益域凹、损失域凸、损失侧更陡 (λ>1)；w(p) 高估小概率、低估中高概率。二者叠加产生四重风险态度，也是彩票与保险同时存在的解释。",
+        "preset1": {
+          "name": "TK 1992 标定",
+          "desc": "α=β=.88, λ=2.25, γ=.61"
+        },
+        "preset2": {
+          "name": "期望效用基准",
+          "desc": "α=β=λ=γ=1"
+        },
+        "preset3": {
+          "name": "强损失厌恶",
+          "desc": "λ=3.5"
+        },
+        "preset4": {
+          "name": "彩票型",
+          "desc": "p=.02 大奖"
+        },
+        "alpha": "α 收益凹性",
+        "beta": "β 损失凸性",
+        "lambda": "λ 损失厌恶",
+        "gamma": "γ 概率加权",
+        "gain": "赢 G",
+        "loss": "输 L",
+        "pWin": "p(赢)",
+        "stat": {
+          "prospectValue": "前景价值 V",
+          "ev": "期望值 EV",
+          "evSub": "理性基准",
+          "ce": "确定性等值 CE",
+          "ceSub": "v(CE)=V",
+          "riskPremium": "行为风险溢价",
+          "riskPremiumSub": "EV − CE",
+          "wGain": "w(p) 决策权重",
+          "wGainSub": "客观 p={{p}}",
+          "wLoss": "w(1−p)",
+          "wLossSub": "客观 {{p}}"
+        },
+        "chart": {
+          "value": "价值函数 v(x) vs 线性效用",
+          "weight": "概率权重 w(p)"
+        },
+        "legend": {
+          "vx": "v(x)",
+          "linear": "线性效用",
+          "wp": "w(p)",
+          "diag": "45° 线"
+        },
+        "domain": {
+          "gain": "收益域",
+          "loss": "损失域"
+        },
+        "attitude": {
+          "seeking": "风险寻求",
+          "averse": "风险厌恶",
+          "neutral": "风险中性"
+        },
+        "note": {
+          "label": "局限：",
+          "text": "参照点 r 不可直接观察，也非外生；不同参照点会导出完全不同的预测。把「不愿止损」一律归为损失厌恶，会忽略税收、交易成本、私有信息与学习等理性解释。"
+        }
+      },
+      "mla": {
+        "title": "短视损失厌恶与股权溢价之谜",
+        "desc": "Benartzi-Thaler：损失厌恶 λ 与「评估频率」结合，就能内生出很高的股票要求回报。评估越频繁，看到亏损的概率越大，心理成本越高——这为股权溢价之谜提供了一种行为解释。",
+        "preset1": {
+          "name": "BT 1995 基准",
+          "desc": "λ=2.25, 年度评估"
+        },
+        "preset2": {
+          "name": "每日盯盘",
+          "desc": "252 次/年"
+        },
+        "preset3": {
+          "name": "无损失厌恶",
+          "desc": "λ=1 → 溢价归零"
+        },
+        "lambda": "λ 损失厌恶",
+        "sigma": "σ 股票年化波动",
+        "freqLabel": "评估频率 (次/年)",
+        "freq": {
+          "year": "年",
+          "half": "半年",
+          "quarter": "季",
+          "month": "月",
+          "week": "周",
+          "day": "日"
+        },
+        "stat": {
+          "premium": "隐含股权溢价",
+          "premiumSub": "使前景效用=0",
+          "lossProb": "单期见亏概率",
+          "periodVol": "单期波动",
+          "rationalPremium": "理性基准溢价",
+          "rationalPremiumSub": "λ=1 时"
+        },
+        "chart": {
+          "premium": "评估频率 → 隐含股权溢价 (%)",
+          "utility": "前景效用随溢价的变化（零点即均衡溢价）"
+        },
+        "legend": {
+          "premium": "隐含溢价 %",
+          "utility": "前景效用"
+        },
+        "note": {
+          "label": "争议：",
+          "text": "评估频率并不可观测，且长期投资者未必按日结算；实证上机构与散户的评估周期差异是否真的映射到定价，仍有分歧。"
+        }
+      },
+      "bsv": {
+        "title": "BSV：保守主义 + 代表性 → 反应不足接过度反应",
+        "desc": "投资者以为盈利在「均值回复」与「趋势」两个制度间切换。保守主义使公告当期反应不足，随后缓慢漂移；代表性使连续好消息被外推，价格冲过基本面，长期再反转。",
+        "preset1": {
+          "name": "BSV 原始标定",
+          "desc": "π_L=.8, π_H=.7, λ₁=.6"
+        },
+        "preset2": {
+          "name": "纯保守主义",
+          "desc": "λ₁=1 → 只有漂移"
+        },
+        "preset3": {
+          "name": "纯代表性",
+          "desc": "λ₁=0 → 强过度反应"
+        },
+        "piL": "π_L 均值回复制度持续性",
+        "piH": "π_H 趋势制度持续性",
+        "lambda1": "λ₁ 保守主义权重",
+        "stat": {
+          "underreaction": "短期反应不足",
+          "underreactionSub": "理性 CAR − 实际",
+          "overreaction": "峰值过度反应",
+          "overreactionSub": "max CAR − 基本面",
+          "reversal": "是否长期反转",
+          "finalCar": "终值 CAR"
+        },
+        "chart": {
+          "car": "事件后累计异常收益 CAR vs 理性基准"
+        },
+        "legend": {
+          "car": "行为 CAR",
+          "rational": "理性基准"
+        },
+        "note": {
+          "label": "检验要点：",
+          "text": "BSV 的可证伪含义在截面——在信息更模糊、分析师覆盖更少的股票上，漂移与反转都应更强。这才是与「风险溢价解释」的分水岭。"
+        }
+      },
+      "dhs": {
+        "title": "DHS：过度自信与自我归因偏差",
+        "desc": "投资者高估私有信号精度 (k>1) 造成即时过度反应；自我归因使确认性公开信息进一步强化信念（延续的动量），而最终公开信息把价格拉回基本面——长期反转。",
+        "preset1": {
+          "name": "标准过度自信",
+          "desc": "k=2, ψ=.6"
+        },
+        "preset2": {
+          "name": "理性基准",
+          "desc": "k=1, ψ=0"
+        },
+        "preset3": {
+          "name": "极端自我归因",
+          "desc": "ψ=.95"
+        },
+        "k": "k 过度自信（信号精度膨胀）",
+        "psi": "ψ 自我归因强度",
+        "corr": "λ 公开信息纠偏速度",
+        "stat": {
+          "momentumPhase": "动量持续期",
+          "periods": "{{n}} 期",
+          "peakOvershoot": "峰值过冲",
+          "longRunReversal": "长期反转幅度",
+          "finalVsFundamental": "终值 / 基本面",
+          "finalVsFundamentalSub": "基本面 = 1.000"
+        },
+        "chart": {
+          "price": "价格路径：过度反应 → 动量 → 反转"
+        },
+        "legend": {
+          "price": "价格",
+          "fundamental": "基本面"
+        }
+      },
+      "hs": {
+        "title": "信息缓慢扩散 + 动量交易者的统一解释",
+        "desc": "新闻在 z 期内逐步扩散到「新闻观察者」，造成天然的反应不足；动量交易者观察到过去 j 期的价格趋势并追随，把反应不足放大为过冲，最终反转。无需任何个体层面的认知偏差。",
+        "preset1": {
+          "name": "HS 基准",
+          "desc": "z=6, μ=.6, j=3"
+        },
+        "preset2": {
+          "name": "无动量交易者",
+          "desc": "μ=0 → 只有反应不足"
+        },
+        "preset3": {
+          "name": "信息瞬时扩散",
+          "desc": "z=1"
+        },
+        "z": "z 信息扩散期数",
+        "mu": "μ 动量交易者占比",
+        "j": "j 动量回看窗口",
+        "stat": {
+          "overshoot": "过冲幅度",
+          "isOvershoot": "是否过冲",
+          "diffusionEnd": "扩散完成期",
+          "final": "终值"
+        },
+        "chart": {
+          "price": "缓慢扩散 + 趋势追随的价格路径"
+        },
+        "legend": {
+          "price": "价格"
+        }
       }
     },
     "behaviorMicro": {
