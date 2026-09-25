@@ -3000,6 +3000,223 @@
         "beliefs": "BSV · DHS · Hong-Stein",
         "arbitrage": "Limits to arbitrage · Investor sentiment",
         "corporate": "Managerial overconfidence · Market timing"
+      },
+      "common": {
+        "yes": "Yes",
+        "no": "No"
+      },
+      "cpt": {
+        "title": "Cumulative Prospect Theory: value function, probability weighting and the fourfold pattern",
+        "desc": "v(x) is defined relative to a reference point: concave for gains, convex for losses, steeper on the loss side (λ>1); w(p) overweights small and underweights moderate-to-high probabilities. Together they produce the fourfold pattern of risk attitudes, explaining why lotteries and insurance coexist.",
+        "preset1": {
+          "name": "TK 1992 calibration",
+          "desc": "α=β=.88, λ=2.25, γ=.61"
+        },
+        "preset2": {
+          "name": "Expected-utility baseline",
+          "desc": "α=β=λ=γ=1"
+        },
+        "preset3": {
+          "name": "Strong loss aversion",
+          "desc": "λ=3.5"
+        },
+        "preset4": {
+          "name": "Lottery-type",
+          "desc": "p=.02 jackpot"
+        },
+        "alpha": "α gain concavity",
+        "beta": "β loss convexity",
+        "lambda": "λ loss aversion",
+        "gamma": "γ probability weighting",
+        "gain": "Gain G",
+        "loss": "Loss L",
+        "pWin": "p(win)",
+        "stat": {
+          "prospectValue": "Prospect value V",
+          "ev": "Expected value EV",
+          "evSub": "Rational baseline",
+          "ce": "Certainty equivalent CE",
+          "ceSub": "v(CE)=V",
+          "riskPremium": "Behavioral risk premium",
+          "riskPremiumSub": "EV − CE",
+          "wGain": "w(p) decision weight",
+          "wGainSub": "objective p={{p}}",
+          "wLoss": "w(1−p)",
+          "wLossSub": "objective {{p}}"
+        },
+        "chart": {
+          "value": "Value function v(x) vs linear utility",
+          "weight": "Probability weighting w(p)"
+        },
+        "legend": {
+          "vx": "v(x)",
+          "linear": "Linear utility",
+          "wp": "w(p)",
+          "diag": "45° line"
+        },
+        "domain": {
+          "gain": "Gain domain",
+          "loss": "Loss domain"
+        },
+        "attitude": {
+          "seeking": "Risk-seeking",
+          "averse": "Risk-averse",
+          "neutral": "Risk-neutral"
+        },
+        "note": {
+          "label": "Limitations: ",
+          "text": "The reference point r is neither directly observable nor exogenous; different reference points yield very different predictions. Attributing every reluctance to cut losses to loss aversion ignores rational explanations such as taxes, trading costs, private information and learning."
+        }
+      },
+      "mla": {
+        "title": "Myopic loss aversion and the equity premium puzzle",
+        "desc": "Benartzi-Thaler: combining loss aversion λ with evaluation frequency endogenously produces a high required return on equities. The more often you evaluate, the more likely you see a loss and the higher the psychological cost — a behavioral explanation of the equity premium puzzle.",
+        "preset1": {
+          "name": "BT 1995 baseline",
+          "desc": "λ=2.25, annual evaluation"
+        },
+        "preset2": {
+          "name": "Daily monitoring",
+          "desc": "252 per year"
+        },
+        "preset3": {
+          "name": "No loss aversion",
+          "desc": "λ=1 → premium vanishes"
+        },
+        "lambda": "λ loss aversion",
+        "sigma": "σ equity annual volatility",
+        "freqLabel": "Evaluation frequency (per year)",
+        "freq": {
+          "year": "Year",
+          "half": "Half-year",
+          "quarter": "Quarter",
+          "month": "Month",
+          "week": "Week",
+          "day": "Day"
+        },
+        "stat": {
+          "premium": "Implied equity premium",
+          "premiumSub": "sets prospect utility = 0",
+          "lossProb": "Per-period loss probability",
+          "periodVol": "Per-period volatility",
+          "rationalPremium": "Rational baseline premium",
+          "rationalPremiumSub": "when λ=1"
+        },
+        "chart": {
+          "premium": "Evaluation frequency → implied equity premium (%)",
+          "utility": "Prospect utility vs premium (zero crossing = equilibrium premium)"
+        },
+        "legend": {
+          "premium": "Implied premium %",
+          "utility": "Prospect utility"
+        },
+        "note": {
+          "label": "Debate: ",
+          "text": "Evaluation frequency is unobservable and long-horizon investors need not settle daily; whether differences in evaluation periods between institutions and retail investors actually map into prices remains disputed."
+        }
+      },
+      "bsv": {
+        "title": "BSV: conservatism + representativeness → underreaction then overreaction",
+        "desc": "Investors believe earnings switch between a mean-reverting and a trending regime. Conservatism causes underreaction at announcement followed by slow drift; representativeness extrapolates streaks of good news, pushing prices past fundamentals before a long-run reversal.",
+        "preset1": {
+          "name": "Original BSV calibration",
+          "desc": "π_L=.8, π_H=.7, λ₁=.6"
+        },
+        "preset2": {
+          "name": "Pure conservatism",
+          "desc": "λ₁=1 → drift only"
+        },
+        "preset3": {
+          "name": "Pure representativeness",
+          "desc": "λ₁=0 → strong overreaction"
+        },
+        "piL": "π_L mean-reverting regime persistence",
+        "piH": "π_H trending regime persistence",
+        "lambda1": "λ₁ conservatism weight",
+        "stat": {
+          "underreaction": "Short-run underreaction",
+          "underreactionSub": "rational CAR − actual",
+          "overreaction": "Peak overreaction",
+          "overreactionSub": "max CAR − fundamental",
+          "reversal": "Long-run reversal?",
+          "finalCar": "Final CAR"
+        },
+        "chart": {
+          "car": "Post-event cumulative abnormal return (CAR) vs rational baseline"
+        },
+        "legend": {
+          "car": "Behavioral CAR",
+          "rational": "Rational baseline"
+        },
+        "note": {
+          "label": "Testing: ",
+          "text": "BSV's falsifiable implication is cross-sectional — drift and reversal should be stronger for stocks with vaguer information and less analyst coverage. That is what separates it from risk-premium explanations."
+        }
+      },
+      "dhs": {
+        "title": "DHS: overconfidence and self-attribution bias",
+        "desc": "Investors overestimate private-signal precision (k>1), causing immediate overreaction; self-attribution lets confirming public news further strengthen beliefs (continued momentum), until public information eventually pulls prices back to fundamentals — long-run reversal.",
+        "preset1": {
+          "name": "Standard overconfidence",
+          "desc": "k=2, ψ=.6"
+        },
+        "preset2": {
+          "name": "Rational baseline",
+          "desc": "k=1, ψ=0"
+        },
+        "preset3": {
+          "name": "Extreme self-attribution",
+          "desc": "ψ=.95"
+        },
+        "k": "k overconfidence (precision inflation)",
+        "psi": "ψ self-attribution strength",
+        "corr": "λ public-information correction speed",
+        "stat": {
+          "momentumPhase": "Momentum duration",
+          "periods": "{{n}} periods",
+          "peakOvershoot": "Peak overshoot",
+          "longRunReversal": "Long-run reversal size",
+          "finalVsFundamental": "Final / fundamental",
+          "finalVsFundamentalSub": "fundamental = 1.000"
+        },
+        "chart": {
+          "price": "Price path: overreaction → momentum → reversal"
+        },
+        "legend": {
+          "price": "Price",
+          "fundamental": "Fundamental"
+        }
+      },
+      "hs": {
+        "title": "Slow information diffusion + momentum traders: a unified explanation",
+        "desc": "News diffuses gradually to news-watchers over z periods, creating natural underreaction; momentum traders follow the past j-period trend, amplifying underreaction into overshoot and eventual reversal. No individual-level cognitive bias is required.",
+        "preset1": {
+          "name": "HS baseline",
+          "desc": "z=6, μ=.6, j=3"
+        },
+        "preset2": {
+          "name": "No momentum traders",
+          "desc": "μ=0 → underreaction only"
+        },
+        "preset3": {
+          "name": "Instant diffusion",
+          "desc": "z=1"
+        },
+        "z": "z diffusion periods",
+        "mu": "μ momentum-trader share",
+        "j": "j momentum lookback",
+        "stat": {
+          "overshoot": "Overshoot size",
+          "isOvershoot": "Overshoot?",
+          "diffusionEnd": "Diffusion completes",
+          "final": "Final value"
+        },
+        "chart": {
+          "price": "Price path under slow diffusion + trend chasing"
+        },
+        "legend": {
+          "price": "Price"
+        }
       }
     },
     "behaviorMicro": {
