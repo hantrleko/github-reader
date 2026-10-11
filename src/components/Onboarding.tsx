@@ -1,133 +1,77 @@
 import { useEffect, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { X, ArrowRight, Sparkles, Command, Compass } from "lucide-react";
-import {
-  safeLocalStorage,
-  getStorageItem,
-  setStorageItem,
-} from "@/lib/storage";
+import { useTranslation } from "react-i18next";
+import { ArrowRight, Play, RotateCcw } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import landscape from "@/assets/ef-promo-16x9.mp4.asset.json";
+import portraitVideo from "@/assets/ef-promo-9x16.mp4.asset.json";
+import { safeLocalStorage, getStorageItem, setStorageItem } from "@/lib/storage";
 
-const STORAGE_KEY = "lov.onboarded.v1";
-
-const STEPS = [
-  {
-    icon: Sparkles,
-    title: "欢迎来到 Econ & Finance Lab",
-    body: "12 个交互式金融计算器 + 7 个核心章节,把教材公式跑成可调参数的真实计算。",
-  },
-  {
-    icon: Command,
-    title: "随时按 ⌘K / Ctrl+K",
-    body: "全局命令面板:模糊搜索任意计算器或章节,一键跳转,跨页也能用。",
-  },
-  {
-    icon: Compass,
-    title: "右上角切换语言 / 主题",
-    body: "中英双语 · 深浅主题 · 公式与代码一起展示。点开始探索吧。",
-  },
-];
+const STORAGE_KEY = "lov.onboarded.video.v2";
 
 const Onboarding = () => {
+  const { i18n } = useTranslation();
+  const english = i18n.resolvedLanguage?.startsWith("en");
   const [open, setOpen] = useState(false);
-  const [step, setStep] = useState(0);
+  const [portrait, setPortrait] = useState(() => window.matchMedia("(orientation: portrait)").matches);
+  const [failed, setFailed] = useState(false);
 
   useEffect(() => {
-    try {
-      if (!getStorageItem(safeLocalStorage, STORAGE_KEY)) {
-        // 延后一拍,等首屏渲染稳定再弹
-        const t = setTimeout(() => setOpen(true), 800);
-        return () => clearTimeout(t);
-      }
-    } catch {
-      /* private mode */
-    }
+    const media = window.matchMedia("(orientation: portrait)");
+    const update = () => { setPortrait(media.matches); setFailed(false); };
+    media.addEventListener("change", update);
+    let splashOpen = false;
+    const show = () => {
+      if (!splashOpen && !getStorageItem(safeLocalStorage, STORAGE_KEY)) setOpen(true);
+    };
+    const onSplashOpen = () => { splashOpen = true; setOpen(false); };
+    const onSplashClose = () => { splashOpen = false; timer = window.setTimeout(show, 650); };
+    // Wait for the opening animation, including its exit transition.
+    let timer = window.setTimeout(show, 5500);
+    window.addEventListener("lab:splash-open", onSplashOpen);
+    window.addEventListener("lab:splash-close", onSplashClose);
+    return () => {
+      window.clearTimeout(timer);
+      media.removeEventListener("change", update);
+      window.removeEventListener("lab:splash-open", onSplashOpen);
+      window.removeEventListener("lab:splash-close", onSplashClose);
+    };
   }, []);
 
-  const close = () => {
-    setOpen(false);
-    setStorageItem(safeLocalStorage, STORAGE_KEY, String(Date.now()));
+  const changeOpen = (value: boolean) => {
+    setOpen(value);
+    setFailed(false);
+    if (!value) setStorageItem(safeLocalStorage, STORAGE_KEY, "1");
   };
-
-  const next = () => {
-    if (step < STEPS.length - 1) setStep(step + 1);
-    else close();
-  };
-
-  if (!open) return null;
-  const S = STEPS[step];
-  const Icon = S.icon;
 
   return (
-    <AnimatePresence>
-      <motion.div
-        className="fixed inset-0 z-[60] flex items-end sm:items-center justify-center bg-background/60 backdrop-blur-sm p-4"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        onClick={close}
-        role="dialog"
-        aria-modal="true"
-        aria-label="新手引导"
-      >
-        <motion.div
-          initial={{ y: 30, opacity: 0, scale: 0.96 }}
-          animate={{ y: 0, opacity: 1, scale: 1 }}
-          exit={{ y: 30, opacity: 0, scale: 0.96 }}
-          transition={{ type: "spring", damping: 24, stiffness: 280 }}
-          className="relative w-full max-w-md max-w-[92vw] rounded-2xl border border-gold/30 bg-card shadow-2xl p-6"
-          onClick={(e) => e.stopPropagation()}
-        >
-          <button
-            onClick={close}
-            className="absolute top-3 right-3 p-1 rounded text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
-            aria-label="关闭引导"
-          >
-            <X className="w-4 h-4" />
-          </button>
-
-          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-gold/20 to-gold/5 border border-gold/30 flex items-center justify-center mb-4">
-            <Icon className="w-6 h-6 text-gold" />
+    <>
+      <Button variant="outline" size="sm" onClick={() => changeOpen(true)}
+        className="fixed bottom-4 left-4 md:left-16 z-40 border-gold/40 bg-card/95 text-gold shadow-lg">
+        <Play />{english ? "Introduction" : "新手介绍"}
+      </Button>
+      <Dialog open={open} onOpenChange={changeOpen}>
+        <DialogContent className={`w-[calc(100%-2rem)] max-h-[92dvh] overflow-y-auto rounded-lg p-4 sm:p-6 ${portrait ? "max-w-sm" : "max-w-4xl"}`}>
+          <div className="pr-7 space-y-1">
+            <DialogTitle className="font-display text-xl">{english ? "Welcome to Econ & Finance Lab" : "欢迎来到 Econ & Finance Lab"}</DialogTitle>
+            <DialogDescription>{english ? "Introduction film" : "新手介绍短片"} · 00:38</DialogDescription>
           </div>
-
-          <h3 className="text-xl font-display font-semibold text-foreground mb-2">
-            {S.title}
-          </h3>
-          <p className="text-sm text-muted-foreground leading-relaxed mb-6">
-            {S.body}
-          </p>
-
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-1.5">
-              {STEPS.map((_, i) => (
-                <span
-                  key={i}
-                  className={`h-1.5 rounded-full transition-all ${
-                    i === step ? "w-6 bg-gold" : "w-1.5 bg-border"
-                  }`}
-                />
-              ))}
-            </div>
-            <div className="flex items-center gap-2">
-              {step > 0 && (
-                <button
-                  onClick={() => setStep(step - 1)}
-                  className="text-xs font-mono text-muted-foreground hover:text-foreground px-2 py-1"
-                >
-                  上一步
-                </button>
-              )}
-              <button
-                onClick={next}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-primary text-primary-foreground text-xs font-mono font-semibold hover:scale-105 transition-transform"
-              >
-                {step === STEPS.length - 1 ? "开始探索" : "下一步"}
-                <ArrowRight className="w-3.5 h-3.5" />
-              </button>
-            </div>
+          <video key={portrait ? "portrait" : "landscape"} src={portrait ? portraitVideo.url : landscape.url}
+            controls playsInline preload="metadata" onError={() => setFailed(true)}
+            aria-label={english ? "Econ & Finance Lab introduction" : "Econ & Finance Lab 新手介绍视频"}
+            className={`mx-auto rounded-md bg-background object-contain ${portrait ? "aspect-[9/16] max-h-[62dvh] w-auto max-w-full" : "aspect-video w-full"}`} />
+          {failed && <p role="alert" className="text-sm text-destructive">{english ? "Video unavailable. Please close and retry." : "视频暂时无法加载，请关闭后重试。"}</p>}
+          <div className="flex flex-wrap justify-between gap-2">
+            <Button variant="ghost" size="sm" onClick={() => {
+              changeOpen(false);
+              if (window.location.pathname === "/") window.dispatchEvent(new Event("lab:replay-intro"));
+              else window.location.assign("/?intro=1");
+            }}><RotateCcw />{english ? "Opening animation" : "重播开场动画"}</Button>
+            <Button size="sm" onClick={() => changeOpen(false)}>{english ? "Enter the Lab" : "开始探索"}<ArrowRight /></Button>
           </div>
-        </motion.div>
-      </motion.div>
-    </AnimatePresence>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 };
 
