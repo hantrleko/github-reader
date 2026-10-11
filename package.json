@@ -21,7 +21,7 @@
     "test:watch": "vitest",
     "check:copy": "bunx tsx scripts/check-copy-consistency.ts",
     "predev": "bunx tsx scripts/generate-sitemap.ts",
-    "prebuild": "bunx tsx scripts/generate-sitemap.ts"
+    "prebuild": "npx --yes tsx scripts/generate-sitemap.ts"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
