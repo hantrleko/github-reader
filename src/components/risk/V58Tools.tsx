@@ -49,8 +49,8 @@ function lossSample(n: number, sigma: number, df: number, seed: number) {
 }
 
 /* ═══════════ 1. Coherence, spectral & elicitability ═══════════ */
-  const { t } = useTranslation();
 export const CoherenceTool = () => {
+  const { t } = useTranslation();
   const [gamma, setGamma] = useState(25);
   const [alpha, setAlpha] = useState(0.975);
   const [df, setDf] = useState(5);
