@@ -1,26 +1,22 @@
 /**
- * Service Worker registration with strict guards.
+ * Service Worker registration with strict guards + automatic forced update.
  *
- * NEVER registers when:
- *  - running in an iframe (Lovable preview)
- *  - on *.lovableproject.com / id-preview--*.lovable.app / preview--*.lovable.app
- *  - hostname is localhost / 127.0.0.1
+ * Never registers in dev, iframes, Lovable preview hosts, localhost, or with ?sw=off.
+ * In those contexts any existing SW is unregistered.
  *
- * In those environments we proactively unregister any pre-existing SW so a
- * stale worker from a prior visit can't lock the preview to old assets.
+ * In production: checks for a new deploy on load, every 30 min and whenever the
+ * tab becomes visible; a new SW activates immediately (skipWaiting) and the page
+ * reloads once so visitors never stay on an old version.
  */
-import { toast } from "sonner";
-
-const isPreviewHost = () => {
-  if (typeof window === "undefined") return true;
+const isBlockedHost = () => {
   const h = window.location.hostname;
   return (
-    h.includes("id-preview--") ||
-    h.includes("preview--") ||
-    h.endsWith("lovableproject.com") ||
-    h.endsWith("lovableproject-dev.com") ||
-    h === "localhost" ||
-    h === "127.0.0.1"
+    h.startsWith("id-preview--") ||
+    h.startsWith("preview--") ||
+    h === "lovableproject.com" || h.endsWith(".lovableproject.com") ||
+    h === "lovableproject-dev.com" || h.endsWith(".lovableproject-dev.com") ||
+    h === "beta.lovable.dev" || h.endsWith(".beta.lovable.dev") ||
+    h === "localhost" || h === "127.0.0.1"
   );
 };
 
@@ -32,42 +28,51 @@ const isInIframe = () => {
   }
 };
 
+async function unregisterAll() {
+  try {
+    const regs = await navigator.serviceWorker.getRegistrations();
+    await Promise.all(regs.map((r) => r.unregister()));
+  } catch {
+    /* noop */
+  }
+}
+
 export async function setupServiceWorker(): Promise<void> {
   if (typeof window === "undefined" || !("serviceWorker" in navigator)) return;
 
-  // Unregister any SW in preview / iframe contexts.
-  if (isPreviewHost() || isInIframe()) {
-    try {
-      const regs = await navigator.serviceWorker.getRegistrations();
-      await Promise.all(regs.map((r) => r.unregister()));
-    } catch {
-      /* noop */
-    }
+  const swOff = new URLSearchParams(window.location.search).get("sw") === "off";
+  if (!import.meta.env.PROD || isBlockedHost() || isInIframe() || swOff) {
+    await unregisterAll();
     return;
   }
 
-  // Dynamic import so vite-plugin-pwa's virtual module is only loaded in prod.
+  // Reload once when a new SW takes control.
+  const hadController = !!navigator.serviceWorker.controller;
+  let reloaded = false;
+  navigator.serviceWorker.addEventListener("controllerchange", () => {
+    if (!hadController || reloaded) return;
+    reloaded = true;
+    window.location.reload();
+  });
+
   try {
     const { registerSW } = await import("virtual:pwa-register");
     const updateSW = registerSW({
+      immediate: true,
       onNeedRefresh() {
-        toast.message("新版本就绪", {
-          description: "已在后台下载,刷新页面以使用最新版本。",
-          duration: Infinity,
-          action: {
-            label: "立即刷新",
-            onClick: () => updateSW(true),
-          },
-        });
+        updateSW(true);
       },
-      onOfflineReady() {
-        toast.success("离线模式就绪", {
-          description: "核心计算器已缓存,无网络时仍可使用。",
-          duration: 4000,
+      onRegistered(reg) {
+        if (!reg) return;
+        const check = () => reg.update().catch(() => {});
+        check();
+        setInterval(check, 30 * 60 * 1000);
+        document.addEventListener("visibilitychange", () => {
+          if (document.visibilityState === "visible") check();
         });
       },
     });
   } catch {
-    /* PWA module unavailable (dev build) — ignore */
+    /* PWA module unavailable — ignore */
   }
 }
