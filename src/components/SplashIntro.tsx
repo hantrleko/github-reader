@@ -3,12 +3,12 @@ import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { ArrowRight, Play, VolumeX, Volume2 } from "lucide-react";
 import introVideo from "@/assets/intro.mp4.asset.json";
 import { APP_VERSION_TAG } from "@/lib/appVersion";
+import { SPLASH_SESSION_KEY, shouldShowSplash } from "@/lib/introPolicy";
 
-const STORAGE_KEY = "splash:intro:v2:seen";
 const AUTO_DISMISS_MS = 4500;
 
 /**
- * Cinematic brand splash. Shown once per browser (first-ever visit) and
+ * Cinematic brand splash. Shown once per browser session and
  * auto-dismissed after a few seconds — the Lab is always the default landing.
  * Replay manually with ?intro=1.
  */
@@ -23,17 +23,21 @@ const SplashIntro = () => {
     const forced = new URLSearchParams(window.location.search).get("intro") === "1";
     let seen = false;
     try {
-      seen = localStorage.getItem(STORAGE_KEY) === "1";
-      if (!seen) localStorage.setItem(STORAGE_KEY, "1");
+      seen = sessionStorage.getItem(SPLASH_SESSION_KEY) === "1";
+      if (!seen) sessionStorage.setItem(SPLASH_SESSION_KEY, "1");
     } catch {
       /* storage unavailable — treat as seen to avoid blocking */
       seen = true;
     }
-    if (forced || (!seen && !reduce)) setVisible(true);
+    if (shouldShowSplash(forced, seen, Boolean(reduce))) setVisible(true);
+    const replay = () => setVisible(true);
+    window.addEventListener("lab:replay-intro", replay);
+    return () => window.removeEventListener("lab:replay-intro", replay);
   }, [reduce]);
 
   useEffect(() => {
     if (!visible) return;
+    window.dispatchEvent(new Event("lab:splash-open"));
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape" || e.key === "Enter") dismiss();
     };
@@ -42,6 +46,7 @@ const SplashIntro = () => {
     return () => {
       window.removeEventListener("keydown", onKey);
       window.clearTimeout(timer);
+      window.dispatchEvent(new Event("lab:splash-close"));
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visible]);
