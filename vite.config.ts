@@ -46,7 +46,7 @@ export default defineConfig(({ mode }) => ({
         globPatterns: ["**/*.{js,css,html,svg,png,ico,woff2}"],
         cleanupOutdatedCaches: true,
         clientsClaim: true,
-        skipWaiting: false,
+        skipWaiting: true, // new deploy takes over immediately
         runtimeCaching: [
           {
             // HTML — NetworkFirst so a new deploy is picked up immediately
