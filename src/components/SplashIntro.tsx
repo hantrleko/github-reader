@@ -35,6 +35,8 @@ const SplashIntro = () => {
     return () => window.removeEventListener("lab:replay-intro", replay);
   }, [reduce]);
 
+  const timerRef = useRef<number | null>(null);
+
   useEffect(() => {
     if (!visible) return;
     window.dispatchEvent(new Event("lab:splash-open"));
@@ -42,10 +44,11 @@ const SplashIntro = () => {
       if (e.key === "Escape" || e.key === "Enter") dismiss();
     };
     window.addEventListener("keydown", onKey);
-    const timer = window.setTimeout(() => setVisible(false), AUTO_DISMISS_MS);
+    timerRef.current = window.setTimeout(() => setVisible(false), AUTO_DISMISS_MS);
     return () => {
       window.removeEventListener("keydown", onKey);
-      window.clearTimeout(timer);
+      if (timerRef.current) window.clearTimeout(timerRef.current);
+      timerRef.current = null;
       window.dispatchEvent(new Event("lab:splash-close"));
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -55,12 +58,18 @@ const SplashIntro = () => {
     setVisible(false);
   };
 
-
-  const toggleMute = () => {
+  const toggleMute = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    // User is engaging with the video — stop the auto-dismiss countdown.
+    if (timerRef.current) {
+      window.clearTimeout(timerRef.current);
+      timerRef.current = null;
+    }
     const v = videoRef.current;
     if (!v) return;
     v.muted = !v.muted;
     setMuted(v.muted);
+    if (!v.muted) void v.play().catch(() => {});
   };
 
   return (
