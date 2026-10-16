@@ -95,18 +95,42 @@ export const UnitRootSuiteTool = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="space-y-3">
-          <p className="text-xs font-mono text-gold uppercase tracking-wider">数据生成过程</p>
-          <Choice<SeriesKind> value={kind} onChange={setKind} options={[
-            { id: "rw", label: "随机游走" }, { id: "rwdrift", label: "带漂移" },
-            { id: "trend", label: "趋势平稳" }, { id: "ar", label: "AR(1)" },
-            { id: "break", label: "断点" }, { id: "seasonal", label: "季节单位根" },
+          <p className="text-xs font-mono text-gold uppercase tracking-wider">数据来源</p>
+          <Choice value={source} onChange={setSource} options={[
+            { id: "sim" as const, label: "模拟数据" }, { id: "fred" as const, label: "FRED 真实序列" },
           ]} />
+          {source === "fred" && (
+            <div className="space-y-2">
+              <Choice value={fredId} onChange={setFredId} options={FRED_PRESETS.map((p) => ({ id: p.id as string, label: p.label }))} />
+              <Choice value={logTransform ? "log" : "level"} onChange={(v) => setLogTransform(v === "log")} options={[
+                { id: "log" as const, label: "取对数" }, { id: "level" as const, label: "原始水平" },
+              ]} />
+              <p className="text-[11px] font-mono text-muted-foreground">
+                {fred.isLoading ? "正在从 FRED 载入…" : fred.isError ? "载入失败（检查网络或稍后重试），当前回退到模拟数据" : fredSeries ? `已载入 ${fredSeries.length} 个观测（1990 至今）` : ""}
+              </p>
+            </div>
+          )}
+          {source === "sim" && (
+            <>
+              <p className="text-xs font-mono text-gold uppercase tracking-wider">数据生成过程</p>
+              <Choice<SeriesKind> value={kind} onChange={setKind} options={[
+                { id: "rw", label: "随机游走" }, { id: "rwdrift", label: "带漂移" },
+                { id: "trend", label: "趋势平稳" }, { id: "ar", label: "AR(1)" },
+                { id: "break", label: "断点" }, { id: "seasonal", label: "季节单位根" },
+              ]} />
+              <div className="grid grid-cols-2 gap-3">
+                <Slider label="样本量 T" value={n} min={80} max={600} step={20} fmt={(v) => v.toFixed(0)} onChange={setN} />
+                <Slider label="AR 系数 ρ" sub="仅 AR / 断点" value={rho} min={0.1} max={0.99} step={0.01} onChange={setRho} />
+                <Slider label="随机种子" value={seed} min={1} max={99} step={1} fmt={(v) => v.toFixed(0)} onChange={setSeed} />
+              </div>
+            </>
+          )}
           <div className="grid grid-cols-2 gap-3">
-            <Slider label="样本量 T" value={n} min={80} max={600} step={20} fmt={(v) => v.toFixed(0)} onChange={setN} />
-            <Slider label="AR 系数 ρ" sub="仅 AR / 断点" value={rho} min={0.1} max={0.99} step={0.01} onChange={setRho} />
-            <Slider label="ADF 差分滞后 p" value={lags} min={0} max={8} step={1} fmt={(v) => v.toFixed(0)} onChange={setLags} />
-            <Slider label="随机种子" value={seed} min={1} max={99} step={1} fmt={(v) => v.toFixed(0)} onChange={setSeed} />
+            <Slider label="ADF 差分滞后 p" sub={lagCrit === "manual" ? undefined : "由信息准则选定"} value={lags} min={0} max={8} step={1} fmt={(v) => v.toFixed(0)} onChange={setLags} />
           </div>
+          <Choice value={lagCrit} onChange={setLagCrit} options={[
+            { id: "manual" as const, label: "手动滞后" }, { id: "aic" as const, label: "AIC 自动" }, { id: "bic" as const, label: "BIC 自动" },
+          ]} />
           <Choice value={trend ? "ct" : "c"} onChange={(v) => setTrend(v === "ct")} options={[
             { id: "c", label: "确定项：常数" }, { id: "ct", label: "常数 + 趋势" },
           ]} />
