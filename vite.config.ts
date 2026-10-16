@@ -115,7 +115,7 @@ export default defineConfig(({ mode }) => ({
           "vendor-framer": ["framer-motion"],
           "vendor-katex": ["katex", "react-katex"],
           "vendor-html2img": ["html-to-image"],
-          "vendor-three": ["three", "@react-three/fiber", "@react-three/drei"],
+          /* three removed */
           "vendor-jspdf": ["jspdf"],
           "vendor-dnd": ["@dnd-kit/core", "@dnd-kit/sortable", "@dnd-kit/utilities"],
           "vendor-query": ["@tanstack/react-query", "@tanstack/query-core"],
