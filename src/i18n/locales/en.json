@@ -4114,7 +4114,8 @@
       "zlbDescShort": "NK model under Zero Lower Bound & Forward Guidance puzzle",
       "periodUnit": "periods",
       "vsBaseline": "vs 1-period baseline"
-    }
+    },
+    "macroFrontier": {}
   },
   "essays": {
     "macroTheory": {

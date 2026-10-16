@@ -4116,7 +4116,8 @@
       "zlbDescShort": "零利率下限约束下 NK 模型 & 前瞻指引 puzzle",
       "periodUnit": "期",
       "vsBaseline": "vs 1 期基线"
-    }
+    },
+    "macroFrontier": {}
   },
   "essays": {
     "macroTheory": {
