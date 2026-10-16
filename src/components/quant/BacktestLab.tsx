@@ -265,6 +265,8 @@ export default function BacktestLab() {
                   <p className="text-[10px] font-mono uppercase tracking-[0.2em] text-gold">{t("labs.quant.backtestLab.tradingCost")}</p>
                   <Slider label={t("labs.quant.backtestLab.fee")} sub={t("labs.quant.backtestLab.perSideBps")} value={costBps} min={0} max={50} step={1} fmt={(v) => v + "bps"} onChange={setCostBps} />
                   <Slider label={t("labs.quant.backtestLab.slippage")} sub={t("labs.quant.backtestLab.perSideBps")} value={slippageBps} min={0} max={50} step={1} fmt={(v) => v + "bps"} onChange={setSlippageBps} />
+                  <Slider label={t("labs.quant.backtestLab.riskFree")} sub={t("labs.quant.backtestLab.annualised")} value={riskFreeRate} min={0} max={0.1} step={0.005} fmt={pct} onChange={setRiskFreeRate} />
+                  <Slider label={t("labs.quant.backtestLab.financing")} sub={t("labs.quant.backtestLab.financingSub")} value={financingRate} min={0} max={0.15} step={0.005} fmt={pct} onChange={setFinancingRate} />
                 </div>
               </aside>
 
