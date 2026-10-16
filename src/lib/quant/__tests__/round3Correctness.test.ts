@@ -152,8 +152,8 @@ describe("Backtest: risk-free, Sortino, financing", () => {
     100 * Math.exp(0.0002 * i + 0.01 * Math.sin(i * 0.7) + 0.005 * Math.cos(i * 2.3)));
 
   it("Sharpe subtracts the annualised risk-free rate", () => {
-    const base = runBacktest(up, undefined, "buyhold", {});
-    const withRf = runBacktest(up, undefined, "buyhold", { riskFreeRate: 0.04 });
+    const base = runBacktest(noisy, undefined, "buyhold", {});
+    const withRf = runBacktest(noisy, undefined, "buyhold", { riskFreeRate: 0.04 });
     const expected = base.metrics.annVol > 1e-9
       ? (base.metrics.annReturn - 0.04) / base.metrics.annVol
       : 0;
@@ -190,17 +190,16 @@ describe("Backtest: risk-free, Sortino, financing", () => {
   });
 
   it("leverage financing cost is deducted daily on the borrowed part", () => {
-    // low-vol uptrend → voltarget pins at maxLeverage 3
-    const calm = Array.from({ length: 300 }, (_, i) => 100 * Math.exp(0.0004 * i));
+    // noisy series: realised vol << target 0.5 → voltarget pins at maxLeverage 3
     const fin = 0.12;
-    const noFin = runBacktest(calm, undefined, "voltarget", { targetVol: 0.5, volWindow: 20, maxLeverage: 3 });
-    const withFin = runBacktest(calm, undefined, "voltarget", { targetVol: 0.5, volWindow: 20, maxLeverage: 3, financingRate: fin });
+    const noFin = runBacktest(noisy, undefined, "voltarget", { targetVol: 0.5, volWindow: 20, maxLeverage: 3 });
+    const withFin = runBacktest(noisy, undefined, "voltarget", { targetVol: 0.5, volWindow: 20, maxLeverage: 3, financingRate: fin });
     // reconstruct exactly from positions: sr = used·r − max(used−1,0)·fin/252
     const pos = withFin.position;
     let eq = 1;
-    for (let t = 1; t < calm.length; t++) {
+    for (let t = 1; t < noisy.length; t++) {
       const used = pos[t - 1] ?? 0;
-      const r = calm[t] / calm[t - 1] - 1;
+      const r = noisy[t] / noisy[t - 1] - 1;
       eq *= 1 + used * r - Math.max(used - 1, 0) * (fin / 252);
     }
     expect(withFin.equity[withFin.equity.length - 1]).toBeCloseTo(eq, 10);

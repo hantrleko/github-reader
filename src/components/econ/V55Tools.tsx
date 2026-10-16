@@ -96,7 +96,7 @@ export const UnitRootSuiteTool = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="space-y-3">
           <p className="text-xs font-mono text-gold uppercase tracking-wider">数据来源</p>
-          <Choice value={source} onChange={setSource} options={[
+          <Choice<"sim" | "fred"> value={source} onChange={setSource} options={[
             { id: "sim" as const, label: "模拟数据" }, { id: "fred" as const, label: "FRED 真实序列" },
           ]} />
           {source === "fred" && (
