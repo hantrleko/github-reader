@@ -1856,7 +1856,12 @@
         "b1Legend": "β₁(τ) 分位斜率",
         "olsB1Legend": "OLS β₁ (常数)",
         "trueValue": "真值",
-        "slopeChartNote": "若 β₁(τ) 曲线随 τ 变化 ⇒ 存在<u>异方差</u>或位置-尺度依赖；若与 OLS 水平线吻合 ⇒ 同方差，OLS 与 QR 等价。"
+        "slopeChartNote": "若 β₁(τ) 曲线随 τ 变化 ⇒ 存在<u>异方差</u>或位置-尺度依赖；若与 OLS 水平线吻合 ⇒ 同方差，OLS 与 QR 等价。",
+        "bootBLabel": "Bootstrap 次数 B",
+        "bootBSub": "成对行重抽样",
+        "bootSe": "Boot SE(β₁)",
+        "bootCi": "95% 置信区间",
+        "bootRunning": "Bootstrap 计算中… {{pct}}%"
       },
       "logitprobit": {
         "presets": {

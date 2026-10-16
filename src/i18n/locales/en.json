@@ -1854,7 +1854,12 @@
         "b1Legend": "β₁(τ) Quantile Slope",
         "olsB1Legend": "OLS β₁ (Constant)",
         "trueValue": "True Value",
-        "slopeChartNote": "If the β₁(τ) curve varies with τ ⇒ presence of <u>heteroscedasticity</u> or location-scale dependence; if it aligns with the OLS horizontal line ⇒ homoscedasticity, OLS and QR are equivalent."
+        "slopeChartNote": "If the β₁(τ) curve varies with τ ⇒ presence of <u>heteroscedasticity</u> or location-scale dependence; if it aligns with the OLS horizontal line ⇒ homoscedasticity, OLS and QR are equivalent.",
+        "bootBLabel": "Bootstrap reps B",
+        "bootBSub": "pairs (row) resampling",
+        "bootSe": "Boot SE(β₁)",
+        "bootCi": "95% CI",
+        "bootRunning": "Bootstrapping… {{pct}}%"
       },
       "logitprobit": {
         "presets": {
