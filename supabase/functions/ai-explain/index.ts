@@ -1,21 +1,67 @@
 // AI Explainer for finance formulas / notebook cells.
 // Uses Lovable AI Gateway (no API key required for users).
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
+// Security: requires a signed-in user (JWT validated in code), per-user+IP
+// rate limits (10/min, 100/day), question length cap, origin whitelist CORS.
+import { createClient } from "npm:@supabase/supabase-js@2";
+import {
+  corsHeadersFor,
+  getClientIp,
+  checkRateLimit,
+  rateLimitResponse,
+} from "../_shared/security.ts";
+
+const MAX_QUESTION_LEN = 1000;
+
+function json(cors: Record<string, string>, body: unknown, status = 200) {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: { ...cors, "Content-Type": "application/json" },
+  });
+}
 
 Deno.serve(async (req) => {
+  const corsHeaders = corsHeadersFor(req);
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const { latex, expression, params, context, mode, tool, results, question } = await req.json();
+    // 1) Auth: require a valid user JWT.
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader?.startsWith("Bearer ")) {
+      return json(corsHeaders, { error: "unauthorized", code: "auth_required" }, 401);
+    }
+    const anon = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_ANON_KEY")!,
+      { global: { headers: { Authorization: authHeader } } },
+    );
+    const token = authHeader.replace("Bearer ", "");
+    const { data: claimsData, error: claimsErr } = await anon.auth.getClaims(token);
+    if (claimsErr || !claimsData?.claims?.sub) {
+      return json(corsHeaders, { error: "unauthorized", code: "auth_required" }, 401);
+    }
+    const userId = claimsData.claims.sub as string;
+
+    // 2) Rate limits: per-user+IP 10/min, per-user 100/day.
+    const ip = getClientIp(req);
+    const perMin = await checkRateLimit(`rl:ai-explain:min:${userId}:${ip}`, 10, 60);
+    if (!perMin.allowed) return rateLimitResponse(corsHeaders, perMin.retryAfter);
+    const perDay = await checkRateLimit(`rl:ai-explain:day:${userId}`, 100, 86400);
+    if (!perDay.allowed) return rateLimitResponse(corsHeaders, perDay.retryAfter);
+
+    // 3) Input validation.
+    const body = await req.json().catch(() => ({}));
+    const { latex, expression, params, context, mode, tool, results, question } = body ?? {};
+    if (question != null && (typeof question !== "string" || question.length > MAX_QUESTION_LEN)) {
+      return json(
+        corsHeaders,
+        { error: `question too long (max ${MAX_QUESTION_LEN} chars)`, code: "question_too_long" },
+        400,
+      );
+    }
+
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) {
-      return new Response(JSON.stringify({ error: "LOVABLE_API_KEY missing" }), {
-        status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+      return json(corsHeaders, { error: "LOVABLE_API_KEY missing" }, 500);
     }
 
     const sys = mode === "interpret"
@@ -31,12 +77,12 @@ Deno.serve(async (req) => {
 不要重复 LaTeX,不要加 markdown 标题,直接给段落,可用项目符号。`;
 
     const user = [
-      tool ? `工具: ${tool}` : "",
-      latex ? `LaTeX: ${latex}` : "",
-      expression ? `表达式: ${expression}` : "",
-      params ? `当前参数: ${JSON.stringify(params)}` : "",
+      tool ? `工具: ${String(tool).slice(0, 200)}` : "",
+      latex ? `LaTeX: ${String(latex).slice(0, 2000)}` : "",
+      expression ? `表达式: ${String(expression).slice(0, 2000)}` : "",
+      params ? `当前参数: ${JSON.stringify(params).slice(0, 2000)}` : "",
       results ? `计算结果: ${JSON.stringify(results).slice(0, 4000)}` : "",
-      context ? `上下文: ${context}` : "",
+      context ? `上下文: ${String(context).slice(0, 1000)}` : "",
       question ? `用户追问: ${question}` : "",
     ].filter(Boolean).join("\n");
 
@@ -56,30 +102,20 @@ Deno.serve(async (req) => {
     });
 
     if (resp.status === 429) {
-      return new Response(JSON.stringify({ error: "请求过于频繁,请稍后重试" }), {
-        status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+      return json(corsHeaders, { error: "请求过于频繁,请稍后重试" }, 429);
     }
     if (resp.status === 402) {
-      return new Response(JSON.stringify({ error: "AI 配额已用尽,请前往 Lovable 工作区充值" }), {
-        status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+      return json(corsHeaders, { error: "AI 配额已用尽,请前往 Lovable 工作区充值" }, 402);
     }
     if (!resp.ok) {
       const t = await resp.text();
-      return new Response(JSON.stringify({ error: `AI gateway ${resp.status}: ${t.slice(0,200)}` }), {
-        status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+      return json(corsHeaders, { error: `AI gateway ${resp.status}: ${t.slice(0, 200)}` }, 502);
     }
 
     const data = await resp.json();
     const explanation = data?.choices?.[0]?.message?.content ?? "";
-    return new Response(JSON.stringify({ explanation }), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+    return json(corsHeaders, { explanation });
   } catch (e) {
-    return new Response(JSON.stringify({ error: String(e?.message || e) }), {
-      status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+    return json(corsHeaders, { error: String((e as Error)?.message || e) }, 500);
   }
 });
