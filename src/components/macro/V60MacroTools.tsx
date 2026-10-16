@@ -229,29 +229,29 @@ function AccountingPanel() {
   return (
     <div className="space-y-5">
       <PresetButtons presets={[
-        { name: "东亚投入驱动", description: "Krugman-Young 争论", apply: () => { setGY(0.08); setGK(0.14); setGL(0.03); setGH(0.01); } },
-        { name: "美国生产率繁荣", description: "1995-2004", apply: () => { setGY(0.038); setGK(0.045); setGL(0.012); setGH(0.004); } },
-        { name: "生产率放缓", description: "2010s", apply: () => { setGY(0.02); setGK(0.025); setGL(0.008); setGH(0.003); } },
+        { name: t("labs.macroFrontier.misc.k0"), description: t("labs.macroFrontier.misc.k1"), apply: () => { setGY(0.08); setGK(0.14); setGL(0.03); setGH(0.01); } },
+        { name: t("labs.macroFrontier.misc.k2"), description: t("labs.macroFrontier.misc.k3"), apply: () => { setGY(0.038); setGK(0.045); setGL(0.012); setGH(0.004); } },
+        { name: t("labs.macroFrontier.misc.k4"), description: t("labs.macroFrontier.misc.k5"), apply: () => { setGY(0.02); setGK(0.025); setGL(0.008); setGH(0.003); } },
       ]} />
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="space-y-3">
-          <p className="text-xs font-mono text-gold uppercase tracking-wider">Solow 残差分解</p>
+          <p className="text-xs font-mono text-gold uppercase tracking-wider">{t("labs.macroFrontier.misc.k6")}</p>
           <div className="grid grid-cols-2 gap-3">
-            <Slider label="产出增速 gY" value={gY} min={-0.02} max={0.15} step={0.002} onChange={setGY} fmt={(v)=>`${(v*100).toFixed(1)}%`} />
-            <Slider label="资本增速 gK" value={gK} min={-0.02} max={0.2} step={0.002} onChange={setGK} fmt={(v)=>`${(v*100).toFixed(1)}%`} />
-            <Slider label="劳动增速 gL" value={gL} min={-0.02} max={0.05} step={0.002} onChange={setGL} fmt={(v)=>`${(v*100).toFixed(1)}%`} />
-            <Slider label="人力资本 gH" value={gH} min={0} max={0.03} step={0.001} onChange={setGH} fmt={(v)=>`${(v*100).toFixed(1)}%`} />
-            <Slider label="资本份额 α" value={alpha} min={0.2} max={0.6} step={0.01} onChange={setAlpha} />
+            <Slider label={t("labs.macroFrontier.misc.k7")} value={gY} min={-0.02} max={0.15} step={0.002} onChange={setGY} fmt={(v)=>`${(v*100).toFixed(1)}%`} />
+            <Slider label={t("labs.macroFrontier.misc.k8")} value={gK} min={-0.02} max={0.2} step={0.002} onChange={setGK} fmt={(v)=>`${(v*100).toFixed(1)}%`} />
+            <Slider label={t("labs.macroFrontier.misc.k9")} value={gL} min={-0.02} max={0.05} step={0.002} onChange={setGL} fmt={(v)=>`${(v*100).toFixed(1)}%`} />
+            <Slider label={t("labs.macroFrontier.misc.k10")} value={gH} min={0} max={0.03} step={0.001} onChange={setGH} fmt={(v)=>`${(v*100).toFixed(1)}%`} />
+            <Slider label={t("labs.macroFrontier.misc.k11")} value={alpha} min={0.2} max={0.6} step={0.01} onChange={setAlpha} />
           </div>
           <div className="grid grid-cols-2 gap-2">
-            <Stat label="TFP 增速" value={`${(acc.tfp*100).toFixed(2)}%`} color={acc.tfp >= 0 ? C.green : C.red} />
-            <Stat label="TFP 贡献占比" value={`${(acc.tfpShare*100).toFixed(0)}%`} color={C.gold} sub="残差 / 产出增速" />
+            <Stat label={t("labs.macroFrontier.misc.k12")} value={`${(acc.tfp*100).toFixed(2)}%`} color={acc.tfp >= 0 ? C.green : C.red} />
+            <Stat label={t("labs.macroFrontier.misc.k13")} value={`${(acc.tfpShare*100).toFixed(0)}%`} color={C.gold} sub={t("labs.macroFrontier.misc.k14")} />
           </div>
           <Note>
-            残差既包含真实技术进步，也吸收了要素利用率、配置效率与测量误差 —— 这正是「TFP 是无知的度量」批评的来源。
+            {t("labs.macroFrontier.misc.k15")}
           </Note>
         </div>
-        <Panel title="增长来源分解 (百分点)">
+        <Panel title={t("labs.macroFrontier.misc.k16")}>
           <div className="h-[240px]">
             <ResponsiveContainer>
               <ComposedChart data={bars}>
@@ -260,30 +260,30 @@ function AccountingPanel() {
                 <YAxis stroke={C.text} tick={{ fontSize: 10 }} />
                 <Tooltip contentStyle={tooltipStyle} />
                 <ReferenceLine y={0} stroke={C.text} />
-                <Bar dataKey="v" fill={C.gold} fillOpacity={0.6} name="贡献 pp" />
+                <Bar dataKey="v" fill={C.gold} fillOpacity={0.6} name={t("labs.macroFrontier.misc.k21")} />
               </ComposedChart>
             </ResponsiveContainer>
           </div>
         </Panel>
       </div>
 
-      <Panel title="发展核算：富国 / 穷国收入差距如何分解 (Hall-Jones)">
+      <Panel title={t("labs.macroFrontier.misc.k22")}>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <div className="grid grid-cols-2 gap-3">
-            <Slider label="收入比 y_R/y_P" value={ratio} min={2} max={40} step={1} onChange={setRatio} fmt={(v)=>`${v.toFixed(0)}×`} />
-            <Slider label="富国 K/Y" value={kyR} min={1} max={5} step={0.1} onChange={setKyR} />
-            <Slider label="穷国 K/Y" value={kyP} min={0.5} max={5} step={0.1} onChange={setKyP} />
-            <Slider label="富国 h" value={hR} min={1} max={4} step={0.1} onChange={setHR} />
-            <Slider label="穷国 h" value={hP} min={0.8} max={4} step={0.1} onChange={setHP} />
+            <Slider label={t("labs.macroFrontier.misc.k23")} value={ratio} min={2} max={40} step={1} onChange={setRatio} fmt={(v)=>`${v.toFixed(0)}×`} />
+            <Slider label={t("labs.macroFrontier.misc.k24")} value={kyR} min={1} max={5} step={0.1} onChange={setKyR} />
+            <Slider label={t("labs.macroFrontier.misc.k25")} value={kyP} min={0.5} max={5} step={0.1} onChange={setKyP} />
+            <Slider label={t("labs.macroFrontier.misc.k26")} value={hR} min={1} max={4} step={0.1} onChange={setHR} />
+            <Slider label={t("labs.macroFrontier.misc.k27")} value={hP} min={0.8} max={4} step={0.1} onChange={setHP} />
           </div>
           <div className="grid grid-cols-2 gap-2">
-            <Stat label="要素因子" value={`${dev.capitalFactor.toFixed(2)}×`} color={C.teal} sub="(K/Y)^{α/(1−α)}·h" />
-            <Stat label="TFP 因子" value={`${dev.tfpFactor.toFixed(2)}×`} color={C.gold} />
-            <Stat label="TFP 解释份额" value={`${(dev.tfpSharePct*100).toFixed(0)}%`} color={C.red} sub="对数分解" />
-            <Stat label="要素解释份额" value={`${((1-dev.tfpSharePct)*100).toFixed(0)}%`} color={C.blue} />
+            <Stat label={t("labs.macroFrontier.misc.k28")} value={`${dev.capitalFactor.toFixed(2)}×`} color={C.teal} sub="(K/Y)^{α/(1−α)}·h" />
+            <Stat label={t("labs.macroFrontier.misc.k29")} value={`${dev.tfpFactor.toFixed(2)}×`} color={C.gold} />
+            <Stat label={t("labs.macroFrontier.misc.k30")} value={`${(dev.tfpSharePct*100).toFixed(0)}%`} color={C.red} sub={t("labs.macroFrontier.misc.k31")} />
+            <Stat label={t("labs.macroFrontier.misc.k32")} value={`${((1-dev.tfpSharePct)*100).toFixed(0)}%`} color={C.blue} />
           </div>
         </div>
-        <Note>典型结论：跨国收入差距中约一半以上来自效率/TFP 而非要素积累 —— 把注意力推向制度、配置效率与技术扩散。</Note>
+        <Note>{t("labs.macroFrontier.misc.k33")}</Note>
       </Panel>
     </div>
   );
@@ -313,27 +313,27 @@ function MultiplierPanel() {
   return (
     <div className="space-y-5">
       <PresetButtons presets={[
-        { name: "衰退 + ZLB", description: "高乘数情形", apply: () => { setSlack(0.9); setZlb(true); setRic(0.1); } },
-        { name: "过热经济", description: "货币抵消强", apply: () => { setSlack(0.1); setZlb(false); setOff(0.8); } },
-        { name: "李嘉图世界", description: "完全等价", apply: () => { setRic(1); } },
+        { name: t("labs.macroFrontier.misc.k34"), description: t("labs.macroFrontier.misc.k35"), apply: () => { setSlack(0.9); setZlb(true); setRic(0.1); } },
+        { name: t("labs.macroFrontier.misc.k36"), description: t("labs.macroFrontier.misc.k37"), apply: () => { setSlack(0.1); setZlb(false); setOff(0.8); } },
+        { name: t("labs.macroFrontier.misc.k38"), description: t("labs.macroFrontier.misc.k39"), apply: () => { setRic(1); } },
       ]} />
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="space-y-3">
-          <p className="text-xs font-mono text-gold uppercase tracking-wider">Samuelson 乘数—加速数</p>
+          <p className="text-xs font-mono text-gold uppercase tracking-wider">{t("labs.macroFrontier.misc.k40")}</p>
           <div className="grid grid-cols-2 gap-3">
-            <Slider label="边际消费倾向 c" value={mpc} min={0.3} max={0.95} step={0.01} onChange={setMpc} />
-            <Slider label="加速数 v" value={v} min={0} max={3} step={0.05} onChange={setV} />
+            <Slider label={t("labs.macroFrontier.misc.k41")} value={mpc} min={0.3} max={0.95} step={0.01} onChange={setMpc} />
+            <Slider label={t("labs.macroFrontier.misc.k42")} value={v} min={0} max={3} step={0.05} onChange={setV} />
           </div>
           <div className="grid grid-cols-2 gap-2">
-            <Stat label="动态区制" value={
+            <Stat label={t("labs.macroFrontier.misc.k43")} value={
               path.regime === "monotone" ? "单调收敛"
               : path.regime === "damped-oscillation" ? "阻尼振荡"
               : path.regime === "explosive-oscillation" ? "发散振荡" : "发散"
             } color={path.regime.startsWith("explosive") ? C.red : C.green} />
-            <Stat label="长期乘数 1/(1−c)" value={`${path.longRunMultiplier.toFixed(2)}×`} color={C.gold} />
+            <Stat label={t("labs.macroFrontier.misc.k48")} value={`${path.longRunMultiplier.toFixed(2)}×`} color={C.gold} />
           </div>
         </div>
-        <Panel title="Y / C / I 对永久性 G 冲击的动态">
+        <Panel title={t("labs.macroFrontier.misc.k49")}>
           <div className="h-[260px]">
             <ResponsiveContainer>
               <LineChart data={chart}>
@@ -349,21 +349,21 @@ function MultiplierPanel() {
               </LineChart>
             </ResponsiveContainer>
           </div>
-          <Note>内生周期无需外生冲击：加速数把投资与产出变化挂钩，c·v 的根决定振荡与收敛/发散。</Note>
+          <Note>{t("labs.macroFrontier.misc.k50")}</Note>
         </Panel>
       </div>
 
-      <Panel title="状态依赖的财政乘数">
+      <Panel title={t("labs.macroFrontier.misc.k51")}>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <div className="grid grid-cols-2 gap-3">
-            <Slider label="税率 t (自动稳定器)" value={taxRate} min={0} max={0.5} step={0.01} onChange={setTaxRate} />
-            <Slider label="进口漏出 m" value={imp} min={0} max={0.5} step={0.01} onChange={setImp} />
-            <Slider label="李嘉图程度" value={ric} min={0} max={1} step={0.05} onChange={setRic} />
-            <Slider label="经济松弛度" value={slack} min={0} max={1} step={0.05} onChange={setSlack} />
-            <Slider label="货币抵消强度" value={off} min={0} max={1} step={0.05} onChange={setOff} />
+            <Slider label={t("labs.macroFrontier.misc.k52")} value={taxRate} min={0} max={0.5} step={0.01} onChange={setTaxRate} />
+            <Slider label={t("labs.macroFrontier.misc.k53")} value={imp} min={0} max={0.5} step={0.01} onChange={setImp} />
+            <Slider label={t("labs.macroFrontier.misc.k54")} value={ric} min={0} max={1} step={0.05} onChange={setRic} />
+            <Slider label={t("labs.macroFrontier.misc.k55")} value={slack} min={0} max={1} step={0.05} onChange={setSlack} />
+            <Slider label={t("labs.macroFrontier.misc.k56")} value={off} min={0} max={1} step={0.05} onChange={setOff} />
             <label className="flex items-center gap-2 text-xs text-secondary-foreground mt-2">
               <input type="checkbox" checked={zlb} onChange={(e) => setZlb(e.target.checked)} className="accent-gold" />
-              处于 ZLB / 货币政策不抵消
+              {t("labs.macroFrontier.misc.k57")}
             </label>
           </div>
           <div>
@@ -375,17 +375,17 @@ function MultiplierPanel() {
                   <YAxis stroke={C.text} tick={{ fontSize: 10 }} />
                   <Tooltip contentStyle={tooltipStyle} />
                   <ReferenceLine y={1} stroke={C.red} strokeDasharray="4 4" />
-                  <Bar dataKey="v" fill={C.gold} fillOpacity={0.65} name="乘数" />
+                  <Bar dataKey="v" fill={C.gold} fillOpacity={0.65} name={t("labs.macroFrontier.misc.k62")} />
                 </ComposedChart>
               </ResponsiveContainer>
             </div>
             <div className="grid grid-cols-2 gap-2 mt-2">
-              <Stat label="经济状态" value={fm.regime === "recession" ? "衰退" : fm.regime === "boom" ? "过热" : "常态"} color={fm.regime === "recession" ? C.red : C.gold} />
-              <Stat label="自动稳定器吸收" value={`${(fm.stabiliserStrength*100).toFixed(0)}%`} color={C.teal} />
+              <Stat label={t("labs.macroFrontier.misc.k63")} value={fm.regime === "recession" ? "衰退" : fm.regime === "boom" ? "过热" : "常态"} color={fm.regime === "recession" ? C.red : C.gold} />
+              <Stat label={t("labs.macroFrontier.misc.k67")} value={`${(fm.stabiliserStrength*100).toFixed(0)}%`} color={C.teal} />
             </div>
           </div>
         </div>
-        <Note>红线为 1：乘数是否大于 1 取决于松弛度、货币政策是否抵消与家庭的李嘉图程度，而不是一个固定常数。</Note>
+        <Note>{t("labs.macroFrontier.misc.k68")}</Note>
       </Panel>
     </div>
   );
@@ -417,23 +417,23 @@ function RBCPanel() {
     <div className="space-y-5">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="space-y-3">
-          <p className="text-xs font-mono text-gold uppercase tracking-wider">Kydland-Prescott 式校准</p>
+          <p className="text-xs font-mono text-gold uppercase tracking-wider">{t("labs.macroFrontier.misc.k69")}</p>
           <div className="grid grid-cols-2 gap-3">
-            <Slider label="TFP 持久性 ρ" value={rho} min={0.5} max={0.99} step={0.01} onChange={setRho} />
-            <Slider label="技术冲击 σ" value={sig} min={0.002} max={0.02} step={0.001} onChange={setSig} fmt={(v)=>`${(v*100).toFixed(1)}%`} />
-            <Slider label="Frisch 弹性 ν" value={fr} min={0.2} max={5} step={0.1} onChange={setFr} />
-            <Slider label="资本份额 α" value={alpha} min={0.25} max={0.45} step={0.01} onChange={setAlpha} />
+            <Slider label={t("labs.macroFrontier.misc.k70")} value={rho} min={0.5} max={0.99} step={0.01} onChange={setRho} />
+            <Slider label={t("labs.macroFrontier.misc.k71")} value={sig} min={0.002} max={0.02} step={0.001} onChange={setSig} fmt={(v)=>`${(v*100).toFixed(1)}%`} />
+            <Slider label={t("labs.macroFrontier.misc.k72")} value={fr} min={0.2} max={5} step={0.1} onChange={setFr} />
+            <Slider label={t("labs.macroFrontier.misc.k11")} value={alpha} min={0.25} max={0.45} step={0.01} onChange={setAlpha} />
           </div>
           <div className="grid grid-cols-2 gap-2">
             <Stat label="σ(y)" value={`${(m.sd.y*100).toFixed(2)}%`} color={C.gold} />
             <Stat label="corr(TFP, y)" value={m.corrWithY.a.toFixed(2)} color={C.teal} />
-            <Stat label="产出自相关" value={m.autocorrY.toFixed(2)} color={C.blue} />
+            <Stat label={t("labs.macroFrontier.misc.k73")} value={m.autocorrY.toFixed(2)} color={C.blue} />
             <Stat label="σ(i)/σ(y)" value={m.relSd.i.toFixed(2)} color={m.relSd.i > 1 ? C.green : C.red} />
           </div>
           <div className="rounded-lg border border-border bg-card/40 p-3">
-            <p className="text-[11px] font-mono text-gold mb-2">模型矩 vs 典型事实</p>
+            <p className="text-[11px] font-mono text-gold mb-2">{t("labs.macroFrontier.misc.k74")}</p>
             <table className="w-full text-[11px] font-mono">
-              <thead><tr className="text-muted-foreground"><th className="text-left">矩</th><th className="text-right">模型</th><th className="text-right">数据</th></tr></thead>
+              <thead><tr className="text-muted-foreground"><th className="text-left">{t("labs.macroFrontier.misc.k75")}</th><th className="text-right">{t("labs.macroFrontier.misc.k76")}</th><th className="text-right">{t("labs.macroFrontier.misc.k77")}</th></tr></thead>
               <tbody>
                 {rows.map((r) => (
                   <tr key={r.k} className="text-foreground/80">
@@ -446,7 +446,7 @@ function RBCPanel() {
             </table>
           </div>
         </div>
-        <Panel title="模拟序列 (前 120 期, % 偏离)">
+        <Panel title={t("labs.macroFrontier.misc.k78")}>
           <div className="h-[300px]">
             <ResponsiveContainer>
               <LineChart data={chart}>
@@ -455,16 +455,15 @@ function RBCPanel() {
                 <YAxis stroke={C.text} tick={{ fontSize: 10 }} />
                 <Tooltip contentStyle={tooltipStyle} />
                 <Legend wrapperStyle={{ fontSize: 10 }} />
-                <Line type="monotone" dataKey="y" stroke={C.gold} dot={false} strokeWidth={2} name="产出" />
-                <Line type="monotone" dataKey="c" stroke={C.teal} dot={false} strokeWidth={1.2} name="消费" />
-                <Line type="monotone" dataKey="i" stroke={C.red} dot={false} strokeWidth={1.2} name="投资" />
+                <Line type="monotone" dataKey="y" stroke={C.gold} dot={false} strokeWidth={2} name={t("labs.macroFrontier.misc.k79")} />
+                <Line type="monotone" dataKey="c" stroke={C.teal} dot={false} strokeWidth={1.2} name={t("labs.macroFrontier.misc.k80")} />
+                <Line type="monotone" dataKey="i" stroke={C.red} dot={false} strokeWidth={1.2} name={t("labs.macroFrontier.misc.k81")} />
                 <Line type="monotone" dataKey="a" stroke={C.blue} dot={false} strokeWidth={1} strokeDasharray="3 3" name="TFP" />
               </LineChart>
             </ResponsiveContainer>
           </div>
           <Note>
-            RBC 的贡献是方法论 (随机动态一般均衡 + 校准 + 矩匹配)；其争议在于把衰退解释为技术倒退、需要高 Frisch 弹性，
-            以及缺少货币与金融摩擦。
+            {t("labs.macroFrontier.misc.k82")}
           </Note>
         </Panel>
       </div>
@@ -492,30 +491,30 @@ function CalvoPanel() {
   return (
     <div className="space-y-5">
       <PresetButtons presets={[
-        { name: "美国校准", description: "θ=0.75 (季度)", apply: () => { setTheta(0.75); setOmega(0.3); } },
-        { name: "高通胀经济", description: "价格频繁调整", apply: () => { setTheta(0.35); setOmega(0.6); } },
-        { name: "纯前瞻 NKPC", description: "无指数化", apply: () => { setOmega(0); } },
+        { name: t("labs.macroFrontier.misc.k83"), description: t("labs.macroFrontier.misc.k84"), apply: () => { setTheta(0.75); setOmega(0.3); } },
+        { name: t("labs.macroFrontier.misc.k85"), description: t("labs.macroFrontier.misc.k86"), apply: () => { setTheta(0.35); setOmega(0.6); } },
+        { name: t("labs.macroFrontier.misc.k87"), description: t("labs.macroFrontier.misc.k88"), apply: () => { setOmega(0); } },
       ]} />
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="space-y-3">
-          <p className="text-xs font-mono text-gold uppercase tracking-wider">Calvo 交错定价参数</p>
+          <p className="text-xs font-mono text-gold uppercase tracking-wider">{t("labs.macroFrontier.misc.k89")}</p>
           <div className="grid grid-cols-2 gap-3">
-            <Slider label="不调价概率 θ" value={theta} min={0.05} max={0.95} step={0.01} onChange={setTheta} />
-            <Slider label="指数化程度 ω" value={omega} min={0} max={1} step={0.05} onChange={setOmega} />
-            <Slider label="1/IES σ" value={sigma} min={0.5} max={4} step={0.1} onChange={setSigma} />
-            <Slider label="1/Frisch φ" value={phi} min={0.2} max={4} step={0.1} onChange={setPhi} />
-            <Slider label="替代弹性 ε" value={eps} min={2} max={15} step={0.5} onChange={setEps} />
+            <Slider label={t("labs.macroFrontier.misc.k90")} value={theta} min={0.05} max={0.95} step={0.01} onChange={setTheta} />
+            <Slider label={t("labs.macroFrontier.misc.k91")} value={omega} min={0} max={1} step={0.05} onChange={setOmega} />
+            <Slider label={t("labs.macroFrontier.misc.k92")} value={sigma} min={0.5} max={4} step={0.1} onChange={setSigma} />
+            <Slider label={t("labs.macroFrontier.misc.k93")} value={phi} min={0.2} max={4} step={0.1} onChange={setPhi} />
+            <Slider label={t("labs.macroFrontier.misc.k94")} value={eps} min={2} max={15} step={0.5} onChange={setEps} />
           </div>
           <div className="grid grid-cols-2 gap-2">
-            <Stat label="NKPC 斜率 κ" value={r.kappa.toFixed(4)} color={C.gold} />
-            <Stat label="平均价格期限" value={`${r.avgPriceDuration.toFixed(1)} 期`} color={C.teal} />
-            <Stat label="前瞻/回顾权重" value={`${r.hybridForward.toFixed(2)} / ${r.hybridBackward.toFixed(2)}`} color={C.blue} />
-            <Stat label="加成 ε/(ε−1)" value={`${r.markup.toFixed(2)}×`} color={C.green} />
-            <Stat label="牺牲率" value={`${r.sacrificeRatio.toFixed(1)}`} color={C.red} sub="1pp 反通胀的产出代价" />
-            <Stat label="货币非中性半衰期" value={`${r.moneyHalfLife.toFixed(1)} 期`} color={C.gold} />
+            <Stat label={t("labs.macroFrontier.misc.k95")} value={r.kappa.toFixed(4)} color={C.gold} />
+            <Stat label={t("labs.macroFrontier.misc.k96")} value={`${r.avgPriceDuration.toFixed(1)} 期`} color={C.teal} />
+            <Stat label={t("labs.macroFrontier.misc.k97")} value={`${r.hybridForward.toFixed(2)} / ${r.hybridBackward.toFixed(2)}`} color={C.blue} />
+            <Stat label={t("labs.macroFrontier.misc.k98")} value={`${r.markup.toFixed(2)}×`} color={C.green} />
+            <Stat label={t("labs.macroFrontier.misc.k99")} value={`${r.sacrificeRatio.toFixed(1)}`} color={C.red} sub={t("labs.macroFrontier.misc.k100")} />
+            <Stat label={t("labs.macroFrontier.misc.k101")} value={`${r.moneyHalfLife.toFixed(1)} 期`} color={C.gold} />
           </div>
         </div>
-        <Panel title="θ → κ 与价格期限映射">
+        <Panel title={t("labs.macroFrontier.misc.k102")}>
           <div className="h-[300px]">
             <ResponsiveContainer>
               <ComposedChart data={curve}>
@@ -525,8 +524,8 @@ function CalvoPanel() {
                 <YAxis yAxisId="r" orientation="right" stroke={C.teal} tick={{ fontSize: 10 }} label={{ value: "期限", angle: 90, position: "insideRight", fill: C.teal, fontSize: 10 }} />
                 <Tooltip contentStyle={tooltipStyle} />
                 <Legend wrapperStyle={{ fontSize: 10 }} />
-                <Area yAxisId="l" type="monotone" dataKey="kappa" stroke={C.gold} fill={C.gold} fillOpacity={0.15} name="κ 斜率" />
-                <Line yAxisId="r" type="monotone" dataKey="dur" stroke={C.teal} dot={false} strokeWidth={1.5} name="1/(1−θ)" />
+                <Area yAxisId="l" type="monotone" dataKey="kappa" stroke={C.gold} fill={C.gold} fillOpacity={0.15} name={t("labs.macroFrontier.misc.k103")} />
+                <Line yAxisId="r" type="monotone" dataKey="dur" stroke={C.teal} dot={false} strokeWidth={1.5} name={t("labs.macroFrontier.misc.k105")} />
                 <ReferenceLine yAxisId="l" x={theta} stroke={C.red} strokeDasharray="4 4" />
               </ComposedChart>
             </ResponsiveContainer>
@@ -575,22 +574,22 @@ function RulesPanel() {
     <div className="space-y-5">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="space-y-3">
-          <p className="text-xs font-mono text-gold uppercase tracking-wider">Barro-Gordon 时间不一致</p>
+          <p className="text-xs font-mono text-gold uppercase tracking-wider">{t("labs.macroFrontier.misc.k106")}</p>
           <div className="grid grid-cols-2 gap-3">
-            <Slider label="产出野心 k" value={k} min={0} max={0.06} step={0.002} onChange={setK} fmt={(v)=>`${(v*100).toFixed(1)}%`} />
-            <Slider label="产出权重 λ" value={lam} min={0} max={4} step={0.1} onChange={setLam} />
-            <Slider label="PC 斜率 α" value={a} min={0.1} max={1.5} step={0.05} onChange={setA} />
-            <Slider label="供给冲击" value={shock} min={-0.03} max={0.05} step={0.002} onChange={setShock} fmt={(v)=>`${(v*100).toFixed(1)}%`} />
-            <Slider label="承诺可信度" value={cred} min={0} max={1} step={0.05} onChange={setCred} fmt={(v)=>`${(v*100).toFixed(0)}%`} />
+            <Slider label={t("labs.macroFrontier.misc.k107")} value={k} min={0} max={0.06} step={0.002} onChange={setK} fmt={(v)=>`${(v*100).toFixed(1)}%`} />
+            <Slider label={t("labs.macroFrontier.misc.k108")} value={lam} min={0} max={4} step={0.1} onChange={setLam} />
+            <Slider label={t("labs.macroFrontier.misc.k109")} value={a} min={0.1} max={1.5} step={0.05} onChange={setA} />
+            <Slider label={t("labs.macroFrontier.misc.k110")} value={shock} min={-0.03} max={0.05} step={0.002} onChange={setShock} fmt={(v)=>`${(v*100).toFixed(1)}%`} />
+            <Slider label={t("labs.macroFrontier.misc.k111")} value={cred} min={0} max={1} step={0.05} onChange={setCred} fmt={(v)=>`${(v*100).toFixed(0)}%`} />
           </div>
           <div className="grid grid-cols-2 gap-2">
-            <Stat label="通胀偏差 λαk" value={`${(bg.inflationBias*100).toFixed(2)}%`} color={C.red} />
-            <Stat label="相机抉择 π" value={`${(bg.discretionInflation*100).toFixed(2)}%`} color={C.gold} />
-            <Stat label="承诺 π" value={`${(bg.commitmentInflation*100).toFixed(2)}%`} color={C.green} />
-            <Stat label="当前均衡 π" value={`${(bg.actualInflation*100).toFixed(2)}%`} color={C.teal} />
+            <Stat label={t("labs.macroFrontier.misc.k112")} value={`${(bg.inflationBias*100).toFixed(2)}%`} color={C.red} />
+            <Stat label={t("labs.macroFrontier.misc.k113")} value={`${(bg.discretionInflation*100).toFixed(2)}%`} color={C.gold} />
+            <Stat label={t("labs.macroFrontier.misc.k114")} value={`${(bg.commitmentInflation*100).toFixed(2)}%`} color={C.green} />
+            <Stat label={t("labs.macroFrontier.misc.k115")} value={`${(bg.actualInflation*100).toFixed(2)}%`} color={C.teal} />
           </div>
         </div>
-        <Panel title="可信度 → 均衡通胀与损失">
+        <Panel title={t("labs.macroFrontier.misc.k116")}>
           <div className="h-[240px]">
             <ResponsiveContainer>
               <ComposedChart data={credCurve}>
@@ -599,15 +598,15 @@ function RulesPanel() {
                 <YAxis stroke={C.text} tick={{ fontSize: 10 }} />
                 <Tooltip contentStyle={tooltipStyle} />
                 <Legend wrapperStyle={{ fontSize: 10 }} />
-                <Line type="monotone" dataKey="pi" stroke={C.gold} dot={false} strokeWidth={2} name="均衡通胀 %" />
+                <Line type="monotone" dataKey="pi" stroke={C.gold} dot={false} strokeWidth={2} name={t("labs.macroFrontier.misc.k118")} />
               </ComposedChart>
             </ResponsiveContainer>
           </div>
-          <Note>没有承诺机制时，公众预期到央行的扩张动机 → 通胀更高但产出不变。独立央行、通胀目标与保守央行行长都是承诺技术。</Note>
+          <Note>{t("labs.macroFrontier.misc.k119")}</Note>
         </Panel>
       </div>
 
-      <Panel title="四种政策规则在成本推动冲击下的表现">
+      <Panel title={t("labs.macroFrontier.misc.k120")}>
         <div className="flex flex-wrap gap-2 mb-3">
           {(["taylor", "inflation-target", "price-level", "ngdp"] as RuleKind[]).map((kk) => (
             <button key={kk} onClick={() => setRule(kk)}
@@ -623,10 +622,10 @@ function RulesPanel() {
               <Slider label="φ_x" value={phiX} min={0} max={2} step={0.05} onChange={setPhiX} />
             </div>
             <div className="grid grid-cols-2 gap-2">
-              <Stat label="泰勒原则" value={active.determinate ? "满足 (φ_π>1)" : "不满足 → 不确定性"} color={active.determinate ? C.green : C.red} />
-              <Stat label="通胀波动 σ(π)" value={`${(active.volInflation*100).toFixed(2)}%`} color={C.gold} />
-              <Stat label="产出波动 σ(x)" value={`${(active.volOutput*100).toFixed(2)}%`} color={C.teal} />
-              <Stat label="价格水平漂移" value={`${(active.cumInflation*100).toFixed(2)}%`} color={Math.abs(active.cumInflation) < 0.01 ? C.green : C.red} />
+              <Stat label={t("labs.macroFrontier.misc.k125")} value={active.determinate ? "满足 (φ_π>1)" : "不满足 → 不确定性"} color={active.determinate ? C.green : C.red} />
+              <Stat label={t("labs.macroFrontier.misc.k128")} value={`${(active.volInflation*100).toFixed(2)}%`} color={C.gold} />
+              <Stat label={t("labs.macroFrontier.misc.k129")} value={`${(active.volOutput*100).toFixed(2)}%`} color={C.teal} />
+              <Stat label={t("labs.macroFrontier.misc.k130")} value={`${(active.cumInflation*100).toFixed(2)}%`} color={Math.abs(active.cumInflation) < 0.01 ? C.green : C.red} />
             </div>
           </div>
           <div className="h-[240px]">
@@ -637,16 +636,16 @@ function RulesPanel() {
                 <YAxis stroke={C.text} tick={{ fontSize: 10 }} label={{ value: "π %", angle: -90, position: "insideLeft", fill: C.text, fontSize: 10 }} />
                 <Tooltip contentStyle={tooltipStyle} />
                 <Legend wrapperStyle={{ fontSize: 10 }} />
-                <Line type="monotone" dataKey="taylor" stroke={C.gold} dot={false} strokeWidth={rule === "taylor" ? 2.5 : 1} name="泰勒" />
-                <Line type="monotone" dataKey="inflation-target" stroke={C.teal} dot={false} strokeWidth={rule === "inflation-target" ? 2.5 : 1} name="通胀目标" />
-                <Line type="monotone" dataKey="price-level" stroke={C.blue} dot={false} strokeWidth={rule === "price-level" ? 2.5 : 1} name="价格水平" />
-                <Line type="monotone" dataKey="ngdp" stroke={C.green} dot={false} strokeWidth={rule === "ngdp" ? 2.5 : 1} name="名义 GDP" />
+                <Line type="monotone" dataKey="taylor" stroke={C.gold} dot={false} strokeWidth={rule === "taylor" ? 2.5 : 1} name={t("labs.macroFrontier.misc.k131")} />
+                <Line type="monotone" dataKey="inflation-target" stroke={C.teal} dot={false} strokeWidth={rule === "inflation-target" ? 2.5 : 1} name={t("labs.macroFrontier.misc.k132")} />
+                <Line type="monotone" dataKey="price-level" stroke={C.blue} dot={false} strokeWidth={rule === "price-level" ? 2.5 : 1} name={t("labs.macroFrontier.misc.k133")} />
+                <Line type="monotone" dataKey="ngdp" stroke={C.green} dot={false} strokeWidth={rule === "ngdp" ? 2.5 : 1} name={t("labs.macroFrontier.misc.k134")} />
                 <ReferenceLine y={0} stroke={C.text} />
               </LineChart>
             </ResponsiveContainer>
           </div>
         </div>
-        <Note>价格水平目标通过「补偿过去偏离」获得额外的预期渠道，因此累计漂移更小 —— 代价是短期产出波动可能更大。</Note>
+        <Note>{t("labs.macroFrontier.misc.k135")}</Note>
       </Panel>
     </div>
   );
@@ -672,31 +671,31 @@ function ParityPanel() {
   return (
     <div className="space-y-5">
       <PresetButtons presets={[
-        { name: "远期溢价之谜", description: "β < 0", apply: () => { setBeta(-0.8); setNoise(0.02); } },
-        { name: "UIP 成立", description: "β = 1", apply: () => { setBeta(1); setNoise(0.005); } },
-        { name: "CIP 偏离 (危机)", description: "掉期基差", apply: () => { setFwd(7.45); } },
+        { name: t("labs.macroFrontier.misc.k136"), description: t("labs.macroFrontier.misc.k137"), apply: () => { setBeta(-0.8); setNoise(0.02); } },
+        { name: t("labs.macroFrontier.misc.k138"), description: t("labs.macroFrontier.misc.k139"), apply: () => { setBeta(1); setNoise(0.005); } },
+        { name: t("labs.macroFrontier.misc.k140"), description: t("labs.macroFrontier.misc.k141"), apply: () => { setFwd(7.45); } },
       ]} />
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="space-y-3">
-          <p className="text-xs font-mono text-gold uppercase tracking-wider">平价条件参数</p>
+          <p className="text-xs font-mono text-gold uppercase tracking-wider">{t("labs.macroFrontier.misc.k142")}</p>
           <div className="grid grid-cols-2 gap-3">
-            <Slider label="本币利率 i" value={iD} min={0} max={0.15} step={0.0025} onChange={setID} fmt={(v)=>`${(v*100).toFixed(2)}%`} />
-            <Slider label="外币利率 i*" value={iF} min={0} max={0.15} step={0.0025} onChange={setIF} fmt={(v)=>`${(v*100).toFixed(2)}%`} />
-            <Slider label="即期 S" value={spot} min={1} max={12} step={0.1} onChange={setSpot} />
-            <Slider label="远期 F" value={fwd} min={1} max={12} step={0.01} onChange={setFwd} />
-            <Slider label="真实 UIP β" value={beta} min={-2} max={2} step={0.1} onChange={setBeta} />
-            <Slider label="噪声 σ" value={noise} min={0.002} max={0.06} step={0.002} onChange={setNoise} />
+            <Slider label={t("labs.macroFrontier.misc.k143")} value={iD} min={0} max={0.15} step={0.0025} onChange={setID} fmt={(v)=>`${(v*100).toFixed(2)}%`} />
+            <Slider label={t("labs.macroFrontier.misc.k144")} value={iF} min={0} max={0.15} step={0.0025} onChange={setIF} fmt={(v)=>`${(v*100).toFixed(2)}%`} />
+            <Slider label={t("labs.macroFrontier.misc.k145")} value={spot} min={1} max={12} step={0.1} onChange={setSpot} />
+            <Slider label={t("labs.macroFrontier.misc.k146")} value={fwd} min={1} max={12} step={0.01} onChange={setFwd} />
+            <Slider label={t("labs.macroFrontier.misc.k147")} value={beta} min={-2} max={2} step={0.1} onChange={setBeta} />
+            <Slider label={t("labs.macroFrontier.misc.k148")} value={noise} min={0.002} max={0.06} step={0.002} onChange={setNoise} />
           </div>
           <div className="grid grid-cols-2 gap-2">
-            <Stat label="CIP 基差" value={`${r.cipBasis.toFixed(0)} bp`} color={Math.abs(r.cipBasis) > 50 ? C.red : C.green} />
-            <Stat label="远期溢价" value={`${(r.forwardPremium*100).toFixed(2)}%`} color={C.gold} />
-            <Stat label="Fama β" value={r.famaBeta.toFixed(2)} color={r.puzzle ? C.red : C.green} sub={r.puzzle ? "远期溢价之谜" : "UIP 方向一致"} />
-            <Stat label="回归 R²" value={r.famaR2.toFixed(3)} color={C.blue} />
-            <Stat label="Carry 超额收益" value={`${(r.carryReturn*100).toFixed(2)}%`} color={r.carryReturn > 0 ? C.green : C.red} />
-            <Stat label="PPP 实际漂移" value={`${(r.realExchangeDrift*100).toFixed(2)}%`} color={C.teal} sub="π − π*" />
+            <Stat label={t("labs.macroFrontier.misc.k149")} value={`${r.cipBasis.toFixed(0)} bp`} color={Math.abs(r.cipBasis) > 50 ? C.red : C.green} />
+            <Stat label={t("labs.macroFrontier.misc.k150")} value={`${(r.forwardPremium*100).toFixed(2)}%`} color={C.gold} />
+            <Stat label={t("labs.macroFrontier.misc.k151")} value={r.famaBeta.toFixed(2)} color={r.puzzle ? C.red : C.green} sub={r.puzzle ? "远期溢价之谜" : "UIP 方向一致"} />
+            <Stat label={t("labs.macroFrontier.misc.k154")} value={r.famaR2.toFixed(3)} color={C.blue} />
+            <Stat label={t("labs.macroFrontier.misc.k155")} value={`${(r.carryReturn*100).toFixed(2)}%`} color={r.carryReturn > 0 ? C.green : C.red} />
+            <Stat label={t("labs.macroFrontier.misc.k156")} value={`${(r.realExchangeDrift*100).toFixed(2)}%`} color={C.teal} sub="π − π*" />
           </div>
         </div>
-        <Panel title="Fama 回归：Δs 对利差散点">
+        <Panel title={t("labs.macroFrontier.misc.k157")}>
           <div className="h-[300px]">
             <ResponsiveContainer>
               <ScatterChart>
@@ -704,16 +703,15 @@ function ParityPanel() {
                 <XAxis type="number" dataKey="diff" stroke={C.text} tick={{ fontSize: 10 }} name="i−i* (%)" />
                 <YAxis type="number" dataKey="ds" stroke={C.text} tick={{ fontSize: 10 }} name="Δs (%)" />
                 <Tooltip contentStyle={tooltipStyle} cursor={{ strokeDasharray: "3 3" }} />
-                <Scatter data={r.scatter} fill={C.gold} fillOpacity={0.45} name="观测" />
-                <Scatter data={fit} line={{ stroke: C.red, strokeWidth: 2 }} dataKey="fitted" fill="transparent" name="拟合" />
-                <Scatter data={fit} line={{ stroke: C.teal, strokeWidth: 1.5, strokeDasharray: "4 4" }} dataKey="uip" fill="transparent" name="UIP β=1" />
+                <Scatter data={r.scatter} fill={C.gold} fillOpacity={0.45} name={t("labs.macroFrontier.misc.k158")} />
+                <Scatter data={fit} line={{ stroke: C.red, strokeWidth: 2 }} dataKey="fitted" fill="transparent" name={t("labs.macroFrontier.misc.k159")} />
+                <Scatter data={fit} line={{ stroke: C.teal, strokeWidth: 1.5, strokeDasharray: "4 4" }} dataKey="uip" fill="transparent" name={t("labs.macroFrontier.misc.k160")} />
                 <Legend wrapperStyle={{ fontSize: 10 }} />
               </ScatterChart>
             </ResponsiveContainer>
           </div>
           <Note>
-            UIP 预测 β=1；实证常得到 β&lt;0：高息货币不仅没有贬值，反而带来正的 Carry 收益。风险溢价、峰度风险与
-            有限套利资本都是候选解释。CIP 基差在 2008 后长期非零，说明连「无风险」平价都受资产负债表约束。
+            {t("labs.macroFrontier.misc.k161")}
           </Note>
         </Panel>
       </div>
@@ -743,29 +741,29 @@ function SuddenPanel() {
   return (
     <div className="space-y-5">
       <PresetButtons presets={[
-        { name: "亚洲金融危机式", description: "短债高、储备薄", apply: () => { setStShare(0.6); setRes(0.08); setRev(0.9); } },
-        { name: "储备充足", description: "Greenspan-Guidotti 达标", apply: () => { setRes(0.3); setStShare(0.3); } },
-        { name: "温和调整", description: "流动逆转有限", apply: () => { setRev(0.3); } },
+        { name: t("labs.macroFrontier.misc.k162"), description: t("labs.macroFrontier.misc.k163"), apply: () => { setStShare(0.6); setRes(0.08); setRev(0.9); } },
+        { name: t("labs.macroFrontier.misc.k164"), description: t("labs.macroFrontier.misc.k165"), apply: () => { setRes(0.3); setStShare(0.3); } },
+        { name: t("labs.macroFrontier.misc.k166"), description: t("labs.macroFrontier.misc.k167"), apply: () => { setRev(0.3); } },
       ]} />
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="space-y-3">
-          <p className="text-xs font-mono text-gold uppercase tracking-wider">外部脆弱性参数</p>
+          <p className="text-xs font-mono text-gold uppercase tracking-wider">{t("labs.macroFrontier.misc.k168")}</p>
           <div className="grid grid-cols-2 gap-3">
-            <Slider label="经常账户赤字" value={ca} min={0} max={0.15} step={0.005} onChange={setCa} fmt={(v)=>`${(v*100).toFixed(1)}%`} />
-            <Slider label="外债 / GDP" value={debt} min={0.1} max={1.5} step={0.05} onChange={setDebt} fmt={(v)=>`${(v*100).toFixed(0)}%`} />
-            <Slider label="储备 / GDP" value={res} min={0.01} max={0.5} step={0.01} onChange={setRes} fmt={(v)=>`${(v*100).toFixed(0)}%`} />
-            <Slider label="短期债务占比" value={stShare} min={0.05} max={0.8} step={0.05} onChange={setStShare} fmt={(v)=>`${(v*100).toFixed(0)}%`} />
-            <Slider label="资本流逆转比例" value={rev} min={0} max={1} step={0.05} onChange={setRev} fmt={(v)=>`${(v*100).toFixed(0)}%`} />
-            <Slider label="汇率传递系数" value={pass} min={0} max={1} step={0.05} onChange={setPass} />
+            <Slider label={t("labs.macroFrontier.misc.k169")} value={ca} min={0} max={0.15} step={0.005} onChange={setCa} fmt={(v)=>`${(v*100).toFixed(1)}%`} />
+            <Slider label={t("labs.macroFrontier.misc.k170")} value={debt} min={0.1} max={1.5} step={0.05} onChange={setDebt} fmt={(v)=>`${(v*100).toFixed(0)}%`} />
+            <Slider label={t("labs.macroFrontier.misc.k171")} value={res} min={0.01} max={0.5} step={0.01} onChange={setRes} fmt={(v)=>`${(v*100).toFixed(0)}%`} />
+            <Slider label={t("labs.macroFrontier.misc.k172")} value={stShare} min={0.05} max={0.8} step={0.05} onChange={setStShare} fmt={(v)=>`${(v*100).toFixed(0)}%`} />
+            <Slider label={t("labs.macroFrontier.misc.k173")} value={rev} min={0} max={1} step={0.05} onChange={setRev} fmt={(v)=>`${(v*100).toFixed(0)}%`} />
+            <Slider label={t("labs.macroFrontier.misc.k174")} value={pass} min={0} max={1} step={0.05} onChange={setPass} />
           </div>
           <div className="grid grid-cols-2 gap-2">
-            <Stat label="储备覆盖率" value={`${s.reserveCover.toFixed(2)}×`} color={s.reserveCover >= 1 ? C.green : C.red} sub="Greenspan-Guidotti ≥1" />
-            <Stat label="所需外部调整" value={`${(s.requiredAdjustment*100).toFixed(2)}%`} color={C.gold} />
-            <Stat label="资产负债表损失" value={`${(s.balanceSheetLoss*100).toFixed(2)}%`} color={C.red} sub="FX 债务估值效应" />
-            <Stat label="判定" value={s.crisis ? "危机风险" : "可控"} color={s.crisis ? C.red : C.green} />
+            <Stat label={t("labs.macroFrontier.misc.k175")} value={`${s.reserveCover.toFixed(2)}×`} color={s.reserveCover >= 1 ? C.green : C.red} sub={t("labs.macroFrontier.misc.k176")} />
+            <Stat label={t("labs.macroFrontier.misc.k177")} value={`${(s.requiredAdjustment*100).toFixed(2)}%`} color={C.gold} />
+            <Stat label={t("labs.macroFrontier.misc.k178")} value={`${(s.balanceSheetLoss*100).toFixed(2)}%`} color={C.red} sub={t("labs.macroFrontier.misc.k179")} />
+            <Stat label={t("labs.macroFrontier.misc.k180")} value={s.crisis ? "危机风险" : "可控"} color={s.crisis ? C.red : C.green} />
           </div>
         </div>
-        <Panel title="突然停止后的调整路径">
+        <Panel title={t("labs.macroFrontier.misc.k183")}>
           <div className="h-[300px]">
             <ResponsiveContainer>
               <LineChart data={chart}>
@@ -774,16 +772,15 @@ function SuddenPanel() {
                 <YAxis stroke={C.text} tick={{ fontSize: 10 }} label={{ value: "%", angle: -90, position: "insideLeft", fill: C.text, fontSize: 10 }} />
                 <Tooltip contentStyle={tooltipStyle} />
                 <Legend wrapperStyle={{ fontSize: 10 }} />
-                <Line type="monotone" dataKey="ca" stroke={C.gold} dot={false} strokeWidth={2} name="经常账户 / GDP" />
-                <Line type="monotone" dataKey="fx" stroke={C.red} dot={false} strokeWidth={2} name="累计贬值" />
-                <Line type="monotone" dataKey="y" stroke={C.teal} dot={false} strokeWidth={2} name="产出偏离" />
+                <Line type="monotone" dataKey="ca" stroke={C.gold} dot={false} strokeWidth={2} name={t("labs.macroFrontier.misc.k185")} />
+                <Line type="monotone" dataKey="fx" stroke={C.red} dot={false} strokeWidth={2} name={t("labs.macroFrontier.misc.k186")} />
+                <Line type="monotone" dataKey="y" stroke={C.teal} dot={false} strokeWidth={2} name={t("labs.macroFrontier.misc.k187")} />
                 <ReferenceLine y={0} stroke={C.text} />
               </LineChart>
             </ResponsiveContainer>
           </div>
           <Note>
-            货币错配下贬值同时带来支出转换 (扩张) 与资产负债表损失 (紧缩)；后者占优时贬值反而是收缩性的 —— 这正是
-            「原罪」与外汇储备自我保险的核心动机。
+            {t("labs.macroFrontier.misc.k188")}
           </Note>
         </Panel>
       </div>
@@ -824,22 +821,21 @@ function ExpectPanel() {
         <div className="space-y-3">
           <p className="text-xs font-mono text-gold uppercase tracking-wider">{active.label}</p>
           <div className="grid grid-cols-2 gap-3">
-            <Slider label="学习增益 g" value={gain} min={0.02} max={0.8} step={0.02} onChange={setGain} />
-            <Slider label="信息黏性 λ" value={stick} min={0} max={0.95} step={0.05} onChange={setStick} />
-            <Slider label="诊断参数 θ" value={diag} min={0} max={1.5} step={0.05} onChange={setDiag} />
-            <Slider label="冲击持久性 ρ" value={rho} min={0.3} max={0.98} step={0.02} onChange={setRho} />
+            <Slider label={t("labs.macroFrontier.misc.k193")} value={gain} min={0.02} max={0.8} step={0.02} onChange={setGain} />
+            <Slider label={t("labs.macroFrontier.misc.k194")} value={stick} min={0} max={0.95} step={0.05} onChange={setStick} />
+            <Slider label={t("labs.macroFrontier.misc.k195")} value={diag} min={0} max={1.5} step={0.05} onChange={setDiag} />
+            <Slider label={t("labs.macroFrontier.misc.k196")} value={rho} min={0.3} max={0.98} step={0.02} onChange={setRho} />
           </div>
           <div className="grid grid-cols-2 gap-2">
-            <Stat label="CG 系数" value={active.cgCoefficient.toFixed(3)} color={Math.abs(active.cgCoefficient) < 1e-8 ? C.green : C.gold}
-              sub="误差对修正回归；≠0 表示可预测误差" />
-            <Stat label="最大预测误差" value={`${(Math.max(...active.forecastError.map(Math.abs)) * 100).toFixed(2)}%`} color={C.red} />
+            <Stat label={t("labs.macroFrontier.misc.k197")} value={active.cgCoefficient.toFixed(3)} color={Math.abs(active.cgCoefficient) < 1e-8 ? C.green : C.gold}
+              sub={t("labs.macroFrontier.misc.k198")} />
+            <Stat label={t("labs.macroFrontier.misc.k199")} value={`${(Math.max(...active.forecastError.map(Math.abs)) * 100).toFixed(2)}%`} color={C.red} />
           </div>
           <Note>
-            FIRE 基准要求预测误差不可预测。黏性信息给出正的 CG 系数 (反应不足)，诊断性预期给出负系数 (过度反应)，
-            适应性学习则在冲击后产生系统性追赶 —— 这三类偏离正是行为宏观的实证抓手。
+            {t("labs.macroFrontier.misc.k200")}
           </Note>
         </div>
-        <Panel title="实际值 vs 四种预期路径">
+        <Panel title={t("labs.macroFrontier.misc.k201")}>
           <div className="h-[300px]">
             <ResponsiveContainer>
               <LineChart data={chart}>
@@ -848,11 +844,11 @@ function ExpectPanel() {
                 <YAxis stroke={C.text} tick={{ fontSize: 10 }} label={{ value: "%", angle: -90, position: "insideLeft", fill: C.text, fontSize: 10 }} />
                 <Tooltip contentStyle={tooltipStyle} />
                 <Legend wrapperStyle={{ fontSize: 10 }} />
-                <Line type="monotone" dataKey="actual" stroke={C.text} dot={false} strokeWidth={2} name="实际" />
-                <Line type="monotone" dataKey="rational" stroke={C.green} dot={false} strokeWidth={kind === "rational" ? 2.5 : 1} name="理性" />
-                <Line type="monotone" dataKey="adaptive" stroke={C.blue} dot={false} strokeWidth={kind === "adaptive" ? 2.5 : 1} name="适应性" />
-                <Line type="monotone" dataKey="sticky" stroke={C.gold} dot={false} strokeWidth={kind === "sticky" ? 2.5 : 1} name="黏性" />
-                <Line type="monotone" dataKey="diagnostic" stroke={C.red} dot={false} strokeWidth={kind === "diagnostic" ? 2.5 : 1} name="诊断性" />
+                <Line type="monotone" dataKey="actual" stroke={C.text} dot={false} strokeWidth={2} name={t("labs.macroFrontier.misc.k202")} />
+                <Line type="monotone" dataKey="rational" stroke={C.green} dot={false} strokeWidth={kind === "rational" ? 2.5 : 1} name={t("labs.macroFrontier.misc.k203")} />
+                <Line type="monotone" dataKey="adaptive" stroke={C.blue} dot={false} strokeWidth={kind === "adaptive" ? 2.5 : 1} name={t("labs.macroFrontier.misc.k204")} />
+                <Line type="monotone" dataKey="sticky" stroke={C.gold} dot={false} strokeWidth={kind === "sticky" ? 2.5 : 1} name={t("labs.macroFrontier.misc.k205")} />
+                <Line type="monotone" dataKey="diagnostic" stroke={C.red} dot={false} strokeWidth={kind === "diagnostic" ? 2.5 : 1} name={t("labs.macroFrontier.misc.k206")} />
               </LineChart>
             </ResponsiveContainer>
           </div>
@@ -886,35 +882,35 @@ function UnconPanel() {
   return (
     <div className="space-y-5">
       <PresetButtons presets={[
-        { name: "大规模 QE", description: "久期移除大", apply: () => { setQe(0.3); setDur(4); setYcc(false); } },
-        { name: "日本式 YCC", description: "收益率上限", apply: () => { setYcc(true); setTarget(0.0025); } },
-        { name: "纯信号渠道", description: "前瞻指引为主", apply: () => { setDur(0.3); setSig(1); } },
+        { name: t("labs.macroFrontier.misc.k207"), description: t("labs.macroFrontier.misc.k208"), apply: () => { setQe(0.3); setDur(4); setYcc(false); } },
+        { name: t("labs.macroFrontier.misc.k209"), description: t("labs.macroFrontier.misc.k210"), apply: () => { setYcc(true); setTarget(0.0025); } },
+        { name: t("labs.macroFrontier.misc.k211"), description: t("labs.macroFrontier.misc.k212"), apply: () => { setDur(0.3); setSig(1); } },
       ]} />
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="space-y-3">
-          <p className="text-xs font-mono text-gold uppercase tracking-wider">QE / YCC 参数</p>
+          <p className="text-xs font-mono text-gold uppercase tracking-wider">{t("labs.macroFrontier.misc.k213")}</p>
           <div className="grid grid-cols-2 gap-3">
-            <Slider label="购买规模 (%GDP)" value={qe} min={0.02} max={0.6} step={0.02} onChange={setQe} fmt={(v)=>`${(v*100).toFixed(0)}%`} />
-            <Slider label="久期移除 (10y 等值)" value={dur} min={0.1} max={6} step={0.1} onChange={setDur} />
-            <Slider label="偏好栖息地弹性" value={hab} min={0.1} max={1.5} step={0.05} onChange={setHab} />
-            <Slider label="信号渠道强度" value={sig} min={0} max={1.5} step={0.05} onChange={setSig} />
-            <Slider label="市场深度" value={depth} min={0.3} max={3} step={0.1} onChange={setDepth} />
-            <Slider label="YCC 目标" value={target} min={0} max={0.02} step={0.0005} onChange={setTarget} fmt={(v)=>`${(v*100).toFixed(2)}%`} />
+            <Slider label={t("labs.macroFrontier.misc.k214")} value={qe} min={0.02} max={0.6} step={0.02} onChange={setQe} fmt={(v)=>`${(v*100).toFixed(0)}%`} />
+            <Slider label={t("labs.macroFrontier.misc.k215")} value={dur} min={0.1} max={6} step={0.1} onChange={setDur} />
+            <Slider label={t("labs.macroFrontier.misc.k216")} value={hab} min={0.1} max={1.5} step={0.05} onChange={setHab} />
+            <Slider label={t("labs.macroFrontier.misc.k217")} value={sig} min={0} max={1.5} step={0.05} onChange={setSig} />
+            <Slider label={t("labs.macroFrontier.misc.k218")} value={depth} min={0.3} max={3} step={0.1} onChange={setDepth} />
+            <Slider label={t("labs.macroFrontier.misc.k219")} value={target} min={0} max={0.02} step={0.0005} onChange={setTarget} fmt={(v)=>`${(v*100).toFixed(2)}%`} />
           </div>
           <label className="flex items-center gap-2 text-xs text-secondary-foreground">
             <input type="checkbox" checked={ycc} onChange={(e) => setYcc(e.target.checked)} className="accent-gold" />
-            启用收益率曲线控制 (YCC)
+            {t("labs.macroFrontier.misc.k220")}
           </label>
           <div className="grid grid-cols-2 gap-2">
-            <Stat label="总收益率下压" value={`${r.totalYieldDrop.toFixed(0)} bp`} color={C.gold} />
-            <Stat label="组合再平衡渠道" value={`${r.channelSplit.portfolio.toFixed(0)} bp`} color={C.teal} />
-            <Stat label="信号渠道" value={`${r.channelSplit.signalling.toFixed(0)} bp`} color={C.blue} />
-            <Stat label="YCC 可守住?" value={ycc ? (r.yccDefends ? "是 (无需大量购债)" : "需大量购债") : "未启用"}
+            <Stat label={t("labs.macroFrontier.misc.k221")} value={`${r.totalYieldDrop.toFixed(0)} bp`} color={C.gold} />
+            <Stat label={t("labs.macroFrontier.misc.k222")} value={`${r.channelSplit.portfolio.toFixed(0)} bp`} color={C.teal} />
+            <Stat label={t("labs.macroFrontier.misc.k223")} value={`${r.channelSplit.signalling.toFixed(0)} bp`} color={C.blue} />
+            <Stat label={t("labs.macroFrontier.misc.k224")} value={ycc ? (r.yccDefends ? "是 (无需大量购债)" : "需大量购债") : "未启用"}
               color={!ycc ? C.text : r.yccDefends ? C.green : C.red}
               sub={ycc ? `隐含额外购买 ${(r.yccPurchasesNeeded).toFixed(0)} 单位` : undefined} />
           </div>
         </div>
-        <Panel title="10y 收益率分解与资产负债表">
+        <Panel title={t("labs.macroFrontier.misc.k228")}>
           <div className="h-[300px]">
             <ResponsiveContainer>
               <ComposedChart data={chart}>
@@ -924,14 +920,14 @@ function UnconPanel() {
                 <YAxis yAxisId="r" orientation="right" stroke={C.teal} tick={{ fontSize: 10 }} label={{ value: "资产负债表 %GDP", angle: 90, position: "insideRight", fill: C.teal, fontSize: 10 }} />
                 <Tooltip contentStyle={tooltipStyle} />
                 <Legend wrapperStyle={{ fontSize: 10 }} />
-                <Line yAxisId="l" type="monotone" dataKey="y10" stroke={C.gold} dot={false} strokeWidth={2} name="10y 收益率" />
-                <Line yAxisId="l" type="monotone" dataKey="exp" stroke={C.blue} dot={false} strokeWidth={1.5} strokeDasharray="4 4" name="预期短端路径" />
-                <Bar yAxisId="r" dataKey="bs" fill={C.teal} fillOpacity={0.25} name="央行持仓" />
+                <Line yAxisId="l" type="monotone" dataKey="y10" stroke={C.gold} dot={false} strokeWidth={2} name={t("labs.macroFrontier.misc.k229")} />
+                <Line yAxisId="l" type="monotone" dataKey="exp" stroke={C.blue} dot={false} strokeWidth={1.5} strokeDasharray="4 4" name={t("labs.macroFrontier.misc.k230")} />
+                <Bar yAxisId="r" dataKey="bs" fill={C.teal} fillOpacity={0.25} name={t("labs.macroFrontier.misc.k231")} />
                 {ycc && <ReferenceLine yAxisId="l" y={target * 100} stroke={C.red} strokeDasharray="4 4" label={{ value: "YCC 上限", fill: C.red, fontSize: 10 }} />}
               </ComposedChart>
             </ResponsiveContainer>
           </div>
-          <Note>QE 通过组合再平衡压低期限溢价、通过信号渠道压低预期短端路径；YCC 用价格承诺替代数量目标，可信时购买量反而更小。</Note>
+          <Note>{t("labs.macroFrontier.misc.k233")}</Note>
         </Panel>
       </div>
     </div>
@@ -954,28 +950,28 @@ function BankPanel() {
   return (
     <div className="space-y-5">
       <PresetButtons presets={[
-        { name: "2008 式冲击", description: "高杠杆 + 抛售", apply: () => { setLev(25); setLoss(0.03); setFire(0.35); } },
-        { name: "Basel III 后", description: "厚资本缓冲", apply: () => { setCap(0.14); setLev(12); } },
-        { name: "轻微损失", description: "可吸收", apply: () => { setLoss(0.005); } },
+        { name: t("labs.macroFrontier.misc.k234"), description: t("labs.macroFrontier.misc.k235"), apply: () => { setLev(25); setLoss(0.03); setFire(0.35); } },
+        { name: t("labs.macroFrontier.misc.k236"), description: t("labs.macroFrontier.misc.k237"), apply: () => { setCap(0.14); setLev(12); } },
+        { name: t("labs.macroFrontier.misc.k238"), description: t("labs.macroFrontier.misc.k239"), apply: () => { setLoss(0.005); } },
       ]} />
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="space-y-3">
-          <p className="text-xs font-mono text-gold uppercase tracking-wider">银行资本与去杠杆</p>
+          <p className="text-xs font-mono text-gold uppercase tracking-wider">{t("labs.macroFrontier.misc.k240")}</p>
           <div className="grid grid-cols-2 gap-3">
-            <Slider label="初始资本率" value={cap} min={0.03} max={0.2} step={0.005} onChange={setCap} fmt={(v)=>`${(v*100).toFixed(1)}%`} />
-            <Slider label="损失冲击" value={loss} min={0} max={0.06} step={0.0025} onChange={setLoss} fmt={(v)=>`${(v*100).toFixed(2)}%`} />
-            <Slider label="目标杠杆" value={lev} min={5} max={35} step={1} onChange={setLev} />
-            <Slider label="信贷—产出弹性" value={el} min={0.05} max={0.8} step={0.05} onChange={setEl} />
-            <Slider label="抛售价格冲击" value={fire} min={0} max={0.6} step={0.05} onChange={setFire} />
+            <Slider label={t("labs.macroFrontier.misc.k241")} value={cap} min={0.03} max={0.2} step={0.005} onChange={setCap} fmt={(v)=>`${(v*100).toFixed(1)}%`} />
+            <Slider label={t("labs.macroFrontier.misc.k242")} value={loss} min={0} max={0.06} step={0.0025} onChange={setLoss} fmt={(v)=>`${(v*100).toFixed(2)}%`} />
+            <Slider label={t("labs.macroFrontier.misc.k243")} value={lev} min={5} max={35} step={1} onChange={setLev} />
+            <Slider label={t("labs.macroFrontier.misc.k244")} value={el} min={0.05} max={0.8} step={0.05} onChange={setEl} />
+            <Slider label={t("labs.macroFrontier.misc.k245")} value={fire} min={0} max={0.6} step={0.05} onChange={setFire} />
           </div>
           <div className="grid grid-cols-2 gap-2">
-            <Stat label="信贷收缩峰值" value={`${Math.min(...r.creditSupply).toFixed(1)}%`} color={C.red} />
-            <Stat label="产出缺口峰值" value={`${Math.min(...r.output).toFixed(2)}%`} color={C.gold} />
-            <Stat label="放大倍数" value={`${r.amplification.toFixed(1)}×`} color={C.teal} sub="|Δy| / 损失冲击" />
-            <Stat label="监管底线" value={r.breachesMinimum ? "触及最低资本" : "缓冲充足"} color={r.breachesMinimum ? C.red : C.green} />
+            <Stat label={t("labs.macroFrontier.misc.k246")} value={`${Math.min(...r.creditSupply).toFixed(1)}%`} color={C.red} />
+            <Stat label={t("labs.macroFrontier.misc.k247")} value={`${Math.min(...r.output).toFixed(2)}%`} color={C.gold} />
+            <Stat label={t("labs.macroFrontier.misc.k248")} value={`${r.amplification.toFixed(1)}×`} color={C.teal} sub="|Δy| / 损失冲击" />
+            <Stat label={t("labs.macroFrontier.misc.k249")} value={r.breachesMinimum ? "触及最低资本" : "缓冲充足"} color={r.breachesMinimum ? C.red : C.green} />
           </div>
         </div>
-        <Panel title="资本 → 信贷 → 产出与利差">
+        <Panel title={t("labs.macroFrontier.misc.k252")}>
           <div className="h-[300px]">
             <ResponsiveContainer>
               <ComposedChart data={chart}>
@@ -985,15 +981,15 @@ function BankPanel() {
                 <YAxis yAxisId="r" orientation="right" stroke={C.red} tick={{ fontSize: 10 }} label={{ value: "利差 bp", angle: 90, position: "insideRight", fill: C.red, fontSize: 10 }} />
                 <Tooltip contentStyle={tooltipStyle} />
                 <Legend wrapperStyle={{ fontSize: 10 }} />
-                <Line yAxisId="l" type="monotone" dataKey="cap" stroke={C.teal} dot={false} strokeWidth={2} name="资本率 %" />
-                <Line yAxisId="l" type="monotone" dataKey="credit" stroke={C.gold} dot={false} strokeWidth={2} name="信贷供给" />
-                <Line yAxisId="l" type="monotone" dataKey="y" stroke={C.blue} dot={false} strokeWidth={2} name="产出" />
-                <Bar yAxisId="r" dataKey="spread" fill={C.red} fillOpacity={0.25} name="信贷利差" />
+                <Line yAxisId="l" type="monotone" dataKey="cap" stroke={C.teal} dot={false} strokeWidth={2} name={t("labs.macroFrontier.misc.k253")} />
+                <Line yAxisId="l" type="monotone" dataKey="credit" stroke={C.gold} dot={false} strokeWidth={2} name={t("labs.macroFrontier.misc.k254")} />
+                <Line yAxisId="l" type="monotone" dataKey="y" stroke={C.blue} dot={false} strokeWidth={2} name={t("labs.macroFrontier.misc.k79")} />
+                <Bar yAxisId="r" dataKey="spread" fill={C.red} fillOpacity={0.25} name={t("labs.macroFrontier.misc.k255")} />
                 <ReferenceLine yAxisId="l" y={0} stroke={C.text} />
               </ComposedChart>
             </ResponsiveContainer>
           </div>
-          <Note>净值损失 × 目标杠杆 = 资产收缩规模；抛售价格冲击把个体审慎行为变成系统性紧缩 —— 宏观审慎政策的靶点。</Note>
+          <Note>{t("labs.macroFrontier.misc.k256")}</Note>
         </Panel>
       </div>
     </div>
@@ -1021,30 +1017,30 @@ function ClimatePanel() {
   return (
     <div className="space-y-5">
       <PresetButtons presets={[
-        { name: "有序转型", description: "早、缓、可预期", apply: () => { setPrice(180); setYears(30); setGreen(2.5); } },
-        { name: "无序转型", description: "晚、急、成本高", apply: () => { setPrice(300); setYears(10); setGreen(1); } },
-        { name: "温室世界", description: "无政策 → 高损害", apply: () => { setPrice(10); setGreen(0.2); setWarm(4); } },
+        { name: t("labs.macroFrontier.misc.k257"), description: t("labs.macroFrontier.misc.k258"), apply: () => { setPrice(180); setYears(30); setGreen(2.5); } },
+        { name: t("labs.macroFrontier.misc.k259"), description: t("labs.macroFrontier.misc.k260"), apply: () => { setPrice(300); setYears(10); setGreen(1); } },
+        { name: t("labs.macroFrontier.misc.k261"), description: t("labs.macroFrontier.misc.k262"), apply: () => { setPrice(10); setGreen(0.2); setWarm(4); } },
       ]} />
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="space-y-3">
-          <p className="text-xs font-mono text-gold uppercase tracking-wider">转型情景参数</p>
+          <p className="text-xs font-mono text-gold uppercase tracking-wider">{t("labs.macroFrontier.misc.k263")}</p>
           <div className="grid grid-cols-2 gap-3">
-            <Slider label="终期碳价 (USD/t)" value={price} min={0} max={400} step={10} onChange={setPrice} />
-            <Slider label="能源成本份额" value={share} min={0.02} max={0.15} step={0.005} onChange={setShare} fmt={(v)=>`${(v*100).toFixed(1)}%`} />
-            <Slider label="转型年限" value={years} min={5} max={40} step={1} onChange={setYears} />
-            <Slider label="绿色投资 (%GDP/年)" value={green} min={0} max={5} step={0.1} onChange={setGreen} />
-            <Slider label="减排弹性" value={ab} min={0.2} max={3} step={0.1} onChange={setAb} />
-            <Slider label="损害强度" value={dmg} min={0.2} max={4} step={0.1} onChange={setDmg} />
-            <Slider label="无政策升温 (°C)" value={warm} min={1.5} max={5} step={0.1} onChange={setWarm} />
+            <Slider label={t("labs.macroFrontier.misc.k264")} value={price} min={0} max={400} step={10} onChange={setPrice} />
+            <Slider label={t("labs.macroFrontier.misc.k265")} value={share} min={0.02} max={0.15} step={0.005} onChange={setShare} fmt={(v)=>`${(v*100).toFixed(1)}%`} />
+            <Slider label={t("labs.macroFrontier.misc.k266")} value={years} min={5} max={40} step={1} onChange={setYears} />
+            <Slider label={t("labs.macroFrontier.misc.k267")} value={green} min={0} max={5} step={0.1} onChange={setGreen} />
+            <Slider label={t("labs.macroFrontier.misc.k268")} value={ab} min={0.2} max={3} step={0.1} onChange={setAb} />
+            <Slider label={t("labs.macroFrontier.misc.k269")} value={dmg} min={0.2} max={4} step={0.1} onChange={setDmg} />
+            <Slider label={t("labs.macroFrontier.misc.k270")} value={warm} min={1.5} max={5} step={0.1} onChange={setWarm} />
           </div>
           <div className="grid grid-cols-2 gap-2">
-            <Stat label="终期升温" value={`${r.warming.toFixed(2)}°C`} color={r.warming < 2 ? C.green : r.warming < 3 ? C.gold : C.red} />
-            <Stat label="转型成本 NPV" value={`${r.npvTransitionCost.toFixed(1)}%`} color={C.teal} sub="3% 贴现" />
-            <Stat label="绿色通胀峰值" value={`${Math.max(...r.inflation).toFixed(2)} pp`} color={C.gold} />
-            <Stat label="政策优于不作为" value={r.crossover != null ? `第 ${r.crossover} 年起` : "本情景下未跨越"} color={r.crossover != null ? C.green : C.red} />
+            <Stat label={t("labs.macroFrontier.misc.k271")} value={`${r.warming.toFixed(2)}°C`} color={r.warming < 2 ? C.green : r.warming < 3 ? C.gold : C.red} />
+            <Stat label={t("labs.macroFrontier.misc.k272")} value={`${r.npvTransitionCost.toFixed(1)}%`} color={C.teal} sub={t("labs.macroFrontier.misc.k273")} />
+            <Stat label={t("labs.macroFrontier.misc.k274")} value={`${Math.max(...r.inflation).toFixed(2)} pp`} color={C.gold} />
+            <Stat label={t("labs.macroFrontier.misc.k275")} value={r.crossover != null ? `第 ${r.crossover} 年起` : "本情景下未跨越"} color={r.crossover != null ? C.green : C.red} />
           </div>
         </div>
-        <Panel title="排放路径与产出成本分解">
+        <Panel title={t("labs.macroFrontier.misc.k277")}>
           <div className="h-[300px]">
             <ResponsiveContainer>
               <ComposedChart data={chart}>
@@ -1054,17 +1050,16 @@ function ClimatePanel() {
                 <YAxis yAxisId="r" orientation="right" stroke={C.red} tick={{ fontSize: 10 }} label={{ value: "% 产出", angle: 90, position: "insideRight", fill: C.red, fontSize: 10 }} />
                 <Tooltip contentStyle={tooltipStyle} />
                 <Legend wrapperStyle={{ fontSize: 10 }} />
-                <Area yAxisId="l" type="monotone" dataKey="em" stroke={C.gold} fill={C.gold} fillOpacity={0.15} name="排放 (100=今天)" />
-                <Line yAxisId="r" type="monotone" dataKey="cost" stroke={C.teal} dot={false} strokeWidth={1.5} name="转型成本" />
-                <Line yAxisId="r" type="monotone" dataKey="dam" stroke={C.red} dot={false} strokeWidth={1.5} name="物理损害" />
-                <Line yAxisId="r" type="monotone" dataKey="net" stroke={C.blue} dot={false} strokeWidth={2} name="净产出影响" />
+                <Area yAxisId="l" type="monotone" dataKey="em" stroke={C.gold} fill={C.gold} fillOpacity={0.15} name={t("labs.macroFrontier.misc.k280")} />
+                <Line yAxisId="r" type="monotone" dataKey="cost" stroke={C.teal} dot={false} strokeWidth={1.5} name={t("labs.macroFrontier.misc.k281")} />
+                <Line yAxisId="r" type="monotone" dataKey="dam" stroke={C.red} dot={false} strokeWidth={1.5} name={t("labs.macroFrontier.misc.k282")} />
+                <Line yAxisId="r" type="monotone" dataKey="net" stroke={C.blue} dot={false} strokeWidth={2} name={t("labs.macroFrontier.misc.k283")} />
                 <ReferenceLine yAxisId="r" y={0} stroke={C.text} />
               </ComposedChart>
             </ResponsiveContainer>
           </div>
           <Note>
-            碳定价把外部性内部化，短期表现为供给侧成本与「绿色通胀」，长期换取更低的物理损害。
-            无序转型 (晚而急) 同时抬高转型成本与金融风险 —— 央行气候压力测试的核心情景对照。
+            {t("labs.macroFrontier.misc.k284")}
           </Note>
         </Panel>
       </div>
