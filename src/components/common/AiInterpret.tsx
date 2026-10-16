@@ -33,6 +33,21 @@ const AiInterpret = ({ tool, params, results, context, className }: Props) => {
       const { data, error } = await supabase.functions.invoke("ai-explain", {
         body: { mode: "interpret", tool, params, results, context },
       });
+      const status = (error as { context?: Response } | null)?.context?.status
+        ?? (data as any)?.status;
+      const code = (data as any)?.code;
+      if (status === 401 || code === "auth_required") {
+        const msg = "请先登录后使用 AI 解读 / Please sign in to use AI interpretation.";
+        setText(`🔒 ${msg}`);
+        toast({ title: "需要登录 / Sign in required", description: msg });
+        return;
+      }
+      if (status === 429) {
+        const msg = "请求过于频繁，请稍后再试 / Too many requests, please try again later.";
+        setText(`⏳ ${msg}`);
+        toast({ title: "请求过于频繁 / Rate limited", description: msg });
+        return;
+      }
       if (error) throw error;
       if ((data as any)?.error) throw new Error((data as any).error);
       setText((data as any)?.explanation || "(无返回)");

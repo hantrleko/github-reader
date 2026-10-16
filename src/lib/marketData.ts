@@ -13,6 +13,12 @@ async function callFn<T>(name: string, params: Record<string, string | number>):
     },
   });
   if (!resp.ok) {
+    if (resp.status === 429) {
+      const ra = resp.headers.get("Retry-After");
+      throw new Error(
+        `请求过于频繁，请${ra ? `${ra} 秒后` : "稍后"}再试 / Too many requests, please retry ${ra ? `in ${ra}s` : "later"}.`,
+      );
+    }
     const txt = await resp.text();
     throw new Error(`${name} ${resp.status}: ${txt.slice(0, 120)}`);
   }

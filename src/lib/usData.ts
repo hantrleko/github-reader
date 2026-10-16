@@ -24,6 +24,12 @@ async function callFn<T>(name: string, params: Record<string, string | number | 
     /* non-JSON upstream error */
   }
   if (!resp.ok) {
+    if (resp.status === 429) {
+      const ra = resp.headers.get("Retry-After");
+      throw new Error(
+        `请求过于频繁，请${ra ? `${ra} 秒后` : "稍后"}再试 / Too many requests, please retry ${ra ? `in ${ra}s` : "later"}.`,
+      );
+    }
     const msg = (body as { error?: string } | null)?.error || `${name} HTTP ${resp.status}`;
     throw new Error(msg);
   }
