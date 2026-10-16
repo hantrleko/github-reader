@@ -104,30 +104,23 @@ export default defineConfig(({ mode }) => ({
   build: {
     rollupOptions: {
       output: {
-        // Only the listed packages go into vendor chunks — their internal
-        // dependencies stay with their real importers. Without this, Rollup
-        // merges shared deps (d3, zustand, …) into the vendor chunk, which
-        // makes the entry statically import 1.4MB of three/recharts code.
-        onlyExplicitManualChunks: true,
-        manualChunks: {
-          "vendor-react": ["react", "react-dom", "react-router-dom"],
-          "vendor-recharts": ["recharts"],
-          "vendor-framer": ["framer-motion"],
-          "vendor-katex": ["katex", "react-katex"],
-          "vendor-html2img": ["html-to-image"],
-          /* three removed */
-          "vendor-jspdf": ["jspdf"],
-          "vendor-dnd": ["@dnd-kit/core", "@dnd-kit/sortable", "@dnd-kit/utilities"],
-          "vendor-query": ["@tanstack/react-query", "@tanstack/query-core"],
-          "vendor-i18n": ["i18next", "react-i18next", "i18next-browser-languagedetector"],
-          "vendor-radix": [
-            "@radix-ui/react-dialog",
-            "@radix-ui/react-dropdown-menu",
-            "@radix-ui/react-popover",
-            "@radix-ui/react-tooltip",
-            "@radix-ui/react-tabs",
-            "@radix-ui/react-select",
-          ],
+        // Function form (not object form): object-form manualChunks turn the
+        // vendor chunks into facade entries that index.html ends up
+        // modulepreloading — dragging 1.4MB of three/recharts/framer into
+        // first load even though only lazy routes use them.
+        manualChunks(id: string) {
+          if (!id.includes("node_modules")) return;
+          if (/node_modules[\\/](three|@react-three)[\\/]/.test(id)) return "vendor-three";
+          if (/node_modules[\\/]recharts[\\/]/.test(id)) return "vendor-recharts";
+          if (/node_modules[\\/]framer-motion[\\/]/.test(id)) return "vendor-framer";
+          if (/node_modules[\\/](katex|react-katex)[\\/]/.test(id)) return "vendor-katex";
+          if (/node_modules[\\/]html-to-image[\\/]/.test(id)) return "vendor-html2img";
+          if (/node_modules[\\/]jspdf[\\/]/.test(id)) return "vendor-jspdf";
+          if (/node_modules[\\/]@dnd-kit[\\/]/.test(id)) return "vendor-dnd";
+          if (/node_modules[\\/]@tanstack[\\/]/.test(id)) return "vendor-query";
+          if (/node_modules[\\/](i18next|react-i18next|i18next-browser-languagedetector)[\\/]/.test(id)) return "vendor-i18n";
+          if (/node_modules[\\/]@radix-ui[\\/]/.test(id)) return "vendor-radix";
+          if (/node_modules[\\/](react|react-dom|react-router-dom|scheduler)[\\/]/.test(id)) return "vendor-react";
         },
       },
     },
