@@ -188,6 +188,11 @@ export const QuantileRegTool = () => {
 
         <div className="space-y-2">
           <p className="text-xs font-mono text-gold uppercase tracking-wider mb-1">{t("labs.econ.quantilereg.coefTableTitle")}</p>
+          {bootRunning && (
+            <p className="text-[10px] font-mono text-muted-foreground mb-1">
+              {t("labs.econ.quantilereg.bootRunning", { pct: Math.round(bootProgress * 100) })}
+            </p>
+          )}
           <div className="rounded-lg border border-border overflow-hidden">
             <table className="w-full text-xs font-mono">
               <thead className="bg-secondary/60 text-muted-foreground">
