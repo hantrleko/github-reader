@@ -1,10 +1,7 @@
 // Economic calendar proxy. Attempts Trading Economics guest endpoint first,
 // falls back to a curated static schedule of high-impact US events so the
 // panel always renders something useful.
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
+import { corsHeadersFor, getClientIp, checkRateLimit, rateLimitResponse, getCached, setCached } from "../_shared/security.ts";
 
 type Event = {
   date: string;      // ISO
@@ -60,8 +57,7 @@ function curatedSchedule(daysAhead = 14): Event[] {
 let cache: { t: number; data: Event[] } | null = null;
 const TTL_MS = 60 * 60 * 1000; // 1h
 
-Deno.serve(async (req) => {
-  if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+async function handler(req: Request, corsHeaders: Record<string, string>): Promise<Response> {
   try {
     if (cache && Date.now() - cache.t < TTL_MS) {
       return new Response(JSON.stringify({ events: cache.data, cached: true }), {
@@ -118,4 +114,30 @@ Deno.serve(async (req) => {
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }
+}
+
+const CACHE_TTL_SEC = 21600;
+
+Deno.serve(async (req) => {
+  const corsHeaders = corsHeadersFor(req);
+  if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+
+  const ip = getClientIp(req);
+  const rl = await checkRateLimit(`rl:econ-calendar:${ip}`, 60, 60);
+  if (!rl.allowed) return rateLimitResponse(corsHeaders, rl.retryAfter);
+
+  const cacheKey = `cache:econ-calendar:${new URL(req.url).searchParams.toString()}`;
+  const cached = await getCached(cacheKey);
+  if (cached) {
+    return new Response(cached, {
+      headers: { ...corsHeaders, "Content-Type": "application/json", "X-Cache": "HIT" },
+    });
+  }
+
+  const resp = await handler(req, corsHeaders);
+  if (resp.ok) {
+    const body = await resp.clone().text();
+    setCached(cacheKey, body, CACHE_TTL_SEC).catch(() => {});
+  }
+  return resp;
 });

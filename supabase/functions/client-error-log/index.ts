@@ -3,11 +3,7 @@
 // inspect them via the standard log viewer / supabase--edge_function_logs.
 // verify_jwt = false (configured in supabase/config.toml) so anonymous
 // visitors can report errors before they sign in.
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-  "Access-Control-Allow-Methods": "POST, OPTIONS",
-};
+import { corsHeadersFor } from "../_shared/security.ts";
 
 const MAX_STR = 2000;
 const clip = (v: unknown) => {
@@ -16,6 +12,7 @@ const clip = (v: unknown) => {
 };
 
 Deno.serve(async (req) => {
+  const corsHeaders = { ...corsHeadersFor(req), "Access-Control-Allow-Methods": "POST, OPTIONS" };
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
   if (req.method !== "POST") {
     return new Response("Method not allowed", { status: 405, headers: corsHeaders });

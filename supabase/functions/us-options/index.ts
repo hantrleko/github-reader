@@ -1,6 +1,7 @@
+import { corsHeadersFor, getClientIp, checkRateLimit, rateLimitResponse, getCached, setCached } from "../_shared/security.ts";
 // V5.2 · US options chain (Yahoo, auto cookie+crumb) with locally computed
 // Black-Scholes Greeks and unusual-flow / 0DTE flags. Tier C — personal research.
-import { corsHeaders, json, fail, yahooGet } from "../_shared/us.ts";
+import { json, fail, yahooGet } from "../_shared/us.ts";
 
 /* ── Black-Scholes Greeks (pure) ── */
 const npdf = (x: number) => Math.exp(-0.5 * x * x) / Math.sqrt(2 * Math.PI);
@@ -25,8 +26,7 @@ function greeks(S: number, K: number, T: number, r: number, sigma: number, call:
   return { delta, gamma, vega, theta };
 }
 
-Deno.serve(async (req) => {
-  if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
+async function handler(req: Request, corsHeaders: Record<string, string>): Promise<Response> {
   try {
     const url = new URL(req.url);
     const symbol = (url.searchParams.get("symbol") || "AAPL").trim().toUpperCase();
@@ -76,7 +76,7 @@ Deno.serve(async (req) => {
     const putCallVol = sum(calls, "volume") ? sum(puts, "volume") / sum(calls, "volume") : null;
     const putCallOi = sum(calls, "openInterest") ? sum(puts, "openInterest") / sum(calls, "openInterest") : null;
 
-    return json({
+    return json(corsHeaders, {
       symbol,
       spot,
       expiry,
@@ -94,6 +94,32 @@ Deno.serve(async (req) => {
       source: "Yahoo options v7 (tier C, personal research) · Greeks computed locally (BS)",
     });
   } catch (e) {
-    return fail(e);
+    return fail(corsHeaders, e);
   }
+}
+
+const CACHE_TTL_SEC = 60;
+
+Deno.serve(async (req) => {
+  const corsHeaders = corsHeadersFor(req);
+  if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+
+  const ip = getClientIp(req);
+  const rl = await checkRateLimit(`rl:us-options:${ip}`, 60, 60);
+  if (!rl.allowed) return rateLimitResponse(corsHeaders, rl.retryAfter);
+
+  const cacheKey = `cache:us-options:${new URL(req.url).searchParams.toString()}`;
+  const cached = await getCached(cacheKey);
+  if (cached) {
+    return new Response(cached, {
+      headers: { ...corsHeaders, "Content-Type": "application/json", "X-Cache": "HIT" },
+    });
+  }
+
+  const resp = await handler(req, corsHeaders);
+  if (resp.ok) {
+    const body = await resp.clone().text();
+    setCached(cacheKey, body, CACHE_TTL_SEC).catch(() => {});
+  }
+  return resp;
 });

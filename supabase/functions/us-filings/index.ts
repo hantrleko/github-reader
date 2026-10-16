@@ -1,9 +1,9 @@
+import { corsHeadersFor, getClientIp, checkRateLimit, rateLimitResponse, getCached, setCached } from "../_shared/security.ts";
 // V5.2 · SEC EDGAR filing stream: per-issuer submissions + market-wide full-text search.
 // Tier S — commercial use and redistribution permitted, declared User-Agent required.
-import { corsHeaders, json, fail, fetchAny, SEC_UA, tickerToCik } from "../_shared/us.ts";
+import { json, fail, fetchAny, SEC_UA, tickerToCik } from "../_shared/us.ts";
 
-Deno.serve(async (req) => {
-  if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
+async function handler(req: Request, corsHeaders: Record<string, string>): Promise<Response> {
   try {
     const url = new URL(req.url);
     const mode = url.searchParams.get("mode") || "issuer";
@@ -41,7 +41,7 @@ Deno.serve(async (req) => {
           url: cik && acc ? `https://www.sec.gov/Archives/edgar/data/${cik}/${acc}/${doc || ""}` : null,
         };
       });
-      return json({ mode, q, n: rows.length, rows, source: "SEC EDGAR full-text search (tier S)" });
+      return json(corsHeaders, { mode, q, n: rows.length, rows, source: "SEC EDGAR full-text search (tier S)" });
     }
 
     const symbol = (url.searchParams.get("symbol") || "AAPL").trim().toUpperCase();
@@ -73,7 +73,7 @@ Deno.serve(async (req) => {
       if (rows.length >= 80) break;
     }
 
-    return json({
+    return json(corsHeaders, {
       mode: "issuer",
       symbol,
       cik: cikRow.cik,
@@ -85,6 +85,32 @@ Deno.serve(async (req) => {
       source: "SEC EDGAR submissions (tier S)",
     });
   } catch (e) {
-    return fail(e);
+    return fail(corsHeaders, e);
   }
+}
+
+const CACHE_TTL_SEC = 21600;
+
+Deno.serve(async (req) => {
+  const corsHeaders = corsHeadersFor(req);
+  if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+
+  const ip = getClientIp(req);
+  const rl = await checkRateLimit(`rl:us-filings:${ip}`, 60, 60);
+  if (!rl.allowed) return rateLimitResponse(corsHeaders, rl.retryAfter);
+
+  const cacheKey = `cache:us-filings:${new URL(req.url).searchParams.toString()}`;
+  const cached = await getCached(cacheKey);
+  if (cached) {
+    return new Response(cached, {
+      headers: { ...corsHeaders, "Content-Type": "application/json", "X-Cache": "HIT" },
+    });
+  }
+
+  const resp = await handler(req, corsHeaders);
+  if (resp.ok) {
+    const body = await resp.clone().text();
+    setCached(cacheKey, body, CACHE_TTL_SEC).catch(() => {});
+  }
+  return resp;
 });

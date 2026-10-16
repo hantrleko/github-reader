@@ -1,9 +1,9 @@
+import { corsHeadersFor, getClientIp, checkRateLimit, rateLimitResponse, getCached, setCached } from "../_shared/security.ts";
 // V5.2 · Free market-wide screener via SEC EDGAR XBRL "frames":
 // one GAAP tag, one period, every filer that reported it. Tier S.
-import { corsHeaders, json, fail, fetchAny, SEC_UA } from "../_shared/us.ts";
+import { json, fail, fetchAny, SEC_UA } from "../_shared/us.ts";
 
-Deno.serve(async (req) => {
-  if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
+async function handler(req: Request, corsHeaders: Record<string, string>): Promise<Response> {
   try {
     const url = new URL(req.url);
     const tag = (url.searchParams.get("tag") || "NetIncomeLoss").replace(/[^A-Za-z0-9]/g, "");
@@ -37,7 +37,7 @@ Deno.serve(async (req) => {
     const values = data.map((d) => d.val).filter((v) => isFinite(v));
     const total = values.reduce((a, b) => a + b, 0);
 
-    return json({
+    return json(corsHeaders, {
       tag, unit, period, order,
       universe: data.length,
       n: rows.length,
@@ -49,6 +49,32 @@ Deno.serve(async (req) => {
       source: "SEC EDGAR XBRL frames (tier S · free market-wide screener)",
     });
   } catch (e) {
-    return fail(e);
+    return fail(corsHeaders, e);
   }
+}
+
+const CACHE_TTL_SEC = 21600;
+
+Deno.serve(async (req) => {
+  const corsHeaders = corsHeadersFor(req);
+  if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+
+  const ip = getClientIp(req);
+  const rl = await checkRateLimit(`rl:us-screener:${ip}`, 60, 60);
+  if (!rl.allowed) return rateLimitResponse(corsHeaders, rl.retryAfter);
+
+  const cacheKey = `cache:us-screener:${new URL(req.url).searchParams.toString()}`;
+  const cached = await getCached(cacheKey);
+  if (cached) {
+    return new Response(cached, {
+      headers: { ...corsHeaders, "Content-Type": "application/json", "X-Cache": "HIT" },
+    });
+  }
+
+  const resp = await handler(req, corsHeaders);
+  if (resp.ok) {
+    const body = await resp.clone().text();
+    setCached(cacheKey, body, CACHE_TTL_SEC).catch(() => {});
+  }
+  return resp;
 });

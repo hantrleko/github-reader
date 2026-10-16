@@ -1,5 +1,6 @@
+import { corsHeadersFor, getClientIp, checkRateLimit, rateLimitResponse, getCached, setCached } from "../_shared/security.ts";
 // V5.2 · US fundamentals: SEC XBRL companyconcept (tier S) + Yahoo quoteSummary (tier C).
-import { corsHeaders, json, fail, fetchAny, yahooGet, SEC_UA, tickerToCik } from "../_shared/us.ts";
+import { json, fail, fetchAny, yahooGet, SEC_UA, tickerToCik } from "../_shared/us.ts";
 
 /** GAAP tags we surface as the "three statements" digest. */
 const TAGS: { tag: string; unit: string; label: string; statement: string }[] = [
@@ -89,8 +90,7 @@ async function yahooSummary(symbol: string) {
   }
 }
 
-Deno.serve(async (req) => {
-  if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
+async function handler(req: Request, corsHeaders: Record<string, string>): Promise<Response> {
   try {
     const url = new URL(req.url);
     const symbol = (url.searchParams.get("symbol") || "AAPL").trim().toUpperCase();
@@ -114,7 +114,7 @@ Deno.serve(async (req) => {
       }
     }
 
-    return json({
+    return json(corsHeaders, {
       symbol,
       cik: cikRow?.cik ?? null,
       company: cikRow?.title ?? symbol,
@@ -123,6 +123,32 @@ Deno.serve(async (req) => {
       source: "SEC XBRL companyconcept (tier S) + Yahoo quoteSummary (tier C)",
     });
   } catch (e) {
-    return fail(e);
+    return fail(corsHeaders, e);
   }
+}
+
+const CACHE_TTL_SEC = 21600;
+
+Deno.serve(async (req) => {
+  const corsHeaders = corsHeadersFor(req);
+  if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+
+  const ip = getClientIp(req);
+  const rl = await checkRateLimit(`rl:us-fundamentals:${ip}`, 60, 60);
+  if (!rl.allowed) return rateLimitResponse(corsHeaders, rl.retryAfter);
+
+  const cacheKey = `cache:us-fundamentals:${new URL(req.url).searchParams.toString()}`;
+  const cached = await getCached(cacheKey);
+  if (cached) {
+    return new Response(cached, {
+      headers: { ...corsHeaders, "Content-Type": "application/json", "X-Cache": "HIT" },
+    });
+  }
+
+  const resp = await handler(req, corsHeaders);
+  if (resp.ok) {
+    const body = await resp.clone().text();
+    setCached(cacheKey, body, CACHE_TTL_SEC).catch(() => {});
+  }
+  return resp;
 });

@@ -1,26 +1,21 @@
 // Shared helpers for the V5.2 US full-stack data layer.
 // Zero-auth public sources: Yahoo (chart / quoteSummary / options), SEC EDGAR.
 
-export const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
-
-/** SEC requires a declared User-Agent. Keep requests well under 10 req/s. */
-export const SEC_UA = "EF Lab research tool (contact: research@eugenefinance.tech)";
-
-export function json(body: unknown, status = 200) {
+export function json(cors: Record<string, string>, body: unknown, status = 200) {
   return new Response(JSON.stringify(body), {
     status,
-    headers: { ...corsHeaders, "Content-Type": "application/json" },
+    headers: { ...cors, "Content-Type": "application/json" },
   });
 }
 
-export function fail(e: unknown, status = 500) {
+export function fail(cors: Record<string, string>, e: unknown, status = 500) {
   const msg = e instanceof Error ? e.message : String(e);
   console.error("us-data error:", msg);
-  return json({ error: msg }, status);
+  return json(cors, { error: msg }, status);
 }
+
+/** SEC requires a declared User-Agent. Keep requests well under 10 req/s. */
+export const SEC_UA = "EF Lab research tool (contact: research@eugenefinance.tech)";
 
 /**
  * Fetch with host fallback + retry. Overseas endpoints (Yahoo/SEC) sometimes
