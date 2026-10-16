@@ -13,7 +13,7 @@ import { PAPERS } from "@/data/papers";
 import { STRATEGIES } from "@/data/strategies";
 import { WORKFLOWS } from "@/data/workflows";
 import { sectionHref } from "@/lib/sections";
-import { KIND_LABELS, type SearchDoc } from "@/lib/searchIndexTypes";
+import { KIND_LABELS, type SearchDoc, type SearchKind } from "@/lib/searchIndexTypes";
 
 export type { SearchKind, SearchDoc } from "@/lib/searchIndexTypes";
 export { KIND_LABELS } from "@/lib/searchIndexTypes";
