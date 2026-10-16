@@ -396,3 +396,43 @@ export function bootstrapQuantileReg(
     return { tau, coef: base[ti], ciLo, ciHi, se };
   });
 }
+
+/**
+ * Async, batched variant of `bootstrapQuantileReg`: yields to the event loop
+ * every `batchSize` replications so the UI stays responsive without a Web
+ * Worker. Identical numerics to the sync version (same seeded RNG stream).
+ */
+export async function bootstrapQuantileRegAsync(
+  X: number[][], y: number[], taus: number[], B = 200, alpha = 0.05, seed = 42,
+  onProgress?: (done: number, total: number) => void, batchSize = 10,
+): Promise<QRBootPoint[]> {
+  const n = y.length;
+  const p = X[0].length + 1;
+  const rng = mulberry32(seed);
+  const base = taus.map((tau) => quantileRegMulti(X, y, tau));
+  const draws: number[][][] = taus.map(() => []);
+  for (let b = 0; b < B; b++) {
+    const Xb: number[][] = [], yb: number[] = [];
+    for (let i = 0; i < n; i++) {
+      const idx = Math.min(n - 1, Math.floor(rng() * n));
+      Xb.push(X[idx]); yb.push(y[idx]);
+    }
+    taus.forEach((tau, ti) => { draws[ti].push(quantileRegMulti(Xb, yb, tau)); });
+    if ((b + 1) % batchSize === 0 || b === B - 1) {
+      onProgress?.(b + 1, B);
+      await new Promise((r) => setTimeout(r, 0));
+    }
+  }
+  const loQ = Math.floor((alpha / 2) * B);
+  const hiQ = Math.min(B - 1, Math.ceil((1 - alpha / 2) * B) - 1);
+  return taus.map((tau, ti) => {
+    const ciLo = Array(p).fill(0), ciHi = Array(p).fill(0), se = Array(p).fill(0);
+    for (let j = 0; j < p; j++) {
+      const col = draws[ti].map((d) => d[j]).sort((a, c) => a - c);
+      ciLo[j] = col[loQ]; ciHi[j] = col[hiQ];
+      const m = col.reduce((s, v) => s + v, 0) / col.length;
+      se[j] = Math.sqrt(col.reduce((s, v) => s + (v - m) ** 2, 0) / Math.max(col.length - 1, 1));
+    }
+    return { tau, coef: base[ti], ciLo, ciHi, se };
+  });
+}
