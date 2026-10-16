@@ -73,7 +73,7 @@ export default function BacktestLab() {
     if (!series || series.prices.length < 30) return null;
     return runBacktest(series.prices, series.dates, strategy, params);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [series, strategy, fast, slow, lookback, window, entryZ, targetVol, volWindow, allowShort, costBps, slippageBps]);
+  }, [series, strategy, fast, slow, lookback, window, entryZ, targetVol, volWindow, allowShort, costBps, slippageBps, riskFreeRate, financingRate]);
 
   // multi-strategy comparison on the same data / costs
   const compareRows = useMemo(() => {
@@ -83,7 +83,7 @@ export default function BacktestLab() {
       return { id: s.id, label: s.label, m: r.metrics };
     }).sort((a, b) => b.m.sharpe - a.m.sharpe);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [series, fast, slow, lookback, window, entryZ, targetVol, volWindow, allowShort, costBps, slippageBps]);
+  }, [series, fast, slow, lookback, window, entryZ, targetVol, volWindow, allowShort, costBps, slippageBps, riskFreeRate, financingRate]);
 
   const chartData = useMemo(() => {
     if (!result) return [];
@@ -144,7 +144,7 @@ export default function BacktestLab() {
     if (view !== "scan" || !series || !scanConfig || series.prices.length < 30) return null;
     return gridScan(series.prices, series.dates, strategy, { ...scanConfig, metric: scanMetric, base: params });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [view, series, strategy, scanConfig, scanMetric, allowShort, costBps, slippageBps]);
+  }, [view, series, strategy, scanConfig, scanMetric, allowShort, costBps, slippageBps, riskFreeRate, financingRate]);
 
   const applyScanCell = (row: number, col: number) => {
     if (!scan) return;
