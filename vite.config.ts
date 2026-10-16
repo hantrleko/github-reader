@@ -104,6 +104,11 @@ export default defineConfig(({ mode }) => ({
   build: {
     rollupOptions: {
       output: {
+        // Only the listed packages go into vendor chunks — their internal
+        // dependencies stay with their real importers. Without this, Rollup
+        // merges shared deps (d3, zustand, …) into the vendor chunk, which
+        // makes the entry statically import 1.4MB of three/recharts code.
+        onlyExplicitManualChunks: true,
         manualChunks: {
           "vendor-react": ["react", "react-dom", "react-router-dom"],
           "vendor-recharts": ["recharts"],
