@@ -69,6 +69,8 @@ export interface URTest {
   /** Conclusion under the 5% decision. */
   verdict: string;
   extra?: string;
+  /** MacKinnon/Kwiatkowski approximate p-value, where available. */
+  pValue?: number;
 }
 
 function lagMatrix(dy: number[], y1: number[], p: number, trend: boolean) {
@@ -195,15 +197,17 @@ export function adfTest(y: number[], p = 2, trend = false): URTest & { gamma: nu
   const { X, Y, gammaIdx } = lagMatrix(dy.slice(1), y.slice(0, -1), p, trend);
   const fit = lstsq(X, Y);
   const stat = fit.beta[gammaIdx] / (fit.se[gammaIdx] || 1e-9);
-  const cv = trend ? ADF_CV.ct : ADF_CV.c;
+  // MacKinnon (1996) finite-sample critical values + approximate p-value
+  const cv = adfCriticalValues(fit.n, trend);
+  const pValue = mackinnonP(stat, trend);
   const reject5 = stat < cv.c5;
   return {
     name: "ADF",
-    stat, cv, gamma: fit.beta[gammaIdx],
+    stat, cv, gamma: fit.beta[gammaIdx], pValue,
     h0: "存在单位根 (γ = 0)",
     reject5,
     verdict: reject5 ? "拒绝单位根 → 平稳" : "未能拒绝单位根",
-    extra: `p = ${p} 阶差分滞后${trend ? " · 含趋势项" : " · 仅含常数"}`,
+    extra: `p = ${p} 阶差分滞后${trend ? " · 含趋势项" : " · 仅含常数"} · MacKinnon 有限样本临界值 (T=${fit.n})`,
   };
 }
 
