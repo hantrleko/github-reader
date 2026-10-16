@@ -168,6 +168,7 @@ export const QuantileRegTool = () => {
             <Slider label={t("labs.econ.quantilereg.trueB0Label")} value={trueB0} min={-2} max={3} step={0.1} onChange={setTrueB0} />
             <Slider label={t("labs.econ.quantilereg.trueB1Label")} value={trueB1} min={-1} max={4} step={0.1} onChange={setTrueB1} />
             <Slider label={t("labs.econ.quantilereg.seedLabel")} value={seed} min={1} max={999} step={1} onChange={setSeed} />
+            <Slider label={t("labs.econ.quantilereg.bootBLabel")} sub={t("labs.econ.quantilereg.bootBSub")} value={bootB} min={50} max={500} step={50} onChange={setBootB} />
           </div>
           <div className="flex flex-wrap gap-2">
             <span className="text-[10px] font-mono text-muted-foreground self-center uppercase tracking-wider">{t("labs.econ.quantilereg.dgpLabel")}</span>
