@@ -101,8 +101,8 @@ export const UnitRootSuiteTool = () => {
           ]} />
           {source === "fred" && (
             <div className="space-y-2">
-              <Choice value={fredId} onChange={setFredId} options={FRED_PRESETS.map((p) => ({ id: p.id as string, label: p.label }))} />
-              <Choice value={logTransform ? "log" : "level"} onChange={(v) => setLogTransform(v === "log")} options={[
+              <Choice<string> value={fredId} onChange={setFredId} options={FRED_PRESETS.map((p) => ({ id: p.id as string, label: p.label }))} />
+              <Choice<"log" | "level"> value={logTransform ? "log" : "level"} onChange={(v) => setLogTransform(v === "log")} options={[
                 { id: "log" as const, label: "取对数" }, { id: "level" as const, label: "原始水平" },
               ]} />
               <p className="text-[11px] font-mono text-muted-foreground">
@@ -128,7 +128,7 @@ export const UnitRootSuiteTool = () => {
           <div className="grid grid-cols-2 gap-3">
             <Slider label="ADF 差分滞后 p" sub={lagCrit === "manual" ? undefined : "由信息准则选定"} value={lags} min={0} max={8} step={1} fmt={(v) => v.toFixed(0)} onChange={setLags} />
           </div>
-          <Choice value={lagCrit} onChange={setLagCrit} options={[
+          <Choice<"manual" | "aic" | "bic"> value={lagCrit} onChange={setLagCrit} options={[
             { id: "manual" as const, label: "手动滞后" }, { id: "aic" as const, label: "AIC 自动" }, { id: "bic" as const, label: "BIC 自动" },
           ]} />
           <Choice value={trend ? "ct" : "c"} onChange={(v) => setTrend(v === "ct")} options={[
@@ -185,7 +185,7 @@ export const UnitRootSuiteTool = () => {
         </p>
         {res.lagTable && (
           <div className="mt-3">
-            <p className="text-[11px] font-mono text-muted-foreground mb-1">滞后阶数选择（越小越好；当前按 {lagCrit === "aic" ? "AIC" : "BIC"} 选定 p = {res.tests[0].extra.match(/p = (\d+)/)?.[1]}）：</p>
+            <p className="text-[11px] font-mono text-muted-foreground mb-1">滞后阶数选择（越小越好；当前按 {lagCrit === "aic" ? "AIC" : "BIC"} 选定 p = {res.tests[0].extra?.match(/p = (\d+)/)?.[1]}）：</p>
             <div className="flex flex-wrap gap-1.5">
               {res.lagTable.map((r) => (
                 <span key={r.p} className="px-2 py-1 rounded border border-border text-[10px] font-mono text-muted-foreground">
