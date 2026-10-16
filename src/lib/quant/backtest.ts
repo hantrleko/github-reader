@@ -32,6 +32,10 @@ export interface BacktestParams {
   costBps?: number;
   /** one-way slippage in basis points (added to the cost) */
   slippageBps?: number;
+  /** annualised risk-free rate (decimal, e.g. 0.03); used in Sharpe/Sortino and as the MAR */
+  riskFreeRate?: number;
+  /** annualised financing rate (decimal) charged daily on the borrowed part max(L−1, 0) of long leverage */
+  financingRate?: number;
 }
 
 export interface BacktestMetrics {
@@ -212,6 +216,8 @@ export function runBacktest(
   const pos = strategyPositions(prices, strategy, params);
   const rets = simpleReturns(prices); // length n-1; rets[t-1] is return from t-1→t
   const rate = ((params.costBps ?? 0) + (params.slippageBps ?? 0)) / 1e4;
+  const rfDaily = (params.riskFreeRate ?? 0) / TRADING_DAYS;
+  const finDaily = (params.financingRate ?? 0) / TRADING_DAYS;
 
   const equity: number[] = [1];
   const equityGross: number[] = [1];
@@ -225,8 +231,10 @@ export function runBacktest(
     const r = rets[t - 1];
     const dPos = Math.abs((pos[t - 1] ?? 0) - (pos[t - 2] ?? 0));
     const tcost = dPos * rate;
+    // financing cost on the borrowed part of long leverage: max(L−1, 0) · r_fin / 252
+    const finCost = Math.max(used - 1, 0) * finDaily;
     const srGross = used * r;
-    const sr = srGross - tcost;
+    const sr = srGross - tcost - finCost;
     stratRets.push(sr);
     equity.push(equity[equity.length - 1] * (1 + sr));
     equityGross.push(equityGross[equityGross.length - 1] * (1 + srGross));
