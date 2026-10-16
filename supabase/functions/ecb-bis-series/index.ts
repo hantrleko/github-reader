@@ -91,7 +91,7 @@ async function handler(req: Request, corsHeaders: Record<string, string>): Promi
   } catch (e) {
     return json({ error: e instanceof Error ? e.message : "unknown" }, 500);
   }
-});
+}
 
 const CACHE_TTL_SEC = 21600;
 

@@ -114,7 +114,7 @@ async function handler(req: Request, corsHeaders: Record<string, string>): Promi
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }
-});
+}
 
 const CACHE_TTL_SEC = 21600;
 

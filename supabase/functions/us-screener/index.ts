@@ -51,7 +51,7 @@ async function handler(req: Request, corsHeaders: Record<string, string>): Promi
   } catch (e) {
     return fail(corsHeaders, e);
   }
-});
+}
 
 const CACHE_TTL_SEC = 21600;
 
