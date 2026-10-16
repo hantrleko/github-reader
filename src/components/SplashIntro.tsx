@@ -96,7 +96,7 @@ const SplashIntro = () => {
               muted
               playsInline
               loop
-              preload="auto"
+              preload="none"
               className="w-full h-full object-cover opacity-60"
             />
             {/* Vignette + gradient overlays for legibility */}

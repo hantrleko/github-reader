@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { sectionHref } from "@/lib/sections";
-import { searchDocs, buildSearchIndex, KIND_LABELS, type SearchDoc, type SearchKind } from "@/lib/searchIndex";
+import { KIND_LABELS, type SearchDoc, type SearchKind } from "@/lib/searchIndexTypes";
 import {
   CommandDialog,
   CommandEmpty,
@@ -77,13 +77,26 @@ const CommandPalette = () => {
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
-  // Warm the index once the palette is first opened (all-static, cheap).
+  // Lazy-load the search index (and its ~300KB of catalog data) only when the
+  // palette is first opened — keeps it out of the first-load bundle.
+  const [searchMod, setSearchMod] = useState<typeof import("@/lib/searchIndex") | null>(null);
   useEffect(() => {
-    if (open) buildSearchIndex();
+    if (open && !searchMod) {
+      let cancelled = false;
+      import("@/lib/searchIndex").then((m) => {
+        if (cancelled) return;
+        m.buildSearchIndex();
+        setSearchMod(m);
+      });
+      return () => { cancelled = true; };
+    }
     if (!open) setQuery("");
-  }, [open]);
+  }, [open, searchMod]);
 
-  const results = useMemo(() => (query.trim() ? searchDocs(query, 36) : []), [query]);
+  const results = useMemo(
+    () => (query.trim() && searchMod ? searchMod.searchDocs(query, 36) : []),
+    [query, searchMod],
+  );
 
   const resultGroups = useMemo(() => {
     const map = new Map<string, SearchDoc[]>();

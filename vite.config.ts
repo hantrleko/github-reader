@@ -104,25 +104,22 @@ export default defineConfig(({ mode }) => ({
   build: {
     rollupOptions: {
       output: {
-        manualChunks: {
-          "vendor-react": ["react", "react-dom", "react-router-dom"],
-          "vendor-recharts": ["recharts"],
-          "vendor-framer": ["framer-motion"],
-          "vendor-katex": ["katex", "react-katex"],
-          "vendor-html2img": ["html-to-image"],
-          "vendor-three": ["three", "@react-three/fiber", "@react-three/drei"],
-          "vendor-jspdf": ["jspdf"],
-          "vendor-dnd": ["@dnd-kit/core", "@dnd-kit/sortable", "@dnd-kit/utilities"],
-          "vendor-query": ["@tanstack/react-query", "@tanstack/query-core"],
-          "vendor-i18n": ["i18next", "react-i18next", "i18next-browser-languagedetector"],
-          "vendor-radix": [
-            "@radix-ui/react-dialog",
-            "@radix-ui/react-dropdown-menu",
-            "@radix-ui/react-popover",
-            "@radix-ui/react-tooltip",
-            "@radix-ui/react-tabs",
-            "@radix-ui/react-select",
-          ],
+        // Function form (not object form): object-form manualChunks turn the
+        // vendor chunks into facade entries that index.html ends up
+        // modulepreloading — dragging 1.4MB of three/recharts/framer into
+        // first load even though only lazy routes use them.
+        manualChunks(id: string) {
+          if (!id.includes("node_modules")) return;
+          // Only packages the entry itself uses get explicit vendor chunks.
+          // Heavy lazy-only libs (three, recharts, jspdf, katex, dnd…)
+          // are left to Rollup's automatic splitting: forcing them into
+          // named chunks pulls their shared CJS helpers into the entry's
+          // static graph and index.html ends up preloading them.
+          if (/node_modules[\\/]framer-motion[\\/]/.test(id)) return "vendor-framer";
+          if (/node_modules[\\/]@tanstack[\\/]/.test(id)) return "vendor-query";
+          if (/node_modules[\\/](i18next|react-i18next|i18next-browser-languagedetector)[\\/]/.test(id)) return "vendor-i18n";
+          if (/node_modules[\\/]@radix-ui[\\/]/.test(id)) return "vendor-radix";
+          if (/node_modules[\\/](react|react-dom|react-router-dom|scheduler)[\\/]/.test(id)) return "vendor-react";
         },
       },
     },
