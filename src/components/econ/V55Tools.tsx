@@ -10,6 +10,7 @@ import {
   armaIdentLab, differencingLab, setarLab, baiPerron,
   densityEvalLab, mcsLab, svVsGarch,
 } from "@/lib/quant/tsFrontier";
+import { useFredSeries } from "@/lib/marketData";
 
 const Note = ({ children }: { children: React.ReactNode }) => (
   <div className="text-xs font-mono text-muted-foreground p-3 rounded-lg bg-secondary/40 border border-border leading-relaxed space-y-1">
@@ -46,17 +47,38 @@ const Choice = <T extends string>({ value, options, onChange }: {
 
 /* ═══════════ 1. 单位根检验全家桶 ═══════════ */
 
+const FRED_PRESETS = [
+  { id: "GDPC1", label: "GDPC1 · 美国实际GDP" },
+  { id: "CPIAUCSL", label: "CPIAUCSL · 美国CPI" },
+  { id: "DGS10", label: "DGS10 · 10年期国债利率" },
+] as const;
+
 export const UnitRootSuiteTool = () => {
   const [kind, setKind] = useState<SeriesKind>("rw");
   const [n, setN] = useState(240);
   const [rho, setRho] = useState(0.7);
   const [lags, setLags] = useState(2);
+  const [lagCrit, setLagCrit] = useState<"manual" | "aic" | "bic">("manual");
   const [trend, setTrend] = useState(false);
   const [seed, setSeed] = useState(3);
+  const [source, setSource] = useState<"sim" | "fred">("sim");
+  const [fredId, setFredId] = useState<string>("GDPC1");
+  const [logTransform, setLogTransform] = useState(true);
+
+  const fred = useFredSeries(fredId, "1990-01-01", source === "fred");
+  const fredSeries = useMemo(() => {
+    if (source !== "fred" || !fred.data?.closes?.length) return undefined;
+    const raw = fred.data.closes.filter((v) => Number.isFinite(v) && v > 0);
+    return logTransform ? raw.map((v) => Math.log(v)) : raw;
+  }, [source, fred.data, logTransform]);
 
   const res = useMemo(
-    () => unitRootSuite({ kind, n, rho, lags, trend, seed }),
-    [kind, n, rho, lags, trend, seed]
+    () => unitRootSuite(
+      source === "fred" && fredSeries && fredSeries.length > 30
+        ? { series: fredSeries, lags, trend, lagCrit }
+        : { kind, n, rho, lags, trend, seed, lagCrit }
+    ),
+    [kind, n, rho, lags, trend, seed, lagCrit, source, fredSeries]
   );
   const path = res.series.map((y, t) => ({ t, y: +y.toFixed(3) }));
   const zaPath = res.za.path.map((p) => ({ t: p.t, tstat: +p.tstat.toFixed(3) }));
