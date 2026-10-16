@@ -253,7 +253,7 @@ export function ppTest(y: number[], trend = false): URTest {
   const reject5 = stat < cv.c5;
   return {
     name: "Phillips-Perron Z_t",
-    stat, cv,
+    stat, cv, pValue: mackinnonP(stat, trend),
     h0: "存在单位根",
     reject5,
     verdict: reject5 ? "拒绝单位根 → 平稳" : "未能拒绝单位根",
@@ -289,7 +289,7 @@ export function dfGlsTest(y: number[], p = 2, trend = false): URTest {
   const reject5 = stat < cv.c5;
   return {
     name: "DF-GLS (ERS)",
-    stat, cv,
+    stat, cv, pValue: mackinnonP(stat, trend),
     h0: "存在单位根",
     reject5,
     verdict: reject5 ? "拒绝单位根 → 平稳" : "未能拒绝单位根",
