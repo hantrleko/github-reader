@@ -10,6 +10,7 @@ import {
   armaIdentLab, differencingLab, setarLab, baiPerron,
   densityEvalLab, mcsLab, svVsGarch,
 } from "@/lib/quant/tsFrontier";
+import { useFredSeries } from "@/lib/marketData";
 
 const Note = ({ children }: { children: React.ReactNode }) => (
   <div className="text-xs font-mono text-muted-foreground p-3 rounded-lg bg-secondary/40 border border-border leading-relaxed space-y-1">
@@ -46,17 +47,38 @@ const Choice = <T extends string>({ value, options, onChange }: {
 
 /* ═══════════ 1. 单位根检验全家桶 ═══════════ */
 
+const FRED_PRESETS = [
+  { id: "GDPC1", label: "GDPC1 · 美国实际GDP" },
+  { id: "CPIAUCSL", label: "CPIAUCSL · 美国CPI" },
+  { id: "DGS10", label: "DGS10 · 10年期国债利率" },
+] as const;
+
 export const UnitRootSuiteTool = () => {
   const [kind, setKind] = useState<SeriesKind>("rw");
   const [n, setN] = useState(240);
   const [rho, setRho] = useState(0.7);
   const [lags, setLags] = useState(2);
+  const [lagCrit, setLagCrit] = useState<"manual" | "aic" | "bic">("manual");
   const [trend, setTrend] = useState(false);
   const [seed, setSeed] = useState(3);
+  const [source, setSource] = useState<"sim" | "fred">("sim");
+  const [fredId, setFredId] = useState<string>("GDPC1");
+  const [logTransform, setLogTransform] = useState(true);
+
+  const fred = useFredSeries(fredId, "1990-01-01", source === "fred");
+  const fredSeries = useMemo(() => {
+    if (source !== "fred" || !fred.data?.values?.length) return undefined;
+    const raw = fred.data.values.filter((v) => Number.isFinite(v) && v > 0);
+    return logTransform ? raw.map((v) => Math.log(v)) : raw;
+  }, [source, fred.data, logTransform]);
 
   const res = useMemo(
-    () => unitRootSuite({ kind, n, rho, lags, trend, seed }),
-    [kind, n, rho, lags, trend, seed]
+    () => unitRootSuite(
+      source === "fred" && fredSeries && fredSeries.length > 30
+        ? { series: fredSeries, lags, trend, lagCrit }
+        : { kind, n, rho, lags, trend, seed, lagCrit }
+    ),
+    [kind, n, rho, lags, trend, seed, lagCrit, source, fredSeries]
   );
   const path = res.series.map((y, t) => ({ t, y: +y.toFixed(3) }));
   const zaPath = res.za.path.map((p) => ({ t: p.t, tstat: +p.tstat.toFixed(3) }));
@@ -73,18 +95,42 @@ export const UnitRootSuiteTool = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="space-y-3">
-          <p className="text-xs font-mono text-gold uppercase tracking-wider">数据生成过程</p>
-          <Choice<SeriesKind> value={kind} onChange={setKind} options={[
-            { id: "rw", label: "随机游走" }, { id: "rwdrift", label: "带漂移" },
-            { id: "trend", label: "趋势平稳" }, { id: "ar", label: "AR(1)" },
-            { id: "break", label: "断点" }, { id: "seasonal", label: "季节单位根" },
+          <p className="text-xs font-mono text-gold uppercase tracking-wider">数据来源</p>
+          <Choice<"sim" | "fred"> value={source} onChange={setSource} options={[
+            { id: "sim" as const, label: "模拟数据" }, { id: "fred" as const, label: "FRED 真实序列" },
           ]} />
+          {source === "fred" && (
+            <div className="space-y-2">
+              <Choice<string> value={fredId} onChange={setFredId} options={FRED_PRESETS.map((p) => ({ id: p.id as string, label: p.label }))} />
+              <Choice<"log" | "level"> value={logTransform ? "log" : "level"} onChange={(v) => setLogTransform(v === "log")} options={[
+                { id: "log" as const, label: "取对数" }, { id: "level" as const, label: "原始水平" },
+              ]} />
+              <p className="text-[11px] font-mono text-muted-foreground">
+                {fred.isLoading ? "正在从 FRED 载入…" : fred.isError ? "载入失败（检查网络或稍后重试），当前回退到模拟数据" : fredSeries ? `已载入 ${fredSeries.length} 个观测（1990 至今）` : ""}
+              </p>
+            </div>
+          )}
+          {source === "sim" && (
+            <>
+              <p className="text-xs font-mono text-gold uppercase tracking-wider">数据生成过程</p>
+              <Choice<SeriesKind> value={kind} onChange={setKind} options={[
+                { id: "rw", label: "随机游走" }, { id: "rwdrift", label: "带漂移" },
+                { id: "trend", label: "趋势平稳" }, { id: "ar", label: "AR(1)" },
+                { id: "break", label: "断点" }, { id: "seasonal", label: "季节单位根" },
+              ]} />
+              <div className="grid grid-cols-2 gap-3">
+                <Slider label="样本量 T" value={n} min={80} max={600} step={20} fmt={(v) => v.toFixed(0)} onChange={setN} />
+                <Slider label="AR 系数 ρ" sub="仅 AR / 断点" value={rho} min={0.1} max={0.99} step={0.01} onChange={setRho} />
+                <Slider label="随机种子" value={seed} min={1} max={99} step={1} fmt={(v) => v.toFixed(0)} onChange={setSeed} />
+              </div>
+            </>
+          )}
           <div className="grid grid-cols-2 gap-3">
-            <Slider label="样本量 T" value={n} min={80} max={600} step={20} fmt={(v) => v.toFixed(0)} onChange={setN} />
-            <Slider label="AR 系数 ρ" sub="仅 AR / 断点" value={rho} min={0.1} max={0.99} step={0.01} onChange={setRho} />
-            <Slider label="ADF 差分滞后 p" value={lags} min={0} max={8} step={1} fmt={(v) => v.toFixed(0)} onChange={setLags} />
-            <Slider label="随机种子" value={seed} min={1} max={99} step={1} fmt={(v) => v.toFixed(0)} onChange={setSeed} />
+            <Slider label="ADF 差分滞后 p" sub={lagCrit === "manual" ? undefined : "由信息准则选定"} value={lags} min={0} max={8} step={1} fmt={(v) => v.toFixed(0)} onChange={setLags} />
           </div>
+          <Choice<"manual" | "aic" | "bic"> value={lagCrit} onChange={setLagCrit} options={[
+            { id: "manual" as const, label: "手动滞后" }, { id: "aic" as const, label: "AIC 自动" }, { id: "bic" as const, label: "BIC 自动" },
+          ]} />
           <Choice value={trend ? "ct" : "c"} onChange={(v) => setTrend(v === "ct")} options={[
             { id: "c", label: "确定项：常数" }, { id: "ct", label: "常数 + 趋势" },
           ]} />
@@ -110,6 +156,7 @@ export const UnitRootSuiteTool = () => {
               <tr className="border-b border-border">
                 <th className="text-left py-2">检验</th>
                 <th className="text-right">统计量</th>
+                <th className="text-right">p 值</th>
                 <th className="text-right">1%</th>
                 <th className="text-right">5%</th>
                 <th className="text-right">10%</th>
@@ -122,6 +169,7 @@ export const UnitRootSuiteTool = () => {
                 <tr key={t.name} className="border-b border-border/40">
                   <td className="py-1.5 text-foreground">{t.name}</td>
                   <td className="text-right text-gold">{t.stat.toFixed(3)}</td>
+                  <td className="text-right text-muted-foreground">{t.pValue != null ? (t.pValue <= 0.001 ? "<0.01" : t.pValue.toFixed(3)) : "—"}</td>
                   <td className="text-right">{t.cv.c1.toFixed(2)}</td>
                   <td className="text-right">{t.cv.c5.toFixed(2)}</td>
                   <td className="text-right">{t.cv.c10.toFixed(2)}</td>
@@ -135,6 +183,19 @@ export const UnitRootSuiteTool = () => {
         <p className="text-[11px] font-mono text-teal-500 mt-3" style={{ color: C.teal }}>
           ADF × KPSS 联合读法：{res.matrix}
         </p>
+        {res.lagTable && (
+          <div className="mt-3">
+            <p className="text-[11px] font-mono text-muted-foreground mb-1">滞后阶数选择（越小越好；当前按 {lagCrit === "aic" ? "AIC" : "BIC"} 选定 p = {res.tests[0].extra?.match(/p = (\d+)/)?.[1]}）：</p>
+            <div className="flex flex-wrap gap-1.5">
+              {res.lagTable.map((r) => (
+                <span key={r.p} className="px-2 py-1 rounded border border-border text-[10px] font-mono text-muted-foreground">
+                  p={r.p} · AIC {r.aic.toFixed(1)} · BIC {r.bic.toFixed(1)}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+        <p className="text-[10px] font-mono text-muted-foreground mt-2">p 值为 MacKinnon (1996) 响应面近似（ADF/PP/DF-GLS）与 Kwiatkowski 等 (1992) 分位数插值（KPSS，超出 [0.01, 0.10] 显示界值）；ADF 临界值为 MacKinnon 有限样本响应面 cv(T) = cv∞ + a/T + b/T²。</p>
       </Panel>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">

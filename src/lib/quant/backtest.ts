@@ -32,6 +32,10 @@ export interface BacktestParams {
   costBps?: number;
   /** one-way slippage in basis points (added to the cost) */
   slippageBps?: number;
+  /** annualised risk-free rate (decimal, e.g. 0.03); used in Sharpe/Sortino and as the MAR */
+  riskFreeRate?: number;
+  /** annualised financing rate (decimal) charged daily on the borrowed part max(L−1, 0) of long leverage */
+  financingRate?: number;
 }
 
 export interface BacktestMetrics {
@@ -212,6 +216,8 @@ export function runBacktest(
   const pos = strategyPositions(prices, strategy, params);
   const rets = simpleReturns(prices); // length n-1; rets[t-1] is return from t-1→t
   const rate = ((params.costBps ?? 0) + (params.slippageBps ?? 0)) / 1e4;
+  const rfDaily = (params.riskFreeRate ?? 0) / TRADING_DAYS;
+  const finDaily = (params.financingRate ?? 0) / TRADING_DAYS;
 
   const equity: number[] = [1];
   const equityGross: number[] = [1];
@@ -225,8 +231,10 @@ export function runBacktest(
     const r = rets[t - 1];
     const dPos = Math.abs((pos[t - 1] ?? 0) - (pos[t - 2] ?? 0));
     const tcost = dPos * rate;
+    // financing cost on the borrowed part of long leverage: max(L−1, 0) · r_fin / 252
+    const finCost = Math.max(used - 1, 0) * finDaily;
     const srGross = used * r;
-    const sr = srGross - tcost;
+    const sr = srGross - tcost - finCost;
     stratRets.push(sr);
     equity.push(equity[equity.length - 1] * (1 + sr));
     equityGross.push(equityGross[equityGross.length - 1] * (1 + srGross));
@@ -244,10 +252,15 @@ export function runBacktest(
   const cagrGross = years > 0 && lastGross > 0 ? Math.pow(lastGross, 1 / years) - 1 : 0;
   const annVol = std(stratRets) * Math.sqrt(TRADING_DAYS);
   const annReturn = mean(stratRets) * TRADING_DAYS;
-  const sharpe = annVol > 1e-9 ? annReturn / annVol : 0;
-  const downside = stratRets.filter((x) => x < 0);
-  const downStd = std(downside) * Math.sqrt(TRADING_DAYS);
-  const sortino = downStd > 1e-9 ? annReturn / downStd : 0;
+  const rf = params.riskFreeRate ?? 0;
+  const sharpe = annVol > 1e-9 ? (annReturn - rf) / annVol : 0;
+  // Standard Sortino: downside deviation vs the MAR (daily risk-free),
+  // sqrt(mean(min(r − MAR, 0)²)) over the FULL sample of N days.
+  const downVar = stratRets.length
+    ? stratRets.reduce((s, x) => s + Math.min(x - rfDaily, 0) ** 2, 0) / stratRets.length
+    : 0;
+  const downStd = Math.sqrt(downVar) * Math.sqrt(TRADING_DAYS);
+  const sortino = downStd > 1e-9 ? (annReturn - rf) / downStd : 0;
   const nonzero = stratRets.filter((x) => Math.abs(x) > 1e-12);
   const winRate = nonzero.length ? nonzero.filter((x) => x > 0).length / nonzero.length : 0;
   const turnover = (turnoverSum / (n - 1)) * TRADING_DAYS;

@@ -1,7 +1,8 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, Scatter, ComposedChart, ReferenceLine } from "recharts";
 import PresetButtons from "../PresetButtons";
 import { useTranslation } from "react-i18next";
+import { bootstrapQuantileRegAsync, type QRBootPoint } from "@/lib/quant/panelEcon";
 
 const CHART_GOLD = "hsl(43, 80%, 55%)";
 const CHART_TEAL = "hsl(180, 50%, 40%)";
@@ -84,6 +85,11 @@ export const QuantileRegTool = () => {
   const [trueB1, setTrueB1] = useState(2.0);
   const [seed, setSeed] = useState(42);
   const [dgp, setDgp] = useState<DGP>("hetero");
+  const [bootB, setBootB] = useState(200);
+  const [boot, setBoot] = useState<QRBootPoint[] | null>(null);
+  const [bootProgress, setBootProgress] = useState(0);
+  const [bootRunning, setBootRunning] = useState(false);
+  const bootGen = useRef(0);
 
   const data = useMemo(() => {
     const rng = mulberry32(seed);
@@ -127,8 +133,24 @@ export const QuantileRegTool = () => {
       path.push({ tau: +tau.toFixed(2), b1: +fit.b1.toFixed(4), b0: +fit.b0.toFixed(4), ols: +olsB1.toFixed(4) });
     }
 
-    return { pts, fits, lines, path, olsB0, olsB1 };
+    return { pts, fits, lines, path, olsB0, olsB1, xs, ys };
   }, [n, trueB0, trueB1, seed, dgp]);
+
+  // Pairs bootstrap for the displayed τ grid — batched async so the page
+  // stays responsive; same seeded RNG as the sync version (reproducible).
+  useEffect(() => {
+    const gen = ++bootGen.current;
+    setBootRunning(true);
+    setBootProgress(0);
+    const taus = [0.10, 0.25, 0.50, 0.75, 0.90];
+    const X = data.xs.map((x) => [x]);
+    bootstrapQuantileRegAsync(X, data.ys, taus, bootB, 0.05, seed, (done, total) => {
+      if (bootGen.current === gen) setBootProgress(done / total);
+    }).then((res) => {
+      if (bootGen.current === gen) { setBoot(res); setBootRunning(false); }
+    });
+    return () => { bootGen.current = gen; };
+  }, [data, bootB, seed]);
 
   return (
     <div className="space-y-6">
@@ -146,6 +168,7 @@ export const QuantileRegTool = () => {
             <Slider label={t("labs.econ.quantilereg.trueB0Label")} value={trueB0} min={-2} max={3} step={0.1} onChange={setTrueB0} />
             <Slider label={t("labs.econ.quantilereg.trueB1Label")} value={trueB1} min={-1} max={4} step={0.1} onChange={setTrueB1} />
             <Slider label={t("labs.econ.quantilereg.seedLabel")} value={seed} min={1} max={999} step={1} onChange={setSeed} />
+            <Slider label={t("labs.econ.quantilereg.bootBLabel")} sub={t("labs.econ.quantilereg.bootBSub")} value={bootB} min={50} max={500} step={50} onChange={setBootB} />
           </div>
           <div className="flex flex-wrap gap-2">
             <span className="text-[10px] font-mono text-muted-foreground self-center uppercase tracking-wider">{t("labs.econ.quantilereg.dgpLabel")}</span>
@@ -165,10 +188,15 @@ export const QuantileRegTool = () => {
 
         <div className="space-y-2">
           <p className="text-xs font-mono text-gold uppercase tracking-wider mb-1">{t("labs.econ.quantilereg.coefTableTitle")}</p>
+          {bootRunning && (
+            <p className="text-[10px] font-mono text-muted-foreground mb-1">
+              {t("labs.econ.quantilereg.bootRunning", { pct: Math.round(bootProgress * 100) })}
+            </p>
+          )}
           <div className="rounded-lg border border-border overflow-hidden">
             <table className="w-full text-xs font-mono">
               <thead className="bg-secondary/60 text-muted-foreground">
-                <tr><th className="py-1.5 px-2 text-left">τ</th><th className="py-1.5 px-2 text-right">β₀</th><th className="py-1.5 px-2 text-right">β₁</th><th className="py-1.5 px-2 text-right">{t("labs.econ.quantilereg.vsOlsB1")}</th></tr>
+                <tr><th className="py-1.5 px-2 text-left">τ</th><th className="py-1.5 px-2 text-right">β₀</th><th className="py-1.5 px-2 text-right">β₁</th><th className="py-1.5 px-2 text-right">{t("labs.econ.quantilereg.bootSe")}</th><th className="py-1.5 px-2 text-right">{t("labs.econ.quantilereg.bootCi")}</th></tr>
               </thead>
               <tbody>
                 <tr className="border-t border-border bg-secondary/20">
@@ -176,15 +204,20 @@ export const QuantileRegTool = () => {
                   <td className="py-1.5 px-2 text-right text-gold tabular-nums">{data.olsB0.toFixed(3)}</td>
                   <td className="py-1.5 px-2 text-right text-gold tabular-nums">{data.olsB1.toFixed(3)}</td>
                   <td className="py-1.5 px-2 text-right text-muted-foreground">—</td>
+                  <td className="py-1.5 px-2 text-right text-muted-foreground">—</td>
                 </tr>
-                {data.fits.map(f => (
-                  <tr key={f.tau} className="border-t border-border">
-                    <td className="py-1.5 px-2 text-foreground">{f.tau.toFixed(2)}</td>
-                    <td className="py-1.5 px-2 text-right tabular-nums">{f.b0.toFixed(3)}</td>
-                    <td className="py-1.5 px-2 text-right tabular-nums" style={{ color: CHART_TEAL }}>{f.b1.toFixed(3)}</td>
-                    <td className="py-1.5 px-2 text-right tabular-nums text-muted-foreground">{(f.b1 - data.olsB1).toFixed(3)}</td>
-                  </tr>
-                ))}
+                {data.fits.map((f, i) => {
+                  const b = boot?.[i];
+                  return (
+                    <tr key={f.tau} className="border-t border-border">
+                      <td className="py-1.5 px-2 text-foreground">{f.tau.toFixed(2)}</td>
+                      <td className="py-1.5 px-2 text-right tabular-nums">{f.b0.toFixed(3)}</td>
+                      <td className="py-1.5 px-2 text-right tabular-nums" style={{ color: CHART_TEAL }}>{f.b1.toFixed(3)}</td>
+                      <td className="py-1.5 px-2 text-right tabular-nums text-muted-foreground">{b ? b.se[1].toFixed(3) : "…"}</td>
+                      <td className="py-1.5 px-2 text-right tabular-nums text-muted-foreground">{b ? `[${b.ciLo[1].toFixed(2)}, ${b.ciHi[1].toFixed(2)}]` : "…"}</td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>

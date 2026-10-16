@@ -69,6 +69,8 @@ export interface URTest {
   /** Conclusion under the 5% decision. */
   verdict: string;
   extra?: string;
+  /** MacKinnon/Kwiatkowski approximate p-value, where available. */
+  pValue?: number;
 }
 
 function lagMatrix(dy: number[], y1: number[], p: number, trend: boolean) {
@@ -90,6 +92,95 @@ const ADF_CV = {
   c: { c1: -3.43, c5: -2.86, c10: -2.57 },
   ct: { c1: -3.96, c5: -3.41, c10: -3.13 },
 };
+
+/* ── MacKinnon (1996/2010) response-surface p-values & finite-sample CVs ── */
+
+/**
+ * MacKinnon (1996) approximate p-value for ADF/PP t-statistics, via
+ * piecewise-linear interpolation on his simulated quantile table
+ * (the same tabulation statsmodels' `mackinnonp` ships). Monotonic in τ
+ * by construction; clamped to [0.001, 0.999] outside the tabulated range.
+ */
+export function mackinnonP(stat: number, trend = false): number {
+  // [tau, p] knots — MacKinnon (1996) large-sample quantiles
+  const c: [number, number][] = [
+    [-4.38, 0.01], [-3.95, 0.025], [-3.6, 0.05], [-3.24, 0.1],
+    [-1.14, 0.9], [-0.8, 0.95], [-0.5, 0.975], [-0.15, 0.99],
+  ];
+  const ct: [number, number][] = [
+    [-4.99, 0.01], [-4.39, 0.025], [-4.03, 0.05], [-3.58, 0.1],
+    [-1.86, 0.9], [-1.53, 0.95], [-1.22, 0.975], [-0.87, 0.99],
+  ];
+  const tab = trend ? ct : c;
+  if (stat <= tab[0][0]) return 0.001;
+  if (stat >= tab[tab.length - 1][0]) return 0.999;
+  for (let i = 1; i < tab.length; i++) {
+    if (stat <= tab[i][0]) {
+      const [x0, y0] = tab[i - 1];
+      const [x1, y1] = tab[i];
+      return y0 + ((stat - x0) / (x1 - x0)) * (y1 - y0);
+    }
+  }
+  return 0.999;
+}
+
+/**
+ * MacKinnon (1996) finite-sample critical values for the ADF t-test:
+ *   cv(T) = cv(∞) + a/T + b/T²
+ * with the response-surface coefficients from his Table 2 (as used by
+ * statsmodels' `mackinnoncrit`). `T` = number of regression observations.
+ */
+export function adfCriticalValues(T: number, trend = false): { c1: number; c5: number; c10: number } {
+  const t = Math.max(T, 10);
+  const surf = trend
+    ? { c1: [-3.95877, -9.0531, -28.428], c5: [-3.41049, -4.3904, -9.036], c10: [-3.12705, -2.5856, -3.361] }
+    : { c1: [-3.43035, -6.5393, -16.786], c5: [-2.86154, -2.8903, -4.234], c10: [-2.56677, -1.5384, -2.809] };
+  const f = (v: number[]) => v[0] + v[1] / t + v[2] / (t * t);
+  return { c1: f(surf.c1), c5: f(surf.c5), c10: f(surf.c10) };
+}
+
+/**
+ * Automatic ADF lag-order selection: fit the ADF regression for
+ * p = 0..pmax and pick the minimiser of AIC or BIC.
+ *   AIC = n·ln(RSS/n) + 2k,  BIC = n·ln(RSS/n) + k·ln(n)
+ */
+export function adfAutoLag(
+  y: number[], trend = false, pmax = 8, crit: "aic" | "bic" = "aic",
+): { p: number; table: { p: number; aic: number; bic: number }[] } {
+  const dy = y.map((v, i) => (i === 0 ? 0 : v - y[i - 1]));
+  const table: { p: number; aic: number; bic: number }[] = [];
+  for (let p = 0; p <= pmax; p++) {
+    const { X, Y } = lagMatrix(dy.slice(1), y.slice(0, -1), p, trend);
+    const fit = lstsq(X, Y);
+    const n = fit.n, k = fit.k;
+    const base = n * Math.log(Math.max(fit.rss, 1e-20) / n);
+    table.push({ p, aic: base + 2 * k, bic: base + k * Math.log(n) });
+  }
+  const best = table.reduce((a, b) => ((crit === "aic" ? b.aic : b.bic) < (crit === "aic" ? a.aic : a.bic) ? b : a));
+  return { p: best.p, table };
+}
+
+/** KPSS asymptotic p-value by interpolation on Kwiatkowski et al. (1992) quantiles. */
+export function kpssPValue(stat: number, trend = false): number {
+  // [stat, p] knots — upper-tail quantiles; p decreases as stat grows
+  const c: [number, number][] = [
+    [0.347, 0.1], [0.463, 0.05], [0.574, 0.025], [0.739, 0.01],
+  ];
+  const ct: [number, number][] = [
+    [0.119, 0.1], [0.146, 0.05], [0.176, 0.025], [0.216, 0.01],
+  ];
+  const tab = trend ? ct : c;
+  if (stat <= tab[0][0]) return 0.1; // p > 0.10: report the bound
+  if (stat >= tab[tab.length - 1][0]) return 0.01;
+  for (let i = 1; i < tab.length; i++) {
+    if (stat <= tab[i][0]) {
+      const [x0, y0] = tab[i - 1];
+      const [x1, y1] = tab[i];
+      return y0 + ((stat - x0) / (x1 - x0)) * (y1 - y0);
+    }
+  }
+  return 0.01;
+}
 const DFGLS_CV = {
   c: { c1: -2.57, c5: -1.94, c10: -1.62 },
   ct: { c1: -3.42, c5: -2.91, c10: -2.62 },
@@ -106,15 +197,17 @@ export function adfTest(y: number[], p = 2, trend = false): URTest & { gamma: nu
   const { X, Y, gammaIdx } = lagMatrix(dy.slice(1), y.slice(0, -1), p, trend);
   const fit = lstsq(X, Y);
   const stat = fit.beta[gammaIdx] / (fit.se[gammaIdx] || 1e-9);
-  const cv = trend ? ADF_CV.ct : ADF_CV.c;
+  // MacKinnon (1996) finite-sample critical values + approximate p-value
+  const cv = adfCriticalValues(fit.n, trend);
+  const pValue = mackinnonP(stat, trend);
   const reject5 = stat < cv.c5;
   return {
     name: "ADF",
-    stat, cv, gamma: fit.beta[gammaIdx],
+    stat, cv, gamma: fit.beta[gammaIdx], pValue,
     h0: "存在单位根 (γ = 0)",
     reject5,
     verdict: reject5 ? "拒绝单位根 → 平稳" : "未能拒绝单位根",
-    extra: `p = ${p} 阶差分滞后${trend ? " · 含趋势项" : " · 仅含常数"}`,
+    extra: `p = ${p} 阶差分滞后${trend ? " · 含趋势项" : " · 仅含常数"} · MacKinnon 有限样本临界值 (T=${fit.n})`,
   };
 }
 
@@ -160,7 +253,7 @@ export function ppTest(y: number[], trend = false): URTest {
   const reject5 = stat < cv.c5;
   return {
     name: "Phillips-Perron Z_t",
-    stat, cv,
+    stat, cv, pValue: mackinnonP(stat, trend),
     h0: "存在单位根",
     reject5,
     verdict: reject5 ? "拒绝单位根 → 平稳" : "未能拒绝单位根",
@@ -196,7 +289,7 @@ export function dfGlsTest(y: number[], p = 2, trend = false): URTest {
   const reject5 = stat < cv.c5;
   return {
     name: "DF-GLS (ERS)",
-    stat, cv,
+    stat, cv, pValue: mackinnonP(stat, trend),
     h0: "存在单位根",
     reject5,
     verdict: reject5 ? "拒绝单位根 → 平稳" : "未能拒绝单位根",
@@ -219,10 +312,11 @@ export function kpssTest(y: number[], trend = false): URTest {
   const lam = longRunVar(fit.resid, q);
   const stat = s / (n * n * Math.max(lam, 1e-12));
   const cv = trend ? KPSS_CV.ct : KPSS_CV.c;
+  const pValue = kpssPValue(stat, trend);
   const reject5 = stat > cv.c5;
   return {
     name: "KPSS",
-    stat, cv,
+    stat, cv, pValue,
     h0: "序列平稳 (原假设方向相反)",
     reject5,
     verdict: reject5 ? "拒绝平稳 → 非平稳证据" : "未能拒绝平稳",
@@ -327,11 +421,20 @@ export interface UnitRootSuite {
 export function unitRootSuite(opts: {
   kind?: SeriesKind; n?: number; seed?: number; rho?: number; lags?: number; trend?: boolean;
   series?: number[];
-}): UnitRootSuite {
+  /** "manual" uses `lags`; "aic"/"bic" pick p by information criterion. */
+  lagCrit?: "manual" | "aic" | "bic";
+}): UnitRootSuite & { lagTable?: { p: number; aic: number; bic: number }[] } {
   const n = opts.n ?? 240;
   const series = opts.series ?? makeSeries(opts.kind ?? "rw", n, opts.seed ?? 3, opts.rho ?? 0.7);
-  const p = opts.lags ?? 2;
   const trend = opts.trend ?? false;
+  const crit = opts.lagCrit ?? "manual";
+  let lagTable: { p: number; aic: number; bic: number }[] | undefined;
+  let p = opts.lags ?? 2;
+  if (crit !== "manual") {
+    const sel = adfAutoLag(series, trend, 8, crit);
+    p = sel.p;
+    lagTable = sel.table;
+  }
   const adf = adfTest(series, p, trend);
   const pp = ppTest(series, trend);
   const gls = dfGlsTest(series, p, trend);
@@ -345,7 +448,7 @@ export function unitRootSuite(opts: {
     : kpss.reject5
       ? "两者一致：序列非平稳（含单位根）"
       : "证据不足：样本太短或过程近单位根，检验功效低";
-  return { series, tests: [adf, pp, gls, kpss], za, hegy, matrix };
+  return { series, tests: [adf, pp, gls, kpss], za, hegy, matrix, lagTable };
 }
 
 /* ══════════════════ 2. Wold / ARMA identification ══════════════════ */

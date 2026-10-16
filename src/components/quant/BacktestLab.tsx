@@ -56,6 +56,8 @@ export default function BacktestLab() {
   const [allowShort, setAllowShort] = useState(false);
   const [costBps, setCostBps] = useState(5);
   const [slippageBps, setSlippageBps] = useState(5);
+  const [riskFreeRate, setRiskFreeRate] = useState(0);
+  const [financingRate, setFinancingRate] = useState(0);
   const [scanMetric, setScanMetric] = useState<ScanMetric>("sharpe");
 
   const { series: live, isFetching, error, refetch } = usePriceSeries(source, symbol, range, !demo && view !== "portfolio");
@@ -64,13 +66,14 @@ export default function BacktestLab() {
   const params: BacktestParams = {
     fast, slow, lookback, window, entryZ, exitZ: Math.max(0.2, entryZ - 1),
     targetVol, volWindow, maxLeverage: 3, allowShort, costBps, slippageBps,
+    riskFreeRate, financingRate,
   };
 
   const result = useMemo(() => {
     if (!series || series.prices.length < 30) return null;
     return runBacktest(series.prices, series.dates, strategy, params);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [series, strategy, fast, slow, lookback, window, entryZ, targetVol, volWindow, allowShort, costBps, slippageBps]);
+  }, [series, strategy, fast, slow, lookback, window, entryZ, targetVol, volWindow, allowShort, costBps, slippageBps, riskFreeRate, financingRate]);
 
   // multi-strategy comparison on the same data / costs
   const compareRows = useMemo(() => {
@@ -80,7 +83,7 @@ export default function BacktestLab() {
       return { id: s.id, label: s.label, m: r.metrics };
     }).sort((a, b) => b.m.sharpe - a.m.sharpe);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [series, fast, slow, lookback, window, entryZ, targetVol, volWindow, allowShort, costBps, slippageBps]);
+  }, [series, fast, slow, lookback, window, entryZ, targetVol, volWindow, allowShort, costBps, slippageBps, riskFreeRate, financingRate]);
 
   const chartData = useMemo(() => {
     if (!result) return [];
@@ -141,7 +144,7 @@ export default function BacktestLab() {
     if (view !== "scan" || !series || !scanConfig || series.prices.length < 30) return null;
     return gridScan(series.prices, series.dates, strategy, { ...scanConfig, metric: scanMetric, base: params });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [view, series, strategy, scanConfig, scanMetric, allowShort, costBps, slippageBps]);
+  }, [view, series, strategy, scanConfig, scanMetric, allowShort, costBps, slippageBps, riskFreeRate, financingRate]);
 
   const applyScanCell = (row: number, col: number) => {
     if (!scan) return;
@@ -262,6 +265,8 @@ export default function BacktestLab() {
                   <p className="text-[10px] font-mono uppercase tracking-[0.2em] text-gold">{t("labs.quant.backtestLab.tradingCost")}</p>
                   <Slider label={t("labs.quant.backtestLab.fee")} sub={t("labs.quant.backtestLab.perSideBps")} value={costBps} min={0} max={50} step={1} fmt={(v) => v + "bps"} onChange={setCostBps} />
                   <Slider label={t("labs.quant.backtestLab.slippage")} sub={t("labs.quant.backtestLab.perSideBps")} value={slippageBps} min={0} max={50} step={1} fmt={(v) => v + "bps"} onChange={setSlippageBps} />
+                  <Slider label={t("labs.quant.backtestLab.riskFree")} sub={t("labs.quant.backtestLab.annualised")} value={riskFreeRate} min={0} max={0.1} step={0.005} fmt={pct} onChange={setRiskFreeRate} />
+                  <Slider label={t("labs.quant.backtestLab.financing")} sub={t("labs.quant.backtestLab.financingSub")} value={financingRate} min={0} max={0.15} step={0.005} fmt={pct} onChange={setFinancingRate} />
                 </div>
               </aside>
 
