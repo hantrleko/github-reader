@@ -156,6 +156,7 @@ export const UnitRootSuiteTool = () => {
               <tr className="border-b border-border">
                 <th className="text-left py-2">检验</th>
                 <th className="text-right">统计量</th>
+                <th className="text-right">p 值</th>
                 <th className="text-right">1%</th>
                 <th className="text-right">5%</th>
                 <th className="text-right">10%</th>
@@ -168,6 +169,7 @@ export const UnitRootSuiteTool = () => {
                 <tr key={t.name} className="border-b border-border/40">
                   <td className="py-1.5 text-foreground">{t.name}</td>
                   <td className="text-right text-gold">{t.stat.toFixed(3)}</td>
+                  <td className="text-right text-muted-foreground">{t.pValue != null ? (t.pValue <= 0.001 ? "<0.01" : t.pValue.toFixed(3)) : "—"}</td>
                   <td className="text-right">{t.cv.c1.toFixed(2)}</td>
                   <td className="text-right">{t.cv.c5.toFixed(2)}</td>
                   <td className="text-right">{t.cv.c10.toFixed(2)}</td>
