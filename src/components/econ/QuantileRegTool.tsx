@@ -133,8 +133,24 @@ export const QuantileRegTool = () => {
       path.push({ tau: +tau.toFixed(2), b1: +fit.b1.toFixed(4), b0: +fit.b0.toFixed(4), ols: +olsB1.toFixed(4) });
     }
 
-    return { pts, fits, lines, path, olsB0, olsB1 };
+    return { pts, fits, lines, path, olsB0, olsB1, xs, ys };
   }, [n, trueB0, trueB1, seed, dgp]);
+
+  // Pairs bootstrap for the displayed τ grid — batched async so the page
+  // stays responsive; same seeded RNG as the sync version (reproducible).
+  useEffect(() => {
+    const gen = ++bootGen.current;
+    setBootRunning(true);
+    setBootProgress(0);
+    const taus = [0.10, 0.25, 0.50, 0.75, 0.90];
+    const X = data.xs.map((x) => [x]);
+    bootstrapQuantileRegAsync(X, data.ys, taus, bootB, 0.05, seed, (done, total) => {
+      if (bootGen.current === gen) setBootProgress(done / total);
+    }).then((res) => {
+      if (bootGen.current === gen) { setBoot(res); setBootRunning(false); }
+    });
+    return () => { bootGen.current = gen; };
+  }, [data, bootB, seed]);
 
   return (
     <div className="space-y-6">
