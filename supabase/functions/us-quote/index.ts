@@ -1,12 +1,12 @@
+import { corsHeadersFor, getClientIp, checkRateLimit, rateLimitResponse, getCached, setCached } from "../_shared/security.ts";
 // V5.2 · US/HK quote + K-line + locally computed technical indicators.
 // Source: Yahoo chart v8 (personal-research tier). No API key.
 import {
-  corsHeaders, json, fail, fetchAny, yahooUrls,
+  json, fail, fetchAny, yahooUrls,
   sma, ema, macd, rsi, bollinger, kdj, annualVol,
 } from "../_shared/us.ts";
 
-Deno.serve(async (req) => {
-  if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
+async function handler(req: Request, corsHeaders: Record<string, string>): Promise<Response> {
   try {
     const url = new URL(req.url);
     const symbol = (url.searchParams.get("symbol") || "AAPL").trim().toUpperCase();
@@ -18,7 +18,7 @@ Deno.serve(async (req) => {
         `/v8/finance/chart/${encodeURIComponent(symbol)}?range=${range}&interval=${interval}&includePrePost=false`,
       ),
     );
-    const j = await r.json();
+    const j = await r.json(corsHeaders, );
     const res = j?.chart?.result?.[0];
     if (!res) throw new Error(j?.chart?.error?.description || `no data for ${symbol}`);
 
@@ -51,7 +51,7 @@ Deno.serve(async (req) => {
     const bb = bollinger(closes);
     const kd = kdj(highs, lows, closes);
 
-    return json({
+    return json(corsHeaders, {
       symbol: meta.symbol || symbol,
       name: meta.longName || meta.shortName || meta.symbol || symbol,
       currency: meta.currency || "USD",
@@ -81,6 +81,32 @@ Deno.serve(async (req) => {
       source: "Yahoo Finance chart v8 · tier C (personal research)",
     });
   } catch (e) {
-    return fail(e);
+    return fail(corsHeaders, e);
   }
+});
+
+const CACHE_TTL_SEC = 60;
+
+Deno.serve(async (req) => {
+  const corsHeaders = corsHeadersFor(req);
+  if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+
+  const ip = getClientIp(req);
+  const rl = await checkRateLimit(`rl:us-quote:${ip}`, 60, 60);
+  if (!rl.allowed) return rateLimitResponse(corsHeaders, rl.retryAfter);
+
+  const cacheKey = `cache:us-quote:${new URL(req.url).searchParams.toString()}`;
+  const cached = await getCached(cacheKey);
+  if (cached) {
+    return new Response(cached, {
+      headers: { ...corsHeaders, "Content-Type": "application/json", "X-Cache": "HIT" },
+    });
+  }
+
+  const resp = await handler(req, corsHeaders);
+  if (resp.ok) {
+    const body = await resp.clone().text();
+    setCached(cacheKey, body, CACHE_TTL_SEC).catch(() => {});
+  }
+  return resp;
 });

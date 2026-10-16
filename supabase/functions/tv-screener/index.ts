@@ -1,8 +1,9 @@
+import { corsHeadersFor, getClientIp, checkRateLimit, rateLimitResponse, getCached, setCached } from "../_shared/security.ts";
 // V6.4 · TradingView Screener proxy
 // Replicates the public HTTP calls performed by the Python `tvscreener`
 // library so the browser can query TradingView's scanner without an API key.
 // Docs reference: https://github.com/deepentropy/tvscreener
-import { corsHeaders, json, fail, fetchAny } from "../_shared/us.ts";
+import { json, fail, fetchAny } from "../_shared/us.ts";
 
 const TV_UA = "EF Lab research tool (contact: research@eugenefinance.tech)";
 
@@ -92,12 +93,11 @@ function buildBody(req: TvScreenerRequest) {
   return { market, columns, body };
 }
 
-Deno.serve(async (req) => {
-  if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
+async function handler(req: Request, corsHeaders: Record<string, string>): Promise<Response> {
   try {
     let payload: TvScreenerRequest;
     if (req.method === "POST") {
-      payload = await req.json();
+      payload = await req.json(corsHeaders, );
     } else {
       const url = new URL(req.url);
       payload = {
@@ -131,7 +131,7 @@ Deno.serve(async (req) => {
       throw new Error(`TradingView scanner returned ${r.status}: ${txt.slice(0, 200)}`);
     }
 
-    const j = await r.json();
+    const j = await r.json(corsHeaders, );
     const rows = ((j?.data || []) as any[]).map((d) => {
       const symbol = d.s;
       const values = d.d || [];
@@ -142,7 +142,7 @@ Deno.serve(async (req) => {
       return row;
     });
 
-    return json({
+    return json(corsHeaders, {
       market,
       columns,
       sort: body.sort,
@@ -154,6 +154,32 @@ Deno.serve(async (req) => {
       ts: new Date().toISOString(),
     });
   } catch (e) {
-    return fail(e);
+    return fail(corsHeaders, e);
   }
+});
+
+const CACHE_TTL_SEC = 60;
+
+Deno.serve(async (req) => {
+  const corsHeaders = corsHeadersFor(req);
+  if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+
+  const ip = getClientIp(req);
+  const rl = await checkRateLimit(`rl:tv-screener:${ip}`, 60, 60);
+  if (!rl.allowed) return rateLimitResponse(corsHeaders, rl.retryAfter);
+
+  const cacheKey = `cache:tv-screener:${new URL(req.url).searchParams.toString()}`;
+  const cached = await getCached(cacheKey);
+  if (cached) {
+    return new Response(cached, {
+      headers: { ...corsHeaders, "Content-Type": "application/json", "X-Cache": "HIT" },
+    });
+  }
+
+  const resp = await handler(req, corsHeaders);
+  if (resp.ok) {
+    const body = await resp.clone().text();
+    setCached(cacheKey, body, CACHE_TTL_SEC).catch(() => {});
+  }
+  return resp;
 });
