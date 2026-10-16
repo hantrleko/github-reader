@@ -421,11 +421,20 @@ export interface UnitRootSuite {
 export function unitRootSuite(opts: {
   kind?: SeriesKind; n?: number; seed?: number; rho?: number; lags?: number; trend?: boolean;
   series?: number[];
-}): UnitRootSuite {
+  /** "manual" uses `lags`; "aic"/"bic" pick p by information criterion. */
+  lagCrit?: "manual" | "aic" | "bic";
+}): UnitRootSuite & { lagTable?: { p: number; aic: number; bic: number }[] } {
   const n = opts.n ?? 240;
   const series = opts.series ?? makeSeries(opts.kind ?? "rw", n, opts.seed ?? 3, opts.rho ?? 0.7);
-  const p = opts.lags ?? 2;
   const trend = opts.trend ?? false;
+  const crit = opts.lagCrit ?? "manual";
+  let lagTable: { p: number; aic: number; bic: number }[] | undefined;
+  let p = opts.lags ?? 2;
+  if (crit !== "manual") {
+    const sel = adfAutoLag(series, trend, 8, crit);
+    p = sel.p;
+    lagTable = sel.table;
+  }
   const adf = adfTest(series, p, trend);
   const pp = ppTest(series, trend);
   const gls = dfGlsTest(series, p, trend);
