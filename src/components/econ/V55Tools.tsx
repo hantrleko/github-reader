@@ -183,6 +183,19 @@ export const UnitRootSuiteTool = () => {
         <p className="text-[11px] font-mono text-teal-500 mt-3" style={{ color: C.teal }}>
           ADF × KPSS 联合读法：{res.matrix}
         </p>
+        {res.lagTable && (
+          <div className="mt-3">
+            <p className="text-[11px] font-mono text-muted-foreground mb-1">滞后阶数选择（越小越好；当前按 {lagCrit === "aic" ? "AIC" : "BIC"} 选定 p = {res.tests[0].extra.match(/p = (\d+)/)?.[1]}）：</p>
+            <div className="flex flex-wrap gap-1.5">
+              {res.lagTable.map((r) => (
+                <span key={r.p} className="px-2 py-1 rounded border border-border text-[10px] font-mono text-muted-foreground">
+                  p={r.p} · AIC {r.aic.toFixed(1)} · BIC {r.bic.toFixed(1)}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+        <p className="text-[10px] font-mono text-muted-foreground mt-2">p 值为 MacKinnon (1996) 响应面近似（ADF/PP/DF-GLS）与 Kwiatkowski 等 (1992) 分位数插值（KPSS，超出 [0.01, 0.10] 显示界值）；ADF 临界值为 MacKinnon 有限样本响应面 cv(T) = cv∞ + a/T + b/T²。</p>
       </Panel>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
