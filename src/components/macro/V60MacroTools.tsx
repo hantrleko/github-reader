@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useToolTab } from "@/lib/useToolTab";
 import { motion } from "framer-motion";
 import {
@@ -25,29 +26,30 @@ type Tab =
   | "expect" | "uncon" | "bank" | "climate";
 
 const CATS: { id: Cat; label: string; kicker: string }[] = [
-  { id: "growth",   label: "长期增长",   kicker: "Growth" },
-  { id: "cycle",    label: "周期与刚性", kicker: "Cycles" },
-  { id: "policy",   label: "政策规则",   kicker: "Policy" },
-  { id: "open",     label: "开放经济",   kicker: "Open Economy" },
-  { id: "frontier", label: "当代前沿",   kicker: "Frontier" },
+  { id: "growth",   label: "Long-run Growth",   kicker: "Growth" },
+  { id: "cycle",    label: "Cycles & Rigidity", kicker: "Cycles" },
+  { id: "policy",   label: "Policy Rules",   kicker: "Policy" },
+  { id: "open",     label: "Open Economy",   kicker: "Open Economy" },
+  { id: "frontier", label: "Frontier",   kicker: "Frontier" },
 ];
 
 const TABS: { id: Tab; cat: Cat; title: string; desc: string }[] = [
-  { id: "endo",       cat: "growth",   title: "内生增长引擎",     desc: "AK / Lucas / Romer / Schumpeter vs Solow" },
-  { id: "accounting", cat: "growth",   title: "增长核算与 TFP",   desc: "Solow 残差 + Hall-Jones 发展核算" },
-  { id: "multiplier", cat: "cycle",    title: "乘数—加速数与财政乘数", desc: "Samuelson 周期 + 状态依赖乘数" },
-  { id: "rbc",        cat: "cycle",    title: "RBC 校准与周期矩", desc: "技术冲击驱动的波动率与相关性" },
-  { id: "calvo",      cat: "cycle",    title: "Calvo 定价与 NKPC", desc: "θ → κ、指数化与货币非中性" },
-  { id: "rules",      cat: "policy",   title: "规则 vs 相机抉择", desc: "Barro-Gordon 通胀偏差 + 四种规则对比" },
-  { id: "parity",     cat: "open",     title: "平价条件与 Carry", desc: "PPP / UIP / CIP 与远期溢价之谜" },
-  { id: "sudden",     cat: "open",     title: "突然停止与外部调整", desc: "资本流逆转、储备覆盖与资产负债表效应" },
-  { id: "expect",     cat: "frontier", title: "行为宏观：预期形成", desc: "理性 / 适应性 / 黏性 / 诊断性" },
-  { id: "uncon",      cat: "frontier", title: "非常规货币政策",   desc: "QE 组合再平衡 + YCC 收益率曲线控制" },
-  { id: "bank",       cat: "frontier", title: "宏观金融：银行资本", desc: "资本冲击 → 去杠杆 → 信贷与产出" },
-  { id: "climate",    cat: "frontier", title: "气候转型的宏观路径", desc: "碳价、绿色通胀与物理损害权衡" },
+  { id: "endo", cat: "growth", title: "Endogenous Growth Engines", desc: "AK / Lucas / Romer / Schumpeter vs Solow" },
+  { id: "accounting", cat: "growth", title: "Growth Accounting & TFP", desc: "Solow residual + Hall-Jones development accounting" },
+  { id: "multiplier", cat: "cycle", title: "Multiplier–Accelerator & Fiscal Multipliers", desc: "Samuelson cycle + state-dependent multipliers" },
+  { id: "rbc", cat: "cycle", title: "RBC Calibration & Cycle Moments", desc: "Volatility and correlations driven by technology shocks" },
+  { id: "calvo", cat: "cycle", title: "Calvo Pricing & the NKPC", desc: "θ → κ, indexation, and monetary non-neutrality" },
+  { id: "rules", cat: "policy", title: "Rules vs. Discretion", desc: "Barro-Gordon inflation bias + comparison of four rules" },
+  { id: "parity", cat: "open", title: "Parity Conditions & Carry", desc: "PPP / UIP / CIP and the forward premium puzzle" },
+  { id: "sudden", cat: "open", title: "Sudden Stops & External Adjustment", desc: "Capital flow reversals, reserve coverage, and balance-sheet effects" },
+  { id: "expect", cat: "frontier", title: "Behavioral Macro: Expectation Formation", desc: "Rational / adaptive / sticky / diagnostic" },
+  { id: "uncon", cat: "frontier", title: "Unconventional Monetary Policy", desc: "QE portfolio rebalancing + YCC yield-curve control" },
+  { id: "bank", cat: "frontier", title: "Macrofinance: Bank Capital", desc: "Capital shock → deleveraging → credit and output" },
+  { id: "climate", cat: "frontier", title: "The Macro Path of Climate Transition", desc: "Trade-offs among carbon prices, green inflation, and physical damage" },
 ];
 
 export default function V60MacroTools() {
+  const { t } = useTranslation();
   const [tab, setTab] = useToolTab<Tab>(TABS.map((x) => x.id), "endo");
   const [cat, setCat] = useState<Cat>(TABS.find((x) => x.id === tab)?.cat ?? "growth");
   // Keep the category strip in sync when the tab arrives from the URL.
@@ -55,39 +57,37 @@ export default function V60MacroTools() {
     const owner = TABS.find((x) => x.id === tab)?.cat;
     if (owner) setCat(owner);
   }, [tab]);
-  const inCat = TABS.filter((t) => t.cat === cat);
+  const inCat = TABS.filter((tb) => tb.cat === cat);
 
   return (
     <section className="space-y-6">
       <div className="rounded-2xl border border-border bg-card/50 p-5">
         <p className="text-[10px] font-mono uppercase tracking-[0.2em] text-gold mb-1">V6.0 · Macro Frontier Lab</p>
-        <h2 className="text-2xl font-serif text-foreground">宏观前沿实验室</h2>
+        <h2 className="text-2xl font-serif text-foreground">{t("labs.macroFrontier.header.heading")}</h2>
         <p className="text-sm text-muted-foreground mt-2 max-w-3xl">
-          补全宏观谱系的四块缺口：内生增长与增长核算、周期机制与名义刚性微观基础、政策规则与财政—货币协调、
-          开放经济平价与当代前沿（行为宏观、非常规政策、宏观金融、气候）。与 /s/macro 的经典模型与 /s/macro-lab 的
-          债务/汇率/BGG/ZLB 实验互为补充。
+          {t("labs.macroFrontier.header.intro")}
         </p>
         <div className="mt-4 flex flex-wrap gap-2">
           {CATS.map((c) => (
             <button key={c.id}
-              onClick={() => { setCat(c.id); setTab(TABS.find((t) => t.cat === c.id)!.id); }}
+              onClick={() => { setCat(c.id); setTab(TABS.find((tb) => tb.cat === c.id)!.id); }}
               className={`px-3.5 py-2 rounded-lg border text-xs font-mono transition-colors ${
                 cat === c.id ? "bg-gold/15 border-gold/60 text-gold"
                              : "bg-secondary/40 border-border text-muted-foreground hover:text-foreground"
               }`}>
-              <span className="uppercase tracking-wider mr-2">{c.kicker}</span>{c.label}
+              <span className="uppercase tracking-wider mr-2">{c.kicker}</span>{t(`labs.macroFrontier.cats.${c.id}`)}
             </button>
           ))}
         </div>
         <div className="mt-3 flex flex-wrap gap-2">
-          {inCat.map((t) => (
-            <button key={t.id} onClick={() => setTab(t.id)}
+          {inCat.map((tb) => (
+            <button key={tb.id} onClick={() => setTab(tb.id)}
               className={`px-3 py-1.5 rounded-md border text-[11px] transition-colors ${
-                tab === t.id ? "bg-secondary border-gold/40 text-foreground"
+                tab === tb.id ? "bg-secondary border-gold/40 text-foreground"
                              : "bg-transparent border-border/60 text-muted-foreground hover:text-foreground"
               }`}>
-              {t.title}
-              <span className="ml-2 text-[10px] text-muted-foreground/70 hidden md:inline">{t.desc}</span>
+              {t(`labs.macroFrontier.tabs.${tb.id}.title`)}
+              <span className="ml-2 text-[10px] text-muted-foreground/70 hidden md:inline">{t(`labs.macroFrontier.tabs.${tb.id}.desc`)}</span>
             </button>
           ))}
         </div>
@@ -109,7 +109,7 @@ export default function V60MacroTools() {
       </motion.div>
 
       <div className="rounded-lg border border-border bg-card/60 p-4 text-[11px] font-mono text-muted-foreground leading-relaxed">
-        <p className="text-gold uppercase tracking-wider mb-2">参考文献</p>
+        <p className="text-gold uppercase tracking-wider mb-2">{t("labs.macroFrontier.header.references")}</p>
         <p>
           Romer (1990) Endogenous Technological Change · Aghion-Howitt (1992) Creative Destruction · Lucas (1988) On the Mechanics of Development ·
           Hall-Jones (1999) Why Do Some Countries Produce So Much More Output per Worker · Samuelson (1939) Interactions between the Multiplier and the Accelerator ·
@@ -118,7 +118,7 @@ export default function V60MacroTools() {
           Mankiw-Reis (2002) Sticky Information · Bordalo-Gennaioli-Shleifer (2018) Diagnostic Expectations ·
           Vayanos-Vila (2021) Preferred-Habitat · Gertler-Kiyotaki (2010) Financial Intermediation · Golosov-Hassler-Krusell-Tsyvinski (2014) Optimal Taxes on Fossil Fuel.
         </p>
-        <p className="mt-2">所有模型均为教学级对数线性/校准化简写，用于机制直觉与比较静态，不作为校准化 GE 预测使用。</p>
+        <p className="mt-2">{t("labs.macroFrontier.header.footerNote")}</p>
       </div>
     </section>
   );
@@ -136,6 +136,7 @@ const Note = ({ children }: { children: React.ReactNode }) => (
 
 /* ── 1. Endogenous growth ── */
 function EndoPanel() {
+  const { t } = useTranslation();
   const [s, setS] = useState(0.25);
   const [A, setA] = useState(0.5);
   const [psi, setPsi] = useState(0.06);
@@ -158,37 +159,37 @@ function EndoPanel() {
   return (
     <div className="space-y-5">
       <PresetButtons presets={[
-        { name: "研发驱动型", description: "高 θ·s_R", apply: () => { setTheta(0.09); setSR(0.55); } },
-        { name: "人力资本驱动", description: "高 ψ·u", apply: () => { setPsi(0.1); setU(0.4); } },
-        { name: "资本深化型", description: "高 s·A (AK)", apply: () => { setS(0.4); setA(0.6); } },
+        { name: t("labs.macroFrontier.endo.presets.0.name"), description: t("labs.macroFrontier.endo.presets.0.desc"), apply: () => { setTheta(0.09); setSR(0.55); } },
+        { name: t("labs.macroFrontier.endo.presets.1.name"), description: t("labs.macroFrontier.endo.presets.1.desc"), apply: () => { setPsi(0.1); setU(0.4); } },
+        { name: t("labs.macroFrontier.endo.presets.2.name"), description: t("labs.macroFrontier.endo.presets.2.desc"), apply: () => { setS(0.4); setA(0.6); } },
       ]} />
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="space-y-3">
-          <p className="text-xs font-mono text-gold uppercase tracking-wider">四种增长引擎参数</p>
+          <p className="text-xs font-mono text-gold uppercase tracking-wider">{t("labs.macroFrontier.endo.paramsTitle")}</p>
           <div className="grid grid-cols-2 gap-3">
-            <Slider label="储蓄率 s" value={s} min={0.05} max={0.5} step={0.01} onChange={setS} fmt={(v)=>`${(v*100).toFixed(0)}%`} />
-            <Slider label="AK 生产率 A" value={A} min={0.1} max={1} step={0.05} onChange={setA} />
-            <Slider label="Lucas ψ" value={psi} min={0.01} max={0.15} step={0.005} onChange={setPsi} />
-            <Slider label="教育时间 u" value={u} min={0.05} max={0.6} step={0.05} onChange={setU} />
-            <Slider label="Romer θ" value={theta} min={0.01} max={0.15} step={0.005} onChange={setTheta} />
-            <Slider label="R&D 人员份额 s_R" value={sR} min={0.05} max={0.8} step={0.05} onChange={setSR} />
-            <Slider label="创新强度 λ" value={lam} min={0.05} max={1} step={0.05} onChange={setLam} />
-            <Slider label="质量阶梯 γ" value={gamma} min={1.02} max={1.5} step={0.01} onChange={setGamma} />
+            <Slider label={t("labs.macroFrontier.endo.sliders.0")} value={s} min={0.05} max={0.5} step={0.01} onChange={setS} fmt={(v)=>`${(v*100).toFixed(0)}%`} />
+            <Slider label={t("labs.macroFrontier.endo.sliders.1")} value={A} min={0.1} max={1} step={0.05} onChange={setA} />
+            <Slider label={t("labs.macroFrontier.endo.sliders.2")} value={psi} min={0.01} max={0.15} step={0.005} onChange={setPsi} />
+            <Slider label={t("labs.macroFrontier.endo.sliders.3")} value={u} min={0.05} max={0.6} step={0.05} onChange={setU} />
+            <Slider label={t("labs.macroFrontier.endo.sliders.4")} value={theta} min={0.01} max={0.15} step={0.005} onChange={setTheta} />
+            <Slider label={t("labs.macroFrontier.endo.sliders.5")} value={sR} min={0.05} max={0.8} step={0.05} onChange={setSR} />
+            <Slider label={t("labs.macroFrontier.endo.sliders.6")} value={lam} min={0.05} max={1} step={0.05} onChange={setLam} />
+            <Slider label={t("labs.macroFrontier.endo.sliders.7")} value={gamma} min={1.02} max={1.5} step={0.01} onChange={setGamma} />
           </div>
           <div className="grid grid-cols-2 gap-2">
-            <Stat label="AK: sA−(δ+n)" value={`${(g.rates.ak*100).toFixed(2)}%`} color={C.gold} />
-            <Stat label="Lucas: ψu" value={`${(g.rates.lucas*100).toFixed(2)}%`} color={C.teal} />
-            <Stat label="Romer: θs_R" value={`${(g.rates.romer*100).toFixed(2)}%`} color={C.blue} sub={g.scaleEffect ? "存在规模效应" : "无规模效应"} />
-            <Stat label="Schumpeter: λlnγ" value={`${(g.rates.schumpeter*100).toFixed(2)}%`} color={C.green} />
+            <Stat label={t("labs.macroFrontier.endo.stats.ak")} value={`${(g.rates.ak*100).toFixed(2)}%`} color={C.gold} />
+            <Stat label={t("labs.macroFrontier.endo.stats.lucas")} value={`${(g.rates.lucas*100).toFixed(2)}%`} color={C.teal} />
+            <Stat label={t("labs.macroFrontier.endo.stats.romer")} value={`${(g.rates.romer*100).toFixed(2)}%`} color={C.blue} sub={g.scaleEffect ? t("labs.macroFrontier.endo.scaleEffectYes") : t("labs.macroFrontier.endo.scaleEffectNo")} />
+            <Stat label={t("labs.macroFrontier.endo.stats.schumpeter")} value={`${(g.rates.schumpeter*100).toFixed(2)}%`} color={C.green} />
           </div>
         </div>
-        <Panel title="人均产出对数路径 (相对起点)">
+        <Panel title={t("labs.macroFrontier.endo.chartTitle")}>
           <div className="h-[300px]">
             <ResponsiveContainer>
               <LineChart data={chart}>
                 <CartesianGrid stroke={C.grid} strokeDasharray="3 3" />
-                <XAxis dataKey="t" stroke={C.text} tick={{ fontSize: 10 }} label={{ value: "年", position: "insideBottom", offset: -4, fill: C.text, fontSize: 10 }} />
-                <YAxis stroke={C.text} tick={{ fontSize: 10 }} label={{ value: "log y ×100", angle: -90, position: "insideLeft", fill: C.text, fontSize: 10 }} />
+                <XAxis dataKey="t" stroke={C.text} tick={{ fontSize: 10 }} label={{ value: t("labs.macroFrontier.endo.axis.year"), position: "insideBottom", offset: -4, fill: C.text, fontSize: 10 }} />
+                <YAxis stroke={C.text} tick={{ fontSize: 10 }} label={{ value: t("labs.macroFrontier.endo.axis.logY"), angle: -90, position: "insideLeft", fill: C.text, fontSize: 10 }} />
                 <Tooltip contentStyle={tooltipStyle} />
                 <Legend wrapperStyle={{ fontSize: 10 }} />
                 <Line type="monotone" dataKey="AK" stroke={C.gold} dot={false} strokeWidth={2} />
@@ -199,10 +200,7 @@ function EndoPanel() {
               </LineChart>
             </ResponsiveContainer>
           </div>
-          <Note>
-            Solow (红虚线) 只有过渡动态：储蓄率提高改变水平而非长期增速；四种内生机制则把增速本身变成政策与制度的函数。
-            Romer 的 θ·s_R·L 蕴含规模效应，是半内生增长 (Jones 1995) 的主要批评靶点。
-          </Note>
+          <Note>{t("labs.macroFrontier.endo.note")}</Note>
         </Panel>
       </div>
     </div>
@@ -211,6 +209,7 @@ function EndoPanel() {
 
 /* ── 2. Growth accounting ── */
 function AccountingPanel() {
+  const { t } = useTranslation();
   const [gY, setGY] = useState(0.07);
   const [gK, setGK] = useState(0.1);
   const [gL, setGL] = useState(0.012);
@@ -292,6 +291,7 @@ function AccountingPanel() {
 
 /* ── 3. Multiplier-accelerator & fiscal ── */
 function MultiplierPanel() {
+  const { t } = useTranslation();
   const [mpc, setMpc] = useState(0.6);
   const [v, setV] = useState(0.8);
   const path = useMemo(() => multiplierAccelerator({ mpc, accel: v, gShock: 1, horizon: 50 }), [mpc, v]);
@@ -393,6 +393,7 @@ function MultiplierPanel() {
 
 /* ── 4. RBC ── */
 function RBCPanel() {
+  const { t } = useTranslation();
   const [rho, setRho] = useState(0.95);
   const [sig, setSig] = useState(0.007);
   const [fr, setFr] = useState(2);
@@ -473,6 +474,7 @@ function RBCPanel() {
 
 /* ── 5. Calvo ── */
 function CalvoPanel() {
+  const { t } = useTranslation();
   const [theta, setTheta] = useState(0.75);
   const [omega, setOmega] = useState(0.3);
   const [sigma, setSigma] = useState(1);
@@ -541,6 +543,7 @@ function CalvoPanel() {
 
 /* ── 6. Rules vs discretion ── */
 function RulesPanel() {
+  const { t } = useTranslation();
   const [k, setK] = useState(0.02);
   const [lam, setLam] = useState(1);
   const [a, setA] = useState(0.5);
@@ -651,6 +654,7 @@ function RulesPanel() {
 
 /* ── 7. Parity ── */
 function ParityPanel() {
+  const { t } = useTranslation();
   const [iD, setID] = useState(0.05);
   const [iF, setIF] = useState(0.01);
   const [spot, setSpot] = useState(7);
@@ -719,6 +723,7 @@ function ParityPanel() {
 
 /* ── 8. Sudden stop ── */
 function SuddenPanel() {
+  const { t } = useTranslation();
   const [ca, setCa] = useState(0.06);
   const [debt, setDebt] = useState(0.6);
   const [res, setRes] = useState(0.12);
@@ -788,6 +793,7 @@ function SuddenPanel() {
 
 /* ── 9. Expectations ── */
 function ExpectPanel() {
+  const { t } = useTranslation();
   const [kind, setKind] = useState<ExpectationKind>("sticky");
   const [gain, setGain] = useState(0.25);
   const [stick, setStick] = useState(0.6);
@@ -858,6 +864,7 @@ function ExpectPanel() {
 
 /* ── 10. Unconventional policy ── */
 function UnconPanel() {
+  const { t } = useTranslation();
   const [qe, setQe] = useState(0.15);
   const [dur, setDur] = useState(2);
   const [hab, setHab] = useState(0.5);
@@ -933,6 +940,7 @@ function UnconPanel() {
 
 /* ── 11. Bank capital ── */
 function BankPanel() {
+  const { t } = useTranslation();
   const [cap, setCap] = useState(0.08);
   const [loss, setLoss] = useState(0.02);
   const [lev, setLev] = useState(12);
@@ -994,6 +1002,7 @@ function BankPanel() {
 
 /* ── 12. Climate ── */
 function ClimatePanel() {
+  const { t } = useTranslation();
   const [price, setPrice] = useState(150);
   const [share, setShare] = useState(0.06);
   const [years, setYears] = useState(30);

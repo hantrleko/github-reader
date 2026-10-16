@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useMemo, useState } from "react";
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -86,6 +87,7 @@ function solveNK(shock: "demand" | "supply" | "monetary",
 }
 
 export const DSGENKTool = () => {
+  const { t } = useTranslation();
   const [shock, setShock] = useState<"demand" | "supply" | "monetary">("monetary");
   const [sigma, setSigma] = useState(1.0);
   const [beta, setBeta] = useState(0.99);
@@ -119,57 +121,57 @@ export const DSGENKTool = () => {
   return (
     <div className="space-y-6">
       <PresetButtons presets={[
-        { name: "标准校准", description: "Gali (2008) 教科书参数", apply: () => { setSigma(1); setBeta(0.99); setKappa(0.13); setPhiPi(1.5); setPhiX(0.5); setRho(0.8); } },
-        { name: "鸽派央行", description: "φ_π=1.1 接近违反 Taylor", apply: () => { setPhiPi(1.1); setPhiX(0.0); setRho(0.8); } },
-        { name: "鹰派央行", description: "φ_π=2.5 强烈反通胀", apply: () => { setPhiPi(2.5); setPhiX(0.125); setRho(0.5); } },
-        { name: "刚性价格", description: "κ=0.03 极陡 NKPC", apply: () => { setKappa(0.03); setBeta(0.99); } },
-        { name: "持续冲击", description: "ρ=0.95", apply: () => { setRho(0.95); } },
+        { name: t("labs.macroV27.standardCalibration"), description: t("labs.macroV27.galiTextbook"), apply: () => { setSigma(1); setBeta(0.99); setKappa(0.13); setPhiPi(1.5); setPhiX(0.5); setRho(0.8); } },
+        { name: t("labs.macroV27.dovishCB"), description: t("labs.macroV27.dovishCBDesc"), apply: () => { setPhiPi(1.1); setPhiX(0.0); setRho(0.8); } },
+        { name: t("labs.macroV27.hawkishCB"), description: t("labs.macroV27.hawkishCBDesc"), apply: () => { setPhiPi(2.5); setPhiX(0.125); setRho(0.5); } },
+        { name: t("labs.macroV27.rigidPrice"), description: t("labs.macroV27.rigidPriceDesc"), apply: () => { setKappa(0.03); setBeta(0.99); } },
+        { name: t("labs.macroV27.persistentShock"), description: t("labs.macroV27.persistentShockDesc"), apply: () => { setRho(0.95); } },
       ]} />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="space-y-3">
-          <p className="text-xs font-mono text-gold uppercase tracking-wider">冲击类型</p>
+          <p className="text-xs font-mono text-gold uppercase tracking-wider">{t("labs.macroV27.shockType")}</p>
           <div className="flex gap-2">
             {(["demand","supply","monetary"] as const).map(s => (
               <button key={s} onClick={() => setShock(s)}
                 className={`flex-1 px-3 py-1.5 rounded-md text-[11px] font-mono transition-all ${
                   shock === s ? "bg-gold text-background" : "bg-secondary text-muted-foreground hover:bg-secondary/80"
                 }`}>
-                {s === "demand" ? "需求 ε_d" : s === "supply" ? "供给 ε_s" : "货币 ε_m"}
+                {s === "demand" ? t("labs.macroV27.demandShock") : s === "supply" ? t("labs.macroV27.supplyShock") : t("labs.macroV27.monetaryShock")}
               </button>
             ))}
           </div>
           <div className="grid grid-cols-2 gap-3 mt-3">
-            <Slider label="σ 跨期替代" value={sigma} min={0.5} max={3} step={0.1} onChange={setSigma} />
-            <Slider label="β 折现因子" value={beta} min={0.95} max={0.999} step={0.001} onChange={setBeta} />
-            <Slider label="κ NKPC 斜率" sub="价格刚性" value={kappa} min={0.01} max={0.5} step={0.01} onChange={setKappa} />
-            <Slider label="φ_π Taylor 通胀" value={phiPi} min={0.5} max={3} step={0.05} onChange={setPhiPi} />
-            <Slider label="φ_x Taylor 产出" value={phiX} min={0} max={1.5} step={0.05} onChange={setPhiX} />
-            <Slider label="ρ 冲击持续性" value={rho} min={0} max={0.99} step={0.01} onChange={setRho} />
+            <Slider label={t("labs.macroV27.sigmaLabel")} value={sigma} min={0.5} max={3} step={0.1} onChange={setSigma} />
+            <Slider label={t("labs.macroV27.betaLabel")} value={beta} min={0.95} max={0.999} step={0.001} onChange={setBeta} />
+            <Slider label={t("labs.macroV27.kappaLabel")} sub={t("labs.macroV27.priceRigidity")} value={kappa} min={0.01} max={0.5} step={0.01} onChange={setKappa} />
+            <Slider label={t("labs.macroV27.phiPiLabel")} value={phiPi} min={0.5} max={3} step={0.05} onChange={setPhiPi} />
+            <Slider label={t("labs.macroV27.phiXLabel")} value={phiX} min={0} max={1.5} step={0.05} onChange={setPhiX} />
+            <Slider label={t("labs.macroV27.rhoLabel")} value={rho} min={0} max={0.99} step={0.01} onChange={setRho} />
           </div>
-          <Slider label="脉冲期 H" value={horizon} min={8} max={40} step={1} onChange={setHorizon} />
+          <Slider label={t("labs.macroV27.horizonLabel")} value={horizon} min={8} max={40} step={1} onChange={setHorizon} />
         </div>
 
         <div className="space-y-3">
           <div className="grid grid-cols-2 gap-2">
-            <Stat label="Ψ_x (产出影响)" value={sol.psiX.toFixed(3)} sub="单位冲击对 x_t" />
-            <Stat label="Ψ_π (通胀影响)" value={sol.psiPi.toFixed(3)} color={CHART_RED} sub="单位冲击对 π_t" />
-            <Stat label="Ψ_i (利率影响)" value={sol.psiI.toFixed(3)} color={CHART_BLUE} sub="政策反应" />
-            <Stat label="Taylor 原则" value={taylorOK ? "✓ 决定" : "✗ 不定"} color={taylorOK ? CHART_TEAL : CHART_RED} sub={`φ_π = ${phiPi.toFixed(2)} ${taylorOK ? "> 1" : "≤ 1"}`} />
+            <Stat label={t("labs.macroV27.psiXLabel")} value={sol.psiX.toFixed(3)} sub={t("labs.macroV27.psiXSub")} />
+            <Stat label={t("labs.macroV27.psiPiLabel")} value={sol.psiPi.toFixed(3)} color={CHART_RED} sub={t("labs.macroV27.psiPiSub")} />
+            <Stat label={t("labs.macroV27.psiILabel")} value={sol.psiI.toFixed(3)} color={CHART_BLUE} sub={t("labs.macroV27.psiISub")} />
+            <Stat label={t("labs.macroV27.taylorPrinciple")} value={taylorOK ? t("labs.macroV27.determinate") : t("labs.macroV27.indeterminate")} color={taylorOK ? CHART_TEAL : CHART_RED} sub={`φ_π = ${phiPi.toFixed(2)} ${taylorOK ? "> 1" : "≤ 1"}`} />
           </div>
 
           <div className="text-xs font-mono text-muted-foreground p-3 rounded-lg bg-secondary/40 border border-border leading-relaxed space-y-1">
-            <p><span className="text-gold">3 方程 NK (Clarida-Galí-Gertler 1999):</span> IS + NKPC + Taylor Rule</p>
-            <p>解形如 z_t = Ψ_z · ε_t,在 AR(1) 冲击下用 ε_t = ρ^t 直接得到 IRF。</p>
-            <p>{shock === "demand" ? "需求冲击:x↑ π↑ i↑(顺周期通胀)" :
-                shock === "supply" ? "成本推动:π↑ x↓ i↑(滞胀两难)" :
-                "紧缩货币:i↑ x↓ π↓(总需求传导)"}</p>
+            <p><span className="text-gold">{t("labs.macroV27.nkTitle")}</span> IS + NKPC + Taylor Rule</p>
+            <p>{t("labs.macroV27.nkSolution")}</p>
+            <p>{shock === "demand" ? t("labs.macroV27.demandDesc") :
+                shock === "supply" ? t("labs.macroV27.supplyDesc") :
+                t("labs.macroV27.monetaryDesc")}</p>
           </div>
         </div>
       </div>
 
       <div className="rounded-xl border border-border bg-secondary/20 p-4">
-        <h4 className="text-sm font-semibold text-foreground mb-2">脉冲响应 IRF — 单位 {shock} 冲击 (%)</h4>
+        <h4 className="text-sm font-semibold text-foreground mb-2">{t("labs.macroV27.irfTitle", { shock })}</h4>
         <div className="h-[300px]">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={irf}>
@@ -179,10 +181,10 @@ export const DSGENKTool = () => {
               <Tooltip contentStyle={{ background: "hsl(var(--card))", border: `1px solid ${CHART_GRID}`, fontSize: 11 }} />
               <Legend wrapperStyle={{ fontSize: 11 }} />
               <ReferenceLine y={0} stroke={CHART_TEXT} />
-              <Line type="monotone" dataKey="x" name="产出缺口 x (%)" stroke={CHART_GOLD} strokeWidth={2.5} dot={false} />
-              <Line type="monotone" dataKey="pi" name="通胀 π (%)" stroke={CHART_RED} strokeWidth={2.5} dot={false} />
-              <Line type="monotone" dataKey="i" name="名义利率 i (%)" stroke={CHART_BLUE} strokeWidth={2} dot={false} />
-              <Line type="monotone" dataKey="eps" name="冲击 ε (%)" stroke={CHART_TEAL} strokeWidth={1.5} dot={false} strokeDasharray="4 3" />
+              <Line type="monotone" dataKey="x" name={t("labs.macroV27.xGap")} stroke={CHART_GOLD} strokeWidth={2.5} dot={false} />
+              <Line type="monotone" dataKey="pi" name={t("labs.macroV27.piInf")} stroke={CHART_RED} strokeWidth={2.5} dot={false} />
+              <Line type="monotone" dataKey="i" name={t("labs.macroV27.iRate")} stroke={CHART_BLUE} strokeWidth={2} dot={false} />
+              <Line type="monotone" dataKey="eps" name={t("labs.macroV27.epsShock")} stroke={CHART_TEAL} strokeWidth={1.5} dot={false} strokeDasharray="4 3" />
             </LineChart>
           </ResponsiveContainer>
         </div>
@@ -207,6 +209,7 @@ export const DSGENKTool = () => {
  * visualise consumption response heterogeneity to a transfer shock.
  */
 export const HANKTool = () => {
+  const { t } = useTranslation();
   const [lambda, setLambda] = useState(0.35);   // HTM share
   const [sigma, setSigma] = useState(1.0);
   const [beta, setBeta] = useState(0.99);
@@ -312,67 +315,67 @@ export const HANKTool = () => {
   return (
     <div className="space-y-6">
       <PresetButtons presets={[
-        { name: "美国基准", description: "λ=0.35 HTM 比例", apply: () => { setLambda(0.35); setSigma(1); setBeta(0.99); setKappa(0.13); setPhiPi(1.5); setRho(0.8); } },
-        { name: "RANK (λ=0)", description: "纯代表性家庭", apply: () => { setLambda(0); } },
-        { name: "深度 HANK", description: "λ=0.6 极高 HTM", apply: () => { setLambda(0.6); } },
-        { name: "财政刺激", description: "1.5 单位转移支付", apply: () => { setTransfer(1.5); setLambda(0.4); } },
+        { name: t("labs.macroV27.usBenchmark"), description: t("labs.macroV27.htmShare"), apply: () => { setLambda(0.35); setSigma(1); setBeta(0.99); setKappa(0.13); setPhiPi(1.5); setRho(0.8); } },
+        { name: t("labs.macroV27.rankOnly"), description: t("labs.macroV27.rankOnlyDesc"), apply: () => { setLambda(0); } },
+        { name: t("labs.macroV27.deepHank"), description: t("labs.macroV27.deepHankDesc"), apply: () => { setLambda(0.6); } },
+        { name: t("labs.macroV27.fiscalStimulus"), description: t("labs.macroV27.fiscalStimulusDesc"), apply: () => { setTransfer(1.5); setLambda(0.4); } },
       ]} />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="space-y-3">
           <div className="grid grid-cols-2 gap-3">
-            <Slider label="λ HTM 比例" sub="hand-to-mouth" value={lambda} min={0} max={0.7} step={0.01} onChange={setLambda} />
-            <Slider label="σ 跨期替代" value={sigma} min={0.5} max={3} step={0.1} onChange={setSigma} />
-            <Slider label="κ NKPC 斜率" value={kappa} min={0.03} max={0.4} step={0.01} onChange={setKappa} />
+            <Slider label={t("labs.macroV27.lambdaLabel")} sub="hand-to-mouth" value={lambda} min={0} max={0.7} step={0.01} onChange={setLambda} />
+            <Slider label={t("labs.macroV27.sigmaLabel")} value={sigma} min={0.5} max={3} step={0.1} onChange={setSigma} />
+            <Slider label={t("labs.macroV27.kappaLabel")} value={kappa} min={0.03} max={0.4} step={0.01} onChange={setKappa} />
             <Slider label="φ_π Taylor" value={phiPi} min={1.01} max={3} step={0.05} onChange={setPhiPi} />
-            <Slider label="ρ 冲击持续" value={rho} min={0} max={0.95} step={0.01} onChange={setRho} />
-            <Slider label="转移支付 τ" sub="财政冲击单位" value={transfer} min={0} max={2} step={0.1} onChange={setTransfer} />
+            <Slider label={t("labs.macroV27.rhoLabel")} value={rho} min={0} max={0.95} step={0.01} onChange={setRho} />
+            <Slider label={t("labs.macroV27.transferLabel")} sub={t("labs.macroV27.fiscalShockUnit")} value={transfer} min={0} max={2} step={0.1} onChange={setTransfer} />
           </div>
         </div>
 
         <div className="space-y-3">
           <div className="grid grid-cols-2 gap-2">
-            <Stat label="加总 MPC" value={aggMPC.toFixed(3)} color={CHART_GOLD} sub="HANK 比 RANK 高 ≈ 2-3×" />
-            <Stat label="财政乘数" value={aggDC.toFixed(3)} color={CHART_TEAL} sub="单位转移 → 消费" />
-            <Stat label="货币放大 (TANK/RANK)" value={`${amplification.toFixed(2)}×`} color={CHART_PURPLE} sub="x_t 响应放大" />
-            <Stat label="顶层财富份额" value={`${dist[9].share.toFixed(1)}%`} sub="D10 财富占比" />
+            <Stat label={t("labs.macroV27.aggMPC")} value={aggMPC.toFixed(3)} color={CHART_GOLD} sub={t("labs.macroV27.aggMPCSub")} />
+            <Stat label={t("labs.macroV27.fiscalMultiplier")} value={aggDC.toFixed(3)} color={CHART_TEAL} sub={t("labs.macroV27.aggDCSub")} />
+            <Stat label={t("labs.macroV27.monetaryAmp")} value={`${amplification.toFixed(2)}×`} color={CHART_PURPLE} sub={t("labs.macroV27.ampSub")} />
+            <Stat label={t("labs.macroV27.topWealthShare")} value={`${dist[9].share.toFixed(1)}%`} sub={t("labs.macroV27.topWealthSub")} />
           </div>
           <div className="text-xs font-mono text-muted-foreground p-3 rounded-lg bg-secondary/40 border border-border leading-relaxed space-y-1">
-            <p><span className="text-gold">HANK (Kaplan-Moll-Violante 2018):</span> 异质代理放弃 representative agent 假设。</p>
-            <p>本教学版用 TANK 近似:HTM 家庭 MPC≈1,Ricardian 平滑消费 → 加总 MPC 高于 RANK。</p>
-            <p>财政转移在 HANK 中乘数显著大于 RANK;货币政策通过收入渠道 (间接效应) 放大。</p>
+            <p><span className="text-gold">HANK (Kaplan-Moll-Violante 2018):</span> {t("labs.macroV27.hankProse1")}</p>
+            <p>{t("labs.macroV27.hankProse2")}</p>
+            <p>{t("labs.macroV27.hankProse3")}</p>
           </div>
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <div className="rounded-xl border border-border bg-secondary/20 p-4">
-          <h4 className="text-sm font-semibold text-foreground mb-2">财富分布 & MPC 异质性</h4>
+          <h4 className="text-sm font-semibold text-foreground mb-2">{t("labs.macroV27.wealthDistTitle")}</h4>
           <div className="h-[260px]">
             <ResponsiveContainer width="100%" height="100%">
               <ComposedChart data={dist}>
                 <CartesianGrid stroke={CHART_GRID} strokeDasharray="3 3" />
                 <XAxis dataKey="decile" stroke={CHART_TEXT} tick={{ fontSize: 10 }} />
-                <YAxis yAxisId="left" stroke={CHART_GOLD} tick={{ fontSize: 10 }} label={{ value: "财富份额 %", angle: -90, position: "insideLeft", fill: CHART_GOLD, fontSize: 10 }} />
-                <YAxis yAxisId="right" orientation="right" stroke={CHART_RED} tick={{ fontSize: 10 }} label={{ value: "MPC", angle: 90, position: "insideRight", fill: CHART_RED, fontSize: 10 }} />
+                <YAxis yAxisId="left" stroke={CHART_GOLD} tick={{ fontSize: 10 }} label={{ value: t("labs.macroV27.wealthShareLabel"), angle: -90, position: "insideLeft", fill: CHART_GOLD, fontSize: 10 }} />
+                <YAxis yAxisId="right" orientation="right" stroke={CHART_RED} tick={{ fontSize: 10 }} label={{ value: t("labs.macroV27.mpcLabel"), angle: 90, position: "insideRight", fill: CHART_RED, fontSize: 10 }} />
                 <Tooltip contentStyle={{ background: "hsl(var(--card))", border: `1px solid ${CHART_GRID}`, fontSize: 11 }} />
                 <Legend wrapperStyle={{ fontSize: 11 }} />
-                <Bar yAxisId="left" dataKey="share" name="财富份额 %" radius={[3, 3, 0, 0]}>
+                <Bar yAxisId="left" dataKey="share" name={t("labs.macroV27.wealthShareLabel")} radius={[3, 3, 0, 0]}>
                   {dist.map((d, i) => (
                     <Cell key={i} fill={d.type === "HTM" ? CHART_RED : CHART_GOLD} fillOpacity={0.7} />
                   ))}
                 </Bar>
-                <Line yAxisId="right" type="monotone" dataKey="mpc" name="MPC" stroke={CHART_RED} strokeWidth={2} dot={{ r: 3 }} />
+                <Line yAxisId="right" type="monotone" dataKey="mpc" name={t("labs.macroV27.mpcLabel")} stroke={CHART_RED} strokeWidth={2} dot={{ r: 3 }} />
               </ComposedChart>
             </ResponsiveContainer>
           </div>
           <p className="text-[10px] font-mono text-muted-foreground mt-2">
-            红色柱 = HTM (无储蓄,MPC≈1);金色柱 = Ricardian (帕累托右尾,低 MPC)
+            {t("labs.macroV27.wealthLegend")}
           </p>
         </div>
 
         <div className="rounded-xl border border-border bg-secondary/20 p-4">
-          <h4 className="text-sm font-semibold text-foreground mb-2">RANK vs HANK 货币 IRF (产出缺口 %)</h4>
+          <h4 className="text-sm font-semibold text-foreground mb-2">{t("labs.macroV27.rankVsHankIrf")}</h4>
           <div className="h-[260px]">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={irf}>
@@ -382,13 +385,13 @@ export const HANKTool = () => {
                 <Tooltip contentStyle={{ background: "hsl(var(--card))", border: `1px solid ${CHART_GRID}`, fontSize: 11 }} />
                 <Legend wrapperStyle={{ fontSize: 11 }} />
                 <ReferenceLine y={0} stroke={CHART_TEXT} />
-                <Line type="monotone" dataKey="rankX" name="RANK x" stroke={CHART_BLUE} strokeWidth={2} dot={false} strokeDasharray="4 3" />
-                <Line type="monotone" dataKey="tankX" name="HANK x" stroke={CHART_GOLD} strokeWidth={2.5} dot={false} />
+                <Line type="monotone" dataKey="rankX" name={t("labs.macroV27.rankX")} stroke={CHART_BLUE} strokeWidth={2} dot={false} strokeDasharray="4 3" />
+                <Line type="monotone" dataKey="tankX" name={t("labs.macroV27.tankX")} stroke={CHART_GOLD} strokeWidth={2.5} dot={false} />
               </LineChart>
             </ResponsiveContainer>
           </div>
           <p className="text-[10px] font-mono text-muted-foreground mt-2">
-            HTM 家庭对当期收入/利率更敏感 → HANK 货币传导曲线更陡。
+            {t("labs.macroV27.htmSensitivity")}
           </p>
         </div>
       </div>
@@ -468,6 +471,7 @@ function buildBinomialRO(opts: {
 }
 
 export const RealOptionsTool = () => {
+  const { t } = useTranslation();
   const [V0, setV0] = useState(100);
   const [I, setI] = useState(100);
   const [sigma, setSigma] = useState(0.30);
@@ -507,46 +511,46 @@ export const RealOptionsTool = () => {
   return (
     <div className="space-y-6">
       <PresetButtons presets={[
-        { name: "ATM 标准", description: "V≈I, σ=0.3", apply: () => { setV0(100); setI(100); setSigma(0.30); setMu(0.05); setR(0.05); setT(5); } },
-        { name: "深 ITM", description: "V>>I 立即投资", apply: () => { setV0(180); setI(100); setSigma(0.20); } },
-        { name: "高不确定性", description: "σ=0.6 等待价值高", apply: () => { setSigma(0.6); setV0(100); setI(100); } },
-        { name: "长期项目", description: "T=10 年", apply: () => { setT(10); setSteps(60); } },
-        { name: "无增长", description: "μ=0 σ 主导价值", apply: () => { setMu(0); setSigma(0.4); } },
+        { name: t("labs.macroV27.roAtmStandard"), description: t("labs.macroV27.roAtmStandardDesc"), apply: () => { setV0(100); setI(100); setSigma(0.30); setMu(0.05); setR(0.05); setT(5); } },
+        { name: t("labs.macroV27.roDeepItm"), description: t("labs.macroV27.roDeepItmDesc"), apply: () => { setV0(180); setI(100); setSigma(0.20); } },
+        { name: t("labs.macroV27.roHighUncertainty"), description: t("labs.macroV27.roHighUncertaintyDesc"), apply: () => { setSigma(0.6); setV0(100); setI(100); } },
+        { name: t("labs.macroV27.roLongTermProject"), description: t("labs.macroV27.roLongTermProjectDesc"), apply: () => { setT(10); setSteps(60); } },
+        { name: t("labs.macroV27.roNoGrowth"), description: t("labs.macroV27.roNoGrowthDesc"), apply: () => { setMu(0); setSigma(0.4); } },
       ]} />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="space-y-3">
           <div className="grid grid-cols-2 gap-3">
-            <Slider label="V₀ 项目当前价值" value={V0} min={20} max={250} step={1} onChange={setV0} />
-            <Slider label="I 投资成本" value={I} min={20} max={250} step={1} onChange={setI} />
-            <Slider label="σ 价值波动率" value={sigma} min={0.05} max={0.8} step={0.01} onChange={setSigma} />
-            <Slider label="μ 真实漂移" value={mu} min={-0.05} max={0.15} step={0.005} onChange={setMu} />
-            <Slider label="r 无风险率" value={r} min={0} max={0.12} step={0.005} onChange={setR} />
-            <Slider label="T 决策窗口 (年)" value={T} min={1} max={15} step={0.5} onChange={setT} />
+            <Slider label={t("labs.macroV27.v0Label")} value={V0} min={20} max={250} step={1} onChange={setV0} />
+            <Slider label={t("labs.macroV27.iCostLabel")} value={I} min={20} max={250} step={1} onChange={setI} />
+            <Slider label={t("labs.macroV27.sigmaVolatilityLabel")} value={sigma} min={0.05} max={0.8} step={0.01} onChange={setSigma} />
+            <Slider label={t("labs.macroV27.muDriftLabel")} value={mu} min={-0.05} max={0.15} step={0.005} onChange={setMu} />
+            <Slider label={t("labs.macroV27.rRiskFreeLabel")} value={r} min={0} max={0.12} step={0.005} onChange={setR} />
+            <Slider label={t("labs.macroV27.tWindowLabel")} value={T} min={1} max={15} step={0.5} onChange={setT} />
           </div>
-          <Slider label="二叉树步数" value={steps} min={20} max={120} step={5} onChange={setSteps} />
+          <Slider label={t("labs.macroV27.stepsLabel")} value={steps} min={20} max={120} step={5} onChange={setSteps} />
         </div>
 
         <div className="space-y-3">
           <div className="grid grid-cols-2 gap-2">
-            <Stat label="实物期权价值 F" value={res.optionValue.toFixed(3)} color={CHART_GOLD} sub="含延迟期权" />
-            <Stat label="朴素 NPV" value={res.npvNaive.toFixed(3)} color={CHART_BLUE} sub="max(V−I, 0)" />
-            <Stat label="期权溢价" value={res.premium.toFixed(3)} color={CHART_RED} sub="F − NPV (等待价值)" />
-            <Stat label="V* 永久基准" value={isFinite(vStarPerp) ? vStarPerp.toFixed(2) : "∞"} color={CHART_PURPLE} sub={`β=${beta.toFixed(3)}`} />
-            <Stat label="风险中性 p" value={res.p.toFixed(3)} sub={`u=${res.u.toFixed(3)}, d=${res.d.toFixed(3)}`} />
-            <Stat label="决策" value={V0 >= (isFinite(vStarPerp) ? vStarPerp : 1e9) ? "投资" : "等待"} color={V0 >= vStarPerp ? CHART_TEAL : CHART_RED} sub={`V₀/I=${(V0/I).toFixed(2)}`} />
+            <Stat label={t("labs.macroV27.optionValueF")} value={res.optionValue.toFixed(3)} color={CHART_GOLD} sub={t("labs.macroV27.deferredOption")} />
+            <Stat label={t("labs.macroV27.naiveNpv")} value={res.npvNaive.toFixed(3)} color={CHART_BLUE} sub={t("labs.macroV27.maxVi")} />
+            <Stat label={t("labs.macroV27.optionPremium")} value={res.premium.toFixed(3)} color={CHART_RED} sub={t("labs.macroV27.waitingValue")} />
+            <Stat label={t("labs.macroV27.vStarPerpLabel")} value={isFinite(vStarPerp) ? vStarPerp.toFixed(2) : "∞"} color={CHART_PURPLE} sub={`β=${beta.toFixed(3)}`} />
+            <Stat label={t("labs.macroV27.riskNeutralP")} value={res.p.toFixed(3)} sub={`u=${res.u.toFixed(3)}, d=${res.d.toFixed(3)}`} />
+            <Stat label={t("labs.macroV27.decisionLabel")} value={V0 >= (isFinite(vStarPerp) ? vStarPerp : 1e9) ? t("labs.macroV27.invest") : t("labs.macroV27.wait")} color={V0 >= vStarPerp ? CHART_TEAL : CHART_RED} sub={`V₀/I=${(V0/I).toFixed(2)}`} />
           </div>
           <div className="text-xs font-mono text-muted-foreground p-3 rounded-lg bg-secondary/40 border border-border leading-relaxed space-y-1">
             <p><span className="text-gold">Dixit-Pindyck (1994):</span> 投资具有期权性,σ↑ → 等待价值↑ → 触发阈值 V* &gt; I。</p>
-            <p>朴素 NPV 规则 (V≥I 投资) 系统性低估期权溢价,导致过度投资。</p>
-            <p>永久解析:V* = β/(β−1)·I,其中 β 满足二次方程根式。</p>
+            <p>{t("labs.macroV27.roProse2")}</p>
+            <p>{t("labs.macroV27.roProse3")}</p>
           </div>
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <div className="rounded-xl border border-border bg-secondary/20 p-4">
-          <h4 className="text-sm font-semibold text-foreground mb-2">期权价值 vs V₀ — 与 NPV 对比</h4>
+          <h4 className="text-sm font-semibold text-foreground mb-2">{t("labs.macroV27.optionVsV0Title")}</h4>
           <div className="h-[260px]">
             <ResponsiveContainer width="100%" height="100%">
               <ComposedChart data={sensCurve}>
@@ -555,9 +559,9 @@ export const RealOptionsTool = () => {
                 <YAxis stroke={CHART_TEXT} tick={{ fontSize: 10 }} />
                 <Tooltip contentStyle={{ background: "hsl(var(--card))", border: `1px solid ${CHART_GRID}`, fontSize: 11 }} />
                 <Legend wrapperStyle={{ fontSize: 11 }} />
-                <Area type="monotone" dataKey="premium" name="等待溢价" stroke="none" fill={CHART_RED} fillOpacity={0.20} />
-                <Line type="monotone" dataKey="option" name="实物期权 F(V)" stroke={CHART_GOLD} strokeWidth={2.5} dot={false} />
-                <Line type="monotone" dataKey="npv" name="朴素 NPV" stroke={CHART_BLUE} strokeWidth={2} dot={false} strokeDasharray="4 3" />
+                <Area type="monotone" dataKey="premium" name={t("labs.macroV27.waitingPremium")} stroke="none" fill={CHART_RED} fillOpacity={0.20} />
+                <Line type="monotone" dataKey="option" name={t("labs.macroV27.optionFv")} stroke={CHART_GOLD} strokeWidth={2.5} dot={false} />
+                <Line type="monotone" dataKey="npv" name={t("labs.macroV27.naiveNpv")} stroke={CHART_BLUE} strokeWidth={2} dot={false} strokeDasharray="4 3" />
                 <ReferenceLine x={I} stroke={CHART_TEAL} strokeDasharray="3 3" label={{ value: "V=I", fill: CHART_TEAL, fontSize: 10 }} />
                 {isFinite(vStarPerp) && (
                   <ReferenceLine x={vStarPerp} stroke={CHART_PURPLE} strokeDasharray="3 3" label={{ value: "V*", fill: CHART_PURPLE, fontSize: 10 }} />
@@ -568,16 +572,16 @@ export const RealOptionsTool = () => {
         </div>
 
         <div className="rounded-xl border border-border bg-secondary/20 p-4">
-          <h4 className="text-sm font-semibold text-foreground mb-2">最优投资阈值 V*(t) 路径</h4>
+          <h4 className="text-sm font-semibold text-foreground mb-2">{t("labs.macroV27.optimalThresholdTitle")}</h4>
           <div className="h-[260px]">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={thresholdClean}>
                 <CartesianGrid stroke={CHART_GRID} strokeDasharray="3 3" />
-                <XAxis dataKey="t" stroke={CHART_TEXT} tick={{ fontSize: 10 }} label={{ value: "t (年)", position: "insideBottom", offset: -5, fill: CHART_TEXT, fontSize: 10 }} />
+                <XAxis dataKey="t" stroke={CHART_TEXT} tick={{ fontSize: 10 }} label={{ value: t("labs.macroV27.tYears"), position: "insideBottom", offset: -5, fill: CHART_TEXT, fontSize: 10 }} />
                 <YAxis stroke={CHART_TEXT} tick={{ fontSize: 10 }} />
                 <Tooltip contentStyle={{ background: "hsl(var(--card))", border: `1px solid ${CHART_GRID}`, fontSize: 11 }} />
                 <Legend wrapperStyle={{ fontSize: 11 }} />
-                <Line type="monotone" dataKey="vStar" name="V*(t) 触发阈值" stroke={CHART_GOLD} strokeWidth={2.5} dot={false} connectNulls />
+                <Line type="monotone" dataKey="vStar" name={t("labs.macroV27.vStarThreshold")} stroke={CHART_GOLD} strokeWidth={2.5} dot={false} connectNulls />
                 <ReferenceLine y={I} stroke={CHART_BLUE} strokeDasharray="3 3" label={{ value: "I", fill: CHART_BLUE, fontSize: 10 }} />
                 {isFinite(vStarPerp) && (
                   <ReferenceLine y={vStarPerp} stroke={CHART_PURPLE} strokeDasharray="3 3" label={{ value: "V*_∞", fill: CHART_PURPLE, fontSize: 10 }} />
@@ -586,7 +590,7 @@ export const RealOptionsTool = () => {
             </ResponsiveContainer>
           </div>
           <p className="text-[10px] font-mono text-muted-foreground mt-2">
-            临近到期 T,等待价值消失 → V*(t) → I;长窗口下 V*(t) 接近永久解 V*_∞。
+            {t("labs.macroV27.roLegend")}
           </p>
         </div>
       </div>

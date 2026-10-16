@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useState, useMemo } from "react";
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -50,6 +51,7 @@ const ChartCard = ({ title, hint, children }: { title: string; hint?: string; ch
    IS: R = (A − (1−mpc)Y)/b ;  LM: R = (kY − M)/h
    ════════════════════════════════════════════════════════════ */
 export const ISLMTool = () => {
+  const { t } = useTranslation();
   const [mpc, setMpc] = useState(0.6);
   const [G, setG] = useState(30);
   const [M, setM] = useState(120);
@@ -86,50 +88,50 @@ export const ISLMTool = () => {
   return (
     <div className="space-y-6">
       <PresetButtons presets={[
-        { name: "基准", description: "标准参数", apply: () => { setMpc(0.6); setG(30); setM(120); setB(4); setK(0.5); setH(4); } },
-        { name: "财政扩张", description: "G:30→60", apply: () => { setG(60); } },
-        { name: "货币扩张", description: "M:120→180", apply: () => { setM(180); } },
-        { name: "流动性陷阱", description: "h 极大,货币失效", apply: () => { setH(40); } },
-        { name: "古典区间", description: "h 极小,挤出严重", apply: () => { setH(0.6); } },
+        { name: t("labs.macroClassic.islm.presets.base.name"), description: t("labs.macroClassic.islm.presets.base.desc"), apply: () => { setMpc(0.6); setG(30); setM(120); setB(4); setK(0.5); setH(4); } },
+        { name: t("labs.macroClassic.islm.presets.fiscal.name"), description: t("labs.macroClassic.islm.presets.fiscal.desc"), apply: () => { setG(60); } },
+        { name: t("labs.macroClassic.islm.presets.monetary.name"), description: t("labs.macroClassic.islm.presets.monetary.desc"), apply: () => { setM(180); } },
+        { name: t("labs.macroClassic.islm.presets.liquidity.name"), description: t("labs.macroClassic.islm.presets.liquidity.desc"), apply: () => { setH(40); } },
+        { name: t("labs.macroClassic.islm.presets.classical.name"), description: t("labs.macroClassic.islm.presets.classical.desc"), apply: () => { setH(0.6); } },
       ]} />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="space-y-3">
           <div className="grid grid-cols-2 gap-3">
-            <Slider label="边际消费倾向 mpc" value={mpc} min={0.3} max={0.9} step={0.05} onChange={setMpc} />
-            <Slider label="政府支出 G" value={G} min={0} max={100} step={5} onChange={setG} />
-            <Slider label="实际货币供给 M/P" value={M} min={40} max={240} step={10} onChange={setM} />
-            <Slider label="投资利率敏感 b" value={b} min={1} max={10} step={0.5} onChange={setB} />
-            <Slider label="货币需求 k (收入)" value={k} min={0.2} max={1.2} step={0.05} onChange={setK} />
-            <Slider label="货币需求 h (利率)" value={h} min={0.5} max={40} step={0.5} onChange={setH} />
+            <Slider label={t("labs.macroClassic.islm.sliders.mpc")} value={mpc} min={0.3} max={0.9} step={0.05} onChange={setMpc} />
+            <Slider label={t("labs.macroClassic.islm.sliders.g")} value={G} min={0} max={100} step={5} onChange={setG} />
+            <Slider label={t("labs.macroClassic.islm.sliders.m")} value={M} min={40} max={240} step={10} onChange={setM} />
+            <Slider label={t("labs.macroClassic.islm.sliders.b")} value={b} min={1} max={10} step={0.5} onChange={setB} />
+            <Slider label={t("labs.macroClassic.islm.sliders.k")} value={k} min={0.2} max={1.2} step={0.05} onChange={setK} />
+            <Slider label={t("labs.macroClassic.islm.sliders.h")} value={h} min={0.5} max={40} step={0.5} onChange={setH} />
           </div>
         </div>
         <div className="space-y-3">
           <div className="grid grid-cols-2 gap-2">
-            <Stat label="均衡产出 Y*" value={r.Ystar.toFixed(1)} />
-            <Stat label="均衡利率 R*" value={r.Rstar.toFixed(2)} color={CHART_TEAL} />
-            <Stat label="简单乘数" value={r.simpleMult.toFixed(2)} color={CHART_BLUE} sub="1/(1−mpc)" />
-            <Stat label="实际财政乘数" value={r.actualMultG.toFixed(2)} color={CHART_GOLD} sub="dY/dG (含 LM)" />
-            <Stat label="挤出比例" value={`${(r.crowdOut * 100).toFixed(0)}%`} color={CHART_RED} sub="利率上升挤占投资" />
+            <Stat label={t("labs.macroClassic.islm.stats.ystar")} value={r.Ystar.toFixed(1)} />
+            <Stat label={t("labs.macroClassic.islm.stats.rstar")} value={r.Rstar.toFixed(2)} color={CHART_TEAL} />
+            <Stat label={t("labs.macroClassic.islm.stats.simpleMult")} value={r.simpleMult.toFixed(2)} color={CHART_BLUE} sub="1/(1−mpc)" />
+            <Stat label={t("labs.macroClassic.islm.stats.actualMult")} value={r.actualMultG.toFixed(2)} color={CHART_GOLD} sub="dY/dG (含 LM)" />
+            <Stat label={t("labs.macroClassic.islm.stats.crowdOut")} value={`${(r.crowdOut * 100).toFixed(0)}%`} color={CHART_RED} sub={t("labs.macroClassic.islm.stats.crowdOutSub")} />
           </div>
           <Note>
-            <p><span className="text-gold">IS：</span>产品市场均衡，财政政策 (G↑) 右移 IS。</p>
-            <p><span className="text-gold">LM：</span>货币市场均衡，货币政策 (M↑) 右移 LM。</p>
-            <p><span className="text-gold">挤出效应：</span>财政扩张推高利率 → 挤占私人投资；h 越小挤出越强；h→∞ 为流动性陷阱（货币政策失效）。</p>
+            <p><span className="text-gold">IS：</span>{t("labs.macroClassic.islm.notes.is")}</p>
+            <p><span className="text-gold">LM：</span>{t("labs.macroClassic.islm.notes.lm")}</p>
+            <p><span className="text-gold">{t("labs.macroClassic.islm.notes.crowdOutTitle", "Crowding-out")}：</span>{t("labs.macroClassic.islm.notes.crowdOut")}</p>
           </Note>
         </div>
       </div>
 
-      <ChartCard title="IS-LM 均衡" hint="横轴产出 Y、纵轴利率 R。IS 向下、LM 向上，交点决定均衡 (Y*, R*)。">
+      <ChartCard title={t("labs.macroClassic.islm.chart.title")} hint={t("labs.macroClassic.islm.chart.hint")}>
         <ResponsiveContainer width="100%" height="100%">
           <ComposedChart data={curve}>
             <CartesianGrid stroke={CHART_GRID} strokeDasharray="3 3" />
-            <XAxis dataKey="Y" stroke={CHART_TEXT} tick={{ fontSize: 10 }} label={{ value: "产出 Y", position: "insideBottom", offset: -5, fill: CHART_TEXT, fontSize: 10 }} />
-            <YAxis stroke={CHART_TEXT} tick={{ fontSize: 10 }} domain={[0, "auto"]} label={{ value: "利率 R", angle: -90, position: "insideLeft", fill: CHART_TEXT, fontSize: 10 }} />
+            <XAxis dataKey="Y" stroke={CHART_TEXT} tick={{ fontSize: 10 }} label={{ value: t("labs.macroClassic.islm.chart.xAxis"), position: "insideBottom", offset: -5, fill: CHART_TEXT, fontSize: 10 }} />
+            <YAxis stroke={CHART_TEXT} tick={{ fontSize: 10 }} domain={[0, "auto"]} label={{ value: t("labs.macroClassic.islm.chart.yAxis"), angle: -90, position: "insideLeft", fill: CHART_TEXT, fontSize: 10 }} />
             <Tooltip contentStyle={{ background: "hsl(var(--card))", border: `1px solid ${CHART_GRID}`, fontSize: 11 }} />
             <Legend wrapperStyle={{ fontSize: 11 }} />
-            <Line type="monotone" dataKey="IS" name="IS 曲线" stroke={CHART_GOLD} strokeWidth={2.5} dot={false} />
-            <Line type="monotone" dataKey="LM" name="LM 曲线" stroke={CHART_BLUE} strokeWidth={2.5} dot={false} />
+            <Line type="monotone" dataKey="IS" name={t("labs.macroClassic.islm.chart.isLine")} stroke={CHART_GOLD} strokeWidth={2.5} dot={false} />
+            <Line type="monotone" dataKey="LM" name={t("labs.macroClassic.islm.chart.lmLine")} stroke={CHART_BLUE} strokeWidth={2.5} dot={false} />
             <ReferenceDot x={+r.Ystar.toFixed(1)} y={+r.Rstar.toFixed(2)} r={5} fill={CHART_RED} stroke="none" />
           </ComposedChart>
         </ResponsiveContainer>
@@ -142,6 +144,7 @@ export const ISLMTool = () => {
    2. AD-AS — short/long run, demand & supply shocks
    ════════════════════════════════════════════════════════════ */
 export const ADASTool = () => {
+  const { t } = useTranslation();
   const [Yn, setYn] = useState(100);     // potential output
   const [adShift, setAdShift] = useState(0);   // demand shock
   const [asShift, setAsShift] = useState(0);   // supply shock (cost-push)
@@ -173,45 +176,45 @@ export const ADASTool = () => {
   return (
     <div className="space-y-6">
       <PresetButtons presets={[
-        { name: "长期均衡", description: "无冲击", apply: () => { setAdShift(0); setAsShift(0); setPe(100); setYn(100); setLambda(0.5); } },
-        { name: "需求扩张", description: "AD 右移", apply: () => { setAdShift(20); setAsShift(0); } },
-        { name: "负向供给冲击", description: "石油危机→滞胀", apply: () => { setAdShift(0); setAsShift(25); } },
-        { name: "需求衰退", description: "信心下降", apply: () => { setAdShift(-20); setAsShift(0); } },
+        { name: t("labs.macroClassic.adas.presets.lrun.name"), description: t("labs.macroClassic.adas.presets.lrun.desc"), apply: () => { setAdShift(0); setAsShift(0); setPe(100); setYn(100); setLambda(0.5); } },
+        { name: t("labs.macroClassic.adas.presets.demand.name"), description: t("labs.macroClassic.adas.presets.demand.desc"), apply: () => { setAdShift(20); setAsShift(0); } },
+        { name: t("labs.macroClassic.adas.presets.supply.name"), description: t("labs.macroClassic.adas.presets.supply.desc"), apply: () => { setAdShift(0); setAsShift(25); } },
+        { name: t("labs.macroClassic.adas.presets.recession.name"), description: t("labs.macroClassic.adas.presets.recession.desc"), apply: () => { setAdShift(-20); setAsShift(0); } },
       ]} />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="space-y-3">
-          <Slider label="潜在产出 Yⁿ (LRAS)" value={Yn} min={80} max={120} step={1} onChange={setYn} />
-          <Slider label="需求冲击 (移动 AD)" value={adShift} min={-40} max={40} step={2} onChange={setAdShift} />
-          <Slider label="供给冲击 (移动 SRAS)" value={asShift} min={-30} max={40} step={2} onChange={setAsShift} />
-          <Slider label="SRAS 斜率 λ" sub="价格粘性" value={lambda} min={0.1} max={2} step={0.1} onChange={setLambda} />
-          <Slider label="预期价格 Pᵉ" value={Pe} min={80} max={130} step={1} onChange={setPe} />
+          <Slider label={t("labs.macroClassic.adas.sliders.yn")} value={Yn} min={80} max={120} step={1} onChange={setYn} />
+          <Slider label={t("labs.macroClassic.adas.sliders.ad")} value={adShift} min={-40} max={40} step={2} onChange={setAdShift} />
+          <Slider label={t("labs.macroClassic.adas.sliders.as")} value={asShift} min={-30} max={40} step={2} onChange={setAsShift} />
+          <Slider label={t("labs.macroClassic.adas.sliders.lambda")} sub={t("labs.macroClassic.adas.sliders.lambdaSub")} value={lambda} min={0.1} max={2} step={0.1} onChange={setLambda} />
+          <Slider label={t("labs.macroClassic.adas.sliders.pe")} value={Pe} min={80} max={130} step={1} onChange={setPe} />
         </div>
         <div className="space-y-3">
           <div className="grid grid-cols-2 gap-2">
-            <Stat label="短期产出 Y*" value={r.Ystar.toFixed(1)} />
-            <Stat label="短期价格 P*" value={r.Pstar.toFixed(1)} color={CHART_TEAL} />
-            <Stat label="产出缺口" value={r.gap.toFixed(1)} color={r.gap >= 0 ? CHART_RED : CHART_BLUE} sub={r.gap >= 0 ? "过热 (通胀压力)" : "衰退 (失业压力)"} />
-            <Stat label="潜在产出 Yⁿ" value={Yn.toFixed(0)} color={CHART_GOLD} />
+            <Stat label={t("labs.macroClassic.adas.stats.ystar")} value={r.Ystar.toFixed(1)} />
+            <Stat label={t("labs.macroClassic.adas.stats.pstar")} value={r.Pstar.toFixed(1)} color={CHART_TEAL} />
+            <Stat label={t("labs.macroClassic.adas.stats.gap")} value={r.gap.toFixed(1)} color={r.gap >= 0 ? CHART_RED : CHART_BLUE} sub={r.gap >= 0 ? t("labs.macroClassic.adas.stats.gapOverheat") : t("labs.macroClassic.adas.stats.gapRecession")} />
+            <Stat label={t("labs.macroClassic.adas.stats.yn")} value={Yn.toFixed(0)} color={CHART_GOLD} />
           </div>
           <Note>
-            <p><span className="text-gold">AD：</span>价格-产出负相关（财富/利率/汇率效应）。</p>
-            <p><span className="text-gold">SRAS：</span>短期向上倾斜（工资价格粘性）；LRAS 垂直于 Yⁿ。</p>
-            <p><span className="text-gold">长期调整：</span>产出缺口 → 预期与工资调整使 SRAS 移动，经济回到 Yⁿ。负供给冲击同时推高价格、压低产出 = 滞胀。</p>
+            <p><span className="text-gold">AD：</span>{t("labs.macroClassic.adas.notes.ad")}</p>
+            <p><span className="text-gold">SRAS：</span>{t("labs.macroClassic.adas.notes.sras")}</p>
+            <p><span className="text-gold">{t("labs.macroClassic.adas.notes.longRunTitle", "Long-run Adjustment")}：</span>{t("labs.macroClassic.adas.notes.longRun")}</p>
           </Note>
         </div>
       </div>
 
-      <ChartCard title="AD-AS 模型" hint="红虚线为 LRAS（潜在产出 Yⁿ）。AD 与 SRAS 交点为短期均衡；长期收敛到 LRAS。">
+      <ChartCard title={t("labs.macroClassic.adas.chart.title")} hint={t("labs.macroClassic.adas.chart.hint")}>
         <ResponsiveContainer width="100%" height="100%">
           <ComposedChart data={curve}>
             <CartesianGrid stroke={CHART_GRID} strokeDasharray="3 3" />
-            <XAxis dataKey="Y" stroke={CHART_TEXT} tick={{ fontSize: 10 }} label={{ value: "产出 Y", position: "insideBottom", offset: -5, fill: CHART_TEXT, fontSize: 10 }} />
-            <YAxis stroke={CHART_TEXT} tick={{ fontSize: 10 }} domain={["auto", "auto"]} label={{ value: "价格 P", angle: -90, position: "insideLeft", fill: CHART_TEXT, fontSize: 10 }} />
+            <XAxis dataKey="Y" stroke={CHART_TEXT} tick={{ fontSize: 10 }} label={{ value: t("labs.macroClassic.islm.chart.xAxis"), position: "insideBottom", offset: -5, fill: CHART_TEXT, fontSize: 10 }} />
+            <YAxis stroke={CHART_TEXT} tick={{ fontSize: 10 }} domain={["auto", "auto"]} label={{ value: t("labs.macroClassic.adas.chart.yAxis"), angle: -90, position: "insideLeft", fill: CHART_TEXT, fontSize: 10 }} />
             <Tooltip contentStyle={{ background: "hsl(var(--card))", border: `1px solid ${CHART_GRID}`, fontSize: 11 }} />
             <Legend wrapperStyle={{ fontSize: 11 }} />
-            <Line type="monotone" dataKey="AD" name="AD 总需求" stroke={CHART_RED} strokeWidth={2.5} dot={false} />
-            <Line type="monotone" dataKey="SRAS" name="SRAS 短期总供给" stroke={CHART_BLUE} strokeWidth={2.5} dot={false} />
+            <Line type="monotone" dataKey="AD" name={t("labs.macroClassic.adas.chart.adLine")} stroke={CHART_RED} strokeWidth={2.5} dot={false} />
+            <Line type="monotone" dataKey="SRAS" name={t("labs.macroClassic.adas.chart.srasLine")} stroke={CHART_BLUE} strokeWidth={2.5} dot={false} />
             <ReferenceLine x={Yn} stroke={CHART_GOLD} strokeDasharray="4 4" label={{ value: "LRAS", fill: CHART_GOLD, fontSize: 10 }} />
             <ReferenceDot x={+r.Ystar.toFixed(0)} y={+r.Pstar.toFixed(1)} r={5} fill={CHART_GOLD} stroke="none" />
           </ComposedChart>
@@ -226,6 +229,7 @@ export const ADASTool = () => {
    π = πe − β(u − un) + shock
    ════════════════════════════════════════════════════════════ */
 export const PhillipsTool = () => {
+  const { t } = useTranslation();
   const [pe, setPe] = useState(2);
   const [beta, setBeta] = useState(0.5);
   const [un, setUn] = useState(5);
@@ -242,43 +246,43 @@ export const PhillipsTool = () => {
   return (
     <div className="space-y-6">
       <PresetButtons presets={[
-        { name: "原始版", description: "稳定权衡", apply: () => { setPe(2); setBeta(0.8); setUn(5); setShock(0); } },
-        { name: "高通胀预期", description: "πᵉ=6 上移曲线", apply: () => { setPe(6); setBeta(0.6); } },
-        { name: "曲线平坦化", description: "β 很小 (2008后)", apply: () => { setBeta(0.1); setPe(2); } },
-        { name: "供给冲击", description: "滞胀: shock=4", apply: () => { setShock(4); } },
+        { name: t("labs.macroClassic.phillips.presets.original.name"), description: t("labs.macroClassic.phillips.presets.original.desc"), apply: () => { setPe(2); setBeta(0.8); setUn(5); setShock(0); } },
+        { name: t("labs.macroClassic.phillips.presets.hiExp.name"), description: t("labs.macroClassic.phillips.presets.hiExp.desc"), apply: () => { setPe(6); setBeta(0.6); } },
+        { name: t("labs.macroClassic.phillips.presets.flat.name"), description: t("labs.macroClassic.phillips.presets.flat.desc"), apply: () => { setBeta(0.1); setPe(2); } },
+        { name: t("labs.macroClassic.phillips.presets.shock.name"), description: t("labs.macroClassic.phillips.presets.shock.desc"), apply: () => { setShock(4); } },
       ]} />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="space-y-3">
-          <Slider label="通胀预期 πᵉ (%)" value={pe} min={0} max={10} step={0.5} onChange={setPe} />
-          <Slider label="斜率 β" sub="权衡强度" value={beta} min={0.05} max={1.5} step={0.05} onChange={setBeta} />
-          <Slider label="自然失业率 uⁿ (%)" value={un} min={3} max={7} step={0.25} onChange={setUn} />
-          <Slider label="供给冲击 (%)" value={shock} min={-4} max={6} step={0.5} onChange={setShock} />
+          <Slider label={t("labs.macroClassic.phillips.sliders.pe")} value={pe} min={0} max={10} step={0.5} onChange={setPe} />
+          <Slider label={t("labs.macroClassic.phillips.sliders.beta")} sub={t("labs.macroClassic.phillips.sliders.betaSub")} value={beta} min={0.05} max={1.5} step={0.05} onChange={setBeta} />
+          <Slider label={t("labs.macroClassic.phillips.sliders.un")} value={un} min={3} max={7} step={0.25} onChange={setUn} />
+          <Slider label={t("labs.macroClassic.phillips.sliders.shock")} value={shock} min={-4} max={6} step={0.5} onChange={setShock} />
         </div>
         <div className="space-y-3">
           <Note>
-            <p><span className="text-gold">附加预期 PC：</span>π = πᵉ − β(u − uⁿ) + 供给冲击。</p>
-            <p><span className="text-gold">长期垂直：</span>当 u = uⁿ 时 π = πᵉ，无长期权衡（自然失业率假说，Friedman-Phelps 1968）。</p>
-            <p><span className="text-gold">平坦化：</span>β 趋近 0 → 失业对通胀影响微弱，是 2008 后的重要谜题。</p>
-            <p>提高 πᵉ 整体上移短期 PC；供给冲击造成滞胀（高失业+高通胀）。</p>
+            <p><span className="text-gold">{t("labs.macroClassic.phillips.notes.formulaTitle", "Expectations-Augmented PC")}：</span>{t("labs.macroClassic.phillips.notes.formula")}</p>
+            <p><span className="text-gold">{t("labs.macroClassic.phillips.notes.verticalTitle", "Long-run Vertical")}：</span>{t("labs.macroClassic.phillips.notes.vertical")}</p>
+            <p><span className="text-gold">{t("labs.macroClassic.phillips.notes.flatTitle", "Flattening")}：</span>{t("labs.macroClassic.phillips.notes.flat")}</p>
+            <p>{t("labs.macroClassic.phillips.notes.hiExp")}</p>
           </Note>
           <div className="grid grid-cols-2 gap-2">
-            <Stat label="自然失业率 uⁿ" value={`${un.toFixed(2)}%`} />
-            <Stat label="uⁿ 处通胀" value={`${(pe + shock).toFixed(2)}%`} color={CHART_TEAL} sub="= πᵉ + 冲击" />
+            <Stat label={t("labs.macroClassic.phillips.stats.un")} value={`${un.toFixed(2)}%`} />
+            <Stat label={t("labs.macroClassic.phillips.stats.piAtUn")} value={`${(pe + shock).toFixed(2)}%`} color={CHART_TEAL} sub={t("labs.macroClassic.phillips.stats.piAtUnSub")} />
           </div>
         </div>
       </div>
 
-      <ChartCard title="菲利普斯曲线 (u-π 空间)" hint="金线为短期 PC，红虚线为长期垂直 PC（位于自然失业率 uⁿ）。两者交点处 π = πᵉ。">
+      <ChartCard title={t("labs.macroClassic.phillips.chart.title")} hint={t("labs.macroClassic.phillips.chart.hint")}>
         <ResponsiveContainer width="100%" height="100%">
           <ComposedChart data={curve}>
             <CartesianGrid stroke={CHART_GRID} strokeDasharray="3 3" />
-            <XAxis dataKey="u" stroke={CHART_TEXT} tick={{ fontSize: 10 }} label={{ value: "失业率 u (%)", position: "insideBottom", offset: -5, fill: CHART_TEXT, fontSize: 10 }} />
-            <YAxis stroke={CHART_TEXT} tick={{ fontSize: 10 }} label={{ value: "通胀 π (%)", angle: -90, position: "insideLeft", fill: CHART_TEXT, fontSize: 10 }} />
+            <XAxis dataKey="u" stroke={CHART_TEXT} tick={{ fontSize: 10 }} label={{ value: t("labs.macroClassic.phillips.chart.xAxis"), position: "insideBottom", offset: -5, fill: CHART_TEXT, fontSize: 10 }} />
+            <YAxis stroke={CHART_TEXT} tick={{ fontSize: 10 }} label={{ value: t("labs.macroClassic.phillips.chart.yAxis"), angle: -90, position: "insideLeft", fill: CHART_TEXT, fontSize: 10 }} />
             <Tooltip contentStyle={{ background: "hsl(var(--card))", border: `1px solid ${CHART_GRID}`, fontSize: 11 }} />
             <Legend wrapperStyle={{ fontSize: 11 }} />
-            <Line type="monotone" dataKey="SRPC" name="短期 PC" stroke={CHART_GOLD} strokeWidth={2.5} dot={false} />
-            <ReferenceLine x={un} stroke={CHART_RED} strokeDasharray="4 4" label={{ value: "长期 PC (uⁿ)", fill: CHART_RED, fontSize: 10 }} />
+            <Line type="monotone" dataKey="SRPC" name={t("labs.macroClassic.phillips.chart.srpcLine")} stroke={CHART_GOLD} strokeWidth={2.5} dot={false} />
+            <ReferenceLine x={un} stroke={CHART_RED} strokeDasharray="4 4" label={{ value: t("labs.macroClassic.phillips.chart.lrpcLine"), fill: CHART_RED, fontSize: 10 }} />
           </ComposedChart>
         </ResponsiveContainer>
       </ChartCard>
@@ -293,6 +297,7 @@ type Regime = "fixed" | "floating";
 type Policy = "fiscal" | "monetary";
 
 export const MundellFlemingTool = () => {
+  const { t } = useTranslation();
   const [regime, setRegime] = useState<Regime>("floating");
   const [policy, setPolicy] = useState<Policy>("fiscal");
 
@@ -300,12 +305,12 @@ export const MundellFlemingTool = () => {
     // Perfect capital mobility (BP horizontal). Classic Mundell-Fleming conclusions:
     if (regime === "floating") {
       if (policy === "fiscal")
-        return { eff: "无效", color: CHART_RED, why: "财政扩张推高利率→资本流入→本币升值→净出口下降，完全抵消产出效应。" };
-      return { eff: "有效", color: CHART_TEAL, why: "货币扩张压低利率→资本流出→本币贬值→净出口上升，强化产出扩张。" };
+        return { eff: t("labs.macroClassic.mundell.eff.ineffective"), color: CHART_RED, why: t("labs.macroClassic.mundell.results.floatFisWhy") };
+      return { eff: t("labs.macroClassic.mundell.eff.effective"), color: CHART_TEAL, why: t("labs.macroClassic.mundell.results.floatMonWhy") };
     } else {
       if (policy === "fiscal")
-        return { eff: "有效", color: CHART_TEAL, why: "央行须买入外汇维持汇率→货币供给被动增加→强化财政扩张效果。" };
-      return { eff: "无效", color: CHART_RED, why: "货币扩张引发资本流出与贬值压力→央行被迫卖出外汇收回货币→货币供给回到原点。" };
+        return { eff: t("labs.macroClassic.mundell.eff.effective"), color: CHART_TEAL, why: t("labs.macroClassic.mundell.results.fixedFisWhy") };
+      return { eff: t("labs.macroClassic.mundell.eff.ineffective"), color: CHART_RED, why: t("labs.macroClassic.mundell.results.fixedMonWhy") };
     }
   }, [regime, policy]);
 
@@ -323,23 +328,23 @@ export const MundellFlemingTool = () => {
   return (
     <div className="space-y-6">
       <PresetButtons presets={[
-        { name: "浮动+货币 (有效)", description: "货币政策有效", apply: () => { setRegime("floating"); setPolicy("monetary"); } },
-        { name: "浮动+财政 (无效)", description: "被汇率抵消", apply: () => { setRegime("floating"); setPolicy("fiscal"); } },
-        { name: "固定+财政 (有效)", description: "外汇干预强化", apply: () => { setRegime("fixed"); setPolicy("fiscal"); } },
-        { name: "固定+货币 (无效)", description: "货币供给回流", apply: () => { setRegime("fixed"); setPolicy("monetary"); } },
+        { name: t("labs.macroClassic.mundell.presets.floatMon.name"), description: t("labs.macroClassic.mundell.presets.floatMon.desc"), apply: () => { setRegime("floating"); setPolicy("monetary"); } },
+        { name: t("labs.macroClassic.mundell.presets.floatFis.name"), description: t("labs.macroClassic.mundell.presets.floatFis.desc"), apply: () => { setRegime("floating"); setPolicy("fiscal"); } },
+        { name: t("labs.macroClassic.mundell.presets.fixedFis.name"), description: t("labs.macroClassic.mundell.presets.fixedFis.desc"), apply: () => { setRegime("fixed"); setPolicy("fiscal"); } },
+        { name: t("labs.macroClassic.mundell.presets.fixedMon.name"), description: t("labs.macroClassic.mundell.presets.fixedMon.desc"), apply: () => { setRegime("fixed"); setPolicy("monetary"); } },
       ]} />
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="space-y-4">
           <div>
-            <p className="text-xs font-mono text-gold uppercase tracking-wider mb-2">汇率制度</p>
-            <Toggle value={regime} options={[{ id: "floating", label: "浮动汇率" }, { id: "fixed", label: "固定汇率" }]} onChange={(v) => setRegime(v as Regime)} />
+            <p className="text-xs font-mono text-gold uppercase tracking-wider mb-2">{t("labs.macroClassic.mundell.labels.regime")}</p>
+            <Toggle value={regime} options={[{ id: "floating", label: t("labs.macroClassic.mundell.labels.regimeFloating") }, { id: "fixed", label: t("labs.macroClassic.mundell.labels.regimeFixed") }]} onChange={(v) => setRegime(v as Regime)} />
           </div>
           <div>
-            <p className="text-xs font-mono text-gold uppercase tracking-wider mb-2">政策类型</p>
-            <Toggle value={policy} options={[{ id: "fiscal", label: "财政政策" }, { id: "monetary", label: "货币政策" }]} onChange={(v) => setPolicy(v as Policy)} />
+            <p className="text-xs font-mono text-gold uppercase tracking-wider mb-2">{t("labs.macroClassic.mundell.labels.policy")}</p>
+            <Toggle value={policy} options={[{ id: "fiscal", label: t("labs.macroClassic.mundell.labels.policyFiscal") }, { id: "monetary", label: t("labs.macroClassic.mundell.labels.policyMonetary") }]} onChange={(v) => setPolicy(v as Policy)} />
           </div>
-          <div className={`rounded-xl border p-4 ${result.eff === "有效" ? "border-emerald-500/40 bg-emerald-500/5" : "border-rose-500/40 bg-rose-500/5"}`}>
-            <p className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">政策有效性（完美资本流动）</p>
+          <div className={`rounded-xl border p-4 ${result.eff === t("labs.macroClassic.mundell.eff.effective") ? "border-emerald-500/40 bg-emerald-500/5" : "border-rose-500/40 bg-rose-500/5"}`}>
+            <p className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">{t("labs.macroClassic.mundell.labels.effTitle")}</p>
             <p className="text-2xl font-display font-bold mt-1" style={{ color: result.color }}>{result.eff}</p>
             <p className="text-xs text-muted-foreground mt-2 leading-relaxed">{result.why}</p>
           </div>
@@ -348,9 +353,9 @@ export const MundellFlemingTool = () => {
         <div className="space-y-3">
           <ImpossibleTriangle />
           <Note>
-            <p><span className="text-gold">不可能三角 (Mundell-Fleming)：</span>固定汇率、资本自由流动、独立货币政策三者最多兼得其二。</p>
-            <p>浮动汇率：货币政策有效，财政政策被汇率抵消。</p>
-            <p>固定汇率：财政政策有效，货币政策被外汇干预抵消。</p>
+            <p><span className="text-gold">{t("labs.macroClassic.mundell.notes.trilemmaTitle", "Impossible Trinity")}：</span>{t("labs.macroClassic.mundell.notes.trilemma")}</p>
+            <p>{t("labs.macroClassic.mundell.notes.float")}</p>
+            <p>{t("labs.macroClassic.mundell.notes.fixed")}</p>
           </Note>
         </div>
       </div>
@@ -358,9 +363,11 @@ export const MundellFlemingTool = () => {
   );
 };
 
-const ImpossibleTriangle = () => (
+const ImpossibleTriangle = () => {
+  const { t } = useTranslation();
+  return (
   <div className="rounded-xl border border-border bg-secondary/20 p-4">
-    <h4 className="text-sm font-semibold text-foreground mb-2">蒙代尔不可能三角</h4>
+    <h4 className="text-sm font-semibold text-foreground mb-2">{t("labs.macroClassic.mundell.triangle.title")}</h4>
     <svg viewBox="0 0 300 220" className="w-full h-[200px]">
       <polygon points="150,20 30,190 270,190" fill="hsl(var(--gold) / 0.06)" stroke={CHART_GOLD} strokeWidth="1.5" />
       <line x1="150" y1="20" x2="150" y2="190" stroke={CHART_GRID} strokeDasharray="3 3" />
@@ -369,19 +376,21 @@ const ImpossibleTriangle = () => (
       <circle cx="150" cy="20" r="4" fill={CHART_GOLD} />
       <circle cx="30" cy="190" r="4" fill={CHART_TEAL} />
       <circle cx="270" cy="190" r="4" fill={CHART_BLUE} />
-      <text x="150" y="12" textAnchor="middle" fontSize="10" fill="hsl(var(--foreground))" fontFamily="monospace">独立货币政策</text>
-      <text x="22" y="205" textAnchor="middle" fontSize="10" fill="hsl(var(--foreground))" fontFamily="monospace">固定汇率</text>
-      <text x="270" y="205" textAnchor="middle" fontSize="10" fill="hsl(var(--foreground))" fontFamily="monospace">资本自由流动</text>
-      <text x="150" y="120" textAnchor="middle" fontSize="9" fill={CHART_TEXT} fontFamily="monospace">仅能选两条边</text>
+      <text x="150" y="12" textAnchor="middle" fontSize="10" fill="hsl(var(--foreground))" fontFamily="monospace">{t("labs.macroClassic.mundell.triangle.monetary")}</text>
+      <text x="22" y="205" textAnchor="middle" fontSize="10" fill="hsl(var(--foreground))" fontFamily="monospace">{t("labs.macroClassic.mundell.triangle.fixed")}</text>
+      <text x="270" y="205" textAnchor="middle" fontSize="10" fill="hsl(var(--foreground))" fontFamily="monospace">{t("labs.macroClassic.mundell.triangle.capital")}</text>
+      <text x="150" y="120" textAnchor="middle" fontSize="9" fill={CHART_TEXT} fontFamily="monospace">{t("labs.macroClassic.mundell.triangle.pickTwo")}</text>
     </svg>
   </div>
-);
+  );
+};
 
 /* ════════════════════════════════════════════════════════════
    5. Ramsey-Cass-Koopmans — phase diagram & saddle path
    ċ/c = (f'(k) − ρ − θg)/θ ;  k̇ = f(k) − c − (n+δ)k
    ════════════════════════════════════════════════════════════ */
 export const RamseyTool = () => {
+  const { t } = useTranslation();
   const [alpha, setAlpha] = useState(0.33);
   const [rho, setRho] = useState(0.03);
   const [theta, setTheta] = useState(2);
@@ -412,48 +421,48 @@ export const RamseyTool = () => {
   return (
     <div className="space-y-6">
       <PresetButtons presets={[
-        { name: "基准", description: "标准校准", apply: () => { setAlpha(0.33); setRho(0.03); setTheta(2); setN(0.01); setDelta(0.05); setG(0.02); } },
-        { name: "更耐心", description: "ρ↓ → k*↑", apply: () => { setRho(0.01); } },
-        { name: "高风险厌恶", description: "θ=4", apply: () => { setTheta(4); } },
-        { name: "高折旧", description: "δ=0.1", apply: () => { setDelta(0.1); } },
+        { name: t("labs.macroClassic.ramsey.presets.base.name"), description: t("labs.macroClassic.ramsey.presets.base.desc"), apply: () => { setAlpha(0.33); setRho(0.03); setTheta(2); setN(0.01); setDelta(0.05); setG(0.02); } },
+        { name: t("labs.macroClassic.ramsey.presets.patient.name"), description: t("labs.macroClassic.ramsey.presets.patient.desc"), apply: () => { setRho(0.01); } },
+        { name: t("labs.macroClassic.ramsey.presets.risk.name"), description: t("labs.macroClassic.ramsey.presets.risk.desc"), apply: () => { setTheta(4); } },
+        { name: t("labs.macroClassic.ramsey.presets.delta.name"), description: t("labs.macroClassic.ramsey.presets.delta.desc"), apply: () => { setDelta(0.1); } },
       ]} />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="space-y-3">
           <div className="grid grid-cols-2 gap-3">
-            <Slider label="α (资本弹性)" value={alpha} min={0.2} max={0.5} step={0.01} onChange={setAlpha} />
-            <Slider label="ρ (时间偏好)" value={rho} min={0.01} max={0.1} step={0.005} onChange={setRho} />
-            <Slider label="θ (相对风险厌恶)" value={theta} min={0.5} max={5} step={0.5} onChange={setTheta} />
-            <Slider label="n (人口增长)" value={n} min={0} max={0.04} step={0.005} onChange={setN} />
-            <Slider label="δ (折旧)" value={delta} min={0.02} max={0.12} step={0.005} onChange={setDelta} />
-            <Slider label="g (技术进步)" value={g} min={0} max={0.04} step={0.005} onChange={setG} />
+            <Slider label={t("labs.macroClassic.ramsey.sliders.alpha")} value={alpha} min={0.2} max={0.5} step={0.01} onChange={setAlpha} />
+            <Slider label={t("labs.macroClassic.ramsey.sliders.rho")} value={rho} min={0.01} max={0.1} step={0.005} onChange={setRho} />
+            <Slider label={t("labs.macroClassic.ramsey.sliders.theta")} value={theta} min={0.5} max={5} step={0.5} onChange={setTheta} />
+            <Slider label={t("labs.macroClassic.ramsey.sliders.n")} value={n} min={0} max={0.04} step={0.005} onChange={setN} />
+            <Slider label={t("labs.macroClassic.ramsey.sliders.delta")} value={delta} min={0.02} max={0.12} step={0.005} onChange={setDelta} />
+            <Slider label={t("labs.macroClassic.ramsey.sliders.g")} value={g} min={0} max={0.04} step={0.005} onChange={setG} />
           </div>
         </div>
         <div className="space-y-3">
           <div className="grid grid-cols-2 gap-2">
-            <Stat label="稳态资本 k*" value={r.kStar.toFixed(3)} sub="f'(k*)=ρ+θg+δ" />
-            <Stat label="稳态消费 c*" value={r.cStar.toFixed(3)} color={CHART_TEAL} />
-            <Stat label="黄金率 k_gold" value={r.kGold.toFixed(3)} color={CHART_BLUE} sub="k* < k_gold (动态有效)" />
+            <Stat label={t("labs.macroClassic.ramsey.stats.kstar")} value={r.kStar.toFixed(3)} sub="f'(k*)=ρ+θg+δ" />
+            <Stat label={t("labs.macroClassic.ramsey.stats.cstar")} value={r.cStar.toFixed(3)} color={CHART_TEAL} />
+            <Stat label={t("labs.macroClassic.ramsey.stats.kgold")} value={r.kGold.toFixed(3)} color={CHART_BLUE} sub={t("labs.macroClassic.ramsey.stats.kgoldSub")} />
             <Stat label="f'(k*)" value={r.target.toFixed(3)} color={CHART_GOLD} />
           </div>
           <Note>
-            <p><span className="text-gold">Ramsey (1928)：</span>储蓄率内生于家庭跨期最优（Euler 方程），为 Solow 提供微观基础。</p>
-            <p><span className="text-gold">Euler：</span>ċ/c = (f'(k) − ρ − θg)/θ；利率高于时间偏好时消费增长为正。</p>
+            <p><span className="text-gold">Ramsey (1928)：</span>{t("labs.macroClassic.ramsey.notes.intro")}</p>
+            <p><span className="text-gold">Euler：</span>{t("labs.macroClassic.ramsey.notes.euler")}</p>
             <p>稳态 k* &lt; 黄金率 k_gold ⟹ 动态有效（不过度储蓄），区别于 Solow 可能过度储蓄。</p>
           </Note>
         </div>
       </div>
 
-      <ChartCard title="Ramsey 相图 — 两条零变化线" hint="蓝线为 k̇=0（资源约束），金竖线为 ċ=0（位于 k*）。两线交点为鞍点稳态，唯一收敛路径为鞍路径。">
+      <ChartCard title={t("labs.macroClassic.ramsey.chart.title")} hint={t("labs.macroClassic.ramsey.chart.hint")}>
         <ResponsiveContainer width="100%" height="100%">
           <ComposedChart data={curve}>
             <CartesianGrid stroke={CHART_GRID} strokeDasharray="3 3" />
-            <XAxis dataKey="k" stroke={CHART_TEXT} tick={{ fontSize: 10 }} label={{ value: "资本 k", position: "insideBottom", offset: -5, fill: CHART_TEXT, fontSize: 10 }} />
-            <YAxis stroke={CHART_TEXT} tick={{ fontSize: 10 }} label={{ value: "消费 c", angle: -90, position: "insideLeft", fill: CHART_TEXT, fontSize: 10 }} />
+            <XAxis dataKey="k" stroke={CHART_TEXT} tick={{ fontSize: 10 }} label={{ value: t("labs.macroClassic.ramsey.chart.xAxis"), position: "insideBottom", offset: -5, fill: CHART_TEXT, fontSize: 10 }} />
+            <YAxis stroke={CHART_TEXT} tick={{ fontSize: 10 }} label={{ value: t("labs.macroClassic.ramsey.chart.yAxis"), angle: -90, position: "insideLeft", fill: CHART_TEXT, fontSize: 10 }} />
             <Tooltip contentStyle={{ background: "hsl(var(--card))", border: `1px solid ${CHART_GRID}`, fontSize: 11 }} />
             <Legend wrapperStyle={{ fontSize: 11 }} />
-            <Line type="monotone" dataKey="kdot0" name="k̇=0 (c=f(k)−(n+δ+g)k)" stroke={CHART_BLUE} strokeWidth={2.5} dot={false} />
-            <ReferenceLine x={+r.kStar.toFixed(3)} stroke={CHART_GOLD} strokeDasharray="4 4" label={{ value: "ċ=0 (k*)", fill: CHART_GOLD, fontSize: 10 }} />
+            <Line type="monotone" dataKey="kdot0" name={t("labs.macroClassic.ramsey.chart.kdotLine")} stroke={CHART_BLUE} strokeWidth={2.5} dot={false} />
+            <ReferenceLine x={+r.kStar.toFixed(3)} stroke={CHART_GOLD} strokeDasharray="4 4" label={{ value: t("labs.macroClassic.ramsey.chart.cdotLine"), fill: CHART_GOLD, fontSize: 10 }} />
             <ReferenceDot x={+r.kStar.toFixed(3)} y={+r.cStar.toFixed(3)} r={5} fill={CHART_RED} stroke="none" />
           </ComposedChart>
         </ResponsiveContainer>

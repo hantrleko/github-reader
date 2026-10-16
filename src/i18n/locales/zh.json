@@ -3549,6 +3549,1099 @@
         "illiqLabel": "Amihud ILLIQ (示例)",
         "illiqSub": "×10⁻⁹"
       }
+    },
+    "macroClassic": {
+      "islm": {
+        "presets": {
+          "base": {
+            "name": "基准",
+            "desc": "标准参数"
+          },
+          "fiscal": {
+            "name": "财政扩张",
+            "desc": "G:30→60"
+          },
+          "monetary": {
+            "name": "货币扩张",
+            "desc": "M:120→180"
+          },
+          "liquidity": {
+            "name": "流动性陷阱",
+            "desc": "h 极大,货币失效"
+          },
+          "classical": {
+            "name": "古典区间",
+            "desc": "h 极小,挤出严重"
+          }
+        },
+        "sliders": {
+          "mpc": "边际消费倾向 mpc",
+          "g": "政府支出 G",
+          "m": "实际货币供给 M/P",
+          "b": "投资利率敏感 b",
+          "k": "货币需求 k (收入)",
+          "h": "货币需求 h (利率)"
+        },
+        "stats": {
+          "ystar": "均衡产出 Y*",
+          "rstar": "均衡利率 R*",
+          "simpleMult": "简单乘数",
+          "actualMult": "实际财政乘数",
+          "crowdOut": "挤出比例",
+          "crowdOutSub": "利率上升挤占投资"
+        },
+        "notes": {
+          "is": "产品市场均衡，财政政策 (G↑) 右移 IS。",
+          "lm": "货币市场均衡，货币政策 (M↑) 右移 LM。",
+          "crowdOut": "财政扩张推高利率 → 挤占私人投资；h 越小挤出越强；h→∞ 为流动性陷阱（货币政策失效）。",
+          "crowdOutTitle": "挤出效应"
+        },
+        "chart": {
+          "title": "IS-LM 均衡",
+          "hint": "横轴产出 Y、纵轴利率 R。IS 向下、LM 向上，交点决定均衡 (Y*, R*)。",
+          "xAxis": "产出 Y",
+          "yAxis": "利率 R",
+          "isLine": "IS 曲线",
+          "lmLine": "LM 曲线"
+        }
+      },
+      "adas": {
+        "presets": {
+          "lrun": {
+            "name": "长期均衡",
+            "desc": "无冲击"
+          },
+          "demand": {
+            "name": "需求扩张",
+            "desc": "AD 右移"
+          },
+          "supply": {
+            "name": "负向供给冲击",
+            "desc": "石油危机→滞胀"
+          },
+          "recession": {
+            "name": "需求衰退",
+            "desc": "信心下降"
+          }
+        },
+        "sliders": {
+          "yn": "潜在产出 Yⁿ (LRAS)",
+          "ad": "需求冲击 (移动 AD)",
+          "as": "供给冲击 (移动 SRAS)",
+          "lambda": "SRAS 斜率 λ",
+          "lambdaSub": "价格粘性",
+          "pe": "预期价格 Pᵉ"
+        },
+        "stats": {
+          "ystar": "短期产出 Y*",
+          "pstar": "短期价格 P*",
+          "gap": "产出缺口",
+          "yn": "潜在产出 Yⁿ",
+          "gapOverheat": "过热 (通胀压力)",
+          "gapRecession": "衰退 (失业压力)"
+        },
+        "notes": {
+          "ad": "价格-产出负相关（财富/利率/汇率效应）。",
+          "sras": "短期向上倾斜（工资价格粘性）；LRAS 垂直于 Yⁿ。",
+          "longRun": "产出缺口 → 预期与工资调整使 SRAS 移动，经济回到 Yⁿ。负供给冲击同时推高价格、压低产出 = 滞胀。",
+          "longRunTitle": "长期调整"
+        },
+        "chart": {
+          "title": "AD-AS 模型",
+          "hint": "红虚线为 LRAS（潜在产出 Yⁿ）。AD 与 SRAS 交点为短期均衡；长期收敛到 LRAS。",
+          "xAxis": "产出 Y",
+          "yAxis": "价格 P",
+          "adLine": "AD 总需求",
+          "srasLine": "SRAS 短期总供给"
+        }
+      },
+      "phillips": {
+        "presets": {
+          "original": {
+            "name": "原始版",
+            "desc": "稳定权衡"
+          },
+          "hiExp": {
+            "name": "高通胀预期",
+            "desc": "πᵉ=6 上移曲线"
+          },
+          "flat": {
+            "name": "曲线平坦化",
+            "desc": "β 很小 (2008后)"
+          },
+          "shock": {
+            "name": "供给冲击",
+            "desc": "滞胀: shock=4"
+          }
+        },
+        "sliders": {
+          "pe": "通胀预期 πᵉ (%)",
+          "beta": "斜率 β",
+          "betaSub": "权衡强度",
+          "un": "自然失业率 uⁿ (%)",
+          "shock": "供给冲击 (%)"
+        },
+        "notes": {
+          "formula": "附加预期 PC：π = πᵉ − β(u − uⁿ) + 供给冲击。",
+          "vertical": "长期垂直：当 u = uⁿ 时 π = πᵉ，无长期权衡（自然失业率假说，Friedman-Phelps 1968）。",
+          "flat": "平坦化：β 趋近 0 → 失业对通胀影响微弱，是 2008 后的重要谜题。",
+          "hiExp": "提高 πᵉ 整体上移短期 PC；供给冲击造成滞胀（高失业+高通胀）。",
+          "formulaTitle": "附加预期 PC",
+          "verticalTitle": "长期垂直",
+          "flatTitle": "平坦化"
+        },
+        "stats": {
+          "un": "自然失业率 uⁿ",
+          "piAtUn": "uⁿ 处通胀",
+          "piAtUnSub": "= πᵉ + 冲击"
+        },
+        "chart": {
+          "title": "菲利普斯曲线 (u-π 空间)",
+          "hint": "金线为短期 PC，红虚线为长期垂直 PC（位于自然失业率 uⁿ）。两者交点处 π = πᵉ。",
+          "xAxis": "失业率 u (%)",
+          "yAxis": "通胀 π (%)",
+          "srpcLine": "短期 PC",
+          "lrpcLine": "长期 PC (uⁿ)"
+        }
+      },
+      "mundell": {
+        "presets": {
+          "floatMon": {
+            "name": "浮动+货币 (有效)",
+            "desc": "货币政策有效"
+          },
+          "floatFis": {
+            "name": "浮动+财政 (无效)",
+            "desc": "被汇率抵消"
+          },
+          "fixedFis": {
+            "name": "固定+财政 (有效)",
+            "desc": "外汇干预强化"
+          },
+          "fixedMon": {
+            "name": "固定+货币 (无效)",
+            "desc": "货币供给回流"
+          }
+        },
+        "eff": {
+          "effective": "有效",
+          "ineffective": "无效"
+        },
+        "results": {
+          "floatFisWhy": "财政扩张推高利率→资本流入→本币升值→净出口下降，完全抵消产出效应。",
+          "floatMonWhy": "货币扩张压低利率→资本流出→本币贬值→净出口上升，强化产出扩张。",
+          "fixedFisWhy": "央行须买入外汇维持汇率→货币供给被动增加→强化财政扩张效果。",
+          "fixedMonWhy": "货币扩张引发资本流出与贬值压力→央行被迫卖出外汇收回货币→货币供给回到原点。"
+        },
+        "labels": {
+          "regime": "汇率制度",
+          "policy": "政策类型",
+          "regimeFloating": "浮动汇率",
+          "regimeFixed": "固定汇率",
+          "policyFiscal": "财政政策",
+          "policyMonetary": "货币政策",
+          "effTitle": "政策有效性（完美资本流动）"
+        },
+        "notes": {
+          "trilemma": "不可能三角 (Mundell-Fleming)：固定汇率、资本自由流动、独立货币政策三者最多兼得其二。",
+          "float": "浮动汇率：货币政策有效，财政政策被汇率抵消。",
+          "fixed": "固定汇率：财政政策有效，货币政策被外汇干预抵消。",
+          "trilemmaTitle": "不可能三角 (Mundell-Fleming)"
+        },
+        "triangle": {
+          "title": "蒙代尔不可能三角",
+          "monetary": "独立货币政策",
+          "fixed": "固定汇率",
+          "capital": "资本自由流动",
+          "pickTwo": "仅能选两条边"
+        }
+      },
+      "ramsey": {
+        "presets": {
+          "base": {
+            "name": "基准",
+            "desc": "标准校准"
+          },
+          "patient": {
+            "name": "更耐心",
+            "desc": "ρ↓ → k*↑"
+          },
+          "risk": {
+            "name": "高风险厌恶",
+            "desc": "θ=4"
+          },
+          "delta": {
+            "name": "高折旧",
+            "desc": "δ=0.1"
+          }
+        },
+        "sliders": {
+          "alpha": "α (资本弹性)",
+          "rho": "ρ (时间偏好)",
+          "theta": "θ (相对风险厌恶)",
+          "n": "人口增长 n",
+          "delta": "折旧 δ",
+          "g": "技术进步 g"
+        },
+        "stats": {
+          "kstar": "稳态资本 k*",
+          "cstar": "稳态消费 c*",
+          "kgold": "黄金率 k_gold",
+          "kgoldSub": "k* < k_gold (动态有效)"
+        },
+        "notes": {
+          "intro": "Ramsey (1928)：储蓄率内生于家庭跨期最优（Euler 方程），为 Solow 提供微观基础。",
+          "euler": "Euler：ċ/c = (f'(k) − ρ − θg)/θ；利率高于时间偏好时消费增长为正。",
+          "efficient": "稳态 k* < 黄金率 k_gold ⟹ 动态有效（不过度储蓄），区别于 Solow 可能过度储蓄。"
+        },
+        "chart": {
+          "title": "Ramsey 相图 — 两条零变化线",
+          "hint": "蓝线为 k̇=0（资源约束），金竖线为 ċ=0（位于 k*）。两线交点为鞍点稳态，唯一收敛路径为鞍路径。",
+          "xAxis": "资本 k",
+          "yAxis": "消费 c",
+          "kdotLine": "k̇=0 (c=f(k)−(n+δ+g)k)",
+          "cdotLine": "ċ=0 (k*)"
+        }
+      },
+      "solow": {
+        "presets": {
+          "us": {
+            "name": "美国基准",
+            "desc": "α=0.33,s=0.20,δ=0.05"
+          },
+          "china": {
+            "name": "高储蓄 (中国)",
+            "desc": "s=0.40"
+          },
+          "gold": {
+            "name": "黄金率",
+            "desc": "s=α 消费最大化"
+          },
+          "trap": {
+            "name": "贫困陷阱起点",
+            "desc": "k₀ 极低,看收敛"
+          },
+          "over": {
+            "name": "过度储蓄",
+            "desc": "s=0.6 远超黄金率"
+          }
+        },
+        "labels": {
+          "tech": "技术与偏好"
+        },
+        "sliders": {
+          "alpha": "α (资本弹性)",
+          "s": "s (储蓄率)",
+          "delta": "折旧率 δ",
+          "n": "人口增长 n",
+          "g": "技术进步 g",
+          "k0": "初始资本 k₀",
+          "t": "期数 T"
+        },
+        "stats": {
+          "kstar": "稳态 k̃*",
+          "ystar": "稳态 ỹ*",
+          "cstar": "稳态消费 c̃*",
+          "sgold": "黄金率 s_gr",
+          "sgoldSubOver": "s_gr = α; 当前 s > α (过度储蓄)",
+          "sgoldSubUnder": "s_gr = α; 当前 s < α (储蓄不足)",
+          "sgoldSubGold": "s_gr = α; 当前 s = α (黄金率)",
+          "kgold": "黄金率 k̃_gr",
+          "cgold": "黄金率 c̃_gr",
+          "deltaC": "Δc̃ = {{val}}"
+        },
+        "notes": {
+          "intro": "Solow-Swan (1956)：资本积累与外生技术驱动的长期增长基准模型。",
+          "dynamics": "动力学：k̃̇ = s·k̃^α − (n+g+δ)k̃；交点即稳态。",
+          "convergence": "收敛性：无论 k₀ 起点高低，k̃ 都收敛到 k̃*（条件收敛假说）。",
+          "gold": "黄金率：s = α 时稳态消费最大；过度储蓄 → 资本沉沦。",
+          "convergenceTitle": "收敛性",
+          "goldTitle": "黄金率"
+        },
+        "chart": {
+          "conv": {
+            "title": "资本与产出动态收敛 — 走向稳态 k̃* = {{val}}",
+            "xAxis": "期 t",
+            "kLine": "资本 k̃",
+            "yLine": "产出 ỹ = k̃^α",
+            "cLine": "消费 c̃ = (1−s)ỹ"
+          },
+          "phase": {
+            "title": "Solow 相图 — 投资曲线 vs 折旧线",
+            "xAxis": "k̃",
+            "invLine": "投资 s·f(k̃) = {{s}}·k̃^α",
+            "brkLine": "折旧+人口+技术 (n+g+δ)k̃",
+            "goldLine": "黄金率投资 α·k̃^α",
+            "hint": "交点 = 稳态。投资线 (金) 在交点处与折旧线 (红) 相切于 k̃*。蓝色虚线显示黄金率 s = α 对应的投资曲线，它与折旧线的交点在 k̃gr 处使消费 c̃ 达到最大。"
+          }
+        }
+      },
+      "tools": {
+        "phillips": "菲利普斯曲线",
+        "mundell": "蒙代尔-弗莱明",
+        "ramsey": "拉姆齐模型",
+        "solow": "Solow 增长模型",
+        "dsge": "3 方程 NK DSGE",
+        "hank": "HANK / TANK 教学版",
+        "realopt": "实物期权 (投资递延)",
+        "longrun": "长期",
+        "islm": "IS-LM",
+        "adas": "AD-AS",
+        "fixedRate": "固定汇率",
+        "capitalFlow": "资本自由流动",
+        "monetaryPolicy": "独立货币政策",
+        "pickTwo": "三选二"
+      }
+    },
+    "macroV27": {
+      "standardCalibration": "标准校准",
+      "galiTextbook": "Gali (2008) 教科书参数",
+      "dovishCB": "鸽派央行",
+      "dovishCBDesc": "φ_π=1.1 接近违反 Taylor",
+      "hawkishCB": "鹰派央行",
+      "hawkishCBDesc": "φ_π=2.5 强烈反通胀",
+      "rigidPrice": "刚性价格",
+      "rigidPriceDesc": "κ=0.03 极陡 NKPC",
+      "persistentShock": "持续冲击",
+      "persistentShockDesc": "ρ=0.95",
+      "shockType": "冲击类型",
+      "demandShock": "需求 ε_d",
+      "supplyShock": "供给 ε_s",
+      "monetaryShock": "货币 ε_m",
+      "sigmaLabel": "σ 跨期替代",
+      "betaLabel": "β 折现因子",
+      "kappaLabel": "κ NKPC 斜率",
+      "priceRigidity": "价格刚性",
+      "phiPiLabel": "φ_π Taylor 通胀",
+      "phiXLabel": "φ_x Taylor 产出",
+      "rhoLabel": "ρ 冲击持续性",
+      "horizonLabel": "脉冲期 H",
+      "psiXLabel": "Ψ_x (产出影响)",
+      "psiXSub": "单位冲击对 x_t",
+      "psiPiLabel": "Ψ_π (通胀影响)",
+      "psiPiSub": "单位冲击对 π_t",
+      "psiILabel": "Ψ_i (利率影响)",
+      "psiISub": "政策反应",
+      "taylorPrinciple": "Taylor 原则",
+      "determinate": "✓ 决定",
+      "indeterminate": "✗ 不定",
+      "nkTitle": "3 方程 NK (Clarida-Galí-Gertler 1999):",
+      "nkSolution": "解形如 z_t = Ψ_z · ε_t,在 AR(1) 冲击下用 ε_t = ρ^t 直接得到 IRF。",
+      "demandDesc": "需求冲击:x↑ π↑ i↑(顺周期通胀)",
+      "supplyDesc": "成本推动:π↑ x↓ i↑(滞胀两难)",
+      "monetaryDesc": "紧缩货币:i↑ x↓ π↓(总需求传导)",
+      "irfTitle": "脉冲响应 IRF — 单位 {{shock}} 冲击 (%)",
+      "xGap": "产出缺口 x (%)",
+      "piInf": "通胀 π (%)",
+      "iRate": "名义利率 i (%)",
+      "epsShock": "冲击 ε (%)",
+      "usBenchmark": "美国基准",
+      "htmShare": "λ=0.35 HTM 比例",
+      "rankOnly": "RANK (λ=0)",
+      "rankOnlyDesc": "纯代表性家庭",
+      "deepHank": "深度 HANK",
+      "deepHankDesc": "λ=0.6 极高 HTM",
+      "fiscalStimulus": "财政刺激",
+      "fiscalStimulusDesc": "1.5 单位转移支付",
+      "lambdaLabel": "λ HTM 比例",
+      "transferLabel": "转移支付 τ",
+      "fiscalShockUnit": "财政冲击单位",
+      "aggMPC": "加总 MPC",
+      "aggMPCSub": "HANK 比 RANK 高 ≈ 2-3×",
+      "fiscalMultiplier": "财政乘数",
+      "aggDCSub": "单位转移 → 消费",
+      "monetaryAmp": "货币放大 (TANK/RANK)",
+      "ampSub": "x_t 响应放大",
+      "topWealthShare": "顶层财富份额",
+      "topWealthSub": "D10 财富占比",
+      "hankProse1": "HANK (Kaplan-Moll-Violante 2018): 异质代理放弃 representative agent 假设。",
+      "hankProse2": "本教学版用 TANK 近似:HTM 家庭 MPC≈1,Ricardian 平滑消费 → 加总 MPC 高于 RANK。",
+      "hankProse3": "财政转移在 HANK 中乘数显著大于 RANK;货币政策通过收入渠道 (间接效应) 放大。",
+      "wealthDistTitle": "财富分布 & MPC 异质性",
+      "wealthShareLabel": "财富份额 %",
+      "mpcLabel": "MPC",
+      "wealthLegend": "红色柱 = HTM (无储蓄,MPC≈1);金色柱 = Ricardian (帕累托右尾,低 MPC)",
+      "irfMonetaryTitle": "脉冲响应 IRF: 货币冲击 (TANK vs RANK)",
+      "outputGap": "产出缺口 (%)",
+      "inflation": "通胀 (%)",
+      "tankX": "TANK 产出 x",
+      "rankX": "RANK 产出 x",
+      "tankPi": "TANK 通胀 π",
+      "rankPi": "RANK 通胀 π",
+      "rankVsHankIrf": "RANK vs HANK 货币 IRF (产出缺口 %)",
+      "htmSensitivity": "HTM 家庭对当期收入/利率更敏感 → HANK 货币传导曲线更陡。",
+      "roAtmStandard": "ATM 标准",
+      "roAtmStandardDesc": "V≈I, σ=0.3",
+      "roDeepItm": "深 ITM",
+      "roDeepItmDesc": "V>>I 立即投资",
+      "roHighUncertainty": "高不确定性",
+      "roHighUncertaintyDesc": "σ=0.6 等待价值高",
+      "roLongTermProject": "长期项目",
+      "roLongTermProjectDesc": "T=10 年",
+      "roNoGrowth": "无增长",
+      "roNoGrowthDesc": "μ=0 σ 主导价值",
+      "v0Label": "V₀ 项目当前价值",
+      "iCostLabel": "I 投资成本",
+      "sigmaVolatilityLabel": "σ 价值波动率",
+      "muDriftLabel": "μ 真实漂移",
+      "rRiskFreeLabel": "r 无风险率",
+      "tWindowLabel": "T 决策窗口 (年)",
+      "stepsLabel": "二叉树步数",
+      "optionValueF": "实物期权价值 F",
+      "deferredOption": "含延迟期权",
+      "naiveNpv": "朴素 NPV",
+      "maxVi": "max(V−I, 0)",
+      "optionPremium": "期权溢价",
+      "waitingValue": "等待价值",
+      "vStarPerpLabel": "V* 永久基准",
+      "riskNeutralP": "风险中性 p",
+      "decisionLabel": "决策",
+      "invest": "投资",
+      "wait": "等待",
+      "roProse1": "Dixit-Pindyck (1994): 投资具有期权性,σ↑ → 等待价值↑ → 触发阈值 V* > I。",
+      "roProse2": "朴素 NPV 规则 (V≥I 投资) 系统性低估期权溢价,导致过度投资。",
+      "roProse3": "永久解析:V* = β/(β−1)·I,其中 β 满足二次方程根式。",
+      "optionVsV0Title": "期权价值 vs V₀ — 与 NPV 对比",
+      "waitingPremium": "等待溢价",
+      "optionFv": "实物期权 F(V)",
+      "optimalThresholdTitle": "最优投资阈值 V*(t) 路径",
+      "tYears": "t (年)",
+      "vStarThreshold": "V*(t) 触发阈值",
+      "roLegend": "临近到期 T,等待价值消失 → V*(t) → I;长窗口下 V*(t) 接近永久解 V*_∞。"
+    },
+    "macroLab": {
+      "debtTitle": "财政与债务动态",
+      "fxTitle": "汇率与外部平衡",
+      "bggTitle": "金融加速器",
+      "zlbTitle": "ZLB 与前瞻指引",
+      "labHeader": "宏观经济学高阶实验室",
+      "labDesc": "围绕四大现代宏观议题展开: 财政可持续性 (Blanchard r−g)、汇率超调 (Dornbusch)、 外部平衡三缺口 (BOP)、金融加速器 (Bernanke-Gertler-Gilchrist)、 零利率下限 (ZLB) 与前瞻指引 puzzle。与 /s/macro 的经典模型 (IS-LM / Solow / DSGE) 互为补充。",
+      "refTitle": "参考文献",
+      "lowIntTrap": "低利率陷阱 (r<g)",
+      "lowIntTrapDesc": "r=1%, g=2.5%",
+      "debtSpiral": "r>g 债务螺旋",
+      "debtSpiralDesc": "r=5%, g=1.5%, s=0",
+      "fiscalConsolidation": "财政整顿",
+      "fiscalConsolidationDesc": "s=1.5% 削债",
+      "debtParams": "债务动态参数",
+      "initialDebt": "初始债务 b₀",
+      "realIntRate": "实际利率 r",
+      "potentialGrowth": "潜在增长 g",
+      "primarySurplus": "基本盈余 s",
+      "simHorizon": "模拟年限",
+      "stabilizingSurplus": "稳定所需 s*",
+      "finalDebt": "终期债务 b_H",
+      "fiscalSpace": "财政空间",
+      "debtTraj": "债务 / GDP 轨迹",
+      "year": "年",
+      "debtGdpPercent": "b/GDP %",
+      "interestBurdenPercent": "利息负担 %",
+      "debtLegend": "金条 = 债务/GDP;红色柱 = 每期利息-增长差价负担。s < s* 则轨迹上行。",
+      "usDeficit": "美国式赤字",
+      "usDeficitDesc": "S<I, T<G",
+      "germanSurplus": "德国式盈余",
+      "germanSurplusDesc": "S>>I, 财政中性",
+      "strongOvershoot": "货币冲击强超调",
+      "strongOvershootDesc": "低 λθ",
+      "fxOvershootingTitle": "Dornbusch 汇率超调",
+      "moneyShock": "货币冲击 Δm",
+      "priceAdjustment": "价格调整 θ",
+      "intSemiElasticity": "利率半弹性 λ",
+      "horizonQuarters": "时长 (季度)",
+      "longRunE": "长期 e* = Δm",
+      "initOvershoot": "初始超调幅度",
+      "overshootMult": "超调倍数",
+      "convHalfLife": "收敛半衰期",
+      "periods": "期",
+      "epiIRF": "e / p / i 冲击响应",
+      "exchangeLabel": "e (汇率)",
+      "priceLabel": "p (价格)",
+      "intDevLabel": "i (利率偏离)",
+      "fxLegend": "价格粘性 → 汇率承担全部即时调整 → 超调 → UIP 隐含未来升值 → 短期利率下行。",
+      "bopTitle": "BOP 三缺口: CA ≡ (S − I) + (T − G)",
+      "privateSaving": "私人储蓄 S",
+      "investment": "投资 I",
+      "taxes": "税收 T",
+      "govSpending": "政府支出 G",
+      "currentAccount": "经常账户 CA",
+      "netExtFinance": "外部净融资",
+      "healthyFirms": "健康企业",
+      "healthyFirmsDesc": "低杠杆低成本",
+      "crisisMoment": "危机时刻",
+      "crisisMomentDesc": "高杠杆强放大",
+      "posNetWorthShock": "正向净值冲击",
+      "posNetWorthShockDesc": "扩张情形",
+      "leverage": "杠杆 A/N",
+      "monitoringCost": "监督成本 μ",
+      "projectRisk": "项目风险 σ_ω",
+      "persistence": "持久性 ρ",
+      "netWorthShock": "净值冲击",
+      "peakEfp": "EFP 峰值",
+      "peakOutput": "产出峰值 |ŷ|",
+      "ampFactor": "放大系数",
+      "vsRbcIncrease": "vs RBC 增幅",
+      "bggIrfTitle": "净值 · EFP · 产出 IRF",
+      "deviationPercent": "% 偏离",
+      "efpBp": "EFP (bp)",
+      "netWorthHat": "n̂ 净值",
+      "outputHat": "ŷ (BGG)",
+      "outputRbc": "ŷ (RBC 无摩擦)",
+      "bggLegend": "负向净值冲击 → EFP 上升 → 投资/产出跌幅超过无摩擦基线。",
+      "gfcScenario": "GFC 情境",
+      "gfcScenarioDesc": "6 期 ZLB, rⁿ=−2%",
+      "mildDeflation": "温和通缩压力",
+      "mildDeflationDesc": "2 期 ZLB, rⁿ=−0.5%",
+      "strongFg": "前瞻指引加力",
+      "strongFgDesc": "维持 ZLB 更久",
+      "naturalRate": "自然利率 rⁿ",
+      "zlbK": "ZLB 约束期 K",
+      "sigmaInter": "跨期替代 σ",
+      "kappaNKPC": "NKPC 斜率 κ",
+      "outputGap0": "当期 x₀",
+      "inflation0": "当期 π₀",
+      "realRate0": "实际利率 r_0",
+      "zlbBinding": "ZLB 约束",
+      "yes": "YES",
+      "no": "NO",
+      "zlbChartTitle": "ZLB 约束下的产出与通胀路径",
+      "policyRateLabel": "名义利率 i (%)",
+      "zlbRegion": "ZLB 区域",
+      "fgAmpTitle": "前瞻指引 Puzzle · 额外 ZLB 期数 → 当期 x 放大",
+      "extraFgPeriods": "额外 ZLB 期数",
+      "x0Mult": "x_0 响应倍数",
+      "fgProse": "标准 NK 模型下前瞻指引效力随 ZLB 期数指数级放大 —— Del Negro-Giannoni-Patterson (2015) 记录的 \"puzzle\"。",
+      "debtDescShort": "b_{t+1}=(1+r)/(1+g)·b_t−s 与 r−g 财政空间",
+      "fxDescShort": "粘性价格汇率超调 + S−I / T−G / CA 三缺口",
+      "bggDescShort": "净值冲击 → EFP → 投资/产出的非线性放大",
+      "zlbDescShort": "零利率下限约束下 NK 模型 & 前瞻指引 puzzle",
+      "periodUnit": "期",
+      "vsBaseline": "vs 1 期基线"
     }
+  },
+  "essays": {
+    "macroTheory": {
+      "title": "宏观经济学导读：从增长与波动，到政策、开放经济与前沿",
+      "subtitle": "宏观经济学不是「微观的加总」。即使每个家庭与企业都在理性选择，整体仍可能陷入需求不足、失业持续、金融恐慌或通胀失控。它真正处理的是总量结果、协调问题与系统性波动。",
+      "mainLine": "一条主线：长期看，宏观解释生产能力为何增长；短期看，它解释实际产出为何偏离潜在产出；政策层面，它讨论货币、财政与制度安排能否、以及应当如何缩小这些偏离，并在效率、稳定、分配与风险之间权衡。",
+      "sections": {
+        "s1": "研究对象、总量思维与微观基础",
+        "s2": "长期增长：从索洛到内生增长与制度",
+        "s3": "短期波动：从有效需求到 RBC 与新凯恩斯",
+        "s4": "货币政策：传导、规则与非常规工具",
+        "s5": "财政政策：乘数、等价、稳定器与债务",
+        "s6": "开放经济：三元悖论、平价与危机",
+        "s7": "思想史主线：争论如何塑造今天的共识",
+        "s8": "当代前沿：异质性、行为、金融、气候与数据",
+        "s9": "建立宏观判断力：四步分析框架"
+      },
+      "tools": {
+        "solow": {
+          "label": "Solow 与经典模型",
+          "note": "IS-LM / AD-AS / 拉姆齐 / NK DSGE"
+        },
+        "hank": {
+          "label": "HANK / TANK 教学版",
+          "note": "HTM 份额与总量 MPC"
+        },
+        "growthEngines": {
+          "label": "内生增长引擎对比",
+          "note": "四条路径 vs Solow 过渡动态"
+        },
+        "growthAccounting": {
+          "label": "增长核算与发展核算",
+          "note": "Solow 残差 / Hall-Jones 分解"
+        },
+        "multiplier": {
+          "label": "乘数—加速数与财政乘数",
+          "note": "Samuelson 周期 + 状态依赖"
+        },
+        "rbc": {
+          "label": "RBC 校准与周期矩",
+          "note": "模型矩 vs 典型事实"
+        },
+        "calvo": {
+          "label": "Calvo 定价与 NKPC",
+          "note": "θ → κ、指数化、牺牲率"
+        },
+        "rules": {
+          "label": "规则 vs 相机抉择",
+          "note": "通胀偏差 + 四种规则对比"
+        },
+        "unconventional": {
+          "label": "非常规政策 QE / YCC",
+          "note": "组合再平衡与信号渠道分解"
+        },
+        "zlb": {
+          "label": "ZLB 与前瞻指引",
+          "note": "零下界与 FG puzzle"
+        },
+        "fiscalExp": {
+          "label": "财政乘数实验",
+          "note": "松弛度 / ZLB / 李嘉图程度"
+        },
+        "debtSpace": {
+          "label": "债务动态与财政空间",
+          "note": "Blanchard r−g 情景"
+        },
+        "parity": {
+          "label": "平价条件与 Carry",
+          "note": "PPP / UIP / CIP 与 Fama 回归"
+        },
+        "suddenStop": {
+          "label": "突然停止与外部调整",
+          "note": "储备覆盖、贬值的两面性"
+        },
+        "overshooting": {
+          "label": "Dornbusch 汇率超调",
+          "note": "粘性价格下的即时超调"
+        },
+        "expectation": {
+          "label": "预期形成实验",
+          "note": "理性 / 适应性 / 黏性 / 诊断性"
+        },
+        "bankCapital": {
+          "label": "银行资本与去杠杆",
+          "note": "资本 → 信贷 → 产出的放大"
+        },
+        "climate": {
+          "label": "气候转型宏观路径",
+          "note": "有序 vs 无序转型"
+        },
+        "bgg": {
+          "label": "BGG 金融加速器",
+          "note": "净值 → EFP → 投资"
+        },
+        "lab": {
+          "label": "宏观前沿实验室",
+          "note": "12 个交互实验：增长 / 周期 / 政策 / 开放 / 前沿"
+        }
+      },
+      "caution": {
+        "tfp": {
+          "title": "TFP 是「无知的度量」",
+          "content": "残差同时吸收技术进步、要素利用率、配置效率与测量误差。东亚增长是投入驱动还是效率驱动的争论（Krugman-Young vs 后续研究）之所以久未平息，正是因为残差本身依赖份额假设与要素质量调整。"
+        },
+        "forwardGuidance": {
+          "title": "前瞻指引之谜",
+          "content": "标准 NK 模型中，越远期的利率承诺对今天的影响越大，量级明显超出实证——这是模型对完全理性与完全信息假设过度依赖的信号，也是黏性信息、有限深度思考与异质性代理人被引入的原因。"
+        },
+        "devaluation": {
+          "title": "贬值未必扩张",
+          "content": "存在货币错配（外币负债、本币资产）时，贬值同时带来支出转换（扩张）与资产负债表损失（紧缩）。后者占优时，贬值是收缩性的——这是新兴市场「原罪」与储备自我保险的核心逻辑。"
+        },
+        "postPandemic": {
+          "title": "后疫情与高通胀时代的挑战",
+          "content": "2021–2023 的通胀既非纯需求也非纯供给：财政转移、供应链断裂、劳动供给变化与预期共同作用。它同时暴露了两类风险——过度依赖「通胀是暂时的」这一供给判断，以及忽略财政—货币互动对价格水平的影响。"
+        },
+        "judgmentRules": {
+          "title": "判断力的三条守则",
+          "content": "一、先问冲击来自需求还是供给，再问政策；二、任何「乘数」「传导系数」都是状态依赖的参数，不是常数；三、对模型保持可证伪的态度：DSGE、HANK 与叙事型分析各有盲区，交叉验证比押注单一框架更稳健。"
+        }
+      },
+      "labTitle": "动手复现",
+      "history": {
+        "period": "时期",
+        "school": "学派",
+        "core": "核心主张",
+        "legacy": "留下的遗产"
+      },
+      "judgment": {
+        "type": "冲击类型",
+        "sign": "识别标志",
+        "source": "典型来源",
+        "implication": "政策含义"
+      }
+    }
+  },
+  "header": {
+    "heading": "宏观前沿实验室",
+    "intro": "补全宏观谱系的四块缺口：内生增长与增长核算、周期机制与名义刚性微观基础、政策规则与财政—货币协调、\n          开放经济平价与当代前沿（行为宏观、非常规政策、宏观金融、气候）。与 /s/macro 的经典模型与 /s/macro-lab 的\n          债务/汇率/BGG/ZLB 实验互为补充。",
+    "references": "参考文献",
+    "footerNote": "所有模型均为教学级对数线性/校准化简写，用于机制直觉与比较静态，不作为校准化 GE 预测使用。"
+  },
+  "cats": {
+    "growth": "长期增长",
+    "cycle": "周期与刚性",
+    "policy": "政策规则",
+    "open": "开放经济",
+    "frontier": "当代前沿"
+  },
+  "tabs": {
+    "endo": {
+      "title": "内生增长引擎",
+      "desc": "AK / Lucas / Romer / Schumpeter vs Solow"
+    },
+    "accounting": {
+      "title": "增长核算与 TFP",
+      "desc": "Solow 残差 + Hall-Jones 发展核算"
+    },
+    "multiplier": {
+      "title": "乘数—加速数与财政乘数",
+      "desc": "Samuelson 周期 + 状态依赖乘数"
+    },
+    "rbc": {
+      "title": "RBC 校准与周期矩",
+      "desc": "技术冲击驱动的波动率与相关性"
+    },
+    "calvo": {
+      "title": "Calvo 定价与 NKPC",
+      "desc": "θ → κ、指数化与货币非中性"
+    },
+    "rules": {
+      "title": "规则 vs 相机抉择",
+      "desc": "Barro-Gordon 通胀偏差 + 四种规则对比"
+    },
+    "parity": {
+      "title": "平价条件与 Carry",
+      "desc": "PPP / UIP / CIP 与远期溢价之谜"
+    },
+    "sudden": {
+      "title": "突然停止与外部调整",
+      "desc": "资本流逆转、储备覆盖与资产负债表效应"
+    },
+    "expect": {
+      "title": "行为宏观：预期形成",
+      "desc": "理性 / 适应性 / 黏性 / 诊断性"
+    },
+    "uncon": {
+      "title": "非常规货币政策",
+      "desc": "QE 组合再平衡 + YCC 收益率曲线控制"
+    },
+    "bank": {
+      "title": "宏观金融：银行资本",
+      "desc": "资本冲击 → 去杠杆 → 信贷与产出"
+    },
+    "climate": {
+      "title": "气候转型的宏观路径",
+      "desc": "碳价、绿色通胀与物理损害权衡"
+    }
+  },
+  "endo": {
+    "presets": {
+      "0": {
+        "name": "研发驱动型",
+        "desc": "高 θ·s_R"
+      },
+      "1": {
+        "name": "人力资本驱动",
+        "desc": "高 ψ·u"
+      },
+      "2": {
+        "name": "资本深化型",
+        "desc": "高 s·A (AK)"
+      }
+    },
+    "paramsTitle": "四种增长引擎参数",
+    "sliders": {
+      "0": "储蓄率 s",
+      "1": "AK 生产率 A",
+      "2": "Lucas ψ",
+      "3": "教育时间 u",
+      "4": "Romer θ",
+      "5": "R&D 人员份额 s_R",
+      "6": "创新强度 λ",
+      "7": "质量阶梯 γ"
+    },
+    "stats": {
+      "ak": "AK: sA−(δ+n)",
+      "lucas": "Lucas: ψu",
+      "romer": "Romer: θs_R",
+      "schumpeter": "Schumpeter: λlnγ"
+    },
+    "scaleEffectYes": "存在规模效应",
+    "scaleEffectNo": "无规模效应",
+    "chartTitle": "人均产出对数路径 (相对起点)",
+    "axis": {
+      "year": "年",
+      "logY": "log y ×100"
+    },
+    "note": "Solow (红虚线) 只有过渡动态：储蓄率提高改变水平而非长期增速；四种内生机制则把增速本身变成政策与制度的函数。\n            Romer 的 θ·s_R·L 蕴含规模效应，是半内生增长 (Jones 1995) 的主要批评靶点。"
+  },
+  "misc": {
+    "k0": "东亚投入驱动",
+    "k1": "Krugman-Young 争论",
+    "k2": "美国生产率繁荣",
+    "k3": "1995-2004",
+    "k4": "生产率放缓",
+    "k5": "2010s",
+    "k6": "Solow 残差分解",
+    "k7": "产出增速 gY",
+    "k8": "资本增速 gK",
+    "k9": "劳动增速 gL",
+    "k10": "人力资本 gH",
+    "k11": "资本份额 α",
+    "k12": "TFP 增速",
+    "k13": "TFP 贡献占比",
+    "k14": "残差 / 产出增速",
+    "k15": "残差既包含真实技术进步，也吸收了要素利用率、配置效率与测量误差 —— 这正是「TFP 是无知的度量」批评的来源。",
+    "k16": "增长来源分解 (百分点)",
+    "k17": "资本",
+    "k18": "劳动",
+    "k19": "人力资本",
+    "k20": "TFP 残差",
+    "k21": "贡献 pp",
+    "k22": "发展核算：富国 / 穷国收入差距如何分解 (Hall-Jones)",
+    "k23": "收入比 y_R/y_P",
+    "k24": "富国 K/Y",
+    "k25": "穷国 K/Y",
+    "k26": "富国 h",
+    "k27": "穷国 h",
+    "k28": "要素因子",
+    "k29": "TFP 因子",
+    "k30": "TFP 解释份额",
+    "k31": "对数分解",
+    "k32": "要素解释份额",
+    "k33": "典型结论：跨国收入差距中约一半以上来自效率/TFP 而非要素积累 —— 把注意力推向制度、配置效率与技术扩散。",
+    "k34": "衰退 + ZLB",
+    "k35": "高乘数情形",
+    "k36": "过热经济",
+    "k37": "货币抵消强",
+    "k38": "李嘉图世界",
+    "k39": "完全等价",
+    "k40": "Samuelson 乘数—加速数",
+    "k41": "边际消费倾向 c",
+    "k42": "加速数 v",
+    "k43": "动态区制",
+    "k44": "单调收敛",
+    "k45": "阻尼振荡",
+    "k46": "发散振荡",
+    "k47": "发散",
+    "k48": "长期乘数 1/(1−c)",
+    "k49": "Y / C / I 对永久性 G 冲击的动态",
+    "k50": "内生周期无需外生冲击：加速数把投资与产出变化挂钩，c·v 的根决定振荡与收敛/发散。",
+    "k51": "状态依赖的财政乘数",
+    "k52": "税率 t (自动稳定器)",
+    "k53": "进口漏出 m",
+    "k54": "李嘉图程度",
+    "k55": "经济松弛度",
+    "k56": "货币抵消强度",
+    "k57": "处于 ZLB / 货币政策不抵消",
+    "k58": "教科书基准",
+    "k59": "政府支出",
+    "k60": "减税",
+    "k61": "转移支付",
+    "k62": "乘数",
+    "k63": "经济状态",
+    "k64": "衰退",
+    "k65": "过热",
+    "k66": "常态",
+    "k67": "自动稳定器吸收",
+    "k68": "红线为 1：乘数是否大于 1 取决于松弛度、货币政策是否抵消与家庭的李嘉图程度，而不是一个固定常数。",
+    "k69": "Kydland-Prescott 式校准",
+    "k70": "TFP 持久性 ρ",
+    "k71": "技术冲击 σ",
+    "k72": "Frisch 弹性 ν",
+    "k73": "产出自相关",
+    "k74": "模型矩 vs 典型事实",
+    "k75": "矩",
+    "k76": "模型",
+    "k77": "数据",
+    "k78": "模拟序列 (前 120 期, % 偏离)",
+    "k79": "产出",
+    "k80": "消费",
+    "k81": "投资",
+    "k82": "RBC 的贡献是方法论 (随机动态一般均衡 + 校准 + 矩匹配)；其争议在于把衰退解释为技术倒退、需要高 Frisch 弹性，\n            以及缺少货币与金融摩擦。",
+    "k83": "美国校准",
+    "k84": "θ=0.75 (季度)",
+    "k85": "高通胀经济",
+    "k86": "价格频繁调整",
+    "k87": "纯前瞻 NKPC",
+    "k88": "无指数化",
+    "k89": "Calvo 交错定价参数",
+    "k90": "不调价概率 θ",
+    "k91": "指数化程度 ω",
+    "k92": "1/IES σ",
+    "k93": "1/Frisch φ",
+    "k94": "替代弹性 ε",
+    "k95": "NKPC 斜率 κ",
+    "k96": "平均价格期限",
+    "k97": "前瞻/回顾权重",
+    "k98": "加成 ε/(ε−1)",
+    "k99": "牺牲率",
+    "k100": "1pp 反通胀的产出代价",
+    "k101": "货币非中性半衰期",
+    "k102": "θ → κ 与价格期限映射",
+    "k103": "κ 斜率",
+    "k104": "期限",
+    "k105": "1/(1−θ)",
+    "k106": "Barro-Gordon 时间不一致",
+    "k107": "产出野心 k",
+    "k108": "产出权重 λ",
+    "k109": "PC 斜率 α",
+    "k110": "供给冲击",
+    "k111": "承诺可信度",
+    "k112": "通胀偏差 λαk",
+    "k113": "相机抉择 π",
+    "k114": "承诺 π",
+    "k115": "当前均衡 π",
+    "k116": "可信度 → 均衡通胀与损失",
+    "k117": "可信度 %",
+    "k118": "均衡通胀 %",
+    "k119": "没有承诺机制时，公众预期到央行的扩张动机 → 通胀更高但产出不变。独立央行、通胀目标与保守央行行长都是承诺技术。",
+    "k120": "四种政策规则在成本推动冲击下的表现",
+    "k121": "泰勒规则",
+    "k122": "通胀目标制",
+    "k123": "价格水平目标",
+    "k124": "名义 GDP 目标",
+    "k125": "泰勒原则",
+    "k126": "满足 (φ_π>1)",
+    "k127": "不满足 → 不确定性",
+    "k128": "通胀波动 σ(π)",
+    "k129": "产出波动 σ(x)",
+    "k130": "价格水平漂移",
+    "k131": "泰勒",
+    "k132": "通胀目标",
+    "k133": "价格水平",
+    "k134": "名义 GDP",
+    "k135": "价格水平目标通过「补偿过去偏离」获得额外的预期渠道，因此累计漂移更小 —— 代价是短期产出波动可能更大。",
+    "k136": "远期溢价之谜",
+    "k137": "β < 0",
+    "k138": "UIP 成立",
+    "k139": "β = 1",
+    "k140": "CIP 偏离 (危机)",
+    "k141": "掉期基差",
+    "k142": "平价条件参数",
+    "k143": "本币利率 i",
+    "k144": "外币利率 i*",
+    "k145": "即期 S",
+    "k146": "远期 F",
+    "k147": "真实 UIP β",
+    "k148": "噪声 σ",
+    "k149": "CIP 基差",
+    "k150": "远期溢价",
+    "k151": "Fama β",
+    "k152": "远期溢价之谜",
+    "k153": "UIP 方向一致",
+    "k154": "回归 R²",
+    "k155": "Carry 超额收益",
+    "k156": "PPP 实际漂移",
+    "k157": "Fama 回归：Δs 对利差散点",
+    "k158": "观测",
+    "k159": "拟合",
+    "k160": "UIP β=1",
+    "k161": "UIP 预测 β=1；实证常得到 β&lt;0：高息货币不仅没有贬值，反而带来正的 Carry 收益。风险溢价、峰度风险与\n            有限套利资本都是候选解释。CIP 基差在 2008 后长期非零，说明连「无风险」平价都受资产负债表约束。",
+    "k162": "亚洲金融危机式",
+    "k163": "短债高、储备薄",
+    "k164": "储备充足",
+    "k165": "Greenspan-Guidotti 达标",
+    "k166": "温和调整",
+    "k167": "流动逆转有限",
+    "k168": "外部脆弱性参数",
+    "k169": "经常账户赤字",
+    "k170": "外债 / GDP",
+    "k171": "储备 / GDP",
+    "k172": "短期债务占比",
+    "k173": "资本流逆转比例",
+    "k174": "汇率传递系数",
+    "k175": "储备覆盖率",
+    "k176": "Greenspan-Guidotti ≥1",
+    "k177": "所需外部调整",
+    "k178": "资产负债表损失",
+    "k179": "FX 债务估值效应",
+    "k180": "判定",
+    "k181": "危机风险",
+    "k182": "可控",
+    "k183": "突然停止后的调整路径",
+    "k184": "季度",
+    "k185": "经常账户 / GDP",
+    "k186": "累计贬值",
+    "k187": "产出偏离",
+    "k188": "货币错配下贬值同时带来支出转换 (扩张) 与资产负债表损失 (紧缩)；后者占优时贬值反而是收缩性的 —— 这正是\n            「原罪」与外汇储备自我保险的核心动机。",
+    "k189": "理性预期",
+    "k190": "适应性学习",
+    "k191": "黏性信息",
+    "k192": "诊断性预期",
+    "k193": "学习增益 g",
+    "k194": "信息黏性 λ",
+    "k195": "诊断参数 θ",
+    "k196": "冲击持久性 ρ",
+    "k197": "CG 系数",
+    "k198": "误差对修正回归；≠0 表示可预测误差",
+    "k199": "最大预测误差",
+    "k200": "FIRE 基准要求预测误差不可预测。黏性信息给出正的 CG 系数 (反应不足)，诊断性预期给出负系数 (过度反应)，\n            适应性学习则在冲击后产生系统性追赶 —— 这三类偏离正是行为宏观的实证抓手。",
+    "k201": "实际值 vs 四种预期路径",
+    "k202": "实际",
+    "k203": "理性",
+    "k204": "适应性",
+    "k205": "黏性",
+    "k206": "诊断性",
+    "k207": "大规模 QE",
+    "k208": "久期移除大",
+    "k209": "日本式 YCC",
+    "k210": "收益率上限",
+    "k211": "纯信号渠道",
+    "k212": "前瞻指引为主",
+    "k213": "QE / YCC 参数",
+    "k214": "购买规模 (%GDP)",
+    "k215": "久期移除 (10y 等值)",
+    "k216": "偏好栖息地弹性",
+    "k217": "信号渠道强度",
+    "k218": "市场深度",
+    "k219": "YCC 目标",
+    "k220": "启用收益率曲线控制 (YCC)",
+    "k221": "总收益率下压",
+    "k222": "组合再平衡渠道",
+    "k223": "信号渠道",
+    "k224": "YCC 可守住?",
+    "k225": "是 (无需大量购债)",
+    "k226": "需大量购债",
+    "k227": "未启用",
+    "k228": "10y 收益率分解与资产负债表",
+    "k229": "10y 收益率",
+    "k230": "预期短端路径",
+    "k231": "央行持仓",
+    "k232": "YCC 上限",
+    "k233": "QE 通过组合再平衡压低期限溢价、通过信号渠道压低预期短端路径；YCC 用价格承诺替代数量目标，可信时购买量反而更小。",
+    "k234": "2008 式冲击",
+    "k235": "高杠杆 + 抛售",
+    "k236": "Basel III 后",
+    "k237": "厚资本缓冲",
+    "k238": "轻微损失",
+    "k239": "可吸收",
+    "k240": "银行资本与去杠杆",
+    "k241": "初始资本率",
+    "k242": "损失冲击",
+    "k243": "目标杠杆",
+    "k244": "信贷—产出弹性",
+    "k245": "抛售价格冲击",
+    "k246": "信贷收缩峰值",
+    "k247": "产出缺口峰值",
+    "k248": "放大倍数",
+    "k249": "监管底线",
+    "k250": "触及最低资本",
+    "k251": "缓冲充足",
+    "k252": "资本 → 信贷 → 产出与利差",
+    "k253": "资本率 %",
+    "k254": "信贷供给",
+    "k255": "信贷利差",
+    "k256": "净值损失 × 目标杠杆 = 资产收缩规模；抛售价格冲击把个体审慎行为变成系统性紧缩 —— 宏观审慎政策的靶点。",
+    "k257": "有序转型",
+    "k258": "早、缓、可预期",
+    "k259": "无序转型",
+    "k260": "晚、急、成本高",
+    "k261": "温室世界",
+    "k262": "无政策 → 高损害",
+    "k263": "转型情景参数",
+    "k264": "终期碳价 (USD/t)",
+    "k265": "能源成本份额",
+    "k266": "转型年限",
+    "k267": "绿色投资 (%GDP/年)",
+    "k268": "减排弹性",
+    "k269": "损害强度",
+    "k270": "无政策升温 (°C)",
+    "k271": "终期升温",
+    "k272": "转型成本 NPV",
+    "k273": "3% 贴现",
+    "k274": "绿色通胀峰值",
+    "k275": "政策优于不作为",
+    "k276": "本情景下未跨越",
+    "k277": "排放路径与产出成本分解",
+    "k278": "排放指数",
+    "k279": "% 产出",
+    "k280": "排放 (100=今天)",
+    "k281": "转型成本",
+    "k282": "物理损害",
+    "k283": "净产出影响",
+    "k284": "碳定价把外部性内部化，短期表现为供给侧成本与「绿色通胀」，长期换取更低的物理损害。\n            无序转型 (晚而急) 同时抬高转型成本与金融风险 —— 央行气候压力测试的核心情景对照。"
   }
 }
