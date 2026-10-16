@@ -1,7 +1,8 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, Scatter, ComposedChart, ReferenceLine } from "recharts";
 import PresetButtons from "../PresetButtons";
 import { useTranslation } from "react-i18next";
+import { bootstrapQuantileRegAsync, type QRBootPoint } from "@/lib/quant/panelEcon";
 
 const CHART_GOLD = "hsl(43, 80%, 55%)";
 const CHART_TEAL = "hsl(180, 50%, 40%)";
