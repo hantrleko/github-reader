@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { sectionHref } from "@/lib/sections";
-import { searchDocs, buildSearchIndex, KIND_LABELS, type SearchDoc, type SearchKind } from "@/lib/searchIndex";
+import { KIND_LABELS, type SearchDoc, type SearchKind } from "@/lib/searchIndexTypes";
 import {
   CommandDialog,
   CommandEmpty,

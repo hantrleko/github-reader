@@ -1,7 +1,11 @@
 import { Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
-import { motion, AnimatePresence } from "framer-motion";
 
+/**
+ * Theme toggle — intentionally framer-motion-free: this component sits in the
+ * navbar (entry chunk), and importing framer-motion here would force the whole
+ * vendor-framer chunk into first-load. A tiny CSS transition does the same job.
+ */
 const ThemeToggle = () => {
   const { theme, setTheme } = useTheme();
   const isDark = theme === "dark";
@@ -14,31 +18,12 @@ const ThemeToggle = () => {
       aria-label={isDark ? "切换到浅色模式" : "切换到深色模式"}
       aria-pressed={isDark}
     >
-      <AnimatePresence mode="wait" initial={false}>
-        {isDark ? (
-          <motion.span
-            key="sun"
-            initial={{ rotate: -90, scale: 0, opacity: 0 }}
-            animate={{ rotate: 0, scale: 1, opacity: 1 }}
-            exit={{ rotate: 90, scale: 0, opacity: 0 }}
-            transition={{ duration: 0.18 }}
-            className="absolute inset-0 flex items-center justify-center"
-          >
-            <Sun className="w-4 h-4" />
-          </motion.span>
-        ) : (
-          <motion.span
-            key="moon"
-            initial={{ rotate: 90, scale: 0, opacity: 0 }}
-            animate={{ rotate: 0, scale: 1, opacity: 1 }}
-            exit={{ rotate: -90, scale: 0, opacity: 0 }}
-            transition={{ duration: 0.18 }}
-            className="absolute inset-0 flex items-center justify-center"
-          >
-            <Moon className="w-4 h-4" />
-          </motion.span>
-        )}
-      </AnimatePresence>
+      <span
+        key={isDark ? "sun" : "moon"}
+        className="absolute inset-0 flex items-center justify-center animate-in fade-in-0 zoom-in-50 spin-in-90 duration-200"
+      >
+        {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+      </span>
     </button>
   );
 };
