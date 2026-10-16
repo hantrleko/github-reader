@@ -17,19 +17,6 @@ export function fail(cors: Record<string, string>, e: unknown, status = 500) {
 /** SEC requires a declared User-Agent. Keep requests well under 10 req/s. */
 export const SEC_UA = "EF Lab research tool (contact: research@eugenefinance.tech)";
 
-export function json(body: unknown, status = 200) {
-  return new Response(JSON.stringify(body), {
-    status,
-    headers: { ...corsHeaders, "Content-Type": "application/json" },
-  });
-}
-
-export function fail(e: unknown, status = 500) {
-  const msg = e instanceof Error ? e.message : String(e);
-  console.error("us-data error:", msg);
-  return json({ error: msg }, status);
-}
-
 /**
  * Fetch with host fallback + retry. Overseas endpoints (Yahoo/SEC) sometimes
  * drop TLS without close_notify from Deno Deploy — retry across mirrors.
