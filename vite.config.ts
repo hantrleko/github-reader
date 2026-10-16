@@ -110,13 +110,12 @@ export default defineConfig(({ mode }) => ({
         // first load even though only lazy routes use them.
         manualChunks(id: string) {
           if (!id.includes("node_modules")) return;
-          if (/node_modules[\\/](three|@react-three)[\\/]/.test(id)) return "vendor-three";
-          if (/node_modules[\\/]recharts[\\/]/.test(id)) return "vendor-recharts";
+          // Only packages the entry itself uses get explicit vendor chunks.
+          // Heavy lazy-only libs (three, recharts, jspdf, katex, dnd…)
+          // are left to Rollup's automatic splitting: forcing them into
+          // named chunks pulls their shared CJS helpers into the entry's
+          // static graph and index.html ends up preloading them.
           if (/node_modules[\\/]framer-motion[\\/]/.test(id)) return "vendor-framer";
-          if (/node_modules[\\/](katex|react-katex)[\\/]/.test(id)) return "vendor-katex";
-          if (/node_modules[\\/]html-to-image[\\/]/.test(id)) return "vendor-html2img";
-          if (/node_modules[\\/]jspdf[\\/]/.test(id)) return "vendor-jspdf";
-          if (/node_modules[\\/]@dnd-kit[\\/]/.test(id)) return "vendor-dnd";
           if (/node_modules[\\/]@tanstack[\\/]/.test(id)) return "vendor-query";
           if (/node_modules[\\/](i18next|react-i18next|i18next-browser-languagedetector)[\\/]/.test(id)) return "vendor-i18n";
           if (/node_modules[\\/]@radix-ui[\\/]/.test(id)) return "vendor-radix";
