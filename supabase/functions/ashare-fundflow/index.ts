@@ -1,10 +1,7 @@
 // A-share fund-flow K-line (Eastmoney push2 fflow). Daily net inflow decomposed
 // into main/small/mid/large/super-large and percentages.
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
+import { corsHeadersFor, getClientIp, checkRateLimit, rateLimitResponse, getCached, setCached } from "../_shared/security.ts";
 
 function normalizeSymbol(raw: string) {
   const s = raw.replace(/^(sh|sz|bj)/i, "").replace(/\D/g, "").padStart(6, "0");
@@ -14,8 +11,7 @@ function normalizeSymbol(raw: string) {
   return { code: s, secid: market === "sh" ? `1.${s}` : `0.${s}` };
 }
 
-Deno.serve(async (req) => {
-  if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+async function handler(req: Request, corsHeaders: Record<string, string>): Promise<Response> {
   try {
     const url = new URL(req.url);
     const sym = normalizeSymbol(url.searchParams.get("symbol") || "sh600000");
@@ -72,4 +68,30 @@ Deno.serve(async (req) => {
       status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }
+});
+
+const CACHE_TTL_SEC = 60;
+
+Deno.serve(async (req) => {
+  const corsHeaders = corsHeadersFor(req);
+  if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+
+  const ip = getClientIp(req);
+  const rl = await checkRateLimit(`rl:ashare-fundflow:${ip}`, 60, 60);
+  if (!rl.allowed) return rateLimitResponse(corsHeaders, rl.retryAfter);
+
+  const cacheKey = `cache:ashare-fundflow:${new URL(req.url).searchParams.toString()}`;
+  const cached = await getCached(cacheKey);
+  if (cached) {
+    return new Response(cached, {
+      headers: { ...corsHeaders, "Content-Type": "application/json", "X-Cache": "HIT" },
+    });
+  }
+
+  const resp = await handler(req, corsHeaders);
+  if (resp.ok) {
+    const body = await resp.clone().text();
+    setCached(cacheKey, body, CACHE_TTL_SEC).catch(() => {});
+  }
+  return resp;
 });

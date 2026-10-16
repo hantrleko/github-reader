@@ -1,9 +1,6 @@
 // ETF lookup — scrapes public metadata from etfdb.com for a single ticker.
 // Best-effort: if HTML changes, we return a partial payload with links.
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
+import { corsHeadersFor, getClientIp, checkRateLimit, rateLimitResponse, getCached, setCached } from "../_shared/security.ts";
 
 type EtfInfo = {
   ticker: string;
@@ -26,8 +23,7 @@ function pick(html: string, re: RegExp): string | null {
   return m[1].replace(/<[^>]+>/g, "").replace(/&nbsp;/g, " ").trim() || null;
 }
 
-Deno.serve(async (req) => {
-  if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+async function handler(req: Request, corsHeaders: Record<string, string>): Promise<Response> {
   try {
     const url = new URL(req.url);
     const ticker = (url.searchParams.get("ticker") || "SPY").toUpperCase();
@@ -84,4 +80,30 @@ Deno.serve(async (req) => {
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }
+});
+
+const CACHE_TTL_SEC = 60;
+
+Deno.serve(async (req) => {
+  const corsHeaders = corsHeadersFor(req);
+  if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+
+  const ip = getClientIp(req);
+  const rl = await checkRateLimit(`rl:etf-lookup:${ip}`, 60, 60);
+  if (!rl.allowed) return rateLimitResponse(corsHeaders, rl.retryAfter);
+
+  const cacheKey = `cache:etf-lookup:${new URL(req.url).searchParams.toString()}`;
+  const cached = await getCached(cacheKey);
+  if (cached) {
+    return new Response(cached, {
+      headers: { ...corsHeaders, "Content-Type": "application/json", "X-Cache": "HIT" },
+    });
+  }
+
+  const resp = await handler(req, corsHeaders);
+  if (resp.ok) {
+    const body = await resp.clone().text();
+    setCached(cacheKey, body, CACHE_TTL_SEC).catch(() => {});
+  }
+  return resp;
 });

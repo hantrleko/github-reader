@@ -1,16 +1,12 @@
 // Cninfo (巨潮) announcements. Optional `code` narrows to one stock.
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
+import { corsHeadersFor, getClientIp, checkRateLimit, rateLimitResponse, getCached, setCached } from "../_shared/security.ts";
 
 function pad6(s: string) {
   return s.replace(/\D/g, "").padStart(6, "0");
 }
 
-Deno.serve(async (req) => {
-  if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+async function handler(req: Request, corsHeaders: Record<string, string>): Promise<Response> {
   try {
     const url = new URL(req.url);
     const code = url.searchParams.get("code") || "";
@@ -64,4 +60,30 @@ Deno.serve(async (req) => {
       status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }
+});
+
+const CACHE_TTL_SEC = 60;
+
+Deno.serve(async (req) => {
+  const corsHeaders = corsHeadersFor(req);
+  if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+
+  const ip = getClientIp(req);
+  const rl = await checkRateLimit(`rl:ashare-news:${ip}`, 60, 60);
+  if (!rl.allowed) return rateLimitResponse(corsHeaders, rl.retryAfter);
+
+  const cacheKey = `cache:ashare-news:${new URL(req.url).searchParams.toString()}`;
+  const cached = await getCached(cacheKey);
+  if (cached) {
+    return new Response(cached, {
+      headers: { ...corsHeaders, "Content-Type": "application/json", "X-Cache": "HIT" },
+    });
+  }
+
+  const resp = await handler(req, corsHeaders);
+  if (resp.ok) {
+    const body = await resp.clone().text();
+    setCached(cacheKey, body, CACHE_TTL_SEC).catch(() => {});
+  }
+  return resp;
 });

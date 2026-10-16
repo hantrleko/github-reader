@@ -2,16 +2,12 @@
 // Fetches the public CSV ZIP, unzips, parses, returns recent N months of factors.
 import { unzipSync, strFromU8 } from "https://esm.sh/fflate@0.8.2";
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
+import { corsHeadersFor, getClientIp, checkRateLimit, rateLimitResponse, getCached, setCached } from "../_shared/security.ts";
 
 const URL_FF5 =
   "https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/ftp/F-F_Research_Data_5_Factors_2x3_CSV.zip";
 
-Deno.serve(async (req) => {
-  if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+async function handler(req: Request, corsHeaders: Record<string, string>): Promise<Response> {
 
   try {
     const url = new URL(req.url);
@@ -92,4 +88,30 @@ Deno.serve(async (req) => {
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }
+});
+
+const CACHE_TTL_SEC = 86400;
+
+Deno.serve(async (req) => {
+  const corsHeaders = corsHeadersFor(req);
+  if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+
+  const ip = getClientIp(req);
+  const rl = await checkRateLimit(`rl:famafrench-factors:${ip}`, 60, 60);
+  if (!rl.allowed) return rateLimitResponse(corsHeaders, rl.retryAfter);
+
+  const cacheKey = `cache:famafrench-factors:${new URL(req.url).searchParams.toString()}`;
+  const cached = await getCached(cacheKey);
+  if (cached) {
+    return new Response(cached, {
+      headers: { ...corsHeaders, "Content-Type": "application/json", "X-Cache": "HIT" },
+    });
+  }
+
+  const resp = await handler(req, corsHeaders);
+  if (resp.ok) {
+    const body = await resp.clone().text();
+    setCached(cacheKey, body, CACHE_TTL_SEC).catch(() => {});
+  }
+  return resp;
 });
