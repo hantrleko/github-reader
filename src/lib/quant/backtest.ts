@@ -252,10 +252,15 @@ export function runBacktest(
   const cagrGross = years > 0 && lastGross > 0 ? Math.pow(lastGross, 1 / years) - 1 : 0;
   const annVol = std(stratRets) * Math.sqrt(TRADING_DAYS);
   const annReturn = mean(stratRets) * TRADING_DAYS;
-  const sharpe = annVol > 1e-9 ? annReturn / annVol : 0;
-  const downside = stratRets.filter((x) => x < 0);
-  const downStd = std(downside) * Math.sqrt(TRADING_DAYS);
-  const sortino = downStd > 1e-9 ? annReturn / downStd : 0;
+  const rf = params.riskFreeRate ?? 0;
+  const sharpe = annVol > 1e-9 ? (annReturn - rf) / annVol : 0;
+  // Standard Sortino: downside deviation vs the MAR (daily risk-free),
+  // sqrt(mean(min(r − MAR, 0)²)) over the FULL sample of N days.
+  const downVar = stratRets.length
+    ? stratRets.reduce((s, x) => s + Math.min(x - rfDaily, 0) ** 2, 0) / stratRets.length
+    : 0;
+  const downStd = Math.sqrt(downVar) * Math.sqrt(TRADING_DAYS);
+  const sortino = downStd > 1e-9 ? (annReturn - rf) / downStd : 0;
   const nonzero = stratRets.filter((x) => Math.abs(x) > 1e-12);
   const winRate = nonzero.length ? nonzero.filter((x) => x > 0).length / nonzero.length : 0;
   const turnover = (turnoverSum / (n - 1)) * TRADING_DAYS;
