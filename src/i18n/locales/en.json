@@ -3547,6 +3547,1101 @@
         "illiqLabel": "Amihud ILLIQ (Example)",
         "illiqSub": "×10⁻⁹"
       }
+    },
+    "macroClassic": {
+      "islm": {
+        "presets": {
+          "base": {
+            "name": "Base",
+            "desc": "Standard Parameters"
+          },
+          "fiscal": {
+            "name": "Fiscal Expansion",
+            "desc": "G: 30 → 60"
+          },
+          "monetary": {
+            "name": "Monetary Expansion",
+            "desc": "M: 120 → 180"
+          },
+          "liquidity": {
+            "name": "Liquidity Trap",
+            "desc": "h is very large, monetary policy fails"
+          },
+          "classical": {
+            "name": "Classical Range",
+            "desc": "h is very small, severe crowding out"
+          }
+        },
+        "sliders": {
+          "mpc": "Marginal Propensity to Consume (mpc)",
+          "g": "Government Spending (G)",
+          "m": "Real Money Supply (M/P)",
+          "b": "Investment Sensitivity to Interest (b)",
+          "k": "Money Demand k (Income)",
+          "h": "Money Demand h (Interest)"
+        },
+        "stats": {
+          "ystar": "Equilibrium Output (Y*)",
+          "rstar": "Equilibrium Interest Rate (R*)",
+          "simpleMult": "Simple Multiplier",
+          "actualMult": "Actual Fiscal Multiplier",
+          "crowdOut": "Crowding-out Ratio",
+          "crowdOutSub": "Interest rate rise crowds out investment"
+        },
+        "notes": {
+          "is": "Goods market equilibrium, fiscal policy (G↑) shifts IS right.",
+          "lm": "Money market equilibrium, monetary policy (M↑) shifts LM right.",
+          "crowdOut": "Fiscal expansion drives up interest rates → crowds out private investment; smaller h means stronger crowding out; h→∞ is a liquidity trap (monetary policy failure).",
+          "crowdOutTitle": "Crowding-out"
+        },
+        "chart": {
+          "title": "IS-LM Equilibrium",
+          "hint": "X-axis is Output (Y), Y-axis is Interest Rate (R). IS slopes down, LM slopes up, intersection determines equilibrium (Y*, R*).",
+          "xAxis": "Output (Y)",
+          "yAxis": "Interest Rate (R)",
+          "isLine": "IS Curve",
+          "lmLine": "LM Curve"
+        }
+      },
+      "adas": {
+        "presets": {
+          "lrun": {
+            "name": "Long-run Equilibrium",
+            "desc": "No Shocks"
+          },
+          "demand": {
+            "name": "Demand Expansion",
+            "desc": "AD shifts right"
+          },
+          "supply": {
+            "name": "Negative Supply Shock",
+            "desc": "Oil crisis → stagflation"
+          },
+          "recession": {
+            "name": "Demand Recession",
+            "desc": "Confidence decline"
+          }
+        },
+        "sliders": {
+          "yn": "Potential Output Yⁿ (LRAS)",
+          "ad": "Demand Shock (Shift AD)",
+          "as": "Supply Shock (Shift SRAS)",
+          "lambda": "SRAS Slope λ",
+          "lambdaSub": "Price Stickiness",
+          "pe": "Expected Price Pᵉ"
+        },
+        "stats": {
+          "ystar": "Short-run Output (Y*)",
+          "pstar": "Short-run Price (P*)",
+          "gap": "Output Gap",
+          "yn": "Potential Output (Yⁿ)",
+          "gapOverheat": "Overheating (Inflation Pressure)",
+          "gapRecession": "Recession (Unemployment Pressure)"
+        },
+        "notes": {
+          "ad": "Negative correlation between Price and Output (Wealth/Interest/Exchange Rate effects).",
+          "sras": "SRAS slopes upward in the short run (wage/price stickiness); LRAS is vertical at Yⁿ.",
+          "longRun": "Output gap → adjustments in expectations and wages shift SRAS, returning the economy to Yⁿ. A negative supply shock pushes prices up and output down = stagflation.",
+          "longRunTitle": "Long-run Adjustment"
+        },
+        "chart": {
+          "title": "AD-AS Model",
+          "hint": "Red dashed line is LRAS (Potential Output Yⁿ). The intersection of AD and SRAS is the short-run equilibrium; long-run converges to LRAS.",
+          "xAxis": "Output (Y)",
+          "yAxis": "Price (P)",
+          "adLine": "Aggregate Demand (AD)",
+          "srasLine": "Short-run Aggregate Supply (SRAS)"
+        }
+      },
+      "phillips": {
+        "presets": {
+          "original": {
+            "name": "Original",
+            "desc": "Stable Trade-off"
+          },
+          "hiExp": {
+            "name": "High Inflation Expectations",
+            "desc": "πᵉ=6 shifts curve up"
+          },
+          "flat": {
+            "name": "Curve Flattening",
+            "desc": "β is very small (Post-2008)"
+          },
+          "shock": {
+            "name": "Supply Shock",
+            "desc": "Stagflation: shock=4"
+          }
+        },
+        "sliders": {
+          "pe": "Inflation Expectations πᵉ (%)",
+          "beta": "Slope β",
+          "betaSub": "Trade-off Intensity",
+          "un": "Natural Rate of Unemployment uⁿ (%)",
+          "shock": "Supply Shock (%)"
+        },
+        "notes": {
+          "formula": "Expectations-Augmented PC: π = πᵉ − β(u − uⁿ) + Supply Shock.",
+          "vertical": "Long-run Vertical: When u = uⁿ, π = πᵉ, no long-run trade-off (Natural Rate Hypothesis, Friedman-Phelps 1968).",
+          "flat": "Flattening: β approaches 0 → unemployment has weak effect on inflation, a major puzzle post-2008.",
+          "hiExp": "Raising πᵉ shifts short-run PC up; supply shocks cause stagflation (high unemployment + high inflation).",
+          "formulaTitle": "Exp-Augmented PC",
+          "verticalTitle": "Long-run Vertical",
+          "flatTitle": "Flattening"
+        },
+        "stats": {
+          "un": "Natural Unemployment Rate (uⁿ)",
+          "piAtUn": "Inflation at uⁿ",
+          "piAtUnSub": "= πᵉ + Shock"
+        },
+        "chart": {
+          "title": "Phillips Curve (u-π Space)",
+          "hint": "Gold line is SRPC, red dashed line is long-run vertical PC (at uⁿ). Intersection is where π = πᵉ.",
+          "xAxis": "Unemployment Rate u (%)",
+          "yAxis": "Inflation π (%)",
+          "srpcLine": "Short-run PC",
+          "lrpcLine": "Long-run PC (uⁿ)"
+        }
+      },
+      "mundell": {
+        "presets": {
+          "floatMon": {
+            "name": "Floating + Monetary (Effective)",
+            "desc": "Monetary policy is effective"
+          },
+          "floatFis": {
+            "name": "Floating + Fiscal (Ineffective)",
+            "desc": "Offset by exchange rate"
+          },
+          "fixedFis": {
+            "name": "Fixed + Fiscal (Effective)",
+            "desc": "Strengthened by FX intervention"
+          },
+          "fixedMon": {
+            "name": "Fixed + Monetary (Ineffective)",
+            "desc": "Money supply flows back"
+          }
+        },
+        "eff": {
+          "effective": "Effective",
+          "ineffective": "Ineffective"
+        },
+        "results": {
+          "floatFisWhy": "Fiscal expansion drives up interest rates → capital inflow → currency appreciation → net exports fall, completely offsetting the output effect.",
+          "floatMonWhy": "Monetary expansion lowers interest rates → capital outflow → currency depreciation → net exports rise, reinforcing output expansion.",
+          "fixedFisWhy": "Central bank must buy foreign exchange to maintain the rate → passive increase in money supply → reinforces fiscal expansion.",
+          "fixedMonWhy": "Monetary expansion triggers capital outflow and depreciation pressure → central bank forced to sell FX and withdraw currency → money supply returns to baseline."
+        },
+        "labels": {
+          "regime": "Exchange Rate Regime",
+          "policy": "Policy Type",
+          "regimeFloating": "Floating Exchange Rate",
+          "regimeFixed": "Fixed Exchange Rate",
+          "policyFiscal": "Fiscal Policy",
+          "policyMonetary": "Monetary Policy",
+          "effTitle": "Policy Effectiveness (Perfect Capital Mobility)"
+        },
+        "notes": {
+          "trilemma": "Impossible Trinity (Mundell-Fleming): You can only have two of fixed exchange rate, free capital mobility, and independent monetary policy.",
+          "float": "Floating Rate: Monetary policy is effective, fiscal policy is offset by exchange rate.",
+          "fixed": "Fixed Rate: Fiscal policy is effective, monetary policy is offset by FX intervention.",
+          "trilemmaTitle": "Impossible Trinity"
+        },
+        "triangle": {
+          "title": "Mundell's Impossible Trinity",
+          "monetary": "Independent Monetary Policy",
+          "fixed": "Fixed Exchange Rate",
+          "capital": "Free Capital Mobility",
+          "pickTwo": "Can only pick two sides"
+        }
+      },
+      "ramsey": {
+        "presets": {
+          "base": {
+            "name": "Base",
+            "desc": "Standard Calibration"
+          },
+          "patient": {
+            "name": "More Patient",
+            "desc": "ρ↓ → k*↑"
+          },
+          "risk": {
+            "name": "High Risk Aversion",
+            "desc": "θ=4"
+          },
+          "delta": {
+            "name": "High Depreciation",
+            "desc": "δ=0.1"
+          }
+        },
+        "sliders": {
+          "alpha": "α (Capital Elasticity)",
+          "rho": "ρ (Time Preference)",
+          "theta": "θ (Relative Risk Aversion)",
+          "n": "Population Growth (n)",
+          "delta": "Depreciation (δ)",
+          "g": "Technological Progress (g)"
+        },
+        "stats": {
+          "kstar": "Steady-state Capital (k*)",
+          "cstar": "Steady-state Consumption (c*)",
+          "kgold": "Golden Rule Capital (k_gold)",
+          "kgoldSub": "k* < k_gold (Dynamically Efficient)"
+        },
+        "notes": {
+          "intro": "Ramsey (1928): Savings rate is endogenous to intertemporal household optimization (Euler equation), providing micro-foundations for Solow.",
+          "euler": "Euler: ċ/c = (f'(k) − ρ − θg)/θ; consumption growth is positive when interest rate exceeds time preference.",
+          "efficient": "Steady state k* < k_gold ⟹ Dynamically efficient (no over-saving), unlike Solow which can over-save."
+        },
+        "chart": {
+          "title": "Ramsey Phase Diagram — Zero Motion Loci",
+          "hint": "Blue line is k̇=0 (Resource Constraint), gold vertical line is ċ=0 (at k*). Intersection is the saddle-point steady state; the only convergent path is the saddle path.",
+          "xAxis": "Capital (k)",
+          "yAxis": "Consumption (c)",
+          "kdotLine": "k̇=0 (c=f(k)−(n+δ+g)k)",
+          "cdotLine": "ċ=0 (k*)"
+        }
+      },
+      "solow": {
+        "presets": {
+          "us": {
+            "name": "US Baseline",
+            "desc": "α=0.33, s=0.20, δ=0.05"
+          },
+          "china": {
+            "name": "High Savings (China)",
+            "desc": "s=0.40"
+          },
+          "gold": {
+            "name": "Golden Rule",
+            "desc": "s=α Maximizes Consumption"
+          },
+          "trap": {
+            "name": "Poverty Trap Start",
+            "desc": "k₀ is very low, observe convergence"
+          },
+          "over": {
+            "name": "Excessive Saving",
+            "desc": "s=0.6, far exceeding golden rule"
+          }
+        },
+        "labels": {
+          "tech": "Technology & Preferences"
+        },
+        "sliders": {
+          "alpha": "α (Capital Elasticity)",
+          "s": "s (Savings Rate)",
+          "delta": "Depreciation Rate δ",
+          "n": "Population Growth n",
+          "g": "Tech Progress g",
+          "k0": "Initial Capital k₀",
+          "t": "Periods T"
+        },
+        "stats": {
+          "kstar": "Steady-state k̃*",
+          "ystar": "Steady-state ỹ*",
+          "cstar": "Steady-state Consumption c̃*",
+          "sgold": "Golden-rule s_gr",
+          "sgoldSubOver": "s_gr = α; current s > α (Excessive Saving)",
+          "sgoldSubUnder": "s_gr = α; current s < α (Under-saving)",
+          "sgoldSubGold": "s_gr = α; current s = α (Golden Rule)",
+          "kgold": "Golden-rule k̃_gr",
+          "cgold": "Golden-rule c̃_gr",
+          "deltaC": "Δc̃ = {{val}}"
+        },
+        "notes": {
+          "intro": "Solow-Swan (1956): Baseline model of long-run growth driven by capital accumulation and exogenous technology.",
+          "dynamics": "Dynamics: k̃̇ = s·k̃^α − (n+g+δ)k̃; intersection is the steady state.",
+          "convergence": "Convergence: Regardless of starting k₀, k̃ converges to k̃* (Conditional Convergence Hypothesis).",
+          "gold": "Golden Rule: Steady-state consumption is maximized at s = α; over-saving → dynamic inefficiency.",
+          "convergenceTitle": "Convergence",
+          "goldTitle": "Golden Rule"
+        },
+        "chart": {
+          "conv": {
+            "title": "Capital & Output Dynamics — Convergence to k̃* = {{val}}",
+            "xAxis": "Period (t)",
+            "kLine": "Capital k̃",
+            "yLine": "Output ỹ = k̃^α",
+            "cLine": "Consumption c̃ = (1−s)ỹ"
+          },
+          "phase": {
+            "title": "Solow Phase Diagram — Investment vs Break-even",
+            "xAxis": "k̃",
+            "invLine": "Investment s·f(k̃) = {{s}}·k̃^α",
+            "brkLine": "Break-even (n+g+δ)k̃",
+            "goldLine": "Golden-rule Investment α·k̃^α",
+            "hint": "Intersection = Steady state. The investment curve (gold) meets the break-even line (red) at k̃*. The blue dashed line shows the golden-rule investment (s=α), which maximizes consumption at k̃_gr."
+          }
+        }
+      },
+      "tools": {
+        "phillips": "Phillips Curve",
+        "mundell": "Mundell-Fleming",
+        "ramsey": "Ramsey Model",
+        "solow": "Solow Growth Model",
+        "dsge": "3-Equation NK DSGE",
+        "hank": "HANK / TANK (Edu)",
+        "realopt": "Real Options (Deferral)",
+        "longrun": "Long-run",
+        "islm": "IS-LM",
+        "adas": "AD-AS",
+        "fixedRate": "Fixed Rate",
+        "capitalFlow": "Capital Mobility",
+        "monetaryPolicy": "Indep. Monetary Policy",
+        "pickTwo": "Pick Two"
+      }
+    },
+    "macroV27": {
+      "standardCalibration": "Standard Calibration",
+      "galiTextbook": "Gali (2008) Textbook Parameters",
+      "dovishCB": "Dovish Central Bank",
+      "dovishCBDesc": "φ_π=1.1, close to violating Taylor",
+      "hawkishCB": "Hawkish Central Bank",
+      "hawkishCBDesc": "φ_π=2.5, strongly anti-inflation",
+      "rigidPrice": "Rigid Prices",
+      "rigidPriceDesc": "κ=0.03, very steep NKPC",
+      "persistentShock": "Persistent Shock",
+      "persistentShockDesc": "ρ=0.95",
+      "shockType": "Shock Type",
+      "demandShock": "Demand ε_d",
+      "supplyShock": "Supply ε_s",
+      "monetaryShock": "Monetary ε_m",
+      "sigmaLabel": "σ Intertemporal Substitution",
+      "betaLabel": "β Discount Factor",
+      "kappaLabel": "κ NKPC Slope",
+      "priceRigidity": "Price Rigidity",
+      "phiPiLabel": "φ_π Taylor Inflation",
+      "phiXLabel": "φ_x Taylor Output",
+      "rhoLabel": "ρ Shock Persistence",
+      "horizonLabel": "Impulse Horizon H",
+      "psiXLabel": "Ψ_x (Output Impact)",
+      "psiXSub": "Unit shock to x_t",
+      "psiPiLabel": "Ψ_π (Inflation Impact)",
+      "psiPiSub": "Unit shock to π_t",
+      "psiILabel": "Ψ_i (Interest Rate Impact)",
+      "psiISub": "Policy Response",
+      "taylorPrinciple": "Taylor Principle",
+      "determinate": "✓ Determinate",
+      "indeterminate": "✗ Indeterminate",
+      "nkTitle": "3-Equation NK (Clarida-Galí-Gertler 1999):",
+      "nkSolution": "Solution form z_t = Ψ_z · ε_t, IRF obtained directly via ε_t = ρ^t under AR(1) shock.",
+      "demandDesc": "Demand shock: x↑ π↑ i↑ (Procyclical inflation)",
+      "supplyDesc": "Supply shock: π↑ x↓ i↑ (Stagflation dilemma)",
+      "monetaryDesc": "Monetary tightening: i↑ x↓ π↓ (AD transmission)",
+      "irfTitle": "Impulse Response Function (IRF) — Unit {{shock}} Shock (%)",
+      "xGap": "Output Gap x (%)",
+      "piInf": "Inflation π (%)",
+      "iRate": "Nominal Interest Rate i (%)",
+      "epsShock": "Shock ε (%)",
+      "usBenchmark": "US Benchmark",
+      "htmShare": "λ=0.35 HTM share",
+      "rankOnly": "RANK (λ=0)",
+      "rankOnlyDesc": "Pure Representative Agent",
+      "deepHank": "Deep HANK",
+      "deepHankDesc": "λ=0.6 Extremely High HTM",
+      "fiscalStimulus": "Fiscal Stimulus",
+      "fiscalStimulusDesc": "1.5 unit fiscal transfer",
+      "lambdaLabel": "λ HTM Share",
+      "transferLabel": "Transfer Payment τ",
+      "fiscalShockUnit": "Fiscal shock units",
+      "aggMPC": "Aggregate MPC",
+      "aggMPCSub": "HANK vs RANK ≈ 2-3× higher",
+      "fiscalMultiplier": "Fiscal Multiplier",
+      "aggDCSub": "Unit transfer → Consumption",
+      "monetaryAmp": "Monetary Amp (TANK/RANK)",
+      "ampSub": "x_t response amplification",
+      "topWealthShare": "Top Wealth Share",
+      "topWealthSub": "D10 wealth share",
+      "hankProse1": "HANK (Kaplan-Moll-Violante 2018): Heterogeneous agents abandon representative agent assumption.",
+      "hankProse2": "This teaching version uses TANK approximation: HTM households MPC≈1, Ricardian smooths consumption → Aggregate MPC > RANK.",
+      "hankProse3": "Fiscal multipliers in HANK are significantly larger than RANK; monetary policy amplified via income channel (indirect effects).",
+      "wealthDistTitle": "Wealth Distribution & MPC Heterogeneity",
+      "wealthShareLabel": "Wealth Share %",
+      "mpcLabel": "MPC",
+      "wealthLegend": "Red bar = HTM (No savings, MPC≈1); Gold bar = Ricardian (Pareto tail, low MPC)",
+      "irfMonetaryTitle": "Impulse Response IRF: Monetary Shock (TANK vs RANK)",
+      "outputGap": "Output Gap (%)",
+      "inflation": "Inflation (%)",
+      "tankX": "TANK Output x",
+      "rankX": "RANK Output x",
+      "tankPi": "TANK Inflation π",
+      "rankPi": "RANK Inflation π",
+      "rankVsHankIrf": "RANK vs HANK Monetary IRF (Output Gap %)",
+      "htmSensitivity": "HTM households are more sensitive to current income/rates → HANK transmission curve is steeper.",
+      "roAtmStandard": "ATM Standard",
+      "roAtmStandardDesc": "V≈I, σ=0.3",
+      "roDeepItm": "Deep ITM",
+      "roDeepItmDesc": "V>>I Immediate investment",
+      "roHighUncertainty": "High Uncertainty",
+      "roHighUncertaintyDesc": "σ=0.6 High waiting value",
+      "roLongTermProject": "Long-term Project",
+      "roLongTermProjectDesc": "T=10 Years",
+      "roNoGrowth": "No Growth",
+      "roNoGrowthDesc": "μ=0 σ-dominant value",
+      "v0Label": "V₀ Project Current Value",
+      "iCostLabel": "I Investment Cost",
+      "sigmaVolatilityLabel": "σ Value Volatility",
+      "muDriftLabel": "μ Real Drift",
+      "rRiskFreeLabel": "r Risk-free Rate",
+      "tWindowLabel": "T Decision Window (Years)",
+      "stepsLabel": "Binomial Steps",
+      "optionValueF": "Real Option Value F",
+      "deferredOption": "Incl. Deferral Option",
+      "naiveNpv": "Naive NPV",
+      "maxVi": "max(V−I, 0)",
+      "optionPremium": "Option Premium",
+      "waitingValue": "Waiting Value",
+      "vStarPerpLabel": "V* Perpetual Benchmark",
+      "riskNeutralP": "Risk-neutral p",
+      "decisionLabel": "Decision",
+      "invest": "Invest",
+      "wait": "Wait",
+      "roProse1": "Dixit-Pindyck (1994): Investment has option characteristics, σ↑ → Value of waiting↑ → Trigger threshold V* > I.",
+      "roProse2": "The Naive NPV rule (Invest if V≥I) systematically underestimates the option premium, leading to over-investment.",
+      "roProse3": "Perpetual Analytical: V* = β/(β−1)·I, where β satisfies the quadratic root.",
+      "optionVsV0Title": "Option Value vs V₀ — Comparison with NPV",
+      "waitingPremium": "Waiting Premium",
+      "optionFv": "Real Option F(V)",
+      "optimalThresholdTitle": "Optimal Investment Threshold V*(t) Path",
+      "tYears": "t (Years)",
+      "vStarThreshold": "V*(t) Trigger Threshold",
+      "roLegend": "Near expiration T, the value of waiting disappears → V*(t) → I; for long windows, V*(t) approaches the perpetual solution V*_∞."
+    },
+    "macroLab": {
+      "debtTitle": "Fiscal & Debt Dynamics",
+      "fxTitle": "Exchange Rate & External Balance",
+      "bggTitle": "Financial Accelerator",
+      "zlbTitle": "ZLB & Forward Guidance",
+      "labHeader": "Advanced Macroeconomics Lab",
+      "labDesc": "Exploring four modern macro topics: Fiscal sustainability (Blanchard r−g), Exchange rate overshooting (Dornbusch), External balance triple gap (BOP), Financial accelerator (BGG), Zero Lower Bound (ZLB), and the Forward Guidance puzzle. Complements classic models (IS-LM / Solow / DSGE).",
+      "refTitle": "References",
+      "lowIntTrap": "Low Interest Trap (r<g)",
+      "lowIntTrapDesc": "r=1%, g=2.5%",
+      "debtSpiral": "r>g Debt Spiral",
+      "debtSpiralDesc": "r=5%, g=1.5%, s=0",
+      "fiscalConsolidation": "Fiscal Consolidation",
+      "fiscalConsolidationDesc": "s=1.5% debt reduction",
+      "debtParams": "Debt Dynamics Parameters",
+      "initialDebt": "Initial Debt b₀",
+      "realIntRate": "Real Interest Rate r",
+      "potentialGrowth": "Potential Growth g",
+      "primarySurplus": "Primary Surplus s",
+      "simHorizon": "Simulation Horizon",
+      "stabilizingSurplus": "Required s* for Stability",
+      "finalDebt": "Final Debt b_H",
+      "fiscalSpace": "Fiscal Space",
+      "debtTraj": "Debt / GDP Trajectory",
+      "year": "Year",
+      "debtGdpPercent": "b/GDP %",
+      "interestBurdenPercent": "Interest Burden %",
+      "debtLegend": "Gold line = Debt/GDP; Red bar = Interest-growth differential burden per period. Upward trajectory if s < s*.",
+      "usDeficit": "US-style Deficit",
+      "usDeficitDesc": "S<I, T<G",
+      "germanSurplus": "German-style Surplus",
+      "germanSurplusDesc": "S>>I, Fiscal Neutral",
+      "strongOvershoot": "Strong Monetary Overshoot",
+      "strongOvershootDesc": "Low λθ",
+      "fxOvershootingTitle": "Dornbusch FX Overshooting",
+      "moneyShock": "Monetary Shock Δm",
+      "priceAdjustment": "Price Adjustment θ",
+      "intSemiElasticity": "Interest Semi-elasticity λ",
+      "horizonQuarters": "Horizon (Quarters)",
+      "longRunE": "Long-run e* = Δm",
+      "initOvershoot": "Initial Overshoot",
+      "overshootMult": "Overshoot Multiplier",
+      "convHalfLife": "Convergence Half-life",
+      "periods": "periods",
+      "epiIRF": "e / p / i Impulse Response",
+      "exchangeLabel": "e (Exchange Rate)",
+      "priceLabel": "p (Price)",
+      "intDevLabel": "i (Interest Rate Deviation)",
+      "fxLegend": "Price stickiness → FX bears immediate adjustment → Overshooting → UIP implies future appreciation → Short-term rates fall.",
+      "bopTitle": "BOP Triple Gap: CA ≡ (S − I) + (T − G)",
+      "privateSaving": "Private Saving S",
+      "investment": "Investment I",
+      "taxes": "Taxes T",
+      "govSpending": "Gov Spending G",
+      "currentAccount": "Current Account CA",
+      "netExtFinance": "Net External Financing",
+      "healthyFirms": "Healthy Firms",
+      "healthyFirmsDesc": "Low leverage, low cost",
+      "crisisMoment": "Crisis Moment",
+      "crisisMomentDesc": "High leverage, strong amp",
+      "posNetWorthShock": "Positive Net Worth Shock",
+      "posNetWorthShockDesc": "Expansionary case",
+      "leverage": "Leverage A/N",
+      "monitoringCost": "Monitoring Cost μ",
+      "projectRisk": "Project Risk σ_ω",
+      "persistence": "Persistence ρ",
+      "netWorthShock": "Net Worth Shock",
+      "peakEfp": "Peak EFP",
+      "peakOutput": "Peak Output |ŷ|",
+      "ampFactor": "Amplification Factor",
+      "vsRbcIncrease": "vs RBC Increase",
+      "bggIrfTitle": "Net Worth · EFP · Output IRF",
+      "deviationPercent": "% Deviation",
+      "efpBp": "EFP (bp)",
+      "netWorthHat": "n̂ Net Worth",
+      "outputHat": "ŷ (BGG)",
+      "outputRbc": "ŷ (RBC Frictionless)",
+      "bggLegend": "Negative net worth shock → EFP rises → Investment/Output drop exceeds frictionless baseline.",
+      "gfcScenario": "GFC Scenario",
+      "gfcScenarioDesc": "6 periods ZLB, rⁿ=−2%",
+      "mildDeflation": "Mild Deflationary Pressure",
+      "mildDeflationDesc": "2 periods ZLB, rⁿ=−0.5%",
+      "strongFg": "Strong Forward Guidance",
+      "strongFgDesc": "Keep ZLB longer",
+      "naturalRate": "Natural Rate rⁿ",
+      "zlbK": "ZLB Binding Periods K",
+      "sigmaInter": "Intertemporal Subst σ",
+      "kappaNKPC": "NKPC Slope κ",
+      "outputGap0": "Current x₀",
+      "inflation0": "Current π₀",
+      "realRate0": "Real Rate r_0",
+      "zlbBinding": "ZLB Binding",
+      "yes": "YES",
+      "no": "NO",
+      "zlbChartTitle": "Output & Inflation Path under ZLB",
+      "policyRateLabel": "Nominal Rate i (%)",
+      "zlbRegion": "ZLB Region",
+      "fgAmpTitle": "Forward Guidance Puzzle · Extra ZLB Periods → Current x Amp",
+      "extraFgPeriods": "Extra Guidance Periods",
+      "x0Mult": "x_0 Response Multiplier",
+      "fgProse": "In standard NK models, the effectiveness of forward guidance grows exponentially with the ZLB duration — the \"puzzle\" recorded by Del Negro-Giannoni-Patterson (2015).",
+      "debtDescShort": "b_{t+1}=(1+r)/(1+g)·b_t−s and r−g fiscal space",
+      "fxDescShort": "Sticky price FX overshooting + S−I / T−G / CA triple gap",
+      "bggDescShort": "Net worth shock → EFP → Nonlinear amplification of investment/output",
+      "zlbDescShort": "NK model under Zero Lower Bound & Forward Guidance puzzle",
+      "periodUnit": "periods",
+      "vsBaseline": "vs 1-period baseline"
+    },
+    "macroFrontier": {
+      "header": {
+        "heading": "Macro Frontier Lab",
+        "intro": "Filling four gaps in the macro spectrum: endogenous growth and growth accounting, cyclical mechanisms and the microfoundations of nominal rigidity, policy rules and fiscal–monetary coordination,\n          open-economy parity, and contemporary frontiers (behavioral macro, unconventional policy, macrofinance, climate). This complements the classic models of /s/macro and the\n          debt/FX/BGG/ZLB experiments of /s/macro-lab.",
+        "references": "References",
+        "footerNote": "All models are pedagogical, log-linearized/calibrated simplifications intended for mechanism intuition and comparative statics, not for use as calibrated GE forecasts."
+      },
+      "cats": {
+        "growth": "Long-run Growth",
+        "cycle": "Cycles & Rigidity",
+        "policy": "Policy Rules",
+        "open": "Open Economy",
+        "frontier": "Frontier"
+      },
+      "tabs": {
+        "endo": {
+          "title": "Endogenous Growth Engines",
+          "desc": "AK / Lucas / Romer / Schumpeter vs Solow"
+        },
+        "accounting": {
+          "title": "Growth Accounting & TFP",
+          "desc": "Solow residual + Hall-Jones development accounting"
+        },
+        "multiplier": {
+          "title": "Multiplier–Accelerator & Fiscal Multipliers",
+          "desc": "Samuelson cycle + state-dependent multipliers"
+        },
+        "rbc": {
+          "title": "RBC Calibration & Cycle Moments",
+          "desc": "Volatility and correlations driven by technology shocks"
+        },
+        "calvo": {
+          "title": "Calvo Pricing & the NKPC",
+          "desc": "θ → κ, indexation, and monetary non-neutrality"
+        },
+        "rules": {
+          "title": "Rules vs. Discretion",
+          "desc": "Barro-Gordon inflation bias + comparison of four rules"
+        },
+        "parity": {
+          "title": "Parity Conditions & Carry",
+          "desc": "PPP / UIP / CIP and the forward premium puzzle"
+        },
+        "sudden": {
+          "title": "Sudden Stops & External Adjustment",
+          "desc": "Capital flow reversals, reserve coverage, and balance-sheet effects"
+        },
+        "expect": {
+          "title": "Behavioral Macro: Expectation Formation",
+          "desc": "Rational / adaptive / sticky / diagnostic"
+        },
+        "uncon": {
+          "title": "Unconventional Monetary Policy",
+          "desc": "QE portfolio rebalancing + YCC yield-curve control"
+        },
+        "bank": {
+          "title": "Macrofinance: Bank Capital",
+          "desc": "Capital shock → deleveraging → credit and output"
+        },
+        "climate": {
+          "title": "The Macro Path of Climate Transition",
+          "desc": "Trade-offs among carbon prices, green inflation, and physical damage"
+        }
+      },
+      "endo": {
+        "presets": {
+          "0": {
+            "name": "R&D-driven",
+            "desc": "High θ·sR"
+          },
+          "1": {
+            "name": "Human-capital-driven",
+            "desc": "High ψ·u"
+          },
+          "2": {
+            "name": "Capital-deepening",
+            "desc": "High s·A (AK)"
+          }
+        },
+        "paramsTitle": "Parameters for the four growth engines",
+        "sliders": {
+          "0": "Savings rate s",
+          "1": "AK productivity A",
+          "2": "Lucas ψ",
+          "3": "Education time u",
+          "4": "Romer θ",
+          "5": "R&D labor share sR",
+          "6": "Innovation intensity λ",
+          "7": "Quality ladder γ"
+        },
+        "stats": {
+          "ak": "AK: sA−(δ+n)",
+          "lucas": "Lucas: ψu",
+          "romer": "Romer: θsR",
+          "schumpeter": "Schumpeter: λlnγ"
+        },
+        "scaleEffectYes": "Scale effect present",
+        "scaleEffectNo": "No scale effect",
+        "chartTitle": "Log path of output per capita (relative to start)",
+        "axis": {
+          "year": "Year",
+          "logY": "log y ×100"
+        },
+        "note": "Solow (red dashed line) only has transitional dynamics: a higher savings rate changes the level, not the long-run growth rate; the four endogenous mechanisms instead turn the growth rate itself into a function of policy and institutions.\n            Romer's θ·sR·L embeds a scale effect, the main critique leveled at semi-endogenous growth (Jones 1995)."
+      },
+      "misc": {
+        "k0": "East Asian input-driven",
+        "k1": "The Krugman-Young debate",
+        "k2": "US productivity boom",
+        "k3": "1995-2004",
+        "k4": "Productivity slowdown",
+        "k5": "2010s",
+        "k6": "Solow Residual Decomposition",
+        "k7": "Output growth gY",
+        "k8": "Capital growth gK",
+        "k9": "Labor growth gL",
+        "k10": "Human capital gH",
+        "k11": "Capital share α",
+        "k12": "TFP growth",
+        "k13": "TFP contribution share",
+        "k14": "Residual / output growth",
+        "k15": "The residual captures both genuine technological progress and factor utilization, allocative efficiency, and measurement error — the source of the \"TFP is a measure of our ignorance\" critique.",
+        "k16": "Decomposition of Growth Sources (percentage points)",
+        "k17": "Capital",
+        "k18": "Labor",
+        "k19": "Human Capital",
+        "k20": "TFP Residual",
+        "k21": "Contribution pp",
+        "k22": "Development Accounting: Decomposing the Rich/Poor Income Gap (Hall-Jones)",
+        "k23": "Income ratio yR/yP",
+        "k24": "Rich-country K/Y",
+        "k25": "Poor-country K/Y",
+        "k26": "Rich-country h",
+        "k27": "Poor-country h",
+        "k28": "Factor contribution",
+        "k29": "TFP factor",
+        "k30": "TFP explained share",
+        "k31": "Log decomposition",
+        "k32": "Factor explained share",
+        "k33": "A typical finding: more than half of cross-country income gaps come from efficiency/TFP rather than factor accumulation — shifting attention toward institutions, allocative efficiency, and technology diffusion.",
+        "k34": "Recession + ZLB",
+        "k35": "High-multiplier scenario",
+        "k36": "Overheated economy",
+        "k37": "Strong monetary offset",
+        "k38": "Ricardian world",
+        "k39": "Full equivalence",
+        "k40": "Samuelson Multiplier–Accelerator",
+        "k41": "Marginal propensity to consume c",
+        "k42": "Accelerator v",
+        "k43": "Dynamic regime",
+        "k44": "Monotone convergence",
+        "k45": "Damped oscillation",
+        "k46": "Explosive oscillation",
+        "k47": "Divergent",
+        "k48": "Long-run multiplier 1/(1−c)",
+        "k49": "Dynamics of Y / C / I to a Permanent G Shock",
+        "k50": "Endogenous cycles require no exogenous shock: the accelerator ties investment to changes in output, and the roots of c·v determine oscillation and convergence/divergence.",
+        "k51": "State-Dependent Fiscal Multipliers",
+        "k52": "Tax rate t (automatic stabilizer)",
+        "k53": "Import leakage m",
+        "k54": "Degree of Ricardian equivalence",
+        "k55": "Economic slack",
+        "k56": "Monetary offset strength",
+        "k57": "At the ZLB / monetary policy does not offset",
+        "k58": "Textbook baseline",
+        "k59": "Government spending",
+        "k60": "Tax cut",
+        "k61": "Transfer payment",
+        "k62": "Multiplier",
+        "k63": "Economic state",
+        "k64": "Recession",
+        "k65": "Boom",
+        "k66": "Normal",
+        "k67": "Automatic stabilizer absorption",
+        "k68": "The red line marks 1: whether the multiplier exceeds 1 depends on slack, whether monetary policy offsets it, and households' degree of Ricardian equivalence — not a fixed constant.",
+        "k69": "Kydland–Prescott-Style Calibration",
+        "k70": "TFP persistence ρ",
+        "k71": "Technology shock σ",
+        "k72": "Frisch elasticity ν",
+        "k73": "Output autocorrelation",
+        "k74": "Model Moments vs. Stylized Facts",
+        "k75": "Moment",
+        "k76": "Model",
+        "k77": "Data",
+        "k78": "Simulated Series (First 120 Periods, % Deviation)",
+        "k79": "Output",
+        "k80": "Consumption",
+        "k81": "Investment",
+        "k82": "RBC's contribution is methodological (stochastic dynamic general equilibrium + calibration + moment matching); its controversy lies in explaining recessions as technological regress, requiring high Frisch elasticities,\n            and lacking monetary and financial frictions.",
+        "k83": "US calibration",
+        "k84": "θ=0.75 (quarterly)",
+        "k85": "High-inflation economy",
+        "k86": "Prices adjust frequently",
+        "k87": "Purely forward-looking NKPC",
+        "k88": "No indexation",
+        "k89": "Calvo Staggered-Pricing Parameters",
+        "k90": "Probability of no price change θ",
+        "k91": "Degree of indexation ω",
+        "k92": "1/IES σ",
+        "k93": "1/Frisch φ",
+        "k94": "Elasticity of substitution ε",
+        "k95": "NKPC slope κ",
+        "k96": "Average price duration",
+        "k97": "Forward/backward weight",
+        "k98": "Markup ε/(ε−1)",
+        "k99": "Sacrifice ratio",
+        "k100": "Output cost of 1pp disinflation",
+        "k101": "Monetary non-neutrality half-life",
+        "k102": "θ → κ and Price Duration Mapping",
+        "k103": "κ slope",
+        "k104": "Duration",
+        "k105": "1/(1−θ)",
+        "k106": "Barro–Gordon Time Inconsistency",
+        "k107": "Output ambition k",
+        "k108": "Output weight λ",
+        "k109": "PC slope α",
+        "k110": "Supply shock",
+        "k111": "Commitment credibility",
+        "k112": "Inflation bias λαk",
+        "k113": "Discretionary π",
+        "k114": "Commitment π",
+        "k115": "Current equilibrium π",
+        "k116": "Credibility → Equilibrium Inflation and Loss",
+        "k117": "Credibility %",
+        "k118": "Equilibrium inflation %",
+        "k119": "Without a commitment mechanism, the public anticipates the central bank's expansionary motive → inflation is higher but output is unchanged. Central bank independence, inflation targeting, and conservative central bankers are all commitment technologies.",
+        "k120": "Performance of Four Policy Rules under a Cost-Push Shock",
+        "k121": "Taylor rule",
+        "k122": "Inflation targeting",
+        "k123": "Price-level targeting",
+        "k124": "Nominal GDP targeting",
+        "k125": "Taylor principle",
+        "k126": "Satisfied (φπ>1)",
+        "k127": "Not satisfied → indeterminacy",
+        "k128": "Inflation volatility σ(π)",
+        "k129": "Output volatility σ(x)",
+        "k130": "Price-level drift",
+        "k131": "Taylor",
+        "k132": "Inflation target",
+        "k133": "Price level",
+        "k134": "Nominal GDP",
+        "k135": "Price-level targeting gains an extra expectations channel by \"making up for\" past deviations, so cumulative drift is smaller — at the cost of potentially larger short-run output volatility.",
+        "k136": "Forward Premium Puzzle",
+        "k137": "β < 0",
+        "k138": "UIP holds",
+        "k139": "β = 1",
+        "k140": "CIP deviation (crisis)",
+        "k141": "Cross-currency basis",
+        "k142": "Parity Condition Parameters",
+        "k143": "Domestic rate i",
+        "k144": "Foreign rate i*",
+        "k145": "Spot S",
+        "k146": "Forward F",
+        "k147": "True UIP β",
+        "k148": "Noise σ",
+        "k149": "CIP basis",
+        "k150": "Forward premium",
+        "k151": "Fama β",
+        "k152": "Forward premium puzzle",
+        "k153": "UIP sign consistent",
+        "k154": "Regression R²",
+        "k155": "Carry excess return",
+        "k156": "PPP real drift",
+        "k157": "Fama Regression: Δs vs. Interest Rate Differential Scatter",
+        "k158": "Observations",
+        "k159": "Fit",
+        "k160": "UIP β=1",
+        "k161": "UIP predicts β=1; empirically one often gets β&lt;0: high-interest currencies not only fail to depreciate but deliver positive carry returns. Risk premia, tail risk, and\n            limited arbitrage capital are candidate explanations. The CIP basis has stayed persistently nonzero since 2008, showing that even \"riskless\" parity is constrained by balance sheets.",
+        "k162": "Asian financial crisis-style",
+        "k163": "High short-term debt, thin reserves",
+        "k164": "Ample reserves",
+        "k165": "Meets Greenspan–Guidotti",
+        "k166": "Mild adjustment",
+        "k167": "Limited flow reversal",
+        "k168": "External Vulnerability Parameters",
+        "k169": "Current account deficit",
+        "k170": "External debt / GDP",
+        "k171": "Reserves / GDP",
+        "k172": "Short-term debt share",
+        "k173": "Capital flow reversal share",
+        "k174": "Exchange-rate pass-through",
+        "k175": "Reserve coverage ratio",
+        "k176": "Greenspan–Guidotti ≥1",
+        "k177": "Required external adjustment",
+        "k178": "Balance-sheet loss",
+        "k179": "FX debt valuation effect",
+        "k180": "Assessment",
+        "k181": "Crisis risk",
+        "k182": "Under control",
+        "k183": "Adjustment Path after a Sudden Stop",
+        "k184": "Quarter",
+        "k185": "Current account / GDP",
+        "k186": "Cumulative depreciation",
+        "k187": "Output deviation",
+        "k188": "Under currency mismatch, depreciation brings both expenditure switching (expansionary) and balance-sheet losses (contractionary); when the latter dominates, depreciation becomes contractionary — the core motive behind\n            \"original sin\" and FX reserve self-insurance.",
+        "k189": "Rational expectations",
+        "k190": "Adaptive learning",
+        "k191": "Sticky information",
+        "k192": "Diagnostic expectations",
+        "k193": "Learning gain g",
+        "k194": "Information stickiness λ",
+        "k195": "Diagnostic parameter θ",
+        "k196": "Shock persistence ρ",
+        "k197": "CG coefficient",
+        "k198": "Error-on-revision regression; ≠0 implies predictable errors",
+        "k199": "Max forecast error",
+        "k200": "The FIRE benchmark requires forecast errors to be unpredictable. Sticky information yields a positive CG coefficient (underreaction), diagnostic expectations a negative one (overreaction),\n            and adaptive learning produces systematic catch-up after shocks — these three deviations are exactly behavioral macro's empirical handles.",
+        "k201": "Actual vs. Four Expectation Paths",
+        "k202": "Actual",
+        "k203": "Rational",
+        "k204": "Adaptive",
+        "k205": "Sticky",
+        "k206": "Diagnostic",
+        "k207": "Large-scale QE",
+        "k208": "Large duration removal",
+        "k209": "Japan-style YCC",
+        "k210": "Yield cap",
+        "k211": "Pure signaling channel",
+        "k212": "Primarily forward guidance",
+        "k213": "QE / YCC Parameters",
+        "k214": "Purchase size (% GDP)",
+        "k215": "Duration removed (10y equivalent)",
+        "k216": "Preferred-habitat elasticity",
+        "k217": "Signaling channel strength",
+        "k218": "Market depth",
+        "k219": "YCC target",
+        "k220": "Enable yield curve control (YCC)",
+        "k221": "Total yield compression",
+        "k222": "Portfolio rebalancing channel",
+        "k223": "Signaling channel",
+        "k224": "Can YCC be defended?",
+        "k225": "Yes (no large purchases needed)",
+        "k226": "Requires large purchases",
+        "k227": "Not enabled",
+        "k228": "10y Yield Decomposition and Balance Sheet",
+        "k229": "10y yield",
+        "k230": "Expected short-rate path",
+        "k231": "Central bank holdings",
+        "k232": "YCC cap",
+        "k233": "QE lowers the term premium via portfolio rebalancing and the expected short-rate path via signaling; YCC replaces a quantity target with a price commitment, and purchases can actually be smaller when credible.",
+        "k234": "2008-style shock",
+        "k235": "High leverage + fire sales",
+        "k236": "Post-Basel III",
+        "k237": "Thick capital buffer",
+        "k238": "Mild loss",
+        "k239": "Absorbable",
+        "k240": "Bank Capital and Deleveraging",
+        "k241": "Initial capital ratio",
+        "k242": "Loss shock",
+        "k243": "Target leverage",
+        "k244": "Credit-output elasticity",
+        "k245": "Fire-sale price impact",
+        "k246": "Peak credit contraction",
+        "k247": "Peak output gap",
+        "k248": "Amplification factor",
+        "k249": "Regulatory floor",
+        "k250": "Breaches minimum capital",
+        "k251": "Buffer adequate",
+        "k252": "Capital → Credit → Output and Spreads",
+        "k253": "Capital ratio %",
+        "k254": "Credit supply",
+        "k255": "Credit spread",
+        "k256": "Net worth loss × target leverage = the scale of asset contraction; the fire-sale price impact turns individually prudent behavior into systemic tightening — the target of macroprudential policy.",
+        "k257": "Orderly transition",
+        "k258": "Early, gradual, predictable",
+        "k259": "Disorderly transition",
+        "k260": "Late, abrupt, costly",
+        "k261": "Hothouse world",
+        "k262": "No policy → high damage",
+        "k263": "Transition Scenario Parameters",
+        "k264": "Terminal carbon price (USD/t)",
+        "k265": "Energy cost share",
+        "k266": "Transition years",
+        "k267": "Green investment (%GDP/yr)",
+        "k268": "Abatement elasticity",
+        "k269": "Damage intensity",
+        "k270": "No-policy warming (°C)",
+        "k271": "Terminal warming",
+        "k272": "Transition cost NPV",
+        "k273": "3% discount",
+        "k274": "Peak green inflation",
+        "k275": "Policy beats inaction",
+        "k276": "Not crossed in this scenario",
+        "k277": "Emissions Path and Output Cost Decomposition",
+        "k278": "Emissions index",
+        "k279": "% output",
+        "k280": "Emissions (100=today)",
+        "k281": "Transition cost",
+        "k282": "Physical damage",
+        "k283": "Net output impact",
+        "k284": "Carbon pricing internalizes the externality, showing up short-term as a supply-side cost and \"green inflation,\" in exchange for lower physical damage long-term.\n            A disorderly transition (late and abrupt) raises both transition costs and financial risk — the core scenario contrast in central bank climate stress tests."
+      }
+    }
+  },
+  "essays": {
+    "macroTheory": {
+      "title": "Macroeconomics Reading Guide: From Growth and Fluctuations to Policy, Open Economy, and Frontiers",
+      "subtitle": "Macroeconomics is not simply \"aggregated microeconomics.\" Even when every household and firm makes rational choices, the economy as a whole can still fall into insufficient demand, persistent unemployment, financial panic, or runaway inflation. It truly addresses aggregate outcomes, coordination problems, and systemic fluctuations.",
+      "mainLine": "A central theme: In the long run, macroeconomics explains why productive capacity grows; in the short run, it explains why actual output deviates from potential output; at the policy level, it discusses whether and how monetary, fiscal, and institutional arrangements can and should reduce these deviations, balancing efficiency, stability, distribution, and risk.",
+      "sections": {
+        "s1": "Object, Aggregate Thinking & Micro-foundations",
+        "s2": "Long-run Growth: From Solow to Endogenous Growth and Institutions",
+        "s3": "Short-run Fluctuations: From Effective Demand to RBC and New Keynesianism",
+        "s4": "Monetary Policy: Transmission, Rules and Unconventional Tools",
+        "s5": "Fiscal Policy: Multipliers, Equivalence, Stabilizers and Debt",
+        "s6": "Open Economy: The Trilemma, Parity and Crises",
+        "s7": "Themes in the History of Thought: How Debates Shaped Today's Consensus",
+        "s8": "Contemporary Frontiers: Heterogeneity, Behavior, Finance, Climate and Data",
+        "s9": "Building Macro Judgment: A Four-Step Analytical Framework"
+      },
+      "tools": {
+        "solow": {
+          "label": "Solow & Classic Models",
+          "note": "IS-LM / AD-AS / Ramsey / NK DSGE"
+        },
+        "hank": {
+          "label": "HANK / TANK Teaching Ver.",
+          "note": "HTM Share & Aggregate MPC"
+        },
+        "growthEngines": {
+          "label": "Endogenous Growth Engines",
+          "note": "Four Paths vs Solow Transition"
+        },
+        "growthAccounting": {
+          "label": "Growth & Development Accounting",
+          "note": "Solow Residual / Hall-Jones Decomposition"
+        },
+        "multiplier": {
+          "label": "Multiplier-Accelerator & Fiscal Multiplier",
+          "note": "Samuelson Cycle + State Dependence"
+        },
+        "rbc": {
+          "label": "RBC Calibration & Cycle Moments",
+          "note": "Model Moments vs Stylized Facts"
+        },
+        "calvo": {
+          "label": "Calvo Pricing & NKPC",
+          "note": "θ → κ, Indexation, Sacrifice Ratio"
+        },
+        "rules": {
+          "label": "Rules vs Discretion",
+          "note": "Inflation Bias + Four Rules Comparison"
+        },
+        "unconventional": {
+          "label": "Unconventional Policy QE / YCC",
+          "note": "Portfolio Rebalancing & Signal Decomposition"
+        },
+        "zlb": {
+          "label": "ZLB & Forward Guidance",
+          "note": "Zero Lower Bound & FG Puzzle"
+        },
+        "fiscalExp": {
+          "label": "Fiscal Multiplier Experiments",
+          "note": "Slackness / ZLB / Ricardian Degree"
+        },
+        "debtSpace": {
+          "label": "Debt Dynamics & Fiscal Space",
+          "note": "Blanchard r−g Scenarios"
+        },
+        "parity": {
+          "label": "Parity Conditions & Carry",
+          "note": "PPP / UIP / CIP & Fama Regression"
+        },
+        "suddenStop": {
+          "label": "Sudden Stop & External Adjustment",
+          "note": "Reserve Coverage, Two Sides of Devaluation"
+        },
+        "overshooting": {
+          "label": "Dornbusch Overshooting",
+          "note": "Instantaneous Overshooting under Sticky Prices"
+        },
+        "expectation": {
+          "label": "Expectation Formation Experiments",
+          "note": "Rational / Adaptive / Sticky / Diagnostic"
+        },
+        "bankCapital": {
+          "label": "Bank Capital & Deleveraging",
+          "note": "Capital → Credit → Output Amplification"
+        },
+        "climate": {
+          "label": "Climate Transition Macro Paths",
+          "note": "Ordered vs Disordered Transition"
+        },
+        "bgg": {
+          "label": "BGG Financial Accelerator",
+          "note": "Net Worth → EFP → Investment"
+        },
+        "lab": {
+          "label": "Macro Frontier Lab",
+          "note": "12 Interactive Experiments: Growth / Cycle / Policy / Open / Frontier"
+        }
+      },
+      "caution": {
+        "tfp": {
+          "title": "TFP IS A \"MEASURE OF IGNORANCE\"",
+          "content": "The residual absorbs technological progress, factor utilization, allocative efficiency, and measurement error simultaneously. The debate over whether East Asian growth is input-driven or efficiency-driven (Krugman-Young vs. subsequent research) remains unresolved precisely because the residual itself depends on share assumptions and factor quality adjustments."
+        },
+        "forwardGuidance": {
+          "title": "THE FORWARD GUIDANCE PUZZLE",
+          "content": "In standard NK models, interest rate commitments further into the future have a larger impact on today, with a magnitude significantly exceeding empirical findings. This is a signal of the model's over-reliance on assumptions of perfect rationality and perfect information, leading to the introduction of sticky information, bounded rationality, and heterogeneous agents."
+        },
+        "devaluation": {
+          "title": "DEVALUATION IS NOT ALWAYS EXPANSIONARY",
+          "content": "When currency mismatches exist (foreign currency liabilities, local currency assets), devaluation brings both expenditure switching (expansionary) and balance sheet losses (contractionary). When the latter dominates, devaluation is contractionary—this is the core logic of the emerging market \"original sin\" and reserve self-insurance."
+        },
+        "postPandemic": {
+          "title": "CHALLENGES OF THE POST-PANDEMIC AND HIGH INFLATION ERA",
+          "content": "Inflation from 2021–2023 was neither purely demand-driven nor purely supply-driven: fiscal transfers, supply chain disruptions, changes in labor supply, and expectations all played a role. It exposed two risks: over-reliance on the supply-side judgment that \"inflation is transitory,\" and ignoring the impact of fiscal-monetary interaction on the price level."
+        },
+        "judgmentRules": {
+          "title": "THREE RULES FOR MACRO JUDGMENT",
+          "content": "1. Ask whether the shock comes from demand or supply before asking about policy; 2. Any \"multiplier\" or \"transmission coefficient\" is a state-dependent parameter, not a constant; 3. Maintain a falsifiable attitude toward models: DSGE, HANK, and narrative analysis each have blind spots, and cross-validation is more robust than betting on a single framework."
+        }
+      },
+      "labTitle": "HANDS-ON REPLICATION",
+      "history": {
+        "period": "Period",
+        "school": "School",
+        "core": "Core Propositions",
+        "legacy": "Legacy"
+      },
+      "judgment": {
+        "type": "Shock Type",
+        "sign": "Identification Sign",
+        "source": "Typical Source",
+        "implication": "Policy Implication"
+      }
     }
   }
 }

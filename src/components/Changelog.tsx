@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { Sparkles, Wrench, BookOpen, Zap, Layout, GraduationCap, Target, ClipboardCheck, FileStack, Gauge, FileText, Share2, Shield, FolderTree, Activity, ChevronDown, ChevronsUpDown } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useMemo, useState } from "react";
+import CHANGELOG_EN from "./changelogEn.json";
 
 const RELEASES = [
   {
@@ -2157,7 +2158,9 @@ const RELEASES = [
 ];
 
 const Changelog = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const isEn = i18n.language?.startsWith("en");
+  const L = (s: string) => (isEn ? (CHANGELOG_EN as Record<string, string>)[s] ?? s : s);
   const allVersions = useMemo(() => RELEASES.map((r) => r.version), []);
   const [expanded, setExpanded] = useState<Set<string>>(
     () => new Set([RELEASES[0]?.version].filter(Boolean) as string[])
@@ -2187,7 +2190,7 @@ const Changelog = () => {
           className="mb-6"
         >
           <p className="text-[10px] font-mono text-gold tracking-[0.3em] uppercase mb-2">
-            Release Notes · 更新日志
+            Release Notes · {L("更新日志")}
           </p>
           <h2 className="text-3xl md:text-4xl font-display text-foreground mb-3">
             {t("changelog.title")}
@@ -2263,7 +2266,7 @@ const Changelog = () => {
                           <div className="flex items-center gap-2 mb-3">
                             <Icon className="w-4 h-4 text-gold" />
                             <h4 className="text-sm font-semibold text-foreground font-mono">
-                              {h.title}
+                              {L(h.title)}
                             </h4>
                           </div>
                           <ul className="space-y-1.5">
@@ -2272,7 +2275,7 @@ const Changelog = () => {
                                 key={idx}
                                 className="text-xs text-muted-foreground leading-relaxed pl-3 relative before:content-['—'] before:absolute before:left-0 before:text-gold/50"
                               >
-                                {item}
+                                {L(item)}
                               </li>
                             ))}
                           </ul>
@@ -2290,7 +2293,7 @@ const Changelog = () => {
                           key={h.title}
                           className="text-[10px] font-mono text-foreground/60 bg-accent/30 px-2 py-1 rounded"
                         >
-                          {h.title}
+                          {L(h.title)}
                         </span>
                       ))}
                     </div>

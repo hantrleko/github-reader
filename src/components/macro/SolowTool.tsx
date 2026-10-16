@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useState, useMemo } from "react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, ReferenceLine, ComposedChart, Area } from "recharts";
 import PresetButtons from "../PresetButtons";
@@ -65,6 +66,7 @@ function simulateSolow(opts: {
 }
 
 export const SolowTool = () => {
+  const { t } = useTranslation();
   const [alpha, setAlpha] = useState(0.33);
   const [s, setS] = useState(0.25);
   const [n, setN] = useState(0.01);
@@ -94,59 +96,59 @@ export const SolowTool = () => {
   return (
     <div className="space-y-6">
       <PresetButtons presets={[
-        { name: "美国基准", description: "α=0.33,s=0.20,δ=0.05", apply: () => { setAlpha(0.33); setS(0.20); setN(0.01); setG(0.02); setDelta(0.05); setK0(1); setT(150); } },
-        { name: "高储蓄 (中国)", description: "s=0.40", apply: () => { setS(0.40); setAlpha(0.4); setN(0.005); setG(0.04); setDelta(0.06); } },
-        { name: "黄金率", description: "s=α 消费最大化", apply: () => { setS(0.33); setAlpha(0.33); setN(0.01); setG(0.02); setDelta(0.05); } },
-        { name: "贫困陷阱起点", description: "k₀ 极低,看收敛", apply: () => { setK0(0.05); setT(200); } },
-        { name: "过度储蓄", description: "s=0.6 远超黄金率", apply: () => { setS(0.6); setAlpha(0.33); } },
+        { name: t("labs.macroClassic.solow.presets.us.name"), description: t("labs.macroClassic.solow.presets.us.desc"), apply: () => { setAlpha(0.33); setS(0.20); setN(0.01); setG(0.02); setDelta(0.05); setK0(1); setT(150); } },
+        { name: t("labs.macroClassic.solow.presets.china.name"), description: t("labs.macroClassic.solow.presets.china.desc"), apply: () => { setS(0.40); setAlpha(0.4); setN(0.005); setG(0.04); setDelta(0.06); } },
+        { name: t("labs.macroClassic.solow.presets.gold.name"), description: t("labs.macroClassic.solow.presets.gold.desc"), apply: () => { setS(0.33); setAlpha(0.33); setN(0.01); setG(0.02); setDelta(0.05); } },
+        { name: t("labs.macroClassic.solow.presets.trap.name"), description: t("labs.macroClassic.solow.presets.trap.desc"), apply: () => { setK0(0.05); setT(200); } },
+        { name: t("labs.macroClassic.solow.presets.over.name"), description: t("labs.macroClassic.solow.presets.over.desc"), apply: () => { setS(0.6); setAlpha(0.33); } },
       ]} />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="space-y-3">
-          <p className="text-xs font-mono text-gold uppercase tracking-wider">技术与偏好</p>
+          <p className="text-xs font-mono text-gold uppercase tracking-wider">{t("labs.macroClassic.solow.labels.tech")}</p>
           <div className="grid grid-cols-2 gap-3">
-            <Slider label="α (资本弹性)" value={alpha} min={0.1} max={0.6} step={0.01} onChange={setAlpha} />
-            <Slider label="s (储蓄率)" sub="∈[0,1]" value={s} min={0.01} max={0.7} step={0.01} onChange={setS} />
-            <Slider label="δ (折旧率)" value={delta} min={0.01} max={0.15} step={0.005} onChange={setDelta} />
-            <Slider label="n (人口增长)" value={n} min={-0.01} max={0.05} step={0.001} onChange={setN} />
-            <Slider label="g (技术进步)" value={g} min={0} max={0.05} step={0.001} onChange={setG} />
-            <Slider label="k₀ (初始资本)" value={k0} min={0.01} max={10} step={0.05} onChange={setK0} />
+            <Slider label={t("labs.macroClassic.solow.sliders.alpha")} value={alpha} min={0.1} max={0.6} step={0.01} onChange={setAlpha} />
+            <Slider label={t("labs.macroClassic.solow.sliders.s")} sub="∈[0,1]" value={s} min={0.01} max={0.7} step={0.01} onChange={setS} />
+            <Slider label={t("labs.macroClassic.solow.sliders.delta")} value={delta} min={0.01} max={0.15} step={0.005} onChange={setDelta} />
+            <Slider label={t("labs.macroClassic.solow.sliders.n")} value={n} min={-0.01} max={0.05} step={0.001} onChange={setN} />
+            <Slider label={t("labs.macroClassic.solow.sliders.g")} value={g} min={0} max={0.05} step={0.001} onChange={setG} />
+            <Slider label={t("labs.macroClassic.solow.sliders.k0")} value={k0} min={0.01} max={10} step={0.05} onChange={setK0} />
           </div>
-          <Slider label="T (期数)" value={T} min={20} max={400} step={10} onChange={setT} />
+          <Slider label={t("labs.macroClassic.solow.sliders.t")} value={T} min={20} max={400} step={10} onChange={setT} />
         </div>
 
         <div className="space-y-3">
           <div className="grid grid-cols-2 gap-2">
-            <Stat label="稳态 k̃*" value={sim.kStar.toFixed(3)} sub="(s/(n+g+δ))^(1/(1-α))" />
-            <Stat label="稳态 ỹ*" value={sim.yStar.toFixed(3)} color={CHART_TEAL} />
-            <Stat label="稳态消费 c̃*" value={sim.cStar.toFixed(3)} color={CHART_BLUE} />
-            <Stat label="黄金率 s_gr" value={sim.sGold.toFixed(3)} color={CHART_RED} sub={`s_gr = α; 当前 s ${s > sim.sGold ? "> α (过度储蓄)" : s < sim.sGold ? "< α (储蓄不足)" : "= α (黄金率)"}`} />
-            <Stat label="黄金率 k̃_gr" value={sim.kGold.toFixed(3)} color={CHART_RED} />
-            <Stat label="黄金率 c̃_gr" value={sim.cGold.toFixed(3)} color={CHART_RED} sub={`Δc̃ = ${(sim.cGold - sim.cStar).toFixed(3)}`} />
+            <Stat label={t("labs.macroClassic.solow.stats.kstar")} value={sim.kStar.toFixed(3)} sub="(s/(n+g+δ))^(1/(1-α))" />
+            <Stat label={t("labs.macroClassic.solow.stats.ystar")} value={sim.yStar.toFixed(3)} color={CHART_TEAL} />
+            <Stat label={t("labs.macroClassic.solow.stats.cstar")} value={sim.cStar.toFixed(3)} color={CHART_BLUE} />
+            <Stat label={t("labs.macroClassic.solow.stats.sgold")} value={sim.sGold.toFixed(3)} color={CHART_RED} sub={s > sim.sGold ? t("labs.macroClassic.solow.stats.sgoldSubOver") : s < sim.sGold ? t("labs.macroClassic.solow.stats.sgoldSubUnder") : t("labs.macroClassic.solow.stats.sgoldSubGold")} />
+            <Stat label={t("labs.macroClassic.solow.stats.kgold")} value={sim.kGold.toFixed(3)} color={CHART_RED} />
+            <Stat label={t("labs.macroClassic.solow.stats.cgold")} value={sim.cGold.toFixed(3)} color={CHART_RED} sub={t("labs.macroClassic.solow.stats.deltaC", { val: (sim.cGold - sim.cStar).toFixed(3) })} />
           </div>
           <div className="text-xs font-mono text-muted-foreground p-3 rounded-lg bg-secondary/40 border border-border leading-relaxed">
-            <p><span className="text-gold">Solow-Swan (1956)：</span>资本积累与外生技术驱动的长期增长基准模型。</p>
-            <p>动力学：k̃̇ = s·k̃<sup>α</sup> − (n+g+δ)k̃；交点即稳态。</p>
-            <p><span className="text-gold">收敛性：</span>无论 k₀ 起点高低，k̃ 都收敛到 k̃*（条件收敛假说）。</p>
-            <p><span className="text-gold">黄金率：</span>s = α 时稳态消费最大；过度储蓄 → 资本沉沦。</p>
+            <p><span className="text-gold">Solow-Swan (1956)：</span>{t("labs.macroClassic.solow.notes.intro")}</p>
+            <p>{t("labs.macroClassic.solow.notes.dynamics")}</p>
+            <p><span className="text-gold">{t("labs.macroClassic.solow.notes.convergenceTitle", "收敛性")}：</span>{t("labs.macroClassic.solow.notes.convergence")}</p>
+            <p><span className="text-gold">{t("labs.macroClassic.solow.notes.goldTitle", "黄金率")}：</span>{t("labs.macroClassic.solow.notes.gold")}</p>
           </div>
         </div>
       </div>
 
       {/* Convergence chart */}
       <div className="rounded-xl border border-border bg-secondary/20 p-4">
-        <h4 className="text-sm font-semibold text-foreground mb-2">资本与产出动态收敛 — 走向稳态 k̃* = {sim.kStar.toFixed(3)}</h4>
+        <h4 className="text-sm font-semibold text-foreground mb-2">{t("labs.macroClassic.solow.chart.conv.title", { val: sim.kStar.toFixed(3) })}</h4>
         <div className="h-[280px]">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={sim.series}>
               <CartesianGrid stroke={CHART_GRID} strokeDasharray="3 3" />
-              <XAxis dataKey="t" stroke={CHART_TEXT} tick={{ fontSize: 10 }} label={{ value: "期 t", position: "insideBottom", offset: -5, fill: CHART_TEXT, fontSize: 10 }} />
+              <XAxis dataKey="t" stroke={CHART_TEXT} tick={{ fontSize: 10 }} label={{ value: t("labs.macroClassic.solow.chart.conv.xAxis"), position: "insideBottom", offset: -5, fill: CHART_TEXT, fontSize: 10 }} />
               <YAxis stroke={CHART_TEXT} tick={{ fontSize: 10 }} />
               <Tooltip contentStyle={{ background: "hsl(var(--card))", border: `1px solid ${CHART_GRID}`, fontSize: 11 }} />
               <Legend wrapperStyle={{ fontSize: 11 }} />
-              <Line type="monotone" dataKey="k" name="资本 k̃" stroke={CHART_GOLD} strokeWidth={2.5} dot={false} />
-              <Line type="monotone" dataKey="y" name="产出 ỹ = k̃^α" stroke={CHART_TEAL} strokeWidth={2} dot={false} />
-              <Line type="monotone" dataKey="c" name="消费 c̃ = (1−s)ỹ" stroke={CHART_BLUE} strokeWidth={2} dot={false} strokeDasharray="4 3" />
+              <Line type="monotone" dataKey="k" name={t("labs.macroClassic.solow.chart.conv.kLine")} stroke={CHART_GOLD} strokeWidth={2.5} dot={false} />
+              <Line type="monotone" dataKey="y" name={t("labs.macroClassic.solow.chart.conv.yLine")} stroke={CHART_TEAL} strokeWidth={2} dot={false} />
+              <Line type="monotone" dataKey="c" name={t("labs.macroClassic.solow.chart.conv.cLine")} stroke={CHART_BLUE} strokeWidth={2} dot={false} strokeDasharray="4 3" />
               <ReferenceLine y={sim.kStar} stroke={CHART_RED} strokeDasharray="3 3" label={{ value: "k̃*", fill: CHART_RED, fontSize: 10 }} />
             </LineChart>
           </ResponsiveContainer>
@@ -155,26 +157,24 @@ export const SolowTool = () => {
 
       {/* Phase diagram */}
       <div className="rounded-xl border border-border bg-secondary/20 p-4">
-        <h4 className="text-sm font-semibold text-foreground mb-2">Solow 相图 — 投资曲线 vs 折旧线</h4>
+        <h4 className="text-sm font-semibold text-foreground mb-2">{t("labs.macroClassic.solow.chart.phase.title")}</h4>
         <div className="h-[280px]">
           <ResponsiveContainer width="100%" height="100%">
             <ComposedChart data={phase}>
               <CartesianGrid stroke={CHART_GRID} strokeDasharray="3 3" />
-              <XAxis dataKey="k" stroke={CHART_TEXT} tick={{ fontSize: 10 }} label={{ value: "k̃", position: "insideBottom", offset: -5, fill: CHART_TEXT, fontSize: 10 }} />
+              <XAxis dataKey="k" stroke={CHART_TEXT} tick={{ fontSize: 10 }} label={{ value: t("labs.macroClassic.solow.chart.phase.xAxis"), position: "insideBottom", offset: -5, fill: CHART_TEXT, fontSize: 10 }} />
               <YAxis stroke={CHART_TEXT} tick={{ fontSize: 10 }} />
               <Tooltip contentStyle={{ background: "hsl(var(--card))", border: `1px solid ${CHART_GRID}`, fontSize: 11 }} />
               <Legend wrapperStyle={{ fontSize: 11 }} />
-              <Line type="monotone" dataKey="sf" name={`投资 s·f(k̃) = ${s.toFixed(2)}·k̃^α`} stroke={CHART_GOLD} strokeWidth={2.5} dot={false} />
-              <Line type="monotone" dataKey="brk" name={`折旧+人口+技术 (n+g+δ)k̃`} stroke={CHART_RED} strokeWidth={2} dot={false} strokeDasharray="5 3" />
-              <Line type="monotone" dataKey="goldF" name={`黄金率投资 α·k̃^α`} stroke={CHART_BLUE} strokeWidth={1.5} dot={false} strokeDasharray="2 2" />
+              <Line type="monotone" dataKey="sf" name={t("labs.macroClassic.solow.chart.phase.invLine", { s: s.toFixed(2) })} stroke={CHART_GOLD} strokeWidth={2.5} dot={false} />
+              <Line type="monotone" dataKey="brk" name={t("labs.macroClassic.solow.chart.phase.brkLine")} stroke={CHART_RED} strokeWidth={2} dot={false} strokeDasharray="5 3" />
+              <Line type="monotone" dataKey="goldF" name={t("labs.macroClassic.solow.chart.phase.goldLine")} stroke={CHART_BLUE} strokeWidth={1.5} dot={false} strokeDasharray="2 2" />
               <ReferenceLine x={sim.kStar} stroke={CHART_GOLD} strokeDasharray="2 2" label={{ value: "k̃*", fill: CHART_GOLD, fontSize: 10 }} />
               <ReferenceLine x={sim.kGold} stroke={CHART_BLUE} strokeDasharray="2 2" label={{ value: "k̃_gr", fill: CHART_BLUE, fontSize: 10 }} />
             </ComposedChart>
           </ResponsiveContainer>
         </div>
-        <p className="text-[10px] font-mono text-muted-foreground mt-2 leading-relaxed">
-          交点 = 稳态。投资线 (金) 在交点处与折旧线 (红) 相切于 k̃*。蓝色虚线显示黄金率 s = α 对应的投资曲线，它与折旧线的交点在 k̃<sub>gr</sub> 处使消费 c̃ 达到最大。
-        </p>
+        <p className="text-[10px] font-mono text-muted-foreground mt-2 leading-relaxed">{t("labs.macroClassic.solow.chart.phase.hint")}</p>
       </div>
     </div>
   );
