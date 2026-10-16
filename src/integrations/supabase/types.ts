@@ -112,6 +112,24 @@ export type Database = {
           },
         ]
       }
+      edge_cache: {
+        Row: {
+          expires_at: string
+          key: string
+          payload: Json
+        }
+        Insert: {
+          expires_at: string
+          key: string
+          payload: Json
+        }
+        Update: {
+          expires_at?: string
+          key?: string
+          payload?: Json
+        }
+        Relationships: []
+      }
       github_file_notes: {
         Row: {
           branch: string
@@ -348,6 +366,24 @@ export type Database = {
         }
         Relationships: []
       }
+      rate_limits: {
+        Row: {
+          count: number
+          key: string
+          window_start: string
+        }
+        Insert: {
+          count?: number
+          key: string
+          window_start?: string
+        }
+        Update: {
+          count?: number
+          key?: string
+          window_start?: string
+        }
+        Relationships: []
+      }
       user_achievements: {
         Row: {
           awarded_at: string
@@ -446,6 +482,10 @@ export type Database = {
     }
     Functions: {
       award_badge: { Args: { _slug: string }; Returns: boolean }
+      check_rate_limit: {
+        Args: { p_key: string; p_limit: number; p_window_sec: number }
+        Returns: Json
+      }
     }
     Enums: {
       [_ in never]: never
