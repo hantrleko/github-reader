@@ -312,10 +312,11 @@ export function kpssTest(y: number[], trend = false): URTest {
   const lam = longRunVar(fit.resid, q);
   const stat = s / (n * n * Math.max(lam, 1e-12));
   const cv = trend ? KPSS_CV.ct : KPSS_CV.c;
+  const pValue = kpssPValue(stat, trend);
   const reject5 = stat > cv.c5;
   return {
     name: "KPSS",
-    stat, cv,
+    stat, cv, pValue,
     h0: "序列平稳 (原假设方向相反)",
     reject5,
     verdict: reject5 ? "拒绝平稳 → 非平稳证据" : "未能拒绝平稳",
