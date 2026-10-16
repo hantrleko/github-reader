@@ -191,7 +191,7 @@ export const QuantileRegTool = () => {
           <div className="rounded-lg border border-border overflow-hidden">
             <table className="w-full text-xs font-mono">
               <thead className="bg-secondary/60 text-muted-foreground">
-                <tr><th className="py-1.5 px-2 text-left">τ</th><th className="py-1.5 px-2 text-right">β₀</th><th className="py-1.5 px-2 text-right">β₁</th><th className="py-1.5 px-2 text-right">{t("labs.econ.quantilereg.vsOlsB1")}</th></tr>
+                <tr><th className="py-1.5 px-2 text-left">τ</th><th className="py-1.5 px-2 text-right">β₀</th><th className="py-1.5 px-2 text-right">β₁</th><th className="py-1.5 px-2 text-right">{t("labs.econ.quantilereg.bootSe")}</th><th className="py-1.5 px-2 text-right">{t("labs.econ.quantilereg.bootCi")}</th></tr>
               </thead>
               <tbody>
                 <tr className="border-t border-border bg-secondary/20">
@@ -199,15 +199,20 @@ export const QuantileRegTool = () => {
                   <td className="py-1.5 px-2 text-right text-gold tabular-nums">{data.olsB0.toFixed(3)}</td>
                   <td className="py-1.5 px-2 text-right text-gold tabular-nums">{data.olsB1.toFixed(3)}</td>
                   <td className="py-1.5 px-2 text-right text-muted-foreground">—</td>
+                  <td className="py-1.5 px-2 text-right text-muted-foreground">—</td>
                 </tr>
-                {data.fits.map(f => (
-                  <tr key={f.tau} className="border-t border-border">
-                    <td className="py-1.5 px-2 text-foreground">{f.tau.toFixed(2)}</td>
-                    <td className="py-1.5 px-2 text-right tabular-nums">{f.b0.toFixed(3)}</td>
-                    <td className="py-1.5 px-2 text-right tabular-nums" style={{ color: CHART_TEAL }}>{f.b1.toFixed(3)}</td>
-                    <td className="py-1.5 px-2 text-right tabular-nums text-muted-foreground">{(f.b1 - data.olsB1).toFixed(3)}</td>
-                  </tr>
-                ))}
+                {data.fits.map((f, i) => {
+                  const b = boot?.[i];
+                  return (
+                    <tr key={f.tau} className="border-t border-border">
+                      <td className="py-1.5 px-2 text-foreground">{f.tau.toFixed(2)}</td>
+                      <td className="py-1.5 px-2 text-right tabular-nums">{f.b0.toFixed(3)}</td>
+                      <td className="py-1.5 px-2 text-right tabular-nums" style={{ color: CHART_TEAL }}>{f.b1.toFixed(3)}</td>
+                      <td className="py-1.5 px-2 text-right tabular-nums text-muted-foreground">{b ? b.se[1].toFixed(3) : "…"}</td>
+                      <td className="py-1.5 px-2 text-right tabular-nums text-muted-foreground">{b ? `[${b.ciLo[1].toFixed(2)}, ${b.ciHi[1].toFixed(2)}]` : "…"}</td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
