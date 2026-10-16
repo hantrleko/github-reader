@@ -1600,7 +1600,11 @@
         "tradingDaysAxis": "Trading Days",
         "median": "Median",
         "riskConeFootnote": "Block bootstrap (block=10) resamples strategy net returns, preserving short-term autocorrelation. Wider cones indicate greater risk of parameter overfitting / small-sample bias.",
-        "footnote": "Symbol {{symbol}} · Source {{source}} · Includes {{cost}}bps per-side cost + slippage. For educational purposes only; past performance does not guarantee future results."
+        "footnote": "Symbol {{symbol}} · Source {{source}} · Includes {{cost}}bps per-side cost + slippage. For educational purposes only; past performance does not guarantee future results.",
+        "riskFree": "Risk-free rate",
+        "annualised": "annualised",
+        "financing": "Financing rate",
+        "financingSub": "borrowed part (L−1), charged daily"
       },
       "calibrationLab": {
         "title": "Model Calibration Lab",

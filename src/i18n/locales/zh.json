@@ -1602,7 +1602,11 @@
         "tradingDaysAxis": "交易日",
         "median": "中位数",
         "riskConeFootnote": "块自助法 (block=10) 重采样策略净收益,保留短期自相关。锥体越宽,参数过拟合 / 小样本风险越大。",
-        "footnote": "标的 {{symbol}} · 数据源 {{source}} · 已计入 {{cost}}bps 单边成本+滑点。教学用途,历史表现不代表未来收益。"
+        "footnote": "标的 {{symbol}} · 数据源 {{source}} · 已计入 {{cost}}bps 单边成本+滑点。教学用途,历史表现不代表未来收益。",
+        "riskFree": "无风险利率",
+        "annualised": "年化",
+        "financing": "融资利率",
+        "financingSub": "借入部分 (L−1) 按日扣除"
       },
       "calibrationLab": {
         "title": "模型校准实验室",
