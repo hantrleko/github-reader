@@ -56,6 +56,8 @@ export default function BacktestLab() {
   const [allowShort, setAllowShort] = useState(false);
   const [costBps, setCostBps] = useState(5);
   const [slippageBps, setSlippageBps] = useState(5);
+  const [riskFreeRate, setRiskFreeRate] = useState(0);
+  const [financingRate, setFinancingRate] = useState(0);
   const [scanMetric, setScanMetric] = useState<ScanMetric>("sharpe");
 
   const { series: live, isFetching, error, refetch } = usePriceSeries(source, symbol, range, !demo && view !== "portfolio");
@@ -64,6 +66,7 @@ export default function BacktestLab() {
   const params: BacktestParams = {
     fast, slow, lookback, window, entryZ, exitZ: Math.max(0.2, entryZ - 1),
     targetVol, volWindow, maxLeverage: 3, allowShort, costBps, slippageBps,
+    riskFreeRate, financingRate,
   };
 
   const result = useMemo(() => {
