@@ -32,7 +32,7 @@ async function xbrlSeries(cik: string, tag: string, unit: string, statement: str
       1,
     );
     if (!r.ok) return [];
-    const j = await r.json(corsHeaders, );
+    const j = await r.json();
     const rows: any[] = j?.units?.[unit] || [];
     // Annual facts only: 10-K / FY, and for flow items a ~12-month duration.
     const days = (x: any) =>
@@ -66,7 +66,7 @@ async function yahooSummary(symbol: string) {
       `/v10/finance/quoteSummary/${encodeURIComponent(symbol)}?modules=${modules}`,
     );
     if (!r || !r.ok) return null;
-    const j = await r.json(corsHeaders, );
+    const j = await r.json();
     const res = j?.quoteSummary?.result?.[0];
     if (!res) return null;
     const raw = (o: any) => (o && typeof o.raw === "number" ? o.raw : null);

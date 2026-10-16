@@ -97,7 +97,7 @@ async function handler(req: Request, corsHeaders: Record<string, string>): Promi
   try {
     let payload: TvScreenerRequest;
     if (req.method === "POST") {
-      payload = await req.json(corsHeaders, );
+      payload = await req.json();
     } else {
       const url = new URL(req.url);
       payload = {
@@ -131,7 +131,7 @@ async function handler(req: Request, corsHeaders: Record<string, string>): Promi
       throw new Error(`TradingView scanner returned ${r.status}: ${txt.slice(0, 200)}`);
     }
 
-    const j = await r.json(corsHeaders, );
+    const j = await r.json();
     const rows = ((j?.data || []) as any[]).map((d) => {
       const symbol = d.s;
       const values = d.d || [];

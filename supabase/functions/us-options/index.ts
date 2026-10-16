@@ -37,7 +37,7 @@ async function handler(req: Request, corsHeaders: Record<string, string>): Promi
     const resp = await yahooGet(path);
     if (!resp || !resp.ok) throw new Error(`Yahoo options unavailable (HTTP ${resp?.status ?? "n/a"})`);
 
-    const j = await resp.json(corsHeaders, );
+    const j = await resp.json();
     const res = j?.optionChain?.result?.[0];
     if (!res) throw new Error(j?.optionChain?.error?.description || `no option chain for ${symbol}`);
 

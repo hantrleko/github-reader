@@ -18,7 +18,7 @@ async function handler(req: Request, corsHeaders: Record<string, string>): Promi
         `/v8/finance/chart/${encodeURIComponent(symbol)}?range=${range}&interval=${interval}&includePrePost=false`,
       ),
     );
-    const j = await r.json(corsHeaders, );
+    const j = await r.json();
     const res = j?.chart?.result?.[0];
     if (!res) throw new Error(j?.chart?.error?.description || `no data for ${symbol}`);
 

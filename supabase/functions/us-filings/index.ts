@@ -19,13 +19,13 @@ async function handler(req: Request, corsHeaders: Record<string, string>): Promi
       }).catch(() => null) as Response | null;
       let hits: any[] = [];
       if (r && r.ok) {
-        const j = await r.json(corsHeaders, );
+        const j = await r.json();
         hits = j?.hits?.hits || [];
       } else {
         const r2 = await fetchAny([`https://efts.sec.gov/LATEST/search-index?q=%22${encodeURIComponent(q)}%22`], {
           headers: { "User-Agent": SEC_UA },
         });
-        const j2 = await r2.json(corsHeaders, );
+        const j2 = await r2.json();
         hits = j2?.hits?.hits || [];
       }
       const rows = hits.slice(0, 60).map((h: any) => {
@@ -52,7 +52,7 @@ async function handler(req: Request, corsHeaders: Record<string, string>): Promi
     const r = await fetchAny([`https://data.sec.gov/submissions/CIK${cikRow.cik}.json`], {
       headers: { "User-Agent": SEC_UA },
     });
-    const j = await r.json(corsHeaders, );
+    const j = await r.json();
     const rec = j?.filings?.recent || {};
     const cikNum = cikRow.cik.replace(/^0+/, "");
     const rows: any[] = [];

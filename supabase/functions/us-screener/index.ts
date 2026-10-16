@@ -21,7 +21,7 @@ async function handler(req: Request, corsHeaders: Record<string, string>): Promi
         `SEC frames returned ${r.status} for ${tag}/${unit}/${period} — try a duration period (CY2025Q1) or an instant one (CY2025Q1I).`,
       );
     }
-    const j = await r.json(corsHeaders, );
+    const j = await r.json();
     const data: any[] = j?.data || [];
     const sorted = [...data].sort((a, b) => (order === "desc" ? b.val - a.val : a.val - b.val));
     const rows = sorted.slice(0, limit).map((d, i) => ({
