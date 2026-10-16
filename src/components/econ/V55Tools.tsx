@@ -67,8 +67,8 @@ export const UnitRootSuiteTool = () => {
 
   const fred = useFredSeries(fredId, "1990-01-01", source === "fred");
   const fredSeries = useMemo(() => {
-    if (source !== "fred" || !fred.data?.closes?.length) return undefined;
-    const raw = fred.data.closes.filter((v) => Number.isFinite(v) && v > 0);
+    if (source !== "fred" || !fred.data?.values?.length) return undefined;
+    const raw = fred.data.values.filter((v) => Number.isFinite(v) && v > 0);
     return logTransform ? raw.map((v) => Math.log(v)) : raw;
   }, [source, fred.data, logTransform]);
 
