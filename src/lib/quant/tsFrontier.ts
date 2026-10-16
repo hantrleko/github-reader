@@ -448,7 +448,7 @@ export function unitRootSuite(opts: {
     : kpss.reject5
       ? "两者一致：序列非平稳（含单位根）"
       : "证据不足：样本太短或过程近单位根，检验功效低";
-  return { series, tests: [adf, pp, gls, kpss], za, hegy, matrix };
+  return { series, tests: [adf, pp, gls, kpss], za, hegy, matrix, lagTable };
 }
 
 /* ══════════════════ 2. Wold / ARMA identification ══════════════════ */
