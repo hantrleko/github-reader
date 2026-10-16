@@ -251,7 +251,7 @@ function DispositionPanel() {
   });
   return (
     <ToolCard title={t("labs.behaviorMicro.disposition.title")} kicker="Odean (1998) PGR vs PLR"
-      formula="P(卖出 | 盈利) > P(卖出 | 亏损)  ⇒  PGR / PLR > 1">
+      formula="P(sell | gain) > P(sell | loss)  ⇒  PGR / PLR > 1">
       <PresetButtons presets={[
         { name: t("labs.behaviorMicro.disposition.preset.typicalName"), description: t("labs.behaviorMicro.disposition.preset.typicalDesc"), apply: () => { setGainP(0.15); setLossP(0.05); } },
         { name: t("labs.behaviorMicro.disposition.preset.symmetricName"), description: t("labs.behaviorMicro.disposition.preset.symmetricDesc"), apply: () => { setGainP(0.1); setLossP(0.1); } },
