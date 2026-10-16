@@ -85,6 +85,11 @@ export const QuantileRegTool = () => {
   const [trueB1, setTrueB1] = useState(2.0);
   const [seed, setSeed] = useState(42);
   const [dgp, setDgp] = useState<DGP>("hetero");
+  const [bootB, setBootB] = useState(200);
+  const [boot, setBoot] = useState<QRBootPoint[] | null>(null);
+  const [bootProgress, setBootProgress] = useState(0);
+  const [bootRunning, setBootRunning] = useState(false);
+  const bootGen = useRef(0);
 
   const data = useMemo(() => {
     const rng = mulberry32(seed);
