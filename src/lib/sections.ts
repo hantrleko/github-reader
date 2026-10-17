@@ -1,4 +1,5 @@
 import { lazy, type ComponentType, type LazyExoticComponent } from "react";
+import type { TFunction } from "i18next";
 
 /** Learning tier of a page — drives the domain hub's ordering + badges. */
 export type SectionLevel = "guide" | "basic" | "advanced" | "frontier" | "data";
@@ -840,7 +841,7 @@ if (UNGROUPED_SECTION_IDS.length) {
   NAV_GROUPS.push(UNGROUPED);
   if (import.meta.env?.DEV) {
     console.warn(
-      "[sections] 未归类板块，请补进 NAV_GROUPS：",
+      "[sections] Ungrouped sections — add them to NAV_GROUPS:",
       UNGROUPED_SECTION_IDS.join(", ")
     );
   }
