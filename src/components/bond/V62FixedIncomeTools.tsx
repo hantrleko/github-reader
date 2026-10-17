@@ -1001,7 +1001,7 @@ export default function V62FixedIncomeTools() {
           ))}
         </div>
         <div className="mt-3 flex flex-wrap gap-2">
-          {inCat.map((item) => (
+          {inCat.map((t) => (
             <button key={t.id} onClick={() => setTab(t.id)}
               className={`px-3 py-1.5 rounded-md border text-[11px] transition-colors ${
                 tab === t.id ? "bg-secondary border-gold/40 text-foreground"
