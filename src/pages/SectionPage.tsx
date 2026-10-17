@@ -10,7 +10,7 @@ import KeyboardHelp from "@/components/KeyboardHelp";
 import SectionErrorBoundary from "@/components/SectionErrorBoundary";
 import SectionHeader from "@/components/common/SectionHeader";
 import SiteFooter from "@/components/SiteFooter";
-import { GROUP_OF, SECTION_MAP, SECTIONS } from "@/lib/sections";
+import { GROUP_OF, SECTION_MAP, SECTIONS, sectionLabel, sectionSubtitle } from "@/lib/sections";
 import { sectionSeo } from "@/lib/seoCopy";
 
 const SectionFallback = () => (
@@ -117,8 +117,8 @@ const SectionPage = () => {
         <SectionHeader
           chapter={def.chapter}
           kicker={def.kicker}
-          title={def.label}
-          subtitle={def.subtitle}
+          title={sectionLabel(t, def)}
+          subtitle={sectionSubtitle(t, def)}
         />
 
         {prereqs.length > 0 && (
@@ -132,7 +132,7 @@ const SectionPage = () => {
                 to={`/s/${p.id}`}
                 className="rounded-full border border-border/60 bg-card/35 px-3 py-1 text-xs text-foreground/75 hover:border-gold/40 hover:text-gold transition-colors"
               >
-                {p.label}
+                {sectionLabel(t, p)}
               </Link>
             ))}
           </div>
@@ -149,13 +149,13 @@ const SectionPage = () => {
                 to={`/s/${r.id}`}
                 className="rounded-full border border-border/60 bg-card/35 px-3 py-1 text-xs text-foreground/70 hover:border-gold/40 hover:text-gold transition-colors"
               >
-                {r.label}
+                {sectionLabel(t, r)}
               </Link>
             ))}
           </div>
         )}
 
-        <SectionErrorBoundary name={def.label}>
+        <SectionErrorBoundary name={sectionLabel(t, def)}>
           <Suspense fallback={<SectionFallback />}>
             <div id={def.id}>
               <Component />
@@ -174,7 +174,7 @@ const SectionPage = () => {
                 ← {prev.chapter}
               </span>
               <p className="mt-1.5 text-sm font-display text-foreground group-hover:text-gold transition-colors">
-                {prev.label}
+                {sectionLabel(t, prev)}
               </p>
             </Link>
           ) : (
@@ -189,7 +189,7 @@ const SectionPage = () => {
                 {next.chapter} →
               </span>
               <p className="mt-1.5 text-sm font-display text-foreground group-hover:text-gold transition-colors">
-                {next.label}
+                {sectionLabel(t, next)}
               </p>
             </Link>
           )}

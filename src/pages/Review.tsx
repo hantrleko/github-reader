@@ -9,7 +9,8 @@ import Seo from "@/components/Seo";
 import SectionHeader from "@/components/common/SectionHeader";
 import { GLOSSARY } from "@/data/glossary";
 import { QUIZ_QUESTIONS } from "@/data/quizQuestions";
-import { sectionHref, SECTION_MAP } from "@/lib/sections";
+import { sectionHref, SECTION_MAP, sectionLabel } from "@/lib/sections";
+import { useTranslation } from "react-i18next";
 import {
   type CardState, type Grade, type Deck,
   loadStates, saveStates, newCard, review, buildQueue, deckStats,
@@ -31,6 +32,7 @@ const CAT_LABEL: Record<string, string> = {
 };
 
 const Review = () => {
+  const { t, i18n } = useTranslation();
   const [deck, setDeck] = useState<Deck>("glossary");
   const allSlugs = useMemo(
     () => (deck === "glossary" ? GLOSSARY.map((g) => g.slug) : QUIZ_QUESTIONS.map((q) => q.id)),
@@ -204,7 +206,7 @@ const Review = () => {
                         to={sectionHref(quizCard.sectionId)}
                         className="text-[10px] font-mono text-gold underline"
                       >
-                        去对应实验室：{SECTION_MAP[quizCard.sectionId].label}
+                        {i18n.language.startsWith("en") ? "Open the lab: " : "去对应实验室："}{sectionLabel(t, SECTION_MAP[quizCard.sectionId])}
                       </Link>
                     )}
                   </div>

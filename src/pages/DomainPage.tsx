@@ -6,7 +6,7 @@ import ScrollUtilities from "@/components/ScrollUtilities";
 import SectionHeader from "@/components/common/SectionHeader";
 import SiteFooter from "@/components/SiteFooter";
 import { useTranslation } from "react-i18next";
-import { NAV_GROUPS, SECTION_MAP, sectionHref, type SectionDef, type SectionLevel } from "@/lib/sections";
+import { NAV_GROUPS, SECTION_MAP, sectionHref, sectionLabel, sectionSubtitle, groupDesc, type SectionDef, type SectionLevel } from "@/lib/sections";
 import { LEARNING_STAGES, stageSections } from "@/lib/learningPath";
 
 /** Learning order shown on every domain hub. */
@@ -49,7 +49,7 @@ const OverviewQuickstart = () => {
                     to={sectionHref(first.id)}
                     className="mt-2 inline-flex items-center gap-1 text-xs font-mono text-gold hover:underline"
                   >
-                    {first.label}
+                    {sectionLabel(t, first)}
                     <ArrowUpRight className="w-3 h-3" />
                   </Link>
                 )}
@@ -62,10 +62,12 @@ const OverviewQuickstart = () => {
   );
 };
 
-const SectionCard = ({ s, prereqLabel }: { s: SectionDef; prereqLabel: string }) => (
+const SectionCard = ({ s, prereqLabel }: { s: SectionDef; prereqLabel: string }) => {
+  const { t } = useTranslation();
+  return (
   <Link
     to={`/s/${s.id}`}
-    aria-label={`${s.label}${s.subtitle ? ` — ${s.subtitle}` : ""}`}
+    aria-label={`${sectionLabel(t, s)}${s.subtitle ? ` — ${sectionSubtitle(t, s)}` : ""}`}
     className="group block h-full rounded-xl border border-border/60 bg-card/35 p-4 hover:border-gold/40 hover:bg-card/55 hover:-translate-y-0.5 transition-all duration-300"
   >
     <div className="flex items-start justify-between gap-2">
@@ -73,10 +75,10 @@ const SectionCard = ({ s, prereqLabel }: { s: SectionDef; prereqLabel: string })
       <ArrowUpRight className="w-4 h-4 text-muted-foreground group-hover:text-gold transition-all shrink-0" />
     </div>
     <h3 className="mt-2 font-display text-base text-foreground leading-snug group-hover:text-gold transition-colors">
-      {s.label}
+      {sectionLabel(t, s)}
     </h3>
     {s.subtitle && (
-      <p className="mt-1.5 text-xs text-foreground/60 leading-relaxed line-clamp-2">{s.subtitle}</p>
+      <p className="mt-1.5 text-xs text-foreground/60 leading-relaxed line-clamp-2">{sectionSubtitle(t, s)}</p>
     )}
     {s.prereq?.length ? (
       <p className="mt-2 text-[10px] font-mono text-muted-foreground">
@@ -84,10 +86,12 @@ const SectionCard = ({ s, prereqLabel }: { s: SectionDef; prereqLabel: string })
       </p>
     ) : null}
   </Link>
-);
+  );
+};
 
 const DomainPage = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const isEn = i18n.language.startsWith("en");
   const { groupId } = useParams<{ groupId: string }>();
   const group = NAV_GROUPS.find((g) => g.id === groupId);
   if (!group) return <Navigate to="/" replace />;
@@ -107,8 +111,12 @@ const DomainPage = () => {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <Seo
-        title={`${group.label}学科主线 · ${group.kicker} | 经济与金融实验室`}
-        description={`${group.desc}。按导读 → 基础 → 进阶 → 前沿的顺序学习 ${group.label} 领域的 ${sections.length} 个板块。`}
+        title={isEn
+          ? `${groupLabel} Track · ${group.kicker} | Econ & Finance Lab`
+          : `${group.label}学科主线 · ${group.kicker} | 经济与金融实验室`}
+        description={isEn
+          ? `${groupDesc(t, group)}. Learn the ${groupLabel} domain through ${sections.length} sections ordered guide → basic → advanced → frontier.`
+          : `${group.desc}。按导读 → 基础 → 进阶 → 前沿的顺序学习 ${group.label} 领域的 ${sections.length} 个板块。`}
         path={`/d/${group.id}`}
       />
       <Navbar />
@@ -129,7 +137,7 @@ const DomainPage = () => {
           chapter={`Domain ${group.code}`}
           kicker={group.kicker}
           title={title}
-          subtitle={`${group.desc}${t("domain.orderHint")}`}
+          subtitle={`${groupDesc(t, group)}${t("domain.orderHint")}`}
         />
 
         {group.id === "overview" && <OverviewQuickstart />}

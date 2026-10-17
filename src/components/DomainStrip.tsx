@@ -2,15 +2,14 @@ import { Link } from "react-router-dom";
 import { ArrowUpRight } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import SectionHeader from "@/components/common/SectionHeader";
-import { sectionsByGroup } from "@/lib/sections";
+import { sectionsByGroup, groupDesc } from "@/lib/sections";
 
 /**
  * Ten domain entries right below the hero — a first-time visitor should see
  * the whole scope of the site without scrolling past seven marketing blocks.
  */
 const DomainStrip = () => {
-  const { t, i18n } = useTranslation();
-  const zh = i18n.language.startsWith("zh");
+  const { t } = useTranslation();
   const groups = sectionsByGroup().filter(({ sections }) => sections.length > 0);
 
   return (
@@ -38,7 +37,7 @@ const DomainStrip = () => {
               {t(`nav.groups.${group.id}`, { defaultValue: group.label })}
             </h3>
             <p className="mt-1.5 text-xs text-foreground/60 leading-relaxed line-clamp-2">
-              {zh ? group.desc : `${sections.length} sections`}
+              {groupDesc(t, group)}
             </p>
           </Link>
         ))}

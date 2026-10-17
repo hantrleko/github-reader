@@ -18,23 +18,17 @@
       "off": "Enable smooth scroll"
     },
     "groups": {
-      "guide": "Overview",
-      "basics": "Pricing",
-      "deriv": "Derivatives",
-      "fixed": "Fixed Income",
-      "econ": "Econ & Risk",
-      "quant": "Quant",
-      "data": "Data",
-      "theory": "Economics",
       "overview": "Overview",
       "foundations": "Foundations",
       "pricing": "Pricing",
       "fixed-income": "Fixed Income",
-      "asset-portfolio": "Asset & Portfolio",
-      "econometrics": "Econometrics",
+      "asset-portfolio": "Asset Pricing & Portfolios",
+      "quant-trading": "Quant Trading",
+      "econometrics": "Econometrics & Time Series",
       "risk": "Risk",
+      "data": "Data",
       "frontier": "Frontier",
-      "quant-trading": "Quant Trading"
+      "ungrouped": "Unfiled"
     },
     "items": {
       "hero": "Home",
@@ -94,7 +88,24 @@
       "fixed-income-frontier": "Fixed Income Frontier Lab",
       "fixed-income-theory": "Fixed Income Theory Guide",
       "qlib-guide": "Qlib Reading Guide",
-      "qlib-lab": "Qlib Pipeline Lab"
+      "qlib-lab": "Qlib Pipeline Lab",
+      "backtest": "Backtest Lab",
+      "calibration": "Calibration Lab",
+      "behavior-lab": "Behavior Lab",
+      "behavior-theory": "Behavioral Guide"
+    },
+    "groupDescs": {
+      "overview": "Topic map · Model overview · Learning paths",
+      "foundations": "Microeconomics · Macroeconomics · Advanced macro labs",
+      "pricing": "Black-Scholes · IV · Monte Carlo · Surfaces",
+      "fixed-income": "Bonds · Short-rate models · Credit and curves",
+      "asset-portfolio": "CAPM · Efficient frontier · Asset pricing and portfolio guides",
+      "quant-trading": "Qlib pipeline · Factors and signals · Backtesting and calibration",
+      "econometrics": "OLS · Panels · Time series · Behavioral finance and market microstructure",
+      "risk": "VaR / ES · Credit · Copulas · Stress testing",
+      "data": "U.S. stocks / A-shares · Macro · Sentiment · External workbench",
+      "frontier": "Long-form deep dives · Emerging paradigms · Platform and visualization",
+      "ungrouped": "Sections not yet filed under a domain"
     }
   },
   "hero": {
@@ -182,6 +193,240 @@
       "attempts": "Attempts",
       "question": "Q {{i}} / {{n}}",
       "next": "Next"
+    },
+    "catalog": {
+      "micro": {
+        "label": "Microeconomics · Individual Choice and Markets",
+        "subtitle": "From supply-and-demand equilibrium and consumer and producer optimization to strategic interaction in market structures and information asymmetry, build the microeconomic foundations of economic analysis."
+      },
+      "calculator": {
+        "label": "Pricing Fundamentals · Options and Implied Volatility",
+        "subtitle": "From closed-form solutions and implied-volatility inversion to Monte Carlo simulation, understand the replication and risk-neutral logic behind pricing formulas."
+      },
+      "implied-vol": {
+        "label": "Implied Volatility Solver",
+        "subtitle": "Infer implied volatility from market prices using Newton-Raphson, and explore the volatility smile and term structure."
+      },
+      "mc-pricer": {
+        "label": "Monte Carlo Option Pricing",
+        "subtitle": "Price European and path-dependent options with path simulation, compare results with closed-form solutions, and examine convergence and variance."
+      },
+      "derivatives": {
+        "label": "Advanced Derivatives · Volatility Surfaces and Path Dependence",
+        "subtitle": "Bring market smiles, stochastic volatility, and American exercise into a unified experimental framework with SVI, Heston, SABR, Local Vol, and LSM."
+      },
+      "bond": {
+        "label": "Fixed Income · Bonds and Cash Flows",
+        "subtitle": "From bond cash flows and yield to maturity to duration and convexity, understand how rate changes pass through to prices."
+      },
+      "rate-model": {
+        "label": "Short-Rate Model Simulation",
+        "subtitle": "Simulate interest-rate paths and term structures using short-rate models such as Vasicek and CIR."
+      },
+      "fixed-income-lab": {
+        "label": "Advanced Fixed Income · Credit/Short Rates/OAS/Curves",
+        "subtitle": "Merton and CDS-implied measures, Vasicek/CIR/HW term structures, OAS and PSA MBS, and TIPS butterflies."
+      },
+      "frontier": {
+        "label": "Mean-Variance Efficient Frontier",
+        "subtitle": "Build the efficient frontier, tangency portfolio, and capital market line to understand diversification and optimal allocation."
+      },
+      "asset-pricing": {
+        "label": "Asset Pricing · CAPM and Multifactor Models",
+        "subtitle": "From the CAPM security market line to APT and Fama-French multifactor attribution, understand how systematic risk is priced."
+      },
+      "econometrics": {
+        "label": "Econometrics · Estimation and State Space",
+        "subtitle": "Covers OLS, IV, GMM, GARCH, Kalman, and causal inference, with an emphasis on estimation assumptions, diagnostic tests, and robust inference."
+      },
+      "risk": {
+        "label": "Risk Management · Credit, Dependence, and Stress Testing",
+        "subtitle": "From VaR/ES to Merton distance to default, Copula dependence, and scenario shocks, build an interpretable framework for tail-risk monitoring."
+      },
+      "quant": {
+        "label": "Quant Strategies · Backtesting and Factor Attribution",
+        "subtitle": "Use auditable backtests, risk budgets, and multifactor attribution to break strategy ideas into signals, portfolio construction, and risk constraints."
+      },
+      "macro": {
+        "label": "Macroeconomics · Growth and Dynamic Equilibrium",
+        "subtitle": "Use Solow, RBC/DSGE, and policy-shock simulations to examine long-run growth, technological progress, and the transmission mechanisms of dynamic equilibrium."
+      },
+      "macro-lab": {
+        "label": "Advanced Macro Lab · Debt/FX/BGG/ZLB",
+        "subtitle": "Blanchard r−g debt dynamics, Dornbusch exchange-rate overshooting, BOP three-gap model, BGG financial accelerator, ZLB, and the forward-guidance puzzle."
+      },
+      "behavior-microstructure": {
+        "label": "Behavioral Finance & Market Microstructure Lab",
+        "subtitle": "Hyperbolic discounting / DSSW / disposition effect + Kyle / Glosten-Milgrom / Roll / Almgren-Chriss."
+      },
+      "fred": {
+        "label": "FRED · Macroeconomic Time Series",
+        "subtitle": "Load and visualize real macroeconomic time series from the Federal Reserve's FRED database."
+      },
+      "worldbank": {
+        "label": "World Bank · Development Indicators",
+        "subtitle": "Compare World Bank development indicators, including GDP growth and inflation, across countries."
+      },
+      "ecb-bis": {
+        "label": "ECB / BIS · European Central Bank and Bank for International Settlements",
+        "subtitle": "Load official interest-rate, exchange-rate, and other data from the European Central Bank and Bank for International Settlements."
+      },
+      "coingecko": {
+        "label": "CoinGecko · Crypto Assets",
+        "subtitle": "Load historical cryptocurrency prices, market capitalization, and volatility indicators."
+      },
+      "alphavantage": {
+        "label": "Alpha Vantage · Equities and FX",
+        "subtitle": "Load daily historical data for global equities and foreign exchange, and calculate annualized volatility and returns."
+      },
+      "cboe-sentiment": {
+        "label": "CBOE Market Sentiment · VIX / SKEW / PCR",
+        "subtitle": "Use the VIX term structure, VVIX, SKEW, and equity put/call ratio to gauge fear and greed."
+      },
+      "econ-calendar": {
+        "label": "Economic Calendar · CPI / NFP / FOMC",
+        "subtitle": "High-impact macro releases over the next two weeks, combining Trading Economics with a curated static calendar."
+      },
+      "etf-lookup": {
+        "label": "ETF Lookup · Fees and AUM",
+        "subtitle": "Enter a ticker to instantly retrieve fees, AUM, category, and YTD performance from etfdb.com."
+      },
+      "sector-heatmap": {
+        "label": "Sector Heatmap · 11 Sectors",
+        "subtitle": "Visualize sector rotation using one-month returns for SPDR sector ETFs, with self-sourced data and a Finviz-style design."
+      },
+      "market-cap": {
+        "label": "Global Market Cap Rankings · Top 50",
+        "subtitle": "Quarterly snapshots of the world's largest companies, with a clear comparison of industry and country distribution."
+      },
+      "quiver-signals": {
+        "label": "Alternative Data Signals · Congressional Trading / WSB",
+        "subtitle": "Alternative data such as congressional trading and WSB retail investor activity (requires QUIVER_API_KEY)."
+      },
+      "external-workbench": {
+        "label": "External Research Workbench · Cross-Site Research in One Click",
+        "subtitle": "Ticker-aware deep links to 10 research sites, including StockAnalysis, Finviz, Koyfin, and Seeking Alpha."
+      },
+      "platform": {
+        "label": "Platform Enhancements · Notebooks, Real Data, and Cross-Tool Comparisons",
+        "subtitle": "Build platform capabilities around reproducibility, sharing, and comparison: real-data loading, model benchmarks, history, and public Notebooks."
+      },
+      "frontier-concepts": {
+        "label": "Frontier Models & Emerging Paradigms · 2024–2026",
+        "subtitle": "A concept map of AI/ML asset pricing, multi-agent simulations, complex networks, climate finance, neuroeconomics, DeFi, and macro-finance."
+      },
+      "quiz": {
+        "label": "Knowledge Check",
+        "subtitle": "Test your command of core models and methods."
+      },
+      "learning": {
+        "label": "Learning Paths",
+        "subtitle": "Turn fragmented knowledge into research capabilities that grow through structured stages."
+      },
+      "backtest": {
+        "label": "Real-Data Backtesting Engine",
+        "subtitle": "Backtest single-asset strategies on historical market data and generate equity curves, drawdowns, and full performance metrics; execute signals at T+1 to avoid look-ahead bias."
+      },
+      "calibration": {
+        "label": "Model Calibration Lab",
+        "subtitle": "Fit GARCH / EWMA / Merton jump-diffusion models to real market data, calibrate volatility, and send results to pricing tools in one click."
+      },
+      "visualization-guide": {
+        "label": "Visualization Components Workbench",
+        "subtitle": "Brush-linked zoom · Event annotations · Fan Chart confidence bands · Histogram KDE · PNG / CSV export · Color-vision friendly."
+      },
+      "ashare-suite": {
+        "label": "A-shares Full-Stack Data · Quotes / Flows / Top Movers / Filings",
+        "subtitle": "Tencent quotes + East Money push2 + exchange top-mover lists + CNINFO filings, covering real-time quotes, daily K-lines, fund flows, and official disclosures across Shanghai, Shenzhen, and Beijing A-shares."
+      },
+      "us-suite": {
+        "label": "U.S. Stocks Full-Stack Data · Quotes / Fundamentals / SEC / Options / Screening",
+        "subtitle": "Yahoo quotes and technical indicators, SEC XBRL financial statements, EDGAR filing search, option-chain Greeks, and cross-sectional screening."
+      },
+      "tv-screener": {
+        "label": "TradingView Screener · Cross-Market Real-Time Scanning",
+        "subtitle": "Query TradingView's public Scanner without an API key across stocks, FX, crypto, bonds, and futures, with flexible combinations of 13,000+ fields."
+      },
+      "trillion-dollar-equation": {
+        "label": "The Trillion-Dollar Equation · The Black–Scholes Case in Full",
+        "subtitle": "A five-chapter deep dive: replication portfolios that eliminate direction, the gamma tax of discrete rebalancing, the volatility risk premium, and extensions."
+      },
+      "ai-quant-strategy": {
+        "label": "When AI Told Me My Idea Was Backward · A Quant Strategy Case Study",
+        "subtitle": "A five-chapter postmortem: why a factor portfolio generated from one prompt lost money for four years, how state dependence flipped the sign, and the 40% drawdown behind a +1047% backtest."
+      },
+      "asset-pricing-theory": {
+        "label": "Asset Pricing Theory · From State Prices to the Modern Frontier",
+        "subtitle": "The four-part framework of p=E[mx]: no-arbitrage and state prices, preferences and the three major puzzles, empirical tests (GRS/HJ distance), predictability and the factor zoo—with each topic linked to a reproducible lab."
+      },
+      "econometrics-theory": {
+        "label": "Econometrics · From Data-Generating Processes to Credible Inference",
+        "subtitle": "A five-step chain of reasoning: DGP → identification → estimation → inference → interpretation; seven identification strategies, five tiers of standard errors, and methods for high-dimensional heterogeneity, each linked to a reproducible lab."
+      },
+      "time-series-theory": {
+        "label": "Time Series · From Stationarity to Density Forecast Evaluation",
+        "subtitle": "A six-layer framework: stationarity and preprocessing → linear representations → multivariate dynamics → nonlinearities and regimes → volatility and state space → forecast evaluation, with each topic linked to a reproducible lab."
+      },
+      "portfolio-theory": {
+        "label": "Portfolio Theory · From Mean–Variance to Robust and Dynamic Allocation",
+        "subtitle": "A six-layer framework: choice and geometry → equilibrium pricing → estimation and robustness → risk and constraints → active management and growth → dynamic and high-dimensional methods, with each topic linked to a reproducible lab."
+      },
+      "derivatives-theory": {
+        "label": "Derivatives Pricing · From the Law of One Price to Rough Volatility",
+        "subtitle": "A six-layer framework: no-arbitrage and state prices → replication and measures → model families → curves and credit → numerical methods → calibration and the frontier, with each topic linked to a reproducible lab."
+      },
+      "risk-theory": {
+        "label": "Risk Management · From Metrics to Capital, Regulation, and Resilience",
+        "subtitle": "Ten sections: the nature of risk → classification → market risk measurement → credit → liquidity → Basel/FRTB → crisis history → the frontier."
+      },
+      "behavior-lab": {
+        "label": "Behavioral Finance Lab · From Prospect Theory to Limits to Arbitrage",
+        "subtitle": "Eight experiments: cumulative prospect theory, myopic loss aversion, BSV / DHS / Hong-Stein belief models, limits to arbitrage and forced liquidation, cross-sectional investor sentiment, and behavioral corporate finance."
+      },
+      "behavior-theory": {
+        "label": "Behavioral Finance · Bounded Rationality and Limits to Arbitrage",
+        "subtitle": "Nine sections: core questions → two pillars → prospect theory → bias map → sentiment → limits to arbitrage → anomalies → the frontier."
+      },
+      "macro-frontier": {
+        "label": "Macro Frontier Lab · From Growth Engines to Policy Rules",
+        "subtitle": "Twelve experiments: endogenous growth, growth accounting, fiscal multipliers, RBC, Calvo/NKPC, policy rules, parity and carry, sudden stops, QE/YCC, and climate transition."
+      },
+      "macro-theory": {
+        "label": "Macroeconomics · Growth, Fluctuations, Policy, and the Open Economy",
+        "subtitle": "Nine sections: microfoundations → long-run growth → short-run fluctuations → monetary policy → fiscal policy → the open economy → history of thought → the frontier → frameworks for judgment."
+      },
+      "microstructure-lab": {
+        "label": "Market Microstructure Lab · Inventory, Information, and the Order Book",
+        "subtitle": "Seventeen experiments: Stoll decomposition, Ho-Stoll quotes, PIN/VPIN, order-book simulation, spread conventions, information shares, and market design."
+      },
+      "microstructure-theory": {
+        "label": "Market Microstructure · From Market Making to Market Design",
+        "subtitle": "Nine sections: core questions → market organization → inventory and information → order books → liquidity measurement → price discovery → market design → the frontier."
+      },
+      "fixed-income-frontier": {
+        "label": "Fixed-Income Frontier Lab · Curves, Spreads, and Structured Products",
+        "subtitle": "Eighteen experiments: bootstrapping and interpolation, four spread conventions, embedded options and convertibles, structured credit, leverage, and the institutional frontier."
+      },
+      "fixed-income-theory": {
+        "label": "Fixed Income · From Discount Factors to the Institutional Frontier",
+        "subtitle": "Nine sections: interest-rate terminology → duration and convexity → spread conventions → curve construction → dynamic models → structured credit → portfolio leverage."
+      },
+      "micro-theory": {
+        "label": "Microeconomics · From Preferences to Mechanism Design",
+        "subtitle": "Six sections: preferences and utility → production and costs → market structure → games and strategy → asymmetric information → mechanism design."
+      },
+      "quant-theory": {
+        "label": "Quantitative Strategies · From Signals to Live-Trading Gaps",
+        "subtitle": "Six sections: signal construction → portfolio construction → transaction costs → backtest bias checklist → performance metrics → live-trading gaps."
+      },
+      "qlib-guide": {
+        "label": "Qlib Guide · A Reproducible Quant Research Pipeline",
+        "subtitle": "A seven-layer framework: data layer → expression factors → cross-sectional normalization → models → evaluation → TopK-Dropout → workflow."
+      },
+      "qlib-lab": {
+        "label": "Qlib Pipeline Lab · From Factors to Portfolios",
+        "subtitle": "Reproduce the Qlib research loop: Alpha158-style factors, cross-sectional standardization, Ridge fitting, IC evaluation, and TopK-Dropout backtesting."
+      }
     }
   },
   "changelog": {
