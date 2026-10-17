@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { BookOpen } from "lucide-react";
 
 export interface Preset {
@@ -11,10 +12,11 @@ interface PresetButtonsProps {
 }
 
 const PresetButtons = ({ presets }: PresetButtonsProps) => {
+  const { t } = useTranslation();
   return (
     <div className="flex items-center gap-2 flex-wrap mb-4">
       <span className="text-[10px] font-mono text-muted-foreground uppercase tracking-wider flex items-center gap-1">
-        <BookOpen className="w-3 h-3" /> 预设
+        <BookOpen className="w-3 h-3" /> {t("labs.presetButtons.text1", { defaultValue: "预设" })}
       </span>
       {presets.map((p) => (
         <button

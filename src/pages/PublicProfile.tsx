@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import Navbar from "@/components/Navbar";
@@ -12,6 +13,7 @@ type Nb = { id: string; title: string; updated_at: string };
 type Ach = { slug: string; awarded_at: string };
 
 const PublicProfile = () => {
+  const { t } = useTranslation();
   const { username = "" } = useParams();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [notebooks, setNotebooks] = useState<Nb[]>([]);
@@ -43,7 +45,7 @@ const PublicProfile = () => {
       {profile && (
         <Seo
           title={`@${profile.username} · EF Lab`}
-          description={profile.bio || `${profile.display_name || profile.username} 的公开 Notebook 与徽章。`}
+          description={profile.bio || t("pages.publicProfile.copy1", { defaultValue: "{{value1}} 的公开 Notebook 与徽章。", value1: profile.display_name || profile.username })}
           path={`/u/${profile.username}`}
           type="article"
           jsonLd={{
@@ -62,9 +64,9 @@ const PublicProfile = () => {
       <main id="main-content" className="pt-14">
         {notFound ? (
           <div className="container max-w-3xl px-6 py-24 text-center">
-            <h1 className="font-display text-2xl text-foreground mb-2">用户不存在或未公开</h1>
+            <h1 className="font-display text-2xl text-foreground mb-2">{t("pages.publicProfile.copy2", { defaultValue: "用户不存在或未公开" })}</h1>
             <p className="text-sm text-muted-foreground">User not found or profile is private.</p>
-            <Link to="/" className="inline-block mt-6 text-gold text-sm">← 返回首页</Link>
+            <Link to="/" className="inline-block mt-6 text-gold text-sm">{t("pages.publicProfile.copy3", { defaultValue: "← 返回首页" })}</Link>
           </div>
         ) : profile && (
           <>
@@ -80,7 +82,7 @@ const PublicProfile = () => {
                 <p className="inline-flex items-center gap-2 text-[10px] font-mono uppercase tracking-[0.2em] text-gold mb-3">
                   <BookOpen className="w-3 h-3" /> Public Notebooks · {notebooks.length}
                 </p>
-                {notebooks.length === 0 && <p className="text-xs text-muted-foreground">尚未发布公开 Notebook。</p>}
+                {notebooks.length === 0 && <p className="text-xs text-muted-foreground">{t("pages.publicProfile.copy4", { defaultValue: "尚未发布公开 Notebook。" })}</p>}
                 <ul className="divide-y divide-border/40">
                   {notebooks.map((n) => (
                     <li key={n.id} className="py-2 flex items-center justify-between">

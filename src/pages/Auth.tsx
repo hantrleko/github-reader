@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { ArrowLeft, Loader2, LogIn, UserPlus } from "lucide-react";
@@ -10,10 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
 
-const schema = z.object({
-  email: z.string().email("请输入有效邮箱"),
-  password: z.string().min(6, "密码至少 6 位"),
-});
+
 
 const sanitizeRedirect = (raw: string): string => {
   try {
@@ -28,6 +26,11 @@ const sanitizeRedirect = (raw: string): string => {
 };
 
 const AuthPage = () => {
+  const { t } = useTranslation();
+  const schema = z.object({
+  email: z.string().email(t("pages.auth.copy1", { defaultValue: "请输入有效邮箱" })),
+  password: z.string().min(6, t("pages.auth.copy2", { defaultValue: "密码至少 6 位" })),
+});
   const [params] = useSearchParams();
   const navigate = useNavigate();
   const { user, loading } = useAuth();
@@ -40,14 +43,15 @@ const AuthPage = () => {
   const next = sanitizeRedirect(params.get("next") || "/");
 
   const signInWithGoogle = async () => {
+  
     setOauthBusy(true);
     const result = await lovable.auth.signInWithOAuth("google", {
       redirect_uri: `${window.location.origin}${next}`,
     });
     if (result.error) {
       toast({
-        title: "Google 登录失败",
-        description: result.error instanceof Error ? result.error.message : "请稍后重试",
+        title: t("pages.auth.copy3", { defaultValue: "Google 登录失败" }),
+        description: result.error instanceof Error ? result.error.message : t("pages.auth.copy4", { defaultValue: "请稍后重试" }),
         variant: "destructive",
       });
       setOauthBusy(false);
@@ -61,10 +65,11 @@ const AuthPage = () => {
   }, [user, loading, next, navigate]);
 
   const submit = async (e: React.FormEvent) => {
+  
     e.preventDefault();
     const parsed = schema.safeParse({ email, password });
     if (!parsed.success) {
-      toast({ title: "校验失败", description: parsed.error.issues[0].message, variant: "destructive" });
+      toast({ title: t("pages.auth.copy5", { defaultValue: "校验失败" }), description: parsed.error.issues[0].message, variant: "destructive" });
       return;
     }
     setBusy(true);
@@ -76,15 +81,15 @@ const AuthPage = () => {
           options: { emailRedirectTo: `${window.location.origin}${next}` },
         });
         if (error) throw error;
-        toast({ title: "注册成功", description: "正在为你登录..." });
+        toast({ title: t("pages.auth.copy6", { defaultValue: "注册成功" }), description: t("pages.auth.copy7", { defaultValue: "正在为你登录..." }) });
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
-        toast({ title: "已登录" });
+        toast({ title: t("pages.auth.copy8", { defaultValue: "已登录" }) });
       }
     } catch (err) {
-      const msg = err instanceof Error ? err.message : "登录失败";
-      toast({ title: "操作失败", description: msg, variant: "destructive" });
+      const msg = err instanceof Error ? err.message : t("pages.auth.copy9", { defaultValue: "登录失败" });
+      toast({ title: t("pages.auth.copy10", { defaultValue: "操作失败" }), description: msg, variant: "destructive" });
     } finally {
       setBusy(false);
     }
@@ -107,10 +112,10 @@ const AuthPage = () => {
               SECTION / ACCESS
             </p>
             <h1 className="font-display text-3xl text-foreground mb-2">
-              {mode === "sign-in" ? "欢迎回到 Lab" : "创建你的 Lab 账号"}
+              {mode === "sign-in" ? t("pages.auth.copy11", { defaultValue: "欢迎回到 Lab" }) : t("pages.auth.copy12", { defaultValue: "创建你的 Lab 账号" })}
             </h1>
             <p className="text-sm text-muted-foreground">
-              登录后你的计算历史、术语收藏、GitHub 记录将在所有设备同步。
+              {t("pages.auth.copy13", { defaultValue: "登录后你的计算历史、术语收藏、GitHub 记录将在所有设备同步。" })}
             </p>
           </div>
 
@@ -160,7 +165,7 @@ const AuthPage = () => {
                 className="mt-1 font-mono"
               />
               {mode === "sign-up" && (
-                <p className="text-[10px] text-muted-foreground mt-1 font-mono">至少 6 位</p>
+                <p className="text-[10px] text-muted-foreground mt-1 font-mono">{t("pages.auth.copy14", { defaultValue: "至少 6 位" })}</p>
               )}
             </div>
             <Button type="submit" disabled={busy} className="w-full font-mono uppercase tracking-wider">

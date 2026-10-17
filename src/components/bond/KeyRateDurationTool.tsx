@@ -1,6 +1,3 @@
-import bondI18n from "@/i18n";
-import bondEn from "../../../.lovable/tmp-i18n-r8/bond.en.json";
-import bondZh from "../../../.lovable/tmp-i18n-r8/bond.zh.json";
 import { useTranslation } from "react-i18next";
 import { useMemo, useState } from "react";
 import {
@@ -139,5 +136,3 @@ export const KeyRateDurationTool = () => {
 
 export default KeyRateDurationTool;
 // Supplemental resources for this lab; shared locale files remain unchanged.
-bondI18n.addResourceBundle("en", "translation", bondEn, true, true);
-bondI18n.addResourceBundle("zh", "translation", bondZh, true, true);

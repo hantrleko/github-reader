@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
 
@@ -7,6 +8,7 @@ import { useTheme } from "next-themes";
  * vendor-framer chunk into first-load. A tiny CSS transition does the same job.
  */
 const ThemeToggle = () => {
+  const { t } = useTranslation();
   const { theme, setTheme } = useTheme();
   const isDark = theme === "dark";
 
@@ -14,8 +16,8 @@ const ThemeToggle = () => {
     <button
       onClick={() => setTheme(isDark ? "light" : "dark")}
       className="relative p-1.5 rounded-md text-muted-foreground hover:text-gold hover:bg-accent transition-colors overflow-hidden w-7 h-7 flex items-center justify-center"
-      title={isDark ? "切换到浅色模式" : "切换到深色模式"}
-      aria-label={isDark ? "切换到浅色模式" : "切换到深色模式"}
+      title={isDark ? t("labs.themeToggle.text1", { defaultValue: "切换到浅色模式" }) : t("labs.themeToggle.text2", { defaultValue: "切换到深色模式" })}
+      aria-label={isDark ? t("labs.themeToggle.text1", { defaultValue: "切换到浅色模式" }) : t("labs.themeToggle.text2", { defaultValue: "切换到深色模式" })}
       aria-pressed={isDark}
     >
       <span

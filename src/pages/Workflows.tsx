@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import {
   ArrowLeft,
@@ -16,9 +17,9 @@ import { TOOLS_CATALOG, DIFFICULTY_LABEL } from "@/data/toolsCatalog";
 import { sectionHref } from "@/lib/sections";
 import { BUS_META, type BusKey } from "@/lib/toolBus";
 
-const toolName = (id: string) => TOOLS_CATALOG.find((t) => t.id === id)?.name ?? id;
-const toolAnchor = (id: string) => TOOLS_CATALOG.find((t) => t.id === id)?.anchor ?? "/tools";
-const toolBlurb = (id: string) => TOOLS_CATALOG.find((t) => t.id === id)?.blurb ?? "";
+const toolName = (id: string) => TOOLS_CATALOG.find((item) => item.id === id)?.name ?? id;
+const toolAnchor = (id: string) => TOOLS_CATALOG.find((item) => item.id === id)?.anchor ?? "/tools";
+const toolBlurb = (id: string) => TOOLS_CATALOG.find((item) => item.id === id)?.blurb ?? "";
 
 const BusBadge = ({ k }: { k: BusKey }) => (
   <span
@@ -30,6 +31,7 @@ const BusBadge = ({ k }: { k: BusKey }) => (
 );
 
 const WorkflowsPage = () => {
+  const { t } = useTranslation();
   const [params, setParams] = useSearchParams();
   const activeId = params.get("w");
   const active = activeId ? WORKFLOW_MAP[activeId] : undefined;
@@ -37,8 +39,8 @@ const WorkflowsPage = () => {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <Seo
-        title="研究工作流 · EF Lab"
-        description="把隐含波动率、曲面拟合、Greeks、组合优化与信用风险等工具串成可逐步走查的研究工作流剧本。"
+        title={t("pages.workflows.copy1", { defaultValue: "研究工作流 · EF Lab" })}
+        description={t("pages.workflows.copy2", { defaultValue: "把隐含波动率、曲面拟合、Greeks、组合优化与信用风险等工具串成可逐步走查的研究工作流剧本。" })}
         path="/workflows"
       />
       <Navbar />
@@ -54,14 +56,16 @@ const WorkflowsPage = () => {
   );
 };
 
-const WorkflowList = ({ onSelect }: { onSelect: (id: string) => void }) => (
+const WorkflowList = ({ onSelect }: { onSelect: (id: string) => void }) => {
+  const { t } = useTranslation();
+  return (
   <>
     <header className="mb-10">
       <Link
         to="/tools"
         className="inline-flex items-center gap-1 text-[11px] font-mono text-muted-foreground hover:text-gold transition-colors mb-6"
       >
-        <ArrowLeft className="w-3 h-3" /> 工具目录
+        <ArrowLeft className="w-3 h-3" /> {t("pages.workflows.copy3", { defaultValue: "工具目录" })}
       </Link>
       <div className="flex items-center gap-2 mb-3">
         <span className="text-[10px] font-mono text-gold tracking-[0.3em] uppercase">
@@ -70,15 +74,16 @@ const WorkflowList = ({ onSelect }: { onSelect: (id: string) => void }) => (
         <div className="flex-1 h-px bg-gradient-to-r from-gold/40 to-transparent" />
       </div>
       <h1 className="text-3xl md:text-4xl font-display text-foreground mb-3 flex items-center gap-3">
-        <WorkflowIcon className="w-7 h-7 text-gold" /> 研究工作流
+        <WorkflowIcon className="w-7 h-7 text-gold" /> {t("pages.workflows.copy4", { defaultValue: "研究工作流" })}
       </h1>
       <p className="text-sm text-muted-foreground max-w-2xl">
-        把零散工具按教学 / 实务顺序串成「剧本」，逐步走查；步骤之间用工具总线（Tool Bus）自动传递关键参数。
+        {t("pages.workflows.copy5", { defaultValue: "把零散工具按教学 / 实务顺序串成「剧本」，逐步走查；步骤之间用工具总线（Tool Bus）自动传递关键参数。" })}
       </p>
     </header>
 
     <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
       {WORKFLOWS.map((w) => {
+  
         const diff = DIFFICULTY_LABEL[w.difficulty];
         return (
           <button
@@ -110,7 +115,7 @@ const WorkflowList = ({ onSelect }: { onSelect: (id: string) => void }) => (
             </div>
             <div className="mt-4 pt-3 border-t border-border/40 flex items-center justify-between text-[10px] font-mono">
               <span className={cn("uppercase tracking-wider", diff.tone)}>{diff.zh}</span>
-              <span className="text-muted-foreground/60">{w.steps.length} 步</span>
+              <span className="text-muted-foreground/60">{w.steps.length} {t("pages.workflows.copy6", { defaultValue: "步" })}</span>
             </div>
           </button>
         );
@@ -118,8 +123,10 @@ const WorkflowList = ({ onSelect }: { onSelect: (id: string) => void }) => (
     </div>
   </>
 );
+};
 
 const WorkflowDetail = ({ workflow, onBack }: { workflow: Workflow; onBack: () => void }) => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const diff = DIFFICULTY_LABEL[workflow.difficulty];
   const start = () => navigate(sectionHref(toolAnchor(workflow.steps[0].toolId)));
@@ -130,7 +137,7 @@ const WorkflowDetail = ({ workflow, onBack }: { workflow: Workflow; onBack: () =
         onClick={onBack}
         className="inline-flex items-center gap-1 text-[11px] font-mono text-muted-foreground hover:text-gold transition-colors mb-6"
       >
-        <ArrowLeft className="w-3 h-3" /> 全部工作流
+        <ArrowLeft className="w-3 h-3" /> {t("pages.workflows.copy7", { defaultValue: "全部工作流" })}
       </button>
 
       <div className="flex items-center gap-2 mb-3">
@@ -149,7 +156,7 @@ const WorkflowDetail = ({ workflow, onBack }: { workflow: Workflow; onBack: () =
         onClick={start}
         className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors text-sm font-mono mb-10"
       >
-        <PlayCircle className="w-4 h-4" /> 从第一步开始
+        <PlayCircle className="w-4 h-4" /> {t("pages.workflows.copy8", { defaultValue: "从第一步开始" })}
       </button>
 
       <ol className="relative border-l border-border/60 ml-3 space-y-6">
@@ -165,7 +172,7 @@ const WorkflowDetail = ({ workflow, onBack }: { workflow: Workflow; onBack: () =
                   to={sectionHref(toolAnchor(step.toolId))}
                   className="inline-flex items-center gap-1 text-[11px] font-mono text-muted-foreground hover:text-gold transition-colors shrink-0"
                 >
-                  打开 <ArrowUpRight className="w-3 h-3" />
+                  {t("pages.workflows.copy9", { defaultValue: "打开" })} <ArrowUpRight className="w-3 h-3" />
                 </Link>
               </div>
               <p className="text-xs text-foreground/70 leading-relaxed mb-2">{step.note}</p>
@@ -175,11 +182,11 @@ const WorkflowDetail = ({ workflow, onBack }: { workflow: Workflow; onBack: () =
               {step.passes && step.passes.length > 0 && (
                 <div className="flex items-center gap-1.5 flex-wrap text-[10px] font-mono text-muted-foreground">
                   <ArrowRight className="w-3 h-3 text-gold/60" />
-                  <span>传递</span>
+                  <span>{t("pages.workflows.copy10", { defaultValue: "传递" })}</span>
                   {step.passes.map((k) => (
                     <BusBadge key={k} k={k} />
                   ))}
-                  <span>给下一步</span>
+                  <span>{t("pages.workflows.copy11", { defaultValue: "给下一步" })}</span>
                 </div>
               )}
             </div>

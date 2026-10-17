@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 /**
  * /gallery — public notebook gallery. Lists all `is_public` notebooks with
  * cell composition, so visitors can open / fork community work.
@@ -31,6 +32,7 @@ function cellSummary(cells: unknown): { total: number; params: number; formulas:
 }
 
 const Gallery = () => {
+  const { t } = useTranslation();
   const [items, setItems] = useState<PublicNotebook[]>([]);
   const [loading, setLoading] = useState(true);
   const [q, setQ] = useState("");
@@ -57,8 +59,8 @@ const Gallery = () => {
   return (
     <div className="min-h-screen bg-background">
       <Seo
-        title="Notebook 画廊 · EF Lab"
-        description="社区公开的反应式金融 Notebook 画廊:浏览他人分享的定价推导、回测实验与计量分析,一键 Fork 到自己的工作区继续研究。"
+        title={t("pages.gallery.copy1", { defaultValue: "Notebook 画廊 · EF Lab" })}
+        description={t("pages.gallery.copy2", { defaultValue: "社区公开的反应式金融 Notebook 画廊:浏览他人分享的定价推导、回测实验与计量分析,一键 Fork 到自己的工作区继续研究。" })}
         path="/gallery"
       />
       <Navbar />
@@ -66,8 +68,8 @@ const Gallery = () => {
         <SectionHeader
           chapter="Community"
           kicker="PUBLIC GALLERY"
-          title="Notebook 画廊"
-          subtitle="社区公开的研究笔记本 — 打开即可交互,登录后可 Fork 到自己的工作区继续修改。"
+          title={t("pages.gallery.copy3", { defaultValue: "Notebook 画廊" })}
+          subtitle={t("pages.gallery.copy4", { defaultValue: "社区公开的研究笔记本 — 打开即可交互,登录后可 Fork 到自己的工作区继续修改。" })}
         />
 
         <section className="container max-w-5xl px-6 pb-16 space-y-6">
@@ -76,28 +78,29 @@ const Gallery = () => {
             <input
               value={q}
               onChange={(e) => setQ(e.target.value)}
-              placeholder="搜索标题…"
+              placeholder={t("pages.gallery.copy5", { defaultValue: "搜索标题…" })}
               className="w-full bg-background border border-border/60 pl-9 pr-3 py-2 text-sm focus:outline-none focus:border-gold"
             />
           </div>
 
           {loading ? (
             <div className="flex items-center justify-center py-24 text-muted-foreground">
-              <Loader2 className="w-5 h-5 animate-spin mr-2" /> 加载中…
+              <Loader2 className="w-5 h-5 animate-spin mr-2" /> {t("pages.gallery.copy6", { defaultValue: "加载中…" })}
             </div>
           ) : filtered.length === 0 ? (
             <div className="border border-border/60 bg-card/40 p-10 text-center space-y-3">
               <Globe className="w-8 h-8 text-muted-foreground mx-auto" />
               <p className="text-sm text-muted-foreground">
-                {q ? "没有匹配的 Notebook" : "还没有公开的 Notebook — 在 Notebook 编辑器把开关设为 Public 即可出现在这里。"}
+                {q ? t("pages.gallery.copy7", { defaultValue: "没有匹配的 Notebook" }) : t("pages.gallery.copy8", { defaultValue: "还没有公开的 Notebook — 在 Notebook 编辑器把开关设为 Public 即可出现在这里。" })}
               </p>
               <Link to="/notebook" className="inline-flex items-center gap-1 text-gold text-xs font-mono underline">
-                <NotebookPen className="w-3.5 h-3.5" /> 去创建我的 Notebook
+                <NotebookPen className="w-3.5 h-3.5" /> {t("pages.gallery.copy9", { defaultValue: "去创建我的 Notebook" })}
               </Link>
             </div>
           ) : (
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {filtered.map((n) => {
+  
                 const s = cellSummary(n.cells);
                 return (
                   <Link
@@ -115,13 +118,13 @@ const Gallery = () => {
                       <Globe className="w-3.5 h-3.5 text-emerald-400 shrink-0 mt-1" />
                     </div>
                     <div className="flex flex-wrap gap-2 text-[10px] font-mono text-muted-foreground">
-                      <span className="inline-flex items-center gap-1"><SlidersHorizontal className="w-3 h-3" />{s.params} 参数</span>
-                      <span className="inline-flex items-center gap-1"><Sigma className="w-3 h-3" />{s.formulas} 公式</span>
-                      <span className="inline-flex items-center gap-1"><BarChart3 className="w-3 h-3" />{s.charts} 图表</span>
-                      <span className="inline-flex items-center gap-1"><Code2 className="w-3 h-3" />{s.code} 代码</span>
+                      <span className="inline-flex items-center gap-1"><SlidersHorizontal className="w-3 h-3" />{s.params} {t("pages.gallery.copy10", { defaultValue: "参数" })}</span>
+                      <span className="inline-flex items-center gap-1"><Sigma className="w-3 h-3" />{s.formulas} {t("pages.gallery.copy11", { defaultValue: "公式" })}</span>
+                      <span className="inline-flex items-center gap-1"><BarChart3 className="w-3 h-3" />{s.charts} {t("pages.gallery.copy12", { defaultValue: "图表" })}</span>
+                      <span className="inline-flex items-center gap-1"><Code2 className="w-3 h-3" />{s.code} {t("pages.gallery.copy13", { defaultValue: "代码" })}</span>
                     </div>
                     <p className="mt-auto text-[10px] font-mono text-muted-foreground">
-                      {s.total} cells · 更新于 {new Date(n.updated_at).toLocaleDateString()}
+                      {s.total} {t("pages.gallery.copy14", { defaultValue: "cells · 更新于" })} {new Date(n.updated_at).toLocaleDateString()}
                     </p>
                   </Link>
                 );

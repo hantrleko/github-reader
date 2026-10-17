@@ -1,3 +1,4 @@
+import type { TFunction } from "i18next";
 import { useRef, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { useToolTab } from "@/lib/useToolTab";
@@ -12,42 +13,47 @@ import {
 
 type ToolId = "supply-demand" | "consumer" | "producer" | "market-structure" | "info";
 
+const getTOOLS = (t: TFunction) => {
 const TOOLS: { id: ToolId; name: string; shortEn: string; nameEn: string; formula: string; component: React.FC }[] = [
   {
-    id: "supply-demand", name: "供需均衡", shortEn: "Supply & Demand", nameEn: "Supply & Demand — Equilibrium, Tax Incidence & Deadweight Loss",
+    id: "supply-demand", name: t("labs.micro.ui.text1", { defaultValue: "供需均衡" }), shortEn: "Supply & Demand", nameEn: "Supply & Demand — Equilibrium, Tax Incidence & Deadweight Loss",
     formula: String.raw`Q_d(P^{*}) = Q_s(P^{*}) \;\Rightarrow\; P^{*} = \dfrac{a-c}{b+d},\qquad \mathrm{DWL} = \tfrac{1}{2}\,t\,\Delta Q`,
     component: SupplyDemandTool,
   },
   {
-    id: "consumer", name: "消费者选择", shortEn: "Consumer Choice", nameEn: "Consumer Choice — Cobb-Douglas Utility & Slutsky Decomposition",
+    id: "consumer", name: t("labs.micro.ui.text2", { defaultValue: "消费者选择" }), shortEn: "Consumer Choice", nameEn: "Consumer Choice — Cobb-Douglas Utility & Slutsky Decomposition",
     formula: String.raw`\max_{x,y} \; x^{\alpha} y^{1-\alpha}\;\;\text{s.t.}\;\; P_x x + P_y y = I,\qquad \mathrm{MRS} = \dfrac{MU_x}{MU_y} = \dfrac{P_x}{P_y}`,
     component: ConsumerChoiceTool,
   },
   {
-    id: "producer", name: "生产者理论", shortEn: "Producer Theory", nameEn: "Producer Theory — Isoquant / Isocost & Short-run Cost Curves",
+    id: "producer", name: t("labs.micro.ui.text3", { defaultValue: "生产者理论" }), shortEn: "Producer Theory", nameEn: "Producer Theory — Isoquant / Isocost & Short-run Cost Curves",
     formula: String.raw`\min_{K,L} \; wL + rK \;\;\text{s.t.}\;\; K^{\alpha} L^{1-\alpha} = q_0,\qquad \dfrac{MP_L}{MP_K} = \dfrac{w}{r}`,
     component: ProducerTheoryTool,
   },
   {
-    id: "market-structure", name: "市场结构博弈", shortEn: "Market Structure", nameEn: "Market Structure — Cournot / Bertrand / Stackelberg / Monopoly",
+    id: "market-structure", name: t("labs.micro.ui.text4", { defaultValue: "市场结构博弈" }), shortEn: "Market Structure", nameEn: "Market Structure — Cournot / Bertrand / Stackelberg / Monopoly",
     formula: String.raw`P = A - B\,Q,\;\; MC = c:\quad Q^{\text{mono}} = \tfrac{A-c}{2B},\;\; Q^{\text{cournot}}_n = \tfrac{n(A-c)}{(n+1)B},\;\; P^{\text{bertrand}} = c`,
     component: MarketStructureTool,
   },
   {
-    id: "info", name: "信息经济学", shortEn: "Information Economics", nameEn: "Information Economics — Akerlof Lemons, Moral Hazard & Signaling",
-    formula: String.raw`\text{买方愿付} = k\cdot\mathbb{E}[q\mid q\le P] = \tfrac{k}{2}P;\quad \text{市场存活} \iff k \ge 2`,
+    id: "info", name: t("labs.micro.ui.text5", { defaultValue: "信息经济学" }), shortEn: "Information Economics", nameEn: "Information Economics — Akerlof Lemons, Moral Hazard & Signaling",
+    formula: t("labs.micro.ui.text6", { defaultValue: String.raw`\text{买方愿付} = k\cdot\mathbb{E}[q\mid q\le P] = \tfrac{k}{2}P;\quad \text{市场存活} \iff k \ge 2` }),
     component: InfoEconomicsTool,
   },
 ];
+return TOOLS;
+};
 
 const MicroTools = () => {
   const { t, i18n } = useTranslation();
+  const TOOLS = getTOOLS(t);
+  
   const en = i18n.language?.startsWith("en");
   const [tool, setTool] = useToolTab<ToolId>(TOOLS.map((x) => x.id), "supply-demand");
   const captureRef = useRef<HTMLDivElement>(null);
   const apply = useCallback((s: { tool: ToolId }) => { if (s?.tool) setTool(s.tool); }, []);
   useSharedState<{ tool: ToolId }>("micro", apply);
-  const Active = TOOLS.find(t => t.id === tool)!;
+  const Active = TOOLS.find(timeIndex => timeIndex.id === tool)!;
 
   return (
     <section className="py-24 px-6 relative">

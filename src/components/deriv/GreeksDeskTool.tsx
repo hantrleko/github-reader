@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useState, useMemo } from "react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, ReferenceLine } from "recharts";
 import PresetButtons from "../PresetButtons";
@@ -64,6 +65,7 @@ function bsGreeks(S: number, K: number, r: number, q: number, sigma: number, T: 
 }
 
 export const GreeksDeskTool = () => {
+  const { t } = useTranslation();
   const [S, setS] = useState(100);
   const [K, setK] = useState(100);
   const [r, setR] = useState(0.03);
@@ -122,21 +124,21 @@ export const GreeksDeskTool = () => {
         />
       </div>
       <PresetButtons presets={[
-        { name: "ATM 看涨", description: "标准 ATM 教学", apply: () => { setS(100); setK(100); setSigma(0.2); setT(0.5); setType("call"); } },
-        { name: "深虚值 put", description: "Δ→0, Γ→0", apply: () => { setS(100); setK(70); setType("put"); } },
-        { name: "短期 ATM", description: "Γ/Θ 极大", apply: () => { setT(0.05); setS(100); setK(100); setSigma(0.3); } },
-        { name: "高波动率", description: "Vega 主导", apply: () => { setSigma(0.6); setS(100); setK(100); setT(1); } },
+        { name: t("labs.deriv.GreeksDesk.text331", { defaultValue: "ATM 看涨" }), description: t("labs.deriv.GreeksDesk.text332", { defaultValue: "标准 ATM 教学" }), apply: () => { setS(100); setK(100); setSigma(0.2); setT(0.5); setType("call"); } },
+        { name: t("labs.deriv.GreeksDesk.text333", { defaultValue: "深虚值 put" }), description: "Δ→0, Γ→0", apply: () => { setS(100); setK(70); setType("put"); } },
+        { name: t("labs.deriv.GreeksDesk.text334", { defaultValue: "短期 ATM" }), description: t("labs.deriv.GreeksDesk.text335", { defaultValue: "Γ/Θ 极大" }), apply: () => { setT(0.05); setS(100); setK(100); setSigma(0.3); } },
+        { name: t("labs.deriv.GreeksDesk.text336", { defaultValue: "高波动率" }), description: t("labs.deriv.GreeksDesk.text337", { defaultValue: "Vega 主导" }), apply: () => { setSigma(0.6); setS(100); setK(100); setT(1); } },
       ]} />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="space-y-3">
           <div className="grid grid-cols-2 gap-3">
-            <Slider label="S (现价)" value={S} min={50} max={200} step={1} onChange={setS} />
-            <Slider label="K (执行价)" value={K} min={50} max={200} step={1} onChange={setK} />
-            <Slider label="σ (年化)" value={sigma} min={0.05} max={1} step={0.01} onChange={setSigma} />
-            <Slider label="T (年)" value={T} min={0.02} max={3} step={0.02} onChange={setT} />
+            <Slider label={t("labs.deriv.GreeksDesk.text281", { defaultValue: "S (现价)" })} value={S} min={50} max={200} step={1} onChange={setS} />
+            <Slider label={t("labs.deriv.GreeksDesk.text338", { defaultValue: "K (执行价)" })} value={K} min={50} max={200} step={1} onChange={setK} />
+            <Slider label={t("labs.deriv.GreeksDesk.text339", { defaultValue: "σ (年化)" })} value={sigma} min={0.05} max={1} step={0.01} onChange={setSigma} />
+            <Slider label={t("labs.deriv.GreeksDesk.text038", { defaultValue: "T (年)" })} value={T} min={0.02} max={3} step={0.02} onChange={setT} />
             <Slider label="r" value={r} min={0} max={0.1} step={0.005} onChange={setR} />
-            <Slider label="q (股息率)" value={q} min={0} max={0.08} step={0.005} onChange={setQ} />
+            <Slider label={t("labs.deriv.GreeksDesk.text340", { defaultValue: "q (股息率)" })} value={q} min={0} max={0.08} step={0.005} onChange={setQ} />
           </div>
           <div className="flex gap-2">
             {(["call", "put"] as const).map(s => (
@@ -147,21 +149,21 @@ export const GreeksDeskTool = () => {
             ))}
           </div>
           <div className="flex gap-2">
-            <span className="text-[10px] font-mono text-muted-foreground self-center uppercase tracking-wider">扫描:</span>
+            <span className="text-[10px] font-mono text-muted-foreground self-center uppercase tracking-wider">{t("labs.deriv.GreeksDesk.text341", { defaultValue: "扫描:" })}</span>
             {(["S", "T"] as const).map(s => (
               <button key={s} onClick={() => setScan(s)}
                 className={`px-3 py-1.5 text-xs font-mono rounded-md border transition-all ${scan === s ? "bg-gold/20 border-gold text-gold" : "bg-secondary/50 border-border text-muted-foreground hover:text-foreground"}`}>
-                {s === "S" ? "标的价格 S" : "到期时间 T"}
+                {s === "S" ? t("labs.deriv.GreeksDesk.text342", { defaultValue: "标的价格 S" }) : t("labs.deriv.GreeksDesk.text343", { defaultValue: "到期时间 T" })}
               </button>
             ))}
           </div>
         </div>
         <div className="grid grid-cols-3 gap-2">
-          <Tile name="价格" value={greeks.price.toFixed(3)} />
+          <Tile name={t("labs.deriv.GreeksDesk.text344", { defaultValue: "价格" })} value={greeks.price.toFixed(3)} />
           <Tile name="Δ Delta" value={greeks.delta.toFixed(4)} sub="∂V/∂S" color={CHART_TEAL} />
           <Tile name="Γ Gamma" value={greeks.gamma.toFixed(5)} sub="∂²V/∂S²" color={CHART_BLUE} />
           <Tile name="Vega (×1%)" value={greeks.vega.toFixed(4)} sub="∂V/∂σ" color={CHART_GOLD} />
-          <Tile name="Θ Theta /日" value={greeks.theta.toFixed(5)} sub="−∂V/∂T" color={CHART_RED} />
+          <Tile name={t("labs.deriv.GreeksDesk.text345", { defaultValue: "Θ Theta /日" })} value={greeks.theta.toFixed(5)} sub="−∂V/∂T" color={CHART_RED} />
           <Tile name="ρ Rho (×1%)" value={greeks.rho.toFixed(4)} sub="∂V/∂r" color={CHART_TEAL} />
           <Tile name="Vanna" value={greeks.vanna.toFixed(5)} sub="∂Δ/∂σ" color={CHART_BLUE} />
           <Tile name="Volga" value={greeks.volga.toFixed(5)} sub="∂Vega/∂σ" color={CHART_BLUE} />
@@ -171,8 +173,7 @@ export const GreeksDeskTool = () => {
 
       <div className="rounded-xl border border-border bg-secondary/20 p-4">
         <h4 className="text-sm font-semibold text-foreground mb-2">
-          Greeks 剖面 — 沿 {scan === "S" ? "标的价格 S" : "到期时间 T"} 扫描
-        </h4>
+          {t("labs.deriv.GreeksDesk.text346", { defaultValue: "Greeks 剖面 — 沿 " })}{scan === "S" ? t("labs.deriv.GreeksDesk.text342", { defaultValue: "标的价格 S" }) : t("labs.deriv.GreeksDesk.text343", { defaultValue: "到期时间 T" })} {t("labs.deriv.GreeksDesk.text347", { defaultValue: "扫描\n        " })}</h4>
         <div className="h-[300px]">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={profile}>
@@ -186,14 +187,13 @@ export const GreeksDeskTool = () => {
               <Line yAxisId="left" type="monotone" dataKey="gamma" name="Γ ×100" stroke={CHART_BLUE} strokeWidth={2} dot={false}
                 strokeDasharray="3 3" />
               <Line yAxisId="left" type="monotone" dataKey="vega" name="Vega ×1%" stroke={CHART_GOLD} strokeWidth={2} dot={false} />
-              <Line yAxisId="right" type="monotone" dataKey="theta" name="Θ /日" stroke={CHART_RED} strokeWidth={2} dot={false} />
+              <Line yAxisId="right" type="monotone" dataKey="theta" name={t("labs.deriv.GreeksDesk.text348", { defaultValue: "Θ /日" })} stroke={CHART_RED} strokeWidth={2} dot={false} />
               {scan === "S" && <ReferenceLine yAxisId="left" x={K} stroke={CHART_RED} strokeDasharray="3 3" label={{ value: "K", fill: CHART_RED, fontSize: 10 }} />}
             </LineChart>
           </ResponsiveContainer>
         </div>
         <p className="text-[10px] font-mono text-muted-foreground mt-2 leading-relaxed">
-          Δ = e<sup>−qT</sup>·N(d₁)，Γ = e<sup>−qT</sup>·n(d₁)/(Sσ√T)，Vega = S·e<sup>−qT</sup>·n(d₁)·√T。Vanna = −e<sup>−qT</sup>·n(d₁)·d₂/σ 用于波动率倾斜对 Δ-hedge 的二阶冲击；Volga = Vega·d₁d₂/σ 度量 Vega 自身的"曲率"。
-        </p>
+          Δ = e<sup>−qT</sup>·N(d₁)，Γ = e<sup>−qT</sup>·n(d₁)/(Sσ√T)，Vega = S·e<sup>−qT</sup>·n(d₁)·√T。Vanna = −e<sup>−qT</sup>{t("labs.deriv.GreeksDesk.text349", { defaultValue: "·n(d₁)·d₂/σ 用于波动率倾斜对 Δ-hedge 的二阶冲击；Volga = Vega·d₁d₂/σ 度量 Vega 自身的\"曲率\"。\n        " })}</p>
       </div>
     </div>
   );

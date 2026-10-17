@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useState, useMemo, useCallback } from "react";
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -79,6 +80,7 @@ function sabrIV(F: number, K: number, T: number, alpha: number, beta: number, rh
 }
 
 export const SABRTool = () => {
+  const { t } = useTranslation();
   const [F, setF] = useState(100);
   const [T, setT] = useState(1.0);
   const [alpha, setAlpha] = useState(0.20);
@@ -102,7 +104,7 @@ export const SABRTool = () => {
       return { K: a, ivMkt: b / 100 };
     }).filter(q => isFinite(q.K) && isFinite(q.ivMkt) && q.K > 0 && q.ivMkt > 0);
     if (quotes.length < 3) {
-      setCalibStatus("至少需要 3 个有效报价 (K, IV%)");
+      setCalibStatus(t("labs.deriv.SABR.text230", { defaultValue: "至少需要 3 个有效报价 (K, IV%)" }));
       return;
     }
 
@@ -218,7 +220,7 @@ export const SABRTool = () => {
       }
     }
 
-    if (!best) { setCalibStatus("标定失败"); return; }
+    if (!best) { setCalibStatus(t("labs.deriv.SABR.text231", { defaultValue: "标定失败" })); return; }
     const [aFit, bFit, rFit, nFit] = best.x;
     setAlpha(+aFit.toFixed(4));
     setBeta(+bFit.toFixed(3));
@@ -232,8 +234,8 @@ export const SABRTool = () => {
     const rmse = Math.sqrt(best.f / quotes.length) * 100;
     setCalibFitted(fitted);
     setCalibRMSE(+rmse.toFixed(4));
-    setCalibStatus(`✓ 标定完成 · ${quotes.length} 个报价 · RMSE=${rmse.toFixed(3)}%`);
-  }, [F, T, alpha, beta, rho, nu, quoteText, calibFixBeta]);
+    setCalibStatus(t("labs.deriv.SABR.text232", { defaultValue: "✓ 标定完成 · {{value0}} 个报价 · RMSE={{value1}}%", value0: quotes.length, value1: rmse.toFixed(3) }));
+  }, [F, T, alpha, beta, rho, nu, quoteText, calibFixBeta, t]);
 
   const smile = useMemo(() => {
     const out: { k: number; iv: number; betaHi: number; betaLo: number }[] = [];
@@ -263,45 +265,45 @@ export const SABRTool = () => {
   return (
     <div className="space-y-6">
       <PresetButtons presets={[
-        { name: "股指 (β=0.5, ρ<0)", description: "经典左偏 skew", apply: () => { setAlpha(0.20); setBeta(0.5); setRho(-0.5); setNu(0.6); } },
-        { name: "FX 对称微笑", description: "ρ=0,凸性主导", apply: () => { setAlpha(0.12); setBeta(1.0); setRho(0); setNu(0.7); } },
-        { name: "利率 (β=0)", description: "Normal SABR,LIBOR 市场", apply: () => { setAlpha(0.015); setBeta(0); setRho(-0.2); setNu(0.4); setF(0.03); } },
-        { name: "Hagan 论文示例", description: "原始 2002 标定", apply: () => { setAlpha(0.20); setBeta(0.5); setRho(-0.3); setNu(0.4); setF(100); setT(1); } },
+        { name: t("labs.deriv.SABR.text233", { defaultValue: "股指 (β=0.5, ρ<0)" }), description: t("labs.deriv.SABR.text234", { defaultValue: "经典左偏 skew" }), apply: () => { setAlpha(0.20); setBeta(0.5); setRho(-0.5); setNu(0.6); } },
+        { name: t("labs.deriv.SABR.text235", { defaultValue: "FX 对称微笑" }), description: t("labs.deriv.SABR.text236", { defaultValue: "ρ=0,凸性主导" }), apply: () => { setAlpha(0.12); setBeta(1.0); setRho(0); setNu(0.7); } },
+        { name: t("labs.deriv.SABR.text237", { defaultValue: "利率 (β=0)" }), description: t("labs.deriv.SABR.text238", { defaultValue: "Normal SABR,LIBOR 市场" }), apply: () => { setAlpha(0.015); setBeta(0); setRho(-0.2); setNu(0.4); setF(0.03); } },
+        { name: t("labs.deriv.SABR.text239", { defaultValue: "Hagan 论文示例" }), description: t("labs.deriv.SABR.text240", { defaultValue: "原始 2002 标定" }), apply: () => { setAlpha(0.20); setBeta(0.5); setRho(-0.3); setNu(0.4); setF(100); setT(1); } },
       ]} />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="space-y-3">
-          <p className="text-xs font-mono text-gold uppercase tracking-wider">市场参数</p>
+          <p className="text-xs font-mono text-gold uppercase tracking-wider">{t("labs.deriv.SABR.text241", { defaultValue: "市场参数" })}</p>
           <div className="grid grid-cols-2 gap-3">
-            <Slider label="F (远期)" value={F} min={0.01} max={200} step={0.01} onChange={setF} />
-            <Slider label="T (年)" value={T} min={0.1} max={5} step={0.1} onChange={setT} />
+            <Slider label={t("labs.deriv.SABR.text242", { defaultValue: "F (远期)" })} value={F} min={0.01} max={200} step={0.01} onChange={setF} />
+            <Slider label={t("labs.deriv.SABR.text038", { defaultValue: "T (年)" })} value={T} min={0.1} max={5} step={0.1} onChange={setT} />
           </div>
-          <p className="text-xs font-mono text-gold uppercase tracking-wider mt-4">SABR 四参数</p>
-          <Slider label="α (初始波动)" sub="决定整体水平" value={alpha} min={0.01} max={1.0} step={0.01} onChange={setAlpha} />
-          <Slider label="β (CEV 弹性)" sub="0=normal, 1=lognormal" value={beta} min={0} max={1} step={0.05} onChange={setBeta} />
-          <Slider label="ρ (相关系数)" sub="决定 skew 方向" value={rho} min={-0.95} max={0.95} step={0.05} onChange={setRho} />
-          <Slider label="ν (vol-of-vol)" sub="决定 smile 凸度" value={nu} min={0.05} max={2.0} step={0.05} onChange={setNu} />
+          <p className="text-xs font-mono text-gold uppercase tracking-wider mt-4">{t("labs.deriv.SABR.text243", { defaultValue: "SABR 四参数" })}</p>
+          <Slider label={t("labs.deriv.SABR.text244", { defaultValue: "α (初始波动)" })} sub={t("labs.deriv.SABR.text245", { defaultValue: "决定整体水平" })} value={alpha} min={0.01} max={1.0} step={0.01} onChange={setAlpha} />
+          <Slider label={t("labs.deriv.SABR.text246", { defaultValue: "β (CEV 弹性)" })} sub="0=normal, 1=lognormal" value={beta} min={0} max={1} step={0.05} onChange={setBeta} />
+          <Slider label={t("labs.deriv.SABR.text247", { defaultValue: "ρ (相关系数)" })} sub={t("labs.deriv.SABR.text248", { defaultValue: "决定 skew 方向" })} value={rho} min={-0.95} max={0.95} step={0.05} onChange={setRho} />
+          <Slider label="ν (vol-of-vol)" sub={t("labs.deriv.SABR.text249", { defaultValue: "决定 smile 凸度" })} value={nu} min={0.05} max={2.0} step={0.05} onChange={setNu} />
         </div>
 
         <div className="space-y-3">
           <div className="grid grid-cols-2 gap-2">
             <Stat label="ATM IV (Hagan)" value={`${(atm * 100).toFixed(2)}%`} />
             <Stat label="25Δ Risk Reversal" value={`${skew25.toFixed(2)}%`} color={skew25 >= 0 ? CHART_RED : CHART_TEAL}
-              sub={skew25 >= 0 ? "OTM put 更贵 (左偏)" : "OTM call 更贵 (右偏)"} />
+              sub={skew25 >= 0 ? t("labs.deriv.SABR.text250", { defaultValue: "OTM put 更贵 (左偏)" }) : t("labs.deriv.SABR.text251", { defaultValue: "OTM call 更贵 (右偏)" })} />
             <Stat label="β" value={beta.toFixed(2)} sub={beta < 0.05 ? "Normal SABR" : beta > 0.95 ? "Lognormal" : "CEV"} />
-            <Stat label="ν / α 比" value={(nu / Math.max(alpha, 1e-6)).toFixed(2)} sub="vol-of-vol 相对强度" />
+            <Stat label={t("labs.deriv.SABR.text252", { defaultValue: "ν / α 比" })} value={(nu / Math.max(alpha, 1e-6)).toFixed(2)} sub={t("labs.deriv.SABR.text253", { defaultValue: "vol-of-vol 相对强度" })} />
           </div>
           <div className="text-xs font-mono text-muted-foreground p-3 rounded-lg bg-secondary/40 border border-border leading-relaxed">
-            <p><span className="text-gold">SABR (Hagan et al. 2002)：</span>IR/Swaption 行业标准的随机波动率模型。</p>
-            <p><span className="text-gold">β：</span>控制后向远期分布形状 — β=0 高斯、β=1 对数正态、β=0.5 CIR-like。</p>
-            <p><span className="text-gold">ρ：</span>决定 skew 倾斜方向，<span className="text-gold">ν：</span>决定 smile 曲度。</p>
-            <p>对比 Heston: SABR 是<u>解析近似</u>(无 MC)，更适合即时 smile 标定与对冲。</p>
+            <p><span className="text-gold">SABR (Hagan et al. 2002)：</span>{t("labs.deriv.SABR.text254", { defaultValue: "IR/Swaption 行业标准的随机波动率模型。" })}</p>
+            <p><span className="text-gold">β：</span>{t("labs.deriv.SABR.text255", { defaultValue: "控制后向远期分布形状 — β=0 高斯、β=1 对数正态、β=0.5 CIR-like。" })}</p>
+            <p><span className="text-gold">ρ：</span>{t("labs.deriv.SABR.text256", { defaultValue: "决定 skew 倾斜方向，" })}<span className="text-gold">ν：</span>{t("labs.deriv.SABR.text257", { defaultValue: "决定 smile 曲度。" })}</p>
+            <p>{t("labs.deriv.SABR.text258", { defaultValue: "对比 Heston: SABR 是" })}<u>{t("labs.deriv.SABR.text259", { defaultValue: "解析近似" })}</u>{t("labs.deriv.SABR.text260", { defaultValue: "(无 MC)，更适合即时 smile 标定与对冲。" })}</p>
           </div>
         </div>
       </div>
 
       <div className="rounded-xl border border-border bg-secondary/20 p-4">
-        <h4 className="text-sm font-semibold text-foreground mb-2">SABR 隐含波动率微笑 — β 敏感性对比</h4>
+        <h4 className="text-sm font-semibold text-foreground mb-2">{t("labs.deriv.SABR.text261", { defaultValue: "SABR 隐含波动率微笑 — β 敏感性对比" })}</h4>
         <div className="h-[320px]">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={smile}>
@@ -320,38 +322,35 @@ export const SABRTool = () => {
           </ResponsiveContainer>
         </div>
         <p className="text-[10px] font-mono text-muted-foreground mt-2 leading-relaxed">
-          Hagan 公式：σ<sub>B</sub>(K,F) = (α / D) · (z/x(z)) · [1 + ((1-β)²α²/24·(FK)<sup>1-β</sup> + ρβνα/(4(FK)<sup>(1-β)/2</sup>) + (2-3ρ²)ν²/24)·T]
-          其中 z = (ν/α)(FK)<sup>(1-β)/2</sup>·ln(F/K)，x(z) = ln((√(1-2ρz+z²)+z-ρ)/(1-ρ)).
+          {t("labs.deriv.SABR.text262", { defaultValue: "Hagan 公式：σ" })}<sub>B</sub>(K,F) = (α / D) · (z/x(z)) · [1 + ((1-β)²α²/24·(FK)<sup>1-β</sup> + ρβνα/(4(FK)<sup>(1-β)/2</sup>{t("labs.deriv.SABR.text263", { defaultValue: ") + (2-3ρ²)ν²/24)·T]\n          其中 z = (ν/α)(FK)" })}<sup>(1-β)/2</sup>·ln(F/K)，x(z) = ln((√(1-2ρz+z²)+z-ρ)/(1-ρ)).
         </p>
       </div>
 
       {/* 市场报价标定 */}
       <div className="rounded-xl border border-gold/30 bg-secondary/20 p-4 space-y-3">
         <div className="flex items-baseline justify-between flex-wrap gap-2">
-          <h4 className="text-sm font-semibold text-foreground">市场报价标定 (Calibration)</h4>
-          <span className="text-[10px] font-mono text-muted-foreground">Nelder-Mead 多起点最优化 · 损失=SSE(σ<sub>B</sub>−σ<sub>mkt</sub>)</span>
+          <h4 className="text-sm font-semibold text-foreground">{t("labs.deriv.SABR.text264", { defaultValue: "市场报价标定 (Calibration)" })}</h4>
+          <span className="text-[10px] font-mono text-muted-foreground">{t("labs.deriv.SABR.text265", { defaultValue: "Nelder-Mead 多起点最优化 · 损失=SSE(σ" })}<sub>B</sub>−σ<sub>mkt</sub>)</span>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           <div>
-            <label className="text-[11px] font-mono text-gold uppercase tracking-wider">市场报价 (每行: K, IV%)</label>
+            <label className="text-[11px] font-mono text-gold uppercase tracking-wider">{t("labs.deriv.SABR.text266", { defaultValue: "市场报价 (每行: K, IV%)" })}</label>
             <textarea value={quoteText} onChange={(e) => setQuoteText(e.target.value)} rows={8}
               className="w-full mt-1 px-3 py-2 text-xs font-mono bg-background border border-border rounded focus:border-gold/60 outline-none" />
             <div className="flex items-center gap-3 mt-2">
               <label className="flex items-center gap-1.5 text-[11px] text-secondary-foreground cursor-pointer">
                 <input type="checkbox" checked={calibFixBeta} onChange={(e) => setCalibFixBeta(e.target.checked)} className="accent-gold" />
-                固定 β = {beta.toFixed(2)} (仅标定 α, ρ, ν)
-              </label>
+                {t("labs.deriv.SABR.text267", { defaultValue: "固定 β = " })}{beta.toFixed(2)} {t("labs.deriv.SABR.text268", { defaultValue: "(仅标定 α, ρ, ν)\n              " })}</label>
               <button onClick={runCalibration}
                 className="ml-auto px-4 py-1.5 rounded bg-gold text-background text-xs font-mono hover:bg-gold/90 transition-colors">
-                运行标定
-              </button>
+                {t("labs.deriv.SABR.text269", { defaultValue: "运行标定\n              " })}</button>
             </div>
             {calibStatus && (
               <p className={`mt-2 text-[11px] font-mono ${calibStatus.startsWith("✓") ? "text-gold" : "text-destructive"}`}>{calibStatus}</p>
             )}
           </div>
           <div>
-            <label className="text-[11px] font-mono text-gold uppercase tracking-wider">拟合结果 (市场 vs 模型)</label>
+            <label className="text-[11px] font-mono text-gold uppercase tracking-wider">{t("labs.deriv.SABR.text270", { defaultValue: "拟合结果 (市场 vs 模型)" })}</label>
             <div className="h-[200px] mt-1">
               <ResponsiveContainer width="100%" height="100%">
                 <ScatterChart>
@@ -362,8 +361,8 @@ export const SABRTool = () => {
                     label={{ value: "IV %", angle: -90, position: "insideLeft", fill: CHART_TEXT, fontSize: 10 }} />
                   <Tooltip contentStyle={{ background: "hsl(var(--card))", border: `1px solid ${CHART_GRID}`, fontSize: 11 }} />
                   <Legend wrapperStyle={{ fontSize: 10 }} />
-                  <Scatter name="市场" data={calibFitted} dataKey="mkt" fill={CHART_RED} />
-                  <Scatter name="SABR 拟合" data={calibFitted} dataKey="mdl" fill={CHART_GOLD} shape="cross" />
+                  <Scatter name={t("labs.deriv.SABR.text271", { defaultValue: "市场" })} data={calibFitted} dataKey="mkt" fill={CHART_RED} />
+                  <Scatter name={t("labs.deriv.SABR.text272", { defaultValue: "SABR 拟合" })} data={calibFitted} dataKey="mdl" fill={CHART_GOLD} shape="cross" />
                 </ScatterChart>
               </ResponsiveContainer>
             </div>

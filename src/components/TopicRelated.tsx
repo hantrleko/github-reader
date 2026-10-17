@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import { BookMarked, Library, Route, TrendingUp, ArrowUpRight } from "lucide-react";
 import { TOPIC_CONNECTIONS } from "@/data/topicConnections";
@@ -17,6 +18,7 @@ const strategiesBySlug = Object.fromEntries(STRATEGIES.map((s) => [s.slug, s]));
  * and related strategies, each deep-linking into its own page.
  */
 const TopicRelated = ({ topicId }: { topicId: string }) => {
+  const { t } = useTranslation();
   const conn = TOPIC_CONNECTIONS[topicId];
   if (!conn) return null;
 
@@ -28,19 +30,19 @@ const TopicRelated = ({ topicId }: { topicId: string }) => {
   if (!glossary.length && !papers.length && !workflows.length && !strategies.length) return null;
 
   return (
-    <section className="px-6 pb-16" aria-label="延伸阅读">
+    <section className="px-6 pb-16" aria-label={t("labs.topicRelated.text1", { defaultValue: "延伸阅读" })}>
       <div className="container max-w-6xl">
         <div className="rounded-2xl border border-border/60 bg-card/35 p-6 md:p-8">
           <p className="text-[10px] font-mono uppercase tracking-[0.3em] text-gold mb-1">
             Knowledge Network
           </p>
-          <h2 className="font-display text-2xl text-foreground mb-6">延伸阅读 · 关联内容</h2>
+          <h2 className="font-display text-2xl text-foreground mb-6">{t("labs.topicRelated.text2", { defaultValue: "延伸阅读 · 关联内容" })}</h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {glossary.length > 0 && (
               <div>
                 <p className="flex items-center gap-1.5 text-xs font-mono text-muted-foreground uppercase tracking-wider mb-3">
-                  <BookMarked className="w-3.5 h-3.5 text-gold" /> 核心术语
+                  <BookMarked className="w-3.5 h-3.5 text-gold" /> {t("labs.topicRelated.text3", { defaultValue: "核心术语" })}
                 </p>
                 <div className="flex flex-wrap gap-2">
                   {glossary.map((g) => (
@@ -59,7 +61,7 @@ const TopicRelated = ({ topicId }: { topicId: string }) => {
             {workflows.length > 0 && (
               <div>
                 <p className="flex items-center gap-1.5 text-xs font-mono text-muted-foreground uppercase tracking-wider mb-3">
-                  <Route className="w-3.5 h-3.5 text-gold" /> 研究工作流
+                  <Route className="w-3.5 h-3.5 text-gold" /> {t("labs.topicRelated.text4", { defaultValue: "研究工作流" })}
                 </p>
                 <div className="space-y-2">
                   {workflows.map((w) => (
@@ -81,7 +83,7 @@ const TopicRelated = ({ topicId }: { topicId: string }) => {
             {papers.length > 0 && (
               <div className={strategies.length === 0 ? "md:col-span-2" : ""}>
                 <p className="flex items-center gap-1.5 text-xs font-mono text-muted-foreground uppercase tracking-wider mb-3">
-                  <Library className="w-3.5 h-3.5 text-gold" /> 奠基文献
+                  <Library className="w-3.5 h-3.5 text-gold" /> {t("labs.topicRelated.text5", { defaultValue: "奠基文献" })}
                 </p>
                 <ul className="space-y-1.5">
                   {papers.slice(0, 6).map((p) => (
@@ -106,7 +108,7 @@ const TopicRelated = ({ topicId }: { topicId: string }) => {
             {strategies.length > 0 && (
               <div>
                 <p className="flex items-center gap-1.5 text-xs font-mono text-muted-foreground uppercase tracking-wider mb-3">
-                  <TrendingUp className="w-3.5 h-3.5 text-gold" /> 相关策略
+                  <TrendingUp className="w-3.5 h-3.5 text-gold" /> {t("labs.topicRelated.text6", { defaultValue: "相关策略" })}
                 </p>
                 <div className="space-y-2">
                   {strategies.slice(0, 4).map((s) => (

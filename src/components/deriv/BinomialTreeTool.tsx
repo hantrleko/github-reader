@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useMemo, useState } from "react";
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -42,6 +43,7 @@ function crrPrice(opts: {
 }
 
 export const BinomialTreeTool = () => {
+  const { t } = useTranslation();
   const [S, setS] = useState(100);
   const [K, setK] = useState(100);
   const [r, setR] = useState(5);
@@ -94,67 +96,67 @@ export const BinomialTreeTool = () => {
   return (
     <div className="space-y-6">
       <PresetButtons presets={[
-        { name: "平价看涨", description: "ATM call", apply: () => { setS(100); setK(100); setSigma(20); setT(1); setIsCall(true); setN(50); } },
-        { name: "美式看跌 (溢价)", description: "early-exercise", apply: () => { setS(100); setK(110); setSigma(30); setT(1); setIsCall(false); setQ(0); setN(80); } },
-        { name: "高股息看涨", description: "q>0 提前行权价值", apply: () => { setQ(6); setIsCall(true); setS(100); setK(95); } },
-        { name: "粗网格 (振荡)", description: "N=8 收敛差", apply: () => { setN(8); } },
-        { name: "细网格 (收敛)", description: "N=120", apply: () => { setN(120); } },
+        { name: t("labs.deriv.BinomialTree.text273", { defaultValue: "平价看涨" }), description: "ATM call", apply: () => { setS(100); setK(100); setSigma(20); setT(1); setIsCall(true); setN(50); } },
+        { name: t("labs.deriv.BinomialTree.text274", { defaultValue: "美式看跌 (溢价)" }), description: "early-exercise", apply: () => { setS(100); setK(110); setSigma(30); setT(1); setIsCall(false); setQ(0); setN(80); } },
+        { name: t("labs.deriv.BinomialTree.text275", { defaultValue: "高股息看涨" }), description: t("labs.deriv.BinomialTree.text276", { defaultValue: "q>0 提前行权价值" }), apply: () => { setQ(6); setIsCall(true); setS(100); setK(95); } },
+        { name: t("labs.deriv.BinomialTree.text277", { defaultValue: "粗网格 (振荡)" }), description: t("labs.deriv.BinomialTree.text278", { defaultValue: "N=8 收敛差" }), apply: () => { setN(8); } },
+        { name: t("labs.deriv.BinomialTree.text279", { defaultValue: "细网格 (收敛)" }), description: "N=120", apply: () => { setN(120); } },
       ]} />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="space-y-3">
-          <p className="text-xs font-mono text-gold uppercase tracking-wider">期权与树参数</p>
+          <p className="text-xs font-mono text-gold uppercase tracking-wider">{t("labs.deriv.BinomialTree.text280", { defaultValue: "期权与树参数" })}</p>
           <div className="grid grid-cols-2 gap-3">
-            <Slider label="S (现价)" value={S} min={50} max={150} step={1} onChange={setS} />
-            <Slider label="K (行权价)" value={K} min={50} max={150} step={1} onChange={setK} />
-            <Slider label="σ (波动率%)" value={sigma} min={5} max={60} step={1} onChange={setSigma} />
-            <Slider label="T (年)" value={T} min={0.1} max={3} step={0.1} onChange={setT} />
-            <Slider label="r (无风险%)" value={r} min={0} max={10} step={0.5} onChange={setR} />
-            <Slider label="q (股息%)" value={q} min={0} max={8} step={0.5} onChange={setQ} />
+            <Slider label={t("labs.deriv.BinomialTree.text281", { defaultValue: "S (现价)" })} value={S} min={50} max={150} step={1} onChange={setS} />
+            <Slider label={t("labs.deriv.BinomialTree.text008", { defaultValue: "K (行权价)" })} value={K} min={50} max={150} step={1} onChange={setK} />
+            <Slider label={t("labs.deriv.BinomialTree.text282", { defaultValue: "σ (波动率%)" })} value={sigma} min={5} max={60} step={1} onChange={setSigma} />
+            <Slider label={t("labs.deriv.BinomialTree.text038", { defaultValue: "T (年)" })} value={T} min={0.1} max={3} step={0.1} onChange={setT} />
+            <Slider label={t("labs.deriv.BinomialTree.text283", { defaultValue: "r (无风险%)" })} value={r} min={0} max={10} step={0.5} onChange={setR} />
+            <Slider label={t("labs.deriv.BinomialTree.text284", { defaultValue: "q (股息%)" })} value={q} min={0} max={8} step={0.5} onChange={setQ} />
           </div>
-          <Slider label="N (步数)" value={N} min={2} max={200} step={1} onChange={setN} />
+          <Slider label={t("labs.deriv.BinomialTree.text285", { defaultValue: "N (步数)" })} value={N} min={2} max={200} step={1} onChange={setN} />
           <div className="flex gap-2">
-            <button onClick={() => setIsCall(true)} className={`flex-1 px-3 py-1.5 rounded-md text-xs font-mono border transition-colors ${isCall ? "border-gold/40 bg-gold/10 text-gold" : "border-border bg-secondary/50 text-muted-foreground"}`}>看涨 Call</button>
-            <button onClick={() => setIsCall(false)} className={`flex-1 px-3 py-1.5 rounded-md text-xs font-mono border transition-colors ${!isCall ? "border-gold/40 bg-gold/10 text-gold" : "border-border bg-secondary/50 text-muted-foreground"}`}>看跌 Put</button>
+            <button onClick={() => setIsCall(true)} className={`flex-1 px-3 py-1.5 rounded-md text-xs font-mono border transition-colors ${isCall ? "border-gold/40 bg-gold/10 text-gold" : "border-border bg-secondary/50 text-muted-foreground"}`}>{t("labs.deriv.BinomialTree.text286", { defaultValue: "看涨 Call" })}</button>
+            <button onClick={() => setIsCall(false)} className={`flex-1 px-3 py-1.5 rounded-md text-xs font-mono border transition-colors ${!isCall ? "border-gold/40 bg-gold/10 text-gold" : "border-border bg-secondary/50 text-muted-foreground"}`}>{t("labs.deriv.BinomialTree.text287", { defaultValue: "看跌 Put" })}</button>
           </div>
         </div>
         <div className="grid grid-cols-2 gap-2 content-start">
-          <Stat label="欧式 (CRR)" value={res.euro.price.toFixed(4)} />
-          <Stat label="Black-Scholes" value={res.bsPrice.toFixed(4)} color={C.teal} sub="闭式解基准" />
-          <Stat label="误差 |CRR−BS|" value={Math.abs(res.euro.price - res.bsPrice).toFixed(4)} color={C.red} sub={`N=${N}`} />
-          <Stat label="美式 (CRR)" value={res.amer.price.toFixed(4)} color={C.blue} />
-          <Stat label="提前行权溢价" value={(res.amer.price - res.euro.price).toFixed(4)} color={C.gold} sub="American − European" />
-          <Stat label="风险中性 p" value={res.euro.p.toFixed(3)} color={C.green} sub={`u=${res.euro.u.toFixed(3)}`} />
+          <Stat label={t("labs.deriv.BinomialTree.text288", { defaultValue: "欧式 (CRR)" })} value={res.euro.price.toFixed(4)} />
+          <Stat label="Black-Scholes" value={res.bsPrice.toFixed(4)} color={C.teal} sub={t("labs.deriv.BinomialTree.text289", { defaultValue: "闭式解基准" })} />
+          <Stat label={t("labs.deriv.BinomialTree.text290", { defaultValue: "误差 |CRR−BS|" })} value={Math.abs(res.euro.price - res.bsPrice).toFixed(4)} color={C.red} sub={`N=${N}`} />
+          <Stat label={t("labs.deriv.BinomialTree.text291", { defaultValue: "美式 (CRR)" })} value={res.amer.price.toFixed(4)} color={C.blue} />
+          <Stat label={t("labs.deriv.BinomialTree.text292", { defaultValue: "提前行权溢价" })} value={(res.amer.price - res.euro.price).toFixed(4)} color={C.gold} sub="American − European" />
+          <Stat label={t("labs.deriv.BinomialTree.text293", { defaultValue: "风险中性 p" })} value={res.euro.p.toFixed(3)} color={C.green} sub={`u=${res.euro.u.toFixed(3)}`} />
         </div>
       </div>
 
       <div className="rounded-xl border border-border bg-secondary/20 p-4">
-        <h4 className="text-sm font-semibold text-foreground mb-2">收敛性 — CRR 欧式价格随步数 N 收敛到 BS</h4>
+        <h4 className="text-sm font-semibold text-foreground mb-2">{t("labs.deriv.BinomialTree.text294", { defaultValue: "收敛性 — CRR 欧式价格随步数 N 收敛到 BS" })}</h4>
         <div className="h-[280px]">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={convergence}>
               <CartesianGrid stroke={C.grid} strokeDasharray="3 3" />
-              <XAxis dataKey="n" stroke={C.text} tick={{ fontSize: 10 }} label={{ value: "步数 N", position: "insideBottom", offset: -5, fill: C.text, fontSize: 10 }} />
+              <XAxis dataKey="n" stroke={C.text} tick={{ fontSize: 10 }} label={{ value: t("labs.deriv.BinomialTree.text295", { defaultValue: "步数 N" }), position: "insideBottom", offset: -5, fill: C.text, fontSize: 10 }} />
               <YAxis stroke={C.text} tick={{ fontSize: 10 }} domain={["auto", "auto"]} />
               <Tooltip contentStyle={tooltipStyle} />
               <Legend wrapperStyle={{ fontSize: 11 }} />
-              <Line type="monotone" dataKey="euro" name="CRR 欧式" stroke={C.gold} strokeWidth={1.8} dot={false} />
-              <Line type="monotone" dataKey="amer" name="CRR 美式" stroke={C.blue} strokeWidth={1.5} dot={false} strokeDasharray="4 3" />
-              <Line type="monotone" dataKey="bs" name="BS 闭式解" stroke={C.red} strokeWidth={2} dot={false} />
+              <Line type="monotone" dataKey="euro" name={t("labs.deriv.BinomialTree.text296", { defaultValue: "CRR 欧式" })} stroke={C.gold} strokeWidth={1.8} dot={false} />
+              <Line type="monotone" dataKey="amer" name={t("labs.deriv.BinomialTree.text297", { defaultValue: "CRR 美式" })} stroke={C.blue} strokeWidth={1.5} dot={false} strokeDasharray="4 3" />
+              <Line type="monotone" dataKey="bs" name={t("labs.deriv.BinomialTree.text298", { defaultValue: "BS 闭式解" })} stroke={C.red} strokeWidth={2} dot={false} />
             </LineChart>
           </ResponsiveContainer>
         </div>
-        <p className="text-[10px] font-mono text-muted-foreground mt-2 leading-relaxed">CRR 价格随 N 增大以 O(1/N) 收敛到 BS，并呈现 even/odd 锯齿振荡——这是二叉树定价的典型特征。</p>
+        <p className="text-[10px] font-mono text-muted-foreground mt-2 leading-relaxed">{t("labs.deriv.BinomialTree.text299", { defaultValue: "CRR 价格随 N 增大以 O(1/N) 收敛到 BS，并呈现 even/odd 锯齿振荡——这是二叉树定价的典型特征。" })}</p>
       </div>
 
       <div className="rounded-xl border border-border bg-secondary/20 p-4">
-        <h4 className="text-sm font-semibold text-foreground mb-2">价格格点 (前 {lattice.steps} 步)</h4>
+        <h4 className="text-sm font-semibold text-foreground mb-2">{t("labs.deriv.BinomialTree.text300", { defaultValue: "价格格点 (前 " })}{lattice.steps} {t("labs.deriv.BinomialTree.text301", { defaultValue: "步)" })}</h4>
         <div className="h-[220px]">
           <ResponsiveContainer width="100%" height="100%">
             <ScatterChart>
               <CartesianGrid stroke={C.grid} strokeDasharray="3 3" />
-              <XAxis type="number" dataKey="x" stroke={C.text} tick={{ fontSize: 10 }} domain={[0, lattice.steps]} label={{ value: "步", position: "insideBottom", offset: -5, fill: C.text, fontSize: 10 }} />
-              <YAxis type="number" dataKey="y" stroke={C.text} tick={{ fontSize: 10 }} label={{ value: "标的价", angle: -90, position: "insideLeft", fill: C.text, fontSize: 10 }} />
+              <XAxis type="number" dataKey="x" stroke={C.text} tick={{ fontSize: 10 }} domain={[0, lattice.steps]} label={{ value: t("labs.deriv.BinomialTree.text302", { defaultValue: "步" }), position: "insideBottom", offset: -5, fill: C.text, fontSize: 10 }} />
+              <YAxis type="number" dataKey="y" stroke={C.text} tick={{ fontSize: 10 }} label={{ value: t("labs.deriv.BinomialTree.text303", { defaultValue: "标的价" }), angle: -90, position: "insideLeft", fill: C.text, fontSize: 10 }} />
               <ZAxis range={[40, 40]} />
               <Tooltip contentStyle={tooltipStyle} cursor={{ strokeDasharray: "3 3" }} />
               <Scatter data={lattice.pts} fill={C.gold} />
@@ -164,8 +166,8 @@ export const BinomialTreeTool = () => {
       </div>
 
       <div className="text-xs font-mono text-muted-foreground p-3 rounded-lg bg-secondary/40 border border-border leading-relaxed">
-        <p><span className="text-gold">CRR (1979)：</span>离散二叉树在 N→∞ 时收敛到 Black-Scholes；u·d=1 保证重组格点。</p>
-        <p><span className="text-gold">美式期权：</span>每个节点取 max(继续持有, 立即行权)，溢价主要来自美式看跌或高股息看涨。</p>
+        <p><span className="text-gold">CRR (1979)：</span>{t("labs.deriv.BinomialTree.text304", { defaultValue: "离散二叉树在 N→∞ 时收敛到 Black-Scholes；u·d=1 保证重组格点。" })}</p>
+        <p><span className="text-gold">{t("labs.deriv.BinomialTree.text305", { defaultValue: "美式期权：" })}</span>{t("labs.deriv.BinomialTree.text306", { defaultValue: "每个节点取 max(继续持有, 立即行权)，溢价主要来自美式看跌或高股息看涨。" })}</p>
       </div>
     </div>
   );

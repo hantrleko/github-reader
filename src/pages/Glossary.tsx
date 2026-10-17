@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowLeft, Search } from "lucide-react";
@@ -15,33 +16,34 @@ const CATS = ["all", ...Object.keys(CATEGORY_LABELS)] as const;
 type CatKey = typeof CATS[number];
 
 const Glossary = () => {
+  const { t } = useTranslation();
   const [q, setQ] = useState("");
   const [cat, setCat] = useState<CatKey>("all");
 
   const filtered = useMemo(() => {
     const needle = q.trim().toLowerCase();
-    return GLOSSARY.filter((t) => {
-      if (cat !== "all" && t.category !== cat) return false;
+    return GLOSSARY.filter((term) => {
+      if (cat !== "all" && term.category !== cat) return false;
       if (!needle) return true;
       return (
-        t.zh.toLowerCase().includes(needle) ||
-        t.en.toLowerCase().includes(needle) ||
-        t.slug.includes(needle) ||
-        t.def.toLowerCase().includes(needle)
+        term.zh.toLowerCase().includes(needle) ||
+        term.en.toLowerCase().includes(needle) ||
+        term.slug.includes(needle) ||
+        term.def.toLowerCase().includes(needle)
       );
     });
   }, [q, cat]);
 
   return (
     <div className="min-h-screen bg-background">
-      <Seo title="术语表 · EF Lab" description="量化金融与计量经济学术语速查：含公式、相关工具与参考文献。" path="/glossary" />
+      <Seo title={t("pages.glossary.copy1", { defaultValue: "术语表 · EF Lab" })} description={t("pages.glossary.copy2", { defaultValue: "量化金融与计量经济学术语速查：含公式、相关工具与参考文献。" })} path="/glossary" />
       <Navbar />
       <main id="main-content" className="container max-w-5xl pt-20 pb-24 px-6">
         <Link
           to="/"
           className="inline-flex items-center gap-1.5 text-xs font-mono text-muted-foreground hover:text-gold transition-colors mb-4"
         >
-          <ArrowLeft className="w-3.5 h-3.5" /> 返回首页
+          <ArrowLeft className="w-3.5 h-3.5" /> {t("pages.glossary.copy3", { defaultValue: "返回首页" })}
         </Link>
 
         <motion.header
@@ -50,13 +52,13 @@ const Glossary = () => {
           className="mb-10 border-b border-border pb-8"
         >
           <p className="text-xs font-mono uppercase tracking-[0.3em] text-gold mb-2">
-            Glossary · 术语词典
+            {t("pages.glossary.copy4", { defaultValue: "Glossary · 术语词典" })}
           </p>
           <h1 className="text-3xl md:text-5xl font-display font-bold text-foreground mb-3">
-            金融与计量术语表
+            {t("pages.glossary.copy5", { defaultValue: "金融与计量术语表" })}
           </h1>
           <p className="text-sm md:text-base text-muted-foreground max-w-2xl leading-relaxed">
-            汇集平台所有工具中的核心概念。每条词条附定义、关键公式、相关工具与原始文献,便于在公式与代码之间往返。
+            {t("pages.glossary.copy6", { defaultValue: "汇集平台所有工具中的核心概念。每条词条附定义、关键公式、相关工具与原始文献,便于在公式与代码之间往返。" })}
           </p>
         </motion.header>
 
@@ -67,7 +69,7 @@ const Glossary = () => {
             <input
               value={q}
               onChange={(e) => setQ(e.target.value)}
-              placeholder="搜索术语、中文、英文、定义……"
+              placeholder={t("pages.glossary.copy7", { defaultValue: "搜索术语、中文、英文、定义……" })}
               className="w-full pl-9 pr-3 py-2 rounded-md border border-border bg-card text-sm focus:outline-none focus:ring-2 focus:ring-gold/60"
             />
           </div>
@@ -82,7 +84,7 @@ const Glossary = () => {
                     : "bg-secondary text-muted-foreground hover:text-foreground border border-transparent"
                 }`}
               >
-                {c === "all" ? "全部" : CATEGORY_LABELS[c as GlossaryTerm["category"]]}
+                {c === "all" ? t("pages.glossary.copy8", { defaultValue: "全部" }) : CATEGORY_LABELS[c as GlossaryTerm["category"]]}
               </button>
             ))}
             <span className="ml-auto text-[11px] font-mono text-muted-foreground self-center">
@@ -93,10 +95,10 @@ const Glossary = () => {
 
         {/* Terms */}
         <div className="grid gap-4">
-          {filtered.map((t, i) => (
+          {filtered.map((term, i) => (
             <motion.article
-              key={t.slug}
-              id={t.slug}
+              key={term.slug}
+              id={term.slug}
               initial={{ opacity: 0, y: 6 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -106,26 +108,26 @@ const Glossary = () => {
               <header className="flex items-baseline justify-between gap-3 flex-wrap mb-2">
                 <div>
                   <h2 className="text-lg md:text-xl font-display font-semibold text-foreground">
-                    {t.zh}
+                    {term.zh}
                   </h2>
-                  <p className="text-xs font-mono text-muted-foreground">{t.en}</p>
+                  <p className="text-xs font-mono text-muted-foreground">{term.en}</p>
                 </div>
                 <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-secondary text-muted-foreground border border-border">
-                  {CATEGORY_LABELS[t.category]}
+                  {CATEGORY_LABELS[term.category]}
                 </span>
               </header>
 
-              <p className="text-sm text-foreground/90 leading-relaxed mb-3">{t.def}</p>
+              <p className="text-sm text-foreground/90 leading-relaxed mb-3">{term.def}</p>
 
-              {t.formula && (
+              {term.formula && (
                 <div className="mb-3 rounded bg-secondary/50 border border-border px-4 py-2 overflow-x-auto">
-                  <BlockMath math={t.formula} />
+                  <BlockMath math={term.formula} />
                 </div>
               )}
 
-              {(t.tools?.length || t.refs?.length) ? (
+              {(term.tools?.length || term.refs?.length) ? (
                 <footer className="flex flex-wrap gap-2 pt-2 border-t border-border/60">
-                  {t.tools?.map((tid) => {
+                  {term.tools?.map((tid) => {
                     const tool = TOOLS_BY_ID[tid];
                     if (!tool) return null;
                     return (
@@ -138,7 +140,7 @@ const Glossary = () => {
                       </a>
                     );
                   })}
-                  {t.refs?.map((rid) => {
+                  {term.refs?.map((rid) => {
                     const r = REFS[rid];
                     if (!r) return null;
                     return (
@@ -156,7 +158,7 @@ const Glossary = () => {
             </motion.article>
           ))}
           {filtered.length === 0 && (
-            <p className="text-center text-sm text-muted-foreground py-12">无匹配术语</p>
+            <p className="text-center text-sm text-muted-foreground py-12">{t("pages.glossary.copy9", { defaultValue: "无匹配术语" })}</p>
           )}
         </div>
       </main>

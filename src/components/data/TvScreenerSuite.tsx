@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 /**
  * V6.4 · TradingView Screener Suite
  * Cross-market scanner for stocks, FX, crypto, bonds and futures.
@@ -53,6 +54,7 @@ function ErrorNote({ error }: { error: unknown }) {
 }
 
 export default function TvScreenerSuite() {
+  const { t } = useTranslation();
   const [market, setMarket] = useState("america");
   const [presetKey, setPresetKey] = useState<string>("market-cap");
   const [search, setSearch] = useState("");
@@ -118,8 +120,8 @@ export default function TvScreenerSuite() {
       <SectionHeader
         chapter="Data"
         kicker="TradingView Screener"
-        title="跨市场实时筛选器"
-        subtitle="无需 API key，直接查询 TradingView 公共 Scanner：覆盖股票、外汇、加密货币、债券与期货，支持 13000+ 字段自由组合。"
+        title={t("labs.data.tvScreenerSuite.text001", { defaultValue: "跨市场实时筛选器" })}
+        subtitle={t("labs.data.tvScreenerSuite.text002", { defaultValue: "无需 API key，直接查询 TradingView 公共 Scanner：覆盖股票、外汇、加密货币、债券与期货，支持 13000+ 字段自由组合。" })}
       />
 
       <div className="container max-w-7xl px-6 space-y-5">
@@ -156,7 +158,7 @@ export default function TvScreenerSuite() {
             ))}
           </div>
           <p className="text-[10px] font-mono text-muted-foreground">
-            {preset.desc} · 排序: {preset.sortBy} · {sortOrder === "asc" ? "升序" : "降序"}
+            {preset.desc}{t("labs.data.tvScreenerSuite.text003", { defaultValue: "· 排序:" })} {preset.sortBy} · {sortOrder === "asc" ? t("labs.data.tvScreenerSuite.text004", { defaultValue: "升序" }) : t("labs.data.tvScreenerSuite.text005", { defaultValue: "降序" })}
           </p>
         </div>
 
@@ -180,7 +182,7 @@ export default function TvScreenerSuite() {
             className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-[11px] font-mono border border-border hover:border-gold/40 hover:text-gold transition-colors"
           >
             <ArrowUpDown className="w-3.5 h-3.5" />
-            {sortOrder === "asc" ? "升序" : "降序"}
+            {sortOrder === "asc" ? t("labs.data.tvScreenerSuite.text004", { defaultValue: "升序" }) : t("labs.data.tvScreenerSuite.text005", { defaultValue: "降序" })}
             {sortIcon}
           </button>
 
@@ -189,8 +191,7 @@ export default function TvScreenerSuite() {
             disabled={isFetching}
             className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-[11px] font-mono border border-border hover:border-gold/40 hover:text-gold transition-colors disabled:opacity-50"
           >
-            {isFetching ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <RefreshCcw className="w-3.5 h-3.5" />}
-            刷新
+            {isFetching ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <RefreshCcw className="w-3.5 h-3.5" />}{t("labs.data.tvScreenerSuite.text006", { defaultValue: "刷新" })}
           </button>
 
           <button
@@ -215,8 +216,7 @@ export default function TvScreenerSuite() {
               <button
                 onClick={() => setCustomColumns(null)}
                 className="text-[10px] font-mono text-gold hover:underline"
-              >
-                重置为预设
+              >{t("labs.data.tvScreenerSuite.text007", { defaultValue: "重置为预设" })}
               </button>
             )}
           </div>
@@ -280,8 +280,7 @@ export default function TvScreenerSuite() {
                 ))}
                 {!isFetching && rows.length === 0 && (
                   <tr>
-                    <td colSpan={columns.length + 1} className="px-3 py-8 text-center text-muted-foreground font-mono">
-                      无结果 · 尝试切换市场或放宽筛选条件
+                    <td colSpan={columns.length + 1} className="px-3 py-8 text-center text-muted-foreground font-mono">{t("labs.data.tvScreenerSuite.text008", { defaultValue: "无结果 · 尝试切换市场或放宽筛选条件" })}
                     </td>
                   </tr>
                 )}
@@ -296,7 +295,7 @@ export default function TvScreenerSuite() {
               disabled={page === 0 || isFetching}
               className="inline-flex items-center gap-1 px-3 py-1.5 rounded-md text-[11px] font-mono border border-border hover:border-gold/40 hover:text-gold transition-colors disabled:opacity-50"
             >
-              <ChevronLeft className="w-3.5 h-3.5" /> 上一页
+              <ChevronLeft className="w-3.5 h-3.5" />{t("labs.data.tvScreenerSuite.text009", { defaultValue: "上一页" })}
             </button>
             <span className="text-[10px] font-mono text-muted-foreground">
               Page {page + 1} · rows {page * PAGE_SIZE + 1}–{Math.min((page + 1) * PAGE_SIZE, total)}
@@ -305,8 +304,7 @@ export default function TvScreenerSuite() {
               onClick={() => setPage((p) => p + 1)}
               disabled={!hasNext || isFetching}
               className="inline-flex items-center gap-1 px-3 py-1.5 rounded-md text-[11px] font-mono border border-border hover:border-gold/40 hover:text-gold transition-colors disabled:opacity-50"
-            >
-              下一页 <ChevronRight className="w-3.5 h-3.5" />
+            >{t("labs.data.tvScreenerSuite.text010", { defaultValue: "下一页" })} <ChevronRight className="w-3.5 h-3.5" />
             </button>
           </div>
         </Panel>

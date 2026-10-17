@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useMemo } from "react";
 import { Link } from "react-router-dom";
 import { sectionHref } from "@/lib/sections";
@@ -22,12 +23,12 @@ function pickToday(): ToolEntry[] {
   const pick = (pool: ToolEntry[], offset: number) =>
     pool[(seed + offset) % pool.length];
 
-  const intro = TOOLS_CATALOG.filter((t) => t.difficulty === "intro");
+  const intro = TOOLS_CATALOG.filter((tool) => tool.difficulty === "intro");
   const mid = TOOLS_CATALOG.filter(
-    (t) => t.difficulty === "core" || t.difficulty === "advanced"
+    (tool) => tool.difficulty === "core" || tool.difficulty === "advanced"
   );
   const top = TOOLS_CATALOG.filter(
-    (t) => t.difficulty === "research" || t.difficulty === "advanced"
+    (tool) => tool.difficulty === "research" || tool.difficulty === "advanced"
   );
 
   const a = pick(intro, 0);
@@ -38,6 +39,7 @@ function pickToday(): ToolEntry[] {
 }
 
 const TodaysPick = () => {
+  const { t } = useTranslation();
   const picks = useMemo(pickToday, []);
 
   return (
@@ -49,14 +51,14 @@ const TodaysPick = () => {
               <div className="flex items-center gap-2 mb-2">
                 <Sparkles className="w-3.5 h-3.5 text-gold" />
                 <span className="text-[10px] font-mono uppercase tracking-[0.3em] text-gold">
-                  Today's Pick · 每日精选
+                  {t("labs.todaysPick.text1", { defaultValue: "Today's Pick · 每日精选" })}
                 </span>
               </div>
               <h2 className="text-xl md:text-2xl font-display text-foreground">
-                每日三选 · 一件入门、一件核心、一件前沿
+                {t("labs.todaysPick.text2", { defaultValue: "每日三选 · 一件入门、一件核心、一件前沿" })}
               </h2>
               <p className="text-xs text-muted-foreground mt-1">
-                按入门 → 核心 → 研究 三档自动轮换，每日 UTC 00:00 刷新。
+                {t("labs.todaysPick.text3", { defaultValue: "按入门 → 核心 → 研究 三档自动轮换，每日 UTC 00:00 刷新。" })}
               </p>
             </div>
             <Link
@@ -64,47 +66,47 @@ const TodaysPick = () => {
               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[11px] font-mono bg-gold/10 border border-gold/40 text-gold hover:bg-gold/20 transition-colors"
             >
               <LayoutGrid className="w-3 h-3" />
-              全部 {TOOLS_CATALOG.length} 个工具
+              {t("labs.todaysPick.text4", { defaultValue: "全部" })} {TOOLS_CATALOG.length} {t("labs.todaysPick.text5", { defaultValue: "个工具" })}
               <ArrowRight className="w-3 h-3" />
             </Link>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {picks.map((t, idx) => {
-              const diff = DIFFICULTY_LABEL[t.difficulty];
+            {picks.map((tool, idx) => {
+              const diff = DIFFICULTY_LABEL[tool.difficulty];
               return (
                 <Link
-                  key={t.id}
-                  to={sectionHref(t.anchor)}
-                  aria-label={`打开工具：${t.name}（${diff.zh}）`}
+                  key={tool.id}
+                  to={sectionHref(tool.anchor)}
+                  aria-label={t("labs.todaysPick.openTool", { defaultValue: "打开工具：{{name}}（{{difficulty}}）", name: tool.name, difficulty: diff.zh })}
                   className="group block rounded-xl border border-border/60 bg-background/40 hover:bg-background/80 hover:border-gold/50 p-4 transition-all hover:-translate-y-0.5"
                 >
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-[10px] font-mono text-gold/70 tracking-wider">
-                      #{idx + 1} · {CATEGORY_LABEL[t.category].zh}
+                      #{idx + 1} · {CATEGORY_LABEL[tool.category].zh}
                     </span>
-                    {t.verified && (
+                    {tool.verified && (
                       <BadgeCheck
                         className="w-3.5 h-3.5 text-emerald-500"
-                        aria-label="已验证"
+                        aria-label={t("labs.todaysPick.text6", { defaultValue: "已验证" })}
                       />
                     )}
                   </div>
                   <h3 className="text-base font-display text-foreground group-hover:text-gold transition-colors leading-tight mb-1">
-                    {t.name}
+                    {tool.name}
                   </h3>
                   <p className="text-[10px] font-mono text-muted-foreground/70 mb-2">
-                    {t.nameEn}
+                    {tool.nameEn}
                   </p>
                   <p className="text-xs text-foreground/70 leading-relaxed line-clamp-2 mb-3">
-                    {t.blurb}
+                    {tool.blurb}
                   </p>
-                  <div className="flex items-center justify-between pt-2 border-t border-border/40">
+                  <div className="flex items-center justify-between pt-2 border-tool border-border/40">
                     <span className={cn("text-[10px] font-mono uppercase tracking-wider", diff.tone)}>
                       {diff.zh}
                     </span>
                     <span className="text-[10px] font-mono text-muted-foreground/60 group-hover:text-gold transition-colors inline-flex items-center gap-0.5">
-                      打开 <ArrowRight className="w-2.5 h-2.5" />
+                      {t("labs.todaysPick.text7", { defaultValue: "打开" })} <ArrowRight className="w-2.5 h-2.5" />
                     </span>
                   </div>
                 </Link>

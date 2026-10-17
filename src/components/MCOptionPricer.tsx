@@ -365,19 +365,19 @@ const MCOptionPricer = () => {
                 filename={`mc-${optionType}`}
                 markdown={() =>
                   [
-                    `### 蒙特卡洛期权定价 (${optionNames[optionType]})`,
+                    t("labs.deriv.MCOptionPricer.text395", { defaultValue: "### 蒙特卡洛期权定价 ({{value0}})", value0: optionNames[optionType] }),
                     ``,
-                    `| 参数 | 值 |`,
+                    t("labs.deriv.MCOptionPricer.text382", { defaultValue: "| 参数 | 值 |" }),
                     `| --- | --- |`,
-                    `| 方向 | ${putCall === "call" ? "Call" : "Put"} |`,
+                    t("labs.deriv.MCOptionPricer.text396", { defaultValue: "| 方向 | {{value0}} |", value0: putCall === "call" ? "Call" : "Put" }),
                     `| S₀ | ${s0} |`,
                     `| K | ${k} |`,
                     `| r | ${r}% |`,
                     `| σ | ${sigma}% |`,
-                    `| T | ${T} 年 |`,
-                    `| 路径数 | ${nPaths.toLocaleString()} |`,
-                    `| **MC 价格** | **${result.price.toFixed(4)}** |`,
-                    `| 标准误 | ${result.stdErr.toFixed(4)} |`,
+                    t("labs.deriv.MCOptionPricer.text397", { defaultValue: "| T | {{value0}} 年 |", value0: T }),
+                    t("labs.deriv.MCOptionPricer.text398", { defaultValue: "| 路径数 | {{value0}} |", value0: nPaths.toLocaleString() }),
+                    t("labs.deriv.MCOptionPricer.text399", { defaultValue: "| **MC 价格** | **{{value0}}** |", value0: result.price.toFixed(4) }),
+                    t("labs.deriv.MCOptionPricer.text400", { defaultValue: "| 标准误 | {{value0}} |", value0: result.stdErr.toFixed(4) }),
                   ].join("\n")
                 }
               />
@@ -429,10 +429,10 @@ const MCOptionPricer = () => {
                 }}
               />
               <PresetButtons presets={[
-                { name: "欧式标准", description: "Hull教材: S=K=100, σ=20%", apply: () => { setOptionType("european"); setPutCall("call"); setS0(100); setK(100); setR(5); setSigma(20); setT(1); setNPaths(10000); } },
-                { name: "亚式均价", description: "S=100, K=100, σ=25%", apply: () => { setOptionType("asian"); setPutCall("call"); setS0(100); setK(100); setR(5); setSigma(25); setT(1); setNPaths(10000); } },
-                { name: "上敲出障碍", description: "S=100, K=100, H=120", apply: () => { setOptionType("barrier"); setPutCall("call"); setS0(100); setK(100); setR(5); setSigma(20); setT(1); setBarrierType("up-out"); setBarrierLevel(120); setNPaths(10000); } },
-                { name: "下敲入看跌", description: "S=100, K=100, H=85", apply: () => { setOptionType("barrier"); setPutCall("put"); setS0(100); setK(100); setR(5); setSigma(20); setT(1); setBarrierType("down-in"); setBarrierLevel(85); setNPaths(10000); } },
+                { name: t("labs.deriv.MCOptionPricer.text401", { defaultValue: "欧式标准" }), description: t("labs.deriv.MCOptionPricer.text402", { defaultValue: "Hull教材: S=K=100, σ=20%" }), apply: () => { setOptionType("european"); setPutCall("call"); setS0(100); setK(100); setR(5); setSigma(20); setT(1); setNPaths(10000); } },
+                { name: t("labs.deriv.MCOptionPricer.text403", { defaultValue: "亚式均价" }), description: "S=100, K=100, σ=25%", apply: () => { setOptionType("asian"); setPutCall("call"); setS0(100); setK(100); setR(5); setSigma(25); setT(1); setNPaths(10000); } },
+                { name: t("labs.deriv.MCOptionPricer.text404", { defaultValue: "上敲出障碍" }), description: "S=100, K=100, H=120", apply: () => { setOptionType("barrier"); setPutCall("call"); setS0(100); setK(100); setR(5); setSigma(20); setT(1); setBarrierType("up-out"); setBarrierLevel(120); setNPaths(10000); } },
+                { name: t("labs.deriv.MCOptionPricer.text405", { defaultValue: "下敲入看跌" }), description: "S=100, K=100, H=85", apply: () => { setOptionType("barrier"); setPutCall("put"); setS0(100); setK(100); setR(5); setSigma(20); setT(1); setBarrierType("down-in"); setBarrierLevel(85); setNPaths(10000); } },
               ]} />
 
               {/* Put/Call */}
@@ -681,7 +681,7 @@ price, se, ci = mc_european(
                   </div>
                   {result.bsAnalytical !== null && (
                     <div className="rounded-md border border-border bg-card/50 p-3">
-                      <div className="text-[10px] uppercase tracking-wider text-muted-foreground">BS 解析</div>
+                      <div className="text-[10px] uppercase tracking-wider text-muted-foreground">{t("labs.deriv.MCOptionPricer.text406", { defaultValue: "BS 解析" })}</div>
                       <div className="text-base text-foreground font-bold">{result.bsAnalytical.toFixed(4)}</div>
                     </div>
                   )}

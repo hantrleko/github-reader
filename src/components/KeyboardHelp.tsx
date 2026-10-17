@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Keyboard } from "lucide-react";
@@ -7,18 +8,20 @@ import { X, Keyboard } from "lucide-react";
  * Trigger: press `?` (Shift+/) anywhere — but ignored when typing in an input.
  * Esc to close. Also openable via the floating button.
  */
-const SHORTCUTS: { keys: string[]; label: string; group: string }[] = [
-  { group: "导航", keys: ["⌘", "K"], label: "打开命令面板（搜索全部计算器）" },
-  { group: "导航", keys: ["Ctrl", "K"], label: "命令面板（Windows / Linux）" },
-  { group: "导航", keys: ["?"], label: "打开 / 关闭本帮助" },
-  { group: "导航", keys: ["Esc"], label: "关闭弹窗 / 抽屉" },
-  { group: "页面", keys: ["↑", "↓"], label: "在命令面板中上下选择" },
-  { group: "页面", keys: ["↵"], label: "命令面板中跳转选中项" },
-  { group: "计算器", keys: ["Tab"], label: "在输入项之间切换" },
-  { group: "计算器", keys: ["↑", "↓"], label: "在数字输入框中调整数值" },
-];
+
 
 const KeyboardHelp = () => {
+  const { t } = useTranslation();
+const SHORTCUTS: { keys: string[]; label: string; group: string }[] = [
+  { group: t("labs.keyboardHelp.text1", { defaultValue: "导航" }), keys: ["⌘", "K"], label: t("labs.keyboardHelp.text2", { defaultValue: "打开命令面板（搜索全部计算器）" }) },
+  { group: t("labs.keyboardHelp.text1", { defaultValue: "导航" }), keys: ["Ctrl", "K"], label: t("labs.keyboardHelp.text3", { defaultValue: "命令面板（Windows / Linux）" }) },
+  { group: t("labs.keyboardHelp.text1", { defaultValue: "导航" }), keys: ["?"], label: t("labs.keyboardHelp.text4", { defaultValue: "打开 / 关闭本帮助" }) },
+  { group: t("labs.keyboardHelp.text1", { defaultValue: "导航" }), keys: ["Esc"], label: t("labs.keyboardHelp.text5", { defaultValue: "关闭弹窗 / 抽屉" }) },
+  { group: t("labs.keyboardHelp.text6", { defaultValue: "页面" }), keys: ["↑", "↓"], label: t("labs.keyboardHelp.text7", { defaultValue: "在命令面板中上下选择" }) },
+  { group: t("labs.keyboardHelp.text6", { defaultValue: "页面" }), keys: ["↵"], label: t("labs.keyboardHelp.text8", { defaultValue: "命令面板中跳转选中项" }) },
+  { group: t("labs.keyboardHelp.text9", { defaultValue: "计算器" }), keys: ["Tab"], label: t("labs.keyboardHelp.text10", { defaultValue: "在输入项之间切换" }) },
+  { group: t("labs.keyboardHelp.text9", { defaultValue: "计算器" }), keys: ["↑", "↓"], label: t("labs.keyboardHelp.text11", { defaultValue: "在数字输入框中调整数值" }) },
+];
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
@@ -29,13 +32,13 @@ const KeyboardHelp = () => {
       }
       // `?` triggers — ignore when typing in inputs / textareas / contentEditable
       if (e.key === "?" || (e.key === "/" && e.shiftKey)) {
-        const t = e.target as HTMLElement | null;
-        const tag = t?.tagName;
+        const target = e.target as HTMLElement | null;
+        const tag = target?.tagName;
         if (
           tag === "INPUT" ||
           tag === "TEXTAREA" ||
           tag === "SELECT" ||
-          (t && (t as HTMLElement).isContentEditable)
+          (target && (target as HTMLElement).isContentEditable)
         ) {
           return;
         }
@@ -58,8 +61,8 @@ const KeyboardHelp = () => {
       {/* Floating discoverability button (bottom-left, subtle) */}
       <button
         onClick={() => setOpen(true)}
-        aria-label="键盘快捷键 (?)"
-        title="键盘快捷键 — 按 ? 打开"
+        aria-label={t("labs.keyboardHelp.text12", { defaultValue: "键盘快捷键 (?)" })}
+        title={t("labs.keyboardHelp.text13", { defaultValue: "键盘快捷键 — 按 ? 打开" })}
         className="fixed bottom-4 left-4 z-40 hidden md:inline-flex items-center justify-center w-9 h-9 rounded-full border border-border bg-card/80 backdrop-blur-md text-muted-foreground hover:text-gold hover:border-gold/50 transition-colors shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/60"
       >
         <Keyboard className="w-4 h-4" />
@@ -75,7 +78,7 @@ const KeyboardHelp = () => {
             onClick={() => setOpen(false)}
             role="dialog"
             aria-modal="true"
-            aria-label="键盘快捷键"
+            aria-label={t("labs.keyboardHelp.text14", { defaultValue: "键盘快捷键" })}
           >
             <motion.div
               initial={{ y: 20, opacity: 0, scale: 0.96 }}
@@ -90,13 +93,13 @@ const KeyboardHelp = () => {
                 <div className="flex items-center gap-2.5">
                   <Keyboard className="w-4 h-4 text-gold" />
                   <h3 className="text-sm font-display font-semibold text-foreground">
-                    键盘快捷键 · Keyboard Shortcuts
+                    {t("labs.keyboardHelp.text15", { defaultValue: "键盘快捷键 · Keyboard Shortcuts" })}
                   </h3>
                 </div>
                 <button
                   onClick={() => setOpen(false)}
                   className="p-1 rounded text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
-                  aria-label="关闭"
+                  aria-label={t("labs.keyboardHelp.text16", { defaultValue: "关闭" })}
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -138,7 +141,7 @@ const KeyboardHelp = () => {
               {/* Footer */}
               <div className="px-6 py-3 border-t border-border/60 bg-secondary/30">
                 <p className="text-[11px] font-mono text-muted-foreground text-center">
-                  按 <kbd className="px-1 py-0.5 rounded border border-border bg-card text-[10px]">?</kbd> 随时唤起本面板 · 按 <kbd className="px-1 py-0.5 rounded border border-border bg-card text-[10px]">Esc</kbd> 关闭
+                  {t("labs.keyboardHelp.text17", { defaultValue: "按" })} <kbd className="px-1 py-0.5 rounded border border-border bg-card text-[10px]">?</kbd> {t("labs.keyboardHelp.text18", { defaultValue: "随时唤起本面板 · 按" })} <kbd className="px-1 py-0.5 rounded border border-border bg-card text-[10px]">Esc</kbd> {t("labs.keyboardHelp.text16", { defaultValue: "关闭" })}
                 </p>
               </div>
             </motion.div>

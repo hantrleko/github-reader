@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useMemo, useState } from "react";
 import {
   BarChart,
@@ -93,6 +94,7 @@ function simulate(opts: {
 }
 
 export const ContagionTool = () => {
+  const { t } = useTranslation();
   const [seed, setSeed] = useState(7);
   const [density, setDensity] = useState(0.3);
   const [capitalRatio, setCapitalRatio] = useState(0.08);
@@ -108,35 +110,35 @@ export const ContagionTool = () => {
     <div className="space-y-5">
       <PresetButtons
         presets={[
-          { name: "稳健系统", description: "高资本/低LGD", apply: () => { setCapitalRatio(0.14); setLgd(0.4); setDensity(0.25); setShock(1); } },
-          { name: "脆弱系统", description: "薄资本/高密度", apply: () => { setCapitalRatio(0.05); setLgd(0.75); setDensity(0.45); setShock(1); } },
-          { name: "2008 式传染", description: "高杠杆+紧密互联", apply: () => { setCapitalRatio(0.04); setLgd(0.8); setDensity(0.5); setShock(1); setSeed(13); } },
-          { name: "局部冲击", description: "shock=0.4", apply: () => { setShock(0.4); } },
-          { name: "换一个网络", description: "重新随机", apply: () => { setSeed((s) => (s % 99) + 1); } },
+          { name: t("labs.frontier.Contagion.text1", { defaultValue: "稳健系统" }), description: t("labs.frontier.Contagion.text2", { defaultValue: "高资本/低LGD" }), apply: () => { setCapitalRatio(0.14); setLgd(0.4); setDensity(0.25); setShock(1); } },
+          { name: t("labs.frontier.Contagion.text3", { defaultValue: "脆弱系统" }), description: t("labs.frontier.Contagion.text4", { defaultValue: "薄资本/高密度" }), apply: () => { setCapitalRatio(0.05); setLgd(0.75); setDensity(0.45); setShock(1); } },
+          { name: t("labs.frontier.Contagion.text5", { defaultValue: "2008 式传染" }), description: t("labs.frontier.Contagion.text6", { defaultValue: "高杠杆+紧密互联" }), apply: () => { setCapitalRatio(0.04); setLgd(0.8); setDensity(0.5); setShock(1); setSeed(13); } },
+          { name: t("labs.frontier.Contagion.text7", { defaultValue: "局部冲击" }), description: "shock=0.4", apply: () => { setShock(0.4); } },
+          { name: t("labs.frontier.Contagion.text8", { defaultValue: "换一个网络" }), description: t("labs.frontier.Contagion.text9", { defaultValue: "重新随机" }), apply: () => { setSeed((s) => (s % 99) + 1); } },
         ]}
       />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
         <div className="space-y-3">
-          <p className="text-xs font-mono text-gold uppercase tracking-wider">网络与冲击参数</p>
-          <Slider label="网络密度 d" sub="边出现概率" value={density} min={0.05} max={0.7} step={0.01} onChange={setDensity} />
-          <Slider label="资本充足率" sub="equity/assets" value={capitalRatio} min={0.02} max={0.2} step={0.005} onChange={setCapitalRatio} />
-          <Slider label="违约损失率 LGD" value={lgd} min={0.2} max={1} step={0.05} onChange={setLgd} />
-          <Slider label="初始冲击 (触发行)" value={shock} min={0.1} max={1} step={0.05} onChange={setShock} />
-          <Slider label="网络随机种子" value={seed} min={1} max={99} step={1} fmt={(v) => v.toFixed(0)} onChange={setSeed} />
+          <p className="text-xs font-mono text-gold uppercase tracking-wider">{t("labs.frontier.Contagion.text10", { defaultValue: "网络与冲击参数" })}</p>
+          <Slider label={t("labs.frontier.Contagion.text11", { defaultValue: "网络密度 d" })} sub={t("labs.frontier.Contagion.text12", { defaultValue: "边出现概率" })} value={density} min={0.05} max={0.7} step={0.01} onChange={setDensity} />
+          <Slider label={t("labs.frontier.Contagion.text13", { defaultValue: "资本充足率" })} sub="equity/assets" value={capitalRatio} min={0.02} max={0.2} step={0.005} onChange={setCapitalRatio} />
+          <Slider label={t("labs.frontier.Contagion.text14", { defaultValue: "违约损失率 LGD" })} value={lgd} min={0.2} max={1} step={0.05} onChange={setLgd} />
+          <Slider label={t("labs.frontier.Contagion.text15", { defaultValue: "初始冲击 (触发行)" })} value={shock} min={0.1} max={1} step={0.05} onChange={setShock} />
+          <Slider label={t("labs.frontier.Contagion.text16", { defaultValue: "网络随机种子" })} value={seed} min={1} max={99} step={1} fmt={(v) => v.toFixed(0)} onChange={setSeed} />
         </div>
         <div className="grid grid-cols-2 gap-2 content-start">
-          <Stat label="DebtRank" value={(sim.debtRank * 100).toFixed(1) + "%"} color={C.red} sub="系统价值受损" />
-          <Stat label="违约机构" value={`${sim.defaulted} / ${N}`} color={C.red} />
-          <Stat label="受压机构" value={`${sim.stressed} / ${N}`} color={C.gold} />
-          <Stat label="传染轮数" value={sim.rounds.toFixed(0)} color={C.blue} />
-          <Stat label="触发行" value={`B${sim.trigger}`} color={C.teal} sub="最大机构" />
-          <Stat label="系统重要性" value={sim.debtRank > 0.3 ? "高" : sim.debtRank > 0.1 ? "中" : "低"} color={sim.debtRank > 0.3 ? C.red : C.gold} />
+          <Stat label="DebtRank" value={(sim.debtRank * 100).toFixed(1) + "%"} color={C.red} sub={t("labs.frontier.Contagion.text17", { defaultValue: "系统价值受损" })} />
+          <Stat label={t("labs.frontier.Contagion.text18", { defaultValue: "违约机构" })} value={`${sim.defaulted} / ${N}`} color={C.red} />
+          <Stat label={t("labs.frontier.Contagion.text19", { defaultValue: "受压机构" })} value={`${sim.stressed} / ${N}`} color={C.gold} />
+          <Stat label={t("labs.frontier.Contagion.text20", { defaultValue: "传染轮数" })} value={sim.rounds.toFixed(0)} color={C.blue} />
+          <Stat label={t("labs.frontier.Contagion.text21", { defaultValue: "触发行" })} value={`B${sim.trigger}`} color={C.teal} sub={t("labs.frontier.Contagion.text22", { defaultValue: "最大机构" })} />
+          <Stat label={t("labs.frontier.Contagion.text23", { defaultValue: "系统重要性" })} value={sim.debtRank > 0.3 ? t("labs.frontier.Contagion.text24", { defaultValue: "高" }) : sim.debtRank > 0.1 ? t("labs.frontier.Contagion.text25", { defaultValue: "中" }) : t("labs.frontier.Contagion.text26", { defaultValue: "低" })} color={sim.debtRank > 0.3 ? C.red : C.gold} />
         </div>
       </div>
 
       <div className="rounded-xl border border-border bg-secondary/20 p-4">
-        <h4 className="text-sm font-semibold text-foreground mb-2">各机构最终困境度 (B{sim.trigger}* = 触发行)</h4>
+        <h4 className="text-sm font-semibold text-foreground mb-2">{t("labs.frontier.Contagion.text27", { defaultValue: "各机构最终困境度 (B" })}{sim.trigger}{t("labs.frontier.Contagion.text28", { defaultValue: "* = 触发行)" })}</h4>
         <div className="h-[260px]">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={sim.bars}>
@@ -144,7 +146,7 @@ export const ContagionTool = () => {
               <XAxis dataKey="name" stroke={C.text} tick={{ fontSize: 9 }} />
               <YAxis stroke={C.text} tick={{ fontSize: 10 }} unit="%" domain={[0, 100]} />
               <Tooltip contentStyle={tooltipStyle} />
-              <Bar dataKey="distress" name="困境度 %">
+              <Bar dataKey="distress" name={t("labs.frontier.Contagion.text29", { defaultValue: "困境度 %" })}>
                 {sim.bars.map((b, i) => (
                   <Cell key={i} fill={b.trigger ? C.gold : b.distress >= 99.9 ? C.red : C.blue} />
                 ))}
@@ -155,8 +157,8 @@ export const ContagionTool = () => {
       </div>
 
       <div className="text-xs font-mono text-muted-foreground p-3 rounded-lg bg-secondary/40 border border-border leading-relaxed">
-        <p><span className="text-gold">DebtRank (Battiston 2012)：</span>度量单一机构困境沿敞口网络传播后造成的系统总价值损失。</p>
-        <p><span className="text-gold">传导：</span>h_i += Σ_j min(1, LGD·e_ij/capital_i)·h_j；资本越薄、网络越密、LGD 越高，级联越剧烈。</p>
+        <p><span className="text-gold">DebtRank (Battiston 2012)：</span>{t("labs.frontier.Contagion.text30", { defaultValue: "度量单一机构困境沿敞口网络传播后造成的系统总价值损失。" })}</p>
+        <p><span className="text-gold">{t("labs.frontier.Contagion.text31", { defaultValue: "传导：" })}</span>{t("labs.frontier.Contagion.text32", { defaultValue: "h_i += Σ_j min(1, LGD·e_ij/capital_i)·h_j；资本越薄、网络越密、LGD 越高，级联越剧烈。" })}</p>
       </div>
     </div>
   );

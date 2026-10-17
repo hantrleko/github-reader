@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useEffect, useMemo, useState } from "react";
 import { useLocation } from "react-router-dom";
 import Navbar from "@/components/Navbar";
@@ -8,6 +9,7 @@ import { cn } from "@/lib/utils";
 import { ExternalLink, Search } from "lucide-react";
 
 const Papers = () => {
+  const { t } = useTranslation();
   const [q, setQ] = useState("");
   const [topic, setTopic] = useState<PaperTopic | "All">("All");
   const { hash } = useLocation();
@@ -38,14 +40,14 @@ const Papers = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <Seo title="经典论文索引 · EF Lab" description="量化金融与计量经济学经典论文索引：Black-Scholes、Fama-French、Hull-White、GARCH 等,可按主题筛选。" path="/papers" />
+      <Seo title={t("pages.papers.copy1", { defaultValue: "经典论文索引 · EF Lab" })} description={t("pages.papers.copy2", { defaultValue: "量化金融与计量经济学经典论文索引：Black-Scholes、Fama-French、Hull-White、GARCH 等,可按主题筛选。" })} path="/papers" />
       <Navbar />
       <main id="main-content" className="pt-14">
         <SectionHeader
           chapter="Chapter P"
           kicker="PAPER INDEX"
-          title="经典论文索引"
-          subtitle="可检索的学术参考库 · 每篇仅一句关键贡献,附 DOI / 链接,供计算器与策略库交叉引用。"
+          title={t("pages.papers.copy3", { defaultValue: "经典论文索引" })}
+          subtitle={t("pages.papers.copy4", { defaultValue: "可检索的学术参考库 · 每篇仅一句关键贡献,附 DOI / 链接,供计算器与策略库交叉引用。" })}
         />
 
         <section className="container max-w-5xl px-6 pb-16">
@@ -55,7 +57,7 @@ const Papers = () => {
               <input
                 value={q}
                 onChange={(e) => setQ(e.target.value)}
-                placeholder="搜索作者 / 标题 / 年份..."
+                placeholder={t("pages.papers.copy5", { defaultValue: "搜索作者 / 标题 / 年份..." })}
                 className="w-full bg-background border border-border/60 rounded-md pl-9 pr-3 py-2 text-xs font-mono focus-visible:outline-none focus-visible:border-gold"
               />
             </div>
@@ -131,7 +133,7 @@ const Papers = () => {
 
           {filtered.length === 0 && (
             <div className="text-center py-16 text-muted-foreground text-sm">
-              没有匹配的论文 · No matches.
+              {t("pages.papers.copy6", { defaultValue: "没有匹配的论文 · No matches." })}
             </div>
           )}
         </section>

@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { ArrowRight, Play, VolumeX, Volume2 } from "lucide-react";
@@ -13,6 +14,7 @@ const AUTO_DISMISS_MS = 4500;
  * Replay manually with ?intro=1.
  */
 const SplashIntro = () => {
+  const { t } = useTranslation();
   const reduce = useReducedMotion();
   const [visible, setVisible] = useState<boolean>(false);
   const [muted, setMuted] = useState(true);
@@ -167,7 +169,7 @@ const SplashIntro = () => {
               transition={{ delay: 1.0, duration: 0.8 }}
               className="mt-8 max-w-xl text-base md:text-lg text-foreground/75 leading-relaxed"
             >
-              一座把经济与金融理论转译为可运行实验的研究工作台 —— 从 SDF 到 GARCH，从投资组合到衍生品定价，全部在同一条工作流里被验证、可视化并归档。
+              {t("labs.splashIntro.text1", { defaultValue: "一座把经济与金融理论转译为可运行实验的研究工作台 —— 从 SDF 到 GARCH，从投资组合到衍生品定价，全部在同一条工作流里被验证、可视化并归档。" })}
             </motion.p>
 
             <motion.div

@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+import type { TFunction } from "i18next";
 import { useMemo, useState, useCallback } from "react";
 import { motion } from "framer-motion";
 import {
@@ -49,48 +51,50 @@ type Cell = {
   content: string;
 };
 
-const DEFAULT_CELLS: Cell[] = [
+const getDEFAULT_CELLS = (t: TFunction): Cell[] => ([
   {
     id: "c1",
     kind: "markdown",
-    title: "研究背景",
+    title: t("labs.platform.v28.text001", { defaultValue: "研究背景" }),
     content:
-      "本笔记本汇总最低工资政策对失业率影响的实证研究。我们使用 2010-2024 年州级面板数据,结合 DID 与 IV 两套识别策略,并对比 OLS 朴素回归。",
+      t("labs.platform.v28.text002", { defaultValue: "本笔记本汇总最低工资政策对失业率影响的实证研究。我们使用 2010-2024 年州级面板数据,结合 DID 与 IV 两套识别策略,并对比 OLS 朴素回归。" }),
   },
   {
     id: "c2",
     kind: "formula",
-    title: "识别假设",
+    title: t("labs.platform.v28.text003", { defaultValue: "识别假设" }),
     content: "Y_{it} = \\alpha_i + \\lambda_t + \\tau \\cdot D_{it} + X_{it}'\\beta + \\varepsilon_{it}",
   },
   {
     id: "c3",
     kind: "table",
-    title: "主要估计结果",
+    title: t("labs.platform.v28.text004", { defaultValue: "主要估计结果" }),
     content:
-      "模型 | τ 估计 | SE | p\nOLS | 0.482 | 0.041 | < 0.001\nIV-2SLS | 0.213 | 0.089 | 0.017\nTWFE-DID | 0.176 | 0.074 | 0.018\nCallaway-SantAnna | 0.158 | 0.082 | 0.054",
+      t("labs.platform.v28.text005", { defaultValue: "模型 | τ 估计 | SE | p\nOLS | 0.482 | 0.041 | < 0.001\nIV-2SLS | 0.213 | 0.089 | 0.017\nTWFE-DID | 0.176 | 0.074 | 0.018\nCallaway-SantAnna | 0.158 | 0.082 | 0.054" }),
   },
   {
     id: "c4",
     kind: "markdown",
-    title: "结论",
+    title: t("labs.platform.v28.text006", { defaultValue: "结论" }),
     content:
-      "去除选择性偏差与平行趋势违背后,真实效应规模约为 OLS 估计的 1/3。建议政策评估优先采用现代 DID 估计量。",
+      t("labs.platform.v28.text007", { defaultValue: "去除选择性偏差与平行趋势违背后,真实效应规模约为 OLS 估计的 1/3。建议政策评估优先采用现代 DID 估计量。" }),
   },
-];
+]);
 
 const NotebookTab = () => {
+  const { t } = useTranslation();
+  const DEFAULT_CELLS = getDEFAULT_CELLS(t);
   const [cells, setCells] = useState<Cell[]>(DEFAULT_CELLS);
-  const [title, setTitle] = useState("最低工资 → 失业 · 政策评估笔记");
+  const [title, setTitle] = useState(t("labs.platform.v28.text008", { defaultValue: "最低工资 → 失业 · 政策评估笔记" }));
   const [author, setAuthor] = useState("Econ & Finance Lab");
 
   const addCell = (kind: CellKind) => {
     const id = `c${Date.now()}`;
     const template: Record<CellKind, Cell> = {
-      markdown: { id, kind, title: "新文本块", content: "在此输入说明…" },
-      formula:  { id, kind, title: "新公式", content: "y = \\beta_0 + \\beta_1 x + \\varepsilon" },
-      table:    { id, kind, title: "新表格", content: "列A | 列B\n1 | 2\n3 | 4" },
-      code:     { id, kind, title: "新代码", content: "import statsmodels.api as sm\nmodel = sm.OLS(y, X).fit()" },
+      markdown: { id, kind, title: t("labs.platform.v28.text009", { defaultValue: "新文本块" }), content: t("labs.platform.v28.text010", { defaultValue: "在此输入说明…" }) },
+      formula:  { id, kind, title: t("labs.platform.v28.text011", { defaultValue: "新公式" }), content: "y = \\beta_0 + \\beta_1 x + \\varepsilon" },
+      table:    { id, kind, title: t("labs.platform.v28.text012", { defaultValue: "新表格" }), content: t("labs.platform.v28.text013", { defaultValue: "列A | 列B\n1 | 2\n3 | 4" }) },
+      code:     { id, kind, title: t("labs.platform.v28.text014", { defaultValue: "新代码" }), content: "import statsmodels.api as sm\nmodel = sm.OLS(y, X).fit()" },
     };
     setCells((cs) => [...cs, template[kind]]);
   };
@@ -111,7 +115,7 @@ const NotebookTab = () => {
     // Generate a standalone print window with embedded styles.
     const w = window.open("", "_blank", "width=900,height=1200");
     if (!w) {
-      toast({ title: "导出失败", description: "请允许弹出窗口后重试", variant: "destructive" });
+      toast({ title: t("labs.platform.v28.text015", { defaultValue: "导出失败" }), description: t("labs.platform.v28.text016", { defaultValue: "请允许弹出窗口后重试" }), variant: "destructive" });
       return;
     }
     const renderCell = (c: Cell) => {
@@ -157,7 +161,7 @@ const NotebookTab = () => {
       </body></html>
     `);
     w.document.close();
-  }, [cells, title, author]);
+  }, [cells, title, author, t]);
 
   return (
     <div className="space-y-4">
@@ -166,13 +170,13 @@ const NotebookTab = () => {
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           className="bg-card border border-border rounded-md px-3 py-2 text-sm font-display"
-          placeholder="报告标题"
+          placeholder={t("labs.platform.v28.text017", { defaultValue: "报告标题" })}
         />
         <input
           value={author}
           onChange={(e) => setAuthor(e.target.value)}
           className="bg-card border border-border rounded-md px-3 py-2 text-sm font-mono"
-          placeholder="作者"
+          placeholder={t("labs.platform.v28.text018", { defaultValue: "作者" })}
         />
       </div>
 
@@ -191,7 +195,7 @@ const NotebookTab = () => {
           onClick={exportPDF}
           className="inline-flex items-center gap-1.5 text-xs font-mono px-3 py-1.5 rounded-md bg-gold/10 border border-gold/40 text-gold hover:bg-gold/20 transition-colors"
         >
-          <Printer className="w-3.5 h-3.5" /> 导出 PDF
+          <Printer className="w-3.5 h-3.5" />{t("labs.platform.v28.text019", { defaultValue: "导出 PDF" })}
         </button>
       </div>
 
@@ -212,9 +216,9 @@ const NotebookTab = () => {
                 onChange={(e) => update(i, { title: e.target.value })}
                 className="flex-1 bg-transparent text-sm font-display font-medium focus:outline-none focus:ring-1 focus:ring-gold/40 rounded px-1"
               />
-              <button onClick={() => move(i, -1)} className="p-1 text-muted-foreground hover:text-gold" title="上移"><ArrowUp className="w-3.5 h-3.5" /></button>
-              <button onClick={() => move(i, 1)} className="p-1 text-muted-foreground hover:text-gold" title="下移"><ArrowDown className="w-3.5 h-3.5" /></button>
-              <button onClick={() => remove(i)} className="p-1 text-muted-foreground hover:text-destructive" title="删除"><Trash2 className="w-3.5 h-3.5" /></button>
+              <button onClick={() => move(i, -1)} className="p-1 text-muted-foreground hover:text-gold" title={t("labs.platform.v28.text020", { defaultValue: "上移" })}><ArrowUp className="w-3.5 h-3.5" /></button>
+              <button onClick={() => move(i, 1)} className="p-1 text-muted-foreground hover:text-gold" title={t("labs.platform.v28.text021", { defaultValue: "下移" })}><ArrowDown className="w-3.5 h-3.5" /></button>
+              <button onClick={() => remove(i)} className="p-1 text-muted-foreground hover:text-destructive" title={t("labs.platform.v28.text022", { defaultValue: "删除" })}><Trash2 className="w-3.5 h-3.5" /></button>
             </div>
             <textarea
               value={c.content}
@@ -239,30 +243,31 @@ const NotebookTab = () => {
 /* ═══════════════════════════════════════════════
  * TAB 2 — 真实数据基准库
  * ═══════════════════════════════════════════════ */
-const FRED_CATALOG = [
-  { id: "GDPC1", label: "美国实际 GDP (季度链式)", cat: "宏观" },
-  { id: "CPIAUCSL", label: "美国 CPI", cat: "宏观" },
-  { id: "UNRATE", label: "美国失业率", cat: "宏观" },
-  { id: "DGS10", label: "10Y 美债收益率", cat: "利率" },
-  { id: "DGS2", label: "2Y 美债收益率", cat: "利率" },
-  { id: "T10Y2Y", label: "10Y-2Y 期限利差", cat: "利率" },
-  { id: "FEDFUNDS", label: "联邦基金利率", cat: "利率" },
-  { id: "DEXUSEU", label: "USD/EUR 汇率", cat: "外汇" },
-  { id: "VIXCLS", label: "VIX 恐慌指数", cat: "波动率" },
-];
+const getFRED_CATALOG = (t: TFunction) => ([
+  { id: "GDPC1", label: t("labs.platform.v28.text023", { defaultValue: "美国实际 GDP (季度链式)" }), cat: t("labs.platform.v28.text024", { defaultValue: "宏观" }) },
+  { id: "CPIAUCSL", label: t("labs.platform.v28.text025", { defaultValue: "美国 CPI" }), cat: t("labs.platform.v28.text024", { defaultValue: "宏观" }) },
+  { id: "UNRATE", label: t("labs.platform.v28.text026", { defaultValue: "美国失业率" }), cat: t("labs.platform.v28.text024", { defaultValue: "宏观" }) },
+  { id: "DGS10", label: t("labs.platform.v28.text027", { defaultValue: "10Y 美债收益率" }), cat: t("labs.platform.v28.text028", { defaultValue: "利率" }) },
+  { id: "DGS2", label: t("labs.platform.v28.text029", { defaultValue: "2Y 美债收益率" }), cat: t("labs.platform.v28.text028", { defaultValue: "利率" }) },
+  { id: "T10Y2Y", label: t("labs.platform.v28.text030", { defaultValue: "10Y-2Y 期限利差" }), cat: t("labs.platform.v28.text028", { defaultValue: "利率" }) },
+  { id: "FEDFUNDS", label: t("labs.platform.v28.text031", { defaultValue: "联邦基金利率" }), cat: t("labs.platform.v28.text028", { defaultValue: "利率" }) },
+  { id: "DEXUSEU", label: t("labs.platform.v28.text032", { defaultValue: "USD/EUR 汇率" }), cat: t("labs.platform.v28.text033", { defaultValue: "外汇" }) },
+  { id: "VIXCLS", label: t("labs.platform.v28.text034", { defaultValue: "VIX 恐慌指数" }), cat: t("labs.platform.v28.text035", { defaultValue: "波动率" }) },
+]);
 
-const YAHOO_CATALOG = [
-  { id: "SPY", label: "标普 500 ETF", cat: "股票" },
-  { id: "QQQ", label: "纳斯达克 100 ETF", cat: "股票" },
-  { id: "AAPL", label: "Apple Inc", cat: "个股" },
-  { id: "MSFT", label: "Microsoft", cat: "个股" },
-  { id: "NVDA", label: "NVIDIA", cat: "个股" },
-  { id: "TLT", label: "20+ 年期美债 ETF", cat: "债券" },
-  { id: "GLD", label: "黄金 ETF", cat: "商品" },
-  { id: "BTC-USD", label: "比特币", cat: "数字资产" },
-];
+const getYAHOO_CATALOG = (t: TFunction) => ([
+  { id: "SPY", label: t("labs.platform.v28.text036", { defaultValue: "标普 500 ETF" }), cat: t("labs.platform.v28.text037", { defaultValue: "股票" }) },
+  { id: "QQQ", label: t("labs.platform.v28.text038", { defaultValue: "纳斯达克 100 ETF" }), cat: t("labs.platform.v28.text037", { defaultValue: "股票" }) },
+  { id: "AAPL", label: "Apple Inc", cat: t("labs.platform.v28.text039", { defaultValue: "个股" }) },
+  { id: "MSFT", label: "Microsoft", cat: t("labs.platform.v28.text039", { defaultValue: "个股" }) },
+  { id: "NVDA", label: "NVIDIA", cat: t("labs.platform.v28.text039", { defaultValue: "个股" }) },
+  { id: "TLT", label: t("labs.platform.v28.text040", { defaultValue: "20+ 年期美债 ETF" }), cat: t("labs.platform.v28.text041", { defaultValue: "债券" }) },
+  { id: "GLD", label: t("labs.platform.v28.text042", { defaultValue: "黄金 ETF" }), cat: t("labs.platform.v28.text043", { defaultValue: "商品" }) },
+  { id: "BTC-USD", label: t("labs.platform.v28.text044", { defaultValue: "比特币" }), cat: t("labs.platform.v28.text045", { defaultValue: "数字资产" }) },
+]);
 
 const FredCard = ({ id, label }: { id: string; label: string }) => {
+  const { t } = useTranslation();
   const [active, setActive] = useState(false);
   const { data, isFetching, error } = useFredSeries(id, "2015-01-01", active);
   const chart = useMemo(() => {
@@ -282,10 +287,10 @@ const FredCard = ({ id, label }: { id: string; label: string }) => {
           className="inline-flex items-center gap-1 text-xs font-mono px-2.5 py-1 rounded border border-gold/30 text-gold hover:bg-gold/10 disabled:opacity-50"
         >
           {isFetching ? <Loader2 className="w-3 h-3 animate-spin" /> : data ? <RefreshCw className="w-3 h-3" /> : <Download className="w-3 h-3" />}
-          {data ? "已加载" : "拉取"}
+          {data ? t("labs.platform.v28.text046", { defaultValue: "已加载" }) : t("labs.platform.v28.text047", { defaultValue: "拉取" })}
         </button>
       </div>
-      {error && <div className="text-[10px] text-destructive flex items-center gap-1"><AlertTriangle className="w-3 h-3" /> 加载失败</div>}
+      {error && <div className="text-[10px] text-destructive flex items-center gap-1"><AlertTriangle className="w-3 h-3" />{t("labs.platform.v28.text048", { defaultValue: "加载失败" })}</div>}
       {data && (
         <>
           <div className="flex gap-3 text-[11px] font-mono text-muted-foreground">
@@ -307,6 +312,7 @@ const FredCard = ({ id, label }: { id: string; label: string }) => {
 };
 
 const YahooCard = ({ id, label }: { id: string; label: string }) => {
+  const { t } = useTranslation();
   const [active, setActive] = useState(false);
   const { data, isFetching, error } = useMarketQuotes(id, "2y", active);
   const chart = useMemo(() => {
@@ -326,10 +332,10 @@ const YahooCard = ({ id, label }: { id: string; label: string }) => {
           className="inline-flex items-center gap-1 text-xs font-mono px-2.5 py-1 rounded border border-gold/30 text-gold hover:bg-gold/10 disabled:opacity-50"
         >
           {isFetching ? <Loader2 className="w-3 h-3 animate-spin" /> : data ? <RefreshCw className="w-3 h-3" /> : <Download className="w-3 h-3" />}
-          {data ? "已加载" : "拉取"}
+          {data ? t("labs.platform.v28.text046", { defaultValue: "已加载" }) : t("labs.platform.v28.text047", { defaultValue: "拉取" })}
         </button>
       </div>
-      {error && <div className="text-[10px] text-destructive flex items-center gap-1"><AlertTriangle className="w-3 h-3" /> 加载失败</div>}
+      {error && <div className="text-[10px] text-destructive flex items-center gap-1"><AlertTriangle className="w-3 h-3" />{t("labs.platform.v28.text048", { defaultValue: "加载失败" })}</div>}
       {data && (
         <>
           <div className="flex flex-wrap gap-x-3 gap-y-0.5 text-[11px] font-mono text-muted-foreground">
@@ -352,26 +358,28 @@ const YahooCard = ({ id, label }: { id: string; label: string }) => {
 };
 
 const DataLibraryTab = () => {
+  const { t } = useTranslation();
+  const FRED_CATALOG = getFRED_CATALOG(t);
+  const YAHOO_CATALOG = getYAHOO_CATALOG(t);
   const [tab, setTab] = useState<"fred" | "yahoo">("fred");
   const list = tab === "fred" ? FRED_CATALOG : YAHOO_CATALOG;
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-2">
-        {(["fred", "yahoo"] as const).map((t) => (
+        {(["fred", "yahoo"] as const).map((item) => (
           <button
-            key={t}
-            onClick={() => setTab(t)}
+            key={item}
+            onClick={() => setTab(item)}
             className={`text-xs font-mono px-3 py-1.5 rounded-md border transition-colors ${
-              tab === t ? "bg-gold/10 border-gold/40 text-gold" : "bg-card border-border hover:border-gold/40"
+              tab === item ? "bg-gold/10 border-gold/40 text-gold" : "bg-card border-border hover:border-gold/40"
             }`}
           >
-            {t.toUpperCase()} {t === "fred" ? "宏观/利率" : "股票/商品"}
+            {item.toUpperCase()} {item === "fred" ? t("labs.platform.v28.text049", { defaultValue: "宏观/利率" }) : t("labs.platform.v28.text050", { defaultValue: "股票/商品" })}
           </button>
         ))}
         <div className="flex-1" />
         <div className="text-[10px] font-mono text-muted-foreground flex items-center gap-1">
-          <CheckCircle2 className="w-3 h-3 text-gold" />
-          点击「拉取」即可加载,数据可一键发送到任意计量/期权工具
+          <CheckCircle2 className="w-3 h-3 text-gold" />{t("labs.platform.v28.text051", { defaultValue: "点击「拉取」即可加载,数据可一键发送到任意计量/期权工具" })}
         </div>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -463,6 +471,7 @@ function generateDataset(seed: number, n: number, trueTau: number, endogeneity: 
 }
 
 const CrossToolDashboard = () => {
+  const { t } = useTranslation();
   const [seed, setSeed] = useState(7);
   const [n, setN] = useState(800);
   const [tau, setTau] = useState(0.5);
@@ -516,13 +525,13 @@ const CrossToolDashboard = () => {
       N,
       truth: tau,
       models: [
-        { name: "OLS",      tau: ols_.beta[1], se: ols_.se[1], r2: ols_.r2, note: "未处理内生性" },
-        { name: "IV-2SLS",  tau: iv_.beta[1],  se: iv_.se[1],  r2: iv_.r2,  note: "Z 为工具变量" },
-        { name: "FE",       tau: fe_.beta[tauIdxFe],  se: fe_.se[tauIdxFe],  r2: fe_.r2,  note: "单位固定效应" },
-        { name: "TWFE-DID", tau: did_.beta[tauIdxDid], se: did_.se[tauIdxDid], r2: did_.r2, note: "单位 × 时间双向 FE" },
+        { name: "OLS",      tau: ols_.beta[1], se: ols_.se[1], r2: ols_.r2, note: t("labs.platform.v28.text052", { defaultValue: "未处理内生性" }) },
+        { name: "IV-2SLS",  tau: iv_.beta[1],  se: iv_.se[1],  r2: iv_.r2,  note: t("labs.platform.v28.text053", { defaultValue: "Z 为工具变量" }) },
+        { name: "FE",       tau: fe_.beta[tauIdxFe],  se: fe_.se[tauIdxFe],  r2: fe_.r2,  note: t("labs.platform.v28.text054", { defaultValue: "单位固定效应" }) },
+        { name: "TWFE-DID", tau: did_.beta[tauIdxDid], se: did_.se[tauIdxDid], r2: did_.r2, note: t("labs.platform.v28.text055", { defaultValue: "单位 × 时间双向 FE" }) },
       ],
     };
-  }, [seed, n, tau, endog]);
+  }, [seed, n, tau, endog, t]);
 
   const forest = result.models.map((m) => ({
     name: m.name,
@@ -536,31 +545,29 @@ const CrossToolDashboard = () => {
     <div className="space-y-4">
       <div className="grid md:grid-cols-4 gap-3 text-xs font-mono">
         <label className="space-y-1">
-          <span className="text-muted-foreground">真实 τ</span>
+          <span className="text-muted-foreground">{t("labs.platform.v28.text056", { defaultValue: "真实 τ" })}</span>
           <input type="range" min={-1} max={2} step={0.1} value={tau} onChange={(e) => setTau(+e.target.value)} className="w-full accent-gold" />
           <span className="text-gold">{tau.toFixed(2)}</span>
         </label>
         <label className="space-y-1">
-          <span className="text-muted-foreground">内生性强度 ρ(D,U)</span>
+          <span className="text-muted-foreground">{t("labs.platform.v28.text057", { defaultValue: "内生性强度 ρ(D,U)" })}</span>
           <input type="range" min={0} max={2} step={0.1} value={endog} onChange={(e) => setEndog(+e.target.value)} className="w-full accent-gold" />
           <span className="text-gold">{endog.toFixed(2)}</span>
         </label>
         <label className="space-y-1">
-          <span className="text-muted-foreground">样本量 ≈</span>
+          <span className="text-muted-foreground">{t("labs.platform.v28.text058", { defaultValue: "样本量 ≈" })}</span>
           <input type="range" min={200} max={2000} step={100} value={n} onChange={(e) => setN(+e.target.value)} className="w-full accent-gold" />
           <span className="text-gold">N = {result.N}</span>
         </label>
         <label className="space-y-1">
-          <span className="text-muted-foreground">随机种子</span>
+          <span className="text-muted-foreground">{t("labs.platform.v28.text059", { defaultValue: "随机种子" })}</span>
           <input type="range" min={1} max={50} step={1} value={seed} onChange={(e) => setSeed(+e.target.value)} className="w-full accent-gold" />
           <span className="text-gold">{seed}</span>
         </label>
       </div>
 
       <div className="text-[11px] font-mono text-muted-foreground bg-card/40 border border-border/60 rounded p-2">
-        DGP:  <InlineMath math="Y_{it} = \alpha_i + \lambda_t + \tau D_{it} + 0.3 X_{it} + 0.8 U_{it} + \varepsilon_{it}" />,
-        其中 <InlineMath math="D = 0.7Z + \rho U + 0.4(\text{treated} \times \text{post}) + \eta" />,U 同时影响 D 与 Y(内生性)。
-        同一份数据并行估计四种模型,观察哪类识别策略最接近 <span className="text-gold">τ = {tau.toFixed(2)}</span>。
+        DGP:  <InlineMath math="Y_{it} = \alpha_i + \lambda_t + \tau D_{it} + 0.3 X_{it} + 0.8 U_{it} + \varepsilon_{it}" />{t("labs.platform.v28.text060", { defaultValue: ",\n        其中" })} <InlineMath math="D = 0.7Z + \rho U + 0.4(\text{treated} \times \text{post}) + \eta" />{t("labs.platform.v28.text061", { defaultValue: ",U 同时影响 D 与 Y(内生性)。\n        同一份数据并行估计四种模型,观察哪类识别策略最接近" })} <span className="text-gold">τ = {tau.toFixed(2)}</span>。
       </div>
 
       {/* Coefficient table */}
@@ -568,13 +575,13 @@ const CrossToolDashboard = () => {
         <table className="w-full text-sm font-mono">
           <thead>
             <tr className="border-b border-border text-xs text-muted-foreground">
-              <th className="text-left py-2">模型</th>
+              <th className="text-left py-2">{t("labs.platform.v28.text062", { defaultValue: "模型" })}</th>
               <th className="text-right py-2">τ̂</th>
               <th className="text-right py-2">SE</th>
               <th className="text-right py-2">95% CI</th>
-              <th className="text-right py-2">偏差</th>
+              <th className="text-right py-2">{t("labs.platform.v28.text063", { defaultValue: "偏差" })}</th>
               <th className="text-right py-2">R²</th>
-              <th className="text-left py-2 pl-4">说明</th>
+              <th className="text-left py-2 pl-4">{t("labs.platform.v28.text064", { defaultValue: "说明" })}</th>
             </tr>
           </thead>
           <tbody>
@@ -602,7 +609,7 @@ const CrossToolDashboard = () => {
 
       {/* Forest plot */}
       <div className="border border-border/60 rounded-lg bg-card/40 p-3">
-        <div className="text-xs font-mono text-muted-foreground mb-2">Forest Plot · τ̂ ± 1.96·SE  ·  红线 = 真实 τ</div>
+        <div className="text-xs font-mono text-muted-foreground mb-2">{t("labs.platform.v28.text065", { defaultValue: "Forest Plot · τ̂ ± 1.96·SE  ·  红线 = 真实 τ" })}</div>
         <ResponsiveContainer width="100%" height={220}>
           <BarChart data={forest} layout="vertical" margin={{ left: 30, right: 30 }}>
             <CartesianGrid stroke={CHART_GRID} strokeDasharray="3 3" />
@@ -612,7 +619,7 @@ const CrossToolDashboard = () => {
               contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", fontSize: 12 }}
               formatter={(v: number, k: string) => [v.toFixed(3), k]}
             />
-            <ReferenceLine x={tau} stroke={CHART_RED} strokeDasharray="4 4" label={{ value: "真实 τ", fill: CHART_RED, fontSize: 10 }} />
+            <ReferenceLine x={tau} stroke={CHART_RED} strokeDasharray="4 4" label={{ value: t("labs.platform.v28.text056", { defaultValue: "真实 τ" }), fill: CHART_RED, fontSize: 10 }} />
             <Bar dataKey="tau" fill={CHART_GOLD}>
               {forest.map((f, i) => (
                 <Cell key={i} fill={Math.abs(f.bias) < 0.1 ? CHART_TEAL : Math.abs(f.bias) < 0.25 ? CHART_GOLD : CHART_RED} />
@@ -630,13 +637,15 @@ const CrossToolDashboard = () => {
  * ═══════════════════════════════════════════════ */
 type Tab = "notebook" | "data" | "compare";
 
-const TABS: { id: Tab; label: string; icon: typeof NotebookPen; desc: string }[] = [
-  { id: "notebook", label: "Notebook 模式",       icon: NotebookPen,     desc: "自由组合文本 / 公式 / 表格 / 代码,一键导出 PDF 研究报告" },
-  { id: "data",     label: "真实数据基准库",       icon: Database,        desc: "FRED 宏观利率 + Yahoo 股票商品,内置 17 个常用序列一键拉取" },
-  { id: "compare",  label: "跨工具对比仪表盘",     icon: GitCompareArrows, desc: "同一份合成数据并行跑 OLS / IV / FE / DID,森林图直观看偏差" },
-];
+const getTABS = (t: TFunction): { id: Tab; label: string; icon: typeof NotebookPen; desc: string }[] => ([
+  { id: "notebook", label: t("labs.platform.v28.text066", { defaultValue: "Notebook 模式" }),       icon: NotebookPen,     desc: t("labs.platform.v28.text067", { defaultValue: "自由组合文本 / 公式 / 表格 / 代码,一键导出 PDF 研究报告" }) },
+  { id: "data",     label: t("labs.platform.v28.text068", { defaultValue: "真实数据基准库" }),       icon: Database,        desc: t("labs.platform.v28.text069", { defaultValue: "FRED 宏观利率 + Yahoo 股票商品,内置 17 个常用序列一键拉取" }) },
+  { id: "compare",  label: t("labs.platform.v28.text070", { defaultValue: "跨工具对比仪表盘" }),     icon: GitCompareArrows, desc: t("labs.platform.v28.text071", { defaultValue: "同一份合成数据并行跑 OLS / IV / FE / DID,森林图直观看偏差" }) },
+]);
 
 const V28Platform = () => {
+  const { t } = useTranslation();
+  const TABS = getTABS(t);
   const [tab, setTab] = useState<Tab>("notebook");
   const active = TABS.find((x) => x.id === tab)!;
 
@@ -652,27 +661,25 @@ const V28Platform = () => {
           <div className="flex items-center gap-2 mb-2">
             <span className="text-[10px] font-mono uppercase tracking-[0.3em] text-gold">V2.8 · Platform</span>
           </div>
-          <h2 className="text-2xl md:text-3xl font-display text-foreground mb-2">
-            平台与体验增强
+          <h2 className="text-2xl md:text-3xl font-display text-foreground mb-2">{t("labs.platform.v28.text072", { defaultValue: "平台与体验增强" })}
           </h2>
-          <p className="text-sm text-muted-foreground max-w-3xl mb-6">
-            36 个模型工具之上的横向能力层:把零散的计算固化为可分享的报告、把课件公式接入真实市场、把识别策略并排压力测试。
+          <p className="text-sm text-muted-foreground max-w-3xl mb-6">{t("labs.platform.v28.text073", { defaultValue: "36 个模型工具之上的横向能力层:把零散的计算固化为可分享的报告、把课件公式接入真实市场、把识别策略并排压力测试。" })}
           </p>
 
           <div className="flex flex-wrap gap-2 mb-4">
-            {TABS.map((t) => {
-              const Icon = t.icon;
-              const isActive = tab === t.id;
+            {TABS.map((item) => {
+              const Icon = item.icon;
+              const isActive = tab === item.id;
               return (
                 <button
-                  key={t.id}
-                  onClick={() => setTab(t.id)}
+                  key={item.id}
+                  onClick={() => setTab(item.id)}
                   className={`inline-flex items-center gap-2 text-xs font-mono px-3 py-2 rounded-md border transition-colors ${
                     isActive ? "bg-gold/10 border-gold/40 text-gold" : "bg-card border-border hover:border-gold/40"
                   }`}
                 >
                   <Icon className="w-3.5 h-3.5" />
-                  {t.label}
+                  {item.label}
                 </button>
               );
             })}

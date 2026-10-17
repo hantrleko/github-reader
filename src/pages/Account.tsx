@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
@@ -10,6 +11,7 @@ import { Globe, Lock, ExternalLink, NotebookPen, Star, BookOpen } from "lucide-r
 import { BADGES } from "@/lib/achievements";
 
 const Account = () => {
+  const { t } = useTranslation();
   const { user, loading } = useAuth();
   const navigate = useNavigate();
   const [username, setUsername] = useState("");
@@ -50,6 +52,7 @@ const Account = () => {
   }, [user]);
 
   const save = async () => {
+  
     if (!user) return;
     setSaving(true);
     const clean = username.toLowerCase().replace(/[^a-z0-9_-]/g, "");
@@ -60,17 +63,17 @@ const Account = () => {
       is_public: isPublic,
     }).eq("id", user.id);
     setSaving(false);
-    if (error) { toast({ title: "保存失败", description: error.message, variant: "destructive" }); return; }
+    if (error) { toast({ title: t("pages.account.copy1", { defaultValue: "保存失败" }), description: error.message, variant: "destructive" }); return; }
     setUsername(clean);
-    toast({ title: "已保存" });
+    toast({ title: t("pages.account.copy2", { defaultValue: "已保存" }) });
   };
 
   return (
     <div className="min-h-screen bg-background">
-      <Seo title="账号设置 · EF Lab" description="管理你的 EF Lab 账号、username 与公开主页可见性。" path="/account" noindex />
+      <Seo title={t("pages.account.copy3", { defaultValue: "账号设置 · EF Lab" })} description={t("pages.account.copy4", { defaultValue: "管理你的 EF Lab 账号、username 与公开主页可见性。" })} path="/account" noindex />
       <Navbar />
       <main id="main-content" className="pt-14">
-        <SectionHeader chapter="ACCOUNT" kicker="PROFILE" title="账号与公开主页" subtitle="设置 username 后,他人可访问 /u/your-name。" />
+        <SectionHeader chapter="ACCOUNT" kicker="PROFILE" title={t("pages.account.copy5", { defaultValue: "账号与公开主页" })} subtitle={t("pages.account.copy6", { defaultValue: "设置 username 后,他人可访问 /u/your-name。" })} />
         <section className="container max-w-2xl px-6 pb-16">
           {user && (
             <div className="border border-border/60 bg-card/30 p-6 space-y-5">
@@ -105,7 +108,7 @@ const Account = () => {
                 <input type="checkbox" checked={isPublic} onChange={(e) => setIsPublic(e.target.checked)} className="accent-gold" />
                 <span className="text-sm text-foreground inline-flex items-center gap-1">
                   {isPublic ? <Globe className="w-3.5 h-3.5 text-emerald-400" /> : <Lock className="w-3.5 h-3.5 text-muted-foreground" />}
-                  公开个人主页 (Public profile)
+                  {t("pages.account.copy7", { defaultValue: "公开个人主页 (Public profile)" })}
                 </span>
               </label>
 
@@ -133,13 +136,13 @@ const Account = () => {
             <div>
               <div className="flex items-end justify-between border-b border-accent/30 pb-2 mb-4">
                 <h2 className="font-display text-xl text-foreground inline-flex items-center gap-2">
-                  <NotebookPen className="w-4 h-4 text-gold" /> 我的 Notebooks
+                  <NotebookPen className="w-4 h-4 text-gold" /> {t("pages.account.copy8", { defaultValue: "我的 Notebooks" })}
                   <span className="text-[10px] font-mono text-muted-foreground/70">({myNotebooks.length})</span>
                 </h2>
-                <Link to="/notebook" className="text-[10px] font-mono uppercase tracking-wider text-gold hover:underline">+ 新建</Link>
+                <Link to="/notebook" className="text-[10px] font-mono uppercase tracking-wider text-gold hover:underline">{t("pages.account.copy9", { defaultValue: "+ 新建" })}</Link>
               </div>
               {myNotebooks.length === 0 ? (
-                <p className="text-sm text-muted-foreground">还没有 Notebook · <Link to="/notebook/templates" className="text-gold hover:underline">浏览模板</Link></p>
+                <p className="text-sm text-muted-foreground">{t("pages.account.copy10", { defaultValue: "还没有 Notebook ·" })} <Link to="/notebook/templates" className="text-gold hover:underline">{t("pages.account.copy11", { defaultValue: "浏览模板" })}</Link></p>
               ) : (
                 <ul className="grid grid-cols-1 md:grid-cols-2 gap-2">
                   {myNotebooks.map((nb) => (
@@ -159,7 +162,7 @@ const Account = () => {
 
             {/* Badges */}
             <div>
-              <h2 className="font-display text-xl text-foreground border-b border-accent/30 pb-2 mb-4">🏅 徽章 <span className="text-[10px] font-mono text-muted-foreground/70">({badges.length}/{Object.keys(BADGES).length})</span></h2>
+              <h2 className="font-display text-xl text-foreground border-b border-accent/30 pb-2 mb-4">{t("pages.account.copy12", { defaultValue: "🏅 徽章" })} <span className="text-[10px] font-mono text-muted-foreground/70">({badges.length}/{Object.keys(BADGES).length})</span></h2>
               <div className="flex flex-wrap gap-2">
                 {Object.entries(BADGES).map(([slug, meta]) => {
                   const owned = badges.includes(slug);
@@ -179,9 +182,9 @@ const Account = () => {
 
             {/* Favorite Calculators */}
             <div>
-              <h2 className="font-display text-xl text-foreground border-b border-accent/30 pb-2 mb-4 inline-flex items-center gap-2"><Star className="w-4 h-4 text-gold" /> 收藏的计算器</h2>
+              <h2 className="font-display text-xl text-foreground border-b border-accent/30 pb-2 mb-4 inline-flex items-center gap-2"><Star className="w-4 h-4 text-gold" /> {t("pages.account.copy13", { defaultValue: "收藏的计算器" })}</h2>
               {favs.length === 0 ? (
-                <p className="text-sm text-muted-foreground">在计算器面板上点击 ⭐ 即可保存参数预设。</p>
+                <p className="text-sm text-muted-foreground">{t("pages.account.copy14", { defaultValue: "在计算器面板上点击 ⭐ 即可保存参数预设。" })}</p>
               ) : (
                 <ul className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
                   {favs.map((f) => (
@@ -196,9 +199,9 @@ const Account = () => {
 
             {/* Learning Progress */}
             <div>
-              <h2 className="font-display text-xl text-foreground border-b border-accent/30 pb-2 mb-4 inline-flex items-center gap-2"><BookOpen className="w-4 h-4 text-gold" /> 学习进度 <span className="text-[10px] font-mono text-muted-foreground/70">({progress.filter(p => p.status === "completed").length}/{progress.length} completed)</span></h2>
+              <h2 className="font-display text-xl text-foreground border-b border-accent/30 pb-2 mb-4 inline-flex items-center gap-2"><BookOpen className="w-4 h-4 text-gold" /> {t("pages.account.copy15", { defaultValue: "学习进度" })} <span className="text-[10px] font-mono text-muted-foreground/70">({progress.filter(p => p.status === "completed").length}/{progress.length} completed)</span></h2>
               {progress.length === 0 ? (
-                <p className="text-sm text-muted-foreground">浏览章节内容时会自动记录阅读与完成状态。</p>
+                <p className="text-sm text-muted-foreground">{t("pages.account.copy16", { defaultValue: "浏览章节内容时会自动记录阅读与完成状态。" })}</p>
               ) : (
                 <div className="flex flex-wrap gap-1.5">
                   {progress.map((p, i) => (

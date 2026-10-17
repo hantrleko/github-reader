@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useState, useMemo } from "react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, ReferenceLine } from "recharts";
 import "katex/dist/katex.min.css";
@@ -52,6 +53,7 @@ function ivSurface(k: number, T: number, atm: number, skew: number, curv: number
 }
 
 export const LocalVolTool = () => {
+  const { t } = useTranslation();
   const [S0, setS0] = useState(100);
   const [r, setR] = useState(0.03);
   const [atm, setAtm] = useState(0.22);
@@ -99,31 +101,31 @@ export const LocalVolTool = () => {
   return (
     <div className="space-y-6">
       <PresetButtons presets={[
-        { name: "股指负 skew", description: "典型左偏", apply: () => { setAtm(0.22); setSkew(-0.35); setCurv(0.40); setTermSlope(0.02); } },
-        { name: "FX 对称微笑", description: "skew≈0,凸度高", apply: () => { setAtm(0.12); setSkew(0); setCurv(0.6); setTermSlope(0.01); } },
-        { name: "平直曲面", description: "退化到 BS 常数 σ", apply: () => { setAtm(0.20); setSkew(0); setCurv(0); setTermSlope(0); } },
-        { name: "极端 skew", description: "短期左尾恐慌", apply: () => { setAtm(0.30); setSkew(-0.7); setCurv(0.8); setTermSlope(-0.05); setTslice(0.25); } },
+        { name: t("labs.deriv.LocalVol.text307", { defaultValue: "股指负 skew" }), description: t("labs.deriv.LocalVol.text308", { defaultValue: "典型左偏" }), apply: () => { setAtm(0.22); setSkew(-0.35); setCurv(0.40); setTermSlope(0.02); } },
+        { name: t("labs.deriv.LocalVol.text235", { defaultValue: "FX 对称微笑" }), description: t("labs.deriv.LocalVol.text309", { defaultValue: "skew≈0,凸度高" }), apply: () => { setAtm(0.12); setSkew(0); setCurv(0.6); setTermSlope(0.01); } },
+        { name: t("labs.deriv.LocalVol.text310", { defaultValue: "平直曲面" }), description: t("labs.deriv.LocalVol.text311", { defaultValue: "退化到 BS 常数 σ" }), apply: () => { setAtm(0.20); setSkew(0); setCurv(0); setTermSlope(0); } },
+        { name: t("labs.deriv.LocalVol.text312", { defaultValue: "极端 skew" }), description: t("labs.deriv.LocalVol.text313", { defaultValue: "短期左尾恐慌" }), apply: () => { setAtm(0.30); setSkew(-0.7); setCurv(0.8); setTermSlope(-0.05); setTslice(0.25); } },
       ]} />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="space-y-3">
-          <p className="text-xs font-mono text-gold uppercase tracking-wider">市场参数</p>
+          <p className="text-xs font-mono text-gold uppercase tracking-wider">{t("labs.deriv.LocalVol.text241", { defaultValue: "市场参数" })}</p>
           <div className="grid grid-cols-2 gap-3">
             <Slider label="S₀" value={S0} min={50} max={200} step={5} onChange={setS0} />
             <Slider label="r" value={r} min={0} max={0.1} step={0.005} onChange={setR} />
           </div>
-          <p className="text-xs font-mono text-gold uppercase tracking-wider mt-4">IV 曲面参数 (输入)</p>
-          <Slider label="ATM σ" sub="平值水平" value={atm} min={0.05} max={0.5} step={0.01} onChange={setAtm} />
-          <Slider label="Skew ∂σ/∂k" sub="负值=左偏" value={skew} min={-1} max={1} step={0.05} onChange={setSkew} />
+          <p className="text-xs font-mono text-gold uppercase tracking-wider mt-4">{t("labs.deriv.LocalVol.text314", { defaultValue: "IV 曲面参数 (输入)" })}</p>
+          <Slider label="ATM σ" sub={t("labs.deriv.LocalVol.text315", { defaultValue: "平值水平" })} value={atm} min={0.05} max={0.5} step={0.01} onChange={setAtm} />
+          <Slider label="Skew ∂σ/∂k" sub={t("labs.deriv.LocalVol.text316", { defaultValue: "负值=左偏" })} value={skew} min={-1} max={1} step={0.05} onChange={setSkew} />
           <Slider label="Curvature ∂²σ/∂k²" value={curv} min={-0.5} max={1.5} step={0.05} onChange={setCurv} />
-          <Slider label="期限斜率" sub="∂σ/∂T" value={termSlope} min={-0.1} max={0.1} step={0.005} onChange={setTermSlope} />
-          <Slider label="切片 T (年)" value={Tslice} min={0.1} max={3} step={0.05} onChange={setTslice} />
+          <Slider label={t("labs.deriv.LocalVol.text317", { defaultValue: "期限斜率" })} sub="∂σ/∂T" value={termSlope} min={-0.1} max={0.1} step={0.005} onChange={setTermSlope} />
+          <Slider label={t("labs.deriv.LocalVol.text318", { defaultValue: "切片 T (年)" })} value={Tslice} min={0.1} max={3} step={0.05} onChange={setTslice} />
         </div>
 
         <div className="space-y-3">
           <div className="grid grid-cols-2 gap-2">
             <div className="rounded-lg bg-secondary/40 border border-border p-3">
-              <p className="text-[10px] font-mono uppercase text-muted-foreground">ATM IV (输入)</p>
+              <p className="text-[10px] font-mono uppercase text-muted-foreground">{t("labs.deriv.LocalVol.text319", { defaultValue: "ATM IV (输入)" })}</p>
               <p className="text-lg font-mono text-gold tabular-nums">{(atmIv * 100).toFixed(2)}%</p>
             </div>
             <div className="rounded-lg bg-secondary/40 border border-border p-3">
@@ -132,17 +134,17 @@ export const LocalVolTool = () => {
             </div>
           </div>
           <div className="text-xs font-mono text-muted-foreground p-3 rounded-lg bg-secondary/40 border border-border leading-relaxed">
-            <p><span className="text-gold">Dupire (1994)：</span>给定无套利的欧式 call 曲面 C(K,T)，唯一确定一个<u>确定性</u>局部波动率 σ(K,T):</p>
+            <p><span className="text-gold">Dupire (1994)：</span>{t("labs.deriv.LocalVol.text320", { defaultValue: "给定无套利的欧式 call 曲面 C(K,T)，唯一确定一个" })}<u>{t("labs.deriv.LocalVol.text321", { defaultValue: "确定性" })}</u>{t("labs.deriv.LocalVol.text322", { defaultValue: "局部波动率 σ(K,T):" })}</p>
             <p className="text-center my-2 text-foreground">σ²<sub>loc</sub>(K,T) = [∂C/∂T + rK·∂C/∂K] / [½K²·∂²C/∂K²]</p>
-            <p>常用直觉："局部波动率是对应隐含波动率的<u>双倍 skew</u>"——曲面越陡，σ_loc 偏离 σ_iv 越大。</p>
-            <p>退化情形：常数 σ_iv ⇒ σ_loc ≡ σ_iv ⇒ 退化为 Black-Scholes。</p>
-            <p>与 SVI/IV 工具天然衔接：先拟合 IV 曲面，再用 Dupire 反演路径生成器。</p>
+            <p>{t("labs.deriv.LocalVol.text323", { defaultValue: "常用直觉：\"局部波动率是对应隐含波动率的" })}<u>{t("labs.deriv.LocalVol.text324", { defaultValue: "双倍 skew" })}</u>{t("labs.deriv.LocalVol.text325", { defaultValue: "\"——曲面越陡，σ_loc 偏离 σ_iv 越大。" })}</p>
+            <p>{t("labs.deriv.LocalVol.text326", { defaultValue: "退化情形：常数 σ_iv ⇒ σ_loc ≡ σ_iv ⇒ 退化为 Black-Scholes。" })}</p>
+            <p>{t("labs.deriv.LocalVol.text327", { defaultValue: "与 SVI/IV 工具天然衔接：先拟合 IV 曲面，再用 Dupire 反演路径生成器。" })}</p>
           </div>
         </div>
       </div>
 
       <div className="rounded-xl border border-border bg-secondary/20 p-4">
-        <h4 className="text-sm font-semibold text-foreground mb-2">σ_iv vs σ_loc — Dupire 反演切片 @ T={Tslice.toFixed(2)}</h4>
+        <h4 className="text-sm font-semibold text-foreground mb-2">{t("labs.deriv.LocalVol.text328", { defaultValue: "σ_iv vs σ_loc — Dupire 反演切片 @ T=" })}{Tslice.toFixed(2)}</h4>
         <div className="h-[320px]">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={slice}>
@@ -153,8 +155,8 @@ export const LocalVolTool = () => {
                 label={{ value: "σ %", angle: -90, position: "insideLeft", fill: CHART_TEXT, fontSize: 10 }} />
               <Tooltip contentStyle={{ background: "hsl(var(--card))", border: `1px solid ${CHART_GRID}`, fontSize: 11 }} />
               <Legend wrapperStyle={{ fontSize: 11 }} />
-              <Line type="monotone" dataKey="ivPct" name="σ_iv (输入隐含波动率)" stroke={CHART_GOLD} strokeWidth={2} dot={false} />
-              <Line type="monotone" dataKey="locPct" name="σ_loc (Dupire 反演)" stroke={CHART_TEAL} strokeWidth={2.5} dot={false} />
+              <Line type="monotone" dataKey="ivPct" name={t("labs.deriv.LocalVol.text329", { defaultValue: "σ_iv (输入隐含波动率)" })} stroke={CHART_GOLD} strokeWidth={2} dot={false} />
+              <Line type="monotone" dataKey="locPct" name={t("labs.deriv.LocalVol.text330", { defaultValue: "σ_loc (Dupire 反演)" })} stroke={CHART_TEAL} strokeWidth={2.5} dot={false} />
               <ReferenceLine x={0} stroke={CHART_RED} strokeDasharray="3 3" />
             </LineChart>
           </ResponsiveContainer>

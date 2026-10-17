@@ -265,17 +265,17 @@ const ImpliedVolTool = () => {
                 filename="implied-vol"
                 markdown={() =>
                   [
-                    `### 隐含波动率 (Newton-Raphson)`,
+                    t("labs.deriv.ImpliedVol.text381", { defaultValue: "### 隐含波动率 (Newton-Raphson)" }),
                     ``,
-                    `| 参数 | 值 |`,
+                    t("labs.deriv.ImpliedVol.text382", { defaultValue: "| 参数 | 值 |" }),
                     `| --- | --- |`,
-                    `| 期权类型 | ${optType === "call" ? "Call" : "Put"} |`,
-                    `| 标的 S | ${ivS} |`,
-                    `| 行权 K | ${ivK} |`,
-                    `| 利率 r | ${ivR}% |`,
-                    `| 到期 T | ${ivT} 年 |`,
-                    `| 市场价 | ${mktPrice} |`,
-                    `| **σ_iv** | **${ivResult ? ivResult.iv.toFixed(2) + "%" : "无解"}** |`,
+                    t("labs.deriv.ImpliedVol.text383", { defaultValue: "| 期权类型 | {{value0}} |", value0: optType === "call" ? "Call" : "Put" }),
+                    t("labs.deriv.ImpliedVol.text384", { defaultValue: "| 标的 S | {{value0}} |", value0: ivS }),
+                    t("labs.deriv.ImpliedVol.text385", { defaultValue: "| 行权 K | {{value0}} |", value0: ivK }),
+                    t("labs.deriv.ImpliedVol.text386", { defaultValue: "| 利率 r | {{value0}}% |", value0: ivR }),
+                    t("labs.deriv.ImpliedVol.text387", { defaultValue: "| 到期 T | {{value0}} 年 |", value0: ivT }),
+                    t("labs.deriv.ImpliedVol.text388", { defaultValue: "| 市场价 | {{value0}} |", value0: mktPrice }),
+                    t("labs.deriv.ImpliedVol.text389", { defaultValue: "| **σ_iv** | **{{value0}}** |", value0: ivResult ? ivResult.iv.toFixed(2) + "%" : t("labs.deriv.ImpliedVol.noSolution", { defaultValue: "无解" }) }),
                     ``,
                     `$$C_{BS}(S,K,r,\\sigma_{iv},T)=C_{mkt}$$`,
                   ].join("\n")
@@ -314,9 +314,9 @@ const ImpliedVolTool = () => {
                 }}
               />
               <PresetButtons presets={[
-                { name: "ATM标准", description: "S=K=100, T=1, 市场价10.45", apply: () => { setOptType("call"); setMktPrice(10.45); setIvS(100); setIvK(100); setIvR(5); setIvT(1); setBaseVol(20); setSkew(-0.1); setSmile(0.05); } },
-                { name: "OTM看跌", description: "S=100, K=90, Put", apply: () => { setOptType("put"); setMktPrice(3.2); setIvS(100); setIvK(90); setIvR(5); setIvT(0.5); } },
-                { name: "强微笑", description: "高smile系数, 股指风格", apply: () => { setBaseVol(18); setSkew(-0.15); setSmile(0.12); } },
+                { name: t("labs.deriv.ImpliedVol.text390", { defaultValue: "ATM标准" }), description: t("labs.deriv.ImpliedVol.text391", { defaultValue: "S=K=100, T=1, 市场价10.45" }), apply: () => { setOptType("call"); setMktPrice(10.45); setIvS(100); setIvK(100); setIvR(5); setIvT(1); setBaseVol(20); setSkew(-0.1); setSmile(0.05); } },
+                { name: t("labs.deriv.ImpliedVol.text392", { defaultValue: "OTM看跌" }), description: "S=100, K=90, Put", apply: () => { setOptType("put"); setMktPrice(3.2); setIvS(100); setIvK(90); setIvR(5); setIvT(0.5); } },
+                { name: t("labs.deriv.ImpliedVol.text393", { defaultValue: "强微笑" }), description: t("labs.deriv.ImpliedVol.text394", { defaultValue: "高smile系数, 股指风格" }), apply: () => { setBaseVol(18); setSkew(-0.15); setSmile(0.12); } },
               ]} />
 
               {/* Option type toggle */}

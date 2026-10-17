@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+import type { TFunction } from "i18next";
 /**
  * V5.2 US Suite — 美股全栈数据工作台.
  * 五个页签: 行情与技术面 / 基本面 / SEC 披露流 / 期权链 / 全市场筛选.
@@ -25,13 +27,13 @@ import {
 const PRESETS = ["AAPL", "NVDA", "MSFT", "TSLA", "SPY", "GOOGL", "AMZN", "META"];
 type Tab = "quote" | "fundamentals" | "filings" | "options" | "screener";
 
-const TABS: { id: Tab; label: string; sub: string }[] = [
-  { id: "quote", label: "行情 · 技术面", sub: "Quote & Indicators" },
-  { id: "fundamentals", label: "基本面", sub: "SEC XBRL & Metrics" },
-  { id: "filings", label: "SEC 披露流", sub: "EDGAR Filings" },
-  { id: "options", label: "期权链", sub: "Chain & Greeks" },
-  { id: "screener", label: "全市场筛选", sub: "XBRL Frames" },
-];
+const getTABS = (t: TFunction): { id: Tab; label: string; sub: string }[] => ([
+  { id: "quote", label: t("labs.data.uSSuite.text001", { defaultValue: "行情 · 技术面" }), sub: "Quote & Indicators" },
+  { id: "fundamentals", label: t("labs.data.uSSuite.text002", { defaultValue: "基本面" }), sub: "SEC XBRL & Metrics" },
+  { id: "filings", label: t("labs.data.uSSuite.text003", { defaultValue: "SEC 披露流" }), sub: "EDGAR Filings" },
+  { id: "options", label: t("labs.data.uSSuite.text004", { defaultValue: "期权链" }), sub: "Chain & Greeks" },
+  { id: "screener", label: t("labs.data.uSSuite.text005", { defaultValue: "全市场筛选" }), sub: "XBRL Frames" },
+]);
 
 const pct = (v: number | null | undefined, d = 2) =>
   v == null || !Number.isFinite(v) ? "—" : `${v > 0 ? "+" : ""}${v.toFixed(d)}%`;
@@ -86,6 +88,7 @@ function Source({ text }: { text: string }) {
 
 /* ═══════════════ Tab 1 · Quote & technicals ═══════════════ */
 function QuoteTab({ symbol }: { symbol: string }) {
+  const { t } = useTranslation();
   const [range, setRange] = useState("1y");
   const { data, isFetching, error, refetch } = useUsQuote(symbol, range);
 
@@ -169,12 +172,12 @@ function QuoteTab({ symbol }: { symbol: string }) {
         <div className="flex flex-wrap items-center gap-2">
           <SendToTool
             fromId="us-suite"
-            label="US Suite 行情"
+            label={t("labs.data.uSSuite.text006", { defaultValue: "US Suite 行情" })}
             outputs={{ S0: data.price, sigma: data.annualVol }}
             targets={["bs", "iv", "mc", "backtest"]}
           />
           <span className="text-[10px] font-mono text-muted-foreground">
-            S₀ = {data.price.toFixed(2)} · σ = {(data.annualVol * 100).toFixed(1)}% 可直接送入定价与回测工具
+            S₀ = {data.price.toFixed(2)} · σ = {(data.annualVol * 100).toFixed(1)}{t("labs.data.uSSuite.text007", { defaultValue: "% 可直接送入定价与回测工具" })}
           </span>
         </div>
       )}
@@ -226,28 +229,30 @@ function QuoteTab({ symbol }: { symbol: string }) {
           </ResponsiveContainer>
         </div>
       </div>
-      <Source text={data?.source || "Yahoo Finance chart v8 · 指标本地计算 (MA / EMA / MACD / RSI / KDJ / Bollinger)"} />
+      <Source text={data?.source || t("labs.data.uSSuite.text008", { defaultValue: "Yahoo Finance chart v8 · 指标本地计算 (MA / EMA / MACD / RSI / KDJ / Bollinger)" })} />
     </Panel>
   );
 }
 
 /* ═══════════════ Tab 2 · Fundamentals ═══════════════ */
-const METRIC_LABELS: Record<string, { label: string; kind: "usd" | "x" | "pct" }> = {
-  marketCap: { label: "市值 Market Cap", kind: "usd" },
+const getMETRIC_LABELS = (t: TFunction): Record<string, { label: string; kind: "usd" | "x" | "pct" }> => ({
+  marketCap: { label: t("labs.data.uSSuite.text009", { defaultValue: "市值 Market Cap" }), kind: "usd" },
   trailingPE: { label: "PE (TTM)", kind: "x" },
   forwardPE: { label: "Forward PE", kind: "x" },
   priceToBook: { label: "PB", kind: "x" },
   beta: { label: "Beta", kind: "x" },
-  dividendYield: { label: "股息率", kind: "pct" },
-  grossMargins: { label: "毛利率", kind: "pct" },
-  profitMargins: { label: "净利率", kind: "pct" },
+  dividendYield: { label: t("labs.data.uSSuite.text010", { defaultValue: "股息率" }), kind: "pct" },
+  grossMargins: { label: t("labs.data.uSSuite.text011", { defaultValue: "毛利率" }), kind: "pct" },
+  profitMargins: { label: t("labs.data.uSSuite.text012", { defaultValue: "净利率" }), kind: "pct" },
   returnOnEquity: { label: "ROE", kind: "pct" },
-  revenueGrowth: { label: "营收增速", kind: "pct" },
+  revenueGrowth: { label: t("labs.data.uSSuite.text013", { defaultValue: "营收增速" }), kind: "pct" },
   debtToEquity: { label: "D/E", kind: "x" },
-  targetMeanPrice: { label: "目标价均值", kind: "x" },
-};
+  targetMeanPrice: { label: t("labs.data.uSSuite.text014", { defaultValue: "目标价均值" }), kind: "x" },
+});
 
 function FundamentalsTab({ symbol }: { symbol: string }) {
+  const { t } = useTranslation();
+  const METRIC_LABELS = getMETRIC_LABELS(t);
   const { data, isFetching, error, refetch } = useUsFundamentals(symbol);
   const [statement, setStatement] = useState<"income" | "balance" | "cash">("income");
 
@@ -287,7 +292,7 @@ function FundamentalsTab({ symbol }: { symbol: string }) {
                   statement === s ? "bg-gold/15 text-gold" : "text-muted-foreground hover:text-foreground",
                 )}
               >
-                {s === "income" ? "利润表" : s === "balance" ? "资产负债" : "现金流"}
+                {s === "income" ? t("labs.data.uSSuite.text015", { defaultValue: "利润表" }) : s === "balance" ? t("labs.data.uSSuite.text016", { defaultValue: "资产负债" }) : t("labs.data.uSSuite.text017", { defaultValue: "现金流" })}
               </button>
             ))}
           </div>
@@ -298,7 +303,7 @@ function FundamentalsTab({ symbol }: { symbol: string }) {
       <ErrorNote error={error} />
       {isFetching && !data && (
         <p className="text-xs font-mono text-muted-foreground flex items-center gap-2">
-          <Loader2 className="w-3.5 h-3.5 animate-spin" /> 正在读取 SEC XBRL…
+          <Loader2 className="w-3.5 h-3.5 animate-spin" />{t("labs.data.uSSuite.text018", { defaultValue: "正在读取 SEC XBRL…" })}
         </p>
       )}
 
@@ -368,7 +373,7 @@ function FundamentalsTab({ symbol }: { symbol: string }) {
               </tr>
             ))}
             {!series.length && !isFetching && (
-              <tr><td className="px-4 py-8 text-center text-muted-foreground text-xs">该标的暂无对应 XBRL 年度数据 (非美国注册发行人通常不适用)</td></tr>
+              <tr><td className="px-4 py-8 text-center text-muted-foreground text-xs">{t("labs.data.uSSuite.text019", { defaultValue: "该标的暂无对应 XBRL 年度数据 (非美国注册发行人通常不适用)" })}</td></tr>
             )}
           </tbody>
         </table>
@@ -382,6 +387,7 @@ function FundamentalsTab({ symbol }: { symbol: string }) {
 const FORMS = ["", "10-K", "10-Q", "8-K", "4", "13F", "S-1"];
 
 function FilingsTab({ symbol }: { symbol: string }) {
+  const { t } = useTranslation();
   const [form, setForm] = useState("");
   const [q, setQ] = useState("");
   const [ftsOn, setFtsOn] = useState(false);
@@ -402,7 +408,7 @@ function FilingsTab({ symbol }: { symbol: string }) {
             className="bg-background border border-border/60 px-2 py-1 text-xs font-mono focus:outline-none focus:border-gold"
           >
             {FORMS.map((f) => (
-              <option key={f || "all"} value={f}>{f || "全部表单"}</option>
+              <option key={f || "all"} value={f}>{f || t("labs.data.uSSuite.text020", { defaultValue: "全部表单" })}</option>
             ))}
           </select>
           <Refresh onClick={() => issuer.refetch()} busy={issuer.isFetching} />
@@ -439,14 +445,14 @@ function FilingsTab({ symbol }: { symbol: string }) {
               </tr>
             ))}
             {!issuer.isFetching && !issuer.data?.rows.length && (
-              <tr><td colSpan={5} className="px-4 py-8 text-center text-muted-foreground text-xs">暂无数据</td></tr>
+              <tr><td colSpan={5} className="px-4 py-8 text-center text-muted-foreground text-xs">{t("labs.data.uSSuite.text021", { defaultValue: "暂无数据" })}</td></tr>
             )}
           </tbody>
         </table>
       </div>
 
       <div className="border border-border/40 bg-background/40 p-3 space-y-3">
-        <p className="text-[10px] font-mono uppercase tracking-wider text-gold">EDGAR Full-Text Search · 2001 至今全库检索</p>
+        <p className="text-[10px] font-mono uppercase tracking-wider text-gold">{t("labs.data.uSSuite.text022", { defaultValue: "EDGAR Full-Text Search · 2001 至今全库检索" })}</p>
         <form
           className="flex flex-wrap items-center gap-2"
           onSubmit={(e) => { e.preventDefault(); setFtsOn(true); fts.refetch(); }}
@@ -454,11 +460,11 @@ function FilingsTab({ symbol }: { symbol: string }) {
           <input
             value={q}
             onChange={(e) => setQ(e.target.value)}
-            placeholder='例如 "HBM4" 或 "going concern"'
+            placeholder={t("labs.data.uSSuite.text023", { defaultValue: "例如 \"HBM4\" 或 \"going concern\"" })}
             className="flex-1 min-w-[220px] bg-background border border-border/60 px-2 py-1.5 text-xs font-mono focus:outline-none focus:border-gold"
           />
           <button type="submit" className="inline-flex items-center gap-1.5 border border-gold/50 text-gold px-3 py-1.5 text-xs font-mono hover:bg-gold/10">
-            <Search className="w-3.5 h-3.5" /> 检索
+            <Search className="w-3.5 h-3.5" />{t("labs.data.uSSuite.text024", { defaultValue: "检索" })}
           </button>
         </form>
         <ErrorNote error={fts.error} />
@@ -477,20 +483,21 @@ function FilingsTab({ symbol }: { symbol: string }) {
                   </tr>
                 ))}
                 {!fts.data.rows.length && (
-                  <tr><td className="px-4 py-6 text-center text-muted-foreground text-xs">无匹配结果</td></tr>
+                  <tr><td className="px-4 py-6 text-center text-muted-foreground text-xs">{t("labs.data.uSSuite.text025", { defaultValue: "无匹配结果" })}</td></tr>
                 )}
               </tbody>
             </table>
           </div>
         )}
       </div>
-      <Source text="SEC EDGAR submissions + full-text search · tier S (可商用/可再分发, 需声明 User-Agent, ≤10 req/s)" />
+      <Source text={t("labs.data.uSSuite.text026", { defaultValue: "SEC EDGAR submissions + full-text search · tier S (可商用/可再分发, 需声明 User-Agent, ≤10 req/s)" })} />
     </Panel>
   );
 }
 
 /* ═══════════════ Tab 4 · Options ═══════════════ */
 function OptionsTab({ symbol }: { symbol: string }) {
+  const { t } = useTranslation();
   const [expiry, setExpiry] = useState<number | undefined>(undefined);
   const { data, isFetching, error, refetch } = useUsOptions(symbol, expiry);
 
@@ -515,8 +522,8 @@ function OptionsTab({ symbol }: { symbol: string }) {
     <Panel>
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h3 className="font-display text-lg text-foreground">
-          {symbol} 期权链
-          {data?.expiryDate && <span className="text-xs font-mono text-muted-foreground ml-2">到期 {data.expiryDate}</span>}
+          {symbol}{t("labs.data.uSSuite.text004", { defaultValue: "期权链" })}
+          {data?.expiryDate && <span className="text-xs font-mono text-muted-foreground ml-2">{t("labs.data.uSSuite.text027", { defaultValue: "到期" })} {data.expiryDate}</span>}
           {data?.isZeroDte && <span className="ml-2 text-[10px] font-mono px-1.5 py-0.5 border border-gold/60 text-gold">0DTE</span>}
         </h3>
         <div className="flex items-center gap-2">
@@ -539,7 +546,7 @@ function OptionsTab({ symbol }: { symbol: string }) {
         <Stat k="Spot" v={data?.spot?.toFixed(2) ?? "—"} />
         <Stat k="Put/Call Vol" v={data?.putCallVol != null ? data.putCallVol.toFixed(2) : "—"} tone={data?.putCallVol != null && data.putCallVol > 1 ? "down" : "up"} />
         <Stat k="Put/Call OI" v={data?.putCallOi != null ? data.putCallOi.toFixed(2) : "—"} />
-        <Stat k="异动合约" v={data?.unusualCount != null ? String(data.unusualCount) : "—"} />
+        <Stat k={t("labs.data.uSSuite.text028", { defaultValue: "异动合约" })} v={data?.unusualCount != null ? String(data.unusualCount) : "—"} />
         <Stat k="T (yrs)" v={data?.T != null ? data.T.toFixed(4) : "—"} />
       </div>
 
@@ -594,25 +601,25 @@ function OptionsTab({ symbol }: { symbol: string }) {
               </tr>
             ))}
             {!isFetching && !table.length && (
-              <tr><td colSpan={11} className="px-4 py-8 text-center text-muted-foreground text-xs">暂无合约数据</td></tr>
+              <tr><td colSpan={11} className="px-4 py-8 text-center text-muted-foreground text-xs">{t("labs.data.uSSuite.text029", { defaultValue: "暂无合约数据" })}</td></tr>
             )}
           </tbody>
         </table>
       </div>
-      <p className="text-[10px] font-mono text-muted-foreground">
-        高亮行 = Vol/OI &gt; 1 且成交 ≥ 200 的新增持仓异动。Greeks 由 Black–Scholes 在浏览器外的边缘函数内实时计算 (r = {data?.r ?? 0.042})。
+      <p className="text-[10px] font-mono text-muted-foreground">{t("labs.data.uSSuite.text030", { defaultValue: "高亮行 = Vol/OI &gt; 1 且成交 ≥ 200 的新增持仓异动。Greeks 由 Black–Scholes 在浏览器外的边缘函数内实时计算 (r =" })} {data?.r ?? 0.042})。
       </p>
-      <Source text={data?.source || "Yahoo options v7 (tier C, 个人研究) · Greeks 本地计算"} />
+      <Source text={data?.source || t("labs.data.uSSuite.text031", { defaultValue: "Yahoo options v7 (tier C, 个人研究) · Greeks 本地计算" })} />
     </Panel>
   );
 }
 
 /* ═══════════════ Tab 5 · Screener ═══════════════ */
 function ScreenerTab() {
+  const { t } = useTranslation();
   const [tag, setTag] = useState("Assets");
   const [year, setYear] = useState(2025);
   const [quarter, setQuarter] = useState(1);
-  const meta = SCREENER_TAGS.find((t) => t.tag === tag);
+  const meta = SCREENER_TAGS.find((item) => item.tag === tag);
   const period = `CY${year}Q${quarter}${meta?.instant ? "I" : ""}`;
   const { data, isFetching, error, refetch } = useUsScreener(tag, period);
 
@@ -633,12 +640,11 @@ function ScreenerTab() {
   return (
     <Panel>
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h3 className="font-display text-lg text-foreground">
-          全市场筛选器 · <span className="text-sm font-mono text-muted-foreground">{data?.label || tag} · {period}</span>
+        <h3 className="font-display text-lg text-foreground">{t("labs.data.uSSuite.text032", { defaultValue: "全市场筛选器 ·" })} <span className="text-sm font-mono text-muted-foreground">{data?.label || tag} · {period}</span>
         </h3>
         <div className="flex flex-wrap items-center gap-2">
           <select value={tag} onChange={(e) => setTag(e.target.value)} className="bg-background border border-border/60 px-2 py-1 text-xs font-mono focus:outline-none focus:border-gold">
-            {SCREENER_TAGS.map((t) => <option key={t.tag} value={t.tag}>{t.label}</option>)}
+            {SCREENER_TAGS.map((item) => <option key={item.tag} value={item.tag}>{item.label}</option>)}
           </select>
           <select value={year} onChange={(e) => setYear(+e.target.value)} className="bg-background border border-border/60 px-2 py-1 text-xs font-mono focus:outline-none focus:border-gold">
             {[2021, 2022, 2023, 2024, 2025, 2026].map((y) => <option key={y} value={y}>CY{y}</option>)}
@@ -656,10 +662,10 @@ function ScreenerTab() {
       <ErrorNote error={error} />
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-        <Stat k="报送公司数" v={data?.universe != null ? data.universe.toLocaleString() : "—"} />
-        <Stat k="合计" v={fmtUsd(data?.total)} />
-        <Stat k="中位数" v={fmtUsd(data?.median)} />
-        <Stat k="展示条数" v={data?.n != null ? String(data.n) : "—"} />
+        <Stat k={t("labs.data.uSSuite.text033", { defaultValue: "报送公司数" })} v={data?.universe != null ? data.universe.toLocaleString() : "—"} />
+        <Stat k={t("labs.data.uSSuite.text034", { defaultValue: "合计" })} v={fmtUsd(data?.total)} />
+        <Stat k={t("labs.data.uSSuite.text035", { defaultValue: "中位数" })} v={fmtUsd(data?.median)} />
+        <Stat k={t("labs.data.uSSuite.text036", { defaultValue: "展示条数" })} v={data?.n != null ? String(data.n) : "—"} />
       </div>
 
       <div className="border border-border/40 bg-background/40 overflow-x-auto max-h-[520px] overflow-y-auto">
@@ -688,19 +694,21 @@ function ScreenerTab() {
               </tr>
             ))}
             {!isFetching && !data?.rows.length && (
-              <tr><td colSpan={5} className="px-4 py-8 text-center text-muted-foreground text-xs">该标签在此期间无数据 — 试试相邻季度或换一个标签</td></tr>
+              <tr><td colSpan={5} className="px-4 py-8 text-center text-muted-foreground text-xs">{t("labs.data.uSSuite.text037", { defaultValue: "该标签在此期间无数据 — 试试相邻季度或换一个标签" })}</td></tr>
             )}
           </tbody>
         </table>
       </div>
       {data?.description && <p className="text-[10px] text-muted-foreground leading-relaxed">{data.description}</p>}
-      <Source text={data?.source || "SEC EDGAR XBRL frames (tier S · 免费全市场横截面)"} />
+      <Source text={data?.source || t("labs.data.uSSuite.text038", { defaultValue: "SEC EDGAR XBRL frames (tier S · 免费全市场横截面)" })} />
     </Panel>
   );
 }
 
 /* ═══════════════ Shell ═══════════════ */
 export default function USSuite() {
+  const { t } = useTranslation();
+  const TABS = getTABS(t);
   const [tab, setTab] = useState<Tab>("quote");
   const [symbol, setSymbol] = useState("AAPL");
   const [draft, setDraft] = useState("AAPL");
@@ -710,8 +718,8 @@ export default function USSuite() {
       <SectionHeader
         chapter="V5.2"
         kicker="US Full-Stack Data"
-        title="美股全栈数据工作台"
-        subtitle="行情与本地技术指标 · SEC XBRL 三表与关键指标 · EDGAR 披露流与全库检索 · 期权链与 Greeks · 全市场 XBRL 筛选器。"
+        title={t("labs.data.uSSuite.text039", { defaultValue: "美股全栈数据工作台" })}
+        subtitle={t("labs.data.uSSuite.text040", { defaultValue: "行情与本地技术指标 · SEC XBRL 三表与关键指标 · EDGAR 披露流与全库检索 · 期权链与 Greeks · 全市场 XBRL 筛选器。" })}
       />
 
       <div className="container max-w-6xl mt-6 space-y-5">
@@ -728,8 +736,7 @@ export default function USSuite() {
               aria-label="US ticker"
               className="w-32 bg-background border border-border/60 px-2 py-1.5 text-sm font-mono uppercase focus:outline-none focus:border-gold"
             />
-            <button type="submit" className="border border-gold/50 text-gold px-3 py-1.5 text-xs font-mono hover:bg-gold/10">
-              载入
+            <button type="submit" className="border border-gold/50 text-gold px-3 py-1.5 text-xs font-mono hover:bg-gold/10">{t("labs.data.uSSuite.text041", { defaultValue: "载入" })}
             </button>
           </form>
           <div className="flex flex-wrap items-center gap-1.5">
@@ -751,28 +758,27 @@ export default function USSuite() {
             target="_blank"
             rel="noreferrer"
             className="ml-auto text-[10px] font-mono text-muted-foreground hover:text-gold inline-flex items-center gap-1"
-          >
-            外部核对 StockAnalysis <ExternalLink className="w-3 h-3" />
+          >{t("labs.data.uSSuite.text042", { defaultValue: "外部核对 StockAnalysis" })} <ExternalLink className="w-3 h-3" />
           </a>
         </div>
 
         {/* Tabs */}
         <div className="flex flex-wrap gap-1.5 border-b border-border/40 pb-2" role="tablist">
-          {TABS.map((t) => (
+          {TABS.map((item) => (
             <button
-              key={t.id}
+              key={item.id}
               role="tab"
-              aria-selected={tab === t.id}
-              onClick={() => setTab(t.id)}
+              aria-selected={tab === item.id}
+              onClick={() => setTab(item.id)}
               className={cn(
                 "px-3 py-1.5 text-xs font-mono border transition-colors",
-                tab === t.id
+                tab === item.id
                   ? "border-gold/60 text-gold bg-gold/10"
                   : "border-border/50 text-muted-foreground hover:text-foreground hover:border-border",
               )}
             >
-              {t.label}
-              <span className="ml-2 text-[9px] uppercase tracking-wider opacity-60">{t.sub}</span>
+              {item.label}
+              <span className="ml-2 text-[9px] uppercase tracking-wider opacity-60">{item.sub}</span>
             </button>
           ))}
         </div>
@@ -783,10 +789,8 @@ export default function USSuite() {
         {tab === "options" && <OptionsTab symbol={symbol} />}
         {tab === "screener" && <ScreenerTab />}
 
-        <div className="border border-border/40 bg-muted/20 p-3 text-[10px] font-mono text-muted-foreground leading-relaxed">
-          合规分级 — <span className="text-gold">Tier S</span> (SEC EDGAR / Treasury / CFTC): 政府公开数据, 可商用可再分发, 需声明 User-Agent 并限速。
-          <span className="text-gold"> Tier C</span> (Yahoo / Nasdaq / Eastmoney): 需事前授权或条款未经核实, 本站仅作个人研究与教学演示。
-          本板块分发的是代码而非数据, 数据由用户在各来源自身条款下获取。
+        <div className="border border-border/40 bg-muted/20 p-3 text-[10px] font-mono text-muted-foreground leading-relaxed">{t("labs.data.uSSuite.text043", { defaultValue: "合规分级 —" })} <span className="text-gold">Tier S</span>{t("labs.data.uSSuite.text044", { defaultValue: "(SEC EDGAR / Treasury / CFTC): 政府公开数据, 可商用可再分发, 需声明 User-Agent 并限速。" })}
+          <span className="text-gold"> Tier C</span>{t("labs.data.uSSuite.text045", { defaultValue: "(Yahoo / Nasdaq / Eastmoney): 需事前授权或条款未经核实, 本站仅作个人研究与教学演示。\n          本板块分发的是代码而非数据, 数据由用户在各来源自身条款下获取。" })}
         </div>
       </div>
     </section>

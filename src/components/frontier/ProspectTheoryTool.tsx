@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useMemo, useState } from "react";
 import {
   LineChart,
@@ -30,6 +31,7 @@ function wfun(p: number, g: number) {
 }
 
 export const ProspectTheoryTool = () => {
+  const { t } = useTranslation();
   const [alpha, setAlpha] = useState(0.88);
   const [beta, setBeta] = useState(0.88);
   const [lambda, setLambda] = useState(2.25);
@@ -67,41 +69,41 @@ export const ProspectTheoryTool = () => {
     <div className="space-y-5">
       <PresetButtons
         presets={[
-          { name: "TK 1992 标定", description: "α=β=.88,λ=2.25,γ=.61", apply: () => { setAlpha(0.88); setBeta(0.88); setLambda(2.25); setGamma(0.61); } },
-          { name: "强损失厌恶", description: "λ=3.5", apply: () => { setLambda(3.5); } },
-          { name: "风险中性", description: "α=β=1,λ=1,γ=1", apply: () => { setAlpha(1); setBeta(1); setLambda(1); setGamma(1); } },
-          { name: "对称赌局", description: "p=.5, ±100", apply: () => { setGain(100); setLoss(100); setP(0.5); } },
-          { name: "小概率大奖", description: "p=.05 高估", apply: () => { setP(0.05); setGain(1000); setLoss(50); } },
+          { name: t("labs.frontier.ProspectTheory.text1", { defaultValue: "TK 1992 标定" }), description: "α=β=.88,λ=2.25,γ=.61", apply: () => { setAlpha(0.88); setBeta(0.88); setLambda(2.25); setGamma(0.61); } },
+          { name: t("labs.frontier.ProspectTheory.text2", { defaultValue: "强损失厌恶" }), description: "λ=3.5", apply: () => { setLambda(3.5); } },
+          { name: t("labs.frontier.ProspectTheory.text3", { defaultValue: "风险中性" }), description: "α=β=1,λ=1,γ=1", apply: () => { setAlpha(1); setBeta(1); setLambda(1); setGamma(1); } },
+          { name: t("labs.frontier.ProspectTheory.text4", { defaultValue: "对称赌局" }), description: "p=.5, ±100", apply: () => { setGain(100); setLoss(100); setP(0.5); } },
+          { name: t("labs.frontier.ProspectTheory.text5", { defaultValue: "小概率大奖" }), description: t("labs.frontier.ProspectTheory.text6", { defaultValue: "p=.05 高估" }), apply: () => { setP(0.05); setGain(1000); setLoss(50); } },
         ]}
       />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
         <div className="space-y-3">
-          <p className="text-xs font-mono text-gold uppercase tracking-wider">价值函数与权重参数</p>
+          <p className="text-xs font-mono text-gold uppercase tracking-wider">{t("labs.frontier.ProspectTheory.text7", { defaultValue: "价值函数与权重参数" })}</p>
           <div className="grid grid-cols-2 gap-3">
-            <Slider label="α (收益凹性)" value={alpha} min={0.3} max={1} step={0.01} onChange={setAlpha} />
-            <Slider label="β (损失凸性)" value={beta} min={0.3} max={1} step={0.01} onChange={setBeta} />
-            <Slider label="λ (损失厌恶)" value={lambda} min={1} max={4} step={0.05} onChange={setLambda} />
-            <Slider label="γ (概率加权)" value={gamma} min={0.3} max={1} step={0.01} onChange={setGamma} />
+            <Slider label={t("labs.frontier.ProspectTheory.text8", { defaultValue: "α (收益凹性)" })} value={alpha} min={0.3} max={1} step={0.01} onChange={setAlpha} />
+            <Slider label={t("labs.frontier.ProspectTheory.text9", { defaultValue: "β (损失凸性)" })} value={beta} min={0.3} max={1} step={0.01} onChange={setBeta} />
+            <Slider label={t("labs.frontier.ProspectTheory.text10", { defaultValue: "λ (损失厌恶)" })} value={lambda} min={1} max={4} step={0.05} onChange={setLambda} />
+            <Slider label={t("labs.frontier.ProspectTheory.text11", { defaultValue: "γ (概率加权)" })} value={gamma} min={0.3} max={1} step={0.01} onChange={setGamma} />
           </div>
-          <p className="text-xs font-mono text-gold uppercase tracking-wider pt-2">示例赌局</p>
+          <p className="text-xs font-mono text-gold uppercase tracking-wider pt-2">{t("labs.frontier.ProspectTheory.text12", { defaultValue: "示例赌局" })}</p>
           <div className="grid grid-cols-3 gap-3">
-            <Slider label="赢 G" value={gain} min={10} max={1000} step={10} fmt={(v) => v.toFixed(0)} onChange={setGain} />
-            <Slider label="输 L" value={loss} min={10} max={1000} step={10} fmt={(v) => v.toFixed(0)} onChange={setLoss} />
-            <Slider label="p(赢)" value={p} min={0.01} max={0.99} step={0.01} onChange={setP} />
+            <Slider label={t("labs.frontier.ProspectTheory.text13", { defaultValue: "赢 G" })} value={gain} min={10} max={1000} step={10} fmt={(v) => v.toFixed(0)} onChange={setGain} />
+            <Slider label={t("labs.frontier.ProspectTheory.text14", { defaultValue: "输 L" })} value={loss} min={10} max={1000} step={10} fmt={(v) => v.toFixed(0)} onChange={setLoss} />
+            <Slider label={t("labs.frontier.ProspectTheory.text15", { defaultValue: "p(赢)" })} value={p} min={0.01} max={0.99} step={0.01} onChange={setP} />
           </div>
         </div>
         <div className="grid grid-cols-2 gap-2 content-start">
-          <Stat label="前景价值 V" value={gamble.pv.toFixed(2)} color={gamble.pv >= 0 ? C.green : C.red} />
-          <Stat label="期望值 EV" value={gamble.ev.toFixed(2)} color={C.blue} sub="客观期望" />
-          <Stat label="确定性等值 CE" value={gamble.ce.toFixed(2)} color={C.gold} sub="v(CE)=V" />
-          <Stat label="风险溢价" value={(gamble.ev - gamble.ce).toFixed(2)} color={C.red} sub="EV − CE" />
+          <Stat label={t("labs.frontier.ProspectTheory.text16", { defaultValue: "前景价值 V" })} value={gamble.pv.toFixed(2)} color={gamble.pv >= 0 ? C.green : C.red} />
+          <Stat label={t("labs.frontier.ProspectTheory.text17", { defaultValue: "期望值 EV" })} value={gamble.ev.toFixed(2)} color={C.blue} sub={t("labs.frontier.ProspectTheory.text18", { defaultValue: "客观期望" })} />
+          <Stat label={t("labs.frontier.ProspectTheory.text19", { defaultValue: "确定性等值 CE" })} value={gamble.ce.toFixed(2)} color={C.gold} sub="v(CE)=V" />
+          <Stat label={t("labs.frontier.ProspectTheory.text20", { defaultValue: "风险溢价" })} value={(gamble.ev - gamble.ce).toFixed(2)} color={C.red} sub="EV − CE" />
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
         <div className="rounded-xl border border-border bg-secondary/20 p-4">
-          <h4 className="text-sm font-semibold text-foreground mb-2">价值函数 v(x) — S 形 + 损失更陡</h4>
+          <h4 className="text-sm font-semibold text-foreground mb-2">{t("labs.frontier.ProspectTheory.text21", { defaultValue: "价值函数 v(x) — S 形 + 损失更陡" })}</h4>
           <div className="h-[220px]">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={valueCurve}>
@@ -117,7 +119,7 @@ export const ProspectTheoryTool = () => {
           </div>
         </div>
         <div className="rounded-xl border border-border bg-secondary/20 p-4">
-          <h4 className="text-sm font-semibold text-foreground mb-2">概率权重 w(p) — 小概率高估</h4>
+          <h4 className="text-sm font-semibold text-foreground mb-2">{t("labs.frontier.ProspectTheory.text22", { defaultValue: "概率权重 w(p) — 小概率高估" })}</h4>
           <div className="h-[220px]">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={weightCurve}>
@@ -135,8 +137,8 @@ export const ProspectTheoryTool = () => {
       </div>
 
       <div className="text-xs font-mono text-muted-foreground p-3 rounded-lg bg-secondary/40 border border-border leading-relaxed">
-        <p><span className="text-gold">前景理论 (Kahneman & Tversky 1979)：</span>相对参考点的收益/损失，损失厌恶 λ&gt;1 使曲线在亏损侧更陡。</p>
-        <p><span className="text-gold">概率加权：</span>w(p) 高估小概率、低估中高概率，解释彩票与保险并存。</p>
+        <p><span className="text-gold">{t("labs.frontier.ProspectTheory.text23", { defaultValue: "前景理论 (Kahneman & Tversky 1979)：" })}</span>{t("labs.frontier.ProspectTheory.text24", { defaultValue: "相对参考点的收益/损失，损失厌恶 λ&gt;1 使曲线在亏损侧更陡。" })}</p>
+        <p><span className="text-gold">{t("labs.frontier.ProspectTheory.text25", { defaultValue: "概率加权：" })}</span>{t("labs.frontier.ProspectTheory.text26", { defaultValue: "w(p) 高估小概率、低估中高概率，解释彩票与保险并存。" })}</p>
       </div>
     </div>
   );

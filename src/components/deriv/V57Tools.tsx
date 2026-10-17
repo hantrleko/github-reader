@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useMemo, useState } from "react";
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend,
@@ -27,6 +28,7 @@ const Panel = ({ title, children }: { title: string; children: React.ReactNode }
 
 /* ═════════ 1. 状态价格与无套利区间 ═════════ */
 export const StatePriceBoundsTool = () => {
+  const { t } = useTranslation();
   const [sigma, setSigma] = useState(0.2);
   const [n, setN] = useState(12);
   const [K, setK] = useState(100);
@@ -45,27 +47,27 @@ export const StatePriceBoundsTool = () => {
   return (
     <div className="space-y-5">
       <PresetButtons presets={[
-        { name: "完备近似", description: "n=30 细化", apply: () => { setN(30); setSigma(0.2); } },
-        { name: "强不完全", description: "中间态偏离大", apply: () => { setMidMove(0.12); setSigma(0.3); } },
-        { name: "深度虚值", description: "K=120", apply: () => setK(120) },
+        { name: t("labs.derivV57.V57.text000", { defaultValue: "完备近似" }), description: t("labs.derivV57.V57.text001", { defaultValue: "n=30 细化" }), apply: () => { setN(30); setSigma(0.2); } },
+        { name: t("labs.derivV57.V57.text002", { defaultValue: "强不完全" }), description: t("labs.derivV57.V57.text003", { defaultValue: "中间态偏离大" }), apply: () => { setMidMove(0.12); setSigma(0.3); } },
+        { name: t("labs.derivV57.V57.text004", { defaultValue: "深度虚值" }), description: "K=120", apply: () => setK(120) },
       ]} />
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
         <div className="space-y-3">
-          <p className="text-xs font-mono text-gold uppercase tracking-wider">树参数与索取权</p>
-          <Slider label="σ (年化波动率)" value={sigma} min={0.05} max={0.6} step={0.01} onChange={setSigma} />
-          <Slider label="n (树的步数)" value={n} min={2} max={40} step={1} onChange={setN} />
-          <Slider label="K (行权价)" value={K} min={70} max={130} step={1} onChange={setK} />
-          <Slider label="中间态 log 收益 (三叉树)" value={midMove} min={-0.15} max={0.15} step={0.01} onChange={setMidMove} />
+          <p className="text-xs font-mono text-gold uppercase tracking-wider">{t("labs.derivV57.V57.text005", { defaultValue: "树参数与索取权" })}</p>
+          <Slider label={t("labs.derivV57.V57.text006", { defaultValue: "σ (年化波动率)" })} value={sigma} min={0.05} max={0.6} step={0.01} onChange={setSigma} />
+          <Slider label={t("labs.derivV57.V57.text007", { defaultValue: "n (树的步数)" })} value={n} min={2} max={40} step={1} onChange={setN} />
+          <Slider label={t("labs.derivV57.V57.text008", { defaultValue: "K (行权价)" })} value={K} min={70} max={130} step={1} onChange={setK} />
+          <Slider label={t("labs.derivV57.V57.text009", { defaultValue: "中间态 log 收益 (三叉树)" })} value={midMove} min={-0.15} max={0.15} step={0.01} onChange={setMidMove} />
         </div>
         <div className="grid grid-cols-2 gap-2 content-start">
-          <Stat label="Σ 状态价格" value={sp.sumStatePrices.toFixed(5)} sub={`e^{-rT} = ${sp.discount.toFixed(5)}`} />
-          <Stat label="风险中性概率 p" value={sp.p.toFixed(4)} color={C.blue} />
-          <Stat label="看涨期权 (状态价格加总)" value={callPrice.toFixed(4)} color={C.teal} />
-          <Stat label="数字期权 = Q(S_T>K)·DF" value={digital.toFixed(4)} color={C.green} />
+          <Stat label={t("labs.derivV57.V57.text010", { defaultValue: "Σ 状态价格" })} value={sp.sumStatePrices.toFixed(5)} sub={`e^{-rT} = ${sp.discount.toFixed(5)}`} />
+          <Stat label={t("labs.derivV57.V57.text011", { defaultValue: "风险中性概率 p" })} value={sp.p.toFixed(4)} color={C.blue} />
+          <Stat label={t("labs.derivV57.V57.text012", { defaultValue: "看涨期权 (状态价格加总)" })} value={callPrice.toFixed(4)} color={C.teal} />
+          <Stat label={t("labs.derivV57.V57.text013", { defaultValue: "数字期权 = Q(S_T>K)·DF" })} value={digital.toFixed(4)} color={C.green} />
         </div>
       </div>
 
-      <Panel title="Arrow-Debreu 状态价格分布 (每一元「只在该状态支付」的今日价值)">
+      <Panel title={t("labs.derivV57.V57.text014", { defaultValue: "Arrow-Debreu 状态价格分布 (每一元「只在该状态支付」的今日价值)" })}>
         <div className="h-[260px]">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={sp.nodes.map((x) => ({ ST: +x.ST.toFixed(1), sp: +x.statePrice.toFixed(5), payoff: Math.max(x.ST - K, 0) }))}>
@@ -74,7 +76,7 @@ export const StatePriceBoundsTool = () => {
               <YAxis stroke={C.text} tick={{ fontSize: 10 }} />
               <Tooltip contentStyle={tooltipStyle} />
               <ReferenceLine x={K} stroke={C.red} strokeDasharray="4 3" />
-              <Bar dataKey="sp" name="状态价格 ψ(S_T)">
+              <Bar dataKey="sp" name={t("labs.derivV57.V57.text015", { defaultValue: "状态价格 ψ(S_T)" })}>
                 {sp.nodes.map((x, i) => <Cell key={i} fill={x.ST > K ? C.gold : C.blue} />)}
               </Bar>
             </BarChart>
@@ -82,38 +84,36 @@ export const StatePriceBoundsTool = () => {
         </div>
       </Panel>
 
-      <Panel title="不完全市场：等价鞅测度集合与价格区间">
+      <Panel title={t("labs.derivV57.V57.text016", { defaultValue: "不完全市场：等价鞅测度集合与价格区间" })}>
         <div className="grid grid-cols-3 gap-2 mb-3">
-          <Stat label="次复制下界" value={bounds.lower.toFixed(4)} color={C.blue} />
-          <Stat label="超复制上界" value={bounds.upper.toFixed(4)} color={C.red} />
-          <Stat label="二叉树 (完备) 价格" value={bounds.completePrice.toFixed(4)} color={C.gold} />
+          <Stat label={t("labs.derivV57.V57.text017", { defaultValue: "次复制下界" })} value={bounds.lower.toFixed(4)} color={C.blue} />
+          <Stat label={t("labs.derivV57.V57.text018", { defaultValue: "超复制上界" })} value={bounds.upper.toFixed(4)} color={C.red} />
+          <Stat label={t("labs.derivV57.V57.text019", { defaultValue: "二叉树 (完备) 价格" })} value={bounds.completePrice.toFixed(4)} color={C.gold} />
         </div>
         <div className="h-[240px]">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={bounds.measures.map((m) => ({ qMid: +m.qMid.toFixed(3), price: +m.price.toFixed(4) }))}>
               <CartesianGrid stroke={C.grid} strokeDasharray="3 3" />
-              <XAxis dataKey="qMid" stroke={C.text} tick={{ fontSize: 10 }} label={{ value: "中间状态的风险中性概率 q_m", position: "insideBottom", offset: -5, fill: C.text, fontSize: 10 }} />
+              <XAxis dataKey="qMid" stroke={C.text} tick={{ fontSize: 10 }} label={{ value: t("labs.derivV57.V57.text020", { defaultValue: "中间状态的风险中性概率 q_m" }), position: "insideBottom", offset: -5, fill: C.text, fontSize: 10 }} />
               <YAxis stroke={C.text} tick={{ fontSize: 10 }} />
               <Tooltip contentStyle={tooltipStyle} />
-              <Line type="monotone" dataKey="price" name="该测度下的价格" stroke={C.gold} strokeWidth={2} dot={false} />
-              <ReferenceLine y={bounds.completePrice} stroke={C.teal} strokeDasharray="4 3" label={{ value: "完备市场价", fontSize: 10, fill: C.teal }} />
+              <Line type="monotone" dataKey="price" name={t("labs.derivV57.V57.text021", { defaultValue: "该测度下的价格" })} stroke={C.gold} strokeWidth={2} dot={false} />
+              <ReferenceLine y={bounds.completePrice} stroke={C.teal} strokeDasharray="4 3" label={{ value: t("labs.derivV57.V57.text022", { defaultValue: "完备市场价" }), fontSize: 10, fill: C.teal }} />
             </LineChart>
           </ResponsiveContainer>
         </div>
       </Panel>
 
       <Note>
-        状态价格把定价拆成两步：<strong>先问每一元的状态支付值多少钱</strong>，再对支付函数加权求和。
-        {" Σψ = e^(−rT) 与 Σψ·S_T = S₀ 是无套利的两条硬约束。一旦状态数超过可交易资产数（这里是三态两资产），"}
-        鞅测度不再唯一，价格塌缩成区间 [{bounds.lower.toFixed(3)}, {bounds.upper.toFixed(3)}]，
-        宽度 {bounds.spread.toFixed(3)} 就是模型无法消除的不完全性成本——它必须由买卖价差、资本或效用假设来填补。
-      </Note>
+        {t("labs.derivV57.V57.text023", { defaultValue: "状态价格把定价拆成两步：" })}<strong>{t("labs.derivV57.V57.text024", { defaultValue: "先问每一元的状态支付值多少钱" })}</strong>{t("labs.derivV57.V57.text025", { defaultValue: "，再对支付函数加权求和。\n        " })}{t("labs.derivV57.V57.text026", { defaultValue: " Σψ = e^(−rT) 与 Σψ·S_T = S₀ 是无套利的两条硬约束。一旦状态数超过可交易资产数（这里是三态两资产），" })}
+        {t("labs.derivV57.V57.text027", { defaultValue: "鞅测度不再唯一，价格塌缩成区间 [" })}{bounds.lower.toFixed(3)}, {bounds.upper.toFixed(3)}{t("labs.derivV57.V57.text028", { defaultValue: "]，\n        宽度 " })}{bounds.spread.toFixed(3)} {t("labs.derivV57.V57.text029", { defaultValue: "就是模型无法消除的不完全性成本——它必须由买卖价差、资本或效用假设来填补。\n      " })}</Note>
     </div>
   );
 };
 
 /* ═════════ 2. LSMC 美式/百慕大定价台 ═════════ */
 export const LSMCTool = () => {
+  const { t } = useTranslation();
   const [sigma, setSigma] = useState(0.25);
   const [K, setK] = useState(100);
   const [T, setT] = useState(1);
@@ -134,51 +134,51 @@ export const LSMCTool = () => {
   return (
     <div className="space-y-5">
       <PresetButtons presets={[
-        { name: "经典美式看跌", description: "K=100, σ=25%", apply: () => { setType("put"); setK(100); setSigma(0.25); } },
-        { name: "高波动百慕大", description: "4 个行权日", apply: () => { setNEx(4); setSigma(0.45); } },
-        { name: "无股息看涨", description: "早行权应≈0", apply: () => { setType("call"); setNEx(25); } },
+        { name: t("labs.derivV57.V57.text030", { defaultValue: "经典美式看跌" }), description: "K=100, σ=25%", apply: () => { setType("put"); setK(100); setSigma(0.25); } },
+        { name: t("labs.derivV57.V57.text031", { defaultValue: "高波动百慕大" }), description: t("labs.derivV57.V57.text032", { defaultValue: "4 个行权日" }), apply: () => { setNEx(4); setSigma(0.45); } },
+        { name: t("labs.derivV57.V57.text033", { defaultValue: "无股息看涨" }), description: t("labs.derivV57.V57.text034", { defaultValue: "早行权应≈0" }), apply: () => { setType("call"); setNEx(25); } },
       ]} />
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
         <div className="space-y-3">
-          <p className="text-xs font-mono text-gold uppercase tracking-wider">合约与模拟</p>
+          <p className="text-xs font-mono text-gold uppercase tracking-wider">{t("labs.derivV57.V57.text035", { defaultValue: "合约与模拟" })}</p>
           <div className="flex gap-2">
             {(["put", "call"] as const).map((tp) => (
               <button key={tp} onClick={() => setType(tp)}
                 className={`px-3 py-1.5 rounded-lg text-xs border transition-colors ${type === tp ? "border-gold text-gold bg-gold/10" : "border-border text-muted-foreground"}`}>
-                {tp === "put" ? "美式看跌" : "美式看涨"}
+                {tp === "put" ? t("labs.derivV57.V57.text036", { defaultValue: "美式看跌" }) : t("labs.derivV57.V57.text037", { defaultValue: "美式看涨" })}
               </button>
             ))}
           </div>
-          <Slider label="K (行权价)" value={K} min={70} max={130} step={1} onChange={setK} />
+          <Slider label={t("labs.derivV57.V57.text008", { defaultValue: "K (行权价)" })} value={K} min={70} max={130} step={1} onChange={setK} />
           <Slider label="σ" value={sigma} min={0.05} max={0.8} step={0.01} onChange={setSigma} />
-          <Slider label="T (年)" value={T} min={0.25} max={3} step={0.25} onChange={setT} />
-          <Slider label="可行权日数 (1 = 欧式)" value={nEx} min={1} max={25} step={1} onChange={setNEx} />
-          <Slider label="路径数" value={paths} min={2000} max={20000} step={1000} onChange={setPaths} />
+          <Slider label={t("labs.derivV57.V57.text038", { defaultValue: "T (年)" })} value={T} min={0.25} max={3} step={0.25} onChange={setT} />
+          <Slider label={t("labs.derivV57.V57.text039", { defaultValue: "可行权日数 (1 = 欧式)" })} value={nEx} min={1} max={25} step={1} onChange={setNEx} />
+          <Slider label={t("labs.derivV57.V57.text040", { defaultValue: "路径数" })} value={paths} min={2000} max={20000} step={1000} onChange={setPaths} />
         </div>
         <div className="grid grid-cols-2 gap-2 content-start">
-          <Stat label="LSMC 价格" value={res.price.toFixed(4)} sub={`± ${(1.96 * res.stderr).toFixed(4)} (95%)`} />
-          <Stat label="欧式 (Black-Scholes)" value={res.european.toFixed(4)} color={C.blue} />
-          <Stat label="早行权溢价" value={res.earlyPremium.toFixed(4)} color={res.earlyPremium > 0 ? C.green : C.red} />
-          <Stat label="有效路径 / 行权日" value={`${res.paths} / ${res.exerciseDates}`} color={C.teal} />
+          <Stat label={t("labs.derivV57.V57.text041", { defaultValue: "LSMC 价格" })} value={res.price.toFixed(4)} sub={`± ${(1.96 * res.stderr).toFixed(4)} (95%)`} />
+          <Stat label={t("labs.derivV57.V57.text042", { defaultValue: "欧式 (Black-Scholes)" })} value={res.european.toFixed(4)} color={C.blue} />
+          <Stat label={t("labs.derivV57.V57.text043", { defaultValue: "早行权溢价" })} value={res.earlyPremium.toFixed(4)} color={res.earlyPremium > 0 ? C.green : C.red} />
+          <Stat label={t("labs.derivV57.V57.text044", { defaultValue: "有效路径 / 行权日" })} value={`${res.paths} / ${res.exerciseDates}`} color={C.teal} />
         </div>
       </div>
 
-      <Panel title="行权边界：连续价值回归给出的最优停止阈值">
+      <Panel title={t("labs.derivV57.V57.text045", { defaultValue: "行权边界：连续价值回归给出的最优停止阈值" })}>
         <div className="h-[260px]">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={res.boundary.filter((b) => b.S !== null)}>
               <CartesianGrid stroke={C.grid} strokeDasharray="3 3" />
-              <XAxis dataKey="t" stroke={C.text} tick={{ fontSize: 10 }} label={{ value: "时间 t (年)", position: "insideBottom", offset: -5, fill: C.text, fontSize: 10 }} />
+              <XAxis dataKey="t" stroke={C.text} tick={{ fontSize: 10 }} label={{ value: t("labs.derivV57.V57.text046", { defaultValue: "时间 t (年)" }), position: "insideBottom", offset: -5, fill: C.text, fontSize: 10 }} />
               <YAxis stroke={C.text} tick={{ fontSize: 10 }} domain={["auto", "auto"]} />
               <Tooltip contentStyle={tooltipStyle} />
               <ReferenceLine y={K} stroke={C.red} strokeDasharray="4 3" label={{ value: "K", fontSize: 10, fill: C.red }} />
-              <Line type="monotone" dataKey="S" name="行权边界 S*(t)" stroke={C.gold} strokeWidth={2} dot={false} />
+              <Line type="monotone" dataKey="S" name={t("labs.derivV57.V57.text047", { defaultValue: "行权边界 S*(t)" })} stroke={C.gold} strokeWidth={2} dot={false} />
             </LineChart>
           </ResponsiveContainer>
         </div>
       </Panel>
 
-      <Panel title="百慕大 → 美式：价格随可行权日数单调上升">
+      <Panel title={t("labs.derivV57.V57.text048", { defaultValue: "百慕大 → 美式：价格随可行权日数单调上升" })}>
         <div className="h-[240px]">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={ladder}>
@@ -187,24 +187,22 @@ export const LSMCTool = () => {
               <YAxis stroke={C.text} tick={{ fontSize: 10 }} domain={["auto", "auto"]} />
               <Tooltip contentStyle={tooltipStyle} />
               <Legend wrapperStyle={{ fontSize: 11 }} />
-              <Line type="monotone" dataKey="price" name="百慕大 LSMC" stroke={C.gold} strokeWidth={2} />
-              <Line type="monotone" dataKey="european" name="欧式" stroke={C.blue} strokeWidth={2} strokeDasharray="4 3" dot={false} />
+              <Line type="monotone" dataKey="price" name={t("labs.derivV57.V57.text049", { defaultValue: "百慕大 LSMC" })} stroke={C.gold} strokeWidth={2} />
+              <Line type="monotone" dataKey="european" name={t("labs.derivV57.V57.text050", { defaultValue: "欧式" })} stroke={C.blue} strokeWidth={2} strokeDasharray="4 3" dot={false} />
             </LineChart>
           </ResponsiveContainer>
         </div>
       </Panel>
 
       <Note>
-        美式价值 = 欧式价值 + 最优停止的期权价值。LSMC 用<strong>横截面回归</strong>估计「继续持有」的条件期望，
-        只在实值路径上回归以降低噪声。注意两个实务要点：回归系数用的是<em>同一批</em>路径，因此存在向上偏误（前视偏差），
-        严格做法是用第二批路径按已估边界重估；而无股息美式看涨的早行权溢价应当接近 0——这是检验实现正确性的标准回归测试。
-      </Note>
+        {t("labs.derivV57.V57.text051", { defaultValue: "美式价值 = 欧式价值 + 最优停止的期权价值。LSMC 用" })}<strong>{t("labs.derivV57.V57.text052", { defaultValue: "横截面回归" })}</strong>{t("labs.derivV57.V57.text053", { defaultValue: "估计「继续持有」的条件期望，\n        只在实值路径上回归以降低噪声。注意两个实务要点：回归系数用的是" })}<em>{t("labs.derivV57.V57.text054", { defaultValue: "同一批" })}</em>{t("labs.derivV57.V57.text055", { defaultValue: "路径，因此存在向上偏误（前视偏差），\n        严格做法是用第二批路径按已估边界重估；而无股息美式看涨的早行权溢价应当接近 0——这是检验实现正确性的标准回归测试。\n      " })}</Note>
     </div>
   );
 };
 
 /* ═════════ 3. 期货—远期与持有成本 ═════════ */
 export const CarryFuturesTool = () => {
+  const { t } = useTranslation();
   const [r, setR] = useState(0.05);
   const [storage, setStorage] = useState(0.02);
   const [convenience, setConvenience] = useState(0.03);
@@ -215,56 +213,52 @@ export const CarryFuturesTool = () => {
   const res = useMemo(() => futuresVsForward({
     S0: 100, r, storage, convenience, T, sigmaS: 0.3, sigmaR, rho,
   }), [r, storage, convenience, T, sigmaR, rho]);
-  const shape = r + storage - convenience >= 0 ? "Contango (升水)" : "Backwardation (贴水)";
+  const shape = r + storage - convenience >= 0 ? t("labs.derivV57.V57.text056", { defaultValue: "Contango (升水)" }) : t("labs.derivV57.V57.text057", { defaultValue: "Backwardation (贴水)" });
 
   return (
     <div className="space-y-5">
       <PresetButtons presets={[
-        { name: "金融资产", description: "无仓储/便利", apply: () => { setStorage(0); setConvenience(0); setRho(0.2); } },
-        { name: "原油贴水", description: "便利收益高", apply: () => { setConvenience(0.12); setStorage(0.03); } },
-        { name: "强凸性调整", description: "ρ=0.8, σ_r=3%", apply: () => { setRho(0.8); setSigmaR(0.03); setT(5); } },
+        { name: t("labs.derivV57.V57.text058", { defaultValue: "金融资产" }), description: t("labs.derivV57.V57.text059", { defaultValue: "无仓储/便利" }), apply: () => { setStorage(0); setConvenience(0); setRho(0.2); } },
+        { name: t("labs.derivV57.V57.text060", { defaultValue: "原油贴水" }), description: t("labs.derivV57.V57.text061", { defaultValue: "便利收益高" }), apply: () => { setConvenience(0.12); setStorage(0.03); } },
+        { name: t("labs.derivV57.V57.text062", { defaultValue: "强凸性调整" }), description: "ρ=0.8, σ_r=3%", apply: () => { setRho(0.8); setSigmaR(0.03); setT(5); } },
       ]} />
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
         <div className="space-y-3">
-          <p className="text-xs font-mono text-gold uppercase tracking-wider">持有成本分解</p>
-          <Slider label="r (无风险利率)" value={r} min={0} max={0.12} step={0.005} onChange={setR} />
-          <Slider label="u (仓储成本率)" value={storage} min={0} max={0.15} step={0.005} onChange={setStorage} />
-          <Slider label="y (便利收益)" value={convenience} min={0} max={0.2} step={0.005} onChange={setConvenience} />
-          <Slider label="ρ (标的—利率相关性)" value={rho} min={-1} max={1} step={0.05} onChange={setRho} />
-          <Slider label="σ_r (短率波动)" value={sigmaR} min={0} max={0.05} step={0.002} onChange={setSigmaR} />
-          <Slider label="T (年)" value={T} min={0.25} max={5} step={0.25} onChange={setT} />
+          <p className="text-xs font-mono text-gold uppercase tracking-wider">{t("labs.derivV57.V57.text063", { defaultValue: "持有成本分解" })}</p>
+          <Slider label={t("labs.derivV57.V57.text064", { defaultValue: "r (无风险利率)" })} value={r} min={0} max={0.12} step={0.005} onChange={setR} />
+          <Slider label={t("labs.derivV57.V57.text065", { defaultValue: "u (仓储成本率)" })} value={storage} min={0} max={0.15} step={0.005} onChange={setStorage} />
+          <Slider label={t("labs.derivV57.V57.text066", { defaultValue: "y (便利收益)" })} value={convenience} min={0} max={0.2} step={0.005} onChange={setConvenience} />
+          <Slider label={t("labs.derivV57.V57.text067", { defaultValue: "ρ (标的—利率相关性)" })} value={rho} min={-1} max={1} step={0.05} onChange={setRho} />
+          <Slider label={t("labs.derivV57.V57.text068", { defaultValue: "σ_r (短率波动)" })} value={sigmaR} min={0} max={0.05} step={0.002} onChange={setSigmaR} />
+          <Slider label={t("labs.derivV57.V57.text038", { defaultValue: "T (年)" })} value={T} min={0.25} max={5} step={0.25} onChange={setT} />
         </div>
         <div className="grid grid-cols-2 gap-2 content-start">
-          <Stat label="远期价格 F(0,T)" value={res.forward.toFixed(3)} />
-          <Stat label="期货价格" value={res.futures.toFixed(3)} color={C.blue} />
-          <Stat label="凸性差异" value={res.convexity.toFixed(4)} color={C.red} sub="期货 − 远期" />
-          <Stat label="曲线形态" value={shape} color={C.teal} />
+          <Stat label={t("labs.derivV57.V57.text069", { defaultValue: "远期价格 F(0,T)" })} value={res.forward.toFixed(3)} />
+          <Stat label={t("labs.derivV57.V57.text070", { defaultValue: "期货价格" })} value={res.futures.toFixed(3)} color={C.blue} />
+          <Stat label={t("labs.derivV57.V57.text071", { defaultValue: "凸性差异" })} value={res.convexity.toFixed(4)} color={C.red} sub={t("labs.derivV57.V57.text072", { defaultValue: "期货 − 远期" })} />
+          <Stat label={t("labs.derivV57.V57.text073", { defaultValue: "曲线形态" })} value={shape} color={C.teal} />
         </div>
       </div>
 
-      <Panel title="期限结构：远期曲线与期货曲线">
+      <Panel title={t("labs.derivV57.V57.text074", { defaultValue: "期限结构：远期曲线与期货曲线" })}>
         <div className="h-[280px]">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={res.curve.map((c) => ({ ...c, forward: +c.forward.toFixed(3), futures: +c.futures.toFixed(3) }))}>
               <CartesianGrid stroke={C.grid} strokeDasharray="3 3" />
-              <XAxis dataKey="T" stroke={C.text} tick={{ fontSize: 10 }} label={{ value: "到期 T (年)", position: "insideBottom", offset: -5, fill: C.text, fontSize: 10 }} />
+              <XAxis dataKey="T" stroke={C.text} tick={{ fontSize: 10 }} label={{ value: t("labs.derivV57.V57.text075", { defaultValue: "到期 T (年)" }), position: "insideBottom", offset: -5, fill: C.text, fontSize: 10 }} />
               <YAxis stroke={C.text} tick={{ fontSize: 10 }} domain={["auto", "auto"]} />
               <Tooltip contentStyle={tooltipStyle} />
               <Legend wrapperStyle={{ fontSize: 11 }} />
-              <ReferenceLine y={100} stroke={C.red} strokeDasharray="3 3" label={{ value: "现货 S₀", fontSize: 10, fill: C.red }} />
-              <Line type="monotone" dataKey="forward" name="远期 (OTC, 到期结算)" stroke={C.gold} strokeWidth={2} dot={false} />
-              <Line type="monotone" dataKey="futures" name="期货 (每日盯市)" stroke={C.blue} strokeWidth={2} strokeDasharray="4 3" dot={false} />
+              <ReferenceLine y={100} stroke={C.red} strokeDasharray="3 3" label={{ value: t("labs.derivV57.V57.text076", { defaultValue: "现货 S₀" }), fontSize: 10, fill: C.red }} />
+              <Line type="monotone" dataKey="forward" name={t("labs.derivV57.V57.text077", { defaultValue: "远期 (OTC, 到期结算)" })} stroke={C.gold} strokeWidth={2} dot={false} />
+              <Line type="monotone" dataKey="futures" name={t("labs.derivV57.V57.text078", { defaultValue: "期货 (每日盯市)" })} stroke={C.blue} strokeWidth={2} strokeDasharray="4 3" dot={false} />
             </LineChart>
           </ResponsiveContainer>
         </div>
       </Panel>
 
       <Note>
-        F = S·e^{"{(r+u−y−q)T}"} 不是对未来现货的预测，而是<strong>现在就能锁定的可交易价格</strong>。
-        便利收益 y 是唯一无法直接观测的项，实务上由市场报价反解：当前隐含便利收益 {(res.impliedConvenience * 100).toFixed(2)}%。
-        期货与远期的差别来自盯市：保证金现金流与利率相关时，二者不再相等（这里凸性差 {res.convexity.toFixed(4)}），
-        利率确定或 ρ=0 时差异消失。
-      </Note>
+        F = S·e^{"{(r+u−y−q)T}"} {t("labs.derivV57.V57.text079", { defaultValue: "不是对未来现货的预测，而是" })}<strong>{t("labs.derivV57.V57.text080", { defaultValue: "现在就能锁定的可交易价格" })}</strong>{t("labs.derivV57.V57.text081", { defaultValue: "。\n        便利收益 y 是唯一无法直接观测的项，实务上由市场报价反解：当前隐含便利收益 " })}{(res.impliedConvenience * 100).toFixed(2)}{t("labs.derivV57.V57.text082", { defaultValue: "%。\n        期货与远期的差别来自盯市：保证金现金流与利率相关时，二者不再相等（这里凸性差 " })}{res.convexity.toFixed(4)}{t("labs.derivV57.V57.text083", { defaultValue: "），\n        利率确定或 ρ=0 时差异消失。\n      " })}</Note>
     </div>
   );
 };
@@ -277,6 +271,7 @@ const baseQuotes = (skew: number, curv: number, level: number, T: number) =>
   });
 
 export const SviSurfaceTool = () => {
+  const { t } = useTranslation();
   const [level, setLevel] = useState(0.22);
   const [skew, setSkew] = useState(-0.12);
   const [curv, setCurv] = useState(0.35);
@@ -301,27 +296,27 @@ export const SviSurfaceTool = () => {
   return (
     <div className="space-y-5">
       <PresetButtons presets={[
-        { name: "股指典型", description: "负偏 + 上凸", apply: () => { setSkew(-0.15); setCurv(0.4); setLevel(0.2); setLongLevel(0.22); } },
-        { name: "日历套利", description: "长端方差更低", apply: () => { setLevel(0.3); setLongLevel(0.14); } },
-        { name: "极端蝶式", description: "曲率过大", apply: () => { setCurv(1.6); setSkew(-0.05); } },
+        { name: t("labs.derivV57.V57.text084", { defaultValue: "股指典型" }), description: t("labs.derivV57.V57.text085", { defaultValue: "负偏 + 上凸" }), apply: () => { setSkew(-0.15); setCurv(0.4); setLevel(0.2); setLongLevel(0.22); } },
+        { name: t("labs.derivV57.V57.text086", { defaultValue: "日历套利" }), description: t("labs.derivV57.V57.text087", { defaultValue: "长端方差更低" }), apply: () => { setLevel(0.3); setLongLevel(0.14); } },
+        { name: t("labs.derivV57.V57.text088", { defaultValue: "极端蝶式" }), description: t("labs.derivV57.V57.text089", { defaultValue: "曲率过大" }), apply: () => { setCurv(1.6); setSkew(-0.05); } },
       ]} />
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
         <div className="space-y-3">
-          <p className="text-xs font-mono text-gold uppercase tracking-wider">市场报价 (合成微笑)</p>
-          <Slider label="ATM 水平 (3M)" value={level} min={0.08} max={0.5} step={0.01} onChange={setLevel} />
-          <Slider label="偏斜 ∂σ/∂k" value={skew} min={-0.5} max={0.3} step={0.01} onChange={setSkew} />
-          <Slider label="曲率 (蝶式)" value={curv} min={0} max={2} step={0.05} onChange={setCurv} />
-          <Slider label="ATM 水平 (1Y)" value={longLevel} min={0.08} max={0.5} step={0.01} onChange={setLongLevel} />
+          <p className="text-xs font-mono text-gold uppercase tracking-wider">{t("labs.derivV57.V57.text090", { defaultValue: "市场报价 (合成微笑)" })}</p>
+          <Slider label={t("labs.derivV57.V57.text091", { defaultValue: "ATM 水平 (3M)" })} value={level} min={0.08} max={0.5} step={0.01} onChange={setLevel} />
+          <Slider label={t("labs.derivV57.V57.text092", { defaultValue: "偏斜 ∂σ/∂k" })} value={skew} min={-0.5} max={0.3} step={0.01} onChange={setSkew} />
+          <Slider label={t("labs.derivV57.V57.text093", { defaultValue: "曲率 (蝶式)" })} value={curv} min={0} max={2} step={0.05} onChange={setCurv} />
+          <Slider label={t("labs.derivV57.V57.text094", { defaultValue: "ATM 水平 (1Y)" })} value={longLevel} min={0.08} max={0.5} step={0.01} onChange={setLongLevel} />
         </div>
         <div className="grid grid-cols-2 gap-2 content-start">
-          <Stat label="拟合 RMSE (总方差)" value={fitShort.rmse.toExponential(2)} />
-          <Stat label="蝶式违约点数" value={String(arb.butterflyViolations)} color={arb.butterflyViolations ? C.red : C.green} />
-          <Stat label="日历违约点数" value={String(arb.calendarViolations)} color={arb.calendarViolations ? C.red : C.green} />
-          <Stat label="曲面状态" value={arb.arbitrageFree ? "无静态套利" : "存在套利"} color={arb.arbitrageFree ? C.green : C.red} />
+          <Stat label={t("labs.derivV57.V57.text095", { defaultValue: "拟合 RMSE (总方差)" })} value={fitShort.rmse.toExponential(2)} />
+          <Stat label={t("labs.derivV57.V57.text096", { defaultValue: "蝶式违约点数" })} value={String(arb.butterflyViolations)} color={arb.butterflyViolations ? C.red : C.green} />
+          <Stat label={t("labs.derivV57.V57.text097", { defaultValue: "日历违约点数" })} value={String(arb.calendarViolations)} color={arb.calendarViolations ? C.red : C.green} />
+          <Stat label={t("labs.derivV57.V57.text098", { defaultValue: "曲面状态" })} value={arb.arbitrageFree ? t("labs.derivV57.V57.text099", { defaultValue: "无静态套利" }) : t("labs.derivV57.V57.text100", { defaultValue: "存在套利" })} color={arb.arbitrageFree ? C.green : C.red} />
         </div>
       </div>
 
-      <Panel title="SVI 拟合 (3M 切片)">
+      <Panel title={t("labs.derivV57.V57.text101", { defaultValue: "SVI 拟合 (3M 切片)" })}>
         <div className="h-[250px]">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={fitChart}>
@@ -330,8 +325,8 @@ export const SviSurfaceTool = () => {
               <YAxis stroke={C.text} tick={{ fontSize: 10 }} />
               <Tooltip contentStyle={tooltipStyle} />
               <Legend wrapperStyle={{ fontSize: 11 }} />
-              <Line type="monotone" dataKey="market" name="市场 IV" stroke={C.gold} strokeWidth={0} dot={{ r: 3, fill: C.gold }} />
-              <Line type="monotone" dataKey="svi" name="SVI 拟合" stroke={C.blue} strokeWidth={2} dot={false} />
+              <Line type="monotone" dataKey="market" name={t("labs.derivV57.V57.text102", { defaultValue: "市场 IV" })} stroke={C.gold} strokeWidth={0} dot={{ r: 3, fill: C.gold }} />
+              <Line type="monotone" dataKey="svi" name={t("labs.derivV57.V57.text103", { defaultValue: "SVI 拟合" })} stroke={C.blue} strokeWidth={2} dot={false} />
             </LineChart>
           </ResponsiveContainer>
         </div>
@@ -340,7 +335,7 @@ export const SviSurfaceTool = () => {
       </Panel>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <Panel title="蝶式条件 g(k) ≥ 0 (风险中性密度非负)">
+        <Panel title={t("labs.derivV57.V57.text104", { defaultValue: "蝶式条件 g(k) ≥ 0 (风险中性密度非负)" })}>
           <div className="h-[230px]">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={arb.butterfly.map((x) => ({ k: x.k, g: +x.g.toFixed(4) }))}>
@@ -354,7 +349,7 @@ export const SviSurfaceTool = () => {
             </ResponsiveContainer>
           </div>
         </Panel>
-        <Panel title="Dupire 局部波动率 vs 隐含波动率">
+        <Panel title={t("labs.derivV57.V57.text105", { defaultValue: "Dupire 局部波动率 vs 隐含波动率" })}>
           <div className="h-[230px]">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={localVol.map((x) => ({ k: x.k, iv: +x.impliedVol.toFixed(4), lv: +x.localVol.toFixed(4) }))}>
@@ -363,8 +358,8 @@ export const SviSurfaceTool = () => {
                 <YAxis stroke={C.text} tick={{ fontSize: 10 }} />
                 <Tooltip contentStyle={tooltipStyle} />
                 <Legend wrapperStyle={{ fontSize: 11 }} />
-                <Line type="monotone" dataKey="iv" name="隐含波动率" stroke={C.gold} strokeWidth={2} dot={false} />
-                <Line type="monotone" dataKey="lv" name="局部波动率" stroke={C.red} strokeWidth={2} dot={false} />
+                <Line type="monotone" dataKey="iv" name={t("labs.derivV57.V57.text106", { defaultValue: "隐含波动率" })} stroke={C.gold} strokeWidth={2} dot={false} />
+                <Line type="monotone" dataKey="lv" name={t("labs.derivV57.V57.text107", { defaultValue: "局部波动率" })} stroke={C.red} strokeWidth={2} dot={false} />
               </LineChart>
             </ResponsiveContainer>
           </div>
@@ -372,17 +367,16 @@ export const SviSurfaceTool = () => {
       </div>
 
       <Note>
-        曲面工程有三道关：<strong>拟合</strong>（SVI 五参数刻画单个切片）、<strong>无套利</strong>
-        （蝶式 g(k)≥0 保证密度非负，日历要求总方差 w(k,T) 对 T 单调不减）、<strong>反解</strong>
-        （Dupire 把曲面翻译成唯一的局部波动率函数）。局部波动率能完美贴合今天的曲面，但它对未来微笑动态的预测通常过平，
-        这正是随机波动率与跳跃模型存在的理由：同样的今天，不同的明天。
-      </Note>
+        {t("labs.derivV57.V57.text108", { defaultValue: "曲面工程有三道关：" })}<strong>{t("labs.derivV57.V57.text109", { defaultValue: "拟合" })}</strong>{t("labs.derivV57.V57.text110", { defaultValue: "（SVI 五参数刻画单个切片）、" })}<strong>{t("labs.derivV57.V57.text111", { defaultValue: "无套利" })}</strong>
+        {t("labs.derivV57.V57.text112", { defaultValue: "（蝶式 g(k)≥0 保证密度非负，日历要求总方差 w(k,T) 对 T 单调不减）、" })}<strong>{t("labs.derivV57.V57.text113", { defaultValue: "反解" })}</strong>
+        {t("labs.derivV57.V57.text114", { defaultValue: "（Dupire 把曲面翻译成唯一的局部波动率函数）。局部波动率能完美贴合今天的曲面，但它对未来微笑动态的预测通常过平，\n        这正是随机波动率与跳跃模型存在的理由：同样的今天，不同的明天。\n      " })}</Note>
     </div>
   );
 };
 
 /* ═════════ 5. 短期利率 / HJM / LMM ═════════ */
 export const ShortRateCurveTool = () => {
+  const { t } = useTranslation();
   const [r0, setR0] = useState(0.03);
   const [a, setA] = useState(0.2);
   const [b, setB] = useState(0.05);
@@ -408,74 +402,71 @@ export const ShortRateCurveTool = () => {
   return (
     <div className="space-y-5">
       <PresetButtons presets={[
-        { name: "正常曲线", description: "r0<b, 中等回复", apply: () => { setR0(0.02); setB(0.05); setA(0.2); } },
-        { name: "倒挂曲线", description: "r0>b", apply: () => { setR0(0.07); setB(0.03); } },
-        { name: "违反 Feller", description: "σ 过大, CIR 可触 0", apply: () => { setSigma(0.09); setA(0.1); setB(0.03); } },
+        { name: t("labs.derivV57.V57.text115", { defaultValue: "正常曲线" }), description: t("labs.derivV57.V57.text116", { defaultValue: "r0<b, 中等回复" }), apply: () => { setR0(0.02); setB(0.05); setA(0.2); } },
+        { name: t("labs.derivV57.V57.text117", { defaultValue: "倒挂曲线" }), description: "r0>b", apply: () => { setR0(0.07); setB(0.03); } },
+        { name: t("labs.derivV57.V57.text118", { defaultValue: "违反 Feller" }), description: t("labs.derivV57.V57.text119", { defaultValue: "σ 过大, CIR 可触 0" }), apply: () => { setSigma(0.09); setA(0.1); setB(0.03); } },
       ]} />
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
         <div className="space-y-3">
-          <p className="text-xs font-mono text-gold uppercase tracking-wider">短期利率参数</p>
-          <Slider label="r₀ (当前短率)" value={r0} min={0} max={0.1} step={0.002} onChange={setR0} />
-          <Slider label="a (均值回复速度)" value={a} min={0.02} max={1} step={0.02} onChange={setA} />
-          <Slider label="b (长期均值)" value={b} min={0} max={0.1} step={0.002} onChange={setB} />
-          <Slider label="σ (短率波动)" value={sigma} min={0.002} max={0.1} step={0.002} onChange={setSigma} />
+          <p className="text-xs font-mono text-gold uppercase tracking-wider">{t("labs.derivV57.V57.text120", { defaultValue: "短期利率参数" })}</p>
+          <Slider label={t("labs.derivV57.V57.text121", { defaultValue: "r₀ (当前短率)" })} value={r0} min={0} max={0.1} step={0.002} onChange={setR0} />
+          <Slider label={t("labs.derivV57.V57.text122", { defaultValue: "a (均值回复速度)" })} value={a} min={0.02} max={1} step={0.02} onChange={setA} />
+          <Slider label={t("labs.derivV57.V57.text123", { defaultValue: "b (长期均值)" })} value={b} min={0} max={0.1} step={0.002} onChange={setB} />
+          <Slider label={t("labs.derivV57.V57.text124", { defaultValue: "σ (短率波动)" })} value={sigma} min={0.002} max={0.1} step={0.002} onChange={setSigma} />
         </div>
         <div className="grid grid-cols-2 gap-2 content-start">
-          <Stat label="10Y Vasicek 收益率" value={`${curve[19].vasicek.toFixed(3)}%`} />
-          <Stat label="10Y CIR 收益率" value={`${curve[19].cir.toFixed(3)}%`} color={C.blue} />
-          <Stat label="Feller 条件 2ab>σ²" value={feller ? "满足" : "违反"} color={feller ? C.green : C.red} sub="CIR 是否严格为正" />
-          <Stat label="HW 债券期权 (1Y→5Y ATM)" value={opt.price.toFixed(5)} color={C.teal} sub={`σ_P = ${opt.sigmaP.toFixed(4)}`} />
-          <Stat label="Black-76 Caplet" value={caplet.caplet.toFixed(5)} color={C.gold} sub="LMM 的基本构件" />
-          <Stat label="Vasicek 可为负" value={r0 - 3 * sigma < 0 ? "是" : "否" } color={C.text} sub="高斯模型的代价" />
+          <Stat label={t("labs.derivV57.V57.text125", { defaultValue: "10Y Vasicek 收益率" })} value={`${curve[19].vasicek.toFixed(3)}%`} />
+          <Stat label={t("labs.derivV57.V57.text126", { defaultValue: "10Y CIR 收益率" })} value={`${curve[19].cir.toFixed(3)}%`} color={C.blue} />
+          <Stat label={t("labs.derivV57.V57.text127", { defaultValue: "Feller 条件 2ab>σ²" })} value={feller ? t("labs.derivV57.V57.text128", { defaultValue: "满足" }) : t("labs.derivV57.V57.text129", { defaultValue: "违反" })} color={feller ? C.green : C.red} sub={t("labs.derivV57.V57.text130", { defaultValue: "CIR 是否严格为正" })} />
+          <Stat label={t("labs.derivV57.V57.text131", { defaultValue: "HW 债券期权 (1Y→5Y ATM)" })} value={opt.price.toFixed(5)} color={C.teal} sub={`σ_P = ${opt.sigmaP.toFixed(4)}`} />
+          <Stat label="Black-76 Caplet" value={caplet.caplet.toFixed(5)} color={C.gold} sub={t("labs.derivV57.V57.text132", { defaultValue: "LMM 的基本构件" })} />
+          <Stat label={t("labs.derivV57.V57.text133", { defaultValue: "Vasicek 可为负" })} value={r0 - 3 * sigma < 0 ? t("labs.derivV57.V57.text134", { defaultValue: "是" }) : t("labs.derivV57.V57.text135", { defaultValue: "否" }) } color={C.text} sub={t("labs.derivV57.V57.text136", { defaultValue: "高斯模型的代价" })} />
         </div>
       </div>
 
-      <Panel title="零息收益率曲线：Vasicek (高斯) vs CIR (平方根扩散)">
+      <Panel title={t("labs.derivV57.V57.text137", { defaultValue: "零息收益率曲线：Vasicek (高斯) vs CIR (平方根扩散)" })}>
         <div className="h-[270px]">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={curve}>
               <CartesianGrid stroke={C.grid} strokeDasharray="3 3" />
-              <XAxis dataKey="T" stroke={C.text} tick={{ fontSize: 10 }} label={{ value: "期限 (年)", position: "insideBottom", offset: -5, fill: C.text, fontSize: 10 }} />
+              <XAxis dataKey="T" stroke={C.text} tick={{ fontSize: 10 }} label={{ value: t("labs.derivV57.V57.text138", { defaultValue: "期限 (年)" }), position: "insideBottom", offset: -5, fill: C.text, fontSize: 10 }} />
               <YAxis stroke={C.text} tick={{ fontSize: 10 }} unit="%" />
               <Tooltip contentStyle={tooltipStyle} />
               <Legend wrapperStyle={{ fontSize: 11 }} />
               <Line type="monotone" dataKey="vasicek" name="Vasicek" stroke={C.gold} strokeWidth={2} dot={false} />
               <Line type="monotone" dataKey="cir" name="CIR" stroke={C.blue} strokeWidth={2} strokeDasharray="4 3" dot={false} />
-              <ReferenceLine y={b * 100} stroke={C.teal} strokeDasharray="2 2" label={{ value: "长期均值 b", fontSize: 10, fill: C.teal }} />
+              <ReferenceLine y={b * 100} stroke={C.teal} strokeDasharray="2 2" label={{ value: t("labs.derivV57.V57.text139", { defaultValue: "长期均值 b" }), fontSize: 10, fill: C.teal }} />
             </LineChart>
           </ResponsiveContainer>
         </div>
       </Panel>
 
-      <Panel title="HJM 无套利漂移条件 μ(t,T) = σ(t,T)∫σ(t,u)du">
+      <Panel title={t("labs.derivV57.V57.text140", { defaultValue: "HJM 无套利漂移条件 μ(t,T) = σ(t,T)∫σ(t,u)du" })}>
         <div className="h-[240px]">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={hjm.map((x) => ({ tau: x.tau, vol: +(x.vol * 1e4).toFixed(3), drift: +(x.drift * 1e6).toFixed(3) }))}>
               <CartesianGrid stroke={C.grid} strokeDasharray="3 3" />
-              <XAxis dataKey="tau" stroke={C.text} tick={{ fontSize: 10 }} label={{ value: "剩余期限 τ = T−t", position: "insideBottom", offset: -5, fill: C.text, fontSize: 10 }} />
+              <XAxis dataKey="tau" stroke={C.text} tick={{ fontSize: 10 }} label={{ value: t("labs.derivV57.V57.text141", { defaultValue: "剩余期限 τ = T−t" }), position: "insideBottom", offset: -5, fill: C.text, fontSize: 10 }} />
               <YAxis yAxisId="l" stroke={C.text} tick={{ fontSize: 10 }} />
               <YAxis yAxisId="r" orientation="right" stroke={C.text} tick={{ fontSize: 10 }} />
               <Tooltip contentStyle={tooltipStyle} />
               <Legend wrapperStyle={{ fontSize: 11 }} />
-              <Line yAxisId="l" type="monotone" dataKey="vol" name="远期利率波动 (bp)" stroke={C.gold} strokeWidth={2} dot={false} />
-              <Line yAxisId="r" type="monotone" dataKey="drift" name="被迫的漂移 (×10⁻⁶)" stroke={C.red} strokeWidth={2} dot={false} />
+              <Line yAxisId="l" type="monotone" dataKey="vol" name={t("labs.derivV57.V57.text142", { defaultValue: "远期利率波动 (bp)" })} stroke={C.gold} strokeWidth={2} dot={false} />
+              <Line yAxisId="r" type="monotone" dataKey="drift" name={t("labs.derivV57.V57.text143", { defaultValue: "被迫的漂移 (×10⁻⁶)" })} stroke={C.red} strokeWidth={2} dot={false} />
             </LineChart>
           </ResponsiveContainer>
         </div>
       </Panel>
 
       <Note>
-        利率世界的定价对象不是一个价格而是<strong>一整条曲线</strong>。短期利率模型用一个状态变量生成全曲线，
-        代价是曲线形状受限；HJM 直接建模远期利率，并证明只要给定波动率结构，漂移就<em>被无套利唯一决定</em>；
-        市场模型（LMM/SMM）再退一步，直接对可报价的 LIBOR/掉期利率建模，使 Black-76 公式在相应计价单位下严格成立。
-        选择哪一层，取决于要定价的是曲线的水平、斜率，还是路径依赖的百慕大条款。
-      </Note>
+        {t("labs.derivV57.V57.text144", { defaultValue: "利率世界的定价对象不是一个价格而是" })}<strong>{t("labs.derivV57.V57.text145", { defaultValue: "一整条曲线" })}</strong>{t("labs.derivV57.V57.text146", { defaultValue: "。短期利率模型用一个状态变量生成全曲线，\n        代价是曲线形状受限；HJM 直接建模远期利率，并证明只要给定波动率结构，漂移就" })}<em>{t("labs.derivV57.V57.text147", { defaultValue: "被无套利唯一决定" })}</em>{t("labs.derivV57.V57.text148", { defaultValue: "；\n        市场模型（LMM/SMM）再退一步，直接对可报价的 LIBOR/掉期利率建模，使 Black-76 公式在相应计价单位下严格成立。\n        选择哪一层，取决于要定价的是曲线的水平、斜率，还是路径依赖的百慕大条款。\n      " })}</Note>
     </div>
   );
 };
 
 /* ═════════ 6. 信用曲线与 CDS ═════════ */
 export const CreditCurveTool = () => {
+  const { t } = useTranslation();
   const [s1, setS1] = useState(0.008);
   const [s5, setS5] = useState(0.014);
   const [s10, setS10] = useState(0.017);
@@ -498,28 +489,28 @@ export const CreditCurveTool = () => {
   return (
     <div className="space-y-5">
       <PresetButtons presets={[
-        { name: "投资级", description: "平坦低利差", apply: () => { setS1(0.004); setS5(0.008); setS10(0.011); setRecovery(0.4); } },
-        { name: "高收益", description: "陡峭高利差", apply: () => { setS1(0.03); setS5(0.05); setS10(0.055); setRecovery(0.3); } },
-        { name: "困境倒挂", description: "近端利差最高", apply: () => { setS1(0.09); setS5(0.06); setS10(0.05); setRecovery(0.2); } },
+        { name: t("labs.derivV57.V57.text149", { defaultValue: "投资级" }), description: t("labs.derivV57.V57.text150", { defaultValue: "平坦低利差" }), apply: () => { setS1(0.004); setS5(0.008); setS10(0.011); setRecovery(0.4); } },
+        { name: t("labs.derivV57.V57.text151", { defaultValue: "高收益" }), description: t("labs.derivV57.V57.text152", { defaultValue: "陡峭高利差" }), apply: () => { setS1(0.03); setS5(0.05); setS10(0.055); setRecovery(0.3); } },
+        { name: t("labs.derivV57.V57.text153", { defaultValue: "困境倒挂" }), description: t("labs.derivV57.V57.text154", { defaultValue: "近端利差最高" }), apply: () => { setS1(0.09); setS5(0.06); setS10(0.05); setRecovery(0.2); } },
       ]} />
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
         <div className="space-y-3">
-          <p className="text-xs font-mono text-gold uppercase tracking-wider">CDS 市场报价</p>
-          <Slider label="1Y 利差" value={s1} min={0.001} max={0.12} step={0.001} fmt={(v) => `${(v * 1e4).toFixed(0)} bp`} onChange={setS1} />
-          <Slider label="5Y 利差" value={s5} min={0.001} max={0.12} step={0.001} fmt={(v) => `${(v * 1e4).toFixed(0)} bp`} onChange={setS5} />
-          <Slider label="10Y 利差" value={s10} min={0.001} max={0.12} step={0.001} fmt={(v) => `${(v * 1e4).toFixed(0)} bp`} onChange={setS10} />
-          <Slider label="回收率 R" value={recovery} min={0} max={0.8} step={0.05} onChange={setRecovery} />
-          <Slider label="无风险利率 r" value={r} min={0} max={0.08} step={0.005} onChange={setR} />
+          <p className="text-xs font-mono text-gold uppercase tracking-wider">{t("labs.derivV57.V57.text155", { defaultValue: "CDS 市场报价" })}</p>
+          <Slider label={t("labs.derivV57.V57.text156", { defaultValue: "1Y 利差" })} value={s1} min={0.001} max={0.12} step={0.001} fmt={(v) => `${(v * 1e4).toFixed(0)} bp`} onChange={setS1} />
+          <Slider label={t("labs.derivV57.V57.text157", { defaultValue: "5Y 利差" })} value={s5} min={0.001} max={0.12} step={0.001} fmt={(v) => `${(v * 1e4).toFixed(0)} bp`} onChange={setS5} />
+          <Slider label={t("labs.derivV57.V57.text158", { defaultValue: "10Y 利差" })} value={s10} min={0.001} max={0.12} step={0.001} fmt={(v) => `${(v * 1e4).toFixed(0)} bp`} onChange={setS10} />
+          <Slider label={t("labs.derivV57.V57.text159", { defaultValue: "回收率 R" })} value={recovery} min={0} max={0.8} step={0.05} onChange={setRecovery} />
+          <Slider label={t("labs.derivV57.V57.text160", { defaultValue: "无风险利率 r" })} value={r} min={0} max={0.08} step={0.005} onChange={setR} />
         </div>
         <div className="grid grid-cols-2 gap-2 content-start">
-          <Stat label="1Y 危险率 λ₁" value={`${(boot.curve[0].hazard * 1e4).toFixed(0)} bp`} />
-          <Stat label="10Y 累计违约概率" value={`${(boot.curve[4].impliedPD * 100).toFixed(2)}%`} color={C.red} />
-          <Stat label="5Y 存活概率" value={`${(boot.curve[2].survival * 100).toFixed(2)}%`} color={C.green} />
-          <Stat label="信用三角 s/(1−R)" value={`${(s5 / (1 - recovery) * 1e4).toFixed(0)} bp`} color={C.teal} sub="平坦曲线近似" />
+          <Stat label={t("labs.derivV57.V57.text161", { defaultValue: "1Y 危险率 λ₁" })} value={`${(boot.curve[0].hazard * 1e4).toFixed(0)} bp`} />
+          <Stat label={t("labs.derivV57.V57.text162", { defaultValue: "10Y 累计违约概率" })} value={`${(boot.curve[4].impliedPD * 100).toFixed(2)}%`} color={C.red} />
+          <Stat label={t("labs.derivV57.V57.text163", { defaultValue: "5Y 存活概率" })} value={`${(boot.curve[2].survival * 100).toFixed(2)}%`} color={C.green} />
+          <Stat label={t("labs.derivV57.V57.text164", { defaultValue: "信用三角 s/(1−R)" })} value={`${(s5 / (1 - recovery) * 1e4).toFixed(0)} bp`} color={C.teal} sub={t("labs.derivV57.V57.text165", { defaultValue: "平坦曲线近似" })} />
         </div>
       </div>
 
-      <Panel title="自举出的分段常数危险率与信用三角近似">
+      <Panel title={t("labs.derivV57.V57.text166", { defaultValue: "自举出的分段常数危险率与信用三角近似" })}>
         <div className="h-[250px]">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={chart}>
@@ -528,14 +519,14 @@ export const CreditCurveTool = () => {
               <YAxis stroke={C.text} tick={{ fontSize: 10 }} unit="bp" />
               <Tooltip contentStyle={tooltipStyle} />
               <Legend wrapperStyle={{ fontSize: 11 }} />
-              <Bar dataKey="hazard" name="自举危险率 λ" fill={C.gold} />
-              <Bar dataKey="triangle" name="s/(1−R) 近似" fill={C.blue} />
+              <Bar dataKey="hazard" name={t("labs.derivV57.V57.text167", { defaultValue: "自举危险率 λ" })} fill={C.gold} />
+              <Bar dataKey="triangle" name={t("labs.derivV57.V57.text168", { defaultValue: "s/(1−R) 近似" })} fill={C.blue} />
             </BarChart>
           </ResponsiveContainer>
         </div>
       </Panel>
 
-      <Panel title="存活曲线与累计违约概率">
+      <Panel title={t("labs.derivV57.V57.text169", { defaultValue: "存活曲线与累计违约概率" })}>
         <div className="h-[240px]">
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={chart}>
@@ -544,25 +535,22 @@ export const CreditCurveTool = () => {
               <YAxis stroke={C.text} tick={{ fontSize: 10 }} unit="%" />
               <Tooltip contentStyle={tooltipStyle} />
               <Legend wrapperStyle={{ fontSize: 11 }} />
-              <Area type="monotone" dataKey="survival" name="存活概率 Q(t)" stroke={C.green} fill={C.green} fillOpacity={0.15} />
-              <Area type="monotone" dataKey="pd" name="累计违约概率" stroke={C.red} fill={C.red} fillOpacity={0.15} />
+              <Area type="monotone" dataKey="survival" name={t("labs.derivV57.V57.text170", { defaultValue: "存活概率 Q(t)" })} stroke={C.green} fill={C.green} fillOpacity={0.15} />
+              <Area type="monotone" dataKey="pd" name={t("labs.derivV57.V57.text171", { defaultValue: "累计违约概率" })} stroke={C.red} fill={C.red} fillOpacity={0.15} />
             </AreaChart>
           </ResponsiveContainer>
         </div>
       </Panel>
 
       <Note>
-        约化式模型不解释「为什么违约」，而是把违约时间刻画成一个强度为 λ(t) 的首次跳跃时间，
-        再由 CDS 的两条腿（保费腿 = s·RPV01，保护腿 = (1−R)·∫DF·dQ）在 <strong>par spread 处相等</strong>反解出整条危险率曲线。
-        关键提醒：这里得到的是<em>风险中性</em>违约概率，包含违约风险溢价，通常显著高于历史违约率；
-        且 λ 与 R 只能联合识别——回收率假设改变 40%，危险率几乎同比例改变。
-      </Note>
+        {t("labs.derivV57.V57.text172", { defaultValue: "约化式模型不解释「为什么违约」，而是把违约时间刻画成一个强度为 λ(t) 的首次跳跃时间，\n        再由 CDS 的两条腿（保费腿 = s·RPV01，保护腿 = (1−R)·∫DF·dQ）在 " })}<strong>{t("labs.derivV57.V57.text173", { defaultValue: "par spread 处相等" })}</strong>{t("labs.derivV57.V57.text174", { defaultValue: "反解出整条危险率曲线。\n        关键提醒：这里得到的是" })}<em>{t("labs.derivV57.V57.text175", { defaultValue: "风险中性" })}</em>{t("labs.derivV57.V57.text176", { defaultValue: "违约概率，包含违约风险溢价，通常显著高于历史违约率；\n        且 λ 与 R 只能联合识别——回收率假设改变 40%，危险率几乎同比例改变。\n      " })}</Note>
     </div>
   );
 };
 
 /* ═════════ 7. 数值方法实验室 ═════════ */
 export const NumericsLabTool = () => {
+  const { t } = useTranslation();
   const [paths, setPaths] = useState(4000);
   const [sigma, setSigma] = useState(0.2);
   const [xi, setXi] = useState(0.5);
@@ -591,47 +579,47 @@ export const NumericsLabTool = () => {
   return (
     <div className="space-y-5">
       <PresetButtons presets={[
-        { name: "低效基准", description: "1000 条路径", apply: () => setPaths(1000) },
-        { name: "高精度", description: "20000 条路径", apply: () => setPaths(20000) },
-        { name: "强杠杆效应", description: "ρ=-0.9, ξ=0.8", apply: () => { setRho(-0.9); setXi(0.8); } },
+        { name: t("labs.derivV57.V57.text177", { defaultValue: "低效基准" }), description: t("labs.derivV57.V57.text178", { defaultValue: "1000 条路径" }), apply: () => setPaths(1000) },
+        { name: t("labs.derivV57.V57.text179", { defaultValue: "高精度" }), description: t("labs.derivV57.V57.text180", { defaultValue: "20000 条路径" }), apply: () => setPaths(20000) },
+        { name: t("labs.derivV57.V57.text181", { defaultValue: "强杠杆效应" }), description: "ρ=-0.9, ξ=0.8", apply: () => { setRho(-0.9); setXi(0.8); } },
       ]} />
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
         <div className="space-y-3">
-          <p className="text-xs font-mono text-gold uppercase tracking-wider">蒙特卡洛与傅里叶参数</p>
-          <Slider label="路径数" value={paths} min={500} max={20000} step={500} onChange={setPaths} />
+          <p className="text-xs font-mono text-gold uppercase tracking-wider">{t("labs.derivV57.V57.text182", { defaultValue: "蒙特卡洛与傅里叶参数" })}</p>
+          <Slider label={t("labs.derivV57.V57.text040", { defaultValue: "路径数" })} value={paths} min={500} max={20000} step={500} onChange={setPaths} />
           <Slider label="σ (√v₀ = √θ)" value={sigma} min={0.05} max={0.6} step={0.01} onChange={setSigma} />
-          <Slider label="ξ (波动率的波动率)" value={xi} min={0.05} max={1.2} step={0.05} onChange={setXi} />
-          <Slider label="ρ (杠杆相关性)" value={rho} min={-0.95} max={0.5} step={0.05} onChange={setRho} />
-          <Slider label="α (Carr-Madan 阻尼)" value={alpha} min={0.4} max={3} step={0.1} onChange={setAlpha} />
+          <Slider label={t("labs.derivV57.V57.text183", { defaultValue: "ξ (波动率的波动率)" })} value={xi} min={0.05} max={1.2} step={0.05} onChange={setXi} />
+          <Slider label={t("labs.derivV57.V57.text184", { defaultValue: "ρ (杠杆相关性)" })} value={rho} min={-0.95} max={0.5} step={0.05} onChange={setRho} />
+          <Slider label={t("labs.derivV57.V57.text185", { defaultValue: "α (Carr-Madan 阻尼)" })} value={alpha} min={0.4} max={3} step={0.1} onChange={setAlpha} />
         </div>
         <div className="grid grid-cols-2 gap-2 content-start">
           {vr.results.map((r) => (
             <Stat key={r.method} label={r.method} value={r.price.toFixed(4)}
               color={r.efficiency > 3 ? C.green : r.efficiency > 1.2 ? C.teal : C.gold}
-              sub={`SE ${r.stderr.toFixed(4)} · 效率 ×${r.efficiency.toFixed(1)}`} />
+              sub={t("labs.derivV57.V57.text186", { defaultValue: "SE {{value0}} · 效率 ×{{value1}}", value0: r.stderr.toFixed(4), value1: r.efficiency.toFixed(1) })} />
           ))}
         </div>
       </div>
 
-      <Panel title={`收敛速度：|估计值 − 解析解| (解析解 = ${vr.exact.toFixed(4)})`}>
+      <Panel title={t("labs.derivV57.V57.text187", { defaultValue: "收敛速度：|估计值 − 解析解| (解析解 = {{value0}})", value0: vr.exact.toFixed(4) })}>
         <div className="h-[260px]">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={vr.convergence.map((c) => ({ ...c, plain: +c.plain.toFixed(5), anti: +c.anti.toFixed(5), cv: +c.cv.toFixed(5), qmc: +c.qmc.toFixed(5) }))}>
               <CartesianGrid stroke={C.grid} strokeDasharray="3 3" />
-              <XAxis dataKey="n" stroke={C.text} tick={{ fontSize: 10 }} label={{ value: "路径数", position: "insideBottom", offset: -5, fill: C.text, fontSize: 10 }} />
+              <XAxis dataKey="n" stroke={C.text} tick={{ fontSize: 10 }} label={{ value: t("labs.derivV57.V57.text040", { defaultValue: "路径数" }), position: "insideBottom", offset: -5, fill: C.text, fontSize: 10 }} />
               <YAxis stroke={C.text} tick={{ fontSize: 10 }} />
               <Tooltip contentStyle={tooltipStyle} />
               <Legend wrapperStyle={{ fontSize: 11 }} />
-              <Line type="monotone" dataKey="plain" name="朴素 MC" stroke={C.text} strokeWidth={2} dot={false} />
-              <Line type="monotone" dataKey="anti" name="对偶变量" stroke={C.blue} strokeWidth={2} dot={false} />
-              <Line type="monotone" dataKey="cv" name="控制变量" stroke={C.green} strokeWidth={2} dot={false} />
-              <Line type="monotone" dataKey="qmc" name="拟蒙特卡洛" stroke={C.gold} strokeWidth={2} dot={false} />
+              <Line type="monotone" dataKey="plain" name={t("labs.derivV57.V57.text188", { defaultValue: "朴素 MC" })} stroke={C.text} strokeWidth={2} dot={false} />
+              <Line type="monotone" dataKey="anti" name={t("labs.derivV57.V57.text189", { defaultValue: "对偶变量" })} stroke={C.blue} strokeWidth={2} dot={false} />
+              <Line type="monotone" dataKey="cv" name={t("labs.derivV57.V57.text190", { defaultValue: "控制变量" })} stroke={C.green} strokeWidth={2} dot={false} />
+              <Line type="monotone" dataKey="qmc" name={t("labs.derivV57.V57.text191", { defaultValue: "拟蒙特卡洛" })} stroke={C.gold} strokeWidth={2} dot={false} />
             </LineChart>
           </ResponsiveContainer>
         </div>
       </Panel>
 
-      <Panel title="Carr–Madan 傅里叶定价：Heston 微笑 (一次积分给出全条链)">
+      <Panel title={t("labs.derivV57.V57.text192", { defaultValue: "Carr–Madan 傅里叶定价：Heston 微笑 (一次积分给出全条链)" })}>
         <div className="h-[250px]">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={fourier}>
@@ -641,17 +629,15 @@ export const NumericsLabTool = () => {
               <YAxis yAxisId="r" orientation="right" stroke={C.text} tick={{ fontSize: 10 }} unit="%" />
               <Tooltip contentStyle={tooltipStyle} />
               <Legend wrapperStyle={{ fontSize: 11 }} />
-              <Line yAxisId="l" type="monotone" dataKey="call" name="看涨价格" stroke={C.blue} strokeWidth={2} dot={false} />
-              <Line yAxisId="r" type="monotone" dataKey="iv" name="隐含波动率 (近似)" stroke={C.gold} strokeWidth={2} dot={false} />
+              <Line yAxisId="l" type="monotone" dataKey="call" name={t("labs.derivV57.V57.text193", { defaultValue: "看涨价格" })} stroke={C.blue} strokeWidth={2} dot={false} />
+              <Line yAxisId="r" type="monotone" dataKey="iv" name={t("labs.derivV57.V57.text194", { defaultValue: "隐含波动率 (近似)" })} stroke={C.gold} strokeWidth={2} dot={false} />
             </LineChart>
           </ResponsiveContainer>
         </div>
       </Panel>
 
       <Note>
-        数值方法的选择由<strong>维度与合约结构</strong>决定：低维欧式且有特征函数时，傅里叶方法几毫秒给出整条链，是校准的主力；
-        低维且带早行权用 PDE；高维或强路径依赖只能靠蒙特卡洛，此时收敛速度 O(N^(−1/2)) 必须靠方差缩减和低差异序列来补。
-        本页显示控制变量的效率提升为 ×{vr.results[2].efficiency.toFixed(1)}——同样精度下所需路径数可降到 1/{vr.results[2].efficiency.toFixed(1)}。
+        {t("labs.derivV57.V57.text195", { defaultValue: "数值方法的选择由" })}<strong>{t("labs.derivV57.V57.text196", { defaultValue: "维度与合约结构" })}</strong>{t("labs.derivV57.V57.text197", { defaultValue: "决定：低维欧式且有特征函数时，傅里叶方法几毫秒给出整条链，是校准的主力；\n        低维且带早行权用 PDE；高维或强路径依赖只能靠蒙特卡洛，此时收敛速度 O(N^(−1/2)) 必须靠方差缩减和低差异序列来补。\n        本页显示控制变量的效率提升为 ×" })}{vr.results[2].efficiency.toFixed(1)}{t("labs.derivV57.V57.text198", { defaultValue: "——同样精度下所需路径数可降到 1/" })}{vr.results[2].efficiency.toFixed(1)}。
       </Note>
     </div>
   );
@@ -659,6 +645,7 @@ export const NumericsLabTool = () => {
 
 /* ═════════ 8. 粗糙波动率与最优对冲 ═════════ */
 export const RoughVolHedgeTool = () => {
+  const { t } = useTranslation();
   const [H, setH] = useState(0.1);
   const [eta, setEta] = useState(1.5);
   const [rho, setRho] = useState(-0.8);
@@ -676,31 +663,31 @@ export const RoughVolHedgeTool = () => {
   return (
     <div className="space-y-5">
       <PresetButtons presets={[
-        { name: "典型粗糙", description: "H=0.1", apply: () => { setH(0.1); setEta(1.5); setRho(-0.8); } },
-        { name: "退化到扩散", description: "H=0.5", apply: () => setH(0.5) },
-        { name: "跳跃主导", description: "λ=4, γ=4", apply: () => { setLambda(4); setGamma(4); } },
+        { name: t("labs.derivV57.V57.text199", { defaultValue: "典型粗糙" }), description: "H=0.1", apply: () => { setH(0.1); setEta(1.5); setRho(-0.8); } },
+        { name: t("labs.derivV57.V57.text200", { defaultValue: "退化到扩散" }), description: "H=0.5", apply: () => setH(0.5) },
+        { name: t("labs.derivV57.V57.text201", { defaultValue: "跳跃主导" }), description: "λ=4, γ=4", apply: () => { setLambda(4); setGamma(4); } },
       ]} />
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
         <div className="space-y-3">
-          <p className="text-xs font-mono text-gold uppercase tracking-wider">rBergomi 与不完全市场</p>
-          <Slider label="H (Hurst 指数)" value={H} min={0.03} max={0.5} step={0.01} onChange={setH} />
-          <Slider label="η (波动率的波动)" value={eta} min={0.2} max={3} step={0.1} onChange={setEta} />
-          <Slider label="ρ (杠杆相关性)" value={rho} min={-0.95} max={0.5} step={0.05} onChange={setRho} />
-          <Slider label="λ (跳跃强度, 对冲实验)" value={lambda} min={0} max={6} step={0.25} onChange={setLambda} />
-          <Slider label="γ (风险厌恶, 无差别定价)" value={gamma} min={0.05} max={8} step={0.05} onChange={setGamma} />
+          <p className="text-xs font-mono text-gold uppercase tracking-wider">{t("labs.derivV57.V57.text202", { defaultValue: "rBergomi 与不完全市场" })}</p>
+          <Slider label={t("labs.derivV57.V57.text203", { defaultValue: "H (Hurst 指数)" })} value={H} min={0.03} max={0.5} step={0.01} onChange={setH} />
+          <Slider label={t("labs.derivV57.V57.text204", { defaultValue: "η (波动率的波动)" })} value={eta} min={0.2} max={3} step={0.1} onChange={setEta} />
+          <Slider label={t("labs.derivV57.V57.text184", { defaultValue: "ρ (杠杆相关性)" })} value={rho} min={-0.95} max={0.5} step={0.05} onChange={setRho} />
+          <Slider label={t("labs.derivV57.V57.text205", { defaultValue: "λ (跳跃强度, 对冲实验)" })} value={lambda} min={0} max={6} step={0.25} onChange={setLambda} />
+          <Slider label={t("labs.derivV57.V57.text206", { defaultValue: "γ (风险厌恶, 无差别定价)" })} value={gamma} min={0.05} max={8} step={0.05} onChange={setGamma} />
         </div>
         <div className="grid grid-cols-2 gap-2 content-start">
-          <Stat label="ATM 偏斜 ∂σ/∂k" value={smile.atmSkew.toFixed(3)} color={C.gold} sub={`H = ${H.toFixed(2)}`} />
-          <Stat label="平均实现波动率" value={`${(smile.avgRealizedVol * 100).toFixed(1)}%`} color={C.blue} />
-          <Stat label="均方最优对冲比 θ*" value={hedge.hedgeRatio.toFixed(4)} color={C.teal} />
-          <Stat label="残余风险 σ(误差)" value={hedge.residualStd.toFixed(4)} color={C.red} sub="完备市场应为 0" />
-          <Stat label="均方对冲价格" value={hedge.meanVariancePrice.toFixed(4)} />
-          <Stat label="效用无差别价格" value={hedge.indifferencePrice.toFixed(4)} color={C.gold} sub={`风险溢价 +${hedge.riskPremium.toFixed(4)}`} />
+          <Stat label={t("labs.derivV57.V57.text207", { defaultValue: "ATM 偏斜 ∂σ/∂k" })} value={smile.atmSkew.toFixed(3)} color={C.gold} sub={`H = ${H.toFixed(2)}`} />
+          <Stat label={t("labs.derivV57.V57.text208", { defaultValue: "平均实现波动率" })} value={`${(smile.avgRealizedVol * 100).toFixed(1)}%`} color={C.blue} />
+          <Stat label={t("labs.derivV57.V57.text209", { defaultValue: "均方最优对冲比 θ*" })} value={hedge.hedgeRatio.toFixed(4)} color={C.teal} />
+          <Stat label={t("labs.derivV57.V57.text210", { defaultValue: "残余风险 σ(误差)" })} value={hedge.residualStd.toFixed(4)} color={C.red} sub={t("labs.derivV57.V57.text211", { defaultValue: "完备市场应为 0" })} />
+          <Stat label={t("labs.derivV57.V57.text212", { defaultValue: "均方对冲价格" })} value={hedge.meanVariancePrice.toFixed(4)} />
+          <Stat label={t("labs.derivV57.V57.text213", { defaultValue: "效用无差别价格" })} value={hedge.indifferencePrice.toFixed(4)} color={C.gold} sub={t("labs.derivV57.V57.text214", { defaultValue: "风险溢价 +{{value0}}", value0: hedge.riskPremium.toFixed(4) })} />
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <Panel title="rBergomi 微笑 (3M)">
+        <Panel title={t("labs.derivV57.V57.text215", { defaultValue: "rBergomi 微笑 (3M)" })}>
           <div className="h-[240px]">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={smile.smile.map((s) => ({ k: s.logMoneyness, iv: +(s.iv * 100).toFixed(2) }))}>
@@ -708,12 +695,12 @@ export const RoughVolHedgeTool = () => {
                 <XAxis dataKey="k" stroke={C.text} tick={{ fontSize: 10 }} label={{ value: "log-moneyness", position: "insideBottom", offset: -5, fill: C.text, fontSize: 10 }} />
                 <YAxis stroke={C.text} tick={{ fontSize: 10 }} unit="%" />
                 <Tooltip contentStyle={tooltipStyle} />
-                <Line type="monotone" dataKey="iv" name="隐含波动率" stroke={C.gold} strokeWidth={2} />
+                <Line type="monotone" dataKey="iv" name={t("labs.derivV57.V57.text106", { defaultValue: "隐含波动率" })} stroke={C.gold} strokeWidth={2} />
               </LineChart>
             </ResponsiveContainer>
           </div>
         </Panel>
-        <Panel title="ATM 偏斜期限结构：T^(H−1/2) 幂律 vs 扩散模型">
+        <Panel title={t("labs.derivV57.V57.text216", { defaultValue: "ATM 偏斜期限结构：T^(H−1/2) 幂律 vs 扩散模型" })}>
           <div className="h-[240px]">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={skewTs.map((s) => ({ T: +s.T.toFixed(3), rough: +s.rough.toFixed(3), diffusive: +s.diffusive.toFixed(3) }))}>
@@ -722,21 +709,21 @@ export const RoughVolHedgeTool = () => {
                 <YAxis stroke={C.text} tick={{ fontSize: 10 }} />
                 <Tooltip contentStyle={tooltipStyle} />
                 <Legend wrapperStyle={{ fontSize: 11 }} />
-                <Line type="monotone" dataKey="rough" name="粗糙波动率" stroke={C.red} strokeWidth={2} />
-                <Line type="monotone" dataKey="diffusive" name="经典扩散" stroke={C.blue} strokeWidth={2} strokeDasharray="4 3" />
+                <Line type="monotone" dataKey="rough" name={t("labs.derivV57.V57.text217", { defaultValue: "粗糙波动率" })} stroke={C.red} strokeWidth={2} />
+                <Line type="monotone" dataKey="diffusive" name={t("labs.derivV57.V57.text218", { defaultValue: "经典扩散" })} stroke={C.blue} strokeWidth={2} strokeDasharray="4 3" />
               </LineChart>
             </ResponsiveContainer>
           </div>
         </Panel>
       </div>
 
-      <Panel title="跳跃市场中的对冲误差：Δ 对冲无法清零">
+      <Panel title={t("labs.derivV57.V57.text219", { defaultValue: "跳跃市场中的对冲误差：Δ 对冲无法清零" })}>
         <div className="h-[260px]">
           <ResponsiveContainer width="100%" height="100%">
             <ScatterChart>
               <CartesianGrid stroke={C.grid} strokeDasharray="3 3" />
-              <XAxis type="number" dataKey="dS" name="ΔS (贴现)" stroke={C.text} tick={{ fontSize: 10 }} />
-              <YAxis type="number" dataKey="hedged" name="对冲后损益" stroke={C.text} tick={{ fontSize: 10 }} />
+              <XAxis type="number" dataKey="dS" name={t("labs.derivV57.V57.text220", { defaultValue: "ΔS (贴现)" })} stroke={C.text} tick={{ fontSize: 10 }} />
+              <YAxis type="number" dataKey="hedged" name={t("labs.derivV57.V57.text221", { defaultValue: "对冲后损益" })} stroke={C.text} tick={{ fontSize: 10 }} />
               <Tooltip contentStyle={tooltipStyle} cursor={{ strokeDasharray: "3 3" }} />
               <ReferenceLine y={hedge.meanVariancePrice} stroke={C.gold} strokeDasharray="4 3" />
               <Scatter data={hedge.scatter} fill={C.teal} fillOpacity={0.55} />
@@ -745,27 +732,23 @@ export const RoughVolHedgeTool = () => {
         </div>
       </Panel>
 
-      <Panel title="风险厌恶与无差别价格：γ→0 收敛到均方对冲价格">
+      <Panel title={t("labs.derivV57.V57.text222", { defaultValue: "风险厌恶与无差别价格：γ→0 收敛到均方对冲价格" })}>
         <div className="h-[220px]">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={hedge.utilityCurve.map((u) => ({ gamma: u.gamma, price: +u.price.toFixed(4) }))}>
               <CartesianGrid stroke={C.grid} strokeDasharray="3 3" />
-              <XAxis dataKey="gamma" stroke={C.text} tick={{ fontSize: 10 }} label={{ value: "风险厌恶 γ", position: "insideBottom", offset: -5, fill: C.text, fontSize: 10 }} />
+              <XAxis dataKey="gamma" stroke={C.text} tick={{ fontSize: 10 }} label={{ value: t("labs.derivV57.V57.text223", { defaultValue: "风险厌恶 γ" }), position: "insideBottom", offset: -5, fill: C.text, fontSize: 10 }} />
               <YAxis stroke={C.text} tick={{ fontSize: 10 }} domain={["auto", "auto"]} />
               <Tooltip contentStyle={tooltipStyle} />
-              <ReferenceLine y={hedge.meanVariancePrice} stroke={C.blue} strokeDasharray="4 3" label={{ value: "均方对冲价", fontSize: 10, fill: C.blue }} />
-              <Line type="monotone" dataKey="price" name="无差别卖价" stroke={C.gold} strokeWidth={2} />
+              <ReferenceLine y={hedge.meanVariancePrice} stroke={C.blue} strokeDasharray="4 3" label={{ value: t("labs.derivV57.V57.text224", { defaultValue: "均方对冲价" }), fontSize: 10, fill: C.blue }} />
+              <Line type="monotone" dataKey="price" name={t("labs.derivV57.V57.text225", { defaultValue: "无差别卖价" })} stroke={C.gold} strokeWidth={2} />
             </LineChart>
           </ResponsiveContainer>
         </div>
       </Panel>
 
       <Note>
-        前沿的共同主题是<strong>承认不完美</strong>：波动率路径比布朗运动更粗糙（H≈0.1），使短期偏斜按 T^(H−1/2) 爆炸，
-        经典扩散模型无论怎么校准都拟合不了；而一旦存在跳跃、离散再平衡或交易成本，市场就不完全，
-        「唯一无套利价格」退化为一个区间 [{hedge.subPrice.toFixed(2)}, {hedge.superPrice.toFixed(2)}]。
-        实务解法不是找到那个不存在的完美复制，而是选定一个准则——最小化对冲误差方差，或用效用无差别定价把残余风险明码标价。
-      </Note>
+        {t("labs.derivV57.V57.text226", { defaultValue: "前沿的共同主题是" })}<strong>{t("labs.derivV57.V57.text227", { defaultValue: "承认不完美" })}</strong>{t("labs.derivV57.V57.text228", { defaultValue: "：波动率路径比布朗运动更粗糙（H≈0.1），使短期偏斜按 T^(H−1/2) 爆炸，\n        经典扩散模型无论怎么校准都拟合不了；而一旦存在跳跃、离散再平衡或交易成本，市场就不完全，\n        「唯一无套利价格」退化为一个区间 [" })}{hedge.subPrice.toFixed(2)}, {hedge.superPrice.toFixed(2)}{t("labs.derivV57.V57.text229", { defaultValue: "]。\n        实务解法不是找到那个不存在的完美复制，而是选定一个准则——最小化对冲误差方差，或用效用无差别定价把残余风险明码标价。\n      " })}</Note>
     </div>
   );
 };
