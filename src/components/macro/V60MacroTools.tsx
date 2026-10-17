@@ -221,10 +221,10 @@ function AccountingPanel() {
   const [hR, setHR] = useState(3.2), [hP, setHP] = useState(1.6);
   const dev = useMemo(() => developmentAccounting({ kyRich: kyR, kyPoor: kyP, hRich: hR, hPoor: hP, incomeRatio: ratio, alpha: 1/3 }), [kyR, kyP, hR, hP, ratio]);
   const bars = [
-    { k: "资本", v: +(acc.capitalContrib * 100).toFixed(2) },
-    { k: "劳动", v: +(acc.labourContrib * 100).toFixed(2) },
-    { k: "人力资本", v: +(acc.humanContrib * 100).toFixed(2) },
-    { k: "TFP 残差", v: +(acc.tfp * 100).toFixed(2) },
+    { k: t("labs.macroFrontier.r7.capital", { defaultValue: "资本" }), v: +(acc.capitalContrib * 100).toFixed(2) },
+    { k: t("labs.macroFrontier.r7.labour", { defaultValue: "劳动" }), v: +(acc.labourContrib * 100).toFixed(2) },
+    { k: t("labs.macroFrontier.r7.humanCapital", { defaultValue: "人力资本" }), v: +(acc.humanContrib * 100).toFixed(2) },
+    { k: t("labs.macroFrontier.r7.tfpResidual", { defaultValue: "TFP 残差" }), v: +(acc.tfp * 100).toFixed(2) },
   ];
   return (
     <div className="space-y-5">
@@ -305,10 +305,10 @@ function MultiplierPanel() {
   const [off, setOff] = useState(0.4);
   const fm = useMemo(() => fiscalMultipliers({ mpc, taxRate, importShare: imp, ricardian: ric, slack, atZLB: zlb, monetaryOffset: off }), [mpc, taxRate, imp, ric, slack, zlb, off]);
   const mBars = [
-    { k: "教科书基准", v: +fm.baseline.toFixed(2) },
-    { k: "政府支出", v: +fm.spending.toFixed(2) },
-    { k: "减税", v: +fm.tax.toFixed(2) },
-    { k: "转移支付", v: +fm.transfer.toFixed(2) },
+    { k: t("labs.macroFrontier.r7.textbook", { defaultValue: "教科书基准" }), v: +fm.baseline.toFixed(2) },
+    { k: t("labs.macroFrontier.r7.spending", { defaultValue: "政府支出" }), v: +fm.spending.toFixed(2) },
+    { k: t("labs.macroFrontier.r7.taxCuts", { defaultValue: "减税" }), v: +fm.tax.toFixed(2) },
+    { k: t("labs.macroFrontier.r7.transfers", { defaultValue: "转移支付" }), v: +fm.transfer.toFixed(2) },
   ];
   return (
     <div className="space-y-5">
@@ -326,9 +326,9 @@ function MultiplierPanel() {
           </div>
           <div className="grid grid-cols-2 gap-2">
             <Stat label={t("labs.macroFrontier.misc.k43")} value={
-              path.regime === "monotone" ? "单调收敛"
-              : path.regime === "damped-oscillation" ? "阻尼振荡"
-              : path.regime === "explosive-oscillation" ? "发散振荡" : "发散"
+              path.regime === "monotone" ? t("labs.macroFrontier.r7.monotone", { defaultValue: "单调收敛" })
+              : path.regime === "damped-oscillation" ? t("labs.macroFrontier.r7.damped", { defaultValue: "阻尼振荡" })
+              : path.regime === "explosive-oscillation" ? t("labs.macroFrontier.r7.explosive", { defaultValue: "发散振荡" }) : t("labs.macroFrontier.r7.divergent", { defaultValue: "发散" })
             } color={path.regime.startsWith("explosive") ? C.red : C.green} />
             <Stat label={t("labs.macroFrontier.misc.k48")} value={`${path.longRunMultiplier.toFixed(2)}×`} color={C.gold} />
           </div>
@@ -380,7 +380,7 @@ function MultiplierPanel() {
               </ResponsiveContainer>
             </div>
             <div className="grid grid-cols-2 gap-2 mt-2">
-              <Stat label={t("labs.macroFrontier.misc.k63")} value={fm.regime === "recession" ? "衰退" : fm.regime === "boom" ? "过热" : "常态"} color={fm.regime === "recession" ? C.red : C.gold} />
+              <Stat label={t("labs.macroFrontier.misc.k63")} value={fm.regime === "recession" ? t("labs.macroFrontier.r7.recession", { defaultValue: "衰退" }) : fm.regime === "boom" ? t("labs.macroFrontier.r7.boom", { defaultValue: "过热" }) : t("labs.macroFrontier.r7.normal", { defaultValue: "常态" })} color={fm.regime === "recession" ? C.red : C.gold} />
               <Stat label={t("labs.macroFrontier.misc.k67")} value={`${(fm.stabiliserStrength*100).toFixed(0)}%`} color={C.teal} />
             </div>
           </div>
@@ -507,11 +507,11 @@ function CalvoPanel() {
           </div>
           <div className="grid grid-cols-2 gap-2">
             <Stat label={t("labs.macroFrontier.misc.k95")} value={r.kappa.toFixed(4)} color={C.gold} />
-            <Stat label={t("labs.macroFrontier.misc.k96")} value={`${r.avgPriceDuration.toFixed(1)} 期`} color={C.teal} />
+            <Stat label={t("labs.macroFrontier.misc.k96")} value={t("labs.macroFrontier.r7.pricePeriods", { defaultValue: "{{periods}} 期", periods: r.avgPriceDuration.toFixed(1) })} color={C.teal} />
             <Stat label={t("labs.macroFrontier.misc.k97")} value={`${r.hybridForward.toFixed(2)} / ${r.hybridBackward.toFixed(2)}`} color={C.blue} />
             <Stat label={t("labs.macroFrontier.misc.k98")} value={`${r.markup.toFixed(2)}×`} color={C.green} />
             <Stat label={t("labs.macroFrontier.misc.k99")} value={`${r.sacrificeRatio.toFixed(1)}`} color={C.red} sub={t("labs.macroFrontier.misc.k100")} />
-            <Stat label={t("labs.macroFrontier.misc.k101")} value={`${r.moneyHalfLife.toFixed(1)} 期`} color={C.gold} />
+            <Stat label={t("labs.macroFrontier.misc.k101")} value={t("labs.macroFrontier.r7.moneyPeriods", { defaultValue: "{{periods}} 期", periods: r.moneyHalfLife.toFixed(1) })} color={C.gold} />
           </div>
         </div>
         <Panel title={t("labs.macroFrontier.misc.k102")}>
@@ -521,7 +521,7 @@ function CalvoPanel() {
                 <CartesianGrid stroke={C.grid} strokeDasharray="3 3" />
                 <XAxis dataKey="theta" stroke={C.text} tick={{ fontSize: 10 }} label={{ value: "θ", position: "insideBottom", offset: -4, fill: C.text, fontSize: 10 }} />
                 <YAxis yAxisId="l" stroke={C.gold} tick={{ fontSize: 10 }} label={{ value: "κ", angle: -90, position: "insideLeft", fill: C.gold, fontSize: 10 }} />
-                <YAxis yAxisId="r" orientation="right" stroke={C.teal} tick={{ fontSize: 10 }} label={{ value: "期限", angle: 90, position: "insideRight", fill: C.teal, fontSize: 10 }} />
+                <YAxis yAxisId="r" orientation="right" stroke={C.teal} tick={{ fontSize: 10 }} label={{ value: t("labs.macroFrontier.r7.duration", { defaultValue: "期限" }), angle: 90, position: "insideRight", fill: C.teal, fontSize: 10 }} />
                 <Tooltip contentStyle={tooltipStyle} />
                 <Legend wrapperStyle={{ fontSize: 10 }} />
                 <Area yAxisId="l" type="monotone" dataKey="kappa" stroke={C.gold} fill={C.gold} fillOpacity={0.15} name={t("labs.macroFrontier.misc.k103")} />
@@ -531,8 +531,7 @@ function CalvoPanel() {
             </ResponsiveContainer>
           </div>
           <Note>
-            θ 上升 → 曲线变平 → 通胀对产出缺口不敏感 → 反通胀的牺牲率上升、货币非中性更持久。
-            指数化 ω 把权重推向 π_{"{t−1}"}，产生通胀惯性。
+            {t("labs.macroFrontier.r7.calvoNote", { defaultValue: "θ 上升 → 曲线变平 → 通胀对产出缺口不敏感 → 反通胀的牺牲率上升、货币非中性更持久。\n            指数化 ω 把权重推向 π_{t−1}，产生通胀惯性。" })}
           </Note>
         </Panel>
       </div>
@@ -594,7 +593,7 @@ function RulesPanel() {
             <ResponsiveContainer>
               <ComposedChart data={credCurve}>
                 <CartesianGrid stroke={C.grid} strokeDasharray="3 3" />
-                <XAxis dataKey="c" stroke={C.text} tick={{ fontSize: 10 }} label={{ value: "可信度 %", position: "insideBottom", offset: -4, fill: C.text, fontSize: 10 }} />
+                <XAxis dataKey="c" stroke={C.text} tick={{ fontSize: 10 }} label={{ value: t("labs.macroFrontier.r7.credibility", { defaultValue: "可信度 %" }), position: "insideBottom", offset: -4, fill: C.text, fontSize: 10 }} />
                 <YAxis stroke={C.text} tick={{ fontSize: 10 }} />
                 <Tooltip contentStyle={tooltipStyle} />
                 <Legend wrapperStyle={{ fontSize: 10 }} />
@@ -611,7 +610,7 @@ function RulesPanel() {
           {(["taylor", "inflation-target", "price-level", "ngdp"] as RuleKind[]).map((kk) => (
             <button key={kk} onClick={() => setRule(kk)}
               className={`px-3 py-1.5 rounded-md border text-[11px] font-mono ${rule === kk ? "bg-gold/15 border-gold/50 text-gold" : "border-border text-muted-foreground hover:text-foreground"}`}>
-              {kk === "taylor" ? "泰勒规则" : kk === "inflation-target" ? "通胀目标制" : kk === "price-level" ? "价格水平目标" : "名义 GDP 目标"}
+              {kk === "taylor" ? t("labs.macroFrontier.r7.taylor", { defaultValue: "泰勒规则" }) : kk === "inflation-target" ? t("labs.macroFrontier.r7.inflationTarget", { defaultValue: "通胀目标制" }) : kk === "price-level" ? t("labs.macroFrontier.r7.priceTarget", { defaultValue: "价格水平目标" }) : t("labs.macroFrontier.r7.ngdpTarget", { defaultValue: "名义 GDP 目标" })}
             </button>
           ))}
         </div>
@@ -622,7 +621,7 @@ function RulesPanel() {
               <Slider label="φ_x" value={phiX} min={0} max={2} step={0.05} onChange={setPhiX} />
             </div>
             <div className="grid grid-cols-2 gap-2">
-              <Stat label={t("labs.macroFrontier.misc.k125")} value={active.determinate ? "满足 (φ_π>1)" : "不满足 → 不确定性"} color={active.determinate ? C.green : C.red} />
+              <Stat label={t("labs.macroFrontier.misc.k125")} value={active.determinate ? t("labs.macroFrontier.r7.determinate", { defaultValue: "满足 (φ_π>1)" }) : t("labs.macroFrontier.r7.indeterminate", { defaultValue: "不满足 → 不确定性" })} color={active.determinate ? C.green : C.red} />
               <Stat label={t("labs.macroFrontier.misc.k128")} value={`${(active.volInflation*100).toFixed(2)}%`} color={C.gold} />
               <Stat label={t("labs.macroFrontier.misc.k129")} value={`${(active.volOutput*100).toFixed(2)}%`} color={C.teal} />
               <Stat label={t("labs.macroFrontier.misc.k130")} value={`${(active.cumInflation*100).toFixed(2)}%`} color={Math.abs(active.cumInflation) < 0.01 ? C.green : C.red} />
@@ -689,7 +688,7 @@ function ParityPanel() {
           <div className="grid grid-cols-2 gap-2">
             <Stat label={t("labs.macroFrontier.misc.k149")} value={`${r.cipBasis.toFixed(0)} bp`} color={Math.abs(r.cipBasis) > 50 ? C.red : C.green} />
             <Stat label={t("labs.macroFrontier.misc.k150")} value={`${(r.forwardPremium*100).toFixed(2)}%`} color={C.gold} />
-            <Stat label={t("labs.macroFrontier.misc.k151")} value={r.famaBeta.toFixed(2)} color={r.puzzle ? C.red : C.green} sub={r.puzzle ? "远期溢价之谜" : "UIP 方向一致"} />
+            <Stat label={t("labs.macroFrontier.misc.k151")} value={r.famaBeta.toFixed(2)} color={r.puzzle ? C.red : C.green} sub={r.puzzle ? t("labs.macroFrontier.r7.puzzle", { defaultValue: "远期溢价之谜" }) : t("labs.macroFrontier.r7.uip", { defaultValue: "UIP 方向一致" })} />
             <Stat label={t("labs.macroFrontier.misc.k154")} value={r.famaR2.toFixed(3)} color={C.blue} />
             <Stat label={t("labs.macroFrontier.misc.k155")} value={`${(r.carryReturn*100).toFixed(2)}%`} color={r.carryReturn > 0 ? C.green : C.red} />
             <Stat label={t("labs.macroFrontier.misc.k156")} value={`${(r.realExchangeDrift*100).toFixed(2)}%`} color={C.teal} sub="π − π*" />
@@ -760,7 +759,7 @@ function SuddenPanel() {
             <Stat label={t("labs.macroFrontier.misc.k175")} value={`${s.reserveCover.toFixed(2)}×`} color={s.reserveCover >= 1 ? C.green : C.red} sub={t("labs.macroFrontier.misc.k176")} />
             <Stat label={t("labs.macroFrontier.misc.k177")} value={`${(s.requiredAdjustment*100).toFixed(2)}%`} color={C.gold} />
             <Stat label={t("labs.macroFrontier.misc.k178")} value={`${(s.balanceSheetLoss*100).toFixed(2)}%`} color={C.red} sub={t("labs.macroFrontier.misc.k179")} />
-            <Stat label={t("labs.macroFrontier.misc.k180")} value={s.crisis ? "危机风险" : "可控"} color={s.crisis ? C.red : C.green} />
+            <Stat label={t("labs.macroFrontier.misc.k180")} value={s.crisis ? t("labs.macroFrontier.r7.crisis", { defaultValue: "危机风险" }) : t("labs.macroFrontier.r7.manageable", { defaultValue: "可控" })} color={s.crisis ? C.red : C.green} />
           </div>
         </div>
         <Panel title={t("labs.macroFrontier.misc.k183")}>
@@ -768,7 +767,7 @@ function SuddenPanel() {
             <ResponsiveContainer>
               <LineChart data={chart}>
                 <CartesianGrid stroke={C.grid} strokeDasharray="3 3" />
-                <XAxis dataKey="t" stroke={C.text} tick={{ fontSize: 10 }} label={{ value: "季度", position: "insideBottom", offset: -4, fill: C.text, fontSize: 10 }} />
+                <XAxis dataKey="t" stroke={C.text} tick={{ fontSize: 10 }} label={{ value: t("labs.macroFrontier.r7.quarter", { defaultValue: "季度" }), position: "insideBottom", offset: -4, fill: C.text, fontSize: 10 }} />
                 <YAxis stroke={C.text} tick={{ fontSize: 10 }} label={{ value: "%", angle: -90, position: "insideLeft", fill: C.text, fontSize: 10 }} />
                 <Tooltip contentStyle={tooltipStyle} />
                 <Legend wrapperStyle={{ fontSize: 10 }} />
@@ -813,7 +812,7 @@ function ExpectPanel() {
         {kinds.map((k) => (
           <button key={k} onClick={() => setKind(k)}
             className={`px-3 py-1.5 rounded-md border text-[11px] font-mono ${kind === k ? "bg-gold/15 border-gold/50 text-gold" : "border-border text-muted-foreground hover:text-foreground"}`}>
-            {k === "rational" ? "理性预期" : k === "adaptive" ? "适应性学习" : k === "sticky" ? "黏性信息" : "诊断性预期"}
+            {k === "rational" ? t("labs.macroFrontier.r7.rational", { defaultValue: "理性预期" }) : k === "adaptive" ? t("labs.macroFrontier.r7.adaptive", { defaultValue: "适应性学习" }) : k === "sticky" ? t("labs.macroFrontier.r7.sticky", { defaultValue: "黏性信息" }) : t("labs.macroFrontier.r7.diagnostic", { defaultValue: "诊断性预期" })}
           </button>
         ))}
       </div>
@@ -905,9 +904,9 @@ function UnconPanel() {
             <Stat label={t("labs.macroFrontier.misc.k221")} value={`${r.totalYieldDrop.toFixed(0)} bp`} color={C.gold} />
             <Stat label={t("labs.macroFrontier.misc.k222")} value={`${r.channelSplit.portfolio.toFixed(0)} bp`} color={C.teal} />
             <Stat label={t("labs.macroFrontier.misc.k223")} value={`${r.channelSplit.signalling.toFixed(0)} bp`} color={C.blue} />
-            <Stat label={t("labs.macroFrontier.misc.k224")} value={ycc ? (r.yccDefends ? "是 (无需大量购债)" : "需大量购债") : "未启用"}
+            <Stat label={t("labs.macroFrontier.misc.k224")} value={ycc ? (r.yccDefends ? t("labs.macroFrontier.r7.defends", { defaultValue: "是 (无需大量购债)" }) : t("labs.macroFrontier.r7.purchases", { defaultValue: "需大量购债" })) : t("labs.macroFrontier.r7.disabled", { defaultValue: "未启用" })}
               color={!ycc ? C.text : r.yccDefends ? C.green : C.red}
-              sub={ycc ? `隐含额外购买 ${(r.yccPurchasesNeeded).toFixed(0)} 单位` : undefined} />
+              sub={ycc ? t("labs.macroFrontier.r7.extraPurchases", { defaultValue: "隐含额外购买 {{units}} 单位", units: (r.yccPurchasesNeeded).toFixed(0) }) : undefined} />
           </div>
         </div>
         <Panel title={t("labs.macroFrontier.misc.k228")}>
@@ -917,13 +916,13 @@ function UnconPanel() {
                 <CartesianGrid stroke={C.grid} strokeDasharray="3 3" />
                 <XAxis dataKey="t" stroke={C.text} tick={{ fontSize: 10 }} />
                 <YAxis yAxisId="l" stroke={C.gold} tick={{ fontSize: 10 }} label={{ value: "%", angle: -90, position: "insideLeft", fill: C.gold, fontSize: 10 }} />
-                <YAxis yAxisId="r" orientation="right" stroke={C.teal} tick={{ fontSize: 10 }} label={{ value: "资产负债表 %GDP", angle: 90, position: "insideRight", fill: C.teal, fontSize: 10 }} />
+                <YAxis yAxisId="r" orientation="right" stroke={C.teal} tick={{ fontSize: 10 }} label={{ value: t("labs.macroFrontier.r7.balanceSheet", { defaultValue: "资产负债表 %GDP" }), angle: 90, position: "insideRight", fill: C.teal, fontSize: 10 }} />
                 <Tooltip contentStyle={tooltipStyle} />
                 <Legend wrapperStyle={{ fontSize: 10 }} />
                 <Line yAxisId="l" type="monotone" dataKey="y10" stroke={C.gold} dot={false} strokeWidth={2} name={t("labs.macroFrontier.misc.k229")} />
                 <Line yAxisId="l" type="monotone" dataKey="exp" stroke={C.blue} dot={false} strokeWidth={1.5} strokeDasharray="4 4" name={t("labs.macroFrontier.misc.k230")} />
                 <Bar yAxisId="r" dataKey="bs" fill={C.teal} fillOpacity={0.25} name={t("labs.macroFrontier.misc.k231")} />
-                {ycc && <ReferenceLine yAxisId="l" y={target * 100} stroke={C.red} strokeDasharray="4 4" label={{ value: "YCC 上限", fill: C.red, fontSize: 10 }} />}
+                {ycc && <ReferenceLine yAxisId="l" y={target * 100} stroke={C.red} strokeDasharray="4 4" label={{ value: t("labs.macroFrontier.r7.yccCap", { defaultValue: "YCC 上限" }), fill: C.red, fontSize: 10 }} />}
               </ComposedChart>
             </ResponsiveContainer>
           </div>
@@ -967,8 +966,8 @@ function BankPanel() {
           <div className="grid grid-cols-2 gap-2">
             <Stat label={t("labs.macroFrontier.misc.k246")} value={`${Math.min(...r.creditSupply).toFixed(1)}%`} color={C.red} />
             <Stat label={t("labs.macroFrontier.misc.k247")} value={`${Math.min(...r.output).toFixed(2)}%`} color={C.gold} />
-            <Stat label={t("labs.macroFrontier.misc.k248")} value={`${r.amplification.toFixed(1)}×`} color={C.teal} sub="|Δy| / 损失冲击" />
-            <Stat label={t("labs.macroFrontier.misc.k249")} value={r.breachesMinimum ? "触及最低资本" : "缓冲充足"} color={r.breachesMinimum ? C.red : C.green} />
+            <Stat label={t("labs.macroFrontier.misc.k248")} value={`${r.amplification.toFixed(1)}×`} color={C.teal} sub={t("labs.macroFrontier.r7.amplification", { defaultValue: "|Δy| / 损失冲击" })} />
+            <Stat label={t("labs.macroFrontier.misc.k249")} value={r.breachesMinimum ? t("labs.macroFrontier.r7.minimum", { defaultValue: "触及最低资本" }) : t("labs.macroFrontier.r7.buffer", { defaultValue: "缓冲充足" })} color={r.breachesMinimum ? C.red : C.green} />
           </div>
         </div>
         <Panel title={t("labs.macroFrontier.misc.k252")}>
@@ -978,7 +977,7 @@ function BankPanel() {
                 <CartesianGrid stroke={C.grid} strokeDasharray="3 3" />
                 <XAxis dataKey="t" stroke={C.text} tick={{ fontSize: 10 }} />
                 <YAxis yAxisId="l" stroke={C.text} tick={{ fontSize: 10 }} label={{ value: "%", angle: -90, position: "insideLeft", fill: C.text, fontSize: 10 }} />
-                <YAxis yAxisId="r" orientation="right" stroke={C.red} tick={{ fontSize: 10 }} label={{ value: "利差 bp", angle: 90, position: "insideRight", fill: C.red, fontSize: 10 }} />
+                <YAxis yAxisId="r" orientation="right" stroke={C.red} tick={{ fontSize: 10 }} label={{ value: t("labs.macroFrontier.r7.spread", { defaultValue: "利差 bp" }), angle: 90, position: "insideRight", fill: C.red, fontSize: 10 }} />
                 <Tooltip contentStyle={tooltipStyle} />
                 <Legend wrapperStyle={{ fontSize: 10 }} />
                 <Line yAxisId="l" type="monotone" dataKey="cap" stroke={C.teal} dot={false} strokeWidth={2} name={t("labs.macroFrontier.misc.k253")} />
@@ -1037,7 +1036,7 @@ function ClimatePanel() {
             <Stat label={t("labs.macroFrontier.misc.k271")} value={`${r.warming.toFixed(2)}°C`} color={r.warming < 2 ? C.green : r.warming < 3 ? C.gold : C.red} />
             <Stat label={t("labs.macroFrontier.misc.k272")} value={`${r.npvTransitionCost.toFixed(1)}%`} color={C.teal} sub={t("labs.macroFrontier.misc.k273")} />
             <Stat label={t("labs.macroFrontier.misc.k274")} value={`${Math.max(...r.inflation).toFixed(2)} pp`} color={C.gold} />
-            <Stat label={t("labs.macroFrontier.misc.k275")} value={r.crossover != null ? `第 ${r.crossover} 年起` : "本情景下未跨越"} color={r.crossover != null ? C.green : C.red} />
+            <Stat label={t("labs.macroFrontier.misc.k275")} value={r.crossover != null ? t("labs.macroFrontier.r7.crossover", { defaultValue: "第 {{year}} 年起", year: r.crossover }) : t("labs.macroFrontier.r7.noCrossover", { defaultValue: "本情景下未跨越" })} color={r.crossover != null ? C.green : C.red} />
           </div>
         </div>
         <Panel title={t("labs.macroFrontier.misc.k277")}>
@@ -1045,9 +1044,9 @@ function ClimatePanel() {
             <ResponsiveContainer>
               <ComposedChart data={chart}>
                 <CartesianGrid stroke={C.grid} strokeDasharray="3 3" />
-                <XAxis dataKey="t" stroke={C.text} tick={{ fontSize: 10 }} label={{ value: "年", position: "insideBottom", offset: -4, fill: C.text, fontSize: 10 }} />
-                <YAxis yAxisId="l" stroke={C.gold} tick={{ fontSize: 10 }} label={{ value: "排放指数", angle: -90, position: "insideLeft", fill: C.gold, fontSize: 10 }} />
-                <YAxis yAxisId="r" orientation="right" stroke={C.red} tick={{ fontSize: 10 }} label={{ value: "% 产出", angle: 90, position: "insideRight", fill: C.red, fontSize: 10 }} />
+                <XAxis dataKey="t" stroke={C.text} tick={{ fontSize: 10 }} label={{ value: t("labs.macroFrontier.r7.year", { defaultValue: "年" }), position: "insideBottom", offset: -4, fill: C.text, fontSize: 10 }} />
+                <YAxis yAxisId="l" stroke={C.gold} tick={{ fontSize: 10 }} label={{ value: t("labs.macroFrontier.r7.emissions", { defaultValue: "排放指数" }), angle: -90, position: "insideLeft", fill: C.gold, fontSize: 10 }} />
+                <YAxis yAxisId="r" orientation="right" stroke={C.red} tick={{ fontSize: 10 }} label={{ value: t("labs.macroFrontier.r7.output", { defaultValue: "% 产出" }), angle: 90, position: "insideRight", fill: C.red, fontSize: 10 }} />
                 <Tooltip contentStyle={tooltipStyle} />
                 <Legend wrapperStyle={{ fontSize: 10 }} />
                 <Area yAxisId="l" type="monotone" dataKey="em" stroke={C.gold} fill={C.gold} fillOpacity={0.15} name={t("labs.macroFrontier.misc.k280")} />

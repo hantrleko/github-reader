@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useState, useMemo, useCallback, useRef, useEffect } from "react";
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -399,19 +400,20 @@ const Tip = ({ active, payload, label }: any) => {
 /* ──────────────── FRED hook orchestrator ────────────────
    Hooks call rules: we conditionally fetch up to 5 series via fixed-position hooks.
 */
-const FRED_CATALOG: { id: string; label: string; transform: "pct" | "level" }[] = [
-  { id: "INDPRO",   label: "工业生产指数 (M)",      transform: "pct" },
-  { id: "PAYEMS",   label: "非农就业 (M)",          transform: "pct" },
-  { id: "CPIAUCSL", label: "CPI 全项 (M)",          transform: "pct" },
-  { id: "UNRATE",   label: "失业率 (M)",            transform: "level" },
-  { id: "UMCSENT",  label: "密歇根消费者信心 (M)",  transform: "level" },
-];
 const TARGET_SERIES = "GDPC1"; // Real GDP, quarterly
 
 /* ════════════════════════════════════════════════════════════
    MAIN COMPONENT
    ════════════════════════════════════════════════════════════ */
 export const MIDASTool = () => {
+  const { t } = useTranslation();
+const FRED_CATALOG: { id: string; label: string; transform: "pct" | "level" }[] = [
+  { id: "INDPRO",   label: t("labs.midas.text001", { defaultValue: "工业生产指数 (M)" }),      transform: "pct" },
+  { id: "PAYEMS",   label: t("labs.midas.text002", { defaultValue: "非农就业 (M)" }),          transform: "pct" },
+  { id: "CPIAUCSL", label: t("labs.midas.text003", { defaultValue: "CPI 全项 (M)" }),          transform: "pct" },
+  { id: "UNRATE",   label: t("labs.midas.text004", { defaultValue: "失业率 (M)" }),            transform: "level" },
+  { id: "UMCSENT",  label: t("labs.midas.text005", { defaultValue: "密歇根消费者信心 (M)" }),  transform: "level" },
+];
   // ── Data source toggle ─────────────────────────
   const [source, setSource] = useState<"offline" | "fred">("offline");
   const [startDate, setStartDate] = useState("2002-01-01");
@@ -431,8 +433,8 @@ export const MIDASTool = () => {
 
   // ── Variable specs (multi-variable cards) ──────
   const [specs, setSpecs] = useState<VarSpec[]>([
-    { id: "v1", name: "INDPRO 工业生产", series: "INDPRO",   kernel: "beta", K: 3, theta1: 1, theta2: 4 },
-    { id: "v2", name: "PAYEMS 非农就业", series: "PAYEMS",   kernel: "beta", K: 3, theta1: 1, theta2: 2 },
+    { id: "v1", name: t("labs.midas.text006", { defaultValue: "INDPRO 工业生产" }), series: "INDPRO",   kernel: "beta", K: 3, theta1: 1, theta2: 4 },
+    { id: "v2", name: t("labs.midas.text007", { defaultValue: "PAYEMS 非农就业" }), series: "PAYEMS",   kernel: "beta", K: 3, theta1: 1, theta2: 2 },
   ]);
   const [seed, setSeed] = useState(7);
 
@@ -513,13 +515,13 @@ export const MIDASTool = () => {
         ...sp, theta1: result.x[2*i], theta2: result.x[2*i + 1],
       })));
       setOptimising(false);
-      toast({ title: "优化完成", description: `Nelder-Mead ${result.iters} 步 · 最终 SSR=${result.fx.toFixed(4)}` });
+      toast({ title: t("labs.midas.text008", { defaultValue: "优化完成" }), description: t("labs.midas.text009", { defaultValue: "Nelder-Mead {{var0}} 步 · 最终 SSR={{var1}}", var0: result.iters, var1: result.fx.toFixed(4) }) });
     }, 30);
   }, [panel, fit, specs]);
 
   /* ── Variable card management ── */
   const addVar = () => {
-    if (specs.length >= 4) { toast({ title: "最多 4 个解释变量" }); return; }
+    if (specs.length >= 4) { toast({ title: t("labs.midas.text010", { defaultValue: "最多 4 个解释变量" }) }); return; }
     const used = new Set(specs.map(s => s.series));
     const nextSeries = FRED_CATALOG.find(c => !used.has(c.id))?.id || "UNRATE";
     const cfg = FRED_CATALOG.find(c => c.id === nextSeries)!;
@@ -529,7 +531,7 @@ export const MIDASTool = () => {
     }]);
   };
   const removeVar = (id: string) => {
-    if (specs.length <= 1) { toast({ title: "至少保留 1 个变量" }); return; }
+    if (specs.length <= 1) { toast({ title: t("labs.midas.text011", { defaultValue: "至少保留 1 个变量" }) }); return; }
     setSpecs(specs.filter(s => s.id !== id));
   };
   const updateVar = (id: string, patch: Partial<VarSpec>) => {
@@ -537,28 +539,28 @@ export const MIDASTool = () => {
   };
 
   const presets: Preset[] = [
-    { name: "工业 + 就业", description: "INDPRO & PAYEMS 双指标 (Beta, K=3)", apply: () => {
+    { name: t("labs.midas.text012", { defaultValue: "工业 + 就业" }), description: t("labs.midas.text013", { defaultValue: "INDPRO & PAYEMS 双指标 (Beta, K=3)" }), apply: () => {
       setSpecs([
-        { id: "v1", name: "INDPRO 工业生产", series: "INDPRO", kernel: "beta", K: 3, theta1: 1, theta2: 4 },
-        { id: "v2", name: "PAYEMS 非农就业", series: "PAYEMS", kernel: "beta", K: 3, theta1: 1, theta2: 2 },
+        { id: "v1", name: t("labs.midas.text006", { defaultValue: "INDPRO 工业生产" }), series: "INDPRO", kernel: "beta", K: 3, theta1: 1, theta2: 4 },
+        { id: "v2", name: t("labs.midas.text007", { defaultValue: "PAYEMS 非农就业" }), series: "PAYEMS", kernel: "beta", K: 3, theta1: 1, theta2: 2 },
       ]);
     }},
-    { name: "三因子组合", description: "+CPI 通胀指标", apply: () => {
+    { name: t("labs.midas.text016", { defaultValue: "三因子组合" }), description: t("labs.midas.text017", { defaultValue: "+CPI 通胀指标" }), apply: () => {
       setSpecs([
-        { id: "v1", name: "INDPRO 工业生产", series: "INDPRO",   kernel: "beta", K: 3, theta1: 1, theta2: 4 },
-        { id: "v2", name: "PAYEMS 非农就业", series: "PAYEMS",   kernel: "beta", K: 3, theta1: 1, theta2: 2 },
-        { id: "v3", name: "CPI 通胀",        series: "CPIAUCSL", kernel: "beta", K: 3, theta1: 2, theta2: 2 },
+        { id: "v1", name: t("labs.midas.text006", { defaultValue: "INDPRO 工业生产" }), series: "INDPRO",   kernel: "beta", K: 3, theta1: 1, theta2: 4 },
+        { id: "v2", name: t("labs.midas.text007", { defaultValue: "PAYEMS 非农就业" }), series: "PAYEMS",   kernel: "beta", K: 3, theta1: 1, theta2: 2 },
+        { id: "v3", name: t("labs.midas.text020", { defaultValue: "CPI 通胀" }),        series: "CPIAUCSL", kernel: "beta", K: 3, theta1: 2, theta2: 2 },
       ]);
     }},
-    { name: "Exp-Almon 单因子", description: "INDPRO 指数加权 K=6", apply: () => {
+    { name: t("labs.midas.text021", { defaultValue: "Exp-Almon 单因子" }), description: t("labs.midas.text022", { defaultValue: "INDPRO 指数加权 K=6" }), apply: () => {
       setSpecs([
-        { id: "v1", name: "INDPRO 工业生产", series: "INDPRO", kernel: "exp", K: 6, theta1: -0.05, theta2: -0.001 },
+        { id: "v1", name: t("labs.midas.text006", { defaultValue: "INDPRO 工业生产" }), series: "INDPRO", kernel: "exp", K: 6, theta1: -0.05, theta2: -0.001 },
       ]);
     }},
-    { name: "宽窗口", description: "K=6 月度滞后, INDPRO+PAYEMS", apply: () => {
+    { name: t("labs.midas.text024", { defaultValue: "宽窗口" }), description: t("labs.midas.text025", { defaultValue: "K=6 月度滞后, INDPRO+PAYEMS" }), apply: () => {
       setSpecs([
-        { id: "v1", name: "INDPRO 工业生产", series: "INDPRO", kernel: "beta", K: 6, theta1: 1, theta2: 5 },
-        { id: "v2", name: "PAYEMS 非农就业", series: "PAYEMS", kernel: "beta", K: 6, theta1: 1, theta2: 3 },
+        { id: "v1", name: t("labs.midas.text006", { defaultValue: "INDPRO 工业生产" }), series: "INDPRO", kernel: "beta", K: 6, theta1: 1, theta2: 5 },
+        { id: "v2", name: t("labs.midas.text007", { defaultValue: "PAYEMS 非农就业" }), series: "PAYEMS", kernel: "beta", K: 6, theta1: 1, theta2: 3 },
       ]);
     }},
   ];
@@ -595,39 +597,39 @@ export const MIDASTool = () => {
       <div className="rounded-lg bg-secondary/30 border border-gold/15 px-4 py-3 mb-6 text-xs">
         <div className="flex flex-wrap gap-x-6 gap-y-2 items-baseline">
           <span className="font-mono text-gold uppercase tracking-wider text-[10px]">
-            MIDAS · 多变量 · {source === "offline" ? "离线样本" : "FRED 实时"}
+            {t("labs.midas.text028", { defaultValue: "MIDAS · 多变量 ·" })}{source === "offline" ? t("labs.midas.text029", { defaultValue: "离线样本" }) : t("labs.midas.text030", { defaultValue: "FRED 实时" })}
           </span>
           <div className="text-muted-foreground leading-relaxed flex-1 min-w-[280px]">
             <InlineMath math={String.raw`y_t = \alpha + \sum_{v=1}^{V}\beta_v \!\sum_{k=1}^{K_v}\! w_k(\theta_v)\,x^{(v,H)}_{t-k/K_v} + \varepsilon_t`} />
-            <span className="text-foreground/70 ml-2">月度 → 季度 GDP QoQ% 预测</span>
+            <span className="text-foreground/70 ml-2">{t("labs.midas.text031", { defaultValue: "月度 → 季度 GDP QoQ% 预测" })}</span>
           </div>
         </div>
       </div>
 
       {/* Data source toggle */}
       <div className="flex flex-wrap items-center gap-3 mb-4">
-        <span className="text-[10px] font-mono text-muted-foreground uppercase tracking-wider">数据源</span>
+        <span className="text-[10px] font-mono text-muted-foreground uppercase tracking-wider">{t("labs.midas.text032", { defaultValue: "数据源" })}</span>
         {(["offline", "fred"] as const).map(s => (
           <button key={s} onClick={() => setSource(s)}
             className={`text-xs px-3 py-1.5 rounded-md font-mono inline-flex items-center gap-1.5 transition ${
               source === s ? "bg-gold/15 text-gold border border-gold/40" : "bg-secondary text-muted-foreground border border-border hover:text-foreground"
             }`}>
             {s === "offline" ? <Cpu className="w-3 h-3" /> : <Database className="w-3 h-3" />}
-            {s === "offline" ? "合成离线" : "FRED 实时"}
+            {s === "offline" ? t("labs.midas.text033", { defaultValue: "合成离线" }) : t("labs.midas.text030", { defaultValue: "FRED 实时" })}
           </button>
         ))}
         {source === "fred" && (
           <>
-            <label className="text-[10px] font-mono text-muted-foreground ml-2">起始</label>
+            <label className="text-[10px] font-mono text-muted-foreground ml-2">{t("labs.midas.text035", { defaultValue: "起始" })}</label>
             <input type="date" value={startDate} onChange={e => setStartDate(e.target.value)}
               className="text-xs font-mono bg-secondary text-foreground border border-border rounded px-2 py-1" />
-            {fredLoading && <span className="text-[11px] text-muted-foreground inline-flex items-center gap-1"><Loader2 className="w-3 h-3 animate-spin" /> 加载 FRED…</span>}
-            {fredError && <span className="text-[11px] text-red-400">FRED 加载失败 · 请确认 FRED_API_KEY 已配置</span>}
+            {fredLoading && <span className="text-[11px] text-muted-foreground inline-flex items-center gap-1"><Loader2 className="w-3 h-3 animate-spin" /> {t("labs.midas.text036", { defaultValue: "加载 FRED…" })}</span>}
+            {fredError && <span className="text-[11px] text-red-400">{t("labs.midas.text037", { defaultValue: "FRED 加载失败 · 请确认 FRED_API_KEY 已配置" })}</span>}
           </>
         )}
         {source === "offline" && (
           <>
-            <label className="text-[10px] font-mono text-muted-foreground ml-2">种子</label>
+            <label className="text-[10px] font-mono text-muted-foreground ml-2">{t("labs.midas.text038", { defaultValue: "种子" })}</label>
             <input type="number" min={1} max={9999} value={seed} onChange={e => setSeed(parseInt(e.target.value) || 7)}
               className="w-20 text-xs font-mono bg-secondary text-foreground border border-border rounded px-2 py-1" />
           </>
@@ -639,29 +641,28 @@ export const MIDASTool = () => {
       {/* Variable cards */}
       <div className="mt-4 mb-6">
         <div className="flex items-center justify-between mb-2">
-          <p className="text-[10px] font-mono text-muted-foreground uppercase tracking-wider">解释变量 ({specs.length}/4)</p>
+          <p className="text-[10px] font-mono text-muted-foreground uppercase tracking-wider">{t("labs.midas.text039", { defaultValue: "解释变量 (" })}{specs.length}/4)</p>
           <button onClick={addVar} disabled={specs.length >= 4}
             className="text-[11px] font-mono inline-flex items-center gap-1 px-2 py-1 rounded border border-gold/40 text-gold hover:bg-gold/10 disabled:opacity-40 disabled:cursor-not-allowed">
-            <Plus className="w-3 h-3" /> 新增变量
-          </button>
+            <Plus className="w-3 h-3" /> {t("labs.midas.text040", { defaultValue: "新增变量" })}</button>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {specs.map((sp) => (
             <div key={sp.id} className="rounded-lg border border-border bg-card/60 p-3 relative">
-              <button onClick={() => removeVar(sp.id)} title="移除"
+              <button onClick={() => removeVar(sp.id)} title={t("labs.midas.text041", { defaultValue: "移除" })}
                 className="absolute top-2 right-2 text-muted-foreground hover:text-red-400">
                 <X className="w-3.5 h-3.5" />
               </button>
               <div className="grid grid-cols-2 gap-2 mb-2">
                 <div className="col-span-2">
-                  <label className="text-[10px] text-muted-foreground">FRED 序列</label>
+                  <label className="text-[10px] text-muted-foreground">{t("labs.midas.text042", { defaultValue: "FRED 序列" })}</label>
                   <select value={sp.series} onChange={e => updateVar(sp.id, { series: e.target.value })}
                     className="w-full text-xs font-mono bg-secondary text-foreground border border-border rounded px-2 py-1 mt-1">
                     {FRED_CATALOG.map(c => <option key={c.id} value={c.id}>{c.id} · {c.label}</option>)}
                   </select>
                 </div>
                 <div className="col-span-2">
-                  <label className="text-[10px] text-muted-foreground">权重核</label>
+                  <label className="text-[10px] text-muted-foreground">{t("labs.midas.text043", { defaultValue: "权重核" })}</label>
                   <div className="flex gap-1 mt-1">
                     {(["beta", "exp"] as const).map(k => (
                       <button key={k} onClick={() => updateVar(sp.id, { kernel: k })}
@@ -671,7 +672,7 @@ export const MIDASTool = () => {
                     ))}
                   </div>
                 </div>
-                <MiniSlider label="K (滞后数)" value={sp.K} min={2} max={12} step={1} onChange={(v) => updateVar(sp.id, { K: v })} />
+                <MiniSlider label={t("labs.midas.text044", { defaultValue: "K (滞后数)" })} value={sp.K} min={2} max={12} step={1} onChange={(v) => updateVar(sp.id, { K: v })} />
                 <MiniSlider
                   label={sp.kernel === "beta" ? "θ₁ shape₁" : "θ₁ linear"}
                   value={sp.theta1}
@@ -708,40 +709,39 @@ export const MIDASTool = () => {
       <div className="rounded-lg border border-gold/30 bg-gradient-to-br from-gold/5 to-transparent p-4 mb-6">
         <div className="flex items-center justify-between flex-wrap gap-3">
           <div>
-            <p className="text-xs font-semibold text-foreground">Nelder-Mead 数值优化</p>
+            <p className="text-xs font-semibold text-foreground">{t("labs.midas.text045", { defaultValue: "Nelder-Mead 数值优化" })}</p>
             <p className="text-[10px] text-muted-foreground mt-1">
-              对所有变量的 (θ₁, θ₂) 联合最小化 SSR = Σ(yₜ − ŷₜ)²; β 与 α 在每步 OLS 闭式求解。
-            </p>
+              {t("labs.midas.text046", { defaultValue: "对所有变量的 (θ₁, θ₂) 联合最小化 SSR = Σ(yₜ − ŷₜ)²; β 与 α 在每步 OLS 闭式求解。" })}</p>
           </div>
           <button onClick={runOptimisation} disabled={optimising || !fit}
             className="text-xs font-mono px-4 py-2 rounded-md bg-gold/15 text-gold border border-gold/40 hover:bg-gold/25 disabled:opacity-40 inline-flex items-center gap-2">
-            {optimising ? <><Loader2 className="w-3 h-3 animate-spin" /> 优化中…</> : "▶ 运行优化"}
+            {optimising ? <><Loader2 className="w-3 h-3 animate-spin" /> {t("labs.midas.text047", { defaultValue: "优化中…" })}</> : t("labs.midas.text048", { defaultValue: "▶ 运行优化" })}
           </button>
         </div>
         {optResult && (
           <>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-3">
               <div className="rounded bg-card/60 border border-border p-2">
-                <p className="text-[10px] text-muted-foreground">迭代步数</p>
+                <p className="text-[10px] text-muted-foreground">{t("labs.midas.text049", { defaultValue: "迭代步数" })}</p>
                 <p className="text-sm font-mono text-gold">{optResult.iters}</p>
               </div>
               <div className="rounded bg-card/60 border border-border p-2">
-                <p className="text-[10px] text-muted-foreground">最终 SSR</p>
+                <p className="text-[10px] text-muted-foreground">{t("labs.midas.text050", { defaultValue: "最终 SSR" })}</p>
                 <p className="text-sm font-mono text-gold">{optResult.ssr.toFixed(4)}</p>
               </div>
               <div className="rounded bg-card/60 border border-border p-2">
-                <p className="text-[10px] text-muted-foreground">起始 SSR</p>
+                <p className="text-[10px] text-muted-foreground">{t("labs.midas.text051", { defaultValue: "起始 SSR" })}</p>
                 <p className="text-sm font-mono text-foreground">{optTrace[0]?.ssr.toFixed(4) ?? "—"}</p>
               </div>
               <div className="rounded bg-card/60 border border-border p-2">
-                <p className="text-[10px] text-muted-foreground">改进</p>
+                <p className="text-[10px] text-muted-foreground">{t("labs.midas.text052", { defaultValue: "改进" })}</p>
                 <p className="text-sm font-mono text-foreground">
                   {optTrace[0] ? `${(100 * (1 - optResult.ssr / optTrace[0].ssr)).toFixed(2)}%` : "—"}
                 </p>
               </div>
             </div>
             <div className="mt-3">
-              <p className="text-[10px] font-mono text-muted-foreground uppercase mb-1">SSR 收敛轨迹 (log scale)</p>
+              <p className="text-[10px] font-mono text-muted-foreground uppercase mb-1">{t("labs.midas.text053", { defaultValue: "SSR 收敛轨迹 (log scale)" })}</p>
               <div className="h-[140px]">
                 <ResponsiveContainer width="100%" height="100%">
                   <LineChart data={optTrace}>
@@ -755,7 +755,7 @@ export const MIDASTool = () => {
               </div>
             </div>
             <div className="mt-2 text-[10px] font-mono text-muted-foreground leading-relaxed">
-              最优 θ:{" "}
+              {t("labs.midas.text054", { defaultValue: "最优 θ:" })}{" "}
               {specs.map((sp, i) => (
                 <span key={sp.id} className="mr-3">
                   <span className="text-gold">{sp.series}</span> ({sp.kernel})
@@ -770,21 +770,21 @@ export const MIDASTool = () => {
       {/* Regression results table — t-tests */}
       {fit && (
         <div className="rounded-lg border border-border bg-card p-4 mb-6">
-          <p className="text-[10px] font-mono text-muted-foreground uppercase mb-3">回归显著性 · t-检验</p>
+          <p className="text-[10px] font-mono text-muted-foreground uppercase mb-3">{t("labs.midas.text055", { defaultValue: "回归显著性 · t-检验" })}</p>
           <div className="overflow-x-auto">
             <table className="w-full text-xs font-mono">
               <thead>
                 <tr className="text-muted-foreground border-b border-border">
-                  <th className="text-left py-1.5 px-2">变量</th>
-                  <th className="text-right py-1.5 px-2">系数 β̂</th>
+                  <th className="text-left py-1.5 px-2">{t("labs.midas.text056", { defaultValue: "变量" })}</th>
+                  <th className="text-right py-1.5 px-2">{t("labs.midas.text057", { defaultValue: "系数 β̂" })}</th>
                   <th className="text-right py-1.5 px-2">SE</th>
                   <th className="text-right py-1.5 px-2">t</th>
                   <th className="text-right py-1.5 px-2">p-value</th>
-                  <th className="text-center py-1.5 px-2">显著性</th>
+                  <th className="text-center py-1.5 px-2">{t("labs.midas.text058", { defaultValue: "显著性" })}</th>
                 </tr>
               </thead>
               <tbody>
-                {["α (截距)", ...specs.map(s => `${s.series} (β·MIDAS)`)].map((label, i) => {
+                {[t("labs.midas.text059", { defaultValue: "α (截距)" }), ...specs.map(s => `${s.series} (β·MIDAS)`)].map((label, i) => {
                   const p = fit.ols.pVal[i];
                   const stars = p < 0.01 ? "***" : p < 0.05 ? "**" : p < 0.1 ? "*" : "";
                   return (
@@ -802,7 +802,7 @@ export const MIDASTool = () => {
             </table>
           </div>
           <p className="text-[10px] text-muted-foreground mt-2">
-            *** p&lt;0.01, ** p&lt;0.05, * p&lt;0.1 · t-分布大样本近似 N(0,1) · n={fit.nLow}, k={fit.ols.k}, R²={fit.ols.r2.toFixed(4)}, 调整 R²={fit.ols.adjR2.toFixed(4)}, RMSE={fit.ols.rmse.toFixed(4)}
+            {t("labs.midas.text060", { defaultValue: "*** p<0.01, ** p<0.05, * p<0.1 · t-分布大样本近似 N(0,1) · n=" })}{fit.nLow}, k={fit.ols.k}, R²={fit.ols.r2.toFixed(4)}{t("labs.midas.text061", { defaultValue: ", 调整 R²=" })}{fit.ols.adjR2.toFixed(4)}, RMSE={fit.ols.rmse.toFixed(4)}
           </p>
         </div>
       )}
@@ -811,28 +811,28 @@ export const MIDASTool = () => {
       {fit && (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-6">
           <div className="rounded-lg border border-border bg-card p-3">
-            <p className="text-[10px] font-mono text-muted-foreground uppercase">Breusch-Pagan (异方差)</p>
+            <p className="text-[10px] font-mono text-muted-foreground uppercase">{t("labs.midas.text062", { defaultValue: "Breusch-Pagan (异方差)" })}</p>
             <p className="text-lg font-mono text-foreground mt-1">χ² = {fit.bp.stat.toFixed(3)}</p>
             <p className={`text-xs font-mono mt-1 ${fit.bp.p < 0.05 ? "text-red-400" : "text-emerald-400"}`}>
-              p = {fit.bp.p.toFixed(4)} · {fit.bp.p < 0.05 ? "拒绝同方差 ⚠" : "未拒绝同方差 ✓"}
+              p = {fit.bp.p.toFixed(4)} · {fit.bp.p < 0.05 ? t("labs.midas.text063", { defaultValue: "拒绝同方差 ⚠" }) : t("labs.midas.text064", { defaultValue: "未拒绝同方差 ✓" })}
             </p>
             <p className="text-[10px] text-muted-foreground mt-1">df = {fit.bp.df}</p>
           </div>
           <div className="rounded-lg border border-border bg-card p-3">
-            <p className="text-[10px] font-mono text-muted-foreground uppercase">Ljung-Box (自相关)</p>
+            <p className="text-[10px] font-mono text-muted-foreground uppercase">{t("labs.midas.text065", { defaultValue: "Ljung-Box (自相关)" })}</p>
             <p className="text-lg font-mono text-foreground mt-1">Q = {fit.lb.Q.toFixed(3)}</p>
             <p className={`text-xs font-mono mt-1 ${fit.lb.p < 0.05 ? "text-red-400" : "text-emerald-400"}`}>
-              p = {fit.lb.p.toFixed(4)} · {fit.lb.p < 0.05 ? "残差自相关 ⚠" : "白噪声 ✓"}
+              p = {fit.lb.p.toFixed(4)} · {fit.lb.p < 0.05 ? t("labs.midas.text066", { defaultValue: "残差自相关 ⚠" }) : t("labs.midas.text067", { defaultValue: "白噪声 ✓" })}
             </p>
-            <p className="text-[10px] text-muted-foreground mt-1">h = {fit.lb.df} 阶</p>
+            <p className="text-[10px] text-muted-foreground mt-1">h = {fit.lb.df} {t("labs.midas.text068", { defaultValue: "阶" })}</p>
           </div>
           <div className="rounded-lg border border-border bg-card p-3">
-            <p className="text-[10px] font-mono text-muted-foreground uppercase">Jarque-Bera (正态)</p>
+            <p className="text-[10px] font-mono text-muted-foreground uppercase">{t("labs.midas.text069", { defaultValue: "Jarque-Bera (正态)" })}</p>
             <p className="text-lg font-mono text-foreground mt-1">JB = {fit.jb.JB.toFixed(3)}</p>
             <p className={`text-xs font-mono mt-1 ${fit.jb.p < 0.05 ? "text-red-400" : "text-emerald-400"}`}>
-              p = {fit.jb.p.toFixed(4)} · {fit.jb.p < 0.05 ? "非正态 ⚠" : "正态 ✓"}
+              p = {fit.jb.p.toFixed(4)} · {fit.jb.p < 0.05 ? t("labs.midas.text070", { defaultValue: "非正态 ⚠" }) : t("labs.midas.text071", { defaultValue: "正态 ✓" })}
             </p>
-            <p className="text-[10px] text-muted-foreground mt-1">偏度={fit.jb.skew.toFixed(2)}, 峰度={fit.jb.kurt.toFixed(2)}</p>
+            <p className="text-[10px] text-muted-foreground mt-1">{t("labs.midas.text072", { defaultValue: "偏度=" })}{fit.jb.skew.toFixed(2)}{t("labs.midas.text073", { defaultValue: ", 峰度=" })}{fit.jb.kurt.toFixed(2)}</p>
           </div>
         </div>
       )}
@@ -840,7 +840,7 @@ export const MIDASTool = () => {
       {/* Fit chart */}
       {fit && (
         <div className="rounded-lg border border-border bg-card p-4 mb-4">
-          <p className="text-[10px] font-mono text-muted-foreground uppercase mb-2">实际 vs 拟合 — 季度 GDP QoQ% (n = {fit.nLow})</p>
+          <p className="text-[10px] font-mono text-muted-foreground uppercase mb-2">{t("labs.midas.text074", { defaultValue: "实际 vs 拟合 — 季度 GDP QoQ% (n =" })}{fit.nLow})</p>
           <div className="h-[260px]">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={fitChart}>
@@ -849,8 +849,8 @@ export const MIDASTool = () => {
                 <YAxis stroke={CHART_TEXT} tick={{ fontSize: 10 }} />
                 <Tooltip content={<Tip />} />
                 <Legend wrapperStyle={{ fontSize: 10 }} />
-                <Line type="monotone" dataKey="y" stroke={CHART_BLUE} strokeWidth={1.4} dot={{ r: 1.5 }} name="实际 yₜ" />
-                <Line type="monotone" dataKey="yhat" stroke={CHART_GOLD} strokeWidth={1.6} dot={false} name="MIDAS 拟合 ŷₜ" />
+                <Line type="monotone" dataKey="y" stroke={CHART_BLUE} strokeWidth={1.4} dot={{ r: 1.5 }} name={t("labs.midas.text075", { defaultValue: "实际 yₜ" })} />
+                <Line type="monotone" dataKey="yhat" stroke={CHART_GOLD} strokeWidth={1.6} dot={false} name={t("labs.midas.text076", { defaultValue: "MIDAS 拟合 ŷₜ" })} />
               </LineChart>
             </ResponsiveContainer>
           </div>
@@ -862,7 +862,7 @@ export const MIDASTool = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {/* Residuals over time */}
           <div className="rounded-lg border border-border bg-card p-3">
-            <p className="text-[10px] font-mono text-muted-foreground uppercase mb-2">残差时间序列 eₜ</p>
+            <p className="text-[10px] font-mono text-muted-foreground uppercase mb-2">{t("labs.midas.text077", { defaultValue: "残差时间序列 eₜ" })}</p>
             <div className="h-[180px]">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={fitChart}>
@@ -878,7 +878,7 @@ export const MIDASTool = () => {
           </div>
           {/* Resid vs Fitted */}
           <div className="rounded-lg border border-border bg-card p-3">
-            <p className="text-[10px] font-mono text-muted-foreground uppercase mb-2">残差 vs 拟合值</p>
+            <p className="text-[10px] font-mono text-muted-foreground uppercase mb-2">{t("labs.midas.text078", { defaultValue: "残差 vs 拟合值" })}</p>
             <div className="h-[180px]">
               <ResponsiveContainer width="100%" height="100%">
                 <ScatterChart>
@@ -891,11 +891,11 @@ export const MIDASTool = () => {
                 </ScatterChart>
               </ResponsiveContainer>
             </div>
-            <p className="text-[9px] text-muted-foreground mt-1 text-center">理想:云团均匀, 无漏斗形 (异方差信号)</p>
+            <p className="text-[9px] text-muted-foreground mt-1 text-center">{t("labs.midas.text079", { defaultValue: "理想:云团均匀, 无漏斗形 (异方差信号)" })}</p>
           </div>
           {/* ACF */}
           <div className="rounded-lg border border-border bg-card p-3">
-            <p className="text-[10px] font-mono text-muted-foreground uppercase mb-2">残差 ACF (95% 带 ±1.96/√n)</p>
+            <p className="text-[10px] font-mono text-muted-foreground uppercase mb-2">{t("labs.midas.text080", { defaultValue: "残差 ACF (95% 带 ±1.96/√n)" })}</p>
             <div className="h-[180px]">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={acfChart}>
@@ -920,8 +920,7 @@ export const MIDASTool = () => {
 
       {!fit && source === "fred" && !fredLoading && (
         <div className="rounded-lg border border-border bg-card p-6 text-center text-sm text-muted-foreground">
-          数据加载中或 FRED 接口未就绪。请检查 FRED_API_KEY 配置或切换到「合成离线」数据源。
-        </div>
+          {t("labs.midas.text081", { defaultValue: "数据加载中或 FRED 接口未就绪。请检查 FRED_API_KEY 配置或切换到「合成离线」数据源。" })}</div>
       )}
     </>
   );

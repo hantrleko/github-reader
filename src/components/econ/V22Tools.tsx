@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useMemo, useState } from "react";
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -165,18 +166,19 @@ function elasticNetCD(X: number[][], y: number[], lambda: number, alpha: number,
   return beta;
 }
 
-const lassoPresets = (set: (v: { n: number; p: number; sparse: number; alpha: number; rho: number; sigma: number; seed: number }) => void): Preset[] => [
-  { name: "稀疏真模型 (LASSO 优势)",  description: "10 个特征只有 3 个非零, α=1",
+const lassoPresets = (t: ReturnType<typeof useTranslation>["t"], set: (v: { n: number; p: number; sparse: number; alpha: number; rho: number; sigma: number; seed: number }) => void): Preset[] => [
+  { name: t("labs.econV22.text001", { defaultValue: "稀疏真模型 (LASSO 优势)" }),  description: t("labs.econV22.text002", { defaultValue: "10 个特征只有 3 个非零, α=1" }),
     apply: () => set({ n: 200, p: 10, sparse: 3, alpha: 1.0, rho: 0.0, sigma: 0.5, seed: 42 }) },
-  { name: "多重共线性 (Ridge 优势)",  description: "高度相关特征, α=0",
+  { name: t("labs.econV22.text003", { defaultValue: "多重共线性 (Ridge 优势)" }),  description: t("labs.econV22.text004", { defaultValue: "高度相关特征, α=0" }),
     apply: () => set({ n: 200, p: 10, sparse: 8, alpha: 0.0, rho: 0.85, sigma: 0.5, seed: 7 }) },
-  { name: "高维 p>n",                description: "n=80, p=120, LASSO 必选",
+  { name: t("labs.econV22.text005", { defaultValue: "高维 p>n" }),                description: t("labs.econV22.text006", { defaultValue: "n=80, p=120, LASSO 必选" }),
     apply: () => set({ n: 80, p: 120, sparse: 5, alpha: 1.0, rho: 0.2, sigma: 0.5, seed: 11 }) },
-  { name: "Elastic Net",             description: "相关特征 + 稀疏, α=0.5",
+  { name: "Elastic Net",             description: t("labs.econV22.text007", { defaultValue: "相关特征 + 稀疏, α=0.5" }),
     apply: () => set({ n: 200, p: 20, sparse: 5, alpha: 0.5, rho: 0.7, sigma: 0.5, seed: 21 }) },
 ];
 
 export const LassoTool = () => {
+  const { t } = useTranslation();
   const [n, setN]         = useState(200);
   const [p, setP]         = useState(10);
   const [sparse, setSparse] = useState(3);
@@ -335,7 +337,7 @@ export const LassoTool = () => {
   return (
     <div className="space-y-6">
       <PresetButtons
-        presets={lassoPresets((v) => {
+        presets={lassoPresets(t, (v) => {
           setN(v.n); setP(v.p); setSparse(v.sparse); setAlpha(v.alpha);
           setRho(v.rho); setSigma(v.sigma); setSeed(v.seed);
         })}
@@ -343,31 +345,31 @@ export const LassoTool = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="space-y-4">
-          <Slider label="样本量 n"        value={n}      min={40}  max={500} step={10} onChange={setN} />
-          <Slider label="特征数 p"        value={p}      min={3}   max={120} step={1}  onChange={setP} />
-          <Slider label="真实非零数 s"    sub="只前 s 个特征对 y 有效"
+          <Slider label={t("labs.econV22.text008", { defaultValue: "样本量 n" })}        value={n}      min={40}  max={500} step={10} onChange={setN} />
+          <Slider label={t("labs.econV22.text009", { defaultValue: "特征数 p" })}        value={p}      min={3}   max={120} step={1}  onChange={setP} />
+          <Slider label={t("labs.econV22.text010", { defaultValue: "真实非零数 s" })}    sub={t("labs.econV22.text011", { defaultValue: "只前 s 个特征对 y 有效" })}
                   value={sparse} min={1}   max={Math.min(p, 15)} step={1}  onChange={setSparse} />
           <Slider label="α (1=LASSO 0=Ridge)" value={alpha} min={0} max={1} step={0.05} onChange={setAlpha} />
-          <Slider label="特征相关性 ρ"    value={rho}    min={0}   max={0.95} step={0.05} onChange={setRho} />
-          <Slider label="噪声 σ"          value={sigma}  min={0.1} max={2}   step={0.1} onChange={setSigma} />
-          <Slider label="随机种子"        value={seed}   min={1}   max={200} step={1}   onChange={setSeed} />
+          <Slider label={t("labs.econV22.text012", { defaultValue: "特征相关性 ρ" })}    value={rho}    min={0}   max={0.95} step={0.05} onChange={setRho} />
+          <Slider label={t("labs.econV22.text013", { defaultValue: "噪声 σ" })}          value={sigma}  min={0.1} max={2}   step={0.1} onChange={setSigma} />
+          <Slider label={t("labs.econV22.text014", { defaultValue: "随机种子" })}        value={seed}   min={1}   max={200} step={1}   onChange={setSeed} />
         </div>
         <div className="space-y-2">
-          <Stat label="λ_min (CV 最优)"    value={data.lamMin.toExponential(2)} color={CHART_GOLD}
+          <Stat label={t("labs.econV22.text015", { defaultValue: "λ_min (CV 最优)" })}    value={data.lamMin.toExponential(2)} color={CHART_GOLD}
                 sub={`CV-MSE = ${data.mseMin.toFixed(3)}`} />
-          <Stat label="λ_1se (1-SE 准则)"  value={data.lam1se.toExponential(2)} color={CHART_TEAL}
-                sub="更稀疏更稳健" />
-          <Stat label="非零特征数 @λ_min"  value={`${data.nonzeroMin} / ${data.p}`} color={CHART_BLUE}
-                sub={`真实非零 = ${data.trueNonzero}`} />
-          <Stat label="非零特征数 @λ_1se"  value={`${data.nonzero1se} / ${data.p}`} color={CHART_TEAL} />
-          <Stat label="模型类型"           value={alpha === 1 ? "LASSO" : alpha === 0 ? "Ridge" : "Elastic Net"} color={CHART_GOLD}
+          <Stat label={t("labs.econV22.text016", { defaultValue: "λ_1se (1-SE 准则)" })}  value={data.lam1se.toExponential(2)} color={CHART_TEAL}
+                sub={t("labs.econV22.text017", { defaultValue: "更稀疏更稳健" })} />
+          <Stat label={t("labs.econV22.text018", { defaultValue: "非零特征数 @λ_min" })}  value={`${data.nonzeroMin} / ${data.p}`} color={CHART_BLUE}
+                sub={t("labs.econV22.text019", { defaultValue: "真实非零 = {{v1}}", v1: data.trueNonzero })} />
+          <Stat label={t("labs.econV22.text020", { defaultValue: "非零特征数 @λ_1se" })}  value={`${data.nonzero1se} / ${data.p}`} color={CHART_TEAL} />
+          <Stat label={t("labs.econV22.text021", { defaultValue: "模型类型" })}           value={alpha === 1 ? "LASSO" : alpha === 0 ? "Ridge" : "Elastic Net"} color={CHART_GOLD}
                 sub={`α = ${alpha.toFixed(2)}`} />
         </div>
       </div>
 
       {/* Coefficient path */}
       <div>
-        <p className="text-[11px] font-mono uppercase tracking-[0.2em] text-gold/80 mb-2">系数路径 β(λ) — x 轴 log₁₀ λ</p>
+        <p className="text-[11px] font-mono uppercase tracking-[0.2em] text-gold/80 mb-2">{t("labs.econV22.text022", { defaultValue: "系数路径 β(λ) — x 轴 log₁₀ λ" })}</p>
         <ResponsiveContainer width="100%" height={260}>
           <LineChart data={data.pathChart} margin={{ top: 10, right: 20, bottom: 10, left: 0 }}>
             <CartesianGrid stroke={CHART_GRID} strokeDasharray="3 3" />
@@ -384,12 +386,12 @@ export const LassoTool = () => {
             ))}
           </LineChart>
         </ResponsiveContainer>
-        {p > 10 && <p className="text-[10px] font-mono text-muted-foreground/70 mt-1">仅显示前 10 个系数 (共 {p} 个)</p>}
+        {p > 10 && <p className="text-[10px] font-mono text-muted-foreground/70 mt-1">{t("labs.econV22.text023", { defaultValue: "仅显示前 10 个系数 (共" })} {p} {t("labs.econV22.text024", { defaultValue: "个)" })}</p>}
       </div>
 
       {/* CV curve */}
       <div>
-        <p className="text-[11px] font-mono uppercase tracking-[0.2em] text-gold/80 mb-2">5-Fold 交叉验证 MSE ± 1 SE</p>
+        <p className="text-[11px] font-mono uppercase tracking-[0.2em] text-gold/80 mb-2">{t("labs.econV22.text025", { defaultValue: "5-Fold 交叉验证 MSE ± 1 SE" })}</p>
         <ResponsiveContainer width="100%" height={240}>
           <ComposedChart data={data.cvChart} margin={{ top: 10, right: 20, bottom: 10, left: 0 }}>
             <CartesianGrid stroke={CHART_GRID} strokeDasharray="3 3" />
@@ -400,7 +402,7 @@ export const LassoTool = () => {
             <Legend wrapperStyle={{ fontSize: 11 }} />
             <Area yAxisId="L" type="monotone" dataKey="band" stroke="none" fill={CHART_GOLD} fillOpacity={0.18} name="±1 SE" />
             <Line yAxisId="L" type="monotone" dataKey="mse"  stroke={CHART_GOLD} strokeWidth={2} dot={false} name="CV MSE" />
-            <Line yAxisId="R" type="stepAfter" dataKey="nonzero" stroke={CHART_BLUE} strokeWidth={1.5} dot={false} name="非零系数 #" />
+            <Line yAxisId="R" type="stepAfter" dataKey="nonzero" stroke={CHART_BLUE} strokeWidth={1.5} dot={false} name={t("labs.econV22.text026", { defaultValue: "非零系数 #" })} />
             <ReferenceLine yAxisId="L" x={+Math.log10(data.lamMin).toFixed(3)} stroke={CHART_GOLD} strokeDasharray="4 3" />
             <ReferenceLine yAxisId="L" x={+Math.log10(data.lam1se).toFixed(3)} stroke={CHART_TEAL} strokeDasharray="4 3" />
           </ComposedChart>
@@ -409,7 +411,7 @@ export const LassoTool = () => {
 
       {/* β recovery vs OLS */}
       <div>
-        <p className="text-[11px] font-mono uppercase tracking-[0.2em] text-gold/80 mb-2">系数恢复对比 (前 10 个)</p>
+        <p className="text-[11px] font-mono uppercase tracking-[0.2em] text-gold/80 mb-2">{t("labs.econV22.text027", { defaultValue: "系数恢复对比 (前 10 个)" })}</p>
         <ResponsiveContainer width="100%" height={240}>
           <BarChart data={data.betaBars.slice(0, 10)} margin={{ top: 10, right: 20, bottom: 10, left: 0 }}>
             <CartesianGrid stroke={CHART_GRID} strokeDasharray="3 3" />
@@ -418,19 +420,19 @@ export const LassoTool = () => {
             <Tooltip contentStyle={{ background: "hsl(var(--popover))", border: "1px solid hsl(var(--border))", fontSize: 11 }} />
             <Legend wrapperStyle={{ fontSize: 11 }} />
             <ReferenceLine y={0} stroke={CHART_TEXT} />
-            <Bar dataKey="truth" fill={CHART_GOLD} name="真实 β" />
+            <Bar dataKey="truth" fill={CHART_GOLD} name={t("labs.econV22.text028", { defaultValue: "真实 β" })} />
             <Bar dataKey="ols"   fill={CHART_RED}  name="OLS" />
-            <Bar dataKey="lasso" fill={CHART_TEAL} name="正则化 @λ_min" />
+            <Bar dataKey="lasso" fill={CHART_TEAL} name={t("labs.econV22.text029", { defaultValue: "正则化 @λ_min" })} />
           </BarChart>
         </ResponsiveContainer>
       </div>
 
       <div className="rounded-lg border border-gold/20 bg-secondary/20 p-4 text-xs text-muted-foreground space-y-2">
-        <p><strong className="text-foreground">Friedman-Hastie-Tibshirani (2010) 坐标下降:</strong></p>
-        <p>• <strong>LASSO (α=1)</strong>: ℓ₁ 罚项产生稀疏解 → 自动变量选择</p>
-        <p>• <strong>Ridge (α=0)</strong>: ℓ₂ 罚项收缩所有系数,处理多重共线性,但不稀疏</p>
-        <p>• <strong>Elastic Net (0&lt;α&lt;1)</strong>: 兼顾两者,相关特征组一同保留或剔除</p>
-        <p>• <strong>λ_min</strong> = 最低 CV-MSE; <strong>λ_1se</strong> = 在 1-SE 范围内最简单模型,Breiman 推荐用于实践</p>
+        <p><strong className="text-foreground">{t("labs.econV22.text030", { defaultValue: "Friedman-Hastie-Tibshirani (2010) 坐标下降:" })}</strong></p>
+        <p>• <strong>LASSO (α=1)</strong>{t("labs.econV22.text031", { defaultValue: ": ℓ₁ 罚项产生稀疏解 → 自动变量选择" })}</p>
+        <p>• <strong>Ridge (α=0)</strong>{t("labs.econV22.text032", { defaultValue: ": ℓ₂ 罚项收缩所有系数,处理多重共线性,但不稀疏" })}</p>
+        <p>• <strong>Elastic Net (0&lt;α&lt;1)</strong>{t("labs.econV22.text033", { defaultValue: ": 兼顾两者,相关特征组一同保留或剔除" })}</p>
+        <p>• <strong>λ_min</strong> {t("labs.econV22.text034", { defaultValue: "= 最低 CV-MSE;" })} <strong>λ_1se</strong> {t("labs.econV22.text035", { defaultValue: "= 在 1-SE 范围内最简单模型,Breiman 推荐用于实践" })}</p>
         <p className="text-[11px] text-muted-foreground/80">Tibshirani (1996) <em>Regression Shrinkage and Selection via the Lasso</em>, JRSS-B; Zou & Hastie (2005) Elastic Net.</p>
       </div>
     </div>
@@ -440,18 +442,19 @@ export const LassoTool = () => {
 /* ════════════════════════════════════════════════════════════════
    2) Panel FE / RE + Hausman
    ════════════════════════════════════════════════════════════════ */
-const panelPresets = (set: (v: { N: number; T: number; beta: number; sigU: number; sigE: number; corrUX: number; seed: number }) => void): Preset[] => [
-  { name: "FE 适用 (个体效应∼X 相关)", description: "Cov(α_i, X)>0 ⇒ RE 偏误, 选 FE",
+const panelPresets = (t: ReturnType<typeof useTranslation>["t"], set: (v: { N: number; T: number; beta: number; sigU: number; sigE: number; corrUX: number; seed: number }) => void): Preset[] => [
+  { name: t("labs.econV22.text036", { defaultValue: "FE 适用 (个体效应∼X 相关)" }), description: t("labs.econV22.text037", { defaultValue: "Cov(α_i, X)>0 ⇒ RE 偏误, 选 FE" }),
     apply: () => set({ N: 50, T: 8, beta: 1.0, sigU: 1.5, sigE: 0.5, corrUX: 0.7, seed: 42 }) },
-  { name: "RE 高效 (个体效应独立)", description: "Cov(α_i, X)=0 ⇒ RE 一致且高效",
+  { name: t("labs.econV22.text038", { defaultValue: "RE 高效 (个体效应独立)" }), description: t("labs.econV22.text039", { defaultValue: "Cov(α_i, X)=0 ⇒ RE 一致且高效" }),
     apply: () => set({ N: 50, T: 8, beta: 1.0, sigU: 1.5, sigE: 0.5, corrUX: 0.0, seed: 42 }) },
-  { name: "大 N 小 T", description: "短面板典型设定 (微观经济学)",
+  { name: t("labs.econV22.text040", { defaultValue: "大 N 小 T" }), description: t("labs.econV22.text041", { defaultValue: "短面板典型设定 (微观经济学)" }),
     apply: () => set({ N: 200, T: 4, beta: 1.0, sigU: 1.0, sigE: 0.5, corrUX: 0.5, seed: 11 }) },
-  { name: "弱个体效应",  description: "σ_u 小 → Pooled OLS 也接近 FE",
+  { name: t("labs.econV22.text042", { defaultValue: "弱个体效应" }),  description: t("labs.econV22.text043", { defaultValue: "σ_u 小 → Pooled OLS 也接近 FE" }),
     apply: () => set({ N: 80, T: 6, beta: 1.0, sigU: 0.3, sigE: 0.5, corrUX: 0.5, seed: 7 }) },
 ];
 
 export const PanelTool = () => {
+  const { t } = useTranslation();
   const [N, setN]       = useState(50);
   const [T, setT]       = useState(8);
   const [beta, setBeta] = useState(1.0);
@@ -561,7 +564,7 @@ export const PanelTool = () => {
   }, [N, T, beta, sigU, sigE, corrUX, seed]);
 
   const tableRows = [
-    { name: "真实 β",   est: data.betaTrue, se: NaN, color: CHART_GOLD },
+    { name: t("labs.econV22.text044", { defaultValue: "真实 β" }),   est: data.betaTrue, se: NaN, color: CHART_GOLD },
     { name: "Pooled OLS", est: data.pooled.beta, se: data.pooled.se, color: CHART_RED },
     { name: "Fixed Effects (Within)", est: data.fe.beta, se: data.fe.se, color: CHART_TEAL },
     { name: "Random Effects (GLS)",   est: data.re.beta, se: data.re.se, color: CHART_BLUE },
@@ -570,7 +573,7 @@ export const PanelTool = () => {
   return (
     <div className="space-y-6">
       <PresetButtons
-        presets={panelPresets((v) => {
+        presets={panelPresets(t, (v) => {
           setN(v.N); setT(v.T); setBeta(v.beta); setSigU(v.sigU);
           setSigE(v.sigE); setCorrUX(v.corrUX); setSeed(v.seed);
         })}
@@ -578,31 +581,31 @@ export const PanelTool = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="space-y-4">
-          <Slider label="个体数 N"          value={N}    min={10} max={300} step={10} onChange={setN} />
-          <Slider label="时期数 T"          value={T}    min={2}  max={20}  step={1}  onChange={setT} />
-          <Slider label="真实 β"            value={beta} min={-2} max={3}   step={0.1} onChange={setBeta} />
-          <Slider label="σ_α (个体效应)"   value={sigU} min={0}  max={3}   step={0.1} onChange={setSigU} />
-          <Slider label="σ_ε (噪声)"        value={sigE} min={0.1} max={2}  step={0.1} onChange={setSigE} />
-          <Slider label="Cov(α_i, X)"       sub="0=独立 → RE 一致" value={corrUX} min={0} max={0.95} step={0.05} onChange={setCorrUX} />
-          <Slider label="随机种子"          value={seed} min={1}  max={200} step={1}   onChange={setSeed} />
+          <Slider label={t("labs.econV22.text045", { defaultValue: "个体数 N" })}          value={N}    min={10} max={300} step={10} onChange={setN} />
+          <Slider label={t("labs.econV22.text046", { defaultValue: "时期数 T" })}          value={T}    min={2}  max={20}  step={1}  onChange={setT} />
+          <Slider label={t("labs.econV22.text047", { defaultValue: "真实 β" })}            value={beta} min={-2} max={3}   step={0.1} onChange={setBeta} />
+          <Slider label={t("labs.econV22.text048", { defaultValue: "σ_α (个体效应)" })}   value={sigU} min={0}  max={3}   step={0.1} onChange={setSigU} />
+          <Slider label={t("labs.econV22.text049", { defaultValue: "σ_ε (噪声)" })}        value={sigE} min={0.1} max={2}  step={0.1} onChange={setSigE} />
+          <Slider label="Cov(α_i, X)"       sub={t("labs.econV22.text050", { defaultValue: "0=独立 → RE 一致" })} value={corrUX} min={0} max={0.95} step={0.05} onChange={setCorrUX} />
+          <Slider label={t("labs.econV22.text051", { defaultValue: "随机种子" })}          value={seed} min={1}  max={200} step={1}   onChange={setSeed} />
         </div>
         <div className="space-y-2">
-          <Stat label="面板规模"   value={`N=${data.N} × T=${data.T} = ${data.n}`} color={CHART_GOLD} />
+          <Stat label={t("labs.econV22.text052", { defaultValue: "面板规模" })}   value={`N=${data.N} × T=${data.T} = ${data.n}`} color={CHART_GOLD} />
           <Stat label="Pooled β̂"  value={data.pooled.beta.toFixed(3)} color={CHART_RED}
-                sub={`SE=${data.pooled.se.toFixed(3)} | 偏差 ${(data.pooled.beta - data.betaTrue).toFixed(3)}`} />
+                sub={t("labs.econV22.text053", { defaultValue: "SE={{v1}} | 偏差 {{v2}}", v1: data.pooled.se.toFixed(3), v2: (data.pooled.beta - data.betaTrue).toFixed(3) })} />
           <Stat label="FE β̂"      value={data.fe.beta.toFixed(3)}     color={CHART_TEAL}
-                sub={`SE=${data.fe.se.toFixed(3)} | 偏差 ${(data.fe.beta - data.betaTrue).toFixed(3)}`} />
+                sub={t("labs.econV22.text054", { defaultValue: "SE={{v1}} | 偏差 {{v2}}", v1: data.fe.se.toFixed(3), v2: (data.fe.beta - data.betaTrue).toFixed(3) })} />
           <Stat label="RE β̂"      value={data.re.beta.toFixed(3)}     color={CHART_BLUE}
                 sub={`SE=${data.re.se.toFixed(3)} | θ=${data.re.theta.toFixed(3)}`} />
           <Stat label="Hausman χ²(1)"
                 value={isFinite(data.H) ? data.H.toFixed(3) : "—"} color={data.verdict === "FE" ? CHART_TEAL : CHART_BLUE}
-                sub={`p = ${isFinite(data.pH) ? data.pH.toFixed(4) : "—"} | 建议: ${data.verdict}`} />
+                sub={t("labs.econV22.text055", { defaultValue: "p = {{v1}} | 建议: {{v2}}", v1: isFinite(data.pH) ? data.pH.toFixed(4) : "—", v2: data.verdict })} />
         </div>
       </div>
 
       {/* β comparison bar */}
       <div>
-        <p className="text-[11px] font-mono uppercase tracking-[0.2em] text-gold/80 mb-2">β̂ 对比 (与真实 β 对照)</p>
+        <p className="text-[11px] font-mono uppercase tracking-[0.2em] text-gold/80 mb-2">{t("labs.econV22.text056", { defaultValue: "β̂ 对比 (与真实 β 对照)" })}</p>
         <ResponsiveContainer width="100%" height={220}>
           <BarChart data={tableRows} margin={{ top: 10, right: 20, bottom: 10, left: 0 }}>
             <CartesianGrid stroke={CHART_GRID} strokeDasharray="3 3" />
@@ -610,7 +613,7 @@ export const PanelTool = () => {
             <YAxis stroke={CHART_TEXT} tick={{ fontSize: 11 }} />
             <Tooltip contentStyle={{ background: "hsl(var(--popover))", border: "1px solid hsl(var(--border))", fontSize: 11 }} />
             <ReferenceLine y={data.betaTrue} stroke={CHART_GOLD} strokeDasharray="4 3"
-              label={{ value: `真实 β = ${data.betaTrue.toFixed(2)}`, position: "right", fill: CHART_GOLD, fontSize: 10 }} />
+              label={{ value: t("labs.econV22.text057", { defaultValue: "真实 β = {{v1}}", v1: data.betaTrue.toFixed(2) }), position: "right", fill: CHART_GOLD, fontSize: 10 }} />
             <Bar dataKey="est" name="β̂">
               {tableRows.map((r, i) => <Cell key={i} fill={r.color} />)}
             </Bar>
@@ -620,24 +623,24 @@ export const PanelTool = () => {
 
       {/* α_i histogram */}
       <div>
-        <p className="text-[11px] font-mono uppercase tracking-[0.2em] text-gold/80 mb-2">个体效应 α̂_i 分布 (N={data.N})</p>
+        <p className="text-[11px] font-mono uppercase tracking-[0.2em] text-gold/80 mb-2">{t("labs.econV22.text058", { defaultValue: "个体效应 α̂_i 分布 (N=" })}{data.N})</p>
         <ResponsiveContainer width="100%" height={200}>
           <BarChart data={data.hist} margin={{ top: 10, right: 20, bottom: 10, left: 0 }}>
             <CartesianGrid stroke={CHART_GRID} strokeDasharray="3 3" />
             <XAxis dataKey="a" stroke={CHART_TEXT} tick={{ fontSize: 10 }} />
             <YAxis stroke={CHART_TEXT} tick={{ fontSize: 10 }} />
             <Tooltip contentStyle={{ background: "hsl(var(--popover))", border: "1px solid hsl(var(--border))", fontSize: 11 }} />
-            <Bar dataKey="n" fill={CHART_TEAL} name="频次" />
+            <Bar dataKey="n" fill={CHART_TEAL} name={t("labs.econV22.text059", { defaultValue: "频次" })} />
           </BarChart>
         </ResponsiveContainer>
       </div>
 
       <div className="rounded-lg border border-gold/20 bg-secondary/20 p-4 text-xs text-muted-foreground space-y-2">
-        <p><strong className="text-foreground">三种估计的取舍:</strong></p>
-        <p>• <strong>Pooled OLS</strong>: 忽略 α_i, 若 α_i 与 X 相关则 β̂ 严重有偏</p>
-        <p>• <strong>FE (Within)</strong>: 个体内去均值消除时不变 α_i, 即使 Cov(α, X)≠0 也一致, 代价是损失 N 个自由度</p>
-        <p>• <strong>RE (GLS)</strong>: 假设 Cov(α, X)=0, 用 θ 加权变换提升效率, 但若假设破坏则不一致</p>
-        <p>• <strong>Hausman 检验</strong> H = (β̂_FE − β̂_RE)' [V(FE) − V(RE)]⁻¹ (β̂_FE − β̂_RE) ~ χ²: p&lt;0.05 ⇒ 选 FE</p>
+        <p><strong className="text-foreground">{t("labs.econV22.text060", { defaultValue: "三种估计的取舍:" })}</strong></p>
+        <p>• <strong>Pooled OLS</strong>{t("labs.econV22.text061", { defaultValue: ": 忽略 α_i, 若 α_i 与 X 相关则 β̂ 严重有偏" })}</p>
+        <p>• <strong>FE (Within)</strong>{t("labs.econV22.text062", { defaultValue: ": 个体内去均值消除时不变 α_i, 即使 Cov(α, X)≠0 也一致, 代价是损失 N 个自由度" })}</p>
+        <p>• <strong>RE (GLS)</strong>{t("labs.econV22.text063", { defaultValue: ": 假设 Cov(α, X)=0, 用 θ 加权变换提升效率, 但若假设破坏则不一致" })}</p>
+        <p>• <strong>{t("labs.econV22.text064", { defaultValue: "Hausman 检验" })}</strong> {t("labs.econV22.text065", { defaultValue: "H = (β̂_FE − β̂_RE)' [V(FE) − V(RE)]⁻¹ (β̂_FE − β̂_RE) ~ χ²: p&lt;0.05 ⇒ 选 FE" })}</p>
         <p className="text-[11px] text-muted-foreground/80">Reference: Hausman (1978) <em>Specification Tests in Econometrics</em>; Wooldridge (2010) <em>Econometric Analysis of Cross Section and Panel Data</em>.</p>
       </div>
     </div>
@@ -747,18 +750,19 @@ function fitTobit(X: number[][], y: number[], iters = 60): { beta: number[]; sig
   return { beta, sigma: Math.exp(logSig) };
 }
 
-const tobitPresets = (set: (v: { n: number; beta: number; alpha: number; sigma: number; selStrength: number; rho: number; seed: number }) => void): Preset[] => [
-  { name: "强左截断 (40% 删失)",       description: "α=0, ~40% 观测被截断为 0",
+const tobitPresets = (t: ReturnType<typeof useTranslation>["t"], set: (v: { n: number; beta: number; alpha: number; sigma: number; selStrength: number; rho: number; seed: number }) => void): Preset[] => [
+  { name: t("labs.econV22.text066", { defaultValue: "强左截断 (40% 删失)" }),       description: t("labs.econV22.text067", { defaultValue: "α=0, ~40% 观测被截断为 0" }),
     apply: () => set({ n: 400, beta: 1.0, alpha: 0.0, sigma: 1.0, selStrength: 0.0, rho: 0.0, seed: 42 }) },
-  { name: "工资方程 (Heckman 经典)",   description: "强样本选择, ρ=0.7",
+  { name: t("labs.econV22.text068", { defaultValue: "工资方程 (Heckman 经典)" }),   description: t("labs.econV22.text069", { defaultValue: "强样本选择, ρ=0.7" }),
     apply: () => set({ n: 500, beta: 0.8, alpha: 0.5, sigma: 1.0, selStrength: 1.2, rho: 0.7, seed: 11 }) },
-  { name: "无选择偏差 (ρ=0)",          description: "OLS 与 Heckman 一致",
+  { name: t("labs.econV22.text070", { defaultValue: "无选择偏差 (ρ=0)" }),          description: t("labs.econV22.text071", { defaultValue: "OLS 与 Heckman 一致" }),
     apply: () => set({ n: 400, beta: 1.0, alpha: 1.0, sigma: 1.0, selStrength: 0.8, rho: 0.0, seed: 7 }) },
-  { name: "强选择偏差 (ρ=0.9)",        description: "OLS 严重有偏, Heckman 校正",
+  { name: t("labs.econV22.text072", { defaultValue: "强选择偏差 (ρ=0.9)" }),        description: t("labs.econV22.text073", { defaultValue: "OLS 严重有偏, Heckman 校正" }),
     apply: () => set({ n: 500, beta: 1.0, alpha: 0.3, sigma: 1.0, selStrength: 1.5, rho: 0.9, seed: 21 }) },
 ];
 
 export const TobitTool = () => {
+  const { t } = useTranslation();
   const [n, setN]         = useState(400);
   const [beta, setBeta]   = useState(1.0);
   const [alpha, setAlpha] = useState(0.0);
@@ -859,21 +863,21 @@ export const TobitTool = () => {
   }, [n, beta, alpha, sigma, selStrength, rho, seed]);
 
   const tobitRows = [
-    { name: "真实 β",                  est: data.betaTrue,     fill: CHART_GOLD },
-    { name: "OLS (含 0, 朴素)",        est: data.olsAll[1],     fill: CHART_RED },
-    { name: "OLS (仅观测 y>0)",        est: data.olsCensU[1],   fill: CHART_BLUE },
+    { name: t("labs.econV22.text074", { defaultValue: "真实 β" }),                  est: data.betaTrue,     fill: CHART_GOLD },
+    { name: t("labs.econV22.text075", { defaultValue: "OLS (含 0, 朴素)" }),        est: data.olsAll[1],     fill: CHART_RED },
+    { name: t("labs.econV22.text076", { defaultValue: "OLS (仅观测 y>0)" }),        est: data.olsCensU[1],   fill: CHART_BLUE },
     { name: "Tobit MLE",               est: data.tobit.beta[1], fill: CHART_TEAL },
   ];
   const heckRows = [
-    { name: "真实 β",                est: data.betaTrue,    fill: CHART_GOLD },
-    { name: "OLS (选样, 朴素)",      est: data.olsSel[1],   fill: CHART_RED },
-    { name: "Heckman 两步",          est: data.heck[1],     fill: CHART_TEAL },
+    { name: t("labs.econV22.text077", { defaultValue: "真实 β" }),                est: data.betaTrue,    fill: CHART_GOLD },
+    { name: t("labs.econV22.text078", { defaultValue: "OLS (选样, 朴素)" }),      est: data.olsSel[1],   fill: CHART_RED },
+    { name: t("labs.econV22.text079", { defaultValue: "Heckman 两步" }),          est: data.heck[1],     fill: CHART_TEAL },
   ];
 
   return (
     <div className="space-y-6">
       <PresetButtons
-        presets={tobitPresets((v) => {
+        presets={tobitPresets(t, (v) => {
           setN(v.n); setBeta(v.beta); setAlpha(v.alpha); setSigma(v.sigma);
           setSel(v.selStrength); setRho(v.rho); setSeed(v.seed);
         })}
@@ -881,33 +885,33 @@ export const TobitTool = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="space-y-4">
-          <Slider label="样本量 n"           value={n}       min={100} max={1000} step={50} onChange={setN} />
-          <Slider label="真实 β"             value={beta}    min={-2}  max={3}    step={0.1} onChange={setBeta} />
-          <Slider label="截距 α"             sub="负值 ⇒ 更多左截断" value={alpha} min={-2} max={2} step={0.1} onChange={setAlpha} />
-          <Slider label="σ (噪声)"           value={sigma}   min={0.2} max={3}    step={0.1} onChange={setSigma} />
-          <Slider label="选择方程强度 γ_z"   sub="Heckman 用" value={selStrength} min={0} max={3} step={0.1} onChange={setSel} />
-          <Slider label="选择相关性 ρ"       sub="Cov(ε_y, ε_d), |ρ|>0 ⇒ 选择偏差" value={rho} min={-0.95} max={0.95} step={0.05} onChange={setRho} />
-          <Slider label="随机种子"           value={seed}    min={1}   max={200}  step={1}   onChange={setSeed} />
+          <Slider label={t("labs.econV22.text080", { defaultValue: "样本量 n" })}           value={n}       min={100} max={1000} step={50} onChange={setN} />
+          <Slider label={t("labs.econV22.text081", { defaultValue: "真实 β" })}             value={beta}    min={-2}  max={3}    step={0.1} onChange={setBeta} />
+          <Slider label={t("labs.econV22.text082", { defaultValue: "截距 α" })}             sub={t("labs.econV22.text083", { defaultValue: "负值 ⇒ 更多左截断" })} value={alpha} min={-2} max={2} step={0.1} onChange={setAlpha} />
+          <Slider label={t("labs.econV22.text084", { defaultValue: "σ (噪声)" })}           value={sigma}   min={0.2} max={3}    step={0.1} onChange={setSigma} />
+          <Slider label={t("labs.econV22.text085", { defaultValue: "选择方程强度 γ_z" })}   sub={t("labs.econV22.text086", { defaultValue: "Heckman 用" })} value={selStrength} min={0} max={3} step={0.1} onChange={setSel} />
+          <Slider label={t("labs.econV22.text087", { defaultValue: "选择相关性 ρ" })}       sub={t("labs.econV22.text088", { defaultValue: "Cov(ε_y, ε_d), |ρ|>0 ⇒ 选择偏差" })} value={rho} min={-0.95} max={0.95} step={0.05} onChange={setRho} />
+          <Slider label={t("labs.econV22.text089", { defaultValue: "随机种子" })}           value={seed}    min={1}   max={200}  step={1}   onChange={setSeed} />
         </div>
         <div className="space-y-2">
-          <Stat label="左截断比例 (Tobit)"  value={(data.censShare * 100).toFixed(1) + "%"} color={CHART_RED} />
-          <Stat label="选中比例 (Heckman)"  value={(data.selShare * 100).toFixed(1) + "%"} color={CHART_BLUE} />
+          <Stat label={t("labs.econV22.text090", { defaultValue: "左截断比例 (Tobit)" })}  value={(data.censShare * 100).toFixed(1) + "%"} color={CHART_RED} />
+          <Stat label={t("labs.econV22.text091", { defaultValue: "选中比例 (Heckman)" })}  value={(data.selShare * 100).toFixed(1) + "%"} color={CHART_BLUE} />
           <Stat label="Tobit β̂"            value={data.tobit.beta[1].toFixed(3)} color={CHART_TEAL}
                 sub={`σ̂ = ${data.tobit.sigma.toFixed(3)}`} />
-          <Stat label="OLS (朴素全样本)"    value={data.olsAll[1].toFixed(3)} color={CHART_RED}
-                sub={`偏差 ${(data.olsAll[1] - data.betaTrue).toFixed(3)}`} />
+          <Stat label={t("labs.econV22.text092", { defaultValue: "OLS (朴素全样本)" })}    value={data.olsAll[1].toFixed(3)} color={CHART_RED}
+                sub={t("labs.econV22.text093", { defaultValue: "偏差 {{v1}}", v1: (data.olsAll[1] - data.betaTrue).toFixed(3) })} />
           <Stat label="Heckman β̂"          value={data.heck[1].toFixed(3)} color={CHART_TEAL}
-                sub={`偏差 ${(data.heck[1] - data.betaTrue).toFixed(3)}`} />
-          <Stat label="ρ̂σ̂ (Mills 系数)"   value={data.rhoSigma.toFixed(3)}
+                sub={t("labs.econV22.text094", { defaultValue: "偏差 {{v1}}", v1: (data.heck[1] - data.betaTrue).toFixed(3) })} />
+          <Stat label={t("labs.econV22.text095", { defaultValue: "ρ̂σ̂ (Mills 系数)" })}   value={data.rhoSigma.toFixed(3)}
                 color={Math.abs(data.rhoSigma) > 0.2 ? CHART_RED : CHART_TEAL}
-                sub="≠0 ⇒ 存在选择偏差" />
+                sub={t("labs.econV22.text096", { defaultValue: "≠0 ⇒ 存在选择偏差" })} />
         </div>
       </div>
 
       {/* Tobit comparison */}
       <div>
         <p className="text-[11px] font-mono uppercase tracking-[0.2em] text-gold/80 mb-2">
-          Tobit:左截断模型 β̂ 对比
+          {t("labs.econV22.text097", { defaultValue: "Tobit:左截断模型 β̂ 对比" })}
         </p>
         <ResponsiveContainer width="100%" height={200}>
           <BarChart data={tobitRows} margin={{ top: 10, right: 20, bottom: 10, left: 0 }}>
@@ -916,7 +920,7 @@ export const TobitTool = () => {
             <YAxis stroke={CHART_TEXT} tick={{ fontSize: 11 }} />
             <Tooltip contentStyle={{ background: "hsl(var(--popover))", border: "1px solid hsl(var(--border))", fontSize: 11 }} />
             <ReferenceLine y={data.betaTrue} stroke={CHART_GOLD} strokeDasharray="4 3"
-              label={{ value: `真实 β = ${data.betaTrue.toFixed(2)}`, position: "right", fill: CHART_GOLD, fontSize: 10 }} />
+              label={{ value: t("labs.econV22.text098", { defaultValue: "真实 β = {{v1}}", v1: data.betaTrue.toFixed(2) }), position: "right", fill: CHART_GOLD, fontSize: 10 }} />
             <Bar dataKey="est" name="β̂">
               {tobitRows.map((r, i) => <Cell key={i} fill={r.fill} />)}
             </Bar>
@@ -927,7 +931,7 @@ export const TobitTool = () => {
       {/* Tobit scatter */}
       <div>
         <p className="text-[11px] font-mono uppercase tracking-[0.2em] text-gold/80 mb-2">
-          观测散点 y vs X (红=被截断为 0)
+          {t("labs.econV22.text099", { defaultValue: "观测散点 y vs X (红=被截断为 0)" })}
         </p>
         <ResponsiveContainer width="100%" height={240}>
           <ScatterChart margin={{ top: 10, right: 20, bottom: 10, left: 0 }}>
@@ -935,8 +939,8 @@ export const TobitTool = () => {
             <XAxis type="number" dataKey="x" stroke={CHART_TEXT} tick={{ fontSize: 10 }} name="X" />
             <YAxis type="number" dataKey="y" stroke={CHART_TEXT} tick={{ fontSize: 10 }} name="y" />
             <Tooltip contentStyle={{ background: "hsl(var(--popover))", border: "1px solid hsl(var(--border))", fontSize: 11 }} />
-            <Scatter name="观测 y>0" data={data.scatterTob.filter(d => d.censored === 0)} fill={CHART_GOLD} fillOpacity={0.65} />
-            <Scatter name="截断 y=0"  data={data.scatterTob.filter(d => d.censored === 1)} fill={CHART_RED}  fillOpacity={0.6} />
+            <Scatter name={t("labs.econV22.text100", { defaultValue: "观测 y>0" })} data={data.scatterTob.filter(d => d.censored === 0)} fill={CHART_GOLD} fillOpacity={0.65} />
+            <Scatter name={t("labs.econV22.text101", { defaultValue: "截断 y=0" })}  data={data.scatterTob.filter(d => d.censored === 1)} fill={CHART_RED}  fillOpacity={0.6} />
           </ScatterChart>
         </ResponsiveContainer>
       </div>
@@ -944,7 +948,7 @@ export const TobitTool = () => {
       {/* Heckman comparison */}
       <div>
         <p className="text-[11px] font-mono uppercase tracking-[0.2em] text-gold/80 mb-2">
-          Heckman:样本选择校正 β̂ 对比
+          {t("labs.econV22.text102", { defaultValue: "Heckman:样本选择校正 β̂ 对比" })}
         </p>
         <ResponsiveContainer width="100%" height={200}>
           <BarChart data={heckRows} margin={{ top: 10, right: 20, bottom: 10, left: 0 }}>
@@ -963,7 +967,7 @@ export const TobitTool = () => {
       {/* Mills ratio */}
       <div>
         <p className="text-[11px] font-mono uppercase tracking-[0.2em] text-gold/80 mb-2">
-          Inverse Mills Ratio λ(Zγ̂) — 沿 Z 排序
+          {t("labs.econV22.text103", { defaultValue: "Inverse Mills Ratio λ(Zγ̂) — 沿 Z 排序" })}
         </p>
         <ResponsiveContainer width="100%" height={220}>
           <ComposedChart data={data.millsCurve} margin={{ top: 10, right: 20, bottom: 10, left: 0 }}>
@@ -977,13 +981,10 @@ export const TobitTool = () => {
       </div>
 
       <div className="rounded-lg border border-gold/20 bg-secondary/20 p-4 text-xs text-muted-foreground space-y-2">
-        <p><strong className="text-foreground">两类受限样本问题:</strong></p>
-        <p>• <strong>Tobit (Tobin 1958)</strong>: y 在 0 处<em>左截断</em> (例:消费、医疗支出),
-           对 y&gt;0 用密度 φ/σ, 对 y=0 用累计 Φ(−Xβ/σ), MLE 同时估 β 和 σ</p>
-        <p>• <strong>Heckman 两步 (1979)</strong>: <em>样本选择</em>问题 (例:工资方程仅观测就业者),
-          第 1 步 Probit 选择方程, 第 2 步对选中样本 OLS 加 Mills λ̂</p>
-        <p>• <strong>ρ̂σ̂ 系数</strong>: Heckman 第二步 λ 的回归系数 = ρσ; 显著 ⇒ 存在选择偏差,
-          需要用 Heckman 而非朴素 OLS</p>
+        <p><strong className="text-foreground">{t("labs.econV22.text104", { defaultValue: "两类受限样本问题:" })}</strong></p>
+        <p>• <strong>Tobit (Tobin 1958)</strong>{t("labs.econV22.text105", { defaultValue: ": y 在 0 处" })}<em>{t("labs.econV22.text106", { defaultValue: "左截断" })}</em> {t("labs.econV22.text107", { defaultValue: "(例:消费、医疗支出),\n           对 y&gt;0 用密度 φ/σ, 对 y=0 用累计 Φ(−Xβ/σ), MLE 同时估 β 和 σ" })}</p>
+        <p>• <strong>{t("labs.econV22.text108", { defaultValue: "Heckman 两步 (1979)" })}</strong>: <em>{t("labs.econV22.text109", { defaultValue: "样本选择" })}</em>{t("labs.econV22.text110", { defaultValue: "问题 (例:工资方程仅观测就业者),\n          第 1 步 Probit 选择方程, 第 2 步对选中样本 OLS 加 Mills λ̂" })}</p>
+        <p>• <strong>{t("labs.econV22.text111", { defaultValue: "ρ̂σ̂ 系数" })}</strong>{t("labs.econV22.text112", { defaultValue: ": Heckman 第二步 λ 的回归系数 = ρσ; 显著 ⇒ 存在选择偏差,\n          需要用 Heckman 而非朴素 OLS" })}</p>
         <p className="text-[11px] text-muted-foreground/80">Reference: Tobin (1958) <em>Estimation of Relationships for Limited Dependent Variables</em>, Econometrica 26;
           Heckman (1979) <em>Sample Selection Bias as a Specification Error</em>, Econometrica 47.</p>
       </div>

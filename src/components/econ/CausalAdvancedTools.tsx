@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useMemo, useState } from "react";
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -114,6 +115,7 @@ function fitSyntheticControl(X1: number[], X0: number[][], iters = 800, lr = 0.0
 }
 
 export const SyntheticControlTool = () => {
+  const { t } = useTranslation();
   const [J, setJ] = useState(8);            // donor pool size
   const [T0, setT0] = useState(20);         // pre-treatment periods
   const [T1, setT1] = useState(15);         // post-treatment periods
@@ -186,10 +188,10 @@ export const SyntheticControlTool = () => {
   }, [J, T0, T1, att, noise, seed]);
 
   const presets: Preset[] = [
-    { name: "经典 ADH", description: "强信号 ATT=2.5, 噪声小", apply: () => { setAtt(2.5); setNoise(0.4); setT0(20); setT1(15); setJ(8); } },
-    { name: "无效应安慰剂", description: "ATT=0, 应有大 p-value", apply: () => { setAtt(0); setNoise(0.5); } },
-    { name: "弱信号", description: "ATT=0.6, 与噪声相当", apply: () => { setAtt(0.6); setNoise(0.5); } },
-    { name: "短前期", description: "T0=10, 拟合不稳定", apply: () => { setT0(10); setT1(15); setAtt(2); } },
+    { name: t("labs.causalAdvanced.text001", { defaultValue: "经典 ADH" }), description: t("labs.causalAdvanced.text002", { defaultValue: "强信号 ATT=2.5, 噪声小" }), apply: () => { setAtt(2.5); setNoise(0.4); setT0(20); setT1(15); setJ(8); } },
+    { name: t("labs.causalAdvanced.text003", { defaultValue: "无效应安慰剂" }), description: t("labs.causalAdvanced.text004", { defaultValue: "ATT=0, 应有大 p-value" }), apply: () => { setAtt(0); setNoise(0.5); } },
+    { name: t("labs.causalAdvanced.text005", { defaultValue: "弱信号" }), description: t("labs.causalAdvanced.text006", { defaultValue: "ATT=0.6, 与噪声相当" }), apply: () => { setAtt(0.6); setNoise(0.5); } },
+    { name: t("labs.causalAdvanced.text007", { defaultValue: "短前期" }), description: t("labs.causalAdvanced.text008", { defaultValue: "T0=10, 拟合不稳定" }), apply: () => { setT0(10); setT1(15); setAtt(2); } },
   ];
 
   return (
@@ -197,24 +199,24 @@ export const SyntheticControlTool = () => {
       <PresetButtons presets={presets} />
       <div className="grid lg:grid-cols-3 gap-6">
         <div className="space-y-4">
-          <Slider label="捐献池规模 J" value={J} min={3} max={20} step={1} onChange={setJ} />
-          <Slider label="处理前期数 T₀" value={T0} min={8} max={50} step={1} onChange={setT0} />
-          <Slider label="处理后期数 T₁" value={T1} min={5} max={40} step={1} onChange={setT1} />
-          <Slider label="真实 ATT" value={att} min={-3} max={5} step={0.1} onChange={setAtt} />
-          <Slider label="噪声 σ" value={noise} min={0.05} max={1.5} step={0.05} onChange={setNoise} />
-          <Slider label="随机种子" value={seed} min={1} max={200} step={1} onChange={setSeed} />
+          <Slider label={t("labs.causalAdvanced.text009", { defaultValue: "捐献池规模 J" })} value={J} min={3} max={20} step={1} onChange={setJ} />
+          <Slider label={t("labs.causalAdvanced.text010", { defaultValue: "处理前期数 T₀" })} value={T0} min={8} max={50} step={1} onChange={setT0} />
+          <Slider label={t("labs.causalAdvanced.text011", { defaultValue: "处理后期数 T₁" })} value={T1} min={5} max={40} step={1} onChange={setT1} />
+          <Slider label={t("labs.causalAdvanced.text012", { defaultValue: "真实 ATT" })} value={att} min={-3} max={5} step={0.1} onChange={setAtt} />
+          <Slider label={t("labs.causalAdvanced.text013", { defaultValue: "噪声 σ" })} value={noise} min={0.05} max={1.5} step={0.05} onChange={setNoise} />
+          <Slider label={t("labs.causalAdvanced.text014", { defaultValue: "随机种子" })} value={seed} min={1} max={200} step={1} onChange={setSeed} />
 
           <div className="space-y-2 mt-4">
-            <Stat label="估计 ATT̂" value={data.attHat.toFixed(3)} color={CHART_GOLD} sub={`真实 = ${att.toFixed(2)}`} />
+            <Stat label={t("labs.causalAdvanced.text015", { defaultValue: "估计 ATT̂" })} value={data.attHat.toFixed(3)} color={CHART_GOLD} sub={t("labs.causalAdvanced.text016", { defaultValue: "真实 = {{var1}}", var1: att.toFixed(2) })} />
             <Stat label="Pre RMSPE" value={data.preRMSPE.toFixed(3)} color={CHART_TEAL} />
-            <Stat label="Post / Pre 比" value={data.ratio.toFixed(2)} color={CHART_RED} sub="拟合质量诊断" />
-            <Stat label="排列 p-value" value={data.pVal.toFixed(3)} color={data.pVal < 0.1 ? CHART_GOLD : CHART_TEXT} sub={`安慰剂秩检验 (J+1=${1 + J})`} />
+            <Stat label={t("labs.causalAdvanced.text017", { defaultValue: "Post / Pre 比" })} value={data.ratio.toFixed(2)} color={CHART_RED} sub={t("labs.causalAdvanced.text018", { defaultValue: "拟合质量诊断" })} />
+            <Stat label={t("labs.causalAdvanced.text019", { defaultValue: "排列 p-value" })} value={data.pVal.toFixed(3)} color={data.pVal < 0.1 ? CHART_GOLD : CHART_TEXT} sub={t("labs.causalAdvanced.text020", { defaultValue: "安慰剂秩检验 (J+1={{var1}})", var1: 1 + J })} />
           </div>
         </div>
 
         <div className="lg:col-span-2 space-y-4">
           <div>
-            <p className="text-[11px] font-mono uppercase tracking-[0.2em] text-gold/80 mb-2">真实 vs 合成对照路径</p>
+            <p className="text-[11px] font-mono uppercase tracking-[0.2em] text-gold/80 mb-2">{t("labs.causalAdvanced.text021", { defaultValue: "真实 vs 合成对照路径" })}</p>
             <ResponsiveContainer width="100%" height={260}>
               <LineChart data={data.series} margin={{ top: 8, right: 12, left: -8, bottom: 0 }}>
                 <CartesianGrid stroke={CHART_GRID} strokeDasharray="3 3" />
@@ -222,15 +224,15 @@ export const SyntheticControlTool = () => {
                 <YAxis stroke={CHART_TEXT} tick={{ fontSize: 10 }} />
                 <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", fontSize: 11 }} />
                 <Legend wrapperStyle={{ fontSize: 11 }} />
-                <ReferenceLine x={T0 - 0.5} stroke={CHART_RED} strokeDasharray="4 3" label={{ value: "处理时点", fill: CHART_RED, fontSize: 10 }} />
-                <Line type="monotone" dataKey="treated" stroke={CHART_GOLD} strokeWidth={2} dot={false} name="处理单元 Y₁" />
-                <Line type="monotone" dataKey="synthetic" stroke={CHART_TEAL} strokeWidth={2} strokeDasharray="5 3" dot={false} name="合成对照 Ŷ₀" />
+                <ReferenceLine x={T0 - 0.5} stroke={CHART_RED} strokeDasharray="4 3" label={{ value: t("labs.causalAdvanced.text022", { defaultValue: "处理时点" }), fill: CHART_RED, fontSize: 10 }} />
+                <Line type="monotone" dataKey="treated" stroke={CHART_GOLD} strokeWidth={2} dot={false} name={t("labs.causalAdvanced.text023", { defaultValue: "处理单元 Y₁" })} />
+                <Line type="monotone" dataKey="synthetic" stroke={CHART_TEAL} strokeWidth={2} strokeDasharray="5 3" dot={false} name={t("labs.causalAdvanced.text024", { defaultValue: "合成对照 Ŷ₀" })} />
               </LineChart>
             </ResponsiveContainer>
           </div>
 
           <div>
-            <p className="text-[11px] font-mono uppercase tracking-[0.2em] text-gold/80 mb-2">间隙图 (Y₁−Ŷ₀)：处理单元 vs 安慰剂</p>
+            <p className="text-[11px] font-mono uppercase tracking-[0.2em] text-gold/80 mb-2">{t("labs.causalAdvanced.text025", { defaultValue: "间隙图 (Y₁−Ŷ₀)：处理单元 vs 安慰剂" })}</p>
             <ResponsiveContainer width="100%" height={220}>
               <LineChart margin={{ top: 8, right: 12, left: -8, bottom: 0 }}>
                 <CartesianGrid stroke={CHART_GRID} strokeDasharray="3 3" />
@@ -240,16 +242,16 @@ export const SyntheticControlTool = () => {
                 <ReferenceLine y={0} stroke={CHART_GRID} />
                 <ReferenceLine x={T0 - 0.5} stroke={CHART_RED} strokeDasharray="4 3" />
                 {data.placeboGaps.map((g, i) => (
-                  <Line key={`p${i}`} data={g.map((v, t) => ({ t, v }))} type="monotone" dataKey="v" stroke={CHART_TEXT} strokeOpacity={0.3} strokeWidth={1} dot={false} isAnimationActive={false} name={i === 0 ? "安慰剂" : ""} legendType="none" />
+                  <Line key={`p${i}`} data={g.map((v, t) => ({ t, v }))} type="monotone" dataKey="v" stroke={CHART_TEXT} strokeOpacity={0.3} strokeWidth={1} dot={false} isAnimationActive={false} name={i === 0 ? t("labs.causalAdvanced.text026", { defaultValue: "安慰剂" }) : ""} legendType="none" />
                 ))}
-                <Line data={data.series} type="monotone" dataKey="gap" stroke={CHART_GOLD} strokeWidth={2.5} dot={false} name="处理单元间隙" />
+                <Line data={data.series} type="monotone" dataKey="gap" stroke={CHART_GOLD} strokeWidth={2.5} dot={false} name={t("labs.causalAdvanced.text027", { defaultValue: "处理单元间隙" })} />
                 <Legend wrapperStyle={{ fontSize: 11 }} />
               </LineChart>
             </ResponsiveContainer>
           </div>
 
           <div>
-            <p className="text-[11px] font-mono uppercase tracking-[0.2em] text-gold/80 mb-2">合成对照权重 W*</p>
+            <p className="text-[11px] font-mono uppercase tracking-[0.2em] text-gold/80 mb-2">{t("labs.causalAdvanced.text028", { defaultValue: "合成对照权重 W*" })}</p>
             <ResponsiveContainer width="100%" height={140}>
               <BarChart data={data.weights.map((w, j) => ({ donor: `D${j + 1}`, w: +w.toFixed(3) }))}>
                 <CartesianGrid stroke={CHART_GRID} strokeDasharray="3 3" />
@@ -264,11 +266,11 @@ export const SyntheticControlTool = () => {
       </div>
 
       <details className="rounded-lg border border-border bg-card/40 p-4">
-        <summary className="cursor-pointer text-xs font-mono uppercase tracking-[0.2em] text-gold/80">方法学说明</summary>
+        <summary className="cursor-pointer text-xs font-mono uppercase tracking-[0.2em] text-gold/80">{t("labs.causalAdvanced.text029", { defaultValue: "方法学说明" })}</summary>
         <div className="mt-3 space-y-2 text-xs text-secondary-foreground leading-relaxed">
-          <p>合成对照法为单一处理单元构造一组捐献者（donor pool）的凸组合 W* = argmin ‖X₁ − X₀W‖² s.t. wⱼ ≥ 0, Σwⱼ = 1，使得合成单元在处理前的轨迹与处理单元尽量贴合。</p>
-          <p>识别假设：因子模型 Yᵢₜ = δₜ + λₜ′μᵢ + εᵢₜ。当 T₀ 足够长时，前期良好拟合意味着潜因子 μ̂ 被合成单元复现，从而 ATT̂ₜ = Y₁ₜ − Ŷ₀ₜ。</p>
-          <p>推断采用 <strong>排列检验（permutation test）</strong>：依次将每个捐献者当作"处理单元"重新拟合，计算 post/pre RMSPE 比值。真实处理单元在所有比值中的排名即给出 p-value。</p>
+          <p>{t("labs.causalAdvanced.text030", { defaultValue: "合成对照法为单一处理单元构造一组捐献者（donor pool）的凸组合 W* = argmin ‖X₁ − X₀W‖² s.t. wⱼ ≥ 0, Σwⱼ = 1，使得合成单元在处理前的轨迹与处理单元尽量贴合。" })}</p>
+          <p>{t("labs.causalAdvanced.text031", { defaultValue: "识别假设：因子模型 Yᵢₜ = δₜ + λₜ′μᵢ + εᵢₜ。当 T₀ 足够长时，前期良好拟合意味着潜因子 μ̂ 被合成单元复现，从而 ATT̂ₜ = Y₁ₜ − Ŷ₀ₜ。" })}</p>
+          <p>{t("labs.causalAdvanced.text032", { defaultValue: "推断采用" })} <strong>{t("labs.causalAdvanced.text033", { defaultValue: "排列检验（permutation test）" })}</strong>{t("labs.causalAdvanced.text034", { defaultValue: "：依次将每个捐献者当作\"处理单元\"重新拟合，计算 post/pre RMSPE 比值。真实处理单元在所有比值中的排名即给出 p-value。" })}</p>
           <p className="text-[11px] text-muted-foreground">Reference: Abadie, Diamond & Hainmueller (2010) <em>Synthetic Control Methods for Comparative Case Studies</em>, JASA 105(490).</p>
         </div>
       </details>
@@ -281,6 +283,7 @@ export const SyntheticControlTool = () => {
    ════════════════════════════════════════════════════════ */
 
 export const StaggeredDIDTool = () => {
+  const { t } = useTranslation();
   const [N, setN] = useState(40);              // units per group
   const [T, setT] = useState(20);
   const [tauEarly, setTauEarly] = useState(2);    // ATT for early-treated
@@ -380,10 +383,10 @@ export const StaggeredDIDTool = () => {
   }, [N, T, tauEarly, tauLate, dynamic, noise, seed]);
 
   const presets: Preset[] = [
-    { name: "异质性效应", description: "早=2, 晚=4, 显示 TWFE 偏误", apply: () => { setTauEarly(2); setTauLate(4); setDynamic(0.3); } },
-    { name: "同质瞬时", description: "两组相同, TWFE≈CS", apply: () => { setTauEarly(3); setTauLate(3); setDynamic(0); } },
-    { name: "强动态效应", description: "ramp=0.6, 事件研究最有用", apply: () => { setDynamic(0.6); setTauEarly(1); setTauLate(2); } },
-    { name: "反向异质性", description: "晚<早, TWFE 严重低估", apply: () => { setTauEarly(4); setTauLate(1); setDynamic(0.1); } },
+    { name: t("labs.causalAdvanced.text035", { defaultValue: "异质性效应" }), description: t("labs.causalAdvanced.text036", { defaultValue: "早=2, 晚=4, 显示 TWFE 偏误" }), apply: () => { setTauEarly(2); setTauLate(4); setDynamic(0.3); } },
+    { name: t("labs.causalAdvanced.text037", { defaultValue: "同质瞬时" }), description: t("labs.causalAdvanced.text038", { defaultValue: "两组相同, TWFE≈CS" }), apply: () => { setTauEarly(3); setTauLate(3); setDynamic(0); } },
+    { name: t("labs.causalAdvanced.text039", { defaultValue: "强动态效应" }), description: t("labs.causalAdvanced.text040", { defaultValue: "ramp=0.6, 事件研究最有用" }), apply: () => { setDynamic(0.6); setTauEarly(1); setTauLate(2); } },
+    { name: t("labs.causalAdvanced.text041", { defaultValue: "反向异质性" }), description: t("labs.causalAdvanced.text042", { defaultValue: "晚<早, TWFE 严重低估" }), apply: () => { setTauEarly(4); setTauLate(1); setDynamic(0.1); } },
   ];
 
   // Heatmap rendering: rebuild matrix
@@ -407,29 +410,29 @@ export const StaggeredDIDTool = () => {
       <PresetButtons presets={presets} />
       <div className="grid lg:grid-cols-3 gap-6">
         <div className="space-y-4">
-          <Slider label="每组单元数 N" value={N} min={20} max={120} step={5} onChange={setN} />
-          <Slider label="时期数 T" value={T} min={15} max={40} step={1} onChange={setT} />
-          <Slider label="早期组 ATT (G=6)" value={tauEarly} min={-2} max={6} step={0.1} onChange={setTauEarly} />
-          <Slider label="晚期组 ATT (G=14)" value={tauLate} min={-2} max={6} step={0.1} onChange={setTauLate} />
-          <Slider label="动态斜率 (每期增量)" value={dynamic} min={-0.2} max={1} step={0.05} onChange={setDynamic} />
-          <Slider label="噪声 σ" value={noise} min={0.1} max={1.5} step={0.05} onChange={setNoise} />
-          <Slider label="随机种子" value={seed} min={1} max={200} step={1} onChange={setSeed} />
+          <Slider label={t("labs.causalAdvanced.text043", { defaultValue: "每组单元数 N" })} value={N} min={20} max={120} step={5} onChange={setN} />
+          <Slider label={t("labs.causalAdvanced.text044", { defaultValue: "时期数 T" })} value={T} min={15} max={40} step={1} onChange={setT} />
+          <Slider label={t("labs.causalAdvanced.text045", { defaultValue: "早期组 ATT (G=6)" })} value={tauEarly} min={-2} max={6} step={0.1} onChange={setTauEarly} />
+          <Slider label={t("labs.causalAdvanced.text046", { defaultValue: "晚期组 ATT (G=14)" })} value={tauLate} min={-2} max={6} step={0.1} onChange={setTauLate} />
+          <Slider label={t("labs.causalAdvanced.text047", { defaultValue: "动态斜率 (每期增量)" })} value={dynamic} min={-0.2} max={1} step={0.05} onChange={setDynamic} />
+          <Slider label={t("labs.causalAdvanced.text048", { defaultValue: "噪声 σ" })} value={noise} min={0.1} max={1.5} step={0.05} onChange={setNoise} />
+          <Slider label={t("labs.causalAdvanced.text049", { defaultValue: "随机种子" })} value={seed} min={1} max={200} step={1} onChange={setSeed} />
 
           <div className="space-y-2 mt-4">
-            <Stat label="CS 整体 ATT̄" value={data.attOverall.toFixed(3)} color={CHART_GOLD} sub="post 单元加权平均" />
-            <Stat label="TWFE 估计" value={data.twfe.toFixed(3)} color={CHART_RED} sub="存在异质性 → 偏误" />
-            <Stat label="真实平均 ATT" value={data.trueAvg.toFixed(3)} color={CHART_TEAL} sub="基准" />
-            <Stat label="TWFE 偏差" value={(data.twfe - data.trueAvg).toFixed(3)} color={Math.abs(data.twfe - data.trueAvg) > 0.3 ? CHART_RED : CHART_TEAL} />
+            <Stat label={t("labs.causalAdvanced.text050", { defaultValue: "CS 整体 ATT̄" })} value={data.attOverall.toFixed(3)} color={CHART_GOLD} sub={t("labs.causalAdvanced.text051", { defaultValue: "post 单元加权平均" })} />
+            <Stat label={t("labs.causalAdvanced.text052", { defaultValue: "TWFE 估计" })} value={data.twfe.toFixed(3)} color={CHART_RED} sub={t("labs.causalAdvanced.text053", { defaultValue: "存在异质性 → 偏误" })} />
+            <Stat label={t("labs.causalAdvanced.text054", { defaultValue: "真实平均 ATT" })} value={data.trueAvg.toFixed(3)} color={CHART_TEAL} sub={t("labs.causalAdvanced.text055", { defaultValue: "基准" })} />
+            <Stat label={t("labs.causalAdvanced.text056", { defaultValue: "TWFE 偏差" })} value={(data.twfe - data.trueAvg).toFixed(3)} color={Math.abs(data.twfe - data.trueAvg) > 0.3 ? CHART_RED : CHART_TEAL} />
           </div>
         </div>
 
         <div className="lg:col-span-2 space-y-4">
           <div>
-            <p className="text-[11px] font-mono uppercase tracking-[0.2em] text-gold/80 mb-2">事件研究：聚合 ATT(e)</p>
+            <p className="text-[11px] font-mono uppercase tracking-[0.2em] text-gold/80 mb-2">{t("labs.causalAdvanced.text057", { defaultValue: "事件研究：聚合 ATT(e)" })}</p>
             <ResponsiveContainer width="100%" height={240}>
               <ComposedChart data={data.eventStudy} margin={{ top: 8, right: 12, left: -8, bottom: 0 }}>
                 <CartesianGrid stroke={CHART_GRID} strokeDasharray="3 3" />
-                <XAxis dataKey="e" stroke={CHART_TEXT} tick={{ fontSize: 10 }} label={{ value: "事件时间 e = t − g", position: "insideBottom", offset: -2, fontSize: 10, fill: CHART_TEXT }} />
+                <XAxis dataKey="e" stroke={CHART_TEXT} tick={{ fontSize: 10 }} label={{ value: t("labs.causalAdvanced.text058", { defaultValue: "事件时间 e = t − g" }), position: "insideBottom", offset: -2, fontSize: 10, fill: CHART_TEXT }} />
                 <YAxis stroke={CHART_TEXT} tick={{ fontSize: 10 }} />
                 <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", fontSize: 11 }} />
                 <ReferenceLine y={0} stroke={CHART_GRID} />
@@ -442,7 +445,7 @@ export const StaggeredDIDTool = () => {
           </div>
 
           <div>
-            <p className="text-[11px] font-mono uppercase tracking-[0.2em] text-gold/80 mb-2">ATT(g,t) 矩阵 — 群组 × 日历时间</p>
+            <p className="text-[11px] font-mono uppercase tracking-[0.2em] text-gold/80 mb-2">{t("labs.causalAdvanced.text059", { defaultValue: "ATT(g,t) 矩阵 — 群组 × 日历时间" })}</p>
             <div className="overflow-x-auto">
               <table className="text-[10px] font-mono border-collapse">
                 <thead>
@@ -476,11 +479,11 @@ export const StaggeredDIDTool = () => {
       </div>
 
       <details className="rounded-lg border border-border bg-card/40 p-4">
-        <summary className="cursor-pointer text-xs font-mono uppercase tracking-[0.2em] text-gold/80">方法学说明</summary>
+        <summary className="cursor-pointer text-xs font-mono uppercase tracking-[0.2em] text-gold/80">{t("labs.causalAdvanced.text060", { defaultValue: "方法学说明" })}</summary>
         <div className="mt-3 space-y-2 text-xs text-secondary-foreground leading-relaxed">
-          <p><strong>问题：</strong>当处理在不同时点交错发生且效应存在异质性（动态或群组间），传统 TWFE 估计 β̂ 会成为各 ATT(g,t) 的<em>含负权重</em>加权平均（Goodman-Bacon 2021），可能严重偏离真实平均效应，甚至符号反转。</p>
-          <p><strong>CS 估计量：</strong> ATT(g, t) = E[Y_t − Y_{`{g−1}`} | G=g] − E[Y_t − Y_{`{g−1}`} | 永不处理]。每个群组-时间格子单独计算 2×2 DID，避免污染。</p>
-          <p><strong>聚合：</strong>事件时间 ATT(e) = avg_g ATT(g, g+e) 给出标准的事件研究曲线；整体 ATT 为所有 post 单元的简单平均。</p>
+          <p><strong>{t("labs.causalAdvanced.text061", { defaultValue: "问题：" })}</strong>{t("labs.causalAdvanced.text062", { defaultValue: "当处理在不同时点交错发生且效应存在异质性（动态或群组间），传统 TWFE 估计 β̂ 会成为各 ATT(g,t) 的" })}<em>{t("labs.causalAdvanced.text063", { defaultValue: "含负权重" })}</em>{t("labs.causalAdvanced.text064", { defaultValue: "加权平均（Goodman-Bacon 2021），可能严重偏离真实平均效应，甚至符号反转。" })}</p>
+          <p><strong>{t("labs.causalAdvanced.text065", { defaultValue: "CS 估计量：" })}</strong> ATT(g, t) = E[Y_t − Y_{`{g−1}`} | G=g] − E[Y_t − Y_{`{g−1}`} {t("labs.causalAdvanced.text066", { defaultValue: "| 永不处理]。每个群组-时间格子单独计算 2×2 DID，避免污染。" })}</p>
+          <p><strong>{t("labs.causalAdvanced.text067", { defaultValue: "聚合：" })}</strong>{t("labs.causalAdvanced.text068", { defaultValue: "事件时间 ATT(e) = avg_g ATT(g, g+e) 给出标准的事件研究曲线；整体 ATT 为所有 post 单元的简单平均。" })}</p>
           <p className="text-[11px] text-muted-foreground">Reference: Callaway & Sant'Anna (2021) <em>Difference-in-Differences with Multiple Time Periods</em>, J. Econometrics 225(2). de Chaisemartin & D'Haultfœuille (2020); Goodman-Bacon (2021).</p>
         </div>
       </details>
@@ -580,6 +583,7 @@ function emFit(y: number[], iters = 60) {
 }
 
 export const RegimeSwitchTool = () => {
+  const { t } = useTranslation();
   const [T, setT] = useState(300);
   const [mu0, setMu0] = useState(0.6);   // calm regime mean (e.g. positive returns)
   const [mu1, setMu1] = useState(-0.8);  // crisis regime mean
@@ -642,10 +646,10 @@ export const RegimeSwitchTool = () => {
   }, [T, mu0, mu1, s0, s1, p11, p22, seed]);
 
   const presets: Preset[] = [
-    { name: "牛熊切换", description: "正/负均值 + 高低波动", apply: () => { setMu0(0.6); setMu1(-0.8); setS0(0.8); setS1(2.5); setP11(0.97); setP22(0.92); } },
-    { name: "纯波动切换", description: "均值相同, 仅 σ 不同", apply: () => { setMu0(0); setMu1(0); setS0(0.6); setS1(2.2); setP11(0.95); setP22(0.9); } },
-    { name: "频繁切换", description: "持久性低, 状态很短", apply: () => { setP11(0.85); setP22(0.8); } },
-    { name: "极端持久", description: "几乎不切换", apply: () => { setP11(0.99); setP22(0.98); } },
+    { name: t("labs.causalAdvanced.text069", { defaultValue: "牛熊切换" }), description: t("labs.causalAdvanced.text070", { defaultValue: "正/负均值 + 高低波动" }), apply: () => { setMu0(0.6); setMu1(-0.8); setS0(0.8); setS1(2.5); setP11(0.97); setP22(0.92); } },
+    { name: t("labs.causalAdvanced.text071", { defaultValue: "纯波动切换" }), description: t("labs.causalAdvanced.text072", { defaultValue: "均值相同, 仅 σ 不同" }), apply: () => { setMu0(0); setMu1(0); setS0(0.6); setS1(2.2); setP11(0.95); setP22(0.9); } },
+    { name: t("labs.causalAdvanced.text073", { defaultValue: "频繁切换" }), description: t("labs.causalAdvanced.text074", { defaultValue: "持久性低, 状态很短" }), apply: () => { setP11(0.85); setP22(0.8); } },
+    { name: t("labs.causalAdvanced.text075", { defaultValue: "极端持久" }), description: t("labs.causalAdvanced.text076", { defaultValue: "几乎不切换" }), apply: () => { setP11(0.99); setP22(0.98); } },
   ];
 
   return (
@@ -653,28 +657,28 @@ export const RegimeSwitchTool = () => {
       <PresetButtons presets={presets} />
       <div className="grid lg:grid-cols-3 gap-6">
         <div className="space-y-4">
-          <Slider label="样本长度 T" value={T} min={100} max={800} step={20} onChange={setT} />
-          <Slider label="状态 0 均值 μ₀" value={mu0} min={-2} max={2} step={0.05} onChange={setMu0} />
-          <Slider label="状态 1 均值 μ₁" value={mu1} min={-3} max={2} step={0.05} onChange={setMu1} />
-          <Slider label="状态 0 波动 σ₀" value={s0} min={0.2} max={3} step={0.1} onChange={setS0} />
-          <Slider label="状态 1 波动 σ₁" value={s1} min={0.2} max={5} step={0.1} onChange={setS1} />
-          <Slider label="P(留在 0 | 0)" value={p11} min={0.5} max={0.995} step={0.005} onChange={setP11} />
-          <Slider label="P(留在 1 | 1)" value={p22} min={0.5} max={0.995} step={0.005} onChange={setP22} />
-          <Slider label="随机种子" value={seed} min={1} max={200} step={1} onChange={setSeed} />
+          <Slider label={t("labs.causalAdvanced.text077", { defaultValue: "样本长度 T" })} value={T} min={100} max={800} step={20} onChange={setT} />
+          <Slider label={t("labs.causalAdvanced.text078", { defaultValue: "状态 0 均值 μ₀" })} value={mu0} min={-2} max={2} step={0.05} onChange={setMu0} />
+          <Slider label={t("labs.causalAdvanced.text079", { defaultValue: "状态 1 均值 μ₁" })} value={mu1} min={-3} max={2} step={0.05} onChange={setMu1} />
+          <Slider label={t("labs.causalAdvanced.text080", { defaultValue: "状态 0 波动 σ₀" })} value={s0} min={0.2} max={3} step={0.1} onChange={setS0} />
+          <Slider label={t("labs.causalAdvanced.text081", { defaultValue: "状态 1 波动 σ₁" })} value={s1} min={0.2} max={5} step={0.1} onChange={setS1} />
+          <Slider label={t("labs.causalAdvanced.text082", { defaultValue: "P(留在 0 | 0)" })} value={p11} min={0.5} max={0.995} step={0.005} onChange={setP11} />
+          <Slider label={t("labs.causalAdvanced.text083", { defaultValue: "P(留在 1 | 1)" })} value={p22} min={0.5} max={0.995} step={0.005} onChange={setP22} />
+          <Slider label={t("labs.causalAdvanced.text084", { defaultValue: "随机种子" })} value={seed} min={1} max={200} step={1} onChange={setSeed} />
 
           <div className="space-y-2 mt-4">
-            <Stat label="估计 μ̂₀ / μ̂₁" value={`${data.fit.mu[0].toFixed(2)} / ${data.fit.mu[1].toFixed(2)}`} color={CHART_GOLD} sub="按 σ 升序排列" />
-            <Stat label="估计 σ̂₀ / σ̂₁" value={`${data.fit.sigma[0].toFixed(2)} / ${data.fit.sigma[1].toFixed(2)}`} color={CHART_TEAL} />
+            <Stat label={t("labs.causalAdvanced.text085", { defaultValue: "估计 μ̂₀ / μ̂₁" })} value={`${data.fit.mu[0].toFixed(2)} / ${data.fit.mu[1].toFixed(2)}`} color={CHART_GOLD} sub={t("labs.causalAdvanced.text086", { defaultValue: "按 σ 升序排列" })} />
+            <Stat label={t("labs.causalAdvanced.text087", { defaultValue: "估计 σ̂₀ / σ̂₁" })} value={`${data.fit.sigma[0].toFixed(2)} / ${data.fit.sigma[1].toFixed(2)}`} color={CHART_TEAL} />
             <Stat label="P̂₁₁ / P̂₂₂" value={`${data.fit.P[0][0].toFixed(3)} / ${data.fit.P[1][1].toFixed(3)}`} color={CHART_BLUE} />
-            <Stat label="期望持续期 E[d₀] / E[d₁]" value={`${data.dur0.toFixed(1)} / ${data.dur1.toFixed(1)}`} color={CHART_GOLD} sub="1/(1−p_ii)" />
-            <Stat label="对数似然" value={data.fit.ll.toFixed(2)} color={CHART_TEXT} />
-            <Stat label="Viterbi 分类精度" value={(data.acc * 100).toFixed(1) + "%"} color={data.acc > 0.85 ? CHART_GOLD : CHART_RED} />
+            <Stat label={t("labs.causalAdvanced.text088", { defaultValue: "期望持续期 E[d₀] / E[d₁]" })} value={`${data.dur0.toFixed(1)} / ${data.dur1.toFixed(1)}`} color={CHART_GOLD} sub="1/(1−p_ii)" />
+            <Stat label={t("labs.causalAdvanced.text089", { defaultValue: "对数似然" })} value={data.fit.ll.toFixed(2)} color={CHART_TEXT} />
+            <Stat label={t("labs.causalAdvanced.text090", { defaultValue: "Viterbi 分类精度" })} value={(data.acc * 100).toFixed(1) + "%"} color={data.acc > 0.85 ? CHART_GOLD : CHART_RED} />
           </div>
         </div>
 
         <div className="lg:col-span-2 space-y-4">
           <div>
-            <p className="text-[11px] font-mono uppercase tracking-[0.2em] text-gold/80 mb-2">观测序列 yₜ + 真实危机区域（阴影）</p>
+            <p className="text-[11px] font-mono uppercase tracking-[0.2em] text-gold/80 mb-2">{t("labs.causalAdvanced.text091", { defaultValue: "观测序列 yₜ + 真实危机区域（阴影）" })}</p>
             <ResponsiveContainer width="100%" height={220}>
               <ComposedChart data={data.series} margin={{ top: 8, right: 12, left: -8, bottom: 0 }}>
                 <CartesianGrid stroke={CHART_GRID} strokeDasharray="3 3" />
@@ -682,14 +686,14 @@ export const RegimeSwitchTool = () => {
                 <YAxis stroke={CHART_TEXT} tick={{ fontSize: 10 }} />
                 <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", fontSize: 11 }} />
                 <ReferenceLine y={0} stroke={CHART_GRID} />
-                <Area type="step" dataKey={(d: any) => d.trueS ? Math.max(...data.series.map(s => s.y)) : null} fill={CHART_RED} fillOpacity={0.08} stroke="none" name="真实危机期" isAnimationActive={false} />
+                <Area type="step" dataKey={(d: any) => d.trueS ? Math.max(...data.series.map(s => s.y)) : null} fill={CHART_RED} fillOpacity={0.08} stroke="none" name={t("labs.causalAdvanced.text092", { defaultValue: "真实危机期" })} isAnimationActive={false} />
                 <Line type="monotone" dataKey="y" stroke={CHART_GOLD} strokeWidth={1.4} dot={false} name="yₜ" />
               </ComposedChart>
             </ResponsiveContainer>
           </div>
 
           <div>
-            <p className="text-[11px] font-mono uppercase tracking-[0.2em] text-gold/80 mb-2">平滑概率 P(Sₜ = 危机 | y₁:T)</p>
+            <p className="text-[11px] font-mono uppercase tracking-[0.2em] text-gold/80 mb-2">{t("labs.causalAdvanced.text093", { defaultValue: "平滑概率 P(Sₜ = 危机 | y₁:T)" })}</p>
             <ResponsiveContainer width="100%" height={200}>
               <ComposedChart data={data.series} margin={{ top: 8, right: 12, left: -8, bottom: 0 }}>
                 <CartesianGrid stroke={CHART_GRID} strokeDasharray="3 3" />
@@ -697,8 +701,8 @@ export const RegimeSwitchTool = () => {
                 <YAxis stroke={CHART_TEXT} tick={{ fontSize: 10 }} domain={[0, 1]} />
                 <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", fontSize: 11 }} />
                 <ReferenceLine y={0.5} stroke={CHART_GRID} strokeDasharray="3 3" />
-                <Area type="monotone" dataKey="trueS" stroke="none" fill={CHART_RED} fillOpacity={0.12} name="真实状态" />
-                <Line type="monotone" dataKey="pCrisis" stroke={CHART_RED} strokeWidth={2} dot={false} name="P(危机)" />
+                <Area type="monotone" dataKey="trueS" stroke="none" fill={CHART_RED} fillOpacity={0.12} name={t("labs.causalAdvanced.text094", { defaultValue: "真实状态" })} />
+                <Line type="monotone" dataKey="pCrisis" stroke={CHART_RED} strokeWidth={2} dot={false} name={t("labs.causalAdvanced.text095", { defaultValue: "P(危机)" })} />
                 <Legend wrapperStyle={{ fontSize: 11 }} />
               </ComposedChart>
             </ResponsiveContainer>
@@ -707,13 +711,13 @@ export const RegimeSwitchTool = () => {
       </div>
 
       <details className="rounded-lg border border-border bg-card/40 p-4">
-        <summary className="cursor-pointer text-xs font-mono uppercase tracking-[0.2em] text-gold/80">方法学说明</summary>
+        <summary className="cursor-pointer text-xs font-mono uppercase tracking-[0.2em] text-gold/80">{t("labs.causalAdvanced.text096", { defaultValue: "方法学说明" })}</summary>
         <div className="mt-3 space-y-2 text-xs text-secondary-foreground leading-relaxed">
-          <p><strong>模型：</strong> yₜ | Sₜ = i ~ N(μᵢ, σᵢ²)，Sₜ ∈ {`{0,1}`} 服从一阶 Markov 链，转移矩阵 P。</p>
-          <p><strong>Hamilton 滤波：</strong>前向递推 P(Sₜ | y₁:ₜ) — 在每步根据观测更新状态后验，用于实时识别。</p>
-          <p><strong>Kim 平滑：</strong>后向递推 P(Sₜ | y₁:T) — 利用全样本信息，事后识别更准确（如 NBER 衰退期）。</p>
-          <p><strong>EM (Baum-Welch)：</strong>反复执行 E 步（计算 ξᵢⱼ = P(Sₜ=i, Sₜ₊₁=j | y)）和 M 步（更新 μ, σ, P）直至对数似然收敛。</p>
-          <p><strong>Viterbi：</strong>动态规划求最大后验状态序列 argmax P(S₁:T | y₁:T)，给出"最可能"的离散状态路径。</p>
+          <p><strong>{t("labs.causalAdvanced.text097", { defaultValue: "模型：" })}</strong> yₜ | Sₜ = i ~ N(μᵢ, σᵢ²)，Sₜ ∈ {`{0,1}`} {t("labs.causalAdvanced.text098", { defaultValue: "服从一阶 Markov 链，转移矩阵 P。" })}</p>
+          <p><strong>{t("labs.causalAdvanced.text099", { defaultValue: "Hamilton 滤波：" })}</strong>{t("labs.causalAdvanced.text100", { defaultValue: "前向递推 P(Sₜ | y₁:ₜ) — 在每步根据观测更新状态后验，用于实时识别。" })}</p>
+          <p><strong>{t("labs.causalAdvanced.text101", { defaultValue: "Kim 平滑：" })}</strong>{t("labs.causalAdvanced.text102", { defaultValue: "后向递推 P(Sₜ | y₁:T) — 利用全样本信息，事后识别更准确（如 NBER 衰退期）。" })}</p>
+          <p><strong>EM (Baum-Welch)：</strong>{t("labs.causalAdvanced.text103", { defaultValue: "反复执行 E 步（计算 ξᵢⱼ = P(Sₜ=i, Sₜ₊₁=j | y)）和 M 步（更新 μ, σ, P）直至对数似然收敛。" })}</p>
+          <p><strong>Viterbi：</strong>{t("labs.causalAdvanced.text104", { defaultValue: "动态规划求最大后验状态序列 argmax P(S₁:T | y₁:T)，给出\"最可能\"的离散状态路径。" })}</p>
           <p className="text-[11px] text-muted-foreground">Reference: Hamilton (1989) <em>A New Approach to the Economic Analysis of Nonstationary Time Series and the Business Cycle</em>, Econometrica 57(2). Kim (1994).</p>
         </div>
       </details>

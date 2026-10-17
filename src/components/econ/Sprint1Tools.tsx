@@ -608,22 +608,22 @@ export const KalmanTool = () => {
   const [lambda, setLambda] = useState(1600);
 
   const presets: Preset[] = mode === "beta" ? [
-    { name: "稳定 β", description: "β 几乎不变, Q 极小",
+    { name: t("labs.econSprint1.text001", { defaultValue: "稳定 β" }), description: t("labs.econSprint1.text002", { defaultValue: "β 几乎不变, Q 极小" }),
       apply: () => { setBeta0(1.2); setBetaDrift(0); setSigmaState(0.002); setSigmaObs(0.02); setN(250); } },
-    { name: "缓慢漂移", description: "β 从 1.0 漂移到 1.5",
+    { name: t("labs.econSprint1.text003", { defaultValue: "缓慢漂移" }), description: t("labs.econSprint1.text004", { defaultValue: "β 从 1.0 漂移到 1.5" }),
       apply: () => { setBeta0(1.0); setBetaDrift(0.002); setSigmaState(0.01); setN(250); } },
-    { name: "结构突变", description: "中段 β 跳变",
+    { name: t("labs.econSprint1.text005", { defaultValue: "结构突变" }), description: t("labs.econSprint1.text006", { defaultValue: "中段 β 跳变" }),
       apply: () => { setBeta0(0.8); setBetaDrift(0.015); setSigmaState(0.02); setN(250); } },
-    { name: "高观测噪声", description: "R 大, Kalman 平滑更强",
+    { name: t("labs.econSprint1.text007", { defaultValue: "高观测噪声" }), description: t("labs.econSprint1.text008", { defaultValue: "R 大, Kalman 平滑更强" }),
       apply: () => { setBeta0(1.0); setBetaDrift(0.005); setSigmaObs(0.06); setSigmaState(0.005); setN(250); } },
   ] : [
-    { name: "标准季度 (λ=1600)", description: "Hodrick-Prescott 经典值",
+    { name: t("labs.econSprint1.text009", { defaultValue: "标准季度 (λ=1600)" }), description: t("labs.econSprint1.text010", { defaultValue: "Hodrick-Prescott 经典值" }),
       apply: () => { setLambda(1600); setN(200); } },
-    { name: "年度数据 (λ=100)", description: "R&S 推荐",
+    { name: t("labs.econSprint1.text011", { defaultValue: "年度数据 (λ=100)" }), description: t("labs.econSprint1.text012", { defaultValue: "R&S 推荐" }),
       apply: () => { setLambda(100); setN(200); } },
-    { name: "月度数据 (λ=14400)", description: "Ravn-Uhlig 准则",
+    { name: t("labs.econSprint1.text013", { defaultValue: "月度数据 (λ=14400)" }), description: t("labs.econSprint1.text014", { defaultValue: "Ravn-Uhlig 准则" }),
       apply: () => { setLambda(14400); setN(300); } },
-    { name: "极平滑 (λ=10⁶)", description: "趋势近似线性",
+    { name: t("labs.econSprint1.text015", { defaultValue: "极平滑 (λ=10⁶)" }), description: t("labs.econSprint1.text016", { defaultValue: "趋势近似线性" }),
       apply: () => { setLambda(1000000); setN(200); } },
   ];
 
@@ -786,12 +786,12 @@ export const KalmanTool = () => {
           <div className="text-muted-foreground leading-relaxed flex-1 min-w-[300px]">
             {mode === "beta" ? (
               <>
-                状态空间：<InlineMath math={String.raw`\beta_t = \beta_{t-1} + \eta_t,\;\; y_t = x_t\beta_t + \varepsilon_t`} />
-                ；最优递推估计 <InlineMath math={String.raw`\hat\beta_{t|t} = \hat\beta_{t|t-1} + K_t(y_t - x_t\hat\beta_{t|t-1})`} />
+                {t("labs.econSprint1.text017", { defaultValue: "状态空间：" })}<InlineMath math={String.raw`\beta_t = \beta_{t-1} + \eta_t,\;\; y_t = x_t\beta_t + \varepsilon_t`} />
+                {t("labs.econSprint1.text018", { defaultValue: "；最优递推估计" })}<InlineMath math={String.raw`\hat\beta_{t|t} = \hat\beta_{t|t-1} + K_t(y_t - x_t\hat\beta_{t|t-1})`} />
               </>
             ) : (
               <>
-                趋势分解：<InlineMath math={String.raw`\min_\tau \sum (y_t-\tau_t)^2 + \lambda\sum\bigl((\tau_{t+1}-\tau_t)-(\tau_t-\tau_{t-1})\bigr)^2`} />
+                {t("labs.econSprint1.text019", { defaultValue: "趋势分解：" })}<InlineMath math={String.raw`\min_\tau \sum (y_t-\tau_t)^2 + \lambda\sum\bigl((\tau_{t+1}-\tau_t)-(\tau_t-\tau_{t-1})\bigr)^2`} />
               </>
             )}
           </div>
@@ -804,27 +804,27 @@ export const KalmanTool = () => {
             className={`px-4 py-2 rounded-md text-xs font-mono transition flex-1 md:flex-none ${
               mode === m ? "bg-primary text-primary-foreground" : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
             }`}>
-            {m === "beta" ? "动态 β (CAPM)" : "HP 滤波 (趋势/周期)"}
+            {m === "beta" ? t("labs.econSprint1.text020", { defaultValue: "动态 β (CAPM)" }) : t("labs.econSprint1.text021", { defaultValue: "HP 滤波 (趋势/周期)" })}
           </button>
         ))}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
         <div className="space-y-4">
-          <p className="text-[10px] font-mono text-muted-foreground uppercase tracking-wider">参数设置</p>
+          <p className="text-[10px] font-mono text-muted-foreground uppercase tracking-wider">{t("labs.econSprint1.text022", { defaultValue: "参数设置" })}</p>
           <PresetButtons presets={presets} />
-          <Slider label="样本量 n" value={n} min={50} max={400} step={10} onChange={setN} />
+          <Slider label={t("labs.econSprint1.text023", { defaultValue: "样本量 n" })} value={n} min={50} max={400} step={10} onChange={setN} />
           {mode === "beta" ? (
             <>
-              <Slider label="β₀ (初始值)" value={beta0} min={0} max={3} step={0.05} onChange={setBeta0} />
-              <Slider label="漂移速度" value={betaDrift} min={-0.02} max={0.02} step={0.001} onChange={setBetaDrift} />
-              <Slider label="σ_state (Q)" sub="状态噪声" value={sigmaState} min={0.001} max={0.05} step={0.001} onChange={setSigmaState} />
-              <Slider label="σ_obs (R)" sub="观测噪声" value={sigmaObs} min={0.005} max={0.1} step={0.005} onChange={setSigmaObs} />
+              <Slider label={t("labs.econSprint1.text024", { defaultValue: "β₀ (初始值)" })} value={beta0} min={0} max={3} step={0.05} onChange={setBeta0} />
+              <Slider label={t("labs.econSprint1.text025", { defaultValue: "漂移速度" })} value={betaDrift} min={-0.02} max={0.02} step={0.001} onChange={setBetaDrift} />
+              <Slider label="σ_state (Q)" sub={t("labs.econSprint1.text026", { defaultValue: "状态噪声" })} value={sigmaState} min={0.001} max={0.05} step={0.001} onChange={setSigmaState} />
+              <Slider label="σ_obs (R)" sub={t("labs.econSprint1.text027", { defaultValue: "观测噪声" })} value={sigmaObs} min={0.005} max={0.1} step={0.005} onChange={setSigmaObs} />
             </>
           ) : (
-            <Slider label="λ (平滑参数)" sub="越大越平滑" value={lambda} min={10} max={1000000} step={10} onChange={setLambda} />
+            <Slider label={t("labs.econSprint1.text028", { defaultValue: "λ (平滑参数)" })} sub={t("labs.econSprint1.text029", { defaultValue: "越大越平滑" })} value={lambda} min={10} max={1000000} step={10} onChange={setLambda} />
           )}
-          <Slider label="随机种子" value={seed} min={1} max={999} step={1} onChange={setSeed} />
+          <Slider label={t("labs.econSprint1.text030", { defaultValue: "随机种子" })} value={seed} min={1} max={999} step={1} onChange={setSeed} />
         </div>
 
         <div className="lg:col-span-2 space-y-4">
@@ -832,21 +832,20 @@ export const KalmanTool = () => {
             <>
               <div className="grid grid-cols-2 gap-3">
                 <div className="rounded-lg border border-border bg-card p-3">
-                  <div className="text-[10px] font-mono text-muted-foreground uppercase mb-1">RMSE OLS (静态)</div>
+                  <div className="text-[10px] font-mono text-muted-foreground uppercase mb-1">{t("labs.econSprint1.text031", { defaultValue: "RMSE OLS (静态)" })}</div>
                   <div className="text-xl font-mono text-destructive">{sim.rmseOLS.toFixed(4)}</div>
                 </div>
                 <div className="rounded-lg border border-border bg-card p-3">
                   <div className="text-[10px] font-mono text-muted-foreground uppercase mb-1">RMSE Kalman</div>
                   <div className="text-xl font-mono text-gold">{sim.rmseKF.toFixed(4)}</div>
                   <div className="text-[10px] text-muted-foreground mt-1">
-                    改进 {((1 - sim.rmseKF / sim.rmseOLS) * 100).toFixed(1)}%
+                    {t("labs.econSprint1.text032", { defaultValue: "改进" })}{((1 - sim.rmseKF / sim.rmseOLS) * 100).toFixed(1)}%
                   </div>
                 </div>
               </div>
               <div>
                 <p className="text-[10px] font-mono text-muted-foreground uppercase mb-2">
-                  动态 β 估计对比 — Kalman 滤波 vs OLS vs 滚动窗口(30)
-                </p>
+                  {t("labs.econSprint1.text033", { defaultValue: "动态 β 估计对比 — Kalman 滤波 vs OLS vs 滚动窗口(30)" })}</p>
                 <div className="h-[300px]">
                   <ResponsiveContainer width="100%" height="100%">
                     <ComposedChart data={sim.data}>
@@ -857,10 +856,10 @@ export const KalmanTool = () => {
                       <Legend wrapperStyle={{ fontSize: 10 }} />
                       <Area type="monotone" dataKey="kfUp" stroke="none" fill={CHART_GOLD} fillOpacity={0.1} legendType="none" />
                       <Area type="monotone" dataKey="kfDn" stroke="none" fill={CHART_GOLD} fillOpacity={0.1} legendType="none" />
-                      <Line type="monotone" dataKey="trueBeta" stroke={CHART_BLUE} strokeWidth={2} dot={false} name="真实 βₜ" />
+                      <Line type="monotone" dataKey="trueBeta" stroke={CHART_BLUE} strokeWidth={2} dot={false} name={t("labs.econSprint1.text034", { defaultValue: "真实 βₜ" })} />
                       <Line type="monotone" dataKey="kf" stroke={CHART_GOLD} strokeWidth={1.8} dot={false} name="Kalman β̂" />
-                      <Line type="monotone" dataKey="roll" stroke={CHART_TEAL} strokeWidth={1.2} strokeDasharray="4 3" dot={false} name="滚动 OLS" connectNulls />
-                      <Line type="monotone" dataKey="ols" stroke={CHART_RED} strokeWidth={1.2} strokeDasharray="2 4" dot={false} name="全样本 OLS" />
+                      <Line type="monotone" dataKey="roll" stroke={CHART_TEAL} strokeWidth={1.2} strokeDasharray="4 3" dot={false} name={t("labs.econSprint1.text035", { defaultValue: "滚动 OLS" })} connectNulls />
+                      <Line type="monotone" dataKey="ols" stroke={CHART_RED} strokeWidth={1.2} strokeDasharray="2 4" dot={false} name={t("labs.econSprint1.text036", { defaultValue: "全样本 OLS" })} />
                     </ComposedChart>
                   </ResponsiveContainer>
                 </div>
@@ -870,16 +869,16 @@ export const KalmanTool = () => {
             <>
               <div className="grid grid-cols-2 gap-3">
                 <div className="rounded-lg border border-border bg-card p-3">
-                  <div className="text-[10px] font-mono text-muted-foreground uppercase mb-1">趋势 RMSE</div>
+                  <div className="text-[10px] font-mono text-muted-foreground uppercase mb-1">{t("labs.econSprint1.text037", { defaultValue: "趋势 RMSE" })}</div>
                   <div className="text-xl font-mono text-gold">{sim.rmseTrend.toFixed(3)}</div>
                 </div>
                 <div className="rounded-lg border border-border bg-card p-3">
-                  <div className="text-[10px] font-mono text-muted-foreground uppercase mb-1">周期 σ</div>
+                  <div className="text-[10px] font-mono text-muted-foreground uppercase mb-1">{t("labs.econSprint1.text038", { defaultValue: "周期 σ" })}</div>
                   <div className="text-xl font-mono text-foreground">{sim.cycleStd.toFixed(3)}</div>
                 </div>
               </div>
               <div>
-                <p className="text-[10px] font-mono text-muted-foreground uppercase mb-2">原始序列 + HP 趋势</p>
+                <p className="text-[10px] font-mono text-muted-foreground uppercase mb-2">{t("labs.econSprint1.text039", { defaultValue: "原始序列 + HP 趋势" })}</p>
                 <div className="h-[200px]">
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart data={sim.data}>
@@ -889,14 +888,14 @@ export const KalmanTool = () => {
                       <Tooltip content={<Tip />} />
                       <Legend wrapperStyle={{ fontSize: 10 }} />
                       <Line type="monotone" dataKey="y" stroke={CHART_BLUE} strokeWidth={1} dot={false} name="yₜ" />
-                      <Line type="monotone" dataKey="trend" stroke={CHART_GOLD} strokeWidth={2} dot={false} name="HP 趋势 τₜ" />
-                      <Line type="monotone" dataKey="trueTrend" stroke={CHART_TEAL} strokeWidth={1} strokeDasharray="3 3" dot={false} name="真实趋势" />
+                      <Line type="monotone" dataKey="trend" stroke={CHART_GOLD} strokeWidth={2} dot={false} name={t("labs.econSprint1.text040", { defaultValue: "HP 趋势 τₜ" })} />
+                      <Line type="monotone" dataKey="trueTrend" stroke={CHART_TEAL} strokeWidth={1} strokeDasharray="3 3" dot={false} name={t("labs.econSprint1.text041", { defaultValue: "真实趋势" })} />
                     </LineChart>
                   </ResponsiveContainer>
                 </div>
               </div>
               <div>
-                <p className="text-[10px] font-mono text-muted-foreground uppercase mb-2">周期分量 cₜ = yₜ − τₜ</p>
+                <p className="text-[10px] font-mono text-muted-foreground uppercase mb-2">{t("labs.econSprint1.text042", { defaultValue: "周期分量 cₜ = yₜ − τₜ" })}</p>
                 <div className="h-[140px]">
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart data={sim.data}>
@@ -905,8 +904,8 @@ export const KalmanTool = () => {
                       <YAxis stroke={CHART_TEXT} tick={{ fontSize: 10 }} />
                       <Tooltip content={<Tip />} />
                       <ReferenceLine y={0} stroke={CHART_TEXT} strokeDasharray="2 4" />
-                      <Line type="monotone" dataKey="cycle" stroke={CHART_RED} strokeWidth={1.2} dot={false} name="HP 周期" />
-                      <Line type="monotone" dataKey="trueCycle" stroke={CHART_TEAL} strokeWidth={1} strokeDasharray="3 3" dot={false} name="真实周期" />
+                      <Line type="monotone" dataKey="cycle" stroke={CHART_RED} strokeWidth={1.2} dot={false} name={t("labs.econSprint1.text043", { defaultValue: "HP 周期" })} />
+                      <Line type="monotone" dataKey="trueCycle" stroke={CHART_TEAL} strokeWidth={1} strokeDasharray="3 3" dot={false} name={t("labs.econSprint1.text044", { defaultValue: "真实周期" })} />
                     </LineChart>
                   </ResponsiveContainer>
                 </div>

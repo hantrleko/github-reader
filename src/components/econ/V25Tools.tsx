@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useMemo, useState } from "react";
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -125,6 +126,7 @@ function olsFull(X: number[][], y: number[]) {
    1. Realized Volatility / HAR-RV (Corsi 2009)
    ════════════════════════════════════════════════════════════ */
 export const HARRVTool = () => {
+  const { t } = useTranslation();
   const [days, setDays] = useState(250);
   const [intraN, setIntraN] = useState(78);     // 5-min bars / day (~6.5h)
   const [meanVol, setMeanVol] = useState(0.20); // annualised
@@ -196,33 +198,33 @@ export const HARRVTool = () => {
   return (
     <div className="space-y-6">
       <PresetButtons presets={[
-        { name: "平稳市场", description: "低跳跃、中等持续", apply: () => { setMeanVol(0.18); setPersist(0.95); setJumpProb(0.02); setJumpSize(2.0); } },
-        { name: "高跳跃环境", description: "盈利公告/危机", apply: () => { setMeanVol(0.25); setPersist(0.92); setJumpProb(0.20); setJumpSize(4.0); } },
-        { name: "强持续高波动", description: "GFC/疫情情景", apply: () => { setMeanVol(0.35); setPersist(0.98); setJumpProb(0.05); setJumpSize(2.5); } },
-        { name: "近似 BS 假设", description: "无跳跃、低持续", apply: () => { setMeanVol(0.20); setPersist(0.50); setJumpProb(0.0); setJumpSize(0); } },
+        { name: t("labs.econV25.text001", { defaultValue: "平稳市场" }), description: t("labs.econV25.text002", { defaultValue: "低跳跃、中等持续" }), apply: () => { setMeanVol(0.18); setPersist(0.95); setJumpProb(0.02); setJumpSize(2.0); } },
+        { name: t("labs.econV25.text003", { defaultValue: "高跳跃环境" }), description: t("labs.econV25.text004", { defaultValue: "盈利公告/危机" }), apply: () => { setMeanVol(0.25); setPersist(0.92); setJumpProb(0.20); setJumpSize(4.0); } },
+        { name: t("labs.econV25.text005", { defaultValue: "强持续高波动" }), description: t("labs.econV25.text006", { defaultValue: "GFC/疫情情景" }), apply: () => { setMeanVol(0.35); setPersist(0.98); setJumpProb(0.05); setJumpSize(2.5); } },
+        { name: t("labs.econV25.text007", { defaultValue: "近似 BS 假设" }), description: t("labs.econV25.text008", { defaultValue: "无跳跃、低持续" }), apply: () => { setMeanVol(0.20); setPersist(0.50); setJumpProb(0.0); setJumpSize(0); } },
       ]} />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="space-y-3">
-          <Slider label="样本天数" value={days} min={60} max={500} step={10} onChange={setDays} />
-          <Slider label="日内 5-min 频次" sub="N" value={intraN} min={20} max={150} step={1} onChange={setIntraN} />
-          <Slider label="平均年化波动" value={meanVol} min={0.05} max={0.6} step={0.01} onChange={setMeanVol} fmt={(v)=>(v*100).toFixed(1)+"%"} />
-          <Slider label="波动持续性 ρ" value={persist} min={0} max={0.995} step={0.005} onChange={setPersist} />
-          <Slider label="跳跃强度 (日)" value={jumpProb} min={0} max={0.4} step={0.01} onChange={setJumpProb} />
-          <Slider label="跳跃幅度倍数" value={jumpSize} min={0} max={6} step={0.1} onChange={setJumpSize} />
-          <Slider label="随机种子" value={seed} min={1} max={999} step={1} onChange={setSeed} />
+          <Slider label={t("labs.econV25.text009", { defaultValue: "样本天数" })} value={days} min={60} max={500} step={10} onChange={setDays} />
+          <Slider label={t("labs.econV25.text010", { defaultValue: "日内 5-min 频次" })} sub="N" value={intraN} min={20} max={150} step={1} onChange={setIntraN} />
+          <Slider label={t("labs.econV25.text011", { defaultValue: "平均年化波动" })} value={meanVol} min={0.05} max={0.6} step={0.01} onChange={setMeanVol} fmt={(v)=>(v*100).toFixed(1)+"%"} />
+          <Slider label={t("labs.econV25.text012", { defaultValue: "波动持续性 ρ" })} value={persist} min={0} max={0.995} step={0.005} onChange={setPersist} />
+          <Slider label={t("labs.econV25.text013", { defaultValue: "跳跃强度 (日)" })} value={jumpProb} min={0} max={0.4} step={0.01} onChange={setJumpProb} />
+          <Slider label={t("labs.econV25.text014", { defaultValue: "跳跃幅度倍数" })} value={jumpSize} min={0} max={6} step={0.1} onChange={setJumpSize} />
+          <Slider label={t("labs.econV25.text015", { defaultValue: "随机种子" })} value={seed} min={1} max={999} step={1} onChange={setSeed} />
         </div>
         <div className="space-y-2">
           {data.fit ? <>
-            <Stat label="HAR β_d (日)"  value={data.fit.beta[1].toFixed(3)} sub={`SE ${data.fit.se[1].toFixed(3)}`} />
-            <Stat label="HAR β_w (周)"  value={data.fit.beta[2].toFixed(3)} sub={`SE ${data.fit.se[2].toFixed(3)}`} color={CHART_TEAL}/>
-            <Stat label="HAR β_m (月)"  value={data.fit.beta[3].toFixed(3)} sub={`SE ${data.fit.se[3].toFixed(3)}`} color={CHART_BLUE}/>
+            <Stat label={t("labs.econV25.text016", { defaultValue: "HAR β_d (日)" })}  value={data.fit.beta[1].toFixed(3)} sub={`SE ${data.fit.se[1].toFixed(3)}`} />
+            <Stat label={t("labs.econV25.text017", { defaultValue: "HAR β_w (周)" })}  value={data.fit.beta[2].toFixed(3)} sub={`SE ${data.fit.se[2].toFixed(3)}`} color={CHART_TEAL}/>
+            <Stat label={t("labs.econV25.text018", { defaultValue: "HAR β_m (月)" })}  value={data.fit.beta[3].toFixed(3)} sub={`SE ${data.fit.se[3].toFixed(3)}`} color={CHART_BLUE}/>
             <Stat label="R²"            value={(data.fit.r2*100).toFixed(2)+"%"} color={CHART_RED} />
-          </> : <div className="text-xs text-muted-foreground">样本不足以估计 HAR-RV</div>}
-          <Stat label="跳跃日数 (BV 检测)" value={`${data.jumpDays} / ${data.series.length}`} sub="JV = max(RV − BV, 0)" color={CHART_RED}/>
+          </> : <div className="text-xs text-muted-foreground">{t("labs.econV25.text019", { defaultValue: "样本不足以估计 HAR-RV" })}</div>}
+          <Stat label={t("labs.econV25.text020", { defaultValue: "跳跃日数 (BV 检测)" })} value={`${data.jumpDays} / ${data.series.length}`} sub="JV = max(RV − BV, 0)" color={CHART_RED}/>
           <div className="text-xs font-mono text-muted-foreground p-3 rounded-lg bg-secondary/40 border border-border leading-relaxed">
-            <p><span className="text-gold">解读：</span>RV_t = Σ r²_{`{t,j}`}; BV_t = (π/2)·Σ|r_j||r_{`{j-1}`}| 跳跃稳健。</p>
-            <p>HAR(1,5,22) 异质性回归近似长记忆,β_w/β_m 显著表明波动率多尺度持续。</p>
+            <p><span className="text-gold">{t("labs.econV25.text021", { defaultValue: "解读：" })}</span>RV_t = Σ r²_{`{t,j}`}; BV_t = (π/2)·Σ|r_j||r_{`{j-1}`}{t("labs.econV25.text022", { defaultValue: "| 跳跃稳健。" })}</p>
+            <p>{t("labs.econV25.text023", { defaultValue: "HAR(1,5,22) 异质性回归近似长记忆,β_w/β_m 显著表明波动率多尺度持续。" })}</p>
           </div>
         </div>
       </div>
@@ -235,9 +237,9 @@ export const HARRVTool = () => {
             <YAxis stroke={CHART_TEXT} tick={{ fontSize: 11 }} unit="%" />
             <Tooltip contentStyle={{ background: "hsl(220 15% 12%)", border:`1px solid ${CHART_GRID}`, fontSize:11 }} />
             <Legend wrapperStyle={{ fontSize: 11 }} />
-            <Line type="monotone" dataKey="rvAnn" name="√RV (年化)" stroke={CHART_GOLD} strokeWidth={1.5} dot={false} />
-            <Line type="monotone" dataKey="bvAnn" name="√BV (年化)" stroke={CHART_TEAL} strokeWidth={1.2} dot={false} />
-            <Bar dataKey="jvAnn" name="跳跃成分" fill={CHART_RED} fillOpacity={0.5} />
+            <Line type="monotone" dataKey="rvAnn" name={t("labs.econV25.text024", { defaultValue: "√RV (年化)" })} stroke={CHART_GOLD} strokeWidth={1.5} dot={false} />
+            <Line type="monotone" dataKey="bvAnn" name={t("labs.econV25.text025", { defaultValue: "√BV (年化)" })} stroke={CHART_TEAL} strokeWidth={1.2} dot={false} />
+            <Bar dataKey="jvAnn" name={t("labs.econV25.text026", { defaultValue: "跳跃成分" })} fill={CHART_RED} fillOpacity={0.5} />
           </ComposedChart>
         </ResponsiveContainer>
       </div>
@@ -251,8 +253,8 @@ export const HARRVTool = () => {
               <YAxis stroke={CHART_TEXT} tick={{ fontSize: 11 }} unit="%" />
               <Tooltip contentStyle={{ background: "hsl(220 15% 12%)", border:`1px solid ${CHART_GRID}`, fontSize:11 }} />
               <Legend wrapperStyle={{ fontSize: 11 }} />
-              <Line type="monotone" dataKey="actual" name="实际 √RV" stroke={CHART_GOLD} strokeWidth={1.4} dot={false} />
-              <Line type="monotone" dataKey="pred"   name="HAR 拟合" stroke={CHART_RED}  strokeWidth={1.4} dot={false} />
+              <Line type="monotone" dataKey="actual" name={t("labs.econV25.text027", { defaultValue: "实际 √RV" })} stroke={CHART_GOLD} strokeWidth={1.4} dot={false} />
+              <Line type="monotone" dataKey="pred"   name={t("labs.econV25.text028", { defaultValue: "HAR 拟合" })} stroke={CHART_RED}  strokeWidth={1.4} dot={false} />
             </LineChart>
           </ResponsiveContainer>
         </div>
@@ -266,6 +268,7 @@ export const HARRVTool = () => {
    λ(t) = μ + α Σ_{t_i<t} exp(−β (t − t_i))
    ════════════════════════════════════════════════════════════ */
 export const HawkesTool = () => {
+  const { t } = useTranslation();
   const [T, setT] = useState(200);
   const [mu, setMu] = useState(0.5);
   const [alpha, setAlpha] = useState(0.6);
@@ -355,30 +358,30 @@ export const HawkesTool = () => {
   return (
     <div className="space-y-6">
       <PresetButtons presets={[
-        { name: "弱聚集 (近 Poisson)", description: "α/β ≈ 0.2", apply: () => { setMu(0.6); setAlpha(0.2); setBeta(1.0); } },
-        { name: "高聚集 (订单流)", description: "α/β ≈ 0.7", apply: () => { setMu(0.3); setAlpha(0.8); setBeta(1.2); } },
-        { name: "临界次临界", description: "α/β → 1", apply: () => { setMu(0.2); setAlpha(0.95); setBeta(1.0); } },
-        { name: "纯 Poisson", description: "α=0", apply: () => { setMu(1.0); setAlpha(0.0); setBeta(1.0); } },
+        { name: t("labs.econV25.text029", { defaultValue: "弱聚集 (近 Poisson)" }), description: "α/β ≈ 0.2", apply: () => { setMu(0.6); setAlpha(0.2); setBeta(1.0); } },
+        { name: t("labs.econV25.text030", { defaultValue: "高聚集 (订单流)" }), description: "α/β ≈ 0.7", apply: () => { setMu(0.3); setAlpha(0.8); setBeta(1.2); } },
+        { name: t("labs.econV25.text031", { defaultValue: "临界次临界" }), description: "α/β → 1", apply: () => { setMu(0.2); setAlpha(0.95); setBeta(1.0); } },
+        { name: t("labs.econV25.text032", { defaultValue: "纯 Poisson" }), description: "α=0", apply: () => { setMu(1.0); setAlpha(0.0); setBeta(1.0); } },
       ]} />
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="space-y-3">
-          <Slider label="时间区间 T" value={T} min={50} max={500} step={10} onChange={setT} />
-          <Slider label="基线强度 μ" value={mu} min={0.05} max={2} step={0.05} onChange={setMu} />
-          <Slider label="自激跳幅 α" value={alpha} min={0} max={1.5} step={0.05} onChange={setAlpha} />
-          <Slider label="衰减率 β" sub="α/β<1 平稳" value={beta} min={0.2} max={3} step={0.05} onChange={setBeta} />
-          <Slider label="随机种子" value={seed} min={1} max={999} step={1} onChange={setSeed} />
+          <Slider label={t("labs.econV25.text033", { defaultValue: "时间区间 T" })} value={T} min={50} max={500} step={10} onChange={setT} />
+          <Slider label={t("labs.econV25.text034", { defaultValue: "基线强度 μ" })} value={mu} min={0.05} max={2} step={0.05} onChange={setMu} />
+          <Slider label={t("labs.econV25.text035", { defaultValue: "自激跳幅 α" })} value={alpha} min={0} max={1.5} step={0.05} onChange={setAlpha} />
+          <Slider label={t("labs.econV25.text036", { defaultValue: "衰减率 β" })} sub={t("labs.econV25.text037", { defaultValue: "α/β<1 平稳" })} value={beta} min={0.2} max={3} step={0.05} onChange={setBeta} />
+          <Slider label={t("labs.econV25.text038", { defaultValue: "随机种子" })} value={seed} min={1} max={999} step={1} onChange={setSeed} />
         </div>
         <div className="space-y-2">
-          <Stat label="事件数 N(T)"      value={String(data.events.length)} />
-          <Stat label="分支比 n* = α/β"  value={data.branching.toFixed(3)} color={data.branching < 1 ? CHART_TEAL : CHART_RED}
-                sub={data.branching < 1 ? "次临界 → 平稳" : "≥1 → 爆发"} />
-          <Stat label="理论平均强度 E[λ]" value={Number.isFinite(data.meanLam) ? data.meanLam.toFixed(3) : "∞"} color={CHART_BLUE} />
-          <Stat label="MLE μ̂"           value={data.mle.m.toFixed(3)} sub={`真值 ${mu.toFixed(2)}`} />
-          <Stat label="MLE α̂"           value={data.mle.a.toFixed(3)} sub={`真值 ${alpha.toFixed(2)}`} color={CHART_TEAL}/>
-          <Stat label="MLE β̂"           value={data.mle.b.toFixed(3)} sub={`真值 ${beta.toFixed(2)}`} color={CHART_BLUE}/>
+          <Stat label={t("labs.econV25.text039", { defaultValue: "事件数 N(T)" })}      value={String(data.events.length)} />
+          <Stat label={t("labs.econV25.text040", { defaultValue: "分支比 n* = α/β" })}  value={data.branching.toFixed(3)} color={data.branching < 1 ? CHART_TEAL : CHART_RED}
+                sub={data.branching < 1 ? t("labs.econV25.text041", { defaultValue: "次临界 → 平稳" }) : t("labs.econV25.text042", { defaultValue: "≥1 → 爆发" })} />
+          <Stat label={t("labs.econV25.text043", { defaultValue: "理论平均强度 E[λ]" })} value={Number.isFinite(data.meanLam) ? data.meanLam.toFixed(3) : "∞"} color={CHART_BLUE} />
+          <Stat label="MLE μ̂"           value={data.mle.m.toFixed(3)} sub={t("labs.econV25.text044", { defaultValue: "真值 {{v1}}", v1: mu.toFixed(2) })} />
+          <Stat label="MLE α̂"           value={data.mle.a.toFixed(3)} sub={t("labs.econV25.text045", { defaultValue: "真值 {{v1}}", v1: alpha.toFixed(2) })} color={CHART_TEAL}/>
+          <Stat label="MLE β̂"           value={data.mle.b.toFixed(3)} sub={t("labs.econV25.text046", { defaultValue: "真值 {{v1}}", v1: beta.toFixed(2) })} color={CHART_BLUE}/>
           <div className="text-xs font-mono text-muted-foreground p-3 rounded-lg bg-secondary/40 border border-border leading-relaxed">
-            <p><span className="text-gold">解读：</span>每个事件后强度跃升 α,以速率 β 指数衰减;n*=α/β 是后代期望数。</p>
-            <p>用途:高频订单到达聚集、违约传染、地震余震 (Hawkes 1971; Bowsher 2007)。</p>
+            <p><span className="text-gold">{t("labs.econV25.text047", { defaultValue: "解读：" })}</span>{t("labs.econV25.text048", { defaultValue: "每个事件后强度跃升 α,以速率 β 指数衰减;n*=α/β 是后代期望数。" })}</p>
+            <p>{t("labs.econV25.text049", { defaultValue: "用途:高频订单到达聚集、违约传染、地震余震 (Hawkes 1971; Bowsher 2007)。" })}</p>
           </div>
         </div>
       </div>
@@ -393,7 +396,7 @@ export const HawkesTool = () => {
             <Legend wrapperStyle={{ fontSize: 11 }} />
             <Area type="monotone" dataKey="lam" name="λ(t)" stroke={CHART_GOLD} fill={CHART_GOLD} fillOpacity={0.18} />
             <ReferenceLine y={mu} stroke={CHART_BLUE} strokeDasharray="4 4" label={{ value:"μ", fill: CHART_BLUE, fontSize: 10 }} />
-            <Scatter data={data.eventDots} dataKey="y" name="事件 t_i" fill={CHART_RED} />
+            <Scatter data={data.eventDots} dataKey="y" name={t("labs.econV25.text050", { defaultValue: "事件 t_i" })} fill={CHART_RED} />
           </ComposedChart>
         </ResponsiveContainer>
       </div>
@@ -406,6 +409,7 @@ export const HawkesTool = () => {
    Δp_t = λ · q_t + ε_t  (signed order flow → price change)
    ════════════════════════════════════════════════════════════ */
 export const KyleLambdaTool = () => {
+  const { t } = useTranslation();
   const [days, setDays] = useState(15);
   const [intra, setIntra] = useState(60);
   const [trueLam, setTrueLam] = useState(0.05);   // bps per share
@@ -477,33 +481,33 @@ export const KyleLambdaTool = () => {
   return (
     <div className="space-y-6">
       <PresetButtons presets={[
-        { name: "流动性强 (低 λ)", description: "深度大、冲击小", apply: () => { setTrueLam(0.02); setSigmaU(0.08); setEps(80); setMuInf(30); setAlpha(0.2); } },
-        { name: "信息驱动 (高 PIN)", description: "α↑ μ↑", apply: () => { setTrueLam(0.06); setSigmaU(0.10); setAlpha(0.45); setMuInf(80); setEps(40); } },
-        { name: "噪声主导", description: "ε >> μ", apply: () => { setAlpha(0.15); setMuInf(20); setEps(120); setTrueLam(0.03); } },
-        { name: "极端冲击 (高 λ)", description: "薄市", apply: () => { setTrueLam(0.12); setSigmaU(0.15); setEps(20); setMuInf(60); setAlpha(0.4); } },
+        { name: t("labs.econV25.text051", { defaultValue: "流动性强 (低 λ)" }), description: t("labs.econV25.text052", { defaultValue: "深度大、冲击小" }), apply: () => { setTrueLam(0.02); setSigmaU(0.08); setEps(80); setMuInf(30); setAlpha(0.2); } },
+        { name: t("labs.econV25.text053", { defaultValue: "信息驱动 (高 PIN)" }), description: "α↑ μ↑", apply: () => { setTrueLam(0.06); setSigmaU(0.10); setAlpha(0.45); setMuInf(80); setEps(40); } },
+        { name: t("labs.econV25.text054", { defaultValue: "噪声主导" }), description: "ε >> μ", apply: () => { setAlpha(0.15); setMuInf(20); setEps(120); setTrueLam(0.03); } },
+        { name: t("labs.econV25.text055", { defaultValue: "极端冲击 (高 λ)" }), description: t("labs.econV25.text056", { defaultValue: "薄市" }), apply: () => { setTrueLam(0.12); setSigmaU(0.15); setEps(20); setMuInf(60); setAlpha(0.4); } },
       ]} />
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="space-y-3">
-          <Slider label="天数"          value={days}    min={3} max={40}  step={1}    onChange={setDays} />
-          <Slider label="每日交易区间"   value={intra}   min={20} max={200} step={5}   onChange={setIntra} />
-          <Slider label="真实 λ (Kyle)"  value={trueLam} min={0.005} max={0.20} step={0.005} onChange={setTrueLam} />
-          <Slider label="噪声波动 σ_u"   value={sigma_u} min={0.02} max={0.30} step={0.01} onChange={setSigmaU} />
-          <Slider label="α (信息事件概率)" value={alpha} min={0.05} max={0.8} step={0.01} onChange={setAlpha} />
-          <Slider label="δ (坏消息条件概率)" value={delta} min={0.05} max={0.95} step={0.01} onChange={setDelta} />
-          <Slider label="μ (信息交易者强度)" value={muInf} min={0} max={150} step={5}    onChange={setMuInf} />
-          <Slider label="ε (无知交易者强度)" value={eps}   min={5} max={200} step={5}    onChange={setEps} />
-          <Slider label="随机种子" value={seed} min={1} max={999} step={1} onChange={setSeed} />
+          <Slider label={t("labs.econV25.text057", { defaultValue: "天数" })}          value={days}    min={3} max={40}  step={1}    onChange={setDays} />
+          <Slider label={t("labs.econV25.text058", { defaultValue: "每日交易区间" })}   value={intra}   min={20} max={200} step={5}   onChange={setIntra} />
+          <Slider label={t("labs.econV25.text059", { defaultValue: "真实 λ (Kyle)" })}  value={trueLam} min={0.005} max={0.20} step={0.005} onChange={setTrueLam} />
+          <Slider label={t("labs.econV25.text060", { defaultValue: "噪声波动 σ_u" })}   value={sigma_u} min={0.02} max={0.30} step={0.01} onChange={setSigmaU} />
+          <Slider label={t("labs.econV25.text061", { defaultValue: "α (信息事件概率)" })} value={alpha} min={0.05} max={0.8} step={0.01} onChange={setAlpha} />
+          <Slider label={t("labs.econV25.text062", { defaultValue: "δ (坏消息条件概率)" })} value={delta} min={0.05} max={0.95} step={0.01} onChange={setDelta} />
+          <Slider label={t("labs.econV25.text063", { defaultValue: "μ (信息交易者强度)" })} value={muInf} min={0} max={150} step={5}    onChange={setMuInf} />
+          <Slider label={t("labs.econV25.text064", { defaultValue: "ε (无知交易者强度)" })} value={eps}   min={5} max={200} step={5}    onChange={setEps} />
+          <Slider label={t("labs.econV25.text065", { defaultValue: "随机种子" })} value={seed} min={1} max={999} step={1} onChange={setSeed} />
         </div>
         <div className="space-y-2">
-          <Stat label="估计 λ̂ (Kyle)"  value={Number.isFinite(data.lamHat) ? data.lamHat.toFixed(4) : "—"}
-                sub={`真值 ${trueLam.toFixed(4)} · SE ${Number.isFinite(data.lamSE) ? data.lamSE.toFixed(4) : "—"}`}/>
-          <Stat label="R² (价格冲击)"   value={(data.r2*100).toFixed(2)+"%"} color={CHART_TEAL} />
-          <Stat label="真实 PIN"        value={data.truePIN.toFixed(3)}  color={CHART_BLUE} sub="αμ / (αμ + 2ε)"/>
-          <Stat label="经验 PIN̂"        value={data.pinEst.toFixed(3)}   color={CHART_RED}  sub="基于日订单流不平衡 (粗估)"/>
-          <Stat label="日均买入 / 卖出"  value={`${data.meanB.toFixed(0)} / ${data.meanS.toFixed(0)}`} color={CHART_TEAL}/>
+          <Stat label={t("labs.econV25.text066", { defaultValue: "估计 λ̂ (Kyle)" })}  value={Number.isFinite(data.lamHat) ? data.lamHat.toFixed(4) : "—"}
+                sub={t("labs.econV25.text067", { defaultValue: "真值 {{v1}} · SE {{v2}}", v1: trueLam.toFixed(4), v2: Number.isFinite(data.lamSE) ? data.lamSE.toFixed(4) : "—" })}/>
+          <Stat label={t("labs.econV25.text068", { defaultValue: "R² (价格冲击)" })}   value={(data.r2*100).toFixed(2)+"%"} color={CHART_TEAL} />
+          <Stat label={t("labs.econV25.text069", { defaultValue: "真实 PIN" })}        value={data.truePIN.toFixed(3)}  color={CHART_BLUE} sub="αμ / (αμ + 2ε)"/>
+          <Stat label={t("labs.econV25.text070", { defaultValue: "经验 PIN̂" })}        value={data.pinEst.toFixed(3)}   color={CHART_RED}  sub={t("labs.econV25.text071", { defaultValue: "基于日订单流不平衡 (粗估)" })}/>
+          <Stat label={t("labs.econV25.text072", { defaultValue: "日均买入 / 卖出" })}  value={`${data.meanB.toFixed(0)} / ${data.meanS.toFixed(0)}`} color={CHART_TEAL}/>
           <div className="text-xs font-mono text-muted-foreground p-3 rounded-lg bg-secondary/40 border border-border leading-relaxed">
-            <p><span className="text-gold">解读：</span>Kyle (1985):做市商均衡报价 Δp = λ·q;λ = √(Σ_v) / (2 σ_u) 反映信息不对称。</p>
-            <p>PIN (Easley-O'Hara 1996/2002):知情交易概率,值越高代表信息驱动越强、买卖价差越宽。</p>
+            <p><span className="text-gold">{t("labs.econV25.text073", { defaultValue: "解读：" })}</span>{t("labs.econV25.text074", { defaultValue: "Kyle (1985):做市商均衡报价 Δp = λ·q;λ = √(Σ_v) / (2 σ_u) 反映信息不对称。" })}</p>
+            <p>{t("labs.econV25.text075", { defaultValue: "PIN (Easley-O'Hara 1996/2002):知情交易概率,值越高代表信息驱动越强、买卖价差越宽。" })}</p>
           </div>
         </div>
       </div>
@@ -512,7 +516,7 @@ export const KyleLambdaTool = () => {
         <ResponsiveContainer width="100%" height="100%">
           <ComposedChart>
             <CartesianGrid stroke={CHART_GRID} strokeDasharray="3 3" />
-            <XAxis type="number" dataKey="q" name="净订单流 q" stroke={CHART_TEXT} tick={{ fontSize: 11 }} />
+            <XAxis type="number" dataKey="q" name={t("labs.econV25.text076", { defaultValue: "净订单流 q" })} stroke={CHART_TEXT} tick={{ fontSize: 11 }} />
             <YAxis type="number" dataKey="dp" name="Δp" stroke={CHART_TEXT} tick={{ fontSize: 11 }} />
             <Tooltip contentStyle={{ background: "hsl(220 15% 12%)", border:`1px solid ${CHART_GRID}`, fontSize:11 }} />
             <Legend wrapperStyle={{ fontSize: 11 }} />
