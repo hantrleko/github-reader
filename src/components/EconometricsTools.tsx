@@ -2126,29 +2126,29 @@ const SVARTool = () => {
           {[
             { dir: "y₂ ⟶ y₁", direnEn: "Does y₂ Granger-cause y₁ ?", coef: "A_{12}", res: result.granger.y2_to_y1 },
             { dir: "y₁ ⟶ y₂", direnEn: "Does y₁ Granger-cause y₂ ?", coef: "A_{21}", res: result.granger.y1_to_y2 },
-          ].map(t => {
-            const reject = t.res.p < 0.05;
+          ].map(row => {
+            const reject = row.res.p < 0.05;
             return (
-              <div key={t.dir} className={`p-3 rounded-lg border ${reject ? "border-gold/40 bg-gold/5" : "border-border bg-secondary/30"}`}>
+              <div key={row.dir} className={`p-3 rounded-lg border ${reject ? "border-gold/40 bg-gold/5" : "border-border bg-secondary/30"}`}>
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-mono font-semibold text-foreground">{t.dir}</span>
+                  <span className="text-sm font-mono font-semibold text-foreground">{row.dir}</span>
                   <span className={`text-[10px] font-mono px-2 py-0.5 rounded ${reject ? "bg-gold/20 text-gold" : "bg-muted text-muted-foreground"}`}>
                     {reject ? t("labs.econometrics.text220", { defaultValue: "拒绝 H₀ · Reject" }) : t("labs.econometrics.text221", { defaultValue: "不拒绝 · Fail to reject" })}
                   </span>
                 </div>
-                <div className="text-[11px] text-muted-foreground mb-1">{t.direnEn}</div>
+                <div className="text-[11px] text-muted-foreground mb-1">{row.direnEn}</div>
                 <div className="text-[10px] font-mono text-muted-foreground mb-2">
-                  H₀ : <InlineMath math={t.coef + " = 0"} />
+                  H₀ : <InlineMath math={row.coef + " = 0"} />
                 </div>
                 <div className="grid grid-cols-2 gap-2 text-xs font-mono">
                   <div className="flex items-center justify-between p-2 rounded bg-background/50 border border-border/50">
                     <span className="text-muted-foreground">F-stat</span>
-                    <span className="text-gold tabular-nums font-semibold">{Number.isFinite(t.res.F) ? t.res.F.toFixed(3) : "—"}</span>
+                    <span className="text-gold tabular-nums font-semibold">{Number.isFinite(row.res.F) ? row.res.F.toFixed(3) : "—"}</span>
                   </div>
                   <div className="flex items-center justify-between p-2 rounded bg-background/50 border border-border/50">
                     <span className="text-muted-foreground">p-value</span>
                     <span className={`tabular-nums font-semibold ${reject ? "text-gold" : "text-foreground"}`}>
-                      {t.res.p < 0.001 ? "< 0.001" : t.res.p.toFixed(4)}
+                      {row.res.p < 0.001 ? "< 0.001" : row.res.p.toFixed(4)}
                     </span>
                   </div>
                 </div>
