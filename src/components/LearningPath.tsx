@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, useNavigate } from "react-router-dom";
 import { LEARNING_STAGES, stageSections } from "@/lib/learningPath";
-import { sectionHref } from "@/lib/sections";
+import { sectionHref, sectionLabel } from "@/lib/sections";
 import { useAuth } from "@/hooks/useAuth";
 import {
   getProgress,
@@ -175,7 +175,7 @@ const LearningPath = () => {
                           }`}
                         >
                           {seen && <CheckCircle2 className="w-3 h-3" />}
-                          {s.label}
+                          {sectionLabel(t, s)}
                         </Link>
                       );
                     })}
