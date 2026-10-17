@@ -88,7 +88,11 @@
       "fixed-income-frontier": "Fixed Income Frontier Lab",
       "fixed-income-theory": "Fixed Income Theory Guide",
       "qlib-guide": "Qlib Reading Guide",
-      "qlib-lab": "Qlib Pipeline Lab"
+      "qlib-lab": "Qlib Pipeline Lab",
+      "backtest": "Backtest Lab",
+      "calibration": "Calibration Lab",
+      "behavior-lab": "Behavior Lab",
+      "behavior-theory": "Behavioral Guide"
     },
     "groupDescs": {
       "overview": "Topic map · Model overview · Learning paths",
