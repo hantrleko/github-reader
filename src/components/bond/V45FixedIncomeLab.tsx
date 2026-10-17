@@ -17,38 +17,39 @@ import {
 
 type Tab = "credit" | "rates" | "oas" | "curve";
 
+
+const TAB_IDS: Tab[] = ["credit", "rates", "oas", "curve"];
+
+export default function V45FixedIncomeLab() {
+  const { t, i18n } = useTranslation();
 const TABS: { id: Tab; title: string; titleEn: string; kicker: string; desc: string; descEn: string }[] = [
   { id: "credit", title: "信用债 & CDS", titleEn: "Credit & CDS", kicker: "Credit", desc: "Merton 结构化模型 + CDS par spread / hazard 反推" , descEn: "Merton structural model plus CDS par spread / hazard inversion" },
   { id: "rates", title: "短率模型", titleEn: "Short-Rate Models", kicker: "Rate Models", desc: "Vasicek / CIR / Hull-White 期限结构与路径模拟" , descEn: "Vasicek / CIR / Hull-White term structure and path simulation" },
   { id: "oas", title: "OAS & 含权债", titleEn: "OAS & Callable / MBS", kicker: "Callable/MBS", desc: "Ho-Lee 树上可赎回债 OAS + PSA 提前偿付 MBS" , descEn: "Callable-bond OAS on a Ho-Lee tree plus PSA prepayment MBS" },
   { id: "curve", title: "通胀与曲线策略", titleEn: "Inflation & Curve Strategies", kicker: "Inflation/Curve", desc: "Breakeven、2-5-10 蝶式、carry-roll 分解" , descEn: "Breakeven inflation, 2-5-10 butterfly, carry-roll decomposition" },
 ];
-const TAB_IDS: Tab[] = ["credit", "rates", "oas", "curve"];
-
-export default function V45FixedIncomeLab() {
-  const { t: tr, i18n } = useTranslation();
   const isEn = i18n.language?.startsWith("en");
   const [tab, setTab] = useToolTab<Tab>(TAB_IDS, "credit");
   return (
     <section className="space-y-6">
       <div className="rounded-2xl border border-border bg-card/50 p-5">
         <p className="text-[10px] font-mono uppercase tracking-[0.2em] text-gold mb-1">V4.5 · Fixed Income Lab</p>
-        <h2 className="text-2xl font-serif text-foreground">{tr("labs.fiLab.title")}</h2>
-        <p className="text-sm text-muted-foreground mt-2 max-w-3xl">{tr("labs.fiLab.intro")}</p>
+        <h2 className="text-2xl font-serif text-foreground">{t("labs.fiLab.title")}</h2>
+        <p className="text-sm text-muted-foreground mt-2 max-w-3xl">{t("labs.fiLab.intro")}</p>
         <div className="mt-4 flex flex-wrap gap-2">
-          {TABS.map((t) => (
+          {TABS.map((tabItem) => (
             <button
-              key={t.id}
-              onClick={() => setTab(t.id)}
-              title={isEn ? t.descEn : t.desc}
+              key={tabItem.id}
+              onClick={() => setTab(tabItem.id)}
+              title={isEn ? tabItem.descEn : tabItem.desc}
               className={`px-3.5 py-2 rounded-lg border text-xs font-mono transition-colors ${
-                tab === t.id
+                tab === tabItem.id
                   ? "bg-gold/15 border-gold/60 text-gold"
                   : "bg-secondary/40 border-border text-muted-foreground hover:text-foreground"
               }`}
             >
-              <span className="uppercase tracking-wider mr-2">{t.kicker}</span>
-              {isEn ? t.titleEn : t.title}
+              <span className="uppercase tracking-wider mr-2">{tabItem.kicker}</span>
+              {isEn ? tabItem.titleEn : tabItem.title}
             </button>
           ))}
         </div>
@@ -62,7 +63,7 @@ export default function V45FixedIncomeLab() {
       </motion.div>
 
       <div className="rounded-lg border border-border bg-card/60 p-4 text-[11px] font-mono text-muted-foreground leading-relaxed">
-        <p className="text-gold uppercase tracking-wider mb-2">{tr("labs.nav.references")}</p>
+        <p className="text-gold uppercase tracking-wider mb-2">{t("labs.nav.references")}</p>
         <p>Merton (1974) · Vasicek (1977) · Cox-Ingersoll-Ross (1985) · Hull &amp; White (1990) · Fabozzi (2012) Bond Markets, Analysis and Strategies.</p>
       </div>
     </section>
@@ -71,6 +72,7 @@ export default function V45FixedIncomeLab() {
 
 /* ─── Panel 1: Credit / CDS ─── */
 function CreditPanel() {
+  const { t } = useTranslation();
   const [V, setV] = useState(120);
   const [D, setD] = useState(100);
   const [sig, setSig] = useState(0.25);
@@ -165,6 +167,7 @@ function CreditPanel() {
 
 /* ─── Panel 2: Rate models ─── */
 function RatesPanel() {
+  const { t } = useTranslation();
   const [model, setModel] = useState<"vasicek" | "cir">("vasicek");
   const [kappa, setKappa] = useState(0.3);
   const [theta, setTheta] = useState(0.04);
@@ -263,6 +266,7 @@ function RatesPanel() {
 
 /* ─── Panel 3: OAS & MBS ─── */
 function OasPanel() {
+  const { t } = useTranslation();
   const [coupon, setCoupon] = useState(0.06);
   const [years, setYears] = useState(5);
   const [rateVol, setRateVol] = useState(0.012);
@@ -290,41 +294,41 @@ function OasPanel() {
   return (
     <div className="space-y-5">
       <PresetButtons presets={[
-        { name: "利率下行 OAS 收窄", description: "低 r0 高 vol", apply: () => { setR0(0.025); setRateVol(0.018); setMktPrice(105); } },
-        { name: "深度价内", description: "callK 低于市价", apply: () => { setCallK(98); setMktPrice(101); } },
+        { name: t("labs.bond.v45.text53", { defaultValue: "利率下行 OAS 收窄" }), description: t("labs.bond.v45.text54", { defaultValue: "低 r0 高 vol" }), apply: () => { setR0(0.025); setRateVol(0.018); setMktPrice(105); } },
+        { name: t("labs.bond.v45.text55", { defaultValue: "深度价内" }), description: t("labs.bond.v45.text56", { defaultValue: "callK 低于市价" }), apply: () => { setCallK(98); setMktPrice(101); } },
         { name: "Fast PSA MBS", description: "300% PSA", apply: () => { setPsa(300); setWac(0.065); } },
       ]} />
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="space-y-3">
-          <p className="text-xs font-mono text-gold uppercase tracking-wider">可赎回债 · Ho-Lee 树</p>
+          <p className="text-xs font-mono text-gold uppercase tracking-wider">{t("labs.bond.v45.text57", { defaultValue: "可赎回债 · Ho-Lee 树" })}</p>
           <div className="grid grid-cols-2 gap-3">
-            <Slider label="票息 c" value={coupon} min={0.01} max={0.12} step={0.005} onChange={setCoupon} fmt={(v)=>`${(v*100).toFixed(1)}%`} />
-            <Slider label="到期 T (年)" value={years} min={2} max={15} step={1} onChange={setYears} />
-            <Slider label="利率波动 σ" value={rateVol} min={0.002} max={0.04} step={0.001} onChange={setRateVol} fmt={(v)=>`${(v*100).toFixed(2)}%`} />
-            <Slider label="短率 r₀" value={r0} min={0.005} max={0.1} step={0.005} onChange={setR0} fmt={(v)=>`${(v*100).toFixed(1)}%`} />
-            <Slider label="Call 价 K" value={callK} min={95} max={110} step={0.5} onChange={setCallK} />
+            <Slider label={t("labs.bond.v45.text58", { defaultValue: "票息 c" })} value={coupon} min={0.01} max={0.12} step={0.005} onChange={setCoupon} fmt={(v)=>`${(v*100).toFixed(1)}%`} />
+            <Slider label={t("labs.bond.v45.text20", { defaultValue: "到期 T (年)" })} value={years} min={2} max={15} step={1} onChange={setYears} />
+            <Slider label={t("labs.bond.v45.text59", { defaultValue: "利率波动 σ" })} value={rateVol} min={0.002} max={0.04} step={0.001} onChange={setRateVol} fmt={(v)=>`${(v*100).toFixed(2)}%`} />
+            <Slider label={t("labs.bond.v45.text60", { defaultValue: "短率 r₀" })} value={r0} min={0.005} max={0.1} step={0.005} onChange={setR0} fmt={(v)=>`${(v*100).toFixed(1)}%`} />
+            <Slider label={t("labs.bond.v45.text61", { defaultValue: "Call 价 K" })} value={callK} min={95} max={110} step={0.5} onChange={setCallK} />
             <Slider label="Callable after (yr)" value={callFrom} min={1} max={Math.max(1, years - 1)} step={1} onChange={setCallFrom} />
-            <Slider label="市场价" value={mktPrice} min={80} max={125} step={0.5} onChange={setMktPrice} />
+            <Slider label={t("labs.bond.v45.text62", { defaultValue: "市场价" })} value={mktPrice} min={80} max={125} step={0.5} onChange={setMktPrice} />
           </div>
           <div className="grid grid-cols-2 gap-2">
-            <Stat label="含权模型价" value={modelPrice.toFixed(3)} color={C.gold} />
-            <Stat label="等价直债" value={straight.toFixed(3)} color={C.teal} />
-            <Stat label="嵌入期权价值" value={(straight - modelPrice).toFixed(3)} color={C.red} sub="发行人 call" />
-            <Stat label="OAS" value={`${(oas * 1e4).toFixed(1)} bp`} color={C.blue} sub="市场价 → 模型" />
+            <Stat label={t("labs.bond.v45.text63", { defaultValue: "含权模型价" })} value={modelPrice.toFixed(3)} color={C.gold} />
+            <Stat label={t("labs.bond.v45.text64", { defaultValue: "等价直债" })} value={straight.toFixed(3)} color={C.teal} />
+            <Stat label={t("labs.bond.v45.text65", { defaultValue: "嵌入期权价值" })} value={(straight - modelPrice).toFixed(3)} color={C.red} sub={t("labs.bond.v45.text66", { defaultValue: "发行人 call" })} />
+            <Stat label="OAS" value={`${(oas * 1e4).toFixed(1)} bp`} color={C.blue} sub={t("labs.bond.v45.text67", { defaultValue: "市场价 → 模型" })} />
           </div>
         </div>
 
         <div className="space-y-3">
-          <p className="text-xs font-mono text-gold uppercase tracking-wider">MBS · PSA 提前偿付</p>
+          <p className="text-xs font-mono text-gold uppercase tracking-wider">{t("labs.bond.v45.text68", { defaultValue: "MBS · PSA 提前偿付" })}</p>
           <div className="grid grid-cols-2 gap-3">
             <Slider label="WAC" value={wac} min={0.03} max={0.1} step={0.005} onChange={setWac} fmt={(v)=>`${(v*100).toFixed(1)}%`} />
-            <Slider label="WAM (月)" value={wam} min={60} max={360} step={12} onChange={setWam} />
+            <Slider label={t("labs.bond.v45.text69", { defaultValue: "WAM (月)" })} value={wam} min={60} max={360} step={12} onChange={setWam} />
             <Slider label="PSA (%)" value={psa} min={0} max={500} step={25} onChange={setPsa} />
-            <Slider label="贴现率" value={disc} min={0.02} max={0.1} step={0.005} onChange={setDisc} fmt={(v)=>`${(v*100).toFixed(1)}%`} />
+            <Slider label={t("labs.bond.v45.text70", { defaultValue: "贴现率" })} value={disc} min={0.02} max={0.1} step={0.005} onChange={setDisc} fmt={(v)=>`${(v*100).toFixed(1)}%`} />
           </div>
           <div className="grid grid-cols-2 gap-2">
-            <Stat label="MBS 价格" value={mbs.price.toFixed(0)} color={C.gold} sub="面值 100,000" />
-            <Stat label="加权平均寿命" value={`${mbs.wal.toFixed(2)}y`} color={C.teal} />
+            <Stat label={t("labs.bond.v45.text71", { defaultValue: "MBS 价格" })} value={mbs.price.toFixed(0)} color={C.gold} sub={t("labs.bond.v45.text72", { defaultValue: "面值 100,000" })} />
+            <Stat label={t("labs.bond.v45.text73", { defaultValue: "加权平均寿命" })} value={`${mbs.wal.toFixed(2)}y`} color={C.teal} />
           </div>
           <div className="rounded-xl border border-border bg-secondary/20 p-3 h-[220px]">
             <ResponsiveContainer>
@@ -334,9 +338,9 @@ function OasPanel() {
                 <YAxis stroke={C.text} tick={{ fontSize: 9 }} />
                 <Tooltip contentStyle={tooltipStyle} />
                 <Legend wrapperStyle={{ fontSize: 9 }} />
-                <Bar dataKey="interest" stackId="a" fill={C.gold} name="利息" />
-                <Bar dataKey="scheduled" stackId="a" fill={C.teal} name="计划本金" />
-                <Bar dataKey="prepay" stackId="a" fill={C.red} name="提前偿付" />
+                <Bar dataKey="interest" stackId="a" fill={C.gold} name={t("labs.bond.v45.text74", { defaultValue: "利息" })} />
+                <Bar dataKey="scheduled" stackId="a" fill={C.teal} name={t("labs.bond.v45.text75", { defaultValue: "计划本金" })} />
+                <Bar dataKey="prepay" stackId="a" fill={C.red} name={t("labs.bond.v45.text76", { defaultValue: "提前偿付" })} />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -348,6 +352,7 @@ function OasPanel() {
 
 /* ─── Panel 4: Inflation & curve strategies ─── */
 function CurvePanel() {
+  const { t } = useTranslation();
   const [yN, setYN] = useState(0.045);
   const [yR, setYR] = useState(0.02);
   const cpiExp = breakevenInflation(yN, yR);
@@ -365,11 +370,11 @@ function CurvePanel() {
 
   // scenario table
   const scenarios = [
-    { name: "平行 −25bp", s2: -25, s5: -25, s10: -25 },
-    { name: "陡峭化 (bear steep)", s2: 0, s5: 10, s10: 25 },
-    { name: "平坦化 (bull flat)", s2: 0, s5: -10, s10: -25 },
-    { name: "凸性走弱 (belly卖)", s2: -10, s5: 15, s10: -10 },
-    { name: "凸性走强 (belly涨)", s2: 10, s5: -15, s10: 10 },
+    { name: t("labs.bond.v45.text77", { defaultValue: "平行 −25bp" }), s2: -25, s5: -25, s10: -25 },
+    { name: t("labs.bond.v45.text78", { defaultValue: "陡峭化 (bear steep)" }), s2: 0, s5: 10, s10: 25 },
+    { name: t("labs.bond.v45.text79", { defaultValue: "平坦化 (bull flat)" }), s2: 0, s5: -10, s10: -25 },
+    { name: t("labs.bond.v45.text80", { defaultValue: "凸性走弱 (belly卖)" }), s2: -10, s5: 15, s10: -10 },
+    { name: t("labs.bond.v45.text81", { defaultValue: "凸性走强 (belly涨)" }), s2: 10, s5: -15, s10: 10 },
   ].map((sc) => ({
     name: sc.name,
     pnl: +(butterflyPnl({ y2, y5, y10, d2, d5, d10, shift2: sc.s2/1e4, shift5: sc.s5/1e4, shift10: sc.s10/1e4 }).net * 1e4).toFixed(2),
@@ -381,20 +386,20 @@ function CurvePanel() {
         <div className="space-y-3">
           <p className="text-xs font-mono text-gold uppercase tracking-wider">TIPS Breakeven Inflation</p>
           <div className="grid grid-cols-2 gap-3">
-            <Slider label="名义 10Y" value={yN} min={0} max={0.08} step={0.001} onChange={setYN} fmt={(v)=>`${(v*100).toFixed(2)}%`} />
-            <Slider label="真实 10Y (TIPS)" value={yR} min={-0.02} max={0.05} step={0.001} onChange={setYR} fmt={(v)=>`${(v*100).toFixed(2)}%`} />
+            <Slider label={t("labs.bond.v45.text82", { defaultValue: "名义 10Y" })} value={yN} min={0} max={0.08} step={0.001} onChange={setYN} fmt={(v)=>`${(v*100).toFixed(2)}%`} />
+            <Slider label={t("labs.bond.v45.text83", { defaultValue: "真实 10Y (TIPS)" })} value={yR} min={-0.02} max={0.05} step={0.001} onChange={setYR} fmt={(v)=>`${(v*100).toFixed(2)}%`} />
           </div>
           <div className="grid grid-cols-2 gap-2">
-            <Stat label="Breakeven 通胀" value={`${(cpiExp * 100).toFixed(2)}%`} color={C.gold} sub="市场隐含通胀" />
-            <Stat label="风险溢价近似" value={`${((cpiExp - 0.02) * 100).toFixed(2)}%`} color={C.teal} sub="vs 2% 目标" />
+            <Stat label={t("labs.bond.v45.text84", { defaultValue: "Breakeven 通胀" })} value={`${(cpiExp * 100).toFixed(2)}%`} color={C.gold} sub={t("labs.bond.v45.text85", { defaultValue: "市场隐含通胀" })} />
+            <Stat label={t("labs.bond.v45.text86", { defaultValue: "风险溢价近似" })} value={`${((cpiExp - 0.02) * 100).toFixed(2)}%`} color={C.teal} sub={t("labs.bond.v45.text87", { defaultValue: "vs 2% 目标" })} />
           </div>
           <div className="text-xs font-mono text-muted-foreground p-3 rounded-lg bg-secondary/40 border border-border leading-relaxed">
-            <span className="text-gold">Breakeven = y_nominal − y_real</span>：市场对未来平均通胀的定价。当央行政策紧缩预期升温时通常回落。
+            <span className="text-gold">Breakeven = y_nominal − y_real</span>{t("labs.bond.v45.text88", { defaultValue: "：市场对未来平均通胀的定价。当央行政策紧缩预期升温时通常回落。" })}
           </div>
         </div>
 
         <div className="space-y-3">
-          <p className="text-xs font-mono text-gold uppercase tracking-wider">2-5-10 Butterfly (PV01 中性)</p>
+          <p className="text-xs font-mono text-gold uppercase tracking-wider">{t("labs.bond.v45.text89", { defaultValue: "2-5-10 Butterfly (PV01 中性)" })}</p>
           <div className="grid grid-cols-3 gap-3">
             <Slider label="2Y y" value={y2} min={0} max={0.08} step={0.001} onChange={setY2} fmt={(v)=>`${(v*100).toFixed(2)}%`} />
             <Slider label="5Y y" value={y5} min={0} max={0.08} step={0.001} onChange={setY5} fmt={(v)=>`${(v*100).toFixed(2)}%`} />
@@ -409,13 +414,13 @@ function CurvePanel() {
           <div className="grid grid-cols-3 gap-2">
             <Stat label="wing w₂" value={bf.w2.toFixed(3)} color={C.blue} />
             <Stat label="wing w₁₀" value={bf.w10.toFixed(3)} color={C.blue} />
-            <Stat label="净 P&L (bp)" value={(bf.net * 1e4).toFixed(2)} color={bf.net >= 0 ? C.gold : C.red} sub="策略持有" />
+            <Stat label={t("labs.bond.v45.text90", { defaultValue: "净 P&L (bp)" })} value={(bf.net * 1e4).toFixed(2)} color={bf.net >= 0 ? C.gold : C.red} sub={t("labs.bond.v45.text91", { defaultValue: "策略持有" })} />
           </div>
         </div>
       </div>
 
       <div className="rounded-xl border border-border bg-secondary/20 p-4">
-        <p className="text-xs font-mono text-gold uppercase tracking-wider mb-3">曲线情景 P&L (bp per unit notional)</p>
+        <p className="text-xs font-mono text-gold uppercase tracking-wider mb-3">{t("labs.bond.v45.text92", { defaultValue: "曲线情景 P&L (bp per unit notional)" })}</p>
         <div className="h-[220px]">
           <ResponsiveContainer>
             <BarChart data={scenarios} layout="vertical" margin={{ left: 100 }}>
@@ -429,7 +434,7 @@ function CurvePanel() {
           </ResponsiveContainer>
         </div>
         <p className="text-[10px] font-mono text-muted-foreground mt-2">
-          Butterfly 押注曲线凸性变化——belly 相对 wings 的相对定价。平行位移下 P&L 接近零。
+          {t("labs.bond.v45.text93", { defaultValue: "Butterfly 押注曲线凸性变化——belly 相对 wings 的相对定价。平行位移下 P&L 接近零。" })}
         </p>
       </div>
     </div>
