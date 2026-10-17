@@ -105,7 +105,7 @@ export const CAPMTool = () => {
       asset.push(trueBeta * m + randn(rng) * 3);
     }
     return rollingBeta(asset, mkt, window).map((p) => ({
-      period: p.period,
+      t: p.t,
       beta: +p.beta.toFixed(3),
       input: +beta.toFixed(3),
     }));
@@ -288,7 +288,7 @@ export const FamaFrenchTool = () => {
       est: b,
       truth: trueB[i],
       se: o.se[i],
-      period: o.tStat[i],
+      t: o.tStat[i],
     }));
     return { o, rows };
   }, [five, n, trueAlpha, bMkt, bSmb, bHml, bRmw, bCma, noise, seed, t]);

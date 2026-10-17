@@ -134,10 +134,10 @@ export const CampbellShillerTool = () => {
 /* ════════════════════════════════════════════════════════════
    20. 因子动物园与高维筛选
    ════════════════════════════════════════════════════════════ */
-const ZOO_NAMES = ["MKT", "SMB", "HML", "RMW", "CMA", "UMD", "BAB", "QMJ", "LIQ", t("labs.asset.frontier.text31", { defaultValue: "噪声因子" })];
 
 export const FactorZooTool = () => {
   const { t } = useTranslation();
+  const ZOO_NAMES = ["MKT", "SMB", "HML", "RMW", "CMA", "UMD", "BAB", "QMJ", "LIQ", t("labs.asset.frontier.text31", { defaultValue: "噪声因子" })];
   const [K, setK] = useState(8);
   const [T, setT] = useState(360);
   const [commonality, setCommonality] = useState(0.55);
