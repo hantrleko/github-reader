@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { ArrowUpRight } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import SectionHeader from "@/components/common/SectionHeader";
-import { sectionsByGroup } from "@/lib/sections";
+import { sectionsByGroup, groupDesc } from "@/lib/sections";
 
 /**
  * Ten domain entries right below the hero — a first-time visitor should see
@@ -38,7 +38,7 @@ const DomainStrip = () => {
               {t(`nav.groups.${group.id}`, { defaultValue: group.label })}
             </h3>
             <p className="mt-1.5 text-xs text-foreground/60 leading-relaxed line-clamp-2">
-              {zh ? group.desc : `${sections.length} sections`}
+              {groupDesc(t, group)}
             </p>
           </Link>
         ))}
