@@ -101,12 +101,12 @@ function BootstrapPanel() {
     return { pts, data };
   }, [level, slope, hump]);
   return (
-    <Panel title={tr("labs.fiV62.s42", { defaultValue: "票息剥离自举 (Bootstrapping)" })} note={tr("labs.fiV62.s43", { defaultValue: "市场直接可观测的是附息债的 par 收益率，而定价需要的是贴现因子。自举按期限从短到长依次剥离票息，把 par 曲线翻译成零息曲线与瞬时远期曲线：上斜的 par 曲线一定对应更陡的零息曲线，远期曲线又比零息曲线更陡。" })}>
+    <Panel title={tr("labs.fiV62.s42", { defaultValue: "票息剥离自举 (Bootstrapping)" })}} note={tr("labs.fiV62.s43", { defaultValue: "市场直接可观测的是附息债的 par 收益率，而定价需要的是贴现因子。自举按期限从短到长依次剥离票息，把 par 曲线翻译成零息曲线与瞬时远期曲线：上斜的 par 曲线一定对应更陡的零息曲线，远期曲线又比零息曲线更陡。" })}}>
       <Grid>
         <Controls>
-          <Slider label={tr("labs.fiV62.s44", { defaultValue: "水平 (level)" })} value={level} min={0} max={0.08} step={0.001} onChange={setLevel} />
-          <Slider label={tr("labs.fiV62.s45", { defaultValue: "斜率 (slope)" })} value={slope} min={-0.03} max={0.04} step={0.001} onChange={setSlope} />
-          <Slider label={tr("labs.fiV62.s46", { defaultValue: "曲率 (hump)" })} value={hump} min={-0.02} max={0.02} step={0.001} onChange={setHump} />
+          <Slider label={tr("labs.fiV62.s44", { defaultValue: "水平 (level)" })}} value={level} min={0} max={0.08} step={0.001} onChange={setLevel} />
+          <Slider label={tr("labs.fiV62.s45", { defaultValue: "斜率 (slope)" })}} value={slope} min={-0.03} max={0.04} step={0.001} onChange={setSlope} />
+          <Slider label={tr("labs.fiV62.s46", { defaultValue: "曲率 (hump)" })}} value={hump} min={-0.02} max={0.02} step={0.001} onChange={setHump} />
         </Controls>
         <div>
           <ResponsiveContainer width="100%" height={280}>
@@ -116,16 +116,16 @@ function BootstrapPanel() {
               <YAxis stroke={C.text} fontSize={11} unit="%" />
               <Tooltip contentStyle={tooltipStyle} />
               <Legend />
-              <Line dataKey="par" name={tr("labs.fiV62.s48", { defaultValue: "par 收益率" })} stroke={C.text} dot={false} />
-              <Line dataKey="zero" name={tr("labs.fiV62.s49", { defaultValue: "零息利率" })} stroke={C.gold} dot={false} strokeWidth={2} />
-              <Line dataKey="forward" name={tr("labs.fiV62.s50", { defaultValue: "远期利率" })} stroke={C.teal} dot={false} strokeDasharray="4 3" />
+              <Line dataKey="par" name={tr("labs.fiV62.s48", { defaultValue: "par 收益率" })}} stroke={C.text} dot={false} />
+              <Line dataKey="zero" name={tr("labs.fiV62.s49", { defaultValue: "零息利率" })}} stroke={C.gold} dot={false} strokeWidth={2} />
+              <Line dataKey="forward" name={tr("labs.fiV62.s50", { defaultValue: "远期利率" })}} stroke={C.teal} dot={false} strokeDasharray="4 3" />
             </LineChart>
           </ResponsiveContainer>
           <Stats>
-            <Stat label={tr("labs.fiV62.s51", { defaultValue: "10Y 贴现因子" })} value={f(out.data[6].df, 4)} color={C.gold} />
-            <Stat label={tr("labs.fiV62.s52", { defaultValue: "10Y 零息" })} value={f(out.data[6].zero, 3) + "%"} />
-            <Stat label={tr("labs.fiV62.s53", { defaultValue: "30Y 零息" })} value={f(out.data[8].zero, 3) + "%"} />
-            <Stat label={tr("labs.fiV62.s54", { defaultValue: "2s10s 斜率" })} value={f(out.data[6].zero - out.data[2].zero, 3) + "%"} color={C.teal} />
+            <Stat label={tr("labs.fiV62.s51", { defaultValue: "10Y 贴现因子" })}} value={f(out.data[6].df, 4)} color={C.gold} />
+            <Stat label={tr("labs.fiV62.s52", { defaultValue: "10Y 零息" })}} value={f(out.data[6].zero, 3) + "%"} />
+            <Stat label={tr("labs.fiV62.s53", { defaultValue: "30Y 零息" })}} value={f(out.data[8].zero, 3) + "%"} />
+            <Stat label={tr("labs.fiV62.s54", { defaultValue: "2s10s 斜率" })}} value={f(out.data[6].zero - out.data[2].zero, 3) + "%"} color={C.teal} />
           </Stats>
         </div>
       </Grid>
@@ -150,11 +150,11 @@ function InterpPanel() {
     cubic: res[2].curve[i].forward * 100,
   })), [res]);
   return (
-    <Panel title={tr("labs.fiV62.s55", { defaultValue: "插值方法与远期曲线平滑性" })} note={tr("labs.fiV62.s56", { defaultValue: "插值不是无害的技术细节：同一组节点在不同插值下会给出完全不同的远期曲线。零率线性插值会在节点处制造远期跳跃，分段常数远期给出阶梯，样条最平滑但可能出现震荡。远期曲线的粗糙度（二阶差分平方和）是选择插值方案的标准诊断。" })}>
+    <Panel title={tr("labs.fiV62.s55", { defaultValue: "插值方法与远期曲线平滑性" })}} note={tr("labs.fiV62.s56", { defaultValue: "插值不是无害的技术细节：同一组节点在不同插值下会给出完全不同的远期曲线。零率线性插值会在节点处制造远期跳跃，分段常数远期给出阶梯，样条最平滑但可能出现震荡。远期曲线的粗糙度（二阶差分平方和）是选择插值方案的标准诊断。" })}}>
       <Grid>
         <Controls>
-          <Slider label={tr("labs.fiV62.s57", { defaultValue: "5Y 零息" })} value={kink} min={0.01} max={0.06} step={0.0005} onChange={setKink} />
-          <Slider label={tr("labs.fiV62.s52", { defaultValue: "10Y 零息" })} value={tenYear} min={0.01} max={0.06} step={0.0005} onChange={setTenYear} />
+          <Slider label={tr("labs.fiV62.s57", { defaultValue: "5Y 零息" })}} value={kink} min={0.01} max={0.06} step={0.0005} onChange={setKink} />
+          <Slider label={tr("labs.fiV62.s52", { defaultValue: "10Y 零息" })}} value={tenYear} min={0.01} max={0.06} step={0.0005} onChange={setTenYear} />
           <p className="text-[11px] text-muted-foreground leading-relaxed">把 5Y 拉离邻近节点，可以看到线性插值的远期折线如何被放大成尖峰。</p>
         </Controls>
         <div>
@@ -165,16 +165,16 @@ function InterpPanel() {
               <YAxis stroke={C.text} fontSize={11} unit="%" />
               <Tooltip contentStyle={tooltipStyle} />
               <Legend />
-              <Line dataKey="linear" name={tr("labs.fiV62.s58", { defaultValue: "线性零率" })} stroke={C.gold} dot={false} />
-              <Line dataKey="flat" name={tr("labs.fiV62.s59", { defaultValue: "分段常数远期" })} stroke={C.teal} dot={false} />
-              <Line dataKey="cubic" name={tr("labs.fiV62.s60", { defaultValue: "三次样条" })} stroke={C.red} dot={false} />
+              <Line dataKey="linear" name={tr("labs.fiV62.s58", { defaultValue: "线性零率" })}} stroke={C.gold} dot={false} />
+              <Line dataKey="flat" name={tr("labs.fiV62.s59", { defaultValue: "分段常数远期" })}} stroke={C.teal} dot={false} />
+              <Line dataKey="cubic" name={tr("labs.fiV62.s60", { defaultValue: "三次样条" })}} stroke={C.red} dot={false} />
             </LineChart>
           </ResponsiveContainer>
           <Stats>
-            <Stat label={tr("labs.fiV62.s61", { defaultValue: "线性零率粗糙度" })} value={f(res[0].roughness * 1e6, 2)} />
-            <Stat label={tr("labs.fiV62.s62", { defaultValue: "常数远期粗糙度" })} value={f(res[1].roughness * 1e6, 2)} />
-            <Stat label={tr("labs.fiV62.s63", { defaultValue: "样条粗糙度" })} value={f(res[2].roughness * 1e6, 2)} color={C.gold} />
-            <Stat label={tr("labs.fiV62.s64", { defaultValue: "单位" })} value="×10⁻⁶" />
+            <Stat label={tr("labs.fiV62.s61", { defaultValue: "线性零率粗糙度" })}} value={f(res[0].roughness * 1e6, 2)} />
+            <Stat label={tr("labs.fiV62.s62", { defaultValue: "常数远期粗糙度" })}} value={f(res[1].roughness * 1e6, 2)} />
+            <Stat label={tr("labs.fiV62.s63", { defaultValue: "样条粗糙度" })}} value={f(res[2].roughness * 1e6, 2)} color={C.gold} />
+            <Stat label={tr("labs.fiV62.s64", { defaultValue: "单位" })}} value="×10⁻⁶" />
           </Stats>
         </div>
       </Grid>
@@ -196,12 +196,12 @@ function RollPanel() {
   }), [slope, funding]);
   const cur = useMemo(() => rollDownReturn({ zeroNow: zeroAt(mat), maturity: mat, horizon: 1, zeroRolled: zeroAt(mat - 1), fundingRate: funding }), [mat, slope, funding]);
   return (
-    <Panel title={tr("labs.fiV62.s65", { defaultValue: "Carry 与滚动收益分解" })} note={tr("labs.fiV62.s66", { defaultValue: "若曲线一年后完全不变，持有一只债券的收益来自两块：carry（票息/收益率减去融资成本）与 roll-down（债券沿曲线向短端滚动带来的资本利得）。曲线越陡，roll-down 越大，这正是曲线交易与套息组合的收益来源，也是它在曲线走平时最脆弱的地方。" })}>
+    <Panel title={tr("labs.fiV62.s65", { defaultValue: "Carry 与滚动收益分解" })}} note={tr("labs.fiV62.s66", { defaultValue: "若曲线一年后完全不变，持有一只债券的收益来自两块：carry（票息/收益率减去融资成本）与 roll-down（债券沿曲线向短端滚动带来的资本利得）。曲线越陡，roll-down 越大，这正是曲线交易与套息组合的收益来源，也是它在曲线走平时最脆弱的地方。" })}}>
       <Grid>
         <Controls>
-          <Slider label={tr("labs.fiV62.s67", { defaultValue: "持仓期限 (年)" })} value={mat} min={2} max={30} step={1} onChange={setMat} />
-          <Slider label={tr("labs.fiV62.s68", { defaultValue: "曲线斜率 / 年" })} value={slope} min={-0.004} max={0.012} step={0.0005} onChange={setSlope} />
-          <Slider label={tr("labs.fiV62.s69", { defaultValue: "融资利率" })} value={funding} min={0} max={0.06} step={0.001} onChange={setFunding} />
+          <Slider label={tr("labs.fiV62.s67", { defaultValue: "持仓期限 (年)" })}} value={mat} min={2} max={30} step={1} onChange={setMat} />
+          <Slider label={tr("labs.fiV62.s68", { defaultValue: "曲线斜率 / 年" })}} value={slope} min={-0.004} max={0.012} step={0.0005} onChange={setSlope} />
+          <Slider label={tr("labs.fiV62.s69", { defaultValue: "融资利率" })}} value={funding} min={0} max={0.06} step={0.001} onChange={setFunding} />
         </Controls>
         <div>
           <ResponsiveContainer width="100%" height={280}>
@@ -217,10 +217,10 @@ function RollPanel() {
             </BarChart>
           </ResponsiveContainer>
           <Stats>
-            <Stat label={tr("labs.fiV62.s70", { defaultValue: "一年期总收益" })} value={pct(cur.total)} color={cur.total > 0 ? C.green : C.red} />
+            <Stat label={tr("labs.fiV62.s70", { defaultValue: "一年期总收益" })}} value={pct(cur.total)} color={cur.total > 0 ? C.green : C.red} />
             <Stat label="carry" value={pct(cur.carry)} color={C.teal} />
             <Stat label="roll-down" value={pct(cur.rolldown)} color={C.gold} />
-            <Stat label={tr("labs.fiV62.s71", { defaultValue: "期初价格" })} value={f(cur.priceStart * 100, 2)} />
+            <Stat label={tr("labs.fiV62.s71", { defaultValue: "期初价格" })}} value={f(cur.priceStart * 100, 2)} />
           </Stats>
         </div>
       </Grid>
@@ -249,13 +249,13 @@ function TaxonomyPanel() {
     { name: tr("labs.fiV62.s73", { defaultValue: "期权成本" }), v: (out.optionCost ?? 0) * 1e4 },
   ];
   return (
-    <Panel title={tr("labs.fiV62.s74", { defaultValue: "利差四口径：名义 / Z / ASW / OAS" })} note={tr("labs.fiV62.s75", { defaultValue: "四种利差回答四个不同的问题：名义利差只对一个基准点，Z-spread 对整条曲线，ASW 把债券换成浮息现金流后对互换曲线报价，OAS 再进一步剥掉内含期权。恒等式 Z − OAS = 期权成本，是判断含权债券是否被正确定价的第一道检查。" })}>
+    <Panel title={tr("labs.fiV62.s74", { defaultValue: "利差四口径：名义 / Z / ASW / OAS" })}} note={tr("labs.fiV62.s75", { defaultValue: "四种利差回答四个不同的问题：名义利差只对一个基准点，Z-spread 对整条曲线，ASW 把债券换成浮息现金流后对互换曲线报价，OAS 再进一步剥掉内含期权。恒等式 Z − OAS = 期权成本，是判断含权债券是否被正确定价的第一道检查。" })}}>
       <Grid>
         <Controls>
-          <Slider label={tr("labs.fiV62.s76", { defaultValue: "票息" })} value={coupon} min={0} max={0.1} step={0.0025} onChange={setCoupon} />
-          <Slider label={tr("labs.fiV62.s77", { defaultValue: "市场净价" })} value={price} min={80} max={120} step={0.5} onChange={setPrice} />
-          <Slider label={tr("labs.fiV62.s78", { defaultValue: "基准曲线水平" })} value={curve} min={0} max={0.08} step={0.001} onChange={setCurve} />
-          <Slider label={tr("labs.fiV62.s79", { defaultValue: "模型 OAS" })} value={oas} min={-0.005} max={0.02} step={0.0005} onChange={setOas} />
+          <Slider label={tr("labs.fiV62.s76", { defaultValue: "票息" })}} value={coupon} min={0} max={0.1} step={0.0025} onChange={setCoupon} />
+          <Slider label={tr("labs.fiV62.s77", { defaultValue: "市场净价" })}} value={price} min={80} max={120} step={0.5} onChange={setPrice} />
+          <Slider label={tr("labs.fiV62.s78", { defaultValue: "基准曲线水平" })}} value={curve} min={0} max={0.08} step={0.001} onChange={setCurve} />
+          <Slider label={tr("labs.fiV62.s79", { defaultValue: "模型 OAS" })}} value={oas} min={-0.005} max={0.02} step={0.0005} onChange={setOas} />
         </Controls>
         <div>
           <ResponsiveContainer width="100%" height={280}>
@@ -265,14 +265,14 @@ function TaxonomyPanel() {
               <YAxis stroke={C.text} fontSize={11} unit="bp" />
               <Tooltip contentStyle={tooltipStyle} />
               <ReferenceLine y={0} stroke={C.text} />
-              <Bar dataKey="v" name={tr("labs.fiV62.s80", { defaultValue: "利差 (bp)" })} fill={C.gold} />
+              <Bar dataKey="v" name={tr("labs.fiV62.s80", { defaultValue: "利差 (bp)" })}} fill={C.gold} />
             </BarChart>
           </ResponsiveContainer>
           <Stats>
-            <Stat label={tr("labs.fiV62.s81", { defaultValue: "到期收益率" })} value={pct(out.ytm)} />
+            <Stat label={tr("labs.fiV62.s81", { defaultValue: "到期收益率" })}} value={pct(out.ytm)} />
             <Stat label="Z-spread" value={bp(out.zSpread)} color={C.gold} />
             <Stat label="ASW" value={bp(out.asw)} color={C.teal} />
-            <Stat label={tr("labs.fiV62.s82", { defaultValue: "期权成本 (Z−OAS)" })} value={bp(out.optionCost)} color={C.red} />
+            <Stat label={tr("labs.fiV62.s82", { defaultValue: "期权成本 (Z−OAS)" })}} value={bp(out.optionCost)} color={C.red} />
           </Stats>
           <p className="text-[11px] text-muted-foreground mt-3">曲线 PV = {f(pvCashflows(cfs, zeroAt), 3)}；净价高于曲线 PV 时 Z-spread 转负，说明该券相对曲线偏贵。</p>
         </div>
@@ -296,11 +296,11 @@ function EffRiskPanel() {
     return { shift: +(s * 1e4).toFixed(0), price: priceFn(s) };
   }), [priceFn]);
   return (
-    <Panel title={tr("labs.fiV62.s83", { defaultValue: "有效久期与有效凸性" })} note={tr("labs.fiV62.s84", { defaultValue: "解析久期只对无期权的固定现金流成立。含权债的现金流本身随利率变化，正确做法是对整条曲线上下扰动后重新定价：有效久期 =(P₋−P₊)/(2P₀Δy)，有效凸性 =(P₊+P₋−2P₀)/(P₀Δy²)。可赎回债在低利率区凸性转负，价格被赎回价压住。" })}>
+    <Panel title={tr("labs.fiV62.s83", { defaultValue: "有效久期与有效凸性" })}} note={tr("labs.fiV62.s84", { defaultValue: "解析久期只对无期权的固定现金流成立。含权债的现金流本身随利率变化，正确做法是对整条曲线上下扰动后重新定价：有效久期 =(P₋−P₊)/(2P₀Δy)，有效凸性 =(P₊+P₋−2P₀)/(P₀Δy²)。可赎回债在低利率区凸性转负，价格被赎回价压住。" })}}>
       <Grid>
         <Controls>
-          <Slider label={tr("labs.fiV62.s76", { defaultValue: "票息" })} value={coupon} min={0.01} max={0.1} step={0.0025} onChange={setCoupon} />
-          <Slider label={tr("labs.fiV62.s85", { defaultValue: "利率波动率 σ" })} value={sigma} min={0.02} max={0.5} step={0.01} onChange={setSigma} />
+          <Slider label={tr("labs.fiV62.s76", { defaultValue: "票息" })}} value={coupon} min={0.01} max={0.1} step={0.0025} onChange={setCoupon} />
+          <Slider label={tr("labs.fiV62.s85", { defaultValue: "利率波动率 σ" })}} value={sigma} min={0.02} max={0.5} step={0.01} onChange={setSigma} />
           <button onClick={() => setCallable((v) => !v)} className="w-full px-3 py-2 rounded-lg border border-border text-xs font-mono bg-secondary/40 hover:text-foreground">
             {callable ? tr("labs.fiV62.s86", { defaultValue: "当前：可赎回债" }) : tr("labs.fiV62.s87", { defaultValue: "当前：普通债" })} · 点击切换
           </button>
@@ -313,14 +313,14 @@ function EffRiskPanel() {
               <YAxis stroke={C.text} fontSize={11} domain={["auto", "auto"]} />
               <Tooltip contentStyle={tooltipStyle} />
               <ReferenceLine x={0} stroke={C.text} strokeDasharray="4 4" />
-              <Line dataKey="price" name={tr("labs.fiV62.s88", { defaultValue: "价格" })} stroke={C.gold} dot={false} strokeWidth={2} />
+              <Line dataKey="price" name={tr("labs.fiV62.s88", { defaultValue: "价格" })}} stroke={C.gold} dot={false} strokeWidth={2} />
             </LineChart>
           </ResponsiveContainer>
           <Stats>
-            <Stat label={tr("labs.fiV62.s88", { defaultValue: "价格" })} value={f(out.price, 3)} />
-            <Stat label={tr("labs.fiV62.s89", { defaultValue: "有效久期" })} value={f(out.effDuration, 3)} color={C.gold} />
-            <Stat label={tr("labs.fiV62.s90", { defaultValue: "有效凸性" })} value={f(out.effConvexity, 2)} color={out.effConvexity < 0 ? C.red : C.teal} />
-            <Stat label={tr("labs.fiV62.s91", { defaultValue: "DV01 (每 100 面值)" })} value={f(out.dv01, 4)} />
+            <Stat label={tr("labs.fiV62.s88", { defaultValue: "价格" })}} value={f(out.price, 3)} />
+            <Stat label={tr("labs.fiV62.s89", { defaultValue: "有效久期" })}} value={f(out.effDuration, 3)} color={C.gold} />
+            <Stat label={tr("labs.fiV62.s90", { defaultValue: "有效凸性" })}} value={f(out.effConvexity, 2)} color={out.effConvexity < 0 ? C.red : C.teal} />
+            <Stat label={tr("labs.fiV62.s91", { defaultValue: "DV01 (每 100 面值)" })}} value={f(out.dv01, 4)} />
           </Stats>
         </div>
       </Grid>
@@ -345,12 +345,12 @@ function KrdPanel() {
     { bucket: "10Y", 组合: k10, 对冲后: k10 + out.notional[1] * 0.1 / 100 + out.notional[2] * 8.4 / 100 },
   ];
   return (
-    <Panel title={tr("labs.fiV62.s16", { defaultValue: "关键利率久期对冲" })} note={tr("labs.fiV62.s92", { defaultValue: "平行移动只是曲线风险的一个维度。关键利率久期把总久期拆到各个期限桶上，对冲的任务是用一组基准券把每个桶分别打平——这也是曲线陡峭化/平坦化交易能够单独表达观点的技术前提。" })}>
+    <Panel title={tr("labs.fiV62.s16", { defaultValue: "关键利率久期对冲" })}} note={tr("labs.fiV62.s92", { defaultValue: "平行移动只是曲线风险的一个维度。关键利率久期把总久期拆到各个期限桶上，对冲的任务是用一组基准券把每个桶分别打平——这也是曲线陡峭化/平坦化交易能够单独表达观点的技术前提。" })}}>
       <Grid>
         <Controls>
-          <Slider label={tr("labs.fiV62.s93", { defaultValue: "2Y 桶 KRD" })} value={k2} min={0} max={5} step={0.1} onChange={setK2} />
-          <Slider label={tr("labs.fiV62.s94", { defaultValue: "5Y 桶 KRD" })} value={k5} min={0} max={5} step={0.1} onChange={setK5} />
-          <Slider label={tr("labs.fiV62.s95", { defaultValue: "10Y 桶 KRD" })} value={k10} min={0} max={8} step={0.1} onChange={setK10} />
+          <Slider label={tr("labs.fiV62.s93", { defaultValue: "2Y 桶 KRD" })}} value={k2} min={0} max={5} step={0.1} onChange={setK2} />
+          <Slider label={tr("labs.fiV62.s94", { defaultValue: "5Y 桶 KRD" })}} value={k5} min={0} max={5} step={0.1} onChange={setK5} />
+          <Slider label={tr("labs.fiV62.s95", { defaultValue: "10Y 桶 KRD" })}} value={k10} min={0} max={8} step={0.1} onChange={setK10} />
         </Controls>
         <div>
           <ResponsiveContainer width="100%" height={280}>
@@ -361,15 +361,15 @@ function KrdPanel() {
               <Tooltip contentStyle={tooltipStyle} />
               <Legend />
               <ReferenceLine y={0} stroke={C.text} />
-              <Bar dataKey=tr("labs.fiV62.s96", { defaultValue: "组合" }) fill={C.gold} />
-              <Bar dataKey=tr("labs.fiV62.s97", { defaultValue: "对冲后" }) fill={C.teal} />
+              <Bar dataKey={tr("labs.fiV62.s96", { defaultValue: "组合" })} fill={C.gold} />
+              <Bar dataKey={tr("labs.fiV62.s97", { defaultValue: "对冲后" })} fill={C.teal} />
             </BarChart>
           </ResponsiveContainer>
           <Stats>
-            <Stat label={tr("labs.fiV62.s98", { defaultValue: "2Y 对冲名义" })} value={f(out.notional[0], 2)} color={C.gold} />
-            <Stat label={tr("labs.fiV62.s99", { defaultValue: "5Y 对冲名义" })} value={f(out.notional[1], 2)} color={C.gold} />
-            <Stat label={tr("labs.fiV62.s100", { defaultValue: "10Y 对冲名义" })} value={f(out.notional[2], 2)} color={C.gold} />
-            <Stat label={tr("labs.fiV62.s101", { defaultValue: "最大残差" })} value={f(out.maxResidual, 6)} color={C.teal} />
+            <Stat label={tr("labs.fiV62.s98", { defaultValue: "2Y 对冲名义" })}} value={f(out.notional[0], 2)} color={C.gold} />
+            <Stat label={tr("labs.fiV62.s99", { defaultValue: "5Y 对冲名义" })}} value={f(out.notional[1], 2)} color={C.gold} />
+            <Stat label={tr("labs.fiV62.s100", { defaultValue: "10Y 对冲名义" })}} value={f(out.notional[2], 2)} color={C.gold} />
+            <Stat label={tr("labs.fiV62.s101", { defaultValue: "最大残差" })}} value={f(out.maxResidual, 6)} color={C.teal} />
           </Stats>
         </div>
       </Grid>
@@ -393,13 +393,13 @@ function ImmunizePanel() {
     return { dy: +(dy * 1e4).toFixed(0), surplus: out.surplus(dy) };
   }), [out]);
   return (
-    <Panel title={tr("labs.fiV62.s102", { defaultValue: "免疫与久期缺口 (Redington)" })} note={tr("labs.fiV62.s103", { defaultValue: "负债驱动投资的核心不是最大化收益，而是让盈余对利率免疫。Redington 条件要求美元久期匹配、资产凸性高于负债凸性：此时盈余对小幅平行移动一阶不敏感，二阶还是正的。缺口一旦为正，利率上行就直接吃掉资本。" })}>
+    <Panel title={tr("labs.fiV62.s102", { defaultValue: "免疫与久期缺口 (Redington)" })}} note={tr("labs.fiV62.s103", { defaultValue: "负债驱动投资的核心不是最大化收益，而是让盈余对利率免疫。Redington 条件要求美元久期匹配、资产凸性高于负债凸性：此时盈余对小幅平行移动一阶不敏感，二阶还是正的。缺口一旦为正，利率上行就直接吃掉资本。" })}}>
       <Grid>
         <Controls>
-          <Slider label={tr("labs.fiV62.s104", { defaultValue: "资产久期" })} value={aD} min={1} max={15} step={0.1} onChange={setAD} />
-          <Slider label={tr("labs.fiV62.s105", { defaultValue: "资产凸性" })} value={aC} min={10} max={200} step={5} onChange={setAC} />
-          <Slider label={tr("labs.fiV62.s106", { defaultValue: "负债久期" })} value={lD} min={1} max={15} step={0.1} onChange={setLD} />
-          <Slider label={tr("labs.fiV62.s107", { defaultValue: "初始盈余" })} value={surplusPv} min={-20} max={40} step={1} onChange={setSurplusPv} />
+          <Slider label={tr("labs.fiV62.s104", { defaultValue: "资产久期" })}} value={aD} min={1} max={15} step={0.1} onChange={setAD} />
+          <Slider label={tr("labs.fiV62.s105", { defaultValue: "资产凸性" })}} value={aC} min={10} max={200} step={5} onChange={setAC} />
+          <Slider label={tr("labs.fiV62.s106", { defaultValue: "负债久期" })}} value={lD} min={1} max={15} step={0.1} onChange={setLD} />
+          <Slider label={tr("labs.fiV62.s107", { defaultValue: "初始盈余" })}} value={surplusPv} min={-20} max={40} step={1} onChange={setSurplusPv} />
         </Controls>
         <div>
           <ResponsiveContainer width="100%" height={280}>
@@ -409,14 +409,14 @@ function ImmunizePanel() {
               <YAxis stroke={C.text} fontSize={11} />
               <Tooltip contentStyle={tooltipStyle} />
               <ReferenceLine y={0} stroke={C.red} strokeDasharray="4 4" />
-              <Area dataKey="surplus" name={tr("labs.fiV62.s108", { defaultValue: "盈余" })} stroke={C.gold} fill={C.gold} fillOpacity={0.18} />
+              <Area dataKey="surplus" name={tr("labs.fiV62.s108", { defaultValue: "盈余" })}} stroke={C.gold} fill={C.gold} fillOpacity={0.18} />
             </AreaChart>
           </ResponsiveContainer>
           <Stats>
-            <Stat label={tr("labs.fiV62.s109", { defaultValue: "美元久期缺口" })} value={f(out.dollarGap, 2)} color={Math.abs(out.dollarGap) < 1 ? C.green : C.red} />
-            <Stat label={tr("labs.fiV62.s110", { defaultValue: "凸性缺口" })} value={f(out.convexityGap, 1)} color={out.convexityGap >= 0 ? C.teal : C.red} />
-            <Stat label={tr("labs.fiV62.s111", { defaultValue: "久期缺口" })} value={f(out.durationGap, 3)} />
-            <Stat label={tr("labs.fiV62.s112", { defaultValue: "是否免疫" })} value={out.immunized ? tr("labs.fiV62.s113", { defaultValue: "是" }) : tr("labs.fiV62.s114", { defaultValue: "否" })} color={out.immunized ? C.green : C.red} />
+            <Stat label={tr("labs.fiV62.s109", { defaultValue: "美元久期缺口" })}} value={f(out.dollarGap, 2)} color={Math.abs(out.dollarGap) < 1 ? C.green : C.red} />
+            <Stat label={tr("labs.fiV62.s110", { defaultValue: "凸性缺口" })}} value={f(out.convexityGap, 1)} color={out.convexityGap >= 0 ? C.teal : C.red} />
+            <Stat label={tr("labs.fiV62.s111", { defaultValue: "久期缺口" })}} value={f(out.durationGap, 3)} />
+            <Stat label={tr("labs.fiV62.s112", { defaultValue: "是否免疫" })}} value={out.immunized ? tr("labs.fiV62.s113", { defaultValue: "是" }) : tr("labs.fiV62.s114", { defaultValue: "否" })} color={out.immunized ? C.green : C.red} />
           </Stats>
         </div>
       </Grid>
@@ -447,12 +447,12 @@ function EmbeddedPanel() {
     };
   }), [sigma, strike]);
   return (
-    <Panel title={tr("labs.fiV62.s115", { defaultValue: "可赎回债与可回售债" })} note={tr("labs.fiV62.s116", { defaultValue: "内含期权把债券的价格-利率曲线掰弯：赎回权归发行人，价格在低利率端被赎回价压平（负凸性）；回售权归投资者，价格在高利率端获得下方保护。期权价值 = 普通债价值与含权价值之差，随利率波动率单调上升。" })}>
+    <Panel title={tr("labs.fiV62.s115", { defaultValue: "可赎回债与可回售债" })}} note={tr("labs.fiV62.s116", { defaultValue: "内含期权把债券的价格-利率曲线掰弯：赎回权归发行人，价格在低利率端被赎回价压平（负凸性）；回售权归投资者，价格在高利率端获得下方保护。期权价值 = 普通债价值与含权价值之差，随利率波动率单调上升。" })}}>
       <Grid>
         <Controls>
-          <Slider label={tr("labs.fiV62.s117", { defaultValue: "短率水平 r₀" })} value={r0} min={0.005} max={0.1} step={0.0025} onChange={setR0} />
-          <Slider label={tr("labs.fiV62.s85", { defaultValue: "利率波动率 σ" })} value={sigma} min={0.02} max={0.6} step={0.01} onChange={setSigma} />
-          <Slider label={tr("labs.fiV62.s118", { defaultValue: "行权价" })} value={strike} min={90} max={110} step={0.5} onChange={setStrike} />
+          <Slider label={tr("labs.fiV62.s117", { defaultValue: "短率水平 r₀" })}} value={r0} min={0.005} max={0.1} step={0.0025} onChange={setR0} />
+          <Slider label={tr("labs.fiV62.s85", { defaultValue: "利率波动率 σ" })}} value={sigma} min={0.02} max={0.6} step={0.01} onChange={setSigma} />
+          <Slider label={tr("labs.fiV62.s118", { defaultValue: "行权价" })}} value={strike} min={90} max={110} step={0.5} onChange={setStrike} />
         </Controls>
         <div>
           <ResponsiveContainer width="100%" height={280}>
@@ -463,16 +463,16 @@ function EmbeddedPanel() {
               <Tooltip contentStyle={tooltipStyle} />
               <Legend />
               <ReferenceLine y={strike} stroke={C.red} strokeDasharray="4 4" />
-              <Line dataKey=tr("labs.fiV62.s119", { defaultValue: "普通债" }) stroke={C.text} dot={false} />
-              <Line dataKey=tr("labs.fiV62.s120", { defaultValue: "可赎回" }) stroke={C.gold} dot={false} strokeWidth={2} />
-              <Line dataKey=tr("labs.fiV62.s121", { defaultValue: "可回售" }) stroke={C.teal} dot={false} strokeWidth={2} />
+              <Line dataKey={tr("labs.fiV62.s119", { defaultValue: "普通债" })} stroke={C.text} dot={false} />
+              <Line dataKey={tr("labs.fiV62.s120", { defaultValue: "可赎回" })} stroke={C.gold} dot={false} strokeWidth={2} />
+              <Line dataKey={tr("labs.fiV62.s121", { defaultValue: "可回售" })} stroke={C.teal} dot={false} strokeWidth={2} />
             </LineChart>
           </ResponsiveContainer>
           <Stats>
-            <Stat label={tr("labs.fiV62.s119", { defaultValue: "普通债" })} value={f(out.bullet.price, 3)} />
-            <Stat label={tr("labs.fiV62.s122", { defaultValue: "可赎回债" })} value={f(out.call.price, 3)} color={C.gold} />
-            <Stat label={tr("labs.fiV62.s123", { defaultValue: "赎回期权价值" })} value={f(out.call.optionValue, 3)} color={C.red} />
-            <Stat label={tr("labs.fiV62.s124", { defaultValue: "回售期权价值" })} value={f(out.put.optionValue, 3)} color={C.teal} />
+            <Stat label={tr("labs.fiV62.s119", { defaultValue: "普通债" })}} value={f(out.bullet.price, 3)} />
+            <Stat label={tr("labs.fiV62.s122", { defaultValue: "可赎回债" })}} value={f(out.call.price, 3)} color={C.gold} />
+            <Stat label={tr("labs.fiV62.s123", { defaultValue: "赎回期权价值" })}} value={f(out.call.optionValue, 3)} color={C.red} />
+            <Stat label={tr("labs.fiV62.s124", { defaultValue: "回售期权价值" })}} value={f(out.put.optionValue, 3)} color={C.teal} />
           </Stats>
         </div>
       </Grid>
@@ -493,12 +493,12 @@ function ConvertiblePanel() {
     return { S, 可转债: r.value, 债底: r.bondFloor, 转换平价: r.parity };
   }), [sigma, credit]);
   return (
-    <Panel title={tr("labs.fiV62.s125", { defaultValue: "可转债分解：债底 + 转换期权" })} note={tr("labs.fiV62.s126", { defaultValue: "可转债 = 债底 + 股票看涨期权。股价低时债底主导，行为像信用债；股价高时转换平价主导，delta 趋近转换比率；中间是混合区，波动率与信用利差同时定价。转股溢价率衡量你为可选性多付了多少。" })}>
+    <Panel title={tr("labs.fiV62.s125", { defaultValue: "可转债分解：债底 + 转换期权" })}} note={tr("labs.fiV62.s126", { defaultValue: "可转债 = 债底 + 股票看涨期权。股价低时债底主导，行为像信用债；股价高时转换平价主导，delta 趋近转换比率；中间是混合区，波动率与信用利差同时定价。转股溢价率衡量你为可选性多付了多少。" })}}>
       <Grid>
         <Controls>
-          <Slider label={tr("labs.fiV62.s127", { defaultValue: "正股价格" })} value={stock} min={10} max={100} step={1} onChange={setStock} />
-          <Slider label={tr("labs.fiV62.s128", { defaultValue: "股票波动率" })} value={sigma} min={0.1} max={0.9} step={0.01} onChange={setSigma} />
-          <Slider label={tr("labs.fiV62.s129", { defaultValue: "信用收益率" })} value={credit} min={0.02} max={0.2} step={0.005} onChange={setCredit} />
+          <Slider label={tr("labs.fiV62.s127", { defaultValue: "正股价格" })}} value={stock} min={10} max={100} step={1} onChange={setStock} />
+          <Slider label={tr("labs.fiV62.s128", { defaultValue: "股票波动率" })}} value={sigma} min={0.1} max={0.9} step={0.01} onChange={setSigma} />
+          <Slider label={tr("labs.fiV62.s129", { defaultValue: "信用收益率" })}} value={credit} min={0.02} max={0.2} step={0.005} onChange={setCredit} />
         </Controls>
         <div>
           <ResponsiveContainer width="100%" height={280}>
@@ -509,16 +509,16 @@ function ConvertiblePanel() {
               <Tooltip contentStyle={tooltipStyle} />
               <Legend />
               <ReferenceLine x={stock} stroke={C.red} strokeDasharray="4 4" />
-              <Line dataKey=tr("labs.fiV62.s130", { defaultValue: "可转债" }) stroke={C.gold} dot={false} strokeWidth={2} />
-              <Line dataKey=tr("labs.fiV62.s131", { defaultValue: "债底" }) stroke={C.teal} dot={false} strokeDasharray="4 3" />
-              <Line dataKey=tr("labs.fiV62.s132", { defaultValue: "转换平价" }) stroke={C.text} dot={false} strokeDasharray="2 3" />
+              <Line dataKey={tr("labs.fiV62.s130", { defaultValue: "可转债" })} stroke={C.gold} dot={false} strokeWidth={2} />
+              <Line dataKey={tr("labs.fiV62.s131", { defaultValue: "债底" })} stroke={C.teal} dot={false} strokeDasharray="4 3" />
+              <Line dataKey={tr("labs.fiV62.s132", { defaultValue: "转换平价" })} stroke={C.text} dot={false} strokeDasharray="2 3" />
             </LineChart>
           </ResponsiveContainer>
           <Stats>
-            <Stat label={tr("labs.fiV62.s133", { defaultValue: "理论价值" })} value={f(out.value, 2)} color={C.gold} />
-            <Stat label={tr("labs.fiV62.s131", { defaultValue: "债底" })} value={f(out.bondFloor, 2)} color={C.teal} />
+            <Stat label={tr("labs.fiV62.s133", { defaultValue: "理论价值" })}} value={f(out.value, 2)} color={C.gold} />
+            <Stat label={tr("labs.fiV62.s131", { defaultValue: "债底" })}} value={f(out.bondFloor, 2)} color={C.teal} />
             <Stat label="Delta" value={f(out.delta, 3)} />
-            <Stat label={tr("labs.fiV62.s134", { defaultValue: "所处区间" })} value={out.regime === "bond" ? tr("labs.fiV62.s135", { defaultValue: "债性" }) : out.regime === "equity" ? tr("labs.fiV62.s136", { defaultValue: "股性" }) : tr("labs.fiV62.s137", { defaultValue: "混合" })} color={C.red} />
+            <Stat label={tr("labs.fiV62.s134", { defaultValue: "所处区间" })}} value={out.regime === "bond" ? tr("labs.fiV62.s135", { defaultValue: "债性" }) : out.regime === "equity" ? tr("labs.fiV62.s136", { defaultValue: "股性" }) : tr("labs.fiV62.s137", { defaultValue: "混合" })} color={C.red} />
           </Stats>
         </div>
       </Grid>
@@ -544,13 +544,13 @@ function CreditDecPanel() {
     { name: tr("labs.fiV62.s142", { defaultValue: "残差" }), v: out.residual * 1e4 },
   ];
   return (
-    <Panel title={tr("labs.fiV62.s143", { defaultValue: "信用利差分解与信用利差之谜" })} note={tr("labs.fiV62.s144", { defaultValue: "投资级债券的利差远高于历史违约损失所能解释的部分——这就是信用利差之谜。把观测利差拆成预期损失、承担违约风险的溢价、流动性补偿与税收效应后，通常仍有相当比例落在残差里，提示模型之外的定价因素。" })}>
+    <Panel title={tr("labs.fiV62.s143", { defaultValue: "信用利差分解与信用利差之谜" })}} note={tr("labs.fiV62.s144", { defaultValue: "投资级债券的利差远高于历史违约损失所能解释的部分——这就是信用利差之谜。把观测利差拆成预期损失、承担违约风险的溢价、流动性补偿与税收效应后，通常仍有相当比例落在残差里，提示模型之外的定价因素。" })}}>
       <Grid>
         <Controls>
-          <Slider label={tr("labs.fiV62.s145", { defaultValue: "观测利差" })} value={obs} min={0.002} max={0.06} step={0.001} onChange={setObs} />
-          <Slider label={tr("labs.fiV62.s146", { defaultValue: "年化违约概率" })} value={pd} min={0.0005} max={0.06} step={0.0005} onChange={setPd} />
-          <Slider label={tr("labs.fiV62.s147", { defaultValue: "违约损失率 LGD" })} value={lgd} min={0.1} max={0.9} step={0.05} onChange={setLgd} />
-          <Slider label={tr("labs.fiV62.s148", { defaultValue: "流动性溢价" })} value={liq} min={0} max={0.02} step={0.0005} onChange={setLiq} />
+          <Slider label={tr("labs.fiV62.s145", { defaultValue: "观测利差" })}} value={obs} min={0.002} max={0.06} step={0.001} onChange={setObs} />
+          <Slider label={tr("labs.fiV62.s146", { defaultValue: "年化违约概率" })}} value={pd} min={0.0005} max={0.06} step={0.0005} onChange={setPd} />
+          <Slider label={tr("labs.fiV62.s147", { defaultValue: "违约损失率 LGD" })}} value={lgd} min={0.1} max={0.9} step={0.05} onChange={setLgd} />
+          <Slider label={tr("labs.fiV62.s148", { defaultValue: "流动性溢价" })}} value={liq} min={0} max={0.02} step={0.0005} onChange={setLiq} />
         </Controls>
         <div>
           <ResponsiveContainer width="100%" height={280}>
@@ -560,14 +560,14 @@ function CreditDecPanel() {
               <YAxis stroke={C.text} fontSize={11} unit="bp" />
               <Tooltip contentStyle={tooltipStyle} />
               <ReferenceLine y={0} stroke={C.text} />
-              <Bar dataKey="v" name={tr("labs.fiV62.s149", { defaultValue: "贡献 (bp)" })} fill={C.gold} />
+              <Bar dataKey="v" name={tr("labs.fiV62.s149", { defaultValue: "贡献 (bp)" })}} fill={C.gold} />
             </BarChart>
           </ResponsiveContainer>
           <Stats>
-            <Stat label={tr("labs.fiV62.s150", { defaultValue: "预期损失占比" })} value={pct(out.shares.expectedLoss)} color={C.teal} />
-            <Stat label={tr("labs.fiV62.s151", { defaultValue: "流动性占比" })} value={pct(out.shares.liquidity)} />
-            <Stat label={tr("labs.fiV62.s152", { defaultValue: "残差占比" })} value={pct(out.shares.residual)} color={C.red} />
-            <Stat label={tr("labs.fiV62.s153", { defaultValue: "利差之谜" })} value={out.creditSpreadPuzzle ? tr("labs.fiV62.s154", { defaultValue: "成立" }) : tr("labs.fiV62.s155", { defaultValue: "不成立" })} color={out.creditSpreadPuzzle ? C.red : C.green} />
+            <Stat label={tr("labs.fiV62.s150", { defaultValue: "预期损失占比" })}} value={pct(out.shares.expectedLoss)} color={C.teal} />
+            <Stat label={tr("labs.fiV62.s151", { defaultValue: "流动性占比" })}} value={pct(out.shares.liquidity)} />
+            <Stat label={tr("labs.fiV62.s152", { defaultValue: "残差占比" })}} value={pct(out.shares.residual)} color={C.red} />
+            <Stat label={tr("labs.fiV62.s153", { defaultValue: "利差之谜" })}} value={out.creditSpreadPuzzle ? tr("labs.fiV62.s154", { defaultValue: "成立" }) : tr("labs.fiV62.s155", { defaultValue: "不成立" })} color={out.creditSpreadPuzzle ? C.red : C.green} />
           </Stats>
         </div>
       </Grid>
@@ -598,11 +598,11 @@ function MigrationPanel() {
     BB: r.distribution[2] * 100, 违约: r.defaultProb * 100, VaR: r.var,
   }));
   return (
-    <Panel title={tr("labs.fiV62.s156", { defaultValue: "评级迁移矩阵与迁移风险 VaR" })} note={tr("labs.fiV62.s157", { defaultValue: "信用风险不止违约：评级下调本身就通过利差重估造成损失。把一年期迁移矩阵做矩阵幂即可得到多期分布，累积违约概率随期限凸性上升；把各状态的利差变化折算成损失后取分位数，就是 CreditMetrics 式的迁移风险 VaR。" })}>
+    <Panel title={tr("labs.fiV62.s156", { defaultValue: "评级迁移矩阵与迁移风险 VaR" })}} note={tr("labs.fiV62.s157", { defaultValue: "信用风险不止违约：评级下调本身就通过利差重估造成损失。把一年期迁移矩阵做矩阵幂即可得到多期分布，累积违约概率随期限凸性上升；把各状态的利差变化折算成损失后取分位数，就是 CreditMetrics 式的迁移风险 VaR。" })}}>
       <Grid>
         <Controls>
-          <Slider label={tr("labs.fiV62.s158", { defaultValue: "下调强度" })} value={downgrade} min={0.01} max={0.2} step={0.005} onChange={setDowngrade} />
-          <Slider label={tr("labs.fiV62.s159", { defaultValue: "初始评级 (0=最高)" })} value={start} min={0} max={2} step={1} onChange={setStart} />
+          <Slider label={tr("labs.fiV62.s158", { defaultValue: "下调强度" })}} value={downgrade} min={0.01} max={0.2} step={0.005} onChange={setDowngrade} />
+          <Slider label={tr("labs.fiV62.s159", { defaultValue: "初始评级 (0=最高)" })}} value={start} min={0} max={2} step={1} onChange={setStart} />
         </Controls>
         <div>
           <ResponsiveContainer width="100%" height={280}>
@@ -615,14 +615,14 @@ function MigrationPanel() {
               <Area dataKey="AAA" stackId="1" stroke={C.teal} fill={C.teal} fillOpacity={0.35} />
               <Area dataKey="A" stackId="1" stroke={C.gold} fill={C.gold} fillOpacity={0.35} />
               <Area dataKey="BB" stackId="1" stroke={C.text} fill={C.text} fillOpacity={0.25} />
-              <Area dataKey=tr("labs.fiV62.s160", { defaultValue: "违约" }) stackId="1" stroke={C.red} fill={C.red} fillOpacity={0.5} />
+              <Area dataKey={tr("labs.fiV62.s160", { defaultValue: "违约" })} stackId="1" stroke={C.red} fill={C.red} fillOpacity={0.5} />
             </AreaChart>
           </ResponsiveContainer>
           <Stats>
-            <Stat label={tr("labs.fiV62.s161", { defaultValue: "1 年违约率" })} value={pct(out.results[0].defaultProb)} />
-            <Stat label={tr("labs.fiV62.s162", { defaultValue: "10 年违约率" })} value={pct(out.results[5].defaultProb)} color={C.red} />
-            <Stat label={tr("labs.fiV62.s163", { defaultValue: "10 年期望利差" })} value={bp(out.results[5].expectedSpread)} color={C.gold} />
-            <Stat label={tr("labs.fiV62.s164", { defaultValue: "迁移 VaR (99%)" })} value={f(out.results[5].var, 3)} color={C.red} />
+            <Stat label={tr("labs.fiV62.s161", { defaultValue: "1 年违约率" })}} value={pct(out.results[0].defaultProb)} />
+            <Stat label={tr("labs.fiV62.s162", { defaultValue: "10 年违约率" })}} value={pct(out.results[5].defaultProb)} color={C.red} />
+            <Stat label={tr("labs.fiV62.s163", { defaultValue: "10 年期望利差" })}} value={bp(out.results[5].expectedSpread)} color={C.gold} />
+            <Stat label={tr("labs.fiV62.s164", { defaultValue: "迁移 VaR (99%)" })}} value={f(out.results[5].var, 3)} color={C.red} />
           </Stats>
         </div>
       </Grid>
@@ -644,12 +644,12 @@ function WaterfallPanel() {
   const out = useMemo(() => waterfall({ poolPrincipal: 100, poolInterest: 6, lossRate, tranches, ocTrigger }), [lossRate, tranches, ocTrigger]);
   const data = out.tranches.map((item) => ({ name: item.name, 本金偿付: item.principalPaid, 减记: item.writedown, 利息: item.interestPaid }));
   return (
-    <Panel title={tr("labs.fiV62.s168", { defaultValue: "分层瀑布与超额抵押触发" })} note={tr("labs.fiV62.s169", { defaultValue: "结构化产品的风险分配写在现金流瀑布里：本金按优先级顺序偿付，损失自下而上吞噬。超额抵押触发一旦被击穿，利息会被强制改道去偿还优先级本金——这正是危机中夹层持有人一夜之间断流的机制。" })}>
+    <Panel title={tr("labs.fiV62.s168", { defaultValue: "分层瀑布与超额抵押触发" })}} note={tr("labs.fiV62.s169", { defaultValue: "结构化产品的风险分配写在现金流瀑布里：本金按优先级顺序偿付，损失自下而上吞噬。超额抵押触发一旦被击穿，利息会被强制改道去偿还优先级本金——这正是危机中夹层持有人一夜之间断流的机制。" })}}>
       <Grid>
         <Controls>
-          <Slider label={tr("labs.fiV62.s170", { defaultValue: "资产池损失率" })} value={lossRate} min={0} max={0.5} step={0.01} onChange={setLossRate} />
-          <Slider label={tr("labs.fiV62.s171", { defaultValue: "优先层厚度" })} value={seniorSize} min={40} max={90} step={1} onChange={setSeniorSize} />
-          <Slider label={tr("labs.fiV62.s172", { defaultValue: "OC 触发水平" })} value={ocTrigger} min={0.8} max={1.1} step={0.01} onChange={setOcTrigger} />
+          <Slider label={tr("labs.fiV62.s170", { defaultValue: "资产池损失率" })}} value={lossRate} min={0} max={0.5} step={0.01} onChange={setLossRate} />
+          <Slider label={tr("labs.fiV62.s171", { defaultValue: "优先层厚度" })}} value={seniorSize} min={40} max={90} step={1} onChange={setSeniorSize} />
+          <Slider label={tr("labs.fiV62.s172", { defaultValue: "OC 触发水平" })}} value={ocTrigger} min={0.8} max={1.1} step={0.01} onChange={setOcTrigger} />
         </Controls>
         <div>
           <ResponsiveContainer width="100%" height={280}>
@@ -659,16 +659,16 @@ function WaterfallPanel() {
               <YAxis stroke={C.text} fontSize={11} />
               <Tooltip contentStyle={tooltipStyle} />
               <Legend />
-              <Bar dataKey=tr("labs.fiV62.s173", { defaultValue: "本金偿付" }) stackId="a" fill={C.teal} />
-              <Bar dataKey=tr("labs.fiV62.s174", { defaultValue: "减记" }) stackId="a" fill={C.red} />
-              <Bar dataKey=tr("labs.fiV62.s175", { defaultValue: "利息" }) fill={C.gold} />
+              <Bar dataKey={tr("labs.fiV62.s173", { defaultValue: "本金偿付" })} stackId="a" fill={C.teal} />
+              <Bar dataKey={tr("labs.fiV62.s174", { defaultValue: "减记" })} stackId="a" fill={C.red} />
+              <Bar dataKey={tr("labs.fiV62.s175", { defaultValue: "利息" })} fill={C.gold} />
             </BarChart>
           </ResponsiveContainer>
           <Stats>
-            <Stat label={tr("labs.fiV62.s176", { defaultValue: "资产池损失" })} value={f(out.loss, 2)} color={C.red} />
-            <Stat label={tr("labs.fiV62.s177", { defaultValue: "OC 比率" })} value={f(out.ocRatio, 4)} color={out.triggered ? C.red : C.teal} />
-            <Stat label={tr("labs.fiV62.s178", { defaultValue: "触发状态" })} value={out.triggered ? tr("labs.fiV62.s179", { defaultValue: "已击穿" }) : tr("labs.fiV62.s180", { defaultValue: "正常" })} color={out.triggered ? C.red : C.green} />
-            <Stat label={tr("labs.fiV62.s181", { defaultValue: "股权残值" })} value={f(out.equityResidual, 2)} color={C.gold} />
+            <Stat label={tr("labs.fiV62.s176", { defaultValue: "资产池损失" })}} value={f(out.loss, 2)} color={C.red} />
+            <Stat label={tr("labs.fiV62.s177", { defaultValue: "OC 比率" })}} value={f(out.ocRatio, 4)} color={out.triggered ? C.red : C.teal} />
+            <Stat label={tr("labs.fiV62.s178", { defaultValue: "触发状态" })}} value={out.triggered ? tr("labs.fiV62.s179", { defaultValue: "已击穿" }) : tr("labs.fiV62.s180", { defaultValue: "正常" })} color={out.triggered ? C.red : C.green} />
+            <Stat label={tr("labs.fiV62.s181", { defaultValue: "股权残值" })}} value={f(out.equityResidual, 2)} color={C.gold} />
           </Stats>
         </div>
       </Grid>
@@ -702,11 +702,11 @@ function CopulaPanel() {
     };
   }), [pd, lgd]);
   return (
-    <Panel title={tr("labs.fiV62.s186", { defaultValue: "单因子高斯 copula 分层" })} note={tr("labs.fiV62.s187", { defaultValue: "相关性不改变资产池的期望损失，只改变损失在分层之间的分配：相关性上升时，全体一起违约与全体都不违约的概率同时上升，股权层反而受益，优先层被显著损害。这就是相关性微笑与 2007 年「AAA 也会破」的定价根源。" })}>
+    <Panel title={tr("labs.fiV62.s186", { defaultValue: "单因子高斯 copula 分层" })}} note={tr("labs.fiV62.s187", { defaultValue: "相关性不改变资产池的期望损失，只改变损失在分层之间的分配：相关性上升时，全体一起违约与全体都不违约的概率同时上升，股权层反而受益，优先层被显著损害。这就是相关性微笑与 2007 年「AAA 也会破」的定价根源。" })}}>
       <Grid>
         <Controls>
-          <Slider label={tr("labs.fiV62.s188", { defaultValue: "单笔违约概率" })} value={pd} min={0.005} max={0.3} step={0.005} onChange={setPd} />
-          <Slider label={tr("labs.fiV62.s189", { defaultValue: "资产相关性 ρ" })} value={rho} min={0.01} max={0.9} step={0.01} onChange={setRho} />
+          <Slider label={tr("labs.fiV62.s188", { defaultValue: "单笔违约概率" })}} value={pd} min={0.005} max={0.3} step={0.005} onChange={setPd} />
+          <Slider label={tr("labs.fiV62.s189", { defaultValue: "资产相关性 ρ" })}} value={rho} min={0.01} max={0.9} step={0.01} onChange={setRho} />
           <Slider label="LGD" value={lgd} min={0.2} max={0.9} step={0.05} onChange={setLgd} />
         </Controls>
         <div>
@@ -718,14 +718,14 @@ function CopulaPanel() {
               <Tooltip contentStyle={tooltipStyle} />
               <Legend />
               <ReferenceLine x={rho} stroke={C.red} strokeDasharray="4 4" />
-              <Line dataKey=tr("labs.fiV62.s190", { defaultValue: "股权" }) stroke={C.red} dot={false} />
-              <Line dataKey=tr("labs.fiV62.s191", { defaultValue: "夹层" }) stroke={C.gold} dot={false} />
-              <Line dataKey=tr("labs.fiV62.s192", { defaultValue: "优先" }) stroke={C.teal} dot={false} strokeWidth={2} />
+              <Line dataKey={tr("labs.fiV62.s190", { defaultValue: "股权" })} stroke={C.red} dot={false} />
+              <Line dataKey={tr("labs.fiV62.s191", { defaultValue: "夹层" })} stroke={C.gold} dot={false} />
+              <Line dataKey={tr("labs.fiV62.s192", { defaultValue: "优先" })} stroke={C.teal} dot={false} strokeWidth={2} />
             </LineChart>
           </ResponsiveContainer>
           <Stats>
             {out.map((item) => (
-              <Stat key={item.name} label={item.name} value={pct(t.expectedTrancheLoss)} color={C.gold} />
+              <Stat key={item.name} label={item.name} value={pct(item.expectedTrancheLoss)} color={C.gold} />
             ))}
           </Stats>
           <p className="text-[11px] text-muted-foreground mt-3">资产池期望损失 {pct(out[0].expectedPoolLoss)}，与 ρ 无关；变化的只是它在各层之间的切分。</p>
@@ -749,13 +749,13 @@ function BasisPanel() {
     { name: tr("labs.fiV62.s195", { defaultValue: "基差" }), v: out.basis * 1e4 },
   ];
   return (
-    <Panel title={tr("labs.fiV62.s32", { defaultValue: "CDS-债券基差" })} note={tr("labs.fiV62.s196", { defaultValue: "同一个信用主体有两种表达：买现券 + 融资，或卖出保护。理论上两者利差应当相等，实际上融资成本、回购便利与资产负债表约束会撕开一个基差。负基差意味着现券便宜，但把它捞回来需要能持续融资——2008 年正是融资先断裂。" })}>
+    <Panel title={tr("labs.fiV62.s32", { defaultValue: "CDS-债券基差" })}} note={tr("labs.fiV62.s196", { defaultValue: "同一个信用主体有两种表达：买现券 + 融资，或卖出保护。理论上两者利差应当相等，实际上融资成本、回购便利与资产负债表约束会撕开一个基差。负基差意味着现券便宜，但把它捞回来需要能持续融资——2008 年正是融资先断裂。" })}}>
       <Grid>
         <Controls>
-          <Slider label={tr("labs.fiV62.s197", { defaultValue: "CDS 利差" })} value={cds} min={0.001} max={0.06} step={0.0005} onChange={setCds} />
-          <Slider label={tr("labs.fiV62.s198", { defaultValue: "债券 Z-spread" })} value={z} min={0.001} max={0.08} step={0.0005} onChange={setZ} />
-          <Slider label={tr("labs.fiV62.s199", { defaultValue: "回购成本" })} value={repo} min={0} max={0.02} step={0.0005} onChange={setRepo} />
-          <Slider label={tr("labs.fiV62.s200", { defaultValue: "融资利差" })} value={funding} min={0} max={0.02} step={0.0005} onChange={setFunding} />
+          <Slider label={tr("labs.fiV62.s197", { defaultValue: "CDS 利差" })}} value={cds} min={0.001} max={0.06} step={0.0005} onChange={setCds} />
+          <Slider label={tr("labs.fiV62.s198", { defaultValue: "债券 Z-spread" })}} value={z} min={0.001} max={0.08} step={0.0005} onChange={setZ} />
+          <Slider label={tr("labs.fiV62.s199", { defaultValue: "回购成本" })}} value={repo} min={0} max={0.02} step={0.0005} onChange={setRepo} />
+          <Slider label={tr("labs.fiV62.s200", { defaultValue: "融资利差" })}} value={funding} min={0} max={0.02} step={0.0005} onChange={setFunding} />
         </Controls>
         <div>
           <ResponsiveContainer width="100%" height={280}>
@@ -765,14 +765,14 @@ function BasisPanel() {
               <YAxis stroke={C.text} fontSize={11} unit="bp" />
               <Tooltip contentStyle={tooltipStyle} />
               <ReferenceLine y={0} stroke={C.text} />
-              <Bar dataKey="v" name={tr("labs.fiV62.s80", { defaultValue: "利差 (bp)" })} fill={C.gold} />
+              <Bar dataKey="v" name={tr("labs.fiV62.s80", { defaultValue: "利差 (bp)" })}} fill={C.gold} />
             </BarChart>
           </ResponsiveContainer>
           <Stats>
-            <Stat label={tr("labs.fiV62.s195", { defaultValue: "基差" })} value={bp(out.basis)} color={out.basis < 0 ? C.red : C.teal} />
-            <Stat label={tr("labs.fiV62.s201", { defaultValue: "方向" })} value={out.sign === "negative" ? tr("labs.fiV62.s202", { defaultValue: "负基差" }) : out.sign === "positive" ? tr("labs.fiV62.s203", { defaultValue: "正基差" }) : tr("labs.fiV62.s204", { defaultValue: "持平" })} />
-            <Stat label={tr("labs.fiV62.s205", { defaultValue: "是否可套" })} value={out.arbitrage ? tr("labs.fiV62.s206", { defaultValue: "超过 20bp" }) : tr("labs.fiV62.s207", { defaultValue: "在摩擦内" })} color={out.arbitrage ? C.gold : C.text} />
-            <Stat label={tr("labs.fiV62.s208", { defaultValue: "交易方向" })} value={out.basis < 0 ? tr("labs.fiV62.s209", { defaultValue: "买券+买保护" }) : tr("labs.fiV62.s210", { defaultValue: "卖券+卖保护" })} />
+            <Stat label={tr("labs.fiV62.s195", { defaultValue: "基差" })}} value={bp(out.basis)} color={out.basis < 0 ? C.red : C.teal} />
+            <Stat label={tr("labs.fiV62.s201", { defaultValue: "方向" })}} value={out.sign === "negative" ? tr("labs.fiV62.s202", { defaultValue: "负基差" }) : out.sign === "positive" ? tr("labs.fiV62.s203", { defaultValue: "正基差" }) : tr("labs.fiV62.s204", { defaultValue: "持平" })} />
+            <Stat label={tr("labs.fiV62.s205", { defaultValue: "是否可套" })}} value={out.arbitrage ? tr("labs.fiV62.s206", { defaultValue: "超过 20bp" }) : tr("labs.fiV62.s207", { defaultValue: "在摩擦内" })} color={out.arbitrage ? C.gold : C.text} />
+            <Stat label={tr("labs.fiV62.s208", { defaultValue: "交易方向" })}} value={out.basis < 0 ? tr("labs.fiV62.s209", { defaultValue: "买券+买保护" }) : tr("labs.fiV62.s210", { defaultValue: "卖券+卖保护" })} />
           </Stats>
         </div>
       </Grid>
@@ -789,12 +789,12 @@ function MbsPanel() {
   const out = useMemo(() => mbsNegativeConvexity({ wac, baseCpr: cpr, refiSensitivity: refi, maturity: 20 }), [wac, cpr, refi]);
   const data = out.curve.map((p) => ({ shift: +(p.shift * 1e4).toFixed(0), price: p.price }));
   return (
-    <Panel title={tr("labs.fiV62.s211", { defaultValue: "MBS 提前还款与负凸性" })} note={tr("labs.fiV62.s212", { defaultValue: "房贷借款人手里握着一份免费的再融资期权。利率下行时提前还款加速，MBS 久期反而缩短，投资者被迫在低利率再投资；利率上行时提前还款枯竭，久期拉长——这种「两头挨打」的久期漂移就是负凸性，也是对冲组合需要不断再平衡的原因。" })}>
+    <Panel title={tr("labs.fiV62.s211", { defaultValue: "MBS 提前还款与负凸性" })}} note={tr("labs.fiV62.s212", { defaultValue: "房贷借款人手里握着一份免费的再融资期权。利率下行时提前还款加速，MBS 久期反而缩短，投资者被迫在低利率再投资；利率上行时提前还款枯竭，久期拉长——这种「两头挨打」的久期漂移就是负凸性，也是对冲组合需要不断再平衡的原因。" })}}>
       <Grid>
         <Controls>
-          <Slider label={tr("labs.fiV62.s213", { defaultValue: "加权平均票息 WAC" })} value={wac} min={0.02} max={0.09} step={0.0025} onChange={setWac} />
-          <Slider label={tr("labs.fiV62.s214", { defaultValue: "基准 CPR" })} value={cpr} min={0.02} max={0.3} step={0.01} onChange={setCpr} />
-          <Slider label={tr("labs.fiV62.s215", { defaultValue: "再融资敏感度" })} value={refi} min={0} max={25} step={0.5} onChange={setRefi} />
+          <Slider label={tr("labs.fiV62.s213", { defaultValue: "加权平均票息 WAC" })}} value={wac} min={0.02} max={0.09} step={0.0025} onChange={setWac} />
+          <Slider label={tr("labs.fiV62.s214", { defaultValue: "基准 CPR" })}} value={cpr} min={0.02} max={0.3} step={0.01} onChange={setCpr} />
+          <Slider label={tr("labs.fiV62.s215", { defaultValue: "再融资敏感度" })}} value={refi} min={0} max={25} step={0.5} onChange={setRefi} />
         </Controls>
         <div>
           <ResponsiveContainer width="100%" height={280}>
@@ -804,14 +804,14 @@ function MbsPanel() {
               <YAxis stroke={C.text} fontSize={11} domain={["auto", "auto"]} />
               <Tooltip contentStyle={tooltipStyle} />
               <ReferenceLine x={0} stroke={C.text} strokeDasharray="4 4" />
-              <Line dataKey="price" name={tr("labs.fiV62.s216", { defaultValue: "MBS 价格" })} stroke={C.gold} dot={false} strokeWidth={2} />
+              <Line dataKey="price" name={tr("labs.fiV62.s216", { defaultValue: "MBS 价格" })}} stroke={C.gold} dot={false} strokeWidth={2} />
             </LineChart>
           </ResponsiveContainer>
           <Stats>
-            <Stat label={tr("labs.fiV62.s88", { defaultValue: "价格" })} value={f(out.price, 2)} />
-            <Stat label={tr("labs.fiV62.s89", { defaultValue: "有效久期" })} value={f(out.effDuration, 3)} color={C.gold} />
-            <Stat label={tr("labs.fiV62.s217", { defaultValue: "低利率久期" })} value={f(out.durationLowRates, 3)} color={C.teal} />
-            <Stat label={tr("labs.fiV62.s218", { defaultValue: "高利率久期" })} value={f(out.durationHighRates, 3)} color={C.red} />
+            <Stat label={tr("labs.fiV62.s88", { defaultValue: "价格" })}} value={f(out.price, 2)} />
+            <Stat label={tr("labs.fiV62.s89", { defaultValue: "有效久期" })}} value={f(out.effDuration, 3)} color={C.gold} />
+            <Stat label={tr("labs.fiV62.s217", { defaultValue: "低利率久期" })}} value={f(out.durationLowRates, 3)} color={C.teal} />
+            <Stat label={tr("labs.fiV62.s218", { defaultValue: "高利率久期" })}} value={f(out.durationHighRates, 3)} color={C.red} />
           </Stats>
         </div>
       </Grid>
@@ -830,13 +830,13 @@ function RepoPanel() {
   const spiral = useMemo(() => marginSpiral({ equity: 10, assets: lev.assets, haircut0: haircut, haircutShock: shock, priceImpact: 0.05 }), [lev.assets, haircut, shock]);
   const data = spiral.path.map((p) => ({ round: p.round, 资产: p.assets, 权益: p.equity, 价格: p.price * 100 }));
   return (
-    <Panel title={tr("labs.fiV62.s219", { defaultValue: "回购杠杆与保证金螺旋" })} note={tr("labs.fiV62.s220", { defaultValue: "回购让固定收益组合可以用很薄的权益撑起很大的资产：杠杆同时放大 carry 与久期风险，击穿点往往只有几十个基点。当折扣率因市场压力上升，被迫抛售压低价格，价格下跌又进一步侵蚀权益——这就是 Brunnermeier-Pedersen 的融资流动性螺旋。" })}>
+    <Panel title={tr("labs.fiV62.s219", { defaultValue: "回购杠杆与保证金螺旋" })}} note={tr("labs.fiV62.s220", { defaultValue: "回购让固定收益组合可以用很薄的权益撑起很大的资产：杠杆同时放大 carry 与久期风险，击穿点往往只有几十个基点。当折扣率因市场压力上升，被迫抛售压低价格，价格下跌又进一步侵蚀权益——这就是 Brunnermeier-Pedersen 的融资流动性螺旋。" })}}>
       <Grid>
         <Controls>
-          <Slider label={tr("labs.fiV62.s221", { defaultValue: "折扣率 haircut" })} value={haircut} min={0.01} max={0.25} step={0.005} onChange={setHaircut} />
-          <Slider label={tr("labs.fiV62.s222", { defaultValue: "资产收益率" })} value={assetYield} min={0} max={0.1} step={0.0025} onChange={setAssetYield} />
-          <Slider label={tr("labs.fiV62.s223", { defaultValue: "回购利率" })} value={repoRate} min={0} max={0.08} step={0.0025} onChange={setRepoRate} />
-          <Slider label={tr("labs.fiV62.s224", { defaultValue: "折扣率冲击" })} value={shock} min={0} max={0.2} step={0.005} onChange={setShock} />
+          <Slider label={tr("labs.fiV62.s221", { defaultValue: "折扣率 haircut" })}} value={haircut} min={0.01} max={0.25} step={0.005} onChange={setHaircut} />
+          <Slider label={tr("labs.fiV62.s222", { defaultValue: "资产收益率" })}} value={assetYield} min={0} max={0.1} step={0.0025} onChange={setAssetYield} />
+          <Slider label={tr("labs.fiV62.s223", { defaultValue: "回购利率" })}} value={repoRate} min={0} max={0.08} step={0.0025} onChange={setRepoRate} />
+          <Slider label={tr("labs.fiV62.s224", { defaultValue: "折扣率冲击" })}} value={shock} min={0} max={0.2} step={0.005} onChange={setShock} />
         </Controls>
         <div>
           <ResponsiveContainer width="100%" height={280}>
@@ -847,16 +847,16 @@ function RepoPanel() {
               <YAxis yAxisId="r" orientation="right" stroke={C.text} fontSize={11} />
               <Tooltip contentStyle={tooltipStyle} />
               <Legend />
-              <Line yAxisId="l" dataKey=tr("labs.fiV62.s225", { defaultValue: "资产" }) stroke={C.gold} dot={false} />
-              <Line yAxisId="l" dataKey=tr("labs.fiV62.s226", { defaultValue: "权益" }) stroke={C.red} dot={false} strokeWidth={2} />
-              <Line yAxisId="r" dataKey=tr("labs.fiV62.s88", { defaultValue: "价格" }) stroke={C.teal} dot={false} strokeDasharray="4 3" />
+              <Line yAxisId="l" dataKey={tr("labs.fiV62.s225", { defaultValue: "资产" })} stroke={C.gold} dot={false} />
+              <Line yAxisId="l" dataKey={tr("labs.fiV62.s226", { defaultValue: "权益" })} stroke={C.red} dot={false} strokeWidth={2} />
+              <Line yAxisId="r" dataKey={tr("labs.fiV62.s88", { defaultValue: "价格" })} stroke={C.teal} dot={false} strokeDasharray="4 3" />
             </LineChart>
           </ResponsiveContainer>
           <Stats>
-            <Stat label={tr("labs.fiV62.s227", { defaultValue: "杠杆倍数" })} value={f(lev.leverage, 2) + "×"} color={C.gold} />
-            <Stat label={tr("labs.fiV62.s228", { defaultValue: "权益回报 ROE" })} value={pct(lev.roe)} color={lev.roe > 0 ? C.green : C.red} />
-            <Stat label={tr("labs.fiV62.s229", { defaultValue: "击穿冲击" })} value={bp(lev.wipeoutShock)} color={C.red} />
-            <Stat label={tr("labs.fiV62.s230", { defaultValue: "被迫抛售" })} value={f(spiral.totalSold, 1)} color={C.red} />
+            <Stat label={tr("labs.fiV62.s227", { defaultValue: "杠杆倍数" })}} value={f(lev.leverage, 2) + "×"} color={C.gold} />
+            <Stat label={tr("labs.fiV62.s228", { defaultValue: "权益回报 ROE" })}} value={pct(lev.roe)} color={lev.roe > 0 ? C.green : C.red} />
+            <Stat label={tr("labs.fiV62.s229", { defaultValue: "击穿冲击" })}} value={bp(lev.wipeoutShock)} color={C.red} />
+            <Stat label={tr("labs.fiV62.s230", { defaultValue: "被迫抛售" })}} value={f(spiral.totalSold, 1)} color={C.red} />
           </Stats>
         </div>
       </Grid>
@@ -880,13 +880,13 @@ function RfrPanel() {
   }), [fwd, shift]);
   const data = path.map((r, i) => ({ day: i + 1, overnight: r * 100 }));
   return (
-    <Panel title={tr("labs.fiV62.s231", { defaultValue: "RFR 改革与负利率定价" })} note={tr("labs.fiV62.s232", { defaultValue: "LIBOR 是前瞻的定盘报价，SOFR 类无风险利率是后视的隔夜复利：期初你并不知道利息是多少。复利相对简单平均有正的凸性收益；转换旧合约需要 ISDA 式的历史中位数 fallback 利差。负利率则让对数正态失效，位移对数正态把远期和行权价整体平移回正区间。" })}>
+    <Panel title={tr("labs.fiV62.s231", { defaultValue: "RFR 改革与负利率定价" })}} note={tr("labs.fiV62.s232", { defaultValue: "LIBOR 是前瞻的定盘报价，SOFR 类无风险利率是后视的隔夜复利：期初你并不知道利息是多少。复利相对简单平均有正的凸性收益；转换旧合约需要 ISDA 式的历史中位数 fallback 利差。负利率则让对数正态失效，位移对数正态把远期和行权价整体平移回正区间。" })}}>
       <Grid>
         <Controls>
-          <Slider label={tr("labs.fiV62.s233", { defaultValue: "隔夜利率中枢" })} value={level} min={-0.01} max={0.08} step={0.0025} onChange={setLevel} />
-          <Slider label={tr("labs.fiV62.s234", { defaultValue: "隔夜波动幅度" })} value={vol} min={0} max={0.02} step={0.0005} onChange={setVol} />
-          <Slider label={tr("labs.fiV62.s235", { defaultValue: "caplet 远期" })} value={fwd} min={-0.02} max={0.04} step={0.001} onChange={setFwd} />
-          <Slider label={tr("labs.fiV62.s236", { defaultValue: "位移参数 shift" })} value={shift} min={0.005} max={0.08} step={0.0025} onChange={setShift} />
+          <Slider label={tr("labs.fiV62.s233", { defaultValue: "隔夜利率中枢" })}} value={level} min={-0.01} max={0.08} step={0.0025} onChange={setLevel} />
+          <Slider label={tr("labs.fiV62.s234", { defaultValue: "隔夜波动幅度" })}} value={vol} min={0} max={0.02} step={0.0005} onChange={setVol} />
+          <Slider label={tr("labs.fiV62.s235", { defaultValue: "caplet 远期" })}} value={fwd} min={-0.02} max={0.04} step={0.001} onChange={setFwd} />
+          <Slider label={tr("labs.fiV62.s236", { defaultValue: "位移参数 shift" })}} value={shift} min={0.005} max={0.08} step={0.0025} onChange={setShift} />
         </Controls>
         <div>
           <div className="grid lg:grid-cols-2 gap-4">
@@ -896,7 +896,7 @@ function RfrPanel() {
                 <XAxis dataKey="day" stroke={C.text} fontSize={11} />
                 <YAxis stroke={C.text} fontSize={11} unit="%" />
                 <Tooltip contentStyle={tooltipStyle} />
-                <Line dataKey="overnight" name={tr("labs.fiV62.s237", { defaultValue: "隔夜路径" })} stroke={C.gold} dot={false} />
+                <Line dataKey="overnight" name={tr("labs.fiV62.s237", { defaultValue: "隔夜路径" })}} stroke={C.gold} dot={false} />
               </LineChart>
             </ResponsiveContainer>
             <ResponsiveContainer width="100%" height={220}>
@@ -906,15 +906,15 @@ function RfrPanel() {
                 <YAxis stroke={C.text} fontSize={11} unit="bp" />
                 <Tooltip contentStyle={tooltipStyle} />
                 <ReferenceLine x={0} stroke={C.red} strokeDasharray="4 4" />
-                <Line dataKey="price" name={tr("labs.fiV62.s238", { defaultValue: "位移对数正态 caplet" })} stroke={C.teal} dot={false} connectNulls={false} />
+                <Line dataKey="price" name={tr("labs.fiV62.s238", { defaultValue: "位移对数正态 caplet" })}} stroke={C.teal} dot={false} connectNulls={false} />
               </LineChart>
             </ResponsiveContainer>
           </div>
           <Stats>
-            <Stat label={tr("labs.fiV62.s239", { defaultValue: "后视复利利率" })} value={pct(out.compounded, 3)} color={C.gold} />
-            <Stat label={tr("labs.fiV62.s240", { defaultValue: "简单平均" })} value={pct(out.simpleAverage, 3)} />
-            <Stat label={tr("labs.fiV62.s241", { defaultValue: "复利凸性收益" })} value={bp(out.convexityGain, 2)} color={C.teal} />
-            <Stat label={tr("labs.fiV62.s242", { defaultValue: "fallback 利差" })} value={bp(out.fallbackSpread)} color={C.red} />
+            <Stat label={tr("labs.fiV62.s239", { defaultValue: "后视复利利率" })}} value={pct(out.compounded, 3)} color={C.gold} />
+            <Stat label={tr("labs.fiV62.s240", { defaultValue: "简单平均" })}} value={pct(out.simpleAverage, 3)} />
+            <Stat label={tr("labs.fiV62.s241", { defaultValue: "复利凸性收益" })}} value={bp(out.convexityGain, 2)} color={C.teal} />
+            <Stat label={tr("labs.fiV62.s242", { defaultValue: "fallback 利差" })}} value={bp(out.fallbackSpread)} color={C.red} />
           </Stats>
         </div>
       </Grid>
@@ -939,13 +939,13 @@ function GreenPanel() {
     { name: tr("labs.fiV62.s148", { defaultValue: "流动性溢价" }), v: liq.liquidityPremium * 1e4 },
   ];
   return (
-    <Panel title={tr("labs.fiV62.s246", { defaultValue: "气候利差与债券流动性溢价" })} note={tr("labs.fiV62.s247", { defaultValue: "两类难以进入传统模型的定价因素：一是气候，绿色标签带来需求驱动的负溢价，高碳排放暴露则要求转型风险补偿；二是流动性，公司债成交稀疏，报价价差要按持有期摊销，还要加上搜寻成本与 Amihud 式的价格冲击补偿。" })}>
+    <Panel title={tr("labs.fiV62.s246", { defaultValue: "气候利差与债券流动性溢价" })}} note={tr("labs.fiV62.s247", { defaultValue: "两类难以进入传统模型的定价因素：一是气候，绿色标签带来需求驱动的负溢价，高碳排放暴露则要求转型风险补偿；二是流动性，公司债成交稀疏，报价价差要按持有期摊销，还要加上搜寻成本与 Amihud 式的价格冲击补偿。" })}}>
       <Grid>
         <Controls>
-          <Slider label={tr("labs.fiV62.s248", { defaultValue: "ESG 需求强度" })} value={demand} min={0} max={6} step={0.25} onChange={setDemand} />
-          <Slider label={tr("labs.fiV62.s249", { defaultValue: "碳强度暴露" })} value={carbon} min={0} max={1} step={0.05} onChange={setCarbon} />
-          <Slider label={tr("labs.fiV62.s250", { defaultValue: "碳价水平" })} value={carbonPrice} min={0} max={0.15} step={0.005} onChange={setCarbonPrice} />
-          <Slider label={tr("labs.fiV62.s251", { defaultValue: "日均成交笔数" })} value={trades} min={0.5} max={60} step={0.5} onChange={setTrades} />
+          <Slider label={tr("labs.fiV62.s248", { defaultValue: "ESG 需求强度" })}} value={demand} min={0} max={6} step={0.25} onChange={setDemand} />
+          <Slider label={tr("labs.fiV62.s249", { defaultValue: "碳强度暴露" })}} value={carbon} min={0} max={1} step={0.05} onChange={setCarbon} />
+          <Slider label={tr("labs.fiV62.s250", { defaultValue: "碳价水平" })}} value={carbonPrice} min={0} max={0.15} step={0.005} onChange={setCarbonPrice} />
+          <Slider label={tr("labs.fiV62.s251", { defaultValue: "日均成交笔数" })}} value={trades} min={0.5} max={60} step={0.5} onChange={setTrades} />
         </Controls>
         <div>
           <ResponsiveContainer width="100%" height={280}>
@@ -955,14 +955,14 @@ function GreenPanel() {
               <YAxis stroke={C.text} fontSize={11} unit="bp" />
               <Tooltip contentStyle={tooltipStyle} />
               <ReferenceLine y={0.012 * 1e4} stroke={C.text} strokeDasharray="4 4" />
-              <Bar dataKey="v" name={tr("labs.fiV62.s80", { defaultValue: "利差 (bp)" })} fill={C.gold} />
+              <Bar dataKey="v" name={tr("labs.fiV62.s80", { defaultValue: "利差 (bp)" })}} fill={C.gold} />
             </BarChart>
           </ResponsiveContainer>
           <Stats>
-            <Stat label={tr("labs.fiV62.s252", { defaultValue: "绿色溢价" })} value={bp(green.greenium)} color={C.green} />
-            <Stat label={tr("labs.fiV62.s253", { defaultValue: "转型风险贴水" })} value={bp(brown.transitionPremium)} color={C.red} />
-            <Stat label={tr("labs.fiV62.s148", { defaultValue: "流动性溢价" })} value={bp(liq.liquidityPremium)} color={C.gold} />
-            <Stat label={tr("labs.fiV62.s254", { defaultValue: "流动性状态" })} value={liq.illiquid ? tr("labs.fiV62.s255", { defaultValue: "稀薄" }) : tr("labs.fiV62.s256", { defaultValue: "尚可" })} color={liq.illiquid ? C.red : C.teal} />
+            <Stat label={tr("labs.fiV62.s252", { defaultValue: "绿色溢价" })}} value={bp(green.greenium)} color={C.green} />
+            <Stat label={tr("labs.fiV62.s253", { defaultValue: "转型风险贴水" })}} value={bp(brown.transitionPremium)} color={C.red} />
+            <Stat label={tr("labs.fiV62.s148", { defaultValue: "流动性溢价" })}} value={bp(liq.liquidityPremium)} color={C.gold} />
+            <Stat label={tr("labs.fiV62.s254", { defaultValue: "流动性状态" })}} value={liq.illiquid ? tr("labs.fiV62.s255", { defaultValue: "稀薄" }) : tr("labs.fiV62.s256", { defaultValue: "尚可" })} color={liq.illiquid ? C.red : C.teal} />
           </Stats>
         </div>
       </Grid>
