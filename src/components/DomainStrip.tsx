@@ -9,8 +9,7 @@ import { sectionsByGroup, groupDesc } from "@/lib/sections";
  * the whole scope of the site without scrolling past seven marketing blocks.
  */
 const DomainStrip = () => {
-  const { t, i18n } = useTranslation();
-  const zh = i18n.language.startsWith("zh");
+  const { t } = useTranslation();
   const groups = sectionsByGroup().filter(({ sections }) => sections.length > 0);
 
   return (
