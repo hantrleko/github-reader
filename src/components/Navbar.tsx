@@ -248,7 +248,7 @@ const Navbar = () => {
         href="#main-content"
         className="fixed left-4 top-0 z-[100] -translate-y-full focus:translate-y-0 transition-transform duration-200 px-5 py-2.5 bg-gold text-primary-foreground font-mono text-[11px] uppercase tracking-wider font-bold rounded-b-md shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/70 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
       >
-        跳到主要内容
+        {t("labs.navbar.text1", { defaultValue: "跳到主要内容" })}
       </a>
     <nav
       ref={navRef}

@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useEffect, useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import Navbar from "@/components/Navbar";
@@ -44,16 +45,7 @@ type Cell = ParamCell | MdCell | FormulaCell | ChartCell | JsCell | TableCell | 
 
 const uid = () => Math.random().toString(36).slice(2, 10);
 
-const DEFAULT_CELLS: Cell[] = [
-  { id: uid(), kind: "markdown", text: "# Black-Scholes 反应式 Notebook\n\n修改下方滑块,公式与图表自动重算。" },
-  { id: uid(), kind: "param", name: "S",     value: 100, min: 50,  max: 200, step: 1 },
-  { id: uid(), kind: "param", name: "K",     value: 100, min: 50,  max: 200, step: 1 },
-  { id: uid(), kind: "param", name: "T",     value: 1,   min: 0.05, max: 3, step: 0.05 },
-  { id: uid(), kind: "param", name: "sigma", value: 0.2, min: 0.05, max: 1, step: 0.01 },
-  { id: uid(), kind: "param", name: "r",     value: 0.05, min: 0,   max: 0.2, step: 0.005 },
-  { id: uid(), kind: "formula", latex: "C = S\\,N(d_1) - K e^{-rT} N(d_2)", expression: "bsCall(p.S,p.K,p.T,p.r,p.sigma)" },
-  { id: uid(), kind: "chart", xVar: "S", xMin: 50, xMax: 200, n: 60, expression: "bsCall(x,p.K,p.T,p.r,p.sigma)" },
-];
+
 
 /* ─── DAG bridge ─────────────────────────────────────────── */
 function cellToDag(c: Cell): DagCellInput {
@@ -69,6 +61,17 @@ function cellToDag(c: Cell): DagCellInput {
 
 /* ═══ Page ═══════════════════════════════════════════════ */
 const Notebook = () => {
+  const { t } = useTranslation();
+const DEFAULT_CELLS: Cell[] = [
+  { id: uid(), kind: "markdown", text: t("pages.notebook.copy1", { defaultValue: "# Black-Scholes 反应式 Notebook\n\n修改下方滑块,公式与图表自动重算。" }) },
+  { id: uid(), kind: "param", name: "S",     value: 100, min: 50,  max: 200, step: 1 },
+  { id: uid(), kind: "param", name: "K",     value: 100, min: 50,  max: 200, step: 1 },
+  { id: uid(), kind: "param", name: "T",     value: 1,   min: 0.05, max: 3, step: 0.05 },
+  { id: uid(), kind: "param", name: "sigma", value: 0.2, min: 0.05, max: 1, step: 0.01 },
+  { id: uid(), kind: "param", name: "r",     value: 0.05, min: 0,   max: 0.2, step: 0.005 },
+  { id: uid(), kind: "formula", latex: "C = S\\,N(d_1) - K e^{-rT} N(d_2)", expression: "bsCall(p.S,p.K,p.T,p.r,p.sigma)" },
+  { id: uid(), kind: "chart", xVar: "S", xMin: 50, xMax: 200, n: 60, expression: "bsCall(x,p.K,p.T,p.r,p.sigma)" },
+];
   const { user } = useAuth();
   const [params] = useSearchParams();
   const [notebookId, setNotebookId] = useState<string | null>(null);
@@ -99,6 +102,7 @@ const Notebook = () => {
 
   /* Load by ?id=… */
   useEffect(() => {
+  
     const id = params.get("id");
     const tplSlug = params.get("template");
     const seedRaw = params.get("seed");
@@ -110,19 +114,19 @@ const Notebook = () => {
         setCells(seedToCells(seed) as any);
         setIsPublic(false);
         setForkedFrom(null);
-        toast({ title: `已从计算器导入:${seed.title}`, description: "保存到我的 Notebook 以便后续编辑。" });
+        toast({ title: t("pages.notebook.copy2", { defaultValue: "已从计算器导入:{{value1}}", value1: seed.title }), description: t("pages.notebook.copy3", { defaultValue: "保存到我的 Notebook 以便后续编辑。" }) });
       }
       return;
     }
     if (tplSlug && !id) {
-      const tpl = NOTEBOOK_TEMPLATES.find((t) => t.slug === tplSlug);
+      const tpl = NOTEBOOK_TEMPLATES.find((item) => item.slug === tplSlug);
       if (tpl) {
         setNotebookId(null);
         setTitle(tpl.title);
         setCells(tpl.cells as any);
         setIsPublic(false);
         setForkedFrom(null);
-        toast({ title: `已加载模板:${tpl.title}`, description: "保存即可入库到我的 Notebook。" });
+        toast({ title: t("pages.notebook.copy4", { defaultValue: "已加载模板:{{value1}}", value1: tpl.title }), description: t("pages.notebook.copy5", { defaultValue: "保存即可入库到我的 Notebook。" }) });
       }
       return;
     }
@@ -158,8 +162,9 @@ const Notebook = () => {
     setCells((cs) => cs.map((c) => (c.id === id ? ({ ...c, ...patch } as Cell) : c)));
   const remove = (id: string) => setCells((cs) => cs.filter((c) => c.id !== id));
   const addCell = (kind: Cell["kind"]) => {
+  
     const blank: Record<Cell["kind"], Cell> = {
-      markdown: { id: uid(), kind: "markdown", text: "新段落..." },
+      markdown: { id: uid(), kind: "markdown", text: t("pages.notebook.copy6", { defaultValue: "新段落..." }) },
       param:    { id: uid(), kind: "param", name: `x${cells.filter(c=>c.kind==="param").length+1}`, value: 1, min: 0, max: 10, step: 0.1 },
       formula:  { id: uid(), kind: "formula", name: "", latex: "y = p.x_1", expression: "p.x1" },
       chart:    { id: uid(), kind: "chart", xVar: "x", xMin: 0, xMax: 10, n: 50, expression: "Math.sin(x)*p.x1" },
@@ -188,28 +193,29 @@ const Notebook = () => {
 
   /* ─── Cloud ops ─── */
   const save = async () => {
-    if (!user) { toast({ title: "请先登录", variant: "destructive" }); return; }
+  
+    if (!user) { toast({ title: t("pages.notebook.copy7", { defaultValue: "请先登录" }), variant: "destructive" }); return; }
     if (notebookId) {
       const { error } = await supabase.from("user_notebooks").update({
         title, cells: cells as any, is_public: isPublic,
       }).eq("id", notebookId);
-      if (error) { toast({ title: "保存失败", description: error.message, variant: "destructive" }); return; }
+      if (error) { toast({ title: t("pages.notebook.copy8", { defaultValue: "保存失败" }), description: error.message, variant: "destructive" }); return; }
       // snapshot version (best-effort, ignore failures)
       await supabase.from("notebook_versions").insert({
         notebook_id: notebookId, user_id: user.id, title, cells: cells as any,
       });
-      toast({ title: "已保存" });
+      toast({ title: t("pages.notebook.copy9", { defaultValue: "已保存" }) });
       if (isPublic) awardBadge("notebook-published");
     } else {
       const { data, error } = await supabase.from("user_notebooks").insert({
         user_id: user.id, title, cells: cells as any, is_public: isPublic,
       }).select().single();
-      if (error) { toast({ title: "创建失败", description: error.message, variant: "destructive" }); return; }
+      if (error) { toast({ title: t("pages.notebook.copy10", { defaultValue: "创建失败" }), description: error.message, variant: "destructive" }); return; }
       setNotebookId(data.id);
       await supabase.from("notebook_versions").insert({
         notebook_id: data.id, user_id: user.id, title, cells: cells as any,
       });
-      toast({ title: "已创建" });
+      toast({ title: t("pages.notebook.copy11", { defaultValue: "已创建" }) });
       // First save + milestone badges
       awardBadge("first-notebook");
       if (isPublic) awardBadge("notebook-published");
@@ -217,7 +223,8 @@ const Notebook = () => {
     }
   };
   const fork = async () => {
-    if (!user) { toast({ title: "请先登录", variant: "destructive" }); return; }
+  
+    if (!user) { toast({ title: t("pages.notebook.copy7", { defaultValue: "请先登录" }), variant: "destructive" }); return; }
     const { data, error } = await supabase.from("user_notebooks").insert({
       user_id: user.id,
       title: `${title} (fork)`,
@@ -225,12 +232,12 @@ const Notebook = () => {
       is_public: false,
       forked_from: notebookId,
     }).select().single();
-    if (error) { toast({ title: "Fork 失败", description: error.message, variant: "destructive" }); return; }
+    if (error) { toast({ title: t("pages.notebook.copy12", { defaultValue: "Fork 失败" }), description: error.message, variant: "destructive" }); return; }
     setNotebookId(data.id);
     setForkedFrom(notebookId);
     setIsPublic(false);
     setTitle(`${title} (fork)`);
-    toast({ title: "已 Fork 到我的 Notebook" });
+    toast({ title: t("pages.notebook.copy13", { defaultValue: "已 Fork 到我的 Notebook" }) });
     awardBadge("notebook-forked");
   };
   const load = async (id: string) => {
@@ -271,18 +278,19 @@ const Notebook = () => {
     input.type = "file";
     input.accept = ".ipynb,application/json";
     input.onchange = async () => {
+  
       const f = input.files?.[0];
       if (!f) return;
       try {
-        const { title: t, cells: imported } = importIpynb(await f.text());
+        const { title: importedTitle, cells: imported } = importIpynb(await f.text());
         setNotebookId(null);
-        setTitle(t);
+        setTitle(importedTitle);
         setCells(imported as any);
         setIsPublic(false);
         setForkedFrom(null);
-        toast({ title: `已导入 ${t}`, description: `${imported.length} 个单元 · 代码单元可直接用 Python 内核运行` });
+        toast({ title: t("pages.notebook.copy14", { defaultValue: "已导入 {{value1}}", value1: importedTitle }), description: t("pages.notebook.copy15", { defaultValue: "{{value1}} 个单元 · 代码单元可直接用 Python 内核运行", value1: imported.length }) });
       } catch (e) {
-        toast({ title: "导入失败", description: String((e as Error)?.message || e), variant: "destructive" });
+        toast({ title: t("pages.notebook.copy16", { defaultValue: "导入失败" }), description: String((e as Error)?.message || e), variant: "destructive" });
       }
     };
     input.click();
@@ -290,7 +298,8 @@ const Notebook = () => {
 
   /* ─── Versions ─── */
   const openVersions = async () => {
-    if (!notebookId || !user) { toast({ title: "保存后才有版本历史" }); return; }
+  
+    if (!notebookId || !user) { toast({ title: t("pages.notebook.copy17", { defaultValue: "保存后才有版本历史" }) }); return; }
     const { data } = await supabase
       .from("notebook_versions")
       .select("id,title,cells,created_at")
@@ -303,7 +312,7 @@ const Notebook = () => {
     setTitle(v.title);
     setCells(v.cells || []);
     setShowVersions(false);
-    toast({ title: "已恢复到所选版本,记得 Save 以覆盖当前内容。" });
+    toast({ title: t("pages.notebook.copy18", { defaultValue: "已恢复到所选版本,记得 Save 以覆盖当前内容。" }) });
   };
 
   return (
@@ -312,8 +321,8 @@ const Notebook = () => {
         title={notebookId && isPublic ? `${title} · EF Lab Notebook` : "Reactive Notebook · EF Lab"}
         description={
           notebookId && isPublic
-            ? `${title} — 反应式金融笔记本,${cells.length} 个 cell。一键 Fork 到你的工作区,继续推导与回测。`
-            : "Observable 风格的反应式金融笔记本：参数滑块驱动 LaTeX 公式与图表自动重算,支持云端保存与分享。"
+            ? t("pages.notebook.copy19", { defaultValue: "{{value1}} — 反应式金融笔记本,{{value2}} 个 cell。一键 Fork 到你的工作区,继续推导与回测。", value1: title, value2: cells.length })
+            : t("pages.notebook.copy20", { defaultValue: "Observable 风格的反应式金融笔记本：参数滑块驱动 LaTeX 公式与图表自动重算,支持云端保存与分享。" })
         }
         path={notebookId ? `/notebook?id=${notebookId}` : "/notebook"}
         type={notebookId && isPublic ? "article" : "website"}
@@ -336,7 +345,7 @@ const Notebook = () => {
           chapter="Chapter N"
           kicker="REACTIVE NOTEBOOK"
           title="Reactive Notebook"
-          subtitle="对标 Observable · 参数即依赖,改一处全表重算。Markdown + LaTeX + 沙箱表达式 + 自动图表 + 云端保存。"
+          subtitle={t("pages.notebook.copy21", { defaultValue: "对标 Observable · 参数即依赖,改一处全表重算。Markdown + LaTeX + 沙箱表达式 + 自动图表 + 云端保存。" })}
         />
 
         <section className="container max-w-5xl px-6 pb-16">
@@ -365,7 +374,7 @@ const Notebook = () => {
             <button onClick={exportNotebook} className="inline-flex items-center gap-1 px-3 py-1.5 border border-border/60 text-[10px] font-mono uppercase tracking-wider hover:border-gold/60 text-foreground">
               <Download className="w-3 h-3" /> .ipynb
             </button>
-            <button onClick={importNotebook} title="导入 Jupyter Notebook — 代码单元将可用 Pyodide 内核运行" className="inline-flex items-center gap-1 px-3 py-1.5 border border-border/60 text-[10px] font-mono uppercase tracking-wider hover:border-gold/60 text-foreground">
+            <button onClick={importNotebook} title={t("pages.notebook.copy22", { defaultValue: "导入 Jupyter Notebook — 代码单元将可用 Pyodide 内核运行" })} className="inline-flex items-center gap-1 px-3 py-1.5 border border-border/60 text-[10px] font-mono uppercase tracking-wider hover:border-gold/60 text-foreground">
               <FolderOpen className="w-3 h-3" /> Import .ipynb
             </button>
             <button
@@ -388,8 +397,8 @@ const Notebook = () => {
           {showList && (
             <div className="mb-6 border border-border/60 bg-card/40 p-4">
               <p className="text-[10px] font-mono uppercase tracking-wider text-gold mb-2">My Notebooks</p>
-              {!user && <p className="text-xs text-muted-foreground">请先 <Link to="/auth" className="text-gold underline">登录</Link></p>}
-              {user && myList.length === 0 && <p className="text-xs text-muted-foreground">尚无 Notebook</p>}
+              {!user && <p className="text-xs text-muted-foreground">{t("pages.notebook.copy23", { defaultValue: "请先" })} <Link to="/auth" className="text-gold underline">{t("pages.notebook.copy24", { defaultValue: "登录" })}</Link></p>}
+              {user && myList.length === 0 && <p className="text-xs text-muted-foreground">{t("pages.notebook.copy25", { defaultValue: "尚无 Notebook" })}</p>}
               <ul className="divide-y divide-border/40">
                 {myList.map((n) => (
                   <li key={n.id} className="flex items-center justify-between py-2">
@@ -404,10 +413,10 @@ const Notebook = () => {
           {showVersions && (
             <div className="mb-6 border border-border/60 bg-card/40 p-4">
               <div className="flex items-center justify-between mb-2">
-                <p className="text-[10px] font-mono uppercase tracking-wider text-gold">Version history (最近 20 个)</p>
-                <button onClick={() => setShowVersions(false)} className="text-[10px] font-mono text-muted-foreground hover:text-foreground">关闭</button>
+                <p className="text-[10px] font-mono uppercase tracking-wider text-gold">{t("pages.notebook.copy26", { defaultValue: "Version history (最近 20 个)" })}</p>
+                <button onClick={() => setShowVersions(false)} className="text-[10px] font-mono text-muted-foreground hover:text-foreground">{t("pages.notebook.copy27", { defaultValue: "关闭" })}</button>
               </div>
-              {versions.length === 0 && <p className="text-xs text-muted-foreground">暂无历史版本</p>}
+              {versions.length === 0 && <p className="text-xs text-muted-foreground">{t("pages.notebook.copy28", { defaultValue: "暂无历史版本" })}</p>}
               <ul className="divide-y divide-border/40">
                 {versions.map((v) => (
                   <li key={v.id} className="flex items-center justify-between py-2 text-sm">
@@ -418,7 +427,7 @@ const Notebook = () => {
                       </span>
                     </div>
                     <button onClick={() => restoreVersion(v)} className="px-2 py-1 border border-gold/60 text-gold text-[10px] font-mono uppercase tracking-wider hover:bg-gold/10">
-                      恢复
+                      {t("pages.notebook.copy29", { defaultValue: "恢复" })}
                     </button>
                   </li>
                 ))}
@@ -479,6 +488,7 @@ const SortableCellRow = ({
   update: (id: string, patch: Partial<Cell>) => void;
   remove: (id: string) => void;
 }) => {
+  const { t } = useTranslation();
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: cell.id });
   const style: React.CSSProperties = {
     transform: CSS.Transform.toString(transform),
@@ -511,7 +521,7 @@ const SortableCellRow = ({
           )}
         </span>
         <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
-          <IconBtn onClick={() => remove(cell.id)} title="删除"><Trash2 className="w-3 h-3 text-rose-400" /></IconBtn>
+          <IconBtn onClick={() => remove(cell.id)} title={t("pages.notebook.copy30", { defaultValue: "删除" })}><Trash2 className="w-3 h-3 text-rose-400" /></IconBtn>
         </div>
       </div>
       <div className="p-4">
@@ -523,6 +533,7 @@ const SortableCellRow = ({
 
 /* ─── AI Explain (Lovable AI Gateway) ─────────────────────── */
 const AiExplain = ({ latex, expression, params, context }: { latex?: string; expression?: string; params: Record<string, number>; context?: string }) => {
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
   const [text, setText] = useState<string>("");
   const [open, setOpen] = useState(false);
@@ -536,11 +547,11 @@ const AiExplain = ({ latex, expression, params, context }: { latex?: string; exp
       });
       if (error) throw error;
       if ((data as any)?.error) throw new Error((data as any).error);
-      setText((data as any)?.explanation || "(无返回)");
+      setText((data as any)?.explanation || t("pages.notebook.copy31", { defaultValue: "(无返回)" }));
     } catch (e: any) {
       const msg = String(e?.message || e);
       setText(`❌ ${msg}`);
-      toast({ title: "AI 解释失败", description: msg, variant: "destructive" });
+      toast({ title: t("pages.notebook.copy32", { defaultValue: "AI 解释失败" }), description: msg, variant: "destructive" });
     } finally {
       setLoading(false);
     }
@@ -554,11 +565,11 @@ const AiExplain = ({ latex, expression, params, context }: { latex?: string; exp
         className="inline-flex items-center gap-1 px-2 py-1 border border-gold/40 text-gold text-[10px] font-mono uppercase tracking-wider hover:bg-gold/10 disabled:opacity-50"
       >
         {loading ? <Loader2 className="w-3 h-3 animate-spin" /> : <Sparkles className="w-3 h-3" />}
-        AI 解释
+        {t("pages.notebook.copy33", { defaultValue: "AI 解释" })}
       </button>
       {open && (text || loading) && (
         <div className="mt-2 border-l-2 border-gold/60 bg-accent/20 px-3 py-2 text-xs text-foreground/85 font-body leading-relaxed whitespace-pre-wrap">
-          {loading ? "正在思考…" : text}
+          {loading ? t("pages.notebook.copy34", { defaultValue: "正在思考…" }) : text}
         </div>
       )}
     </div>
@@ -573,6 +584,7 @@ const CellBody = ({ cell, result, scope, p, update }: {
   p: Record<string,number>;
   update: (id: string, patch: Partial<Cell>) => void;
 }) => {
+  const { t } = useTranslation();
   if (cell.kind === "python") {
     return (
       <PythonCell
@@ -705,7 +717,7 @@ const CellBody = ({ cell, result, scope, p, update }: {
           className="w-full bg-background border border-border/60 px-2 py-1 text-xs font-mono focus:outline-none focus:border-gold"
         />
         {rows.length === 0 ? (
-          <p className="text-[11px] font-mono text-muted-foreground">{result?.error || "返回非数组,无法渲染表格"}</p>
+          <p className="text-[11px] font-mono text-muted-foreground">{result?.error || t("pages.notebook.copy35", { defaultValue: "返回非数组,无法渲染表格" })}</p>
         ) : (
           <div className="overflow-auto max-h-72 border border-border/40">
             <table className="w-full text-[11px] font-mono">
@@ -724,7 +736,7 @@ const CellBody = ({ cell, result, scope, p, update }: {
                 ))}
               </tbody>
             </table>
-            {rows.length > 200 && <p className="text-[10px] font-mono text-muted-foreground px-2 py-1">… 仅显示前 200 行 (共 {rows.length})</p>}
+            {rows.length > 200 && <p className="text-[10px] font-mono text-muted-foreground px-2 py-1">{t("pages.notebook.copy36", { defaultValue: "… 仅显示前 200 行 (共" })} {rows.length})</p>}
           </div>
         )}
       </div>

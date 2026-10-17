@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -21,6 +22,7 @@ const DiscussionPanel = ({
   resourceType: "notebook" | "strategy" | "paper" | "tool";
   resourceId: string;
 }) => {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const [rows, setRows] = useState<Row[]>([]);
   const [draft, setDraft] = useState("");
@@ -54,11 +56,11 @@ const DiscussionPanel = ({
   const post = async () => {
     const body = draft.trim();
     if (!body) return;
-    if (!user) { toast({ title: "请先登录", variant: "destructive" }); return; }
+    if (!user) { toast({ title: t("labs.discussionPanel.text1", { defaultValue: "请先登录" }), variant: "destructive" }); return; }
     const { error } = await supabase.from("discussions").insert({
       user_id: user.id, resource_type: resourceType, resource_id: resourceId, body,
     });
-    if (error) { toast({ title: "发送失败", description: error.message, variant: "destructive" }); return; }
+    if (error) { toast({ title: t("labs.discussionPanel.text2", { defaultValue: "发送失败" }), description: error.message, variant: "destructive" }); return; }
     setDraft("");
     awardBadge("first-comment");
     load();
@@ -78,9 +80,9 @@ const DiscussionPanel = ({
       </header>
 
       <div className="p-4 space-y-3 max-h-[480px] overflow-y-auto">
-        {loading && <p className="text-xs text-muted-foreground">加载中…</p>}
+        {loading && <p className="text-xs text-muted-foreground">{t("labs.discussionPanel.text3", { defaultValue: "加载中…" })}</p>}
         {!loading && rows.length === 0 && (
-          <p className="text-xs text-muted-foreground">还没有评论 · Be the first to comment.</p>
+          <p className="text-xs text-muted-foreground">{t("labs.discussionPanel.text4", { defaultValue: "还没有评论 · Be the first to comment." })}</p>
         )}
         {rows.map((r) => {
           const handle = r.profile?.username || r.profile?.display_name || r.user_id.slice(0, 8);
@@ -96,7 +98,7 @@ const DiscussionPanel = ({
                 <span className="text-muted-foreground/60">
                   {new Date(r.created_at).toLocaleString()}
                   {user?.id === r.user_id && (
-                    <button onClick={() => remove(r.id)} className="ml-2 text-rose-400 hover:text-rose-300" aria-label="删除">
+                    <button onClick={() => remove(r.id)} className="ml-2 text-rose-400 hover:text-rose-300" aria-label={t("labs.discussionPanel.text5", { defaultValue: "删除" })}>
                       <Trash2 className="inline w-3 h-3" />
                     </button>
                   )}
@@ -114,7 +116,7 @@ const DiscussionPanel = ({
             <textarea
               value={draft}
               onChange={(e) => setDraft(e.target.value)}
-              placeholder="留下你的看法..."
+              placeholder={t("labs.discussionPanel.text6", { defaultValue: "留下你的看法..." })}
               rows={2}
               className="flex-1 bg-background border border-border/60 px-2 py-1.5 text-sm focus:outline-none focus:border-gold resize-y"
             />
@@ -127,7 +129,7 @@ const DiscussionPanel = ({
           </div>
         ) : (
           <p className="text-xs text-muted-foreground">
-            <Link to="/auth" className="text-gold underline">登录</Link> 后参与讨论
+            <Link to="/auth" className="text-gold underline">{t("labs.discussionPanel.text7", { defaultValue: "登录" })}</Link> {t("labs.discussionPanel.text8", { defaultValue: "后参与讨论" })}
           </p>
         )}
       </footer>

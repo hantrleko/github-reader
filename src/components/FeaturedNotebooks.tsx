@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { motion, useReducedMotion } from "framer-motion";
@@ -15,6 +16,7 @@ interface FeaturedRow {
 }
 
 const FeaturedNotebooks = () => {
+  const { t } = useTranslation();
   const [rows, setRows] = useState<FeaturedRow[]>([]);
   const [loading, setLoading] = useState(true);
   const reduce = useReducedMotion();
@@ -77,8 +79,8 @@ const FeaturedNotebooks = () => {
         <SectionHeader
           chapter="Community"
           kicker="Featured Notebooks"
-          title="社区精选 · 公开 Notebook"
-          subtitle="复用公开研究笔记里的建模思路、参数设定与图表结构，一键 Fork 到自己的工作区继续迭代。"
+          title={t("labs.featuredNotebooks.text1", { defaultValue: "社区精选 · 公开 Notebook" })}
+          subtitle={t("labs.featuredNotebooks.text2", { defaultValue: "复用公开研究笔记里的建模思路、参数设定与图表结构，一键 Fork 到自己的工作区继续迭代。" })}
         />
         <div
           className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-8"
@@ -109,7 +111,7 @@ const FeaturedNotebooks = () => {
                     <div className="group h-full rounded-xl border border-border/60 bg-card/40 hover:bg-card hover:border-gold/40 hover:-translate-y-0.5 hover:shadow-[0_16px_40px_-20px_hsl(var(--gold)/0.35)] transition-all duration-300 p-5 flex flex-col gap-3">
                       <Link
                         to={`/notebook?id=${nb.id}`}
-                        aria-label={`打开 Notebook：${nb.title || "Untitled Notebook"}`}
+                        aria-label={t("labs.featuredNotebooks.open", { defaultValue: "打开 Notebook：{{title}}", title: nb.title || "Untitled Notebook" })}
                         className="flex flex-col gap-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/60 rounded-md"
                       >
                         <div className="flex items-center justify-between text-[10px] font-mono uppercase tracking-[0.18em] text-gold/80">
@@ -148,7 +150,7 @@ const FeaturedNotebooks = () => {
             to="/notebook/templates"
             className="text-xs font-mono uppercase tracking-[0.18em] text-gold hover:underline"
           >
-            浏览 Notebook 模板与研究脚手架 →
+            {t("labs.featuredNotebooks.text3", { defaultValue: "浏览 Notebook 模板与研究脚手架 →" })}
           </Link>
         </div>
       </div>

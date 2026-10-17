@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useCallback, useEffect, useState } from "react";
 import { ArrowUp } from "lucide-react";
 
@@ -6,6 +7,7 @@ import { ArrowUp } from "lucide-react";
  * Mounted once on the homepage; pure presentation, no business logic.
  */
 const ScrollUtilities = () => {
+  const { t } = useTranslation();
   const [progress, setProgress] = useState(0);
   const [show, setShow] = useState(false);
 
@@ -70,8 +72,8 @@ const ScrollUtilities = () => {
       <button
         type="button"
         onClick={scrollToTop}
-        aria-label="回到顶部 / Back to top"
-        title="回到顶部"
+        aria-label={t("labs.scrollUtilities.text1", { defaultValue: "回到顶部 / Back to top" })}
+        title={t("labs.scrollUtilities.text2", { defaultValue: "回到顶部" })}
         tabIndex={show ? 0 : -1}
         aria-hidden={!show}
         className={`fixed bottom-6 right-6 z-50 h-11 w-11 rounded-full border border-gold/40 bg-card/90 backdrop-blur shadow-lg flex items-center justify-center text-gold hover:bg-gold hover:text-primary-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/70 focus-visible:ring-offset-2 focus-visible:ring-offset-background transition-all duration-300 ${

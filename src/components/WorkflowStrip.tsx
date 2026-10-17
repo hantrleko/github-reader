@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import { ArrowUpRight, Route } from "lucide-react";
 import SectionHeader from "@/components/common/SectionHeader";
@@ -13,14 +14,16 @@ import { cn } from "@/lib/utils";
  */
 const FEATURED = WORKFLOWS.slice(0, 4);
 
-const WorkflowStrip = () => (
+const WorkflowStrip = () => {
+  const { t } = useTranslation();
+  return (
   <section id="workflows-preview" className="scroll-mt-16 px-6 py-14 border-t border-border/40">
     <div className="container max-w-6xl">
       <SectionHeader
         chapter="Playbooks"
         kicker="Research Workflows"
-        title="研究工作流速览"
-        subtitle="每条工作流把多个工具串成端到端链路——从数据、校准到定价与回测，照着做即可完成一次实证复现。"
+        title={t("labs.workflowStrip.text1", { defaultValue: "研究工作流速览" })}
+        subtitle={t("labs.workflowStrip.text2", { defaultValue: "每条工作流把多个工具串成端到端链路——从数据、校准到定价与回测，照着做即可完成一次实证复现。" })}
       />
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-8">
         {FEATURED.map((w, i) => {
@@ -29,7 +32,7 @@ const WorkflowStrip = () => (
             <Reveal key={w.id} delay={(i % 2) * 0.08}>
               <Link
                 to="/workflows"
-                aria-label={`打开研究工作流：${w.title}（${w.steps.length} 步）`}
+                aria-label={t("labs.workflowStrip.open", { defaultValue: "打开研究工作流：{{title}}（{{count}} 步）", title: w.title, count: w.steps.length })}
                 className="group flex h-full flex-col gap-3 rounded-xl border border-border/60 bg-card/40 p-5 transition-all duration-300 hover:-translate-y-0.5 hover:border-gold/40 hover:bg-card hover:shadow-[0_16px_40px_-20px_hsl(var(--gold)/0.35)]"
               >
                 <div className="flex items-center justify-between text-[10px] font-mono uppercase tracking-[0.18em] text-gold/80">
@@ -68,12 +71,13 @@ const WorkflowStrip = () => (
           to="/workflows"
           className="inline-flex items-center gap-1 text-xs font-mono uppercase tracking-[0.18em] text-gold hover:underline"
         >
-          浏览全部研究工作流
+          {t("labs.workflowStrip.text3", { defaultValue: "浏览全部研究工作流" })}
           <ArrowUpRight className="w-3.5 h-3.5" />
         </Link>
       </div>
     </div>
   </section>
-);
+  );
+};
 
 export default WorkflowStrip;

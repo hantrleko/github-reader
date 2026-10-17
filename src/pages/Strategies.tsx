@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
@@ -11,6 +12,7 @@ import { ArrowUpRight, Search } from "lucide-react";
 const fmtPct = (x: number) => `${(x * 100).toFixed(0)}%`;
 
 const Strategies = () => {
+  const { t } = useTranslation();
   const [q, setQ] = useState("");
   const [cat, setCat] = useState<StrategyCategory | "All">("All");
 
@@ -35,14 +37,14 @@ const Strategies = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <Seo title="量化策略库 · EF Lab" description="经典量化策略卡片库：动量、价值、低波、配对、统计套利等，含夏普、回撤、数据频率与参考论文。" path="/strategies" />
+      <Seo title={t("pages.strategies.copy1", { defaultValue: "量化策略库 · EF Lab" })} description={t("pages.strategies.copy2", { defaultValue: "经典量化策略卡片库：动量、价值、低波、配对、统计套利等，含夏普、回撤、数据频率与参考论文。" })} path="/strategies" />
       <Navbar />
       <main id="main-content" className="pt-14">
         <SectionHeader
           chapter="Chapter R"
           kicker="STRATEGY LIBRARY"
-          title="经典量化策略库"
-          subtitle="对标 QuantPedia · 12 个学术验证的因子与套利策略,附论文索引与历史 Sharpe / 回撤参考。"
+          title={t("pages.strategies.copy3", { defaultValue: "经典量化策略库" })}
+          subtitle={t("pages.strategies.copy4", { defaultValue: "对标 QuantPedia · 12 个学术验证的因子与套利策略,附论文索引与历史 Sharpe / 回撤参考。" })}
         />
 
         <section className="container max-w-6xl px-6 pb-16">
@@ -53,7 +55,7 @@ const Strategies = () => {
               <input
                 value={q}
                 onChange={(e) => setQ(e.target.value)}
-                placeholder="搜索策略 / Search..."
+                placeholder={t("pages.strategies.copy5", { defaultValue: "搜索策略 / Search..." })}
                 className="w-full bg-background border border-border/60 rounded-md pl-9 pr-3 py-2 text-xs font-mono focus-visible:outline-none focus-visible:border-gold"
               />
             </div>
@@ -166,7 +168,7 @@ const Strategies = () => {
 
           {filtered.length === 0 && (
             <div className="text-center py-16 text-muted-foreground text-sm">
-              没有匹配的策略 · No matching strategies.
+              {t("pages.strategies.copy6", { defaultValue: "没有匹配的策略 · No matching strategies." })}
             </div>
           )}
         </section>

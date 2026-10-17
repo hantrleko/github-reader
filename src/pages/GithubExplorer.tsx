@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import {
@@ -121,18 +122,19 @@ if (import.meta.env.VITE_GITHUB_TOKEN) {
   (GH_HEADERS as Record<string, string>).Authorization = `Bearer ${import.meta.env.VITE_GITHUB_TOKEN}`;
 }
 
-const getRepoError = (res: Response, op: string) => {
-  if (res.status === 404) return `${op}不存在或不可访问`;
+const getRepoError = (res: Response, op: string, t: import("i18next").TFunction) => {
+  
+  if (res.status === 404) return t("pages.githubExplorer.copy1", { defaultValue: "{{value1}}不存在或不可访问", value1: op });
   if (res.status === 403) {
     const reset = res.headers.get("x-ratelimit-reset");
     if (reset) {
       const resetAt = Number(reset) * 1000;
       const mins = Math.max(0, Math.ceil((resetAt - Date.now()) / 60000));
-      return `GitHub API 访问受限，约 ${mins} 分钟后恢复`;
+      return t("pages.githubExplorer.copy2", { defaultValue: "GitHub API 访问受限，约 {{value1}} 分钟后恢复", value1: mins });
     }
-    return "GitHub API 请求受限，请稍后重试";
+    return t("pages.githubExplorer.copy3", { defaultValue: "GitHub API 请求受限，请稍后重试" });
   }
-  return `加载失败 (${res.status})`;
+  return t("pages.githubExplorer.copy4", { defaultValue: "加载失败 ({{value1}})", value1: res.status });
 };
 
 const TreeRow = ({
@@ -215,6 +217,7 @@ const TreeRow = ({
 };
 
 const GithubExplorer = () => {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -300,10 +303,11 @@ const GithubExplorer = () => {
   const collapseAll = () => setExpanded(new Set([""]));
 
   const load = async (override?: string) => {
+  
     const raw = override ?? input;
     const parsed = parseRepoUrl(raw);
     if (!parsed) {
-      setError("无法解析仓库地址。请输入 https://github.com/owner/repo 或 owner/repo");
+      setError(t("pages.githubExplorer.copy5", { defaultValue: "无法解析仓库地址。请输入 https://github.com/owner/repo 或 owner/repo" }));
       return;
     }
 
@@ -328,7 +332,7 @@ const GithubExplorer = () => {
         { headers: GH_HEADERS, signal: controller.signal }
       );
       if (!repoRes.ok) {
-        throw new Error(getRepoError(repoRes, "仓库"));
+        throw new Error(getRepoError(repoRes, t("pages.githubExplorer.copy6", { defaultValue: "仓库" }), t));
       }
       const repoData = await repoRes.json();
 
@@ -340,7 +344,7 @@ const GithubExplorer = () => {
         { headers: GH_HEADERS, signal: controller.signal }
       );
       if (!treeRes.ok) {
-        throw new Error(getRepoError(treeRes, `分支 ${branch}`));
+        throw new Error(getRepoError(treeRes, t("pages.githubExplorer.copy7", { defaultValue: "分支 {{value1}}", value1: branch }), t));
       }
       const treeData = await treeRes.json();
       if (nextRequestId !== requestId.current || !mounted.current) return;
@@ -383,7 +387,7 @@ const GithubExplorer = () => {
         return;
       }
       if (nextRequestId !== requestId.current || !mounted.current) return;
-      setError(e instanceof Error ? e.message : "加载失败");
+      setError(e instanceof Error ? e.message : t("pages.githubExplorer.copy8", { defaultValue: "加载失败" }));
     } finally {
       if (nextRequestId === requestId.current && mounted.current) {
         setLoading(false);
@@ -392,8 +396,9 @@ const GithubExplorer = () => {
   };
 
   const onToggleStar = async () => {
+  
     if (!user) {
-      toast({ title: "请先登录", description: "登录后即可收藏仓库" });
+      toast({ title: t("pages.githubExplorer.copy9", { defaultValue: "请先登录" }), description: t("pages.githubExplorer.copy10", { defaultValue: "登录后即可收藏仓库" }) });
       return;
     }
     if (!meta) return;
@@ -406,12 +411,13 @@ const GithubExplorer = () => {
     });
     setStarred(next);
     refreshSidebar();
-    toast({ title: next ? "已收藏" : "已取消收藏" });
+    toast({ title: next ? t("pages.githubExplorer.copy11", { defaultValue: "已收藏" }) : t("pages.githubExplorer.copy12", { defaultValue: "已取消收藏" }) });
   };
 
   const openNote = async (path: string) => {
+  
     if (!user) {
-      toast({ title: "请先登录", description: "登录后即可为文件添加笔记" });
+      toast({ title: t("pages.githubExplorer.copy9", { defaultValue: "请先登录" }), description: t("pages.githubExplorer.copy13", { defaultValue: "登录后即可为文件添加笔记" }) });
       return;
     }
     if (!meta) return;
@@ -434,12 +440,13 @@ const GithubExplorer = () => {
   };
 
   const saveNote = async () => {
+  
     if (!user || !meta || !activePath) return;
     setNoteBusy(true);
     try {
       const tags = noteTags
         .split(",")
-        .map((t) => t.trim())
+        .map((item) => item.trim())
         .filter(Boolean);
       await saveFileNote(
         user.id,
@@ -448,7 +455,7 @@ const GithubExplorer = () => {
         tags
       );
       setNotedPaths((prev) => new Set(prev).add(activePath));
-      toast({ title: "笔记已保存" });
+      toast({ title: t("pages.githubExplorer.copy14", { defaultValue: "笔记已保存" }) });
       setNoteOpen(false);
     } finally {
       setNoteBusy(false);
@@ -456,6 +463,7 @@ const GithubExplorer = () => {
   };
 
   const removeNote = async () => {
+  
     if (!user || !meta || !activePath) return;
     setNoteBusy(true);
     try {
@@ -470,7 +478,7 @@ const GithubExplorer = () => {
         n.delete(activePath);
         return n;
       });
-      toast({ title: "笔记已删除" });
+      toast({ title: t("pages.githubExplorer.copy15", { defaultValue: "笔记已删除" }) });
       setNoteOpen(false);
     } finally {
       setNoteBusy(false);
@@ -503,7 +511,7 @@ const GithubExplorer = () => {
             GitHub Repository Explorer
           </h1>
           <p className="text-sm text-muted-foreground font-body max-w-2xl">
-            输入 GitHub 仓库地址，浏览其文件与目录结构。登录后可收藏仓库、记录浏览历史并为文件添加中文笔记。
+            {t("pages.githubExplorer.copy16", { defaultValue: "输入 GitHub 仓库地址，浏览其文件与目录结构。登录后可收藏仓库、记录浏览历史并为文件添加中文笔记。" })}
           </p>
         </header>
 
@@ -514,7 +522,7 @@ const GithubExplorer = () => {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && load()}
-              placeholder="https://github.com/facebook/react  或  facebook/react"
+              placeholder={t("pages.githubExplorer.copy17", { defaultValue: "https://github.com/facebook/react  或  facebook/react" })}
               className="border-0 bg-transparent focus-visible:ring-0 px-0 font-mono text-sm"
             />
           </div>
@@ -586,7 +594,7 @@ const GithubExplorer = () => {
                   </button>
                   {user && (
                     <span className="ml-auto text-[10px] font-mono text-muted-foreground">
-                      点击文件以添加笔记 ✎
+                      {t("pages.githubExplorer.copy18", { defaultValue: "点击文件以添加笔记 ✎" })}
                     </span>
                   )}
                 </div>
@@ -607,7 +615,7 @@ const GithubExplorer = () => {
                 </div>
                 {meta.truncated && (
                   <p className="px-4 py-2 text-[11px] font-mono text-muted-foreground border-t border-accent">
-                    注意：仓库过大，GitHub API 返回的树已被截断，部分文件可能未显示。
+                    {t("pages.githubExplorer.copy19", { defaultValue: "注意：仓库过大，GitHub API 返回的树已被截断，部分文件可能未显示。" })}
                   </p>
                 )}
               </section>
@@ -617,7 +625,7 @@ const GithubExplorer = () => {
               <div className="border border-dashed border-accent rounded-md p-10 text-center">
                 <Github className="w-8 h-8 text-muted-foreground mx-auto mb-3" />
                 <p className="text-sm text-muted-foreground font-body">
-                  在上方输入 GitHub 仓库地址以加载目录结构
+                  {t("pages.githubExplorer.copy20", { defaultValue: "在上方输入 GitHub 仓库地址以加载目录结构" })}
                 </p>
               </div>
             )}
@@ -630,7 +638,7 @@ const GithubExplorer = () => {
                   SYNC OFF
                 </p>
                 <p className="text-xs text-muted-foreground mb-3">
-                  登录后可保存浏览历史、收藏仓库、为文件写中文笔记并跨设备同步。
+                  {t("pages.githubExplorer.copy21", { defaultValue: "登录后可保存浏览历史、收藏仓库、为文件写中文笔记并跨设备同步。" })}
                 </p>
                 <Link
                   to="/auth?next=/github"
@@ -651,7 +659,7 @@ const GithubExplorer = () => {
                   <div className="max-h-64 overflow-auto">
                     {stars.length === 0 ? (
                       <p className="px-3 py-3 text-[11px] font-mono text-muted-foreground">
-                        暂无收藏
+                        {t("pages.githubExplorer.copy22", { defaultValue: "暂无收藏" })}
                       </p>
                     ) : (
                       stars.map((s) => (
@@ -680,7 +688,7 @@ const GithubExplorer = () => {
                   <div className="max-h-64 overflow-auto">
                     {history.length === 0 ? (
                       <p className="px-3 py-3 text-[11px] font-mono text-muted-foreground">
-                        暂无历史
+                        {t("pages.githubExplorer.copy23", { defaultValue: "暂无历史" })}
                       </p>
                     ) : (
                       history.map((h) => (
@@ -733,19 +741,19 @@ const GithubExplorer = () => {
           <div className="mt-6 space-y-4">
             <div>
               <label className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">
-                Note (中文/英文均可)
+                {t("pages.githubExplorer.copy24", { defaultValue: "Note (中文/英文均可)" })}
               </label>
               <Textarea
                 value={noteText}
                 onChange={(e) => setNoteText(e.target.value)}
                 rows={10}
-                placeholder="例如：这里实现了 ……；关键函数 …… 在 line 42"
+                placeholder={t("pages.githubExplorer.copy25", { defaultValue: "例如：这里实现了 ……；关键函数 …… 在 line 42" })}
                 className="mt-1 font-mono text-xs"
               />
             </div>
             <div>
               <label className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">
-                Tags (逗号分隔)
+                {t("pages.githubExplorer.copy26", { defaultValue: "Tags (逗号分隔)" })}
               </label>
               <Input
                 value={noteTags}

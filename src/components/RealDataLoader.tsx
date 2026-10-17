@@ -55,13 +55,13 @@ const RealDataLoader = ({ defaultSymbol = "AAPL", onApply, className }: Props) =
   const handleUseSample = () => {
     onApply({ S0: 180, sigma: 0.25, symbol: `${symbol || "DEMO"}*`, annualReturn: 0.12 });
     setFetchedAt(Date.now());
-    toast({ title: "已加载示例数据", description: "S₀=180, σ=25%, μ=12% · 仅供演示" });
+    toast({ title: t("labs.realDataLoader.text1", { defaultValue: "已加载示例数据" }), description: t("labs.realDataLoader.text2", { defaultValue: "S₀=180, σ=25%, μ=12% · 仅供演示" }) });
   };
 
   const fmtTime = (ts: number) => {
     const diff = Math.floor((Date.now() - ts) / 1000);
-    if (diff < 60) return `${diff}s 前`;
-    if (diff < 3600) return `${Math.floor(diff / 60)}m 前`;
+    if (diff < 60) return t("labs.realDataLoader.secondsAgo", { defaultValue: "{{count}}s 前", count: diff });
+    if (diff < 3600) return t("labs.realDataLoader.minutesAgo", { defaultValue: "{{count}}m 前", count: Math.floor(diff / 60) });
     return new Date(ts).toLocaleTimeString();
   };
 
@@ -81,7 +81,7 @@ const RealDataLoader = ({ defaultSymbol = "AAPL", onApply, className }: Props) =
       {/* 数据来源徽章 */}
       <span
         className="px-1.5 py-0.5 rounded border border-border/60 text-[9px] uppercase tracking-wider text-muted-foreground"
-        title="数据来源:Yahoo Finance,经 Lovable Cloud Edge Function 代理"
+        title={t("labs.realDataLoader.text3", { defaultValue: "数据来源:Yahoo Finance,经 Lovable Cloud Edge Function 代理" })}
       >
         Yahoo
       </span>
@@ -128,9 +128,9 @@ const RealDataLoader = ({ defaultSymbol = "AAPL", onApply, className }: Props) =
           <button
             onClick={handleUseSample}
             className="inline-flex items-center gap-1 px-2 py-1 rounded border border-gold/40 text-gold hover:bg-gold/10 transition-colors"
-            title="使用合成示例数据,确保功能不被网络阻塞"
+            title={t("labs.realDataLoader.text4", { defaultValue: "使用合成示例数据,确保功能不被网络阻塞" })}
           >
-            <Sparkles className="w-3 h-3" /> 使用示例数据
+            <Sparkles className="w-3 h-3" /> {t("labs.realDataLoader.text5", { defaultValue: "使用示例数据" })}
           </button>
         </>
       )}

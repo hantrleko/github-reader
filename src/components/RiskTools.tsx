@@ -1,3 +1,4 @@
+import type { TFunction } from "i18next";
 import { useState, useMemo, useRef, useCallback } from "react";
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
@@ -38,10 +39,10 @@ function mulberry32(seed: number) {
   let a = seed >>> 0;
   return () => {
     a = (a + 0x6d2b79f5) >>> 0;
-    let t = a;
-    t = Math.imul(t ^ (t >>> 15), t | 1);
-    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    let timeIndex = a;
+    timeIndex = Math.imul(timeIndex ^ (timeIndex >>> 15), timeIndex | 1);
+    timeIndex ^= timeIndex + Math.imul(timeIndex ^ (timeIndex >>> 7), timeIndex | 61);
+    return ((timeIndex ^ (timeIndex >>> 14)) >>> 0) / 4294967296;
   };
 }
 function randn(rng: () => number) {
@@ -56,8 +57,8 @@ function normCdf(x: number): number {
   const a4 = -1.453152027, a5 = 1.061405429, p = 0.3275911;
   const sign = x < 0 ? -1 : 1;
   const ax = Math.abs(x) / Math.SQRT2;
-  const t = 1.0 / (1.0 + p * ax);
-  const y = 1.0 - (((((a5 * t + a4) * t) + a3) * t + a2) * t + a1) * t * Math.exp(-ax * ax);
+  const timeIndex = 1.0 / (1.0 + p * ax);
+  const y = 1.0 - (((((a5 * timeIndex + a4) * timeIndex) + a3) * timeIndex + a2) * timeIndex + a1) * timeIndex * Math.exp(-ax * ax);
   return 0.5 * (1.0 + sign * y);
 }
 function normInv(p: number): number {
@@ -129,6 +130,7 @@ const Stat = ({ label, value, color = "hsl(var(--gold))", sub }: { label: string
    1. Merton Structural Credit Risk (DD + PD + Credit Spread)
    ════════════════════════════════════════════════════════════ */
 export const MertonTool = () => {
+  const { t } = useTranslation();
   const [V, setV] = useState(120);    // asset value
   const [D, setD] = useState(100);    // debt face
   const [sigmaV, setSigmaV] = useState(0.25);
@@ -196,44 +198,44 @@ export const MertonTool = () => {
   return (
     <div className="space-y-6">
       <PresetButtons presets={[
-        { name: "投资级", description: "低杠杆 / 低 PD", apply: () => { setV(150); setD(80); setSigmaV(0.20); setMuV(0.08); setR(0.04); setT(1); } },
-        { name: "高收益债", description: "BB / B 评级", apply: () => { setV(120); setD(100); setSigmaV(0.30); setMuV(0.07); } },
-        { name: "濒临违约", description: "V≈D, 高波动", apply: () => { setV(105); setD(100); setSigmaV(0.45); setMuV(0.05); } },
-        { name: "已资不抵债", description: "V<D, 极高 PD", apply: () => { setV(85); setD(100); setSigmaV(0.40); setMuV(0.05); } },
+        { name: t("labs.risk.ui.text1", { defaultValue: "投资级" }), description: t("labs.risk.ui.text2", { defaultValue: "低杠杆 / 低 PD" }), apply: () => { setV(150); setD(80); setSigmaV(0.20); setMuV(0.08); setR(0.04); setT(1); } },
+        { name: t("labs.risk.ui.text3", { defaultValue: "高收益债" }), description: t("labs.risk.ui.text4", { defaultValue: "BB / B 评级" }), apply: () => { setV(120); setD(100); setSigmaV(0.30); setMuV(0.07); } },
+        { name: t("labs.risk.ui.text5", { defaultValue: "濒临违约" }), description: t("labs.risk.ui.text6", { defaultValue: "V≈D, 高波动" }), apply: () => { setV(105); setD(100); setSigmaV(0.45); setMuV(0.05); } },
+        { name: t("labs.risk.ui.text7", { defaultValue: "已资不抵债" }), description: t("labs.risk.ui.text8", { defaultValue: "V<D, 极高 PD" }), apply: () => { setV(85); setD(100); setSigmaV(0.40); setMuV(0.05); } },
       ]} />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="space-y-3">
-          <Slider label="资产价值 V₀" sub="Asset value" value={V} min={50} max={250} step={1} onChange={setV} />
-          <Slider label="债务面值 D" sub="Debt face value" value={D} min={20} max={200} step={1} onChange={setD} />
-          <Slider label="资产波动率 σᵥ" sub="Asset volatility" value={sigmaV} min={0.05} max={0.8} step={0.01} onChange={setSigmaV} />
-          <Slider label="无风险利率 r" sub="Risk-free rate" value={r} min={0} max={0.15} step={0.005} onChange={setR} />
-          <Slider label="资产期望收益 μᵥ" sub="KMV 真实测度" value={muV} min={0} max={0.20} step={0.005} onChange={setMuV} />
-          <Slider label="期限 T (年)" value={T} min={0.25} max={5} step={0.25} onChange={setT} />
+          <Slider label={t("labs.risk.ui.text9", { defaultValue: "资产价值 V₀" })} sub="Asset value" value={V} min={50} max={250} step={1} onChange={setV} />
+          <Slider label={t("labs.risk.ui.text10", { defaultValue: "债务面值 D" })} sub="Debt face value" value={D} min={20} max={200} step={1} onChange={setD} />
+          <Slider label={t("labs.risk.ui.text11", { defaultValue: "资产波动率 σᵥ" })} sub="Asset volatility" value={sigmaV} min={0.05} max={0.8} step={0.01} onChange={setSigmaV} />
+          <Slider label={t("labs.risk.ui.text12", { defaultValue: "无风险利率 r" })} sub="Risk-free rate" value={r} min={0} max={0.15} step={0.005} onChange={setR} />
+          <Slider label={t("labs.risk.ui.text13", { defaultValue: "资产期望收益 μᵥ" })} sub={t("labs.risk.ui.text14", { defaultValue: "KMV 真实测度" })} value={muV} min={0} max={0.20} step={0.005} onChange={setMuV} />
+          <Slider label={t("labs.risk.ui.text15", { defaultValue: "期限 T (年)" })} value={T} min={0.25} max={5} step={0.25} onChange={setT} />
         </div>
 
         <div className="space-y-3">
           <div className="grid grid-cols-2 gap-2">
-            <Stat label="违约距离 DD" value={result.dd.toFixed(3)} sub="KMV (μ 测度)" />
-            <Stat label="实测 PD" value={`${(result.pdReal * 100).toFixed(2)}%`} color={CHART_RED} sub="N(-DD)" />
-            <Stat label="风险中性 PD" value={`${(result.pdRN * 100).toFixed(2)}%`} color={CHART_RED} sub="N(-d₂)" />
-            <Stat label="股权价值 E" value={result.E.toFixed(2)} color={CHART_GOLD} sub="看涨期权价值" />
-            <Stat label="信用利差" value={`${result.spread.toFixed(1)} bp`} color={CHART_GOLD} sub="y - r" />
-            <Stat label="LGD (违约损失率)" value={`${(result.lgd * 100).toFixed(1)}%`} sub={`回收率 ${(result.rr * 100).toFixed(1)}%`} />
+            <Stat label={t("labs.risk.ui.text16", { defaultValue: "违约距离 DD" })} value={result.dd.toFixed(3)} sub={t("labs.risk.ui.text17", { defaultValue: "KMV (μ 测度)" })} />
+            <Stat label={t("labs.risk.ui.text18", { defaultValue: "实测 PD" })} value={`${(result.pdReal * 100).toFixed(2)}%`} color={CHART_RED} sub="N(-DD)" />
+            <Stat label={t("labs.risk.ui.text19", { defaultValue: "风险中性 PD" })} value={`${(result.pdRN * 100).toFixed(2)}%`} color={CHART_RED} sub="N(-d₂)" />
+            <Stat label={t("labs.risk.ui.text20", { defaultValue: "股权价值 E" })} value={result.E.toFixed(2)} color={CHART_GOLD} sub={t("labs.risk.ui.text21", { defaultValue: "看涨期权价值" })} />
+            <Stat label={t("labs.risk.ui.text22", { defaultValue: "信用利差" })} value={`${result.spread.toFixed(1)} bp`} color={CHART_GOLD} sub="y - r" />
+            <Stat label={t("labs.risk.ui.text23", { defaultValue: "LGD (违约损失率)" })} value={`${(result.lgd * 100).toFixed(1)}%`} sub={t("labs.risk.ui.text24", { defaultValue: "回收率 {{value0}}%", value0: (result.rr * 100).toFixed(1) })} />
           </div>
 
           <div className="text-xs font-mono text-muted-foreground p-3 rounded-lg bg-secondary/40 border border-border leading-relaxed space-y-1">
-            <p><span className="text-gold">解读：</span>股权可视为以资产 V 为标的、行权价 D 的欧式看涨期权 (Merton 1974)。</p>
-            <p>违约 ↔ V_T &lt; D。DD 越大越安全；KMV 用真实漂移 μ 而非 r。</p>
-            <p>风险中性 PD 用于债券/CDS 定价；实测 PD 用于风险管理与评级映射。</p>
+            <p><span className="text-gold">{t("labs.risk.ui.text25", { defaultValue: "解读：" })}</span>{t("labs.risk.ui.text26", { defaultValue: "股权可视为以资产 V 为标的、行权价 D 的欧式看涨期权 (Merton 1974)。" })}</p>
+            <p>{t("labs.risk.ui.text27", { defaultValue: "违约 ↔ V_T &lt; D。DD 越大越安全；KMV 用真实漂移 μ 而非 r。" })}</p>
+            <p>{t("labs.risk.ui.text28", { defaultValue: "风险中性 PD 用于债券/CDS 定价；实测 PD 用于风险管理与评级映射。" })}</p>
           </div>
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <div className="rounded-xl border border-border bg-secondary/20 p-4">
-          <h4 className="text-sm font-semibold text-foreground mb-2">资产价值分布 V_T (lognormal)</h4>
-          <p className="text-[10px] font-mono text-muted-foreground mb-2">红色阴影 = 违约区域 V_T &lt; D</p>
+          <h4 className="text-sm font-semibold text-foreground mb-2">{t("labs.risk.ui.text29", { defaultValue: "资产价值分布 V_T (lognormal)" })}</h4>
+          <p className="text-[10px] font-mono text-muted-foreground mb-2">{t("labs.risk.ui.text30", { defaultValue: "红色阴影 = 违约区域 V_T &lt; D" })}</p>
           <div className="h-[260px]">
             <ResponsiveContainer width="100%" height="100%">
               <ComposedChart data={distData}>
@@ -241,8 +243,8 @@ export const MertonTool = () => {
                 <XAxis dataKey="Vt" stroke={CHART_TEXT} tick={{ fontSize: 10 }} />
                 <YAxis stroke={CHART_TEXT} tick={{ fontSize: 10 }} />
                 <Tooltip contentStyle={{ background: "hsl(220 15% 12%)", border: `1px solid ${CHART_GRID}`, fontSize: 11 }} />
-                <Area type="monotone" dataKey="pdf" stroke={CHART_GOLD} strokeWidth={2} fill={CHART_GOLD} fillOpacity={0.18} name="资产分布" />
-                <Area type="monotone" dataKey="defaultZone" stroke="none" fill={CHART_RED} fillOpacity={0.45} name="违约区域" />
+                <Area type="monotone" dataKey="pdf" stroke={CHART_GOLD} strokeWidth={2} fill={CHART_GOLD} fillOpacity={0.18} name={t("labs.risk.ui.text31", { defaultValue: "资产分布" })} />
+                <Area type="monotone" dataKey="defaultZone" stroke="none" fill={CHART_RED} fillOpacity={0.45} name={t("labs.risk.ui.text32", { defaultValue: "违约区域" })} />
                 <ReferenceLine x={D} stroke={CHART_RED} strokeDasharray="4 4" label={{ value: `D=${D}`, fill: CHART_RED, fontSize: 10 }} />
                 <ReferenceLine x={V} stroke={CHART_TEAL} strokeDasharray="4 4" label={{ value: `V₀=${V}`, fill: CHART_TEAL, fontSize: 10 }} />
               </ComposedChart>
@@ -251,7 +253,7 @@ export const MertonTool = () => {
         </div>
 
         <div className="rounded-xl border border-border bg-secondary/20 p-4">
-          <h4 className="text-sm font-semibold text-foreground mb-2">PD 与信用利差 vs 杠杆 D/V</h4>
+          <h4 className="text-sm font-semibold text-foreground mb-2">{t("labs.risk.ui.text33", { defaultValue: "PD 与信用利差 vs 杠杆 D/V" })}</h4>
           <div className="h-[260px]">
             <ResponsiveContainer width="100%" height="100%">
               <ComposedChart data={leverageCurve}>
@@ -261,9 +263,9 @@ export const MertonTool = () => {
                 <YAxis yAxisId="right" orientation="right" stroke={CHART_GOLD} tick={{ fontSize: 10 }} label={{ value: "Spread bp", angle: 90, position: "insideRight", fill: CHART_GOLD, fontSize: 10 }} />
                 <Tooltip contentStyle={{ background: "hsl(220 15% 12%)", border: `1px solid ${CHART_GRID}`, fontSize: 11 }} />
                 <Legend wrapperStyle={{ fontSize: 11 }} />
-                <Line yAxisId="left" type="monotone" dataKey="pd" name="风险中性 PD %" stroke={CHART_RED} strokeWidth={2} dot={false} />
-                <Line yAxisId="right" type="monotone" dataKey="spread" name="信用利差 bp" stroke={CHART_GOLD} strokeWidth={2} dot={false} />
-                <ReferenceLine x={+(D / V).toFixed(2)} yAxisId="left" stroke={CHART_TEAL} strokeDasharray="3 3" label={{ value: "当前", fill: CHART_TEAL, fontSize: 10 }} />
+                <Line yAxisId="left" type="monotone" dataKey="pd" name={t("labs.risk.ui.text34", { defaultValue: "风险中性 PD %" })} stroke={CHART_RED} strokeWidth={2} dot={false} />
+                <Line yAxisId="right" type="monotone" dataKey="spread" name={t("labs.risk.ui.text35", { defaultValue: "信用利差 bp" })} stroke={CHART_GOLD} strokeWidth={2} dot={false} />
+                <ReferenceLine x={+(D / V).toFixed(2)} yAxisId="left" stroke={CHART_TEAL} strokeDasharray="3 3" label={{ value: t("labs.risk.ui.text36", { defaultValue: "当前" }), fill: CHART_TEAL, fontSize: 10 }} />
               </ComposedChart>
             </ResponsiveContainer>
           </div>
@@ -277,6 +279,7 @@ export const MertonTool = () => {
    2. Copula Dependence (Gaussian / t)
    ════════════════════════════════════════════════════════════ */
 export const CopulaTool = () => {
+  const { t } = useTranslation();
   const [family, setFamily] = useState<"gaussian" | "t">("gaussian");
   const [rho, setRho] = useState(0.6);
   const [df, setDf] = useState(4);
@@ -385,19 +388,19 @@ export const CopulaTool = () => {
   return (
     <div className="space-y-6">
       <PresetButtons presets={[
-        { name: "高斯 ρ=0.7", description: "无尾相依", apply: () => { setFamily("gaussian"); setRho(0.7); setW1(0.5); setVarAlpha(0.99); } },
-        { name: "t-Copula df=4", description: "强尾相依 (危机模式)", apply: () => { setFamily("t"); setRho(0.7); setDf(4); setVarAlpha(0.99); } },
-        { name: "极端 t df=2.5", description: "肥尾极端", apply: () => { setFamily("t"); setRho(0.6); setDf(3); } },
-        { name: "几乎独立", description: "ρ=0.1, 分散有效", apply: () => { setFamily("gaussian"); setRho(0.1); } },
+        { name: t("labs.risk.ui.text37", { defaultValue: "高斯 ρ=0.7" }), description: t("labs.risk.ui.text38", { defaultValue: "无尾相依" }), apply: () => { setFamily("gaussian"); setRho(0.7); setW1(0.5); setVarAlpha(0.99); } },
+        { name: "t-Copula df=4", description: t("labs.risk.ui.text39", { defaultValue: "强尾相依 (危机模式)" }), apply: () => { setFamily("t"); setRho(0.7); setDf(4); setVarAlpha(0.99); } },
+        { name: t("labs.risk.ui.text40", { defaultValue: "极端 t df=2.5" }), description: t("labs.risk.ui.text41", { defaultValue: "肥尾极端" }), apply: () => { setFamily("t"); setRho(0.6); setDf(3); } },
+        { name: t("labs.risk.ui.text42", { defaultValue: "几乎独立" }), description: t("labs.risk.ui.text43", { defaultValue: "ρ=0.1, 分散有效" }), apply: () => { setFamily("gaussian"); setRho(0.1); } },
       ]} />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="space-y-3">
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-xs font-mono text-muted-foreground">Copula 族：</span>
+            <span className="text-xs font-mono text-muted-foreground">{t("labs.risk.ui.text44", { defaultValue: "Copula 族：" })}</span>
             {([
-              { id: "gaussian", label: "Gaussian", desc: "无尾相依" },
-              { id: "t", label: "Student-t", desc: "对称尾相依" },
+              { id: "gaussian", label: "Gaussian", desc: t("labs.risk.ui.text45", { defaultValue: "无尾相依" }) },
+              { id: "t", label: "Student-t", desc: t("labs.risk.ui.text46", { defaultValue: "对称尾相依" }) },
             ] as const).map(m => (
               <button key={m.id} onClick={() => setFamily(m.id)} title={m.desc}
                 className={"text-xs px-3 py-1.5 rounded border transition-colors font-mono " +
@@ -408,37 +411,37 @@ export const CopulaTool = () => {
               </button>
             ))}
           </div>
-          <Slider label="相关系数 ρ" value={rho} min={-0.95} max={0.95} step={0.05} onChange={setRho} />
+          <Slider label={t("labs.risk.ui.text47", { defaultValue: "相关系数 ρ" })} value={rho} min={-0.95} max={0.95} step={0.05} onChange={setRho} />
           {family === "t" && (
-            <Slider label="自由度 ν" sub="越小尾相依越强" value={df} min={2.5} max={30} step={0.5} onChange={setDf} />
+            <Slider label={t("labs.risk.ui.text48", { defaultValue: "自由度 ν" })} sub={t("labs.risk.ui.text49", { defaultValue: "越小尾相依越强" })} value={df} min={2.5} max={30} step={0.5} onChange={setDf} />
           )}
-          <Slider label="样本量 n" value={n} min={500} max={5000} step={500} onChange={setN} />
-          <Slider label="随机种子" value={seed} min={1} max={999} step={1} onChange={setSeed} />
-          <Slider label="组合权重 w₁" sub={`w₂ = ${(1 - w1).toFixed(2)}`} value={w1} min={0} max={1} step={0.05} onChange={setW1} />
-          <Slider label="VaR / ES 置信度" value={varAlpha} min={0.90} max={0.999} step={0.005} onChange={setVarAlpha} />
+          <Slider label={t("labs.risk.ui.text50", { defaultValue: "样本量 n" })} value={n} min={500} max={5000} step={500} onChange={setN} />
+          <Slider label={t("labs.risk.ui.text51", { defaultValue: "随机种子" })} value={seed} min={1} max={999} step={1} onChange={setSeed} />
+          <Slider label={t("labs.risk.ui.text52", { defaultValue: "组合权重 w₁" })} sub={`w₂ = ${(1 - w1).toFixed(2)}`} value={w1} min={0} max={1} step={0.05} onChange={setW1} />
+          <Slider label={t("labs.risk.ui.text53", { defaultValue: "VaR / ES 置信度" })} value={varAlpha} min={0.90} max={0.999} step={0.005} onChange={setVarAlpha} />
         </div>
 
         <div className="space-y-3">
           <div className="grid grid-cols-2 gap-2">
-            <Stat label="Kendall τ̂ (经验)" value={sim.tau.toFixed(3)} />
-            <Stat label="理论 τ" value={((2 / Math.PI) * Math.asin(rho)).toFixed(3)} sub="(2/π)·arcsin(ρ)" />
-            <Stat label="上尾相依 λᵤ (经验)" value={sim.lambdaU.toFixed(3)} color={CHART_RED} sub="P(U>0.95|V>0.95)" />
-            <Stat label="下尾相依 λₗ (经验)" value={sim.lambdaL.toFixed(3)} color={CHART_RED} sub="P(U<0.05|V<0.05)" />
-            <Stat label={`组合 VaR_{${(varAlpha * 100).toFixed(1)}%}`} value={sim.VaR.toFixed(3)} color={CHART_GOLD} />
-            <Stat label="期望损失 ES" value={sim.ES.toFixed(3)} color={CHART_GOLD} sub="尾部均值" />
+            <Stat label={t("labs.risk.ui.text54", { defaultValue: "Kendall τ̂ (经验)" })} value={sim.tau.toFixed(3)} />
+            <Stat label={t("labs.risk.ui.text55", { defaultValue: "理论 τ" })} value={((2 / Math.PI) * Math.asin(rho)).toFixed(3)} sub="(2/π)·arcsin(ρ)" />
+            <Stat label={t("labs.risk.ui.text56", { defaultValue: "上尾相依 λᵤ (经验)" })} value={sim.lambdaU.toFixed(3)} color={CHART_RED} sub="P(U>0.95|V>0.95)" />
+            <Stat label={t("labs.risk.ui.text57", { defaultValue: "下尾相依 λₗ (经验)" })} value={sim.lambdaL.toFixed(3)} color={CHART_RED} sub="P(U<0.05|V<0.05)" />
+            <Stat label={t("labs.risk.ui.text58", { defaultValue: "组合 VaR_{{{value0}}%}", value0: (varAlpha * 100).toFixed(1) })} value={sim.VaR.toFixed(3)} color={CHART_GOLD} />
+            <Stat label={t("labs.risk.ui.text59", { defaultValue: "期望损失 ES" })} value={sim.ES.toFixed(3)} color={CHART_GOLD} sub={t("labs.risk.ui.text60", { defaultValue: "尾部均值" })} />
           </div>
           <div className="text-xs font-mono text-muted-foreground p-3 rounded-lg bg-secondary/40 border border-border leading-relaxed space-y-1">
-            <p><span className="text-gold">Sklar 定理：</span>F(x,y) = C(F₁(x), F₂(y))。Copula 把<strong>边际分布</strong>与<strong>相依结构</strong>解耦。</p>
-            <p>高斯 Copula 的 λᵤ = λₗ = 0；t-Copula 即使在 ρ 相同时也表现出强尾相依（2008 危机经典教训）。</p>
-            <p>{family === "t" && `理论尾相依 λ ≈ ${sim.lambdaTheo.toFixed(3)}（t-Copula 公式）`}</p>
+            <p><span className="text-gold">{t("labs.risk.ui.text61", { defaultValue: "Sklar 定理：" })}</span>{t("labs.risk.ui.text62", { defaultValue: "F(x,y) = C(F₁(x), F₂(y))。Copula 把" })}<strong>{t("labs.risk.ui.text63", { defaultValue: "边际分布" })}</strong>{t("labs.risk.ui.text64", { defaultValue: "与" })}<strong>{t("labs.risk.ui.text65", { defaultValue: "相依结构" })}</strong>{t("labs.risk.ui.text66", { defaultValue: "解耦。" })}</p>
+            <p>{t("labs.risk.ui.text67", { defaultValue: "高斯 Copula 的 λᵤ = λₗ = 0；t-Copula 即使在 ρ 相同时也表现出强尾相依（2008 危机经典教训）。" })}</p>
+            <p>{family === "t" && t("labs.risk.ui.text68", { defaultValue: "理论尾相依 λ ≈ {{value0}}（t-Copula 公式）", value0: sim.lambdaTheo.toFixed(3) })}</p>
           </div>
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <div className="rounded-xl border border-border bg-secondary/20 p-4">
-          <h4 className="text-sm font-semibold text-foreground mb-2">Copula 散点 (U, V) ∈ [0,1]²</h4>
-          <p className="text-[10px] font-mono text-muted-foreground mb-2">边际已转为均匀分布；观察四角的聚集程度</p>
+          <h4 className="text-sm font-semibold text-foreground mb-2">{t("labs.risk.ui.text69", { defaultValue: "Copula 散点 (U, V) ∈ [0,1]²" })}</h4>
+          <p className="text-[10px] font-mono text-muted-foreground mb-2">{t("labs.risk.ui.text70", { defaultValue: "边际已转为均匀分布；观察四角的聚集程度" })}</p>
           <div className="h-[280px]">
             <ResponsiveContainer width="100%" height="100%">
               <ScatterChart>
@@ -457,7 +460,7 @@ export const CopulaTool = () => {
         </div>
 
         <div className="rounded-xl border border-border bg-secondary/20 p-4">
-          <h4 className="text-sm font-semibold text-foreground mb-2">组合损失分布 (金色 = 尾部超过 VaR)</h4>
+          <h4 className="text-sm font-semibold text-foreground mb-2">{t("labs.risk.ui.text71", { defaultValue: "组合损失分布 (金色 = 尾部超过 VaR)" })}</h4>
           <div className="h-[280px]">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={sim.hist}>
@@ -465,8 +468,8 @@ export const CopulaTool = () => {
                 <XAxis dataKey="mid" stroke={CHART_TEXT} tick={{ fontSize: 10 }} />
                 <YAxis stroke={CHART_TEXT} tick={{ fontSize: 10 }} />
                 <Tooltip contentStyle={{ background: "hsl(220 15% 12%)", border: `1px solid ${CHART_GRID}`, fontSize: 11 }} />
-                <Bar dataKey="cnt" fill={CHART_TEAL} fillOpacity={0.6} name="损失频次" />
-                <Bar dataKey="tail" fill={CHART_GOLD} name="尾部 ≥ VaR" />
+                <Bar dataKey="cnt" fill={CHART_TEAL} fillOpacity={0.6} name={t("labs.risk.ui.text72", { defaultValue: "损失频次" })} />
+                <Bar dataKey="tail" fill={CHART_GOLD} name={t("labs.risk.ui.text73", { defaultValue: "尾部 ≥ VaR" })} />
                 <ReferenceLine x={+sim.VaR.toFixed(3)} stroke={CHART_RED} strokeDasharray="4 4" label={{ value: "VaR", fill: CHART_RED, fontSize: 10 }} />
               </BarChart>
             </ResponsiveContainer>
@@ -487,16 +490,21 @@ type Scenario = {
   // shocks: equity %, ratesBp (parallel shift), creditSpreadBp, fxPct, oilPct
   eq: number; rates: number; credit: number; fx: number; oil: number;
 };
+const getHIST_SCENARIOS = (t: TFunction) => {
 const HIST_SCENARIOS: Scenario[] = [
-  { id: "blackmonday", name: "1987 黑色星期一", nameEn: "Black Monday", eq: -22, rates: -50, credit: 200, fx: -3, oil: -5 },
-  { id: "ltcm", name: "1998 LTCM / 俄债危机", nameEn: "LTCM Crisis", eq: -15, rates: -75, credit: 350, fx: 5, oil: -10 },
-  { id: "dotcom", name: "2000 互联网泡沫", nameEn: "Dot-Com Burst", eq: -45, rates: -200, credit: 250, fx: -8, oil: 10 },
-  { id: "lehman", name: "2008 雷曼破产", nameEn: "Lehman 2008", eq: -38, rates: -300, credit: 600, fx: -12, oil: -50 },
-  { id: "covid", name: "2020 新冠冲击", nameEn: "COVID-19 March 2020", eq: -34, rates: -150, credit: 400, fx: -5, oil: -65 },
-  { id: "ukraine", name: "2022 俄乌冲突", nameEn: "Ukraine Invasion", eq: -12, rates: 200, credit: 180, fx: 8, oil: 35 },
+  { id: "blackmonday", name: t("labs.risk.ui.text74", { defaultValue: "1987 黑色星期一" }), nameEn: "Black Monday", eq: -22, rates: -50, credit: 200, fx: -3, oil: -5 },
+  { id: "ltcm", name: t("labs.risk.ui.text75", { defaultValue: "1998 LTCM / 俄债危机" }), nameEn: "LTCM Crisis", eq: -15, rates: -75, credit: 350, fx: 5, oil: -10 },
+  { id: "dotcom", name: t("labs.risk.ui.text76", { defaultValue: "2000 互联网泡沫" }), nameEn: "Dot-Com Burst", eq: -45, rates: -200, credit: 250, fx: -8, oil: 10 },
+  { id: "lehman", name: t("labs.risk.ui.text77", { defaultValue: "2008 雷曼破产" }), nameEn: "Lehman 2008", eq: -38, rates: -300, credit: 600, fx: -12, oil: -50 },
+  { id: "covid", name: t("labs.risk.ui.text78", { defaultValue: "2020 新冠冲击" }), nameEn: "COVID-19 March 2020", eq: -34, rates: -150, credit: 400, fx: -5, oil: -65 },
+  { id: "ukraine", name: t("labs.risk.ui.text79", { defaultValue: "2022 俄乌冲突" }), nameEn: "Ukraine Invasion", eq: -12, rates: 200, credit: 180, fx: 8, oil: 35 },
 ];
+return HIST_SCENARIOS;
+};
 
 export const StressTool = () => {
+  const { t } = useTranslation();
+  const HIST_SCENARIOS = getHIST_SCENARIOS(t);
   const [eqExp, setEqExp] = useState(40);     // 股票敞口 (M)
   const [bondExp, setBondExp] = useState(40); // 债券敞口
   const [creditExp, setCreditExp] = useState(15); // 信用债敞口
@@ -507,7 +515,7 @@ export const StressTool = () => {
   const [creditDur, setCreditDur] = useState(4);
 
   const [scenarioId, setScenarioId] = useState<string>("lehman");
-  const [custom, setCustom] = useState<Scenario>({ id: "custom", name: "自定义", nameEn: "Custom", eq: 0, rates: 0, credit: 0, fx: 0, oil: 0 });
+  const [custom, setCustom] = useState<Scenario>({ id: "custom", name: t("labs.risk.ui.text80", { defaultValue: "自定义" }), nameEn: "Custom", eq: 0, rates: 0, credit: 0, fx: 0, oil: 0 });
   const [useCustom, setUseCustom] = useState(false);
 
   const totalGross = eqExp + bondExp + creditExp + fxExp + commoExp;
@@ -524,11 +532,11 @@ export const StressTool = () => {
     return {
       total,
       breakdown: [
-        { name: "股票", value: +eqPnl.toFixed(2), color: CHART_GOLD },
-        { name: "利率债", value: +bondPnl.toFixed(2), color: CHART_TEAL },
-        { name: "信用债", value: +creditPnl.toFixed(2), color: CHART_BLUE },
+        { name: t("labs.risk.ui.text81", { defaultValue: "股票" }), value: +eqPnl.toFixed(2), color: CHART_GOLD },
+        { name: t("labs.risk.ui.text82", { defaultValue: "利率债" }), value: +bondPnl.toFixed(2), color: CHART_TEAL },
+        { name: t("labs.risk.ui.text83", { defaultValue: "信用债" }), value: +creditPnl.toFixed(2), color: CHART_BLUE },
         { name: "FX", value: +fxPnl.toFixed(2), color: "hsl(280, 60%, 60%)" },
-        { name: "大宗商品", value: +commoPnl.toFixed(2), color: CHART_RED },
+        { name: t("labs.risk.ui.text84", { defaultValue: "大宗商品" }), value: +commoPnl.toFixed(2), color: CHART_RED },
       ],
     };
   }, [eqExp, bondExp, creditExp, fxExp, commoExp, bondDur, creditDur, activeSc]);
@@ -551,36 +559,36 @@ export const StressTool = () => {
   return (
     <div className="space-y-6">
       <PresetButtons presets={[
-        { name: "60/40 组合", description: "股 60M / 债 40M", apply: () => { setEqExp(60); setBondExp(40); setCreditExp(0); setFxExp(0); setCommoExp(0); } },
-        { name: "全天候", description: "Bridgewater 风格", apply: () => { setEqExp(30); setBondExp(40); setCreditExp(15); setFxExp(0); setCommoExp(15); } },
-        { name: "新兴市场债", description: "高信用 / FX 敞口", apply: () => { setEqExp(10); setBondExp(20); setCreditExp(40); setFxExp(25); setCommoExp(5); setCreditDur(5); } },
-        { name: "对冲基金宏观", description: "杠杆均衡", apply: () => { setEqExp(35); setBondExp(25); setCreditExp(15); setFxExp(15); setCommoExp(10); } },
+        { name: t("labs.risk.ui.text85", { defaultValue: "60/40 组合" }), description: t("labs.risk.ui.text86", { defaultValue: "股 60M / 债 40M" }), apply: () => { setEqExp(60); setBondExp(40); setCreditExp(0); setFxExp(0); setCommoExp(0); } },
+        { name: t("labs.risk.ui.text87", { defaultValue: "全天候" }), description: t("labs.risk.ui.text88", { defaultValue: "Bridgewater 风格" }), apply: () => { setEqExp(30); setBondExp(40); setCreditExp(15); setFxExp(0); setCommoExp(15); } },
+        { name: t("labs.risk.ui.text89", { defaultValue: "新兴市场债" }), description: t("labs.risk.ui.text90", { defaultValue: "高信用 / FX 敞口" }), apply: () => { setEqExp(10); setBondExp(20); setCreditExp(40); setFxExp(25); setCommoExp(5); setCreditDur(5); } },
+        { name: t("labs.risk.ui.text91", { defaultValue: "对冲基金宏观" }), description: t("labs.risk.ui.text92", { defaultValue: "杠杆均衡" }), apply: () => { setEqExp(35); setBondExp(25); setCreditExp(15); setFxExp(15); setCommoExp(10); } },
       ]} />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="space-y-3">
-          <p className="text-xs font-mono text-gold uppercase tracking-wider">组合敞口 (M)</p>
-          <Slider label="股票" value={eqExp} min={0} max={100} step={1} onChange={setEqExp} />
-          <Slider label="利率债 (无信用)" value={bondExp} min={0} max={100} step={1} onChange={setBondExp} />
-          <Slider label="信用债" value={creditExp} min={0} max={100} step={1} onChange={setCreditExp} />
-          <Slider label="FX 敞口" value={fxExp} min={0} max={100} step={1} onChange={setFxExp} />
-          <Slider label="大宗商品" value={commoExp} min={0} max={100} step={1} onChange={setCommoExp} />
-          <Slider label="利率债久期" value={bondDur} min={0.5} max={15} step={0.5} onChange={setBondDur} />
-          <Slider label="信用债久期" value={creditDur} min={0.5} max={15} step={0.5} onChange={setCreditDur} />
+          <p className="text-xs font-mono text-gold uppercase tracking-wider">{t("labs.risk.ui.text93", { defaultValue: "组合敞口 (M)" })}</p>
+          <Slider label={t("labs.risk.ui.text94", { defaultValue: "股票" })} value={eqExp} min={0} max={100} step={1} onChange={setEqExp} />
+          <Slider label={t("labs.risk.ui.text95", { defaultValue: "利率债 (无信用)" })} value={bondExp} min={0} max={100} step={1} onChange={setBondExp} />
+          <Slider label={t("labs.risk.ui.text96", { defaultValue: "信用债" })} value={creditExp} min={0} max={100} step={1} onChange={setCreditExp} />
+          <Slider label={t("labs.risk.ui.text97", { defaultValue: "FX 敞口" })} value={fxExp} min={0} max={100} step={1} onChange={setFxExp} />
+          <Slider label={t("labs.risk.ui.text98", { defaultValue: "大宗商品" })} value={commoExp} min={0} max={100} step={1} onChange={setCommoExp} />
+          <Slider label={t("labs.risk.ui.text99", { defaultValue: "利率债久期" })} value={bondDur} min={0.5} max={15} step={0.5} onChange={setBondDur} />
+          <Slider label={t("labs.risk.ui.text100", { defaultValue: "信用债久期" })} value={creditDur} min={0.5} max={15} step={0.5} onChange={setCreditDur} />
         </div>
 
         <div className="space-y-3">
-          <p className="text-xs font-mono text-gold uppercase tracking-wider">情景选择</p>
+          <p className="text-xs font-mono text-gold uppercase tracking-wider">{t("labs.risk.ui.text101", { defaultValue: "情景选择" })}</p>
           <div className="flex items-center gap-2 flex-wrap">
             <button onClick={() => setUseCustom(false)}
               className={"text-xs px-3 py-1.5 rounded border transition-colors font-mono " +
                 (!useCustom ? "border-gold bg-gold/10 text-gold" : "border-border text-muted-foreground")}>
-              历史情景
+              {t("labs.risk.ui.text102", { defaultValue: "历史情景" })}
             </button>
             <button onClick={() => setUseCustom(true)}
               className={"text-xs px-3 py-1.5 rounded border transition-colors font-mono " +
                 (useCustom ? "border-gold bg-gold/10 text-gold" : "border-border text-muted-foreground")}>
-              自定义假设
+              {t("labs.risk.ui.text103", { defaultValue: "自定义假设" })}
             </button>
           </div>
 
@@ -593,24 +601,24 @@ export const StressTool = () => {
                   <p className="font-semibold text-foreground">{s.name}</p>
                   <p className="text-[10px] font-mono text-muted-foreground">{s.nameEn}</p>
                   <p className="text-[10px] font-mono text-muted-foreground mt-1">
-                    股 {s.eq}% · 率 {s.rates >= 0 ? "+" : ""}{s.rates}bp · 信用 +{s.credit}bp
+                    {t("labs.risk.ui.text104", { defaultValue: "股" })} {s.eq}{t("labs.risk.ui.text105", { defaultValue: "% · 率" })} {s.rates >= 0 ? "+" : ""}{s.rates}{t("labs.risk.ui.text106", { defaultValue: "bp · 信用 +" })}{s.credit}bp
                   </p>
                 </button>
               ))}
             </div>
           ) : (
             <div className="space-y-2">
-              <Slider label="股票冲击 %" value={custom.eq} min={-60} max={30} step={1} onChange={(v) => setCustom({ ...custom, eq: v })} />
-              <Slider label="利率平移 bp" value={custom.rates} min={-400} max={400} step={5} onChange={(v) => setCustom({ ...custom, rates: v })} />
-              <Slider label="信用利差 bp" value={custom.credit} min={0} max={800} step={10} onChange={(v) => setCustom({ ...custom, credit: v })} />
-              <Slider label="FX 冲击 %" value={custom.fx} min={-20} max={20} step={1} onChange={(v) => setCustom({ ...custom, fx: v })} />
-              <Slider label="大宗商品 %" value={custom.oil} min={-80} max={80} step={1} onChange={(v) => setCustom({ ...custom, oil: v })} />
+              <Slider label={t("labs.risk.ui.text107", { defaultValue: "股票冲击 %" })} value={custom.eq} min={-60} max={30} step={1} onChange={(v) => setCustom({ ...custom, eq: v })} />
+              <Slider label={t("labs.risk.ui.text108", { defaultValue: "利率平移 bp" })} value={custom.rates} min={-400} max={400} step={5} onChange={(v) => setCustom({ ...custom, rates: v })} />
+              <Slider label={t("labs.risk.ui.text109", { defaultValue: "信用利差 bp" })} value={custom.credit} min={0} max={800} step={10} onChange={(v) => setCustom({ ...custom, credit: v })} />
+              <Slider label={t("labs.risk.ui.text110", { defaultValue: "FX 冲击 %" })} value={custom.fx} min={-20} max={20} step={1} onChange={(v) => setCustom({ ...custom, fx: v })} />
+              <Slider label={t("labs.risk.ui.text111", { defaultValue: "大宗商品 %" })} value={custom.oil} min={-80} max={80} step={1} onChange={(v) => setCustom({ ...custom, oil: v })} />
             </div>
           )}
 
           <div className="grid grid-cols-2 gap-2 pt-2">
-            <Stat label="总敞口" value={`${totalGross.toFixed(0)} M`} />
-            <Stat label="情景 P&L" value={`${pnl.total >= 0 ? "+" : ""}${pnl.total.toFixed(2)} M`}
+            <Stat label={t("labs.risk.ui.text112", { defaultValue: "总敞口" })} value={`${totalGross.toFixed(0)} M`} />
+            <Stat label={t("labs.risk.ui.text113", { defaultValue: "情景 P&L" })} value={`${pnl.total >= 0 ? "+" : ""}${pnl.total.toFixed(2)} M`}
               color={pnl.total >= 0 ? CHART_TEAL : CHART_RED}
               sub={`${(pnl.total / Math.max(totalGross, 1) * 100).toFixed(1)}% of GMV`} />
           </div>
@@ -619,7 +627,7 @@ export const StressTool = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <div className="rounded-xl border border-border bg-secondary/20 p-4">
-          <h4 className="text-sm font-semibold text-foreground mb-2">P&L 分解 — {activeSc.name}</h4>
+          <h4 className="text-sm font-semibold text-foreground mb-2">{t("labs.risk.ui.text114", { defaultValue: "P&L 分解 —" })} {activeSc.name}</h4>
           <div className="h-[280px]">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={pnl.breakdown} layout="vertical">
@@ -639,7 +647,7 @@ export const StressTool = () => {
         </div>
 
         <div className="rounded-xl border border-border bg-secondary/20 p-4">
-          <h4 className="text-sm font-semibold text-foreground mb-2">所有历史情景对比</h4>
+          <h4 className="text-sm font-semibold text-foreground mb-2">{t("labs.risk.ui.text115", { defaultValue: "所有历史情景对比" })}</h4>
           <div className="h-[280px]">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={allScenarios} layout="vertical">
@@ -660,8 +668,8 @@ export const StressTool = () => {
       </div>
 
       <div className="text-xs font-mono text-muted-foreground p-3 rounded-lg bg-secondary/40 border border-border leading-relaxed">
-        <p><span className="text-gold">方法学：</span>债券 P&L 用 ΔP/P ≈ -D·Δy（一阶久期近似）；信用债同时承受利率与信用利差冲击。</p>
-        <p>Basel III FRTB 与 CCAR 监管均要求银行进行历史 + 假设双轨压力测试，本工具复现核心思路。</p>
+        <p><span className="text-gold">{t("labs.risk.ui.text116", { defaultValue: "方法学：" })}</span>{t("labs.risk.ui.text117", { defaultValue: "债券 P&L 用 ΔP/P ≈ -D·Δy（一阶久期近似）；信用债同时承受利率与信用利差冲击。" })}</p>
+        <p>{t("labs.risk.ui.text118", { defaultValue: "Basel III FRTB 与 CCAR 监管均要求银行进行历史 + 假设双轨压力测试，本工具复现核心思路。" })}</p>
       </div>
     </div>
   );
@@ -675,9 +683,11 @@ type ToolId =
   | "systemic" | "lvar" | "frtb" | "opvar" | "reverse_stress" | "concentration"
   | "coherence" | "vol_fhs" | "irb" | "migration" | "spiral" | "basel" | "model_risk" | "resilience";
 
+const getTOOLS = (t: TFunction) => {
+  
 const TOOLS: { id: ToolId; name: string; nameEn: string; formula: string; python: string; component: React.FC }[] = [
   {
-    id: "var", name: "VaR 三法对比", nameEn: "Value-at-Risk — Parametric vs Historical vs Monte Carlo",
+    id: "var", name: t("labs.risk.ui.text119", { defaultValue: "VaR 三法对比" }), nameEn: "Value-at-Risk — Parametric vs Historical vs Monte Carlo",
     formula: String.raw`\mathrm{VaR}_\alpha^{\text{param}} = V(z_\alpha\sigma_h - \mu_h),\quad \mathrm{VaR}_\alpha^{\text{hist/MC}} = Q_\alpha(L),\quad \mathrm{ES}_\alpha = \mathbb{E}[L\mid L\ge \mathrm{VaR}_\alpha]`,
     python: `import numpy as np
 from scipy.stats import norm
@@ -699,7 +709,7 @@ def var_monte_carlo(V, mu_h, sig_h, alpha=0.99, n=100000, seed=42):
     component: VaRTool,
   },
   {
-    id: "merton", name: "Merton 信用风险", nameEn: "Merton Structural Credit Risk Model",
+    id: "merton", name: t("labs.risk.ui.text120", { defaultValue: "Merton 信用风险" }), nameEn: "Merton Structural Credit Risk Model",
     formula: String.raw`E_0 = V_0\,\Phi(d_1) - D\,e^{-rT}\Phi(d_2),\qquad \mathrm{DD} = \dfrac{\ln(V_0/D) + (\mu - \tfrac{1}{2}\sigma_V^2)T}{\sigma_V\sqrt{T}},\qquad \mathrm{PD} = \Phi(-\mathrm{DD})`,
     python: `import numpy as np
 from scipy.stats import norm
@@ -715,7 +725,7 @@ def merton_pd(V0, D, r, mu, sigma_V, T):
     component: MertonTool,
   },
   {
-    id: "copula", name: "Copula 相依结构", nameEn: "Gaussian & Student-t Copula Dependence",
+    id: "copula", name: t("labs.risk.ui.text121", { defaultValue: "Copula 相依结构" }), nameEn: "Gaussian & Student-t Copula Dependence",
     formula: String.raw`F(x,y) = C\bigl(F_1(x),\, F_2(y)\bigr),\qquad \lambda_U = \lim_{q\to 1^-}\!\Pr(U>q\mid V>q),\qquad \tau = \tfrac{2}{\pi}\arcsin\rho`,
     python: `import numpy as np
 from scipy.stats import norm, t as student_t
@@ -737,7 +747,7 @@ def t_copula_sample(rho, df=4, n=10000, seed=42):
     component: CopulaTool,
   },
   {
-    id: "evt", name: "极值理论 (EVT/POT)", nameEn: "Extreme Value Theory — Peaks-over-Threshold & Generalized Pareto Tail",
+    id: "evt", name: t("labs.risk.ui.text122", { defaultValue: "极值理论 (EVT/POT)" }), nameEn: "Extreme Value Theory — Peaks-over-Threshold & Generalized Pareto Tail",
     formula: String.raw`P(X-u \le y \mid X>u) \to G_{\xi,\beta}(y) = 1 - \bigl(1+\tfrac{\xi y}{\beta}\bigr)^{-1/\xi},\quad \mathrm{VaR}_\alpha = u + \tfrac{\beta}{\xi}\Bigl[\bigl(\tfrac{n}{N_u}(1-\alpha)\bigr)^{-\xi}-1\Bigr]`,
     python: `import numpy as np
 from scipy.stats import genpareto
@@ -756,7 +766,7 @@ def pot_var_es(losses, u_pct=0.95, alpha=0.999):
     component: EvtPotTool,
   },
   {
-    id: "esback", name: "ES + VaR 回测", nameEn: "Expected Shortfall & VaR Backtesting (Kupiec / Christoffersen)",
+    id: "esback", name: t("labs.risk.ui.text123", { defaultValue: "ES + VaR 回测" }), nameEn: "Expected Shortfall & VaR Backtesting (Kupiec / Christoffersen)",
     formula: String.raw`\mathrm{VaR}_\alpha = -F_{L}^{-1}(1-\alpha),\quad \mathrm{ES}_\alpha = \mathbb{E}[L\mid L>\mathrm{VaR}_\alpha],\qquad \mathrm{LR}_{\mathrm{uc}} = -2\ln\!\dfrac{p^{x}(1-p)^{N-x}}{\hat p^{x}(1-\hat p)^{N-x}} \sim \chi^{2}_{1}`,
     python: `import numpy as np
 from scipy.stats import norm, chi2
@@ -779,7 +789,7 @@ def expected_shortfall(loss, alpha):
     component: ESBacktestTool,
   },
   {
-    id: "stress", name: "压力测试", nameEn: "Stress Testing — Historical & Hypothetical Scenarios",
+    id: "stress", name: t("labs.risk.ui.text124", { defaultValue: "压力测试" }), nameEn: "Stress Testing — Historical & Hypothetical Scenarios",
     formula: String.raw`\mathrm{P\&L} = \sum_i w_i \cdot \Delta_i,\qquad \Delta_{\text{bond}} \approx -D_i\,\Delta y_i,\qquad \Delta_{\text{equity}} = r_{\text{shock}}`,
     python: `import numpy as np
 
@@ -817,7 +827,7 @@ def bcva(epe, ene, dpd_c, dpd_b, disc, lgd=0.6):
     component: CVAXVATool,
   },
   {
-    id: "credit_copula", name: "信用组合 Copula (Vasicek/Li/t)", nameEn: "Credit Portfolio Copula — Vasicek / Li with Gaussian vs t Tail",
+    id: "credit_copula", name: t("labs.risk.ui.text125", { defaultValue: "信用组合 Copula (Vasicek/Li/t)" }), nameEn: "Credit Portfolio Copula — Vasicek / Li with Gaussian vs t Tail",
     formula: String.raw`X_i = \sqrt{\rho}\,M + \sqrt{1-\rho}\,\varepsilon_i,\qquad \mathrm{VaR}_\alpha^{\mathrm{Vasicek}} = n\cdot \mathrm{LGD}\cdot \Phi\!\Bigl(\tfrac{\Phi^{-1}(\mathrm{PD}) + \sqrt{\rho}\,\Phi^{-1}(\alpha)}{\sqrt{1-\rho}}\Bigr)`,
     python: `import numpy as np
 from scipy.stats import norm
@@ -839,7 +849,7 @@ def gaussian_copula_default(n=100, pd=0.03, rho=0.2, n_sim=10000, seed=42):
 // ── V4.3 Risk Reinforcement ──
 TOOLS.push(
   {
-    id: "systemic", name: "系统性风险 (CoVaR/MES/SRISK)",
+    id: "systemic", name: t("labs.risk.ui.text126", { defaultValue: "系统性风险 (CoVaR/MES/SRISK)" }),
     nameEn: "Systemic Risk — CoVaR, ΔCoVaR, MES & SRISK",
     formula: String.raw`\mathrm{CoVaR}^{\text{sys}|i}_{\alpha}=a+b\cdot\mathrm{VaR}^{i}_{\alpha},\quad \mathrm{MES}^{i}=\mathbb{E}[R_i\mid R_{\text{sys}}\le\mathrm{VaR}^{\text{sys}}_{\alpha}],\quad \mathrm{SRISK}=k\cdot D-(1-k)(1-\mathrm{LRMES})\cdot E`,
     python: `import numpy as np
@@ -862,7 +872,7 @@ def mes_srisk(r_sys, r_i, mkt_cap, debt, k=0.08, alpha=0.05):
     component: SystemicRiskTool,
   },
   {
-    id: "lvar", name: "流动性调整 VaR + 最优清算",
+    id: "lvar", name: t("labs.risk.ui.text127", { defaultValue: "流动性调整 VaR + 最优清算" }),
     nameEn: "Liquidity-Adjusted VaR + Almgren-Chriss Execution",
     formula: String.raw`\mathrm{LVaR}=\mathrm{VaR}+\tfrac12|V|\cdot s,\qquad x_k=X\,\dfrac{\sinh\bigl(\kappa(T-t_k)\bigr)}{\sinh(\kappa T)},\quad \kappa=\sqrt{\lambda\sigma^{2}/\bar{\eta}}`,
     python: `import numpy as np
@@ -882,7 +892,7 @@ def almgren_chriss(X, T, N, sigma, eta, lam, gamma=0):
     component: LiquidityVaRTool,
   },
   {
-    id: "frtb", name: "FRTB IMA (ES97.5 + 交通灯)",
+    id: "frtb", name: t("labs.risk.ui.text128", { defaultValue: "FRTB IMA (ES97.5 + 交通灯)" }),
     nameEn: "FRTB IMA — 97.5% ES with Liquidity-Horizon Scaling & Basel Traffic Light",
     formula: String.raw`\mathrm{ES}_{97.5\%}=\mathbb{E}[L\mid L\ge \mathrm{VaR}_{97.5\%}],\quad \mathrm{ES}_{\text{liq}}=\sqrt{\sum_j \mathrm{ES}_j^{2}\cdot\tfrac{\mathrm{LH}_j-\mathrm{LH}_{j-1}}{10}},\quad \mathrm{K}=m\cdot\mathrm{ES}_{\text{liq}}`,
     python: `import numpy as np
@@ -903,7 +913,7 @@ def traffic_light(exceptions):
     component: FRTBTool,
   },
   {
-    id: "opvar", name: "操作风险 LDA (OpVaR)",
+    id: "opvar", name: t("labs.risk.ui.text129", { defaultValue: "操作风险 LDA (OpVaR)" }),
     nameEn: "Operational Risk — Loss Distribution Approach (Poisson × Lognormal)",
     formula: String.raw`L=\sum_{i=1}^{N}X_i,\; N\sim\mathrm{Poisson}(\lambda),\; X_i\sim\mathrm{LogN}(\mu,\sigma^{2}),\qquad \mathrm{OpVaR}_{99.9\%}=F_L^{-1}(0.999)`,
     python: `import numpy as np
@@ -920,7 +930,7 @@ def lda_opvar(lam, mu, sigma, n_sims=10000, seed=42):
     component: OpRiskLDATool,
   },
   {
-    id: "reverse_stress", name: "反向压力测试",
+    id: "reverse_stress", name: t("labs.risk.ui.text130", { defaultValue: "反向压力测试" }),
     nameEn: "Reverse Stress Testing — Mahalanobis-Minimal Factor Shock",
     formula: String.raw`\min_{\delta}\;\delta^{\top}\Sigma^{-1}\delta \quad\text{s.t.}\quad b^{\top}\delta = L^{*}\;\Longrightarrow\; \delta^{*}=\dfrac{L^{*}}{b^{\top}\Sigma b}\,\Sigma\, b`,
     python: `import numpy as np
@@ -933,7 +943,7 @@ def reverse_stress(Sigma, b, L_star):
     component: ReverseStressTool,
   },
   {
-    id: "concentration", name: "集中度 & Component VaR",
+    id: "concentration", name: t("labs.risk.ui.text131", { defaultValue: "集中度 & Component VaR" }),
     nameEn: "Concentration Risk & Component VaR (Euler Allocation)",
     formula: String.raw`\mathrm{VaR}_{\alpha}=z_{\alpha}\sqrt{w^{\top}\Sigma w},\quad \mathrm{CVaR}_i=w_i\cdot\dfrac{z_{\alpha}(\Sigma w)_i}{\sigma_p},\quad \sum_i \mathrm{CVaR}_i=\mathrm{VaR}_{\alpha},\quad \mathrm{HHI}=\sum_i w_i^{2}`,
     python: `import numpy as np
@@ -954,7 +964,7 @@ def component_var(w, Sigma, alpha=0.99):
 // ── V5.8 Risk Completion ──
 TOOLS.push(
   {
-    id: "coherence", name: "风险度量公理台",
+    id: "coherence", name: t("labs.risk.ui.text132", { defaultValue: "风险度量公理台" }),
     nameEn: "Coherence Axioms, Spectral & Distortion Measures, Elicitability",
     formula: String.raw`\rho(L_1+L_2)\le\rho(L_1)+\rho(L_2),\quad \rho_\phi(L)=\int_0^1\phi(u)Q_L(u)\,du,\quad S(q,y)=(\mathbf 1\{y\le q\}-\alpha)(q-y)`,
     python: `import numpy as np
@@ -975,7 +985,7 @@ def pinball(y, q, a=0.99):
     component: CoherenceTool,
   },
   {
-    id: "vol_fhs", name: "波动率建模与过滤式历史模拟",
+    id: "vol_fhs", name: t("labs.risk.ui.text133", { defaultValue: "波动率建模与过滤式历史模拟" }),
     nameEn: "EWMA / GARCH(1,1) / HAR + Filtered Historical Simulation",
     formula: String.raw`\sigma_t^2=\omega+\alpha\varepsilon_{t-1}^2+\beta\sigma_{t-1}^2,\qquad z_t=\frac{r_t}{\sigma_t},\qquad r_{T+h}^{*}=\sigma_{T+h}\,z^{*}`,
     python: `import numpy as np
@@ -996,7 +1006,7 @@ def fhs_var(r, sigma, sigma_fwd, a=0.99, n=10000, seed=1):
     component: VolFhsTool,
   },
   {
-    id: "irb", name: "PD / LGD / EAD 与 IRB 资本",
+    id: "irb", name: t("labs.risk.ui.text134", { defaultValue: "PD / LGD / EAD 与 IRB 资本" }),
     nameEn: "Expected Loss, Vasicek Unexpected Loss & Basel IRB Risk Weights",
     formula: String.raw`K=\mathrm{LGD}\left[\Phi\!\left(\frac{\Phi^{-1}(\mathrm{PD})+\sqrt{R}\,\Phi^{-1}(0.999)}{\sqrt{1-R}}\right)-\mathrm{PD}\right]\cdot\frac{1+(M-2.5)b}{1-1.5b},\quad \mathrm{RWA}=12.5\,K\,\mathrm{EAD}`,
     python: `import numpy as np
@@ -1012,7 +1022,7 @@ def irb_capital(pd, lgd, ead, M=2.5):
     component: IrbCapitalTool,
   },
   {
-    id: "migration", name: "评级迁移与 CreditMetrics",
+    id: "migration", name: t("labs.risk.ui.text135", { defaultValue: "评级迁移与 CreditMetrics" }),
     nameEn: "Rating Migration Matrices, Generators & CreditMetrics Portfolio Loss",
     formula: String.raw`P^{(n)}=P^{n},\quad Q=\log P,\qquad R_i=\sqrt{\rho}\,Z+\sqrt{1-\rho}\,\epsilon_i,\quad \text{rating}_i=k \iff z_{k}<R_i\le z_{k-1}`,
     python: `import numpy as np
@@ -1033,7 +1043,7 @@ def credit_metrics(P, idx, n_obl, rho, lgd, n_sims=5000, seed=0):
     component: MigrationCreditMetricsTool,
   },
   {
-    id: "spiral", name: "融资流动性与去杠杆螺旋",
+    id: "spiral", name: t("labs.risk.ui.text136", { defaultValue: "融资流动性与去杠杆螺旋" }),
     nameEn: "Funding Liquidity, Margin Spirals & Survival Horizon",
     formula: String.raw`A_t\le\frac{E_t}{m_t},\qquad \Delta p=\lambda\,\frac{\text{sales}}{A_0},\qquad \text{Amplification}=\frac{\text{direct}+\text{spiral}}{\text{direct}}`,
     python: `def spiral(assets, equity, haircut, dh, impact, shock, rounds=8):
@@ -1053,7 +1063,7 @@ def credit_metrics(P, idx, n_obl, rho, lgd, n_sims=5000, seed=0):
     component: FundingSpiralTool,
   },
   {
-    id: "basel", name: "Basel 资本栈与 LCR / NSFR",
+    id: "basel", name: t("labs.risk.ui.text137", { defaultValue: "Basel 资本栈与 LCR / NSFR" }),
     nameEn: "CET1 / AT1 / T2 Stack, Buffers, Leverage Ratio & Liquidity Ratios",
     formula: String.raw`\text{CET1 ratio}=\frac{\text{CET1}}{\mathrm{RWA}}\ge 4.5\%+\text{CCB}+\text{CCyB}+\text{G-SIB},\quad \mathrm{LCR}=\frac{\mathrm{HQLA}}{\text{30d net outflows}}\ge 100\%`,
     python: `def basel_stack(cet1, at1, t2, rwa, exposure, hqla, outflows, asf, rsf,
@@ -1070,7 +1080,7 @@ def credit_metrics(P, idx, n_obl, rho, lgd, n_sims=5000, seed=0):
     component: BaselStackTool,
   },
   {
-    id: "model_risk", name: "模型风险与稳健决策",
+    id: "model_risk", name: t("labs.risk.ui.text138", { defaultValue: "模型风险与稳健决策" }),
     nameEn: "Model Uncertainty Bands, ε-Contamination & SR 11-7 Governance",
     formula: String.raw`\rho^{\text{rob}}=(1-\varepsilon)\,\rho_{\text{base}}+\varepsilon\,\rho_{\text{worst}},\qquad \text{Buffer}=\rho^{\text{rob}}-\rho_{\text{base}}`,
     python: `import numpy as np
@@ -1083,7 +1093,7 @@ def model_band(vals, eps=0.1, mult=1.0):
     component: ModelRiskTool,
   },
   {
-    id: "resilience", name: "韧性与恢复计划",
+    id: "resilience", name: t("labs.risk.ui.text139", { defaultValue: "韧性与恢复计划" }),
     nameEn: "Multi-Period Capital Trajectory, Buffer Release & Recovery Triggers",
     formula: String.raw`\mathrm{CET1}_{t+1}=\mathrm{CET1}_t+\mathrm{PPNR}_t-L_t-D_t,\qquad \mathrm{ratio}_t=\frac{\mathrm{CET1}_t}{\mathrm{RWA}_t},\quad \mathrm{RWA}_{t+1}=\mathrm{RWA}_t(1+g)`,
     python: `def trajectory(cet1, rwa, ppnr, losses, g=0.01, div=0.4):
@@ -1096,10 +1106,13 @@ def model_band(vals, eps=0.1, mult=1.0):
     component: ResilienceTool,
   },
 );
+return TOOLS;
+};
 
 
 /** Compact collapsible Python reference snippet — companion to the formula bar. */
 const PythonReference = ({ code }: { code: string }) => {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [copied, setCopied] = useState(false);
   const onCopy = async () => {
@@ -1116,14 +1129,14 @@ const PythonReference = ({ code }: { code: string }) => {
           onClick={() => setOpen((o) => !o)}
           className="text-[11px] font-mono uppercase tracking-[0.2em] text-gold/80 hover:text-gold flex items-center gap-2"
         >
-          <span>{open ? "▾" : "▸"}</span> Python 参考实现
+          <span>{open ? "▾" : "▸"}</span> {t("labs.risk.ui.text140", { defaultValue: "Python 参考实现" })}
         </button>
         {open && (
           <button
             onClick={onCopy}
             className="text-[10px] font-mono text-muted-foreground hover:text-gold transition-colors"
           >
-            {copied ? "已复制 ✓" : "复制"}
+            {copied ? t("labs.risk.ui.text141", { defaultValue: "已复制 ✓" }) : t("labs.risk.ui.text142", { defaultValue: "复制" })}
           </button>
         )}
       </div>
@@ -1137,13 +1150,16 @@ const PythonReference = ({ code }: { code: string }) => {
 };
 
 /** Five learning tracks across the 22 risk tools. */
+const getRISK_CATEGORIES = (t: TFunction) => {
 const RISK_CATEGORIES: ToolCategory[] = [
-  { id: "market", label: "市场风险与极值", labelEn: "Market Risk & Extremes", toolIds: ["var", "evt", "esback", "vol_fhs", "coherence"] },
-  { id: "credit", label: "信用与对手方", labelEn: "Credit & Counterparty", toolIds: ["merton", "copula", "credit_copula", "cva", "migration", "irb"] },
-  { id: "liquidity", label: "流动性与系统性", labelEn: "Liquidity & Systemic", toolIds: ["lvar", "systemic", "spiral", "concentration"] },
-  { id: "regcap", label: "压力测试与监管资本", labelEn: "Stress & Regulatory Capital", toolIds: ["stress", "reverse_stress", "frtb", "opvar", "basel"] },
-  { id: "governance", label: "治理与韧性", labelEn: "Governance & Resilience", toolIds: ["model_risk", "resilience"] },
+  { id: "market", label: t("labs.risk.ui.text143", { defaultValue: "市场风险与极值" }), labelEn: "Market Risk & Extremes", toolIds: ["var", "evt", "esback", "vol_fhs", "coherence"] },
+  { id: "credit", label: t("labs.risk.ui.text144", { defaultValue: "信用与对手方" }), labelEn: "Credit & Counterparty", toolIds: ["merton", "copula", "credit_copula", "cva", "migration", "irb"] },
+  { id: "liquidity", label: t("labs.risk.ui.text145", { defaultValue: "流动性与系统性" }), labelEn: "Liquidity & Systemic", toolIds: ["lvar", "systemic", "spiral", "concentration"] },
+  { id: "regcap", label: t("labs.risk.ui.text146", { defaultValue: "压力测试与监管资本" }), labelEn: "Stress & Regulatory Capital", toolIds: ["stress", "reverse_stress", "frtb", "opvar", "basel"] },
+  { id: "governance", label: t("labs.risk.ui.text147", { defaultValue: "治理与韧性" }), labelEn: "Governance & Resilience", toolIds: ["model_risk", "resilience"] },
 ];
+return RISK_CATEGORIES;
+};
 
 /** Short English nav labels (the formula bar still shows the full titles). */
 const RISK_NAV_EN: Record<ToolId, string> = {
@@ -1171,10 +1187,13 @@ const RISK_NAV_EN: Record<ToolId, string> = {
   resilience: "Resilience & Recovery",
 };
 
-const RISK_TOOL_IDS = TOOLS.map((x) => x.id);
+const RISK_TOOL_IDS = ["blackmonday","ltcm","dotcom","lehman","covid","ukraine","custom","var","merton","copula","evt","esback","stress","cva","credit_copula","systemic","lvar","frtb","opvar","reverse_stress","concentration","coherence","vol_fhs","irb","migration","spiral","basel","model_risk","resilience"] as readonly ToolId[];
 
 const RiskTools = () => {
   const { t } = useTranslation();
+  const RISK_CATEGORIES = getRISK_CATEGORIES(t);
+  const TOOLS = getTOOLS(t);
+  
   const [tool, setTool] = useToolTab<ToolId>(RISK_TOOL_IDS, "merton");
   const captureRef = useRef<HTMLDivElement>(null);
   const apply = useCallback((s: { tool: ToolId }) => {
@@ -1182,7 +1201,7 @@ const RiskTools = () => {
   }, [setTool]);
   useSharedState<{ tool: ToolId }>("risk", apply);
 
-  const Active = TOOLS.find(t => t.id === tool)!;
+  const Active = TOOLS.find(timeIndex => timeIndex.id === tool)!;
 
   return (
     <section className="py-24 px-6 relative">

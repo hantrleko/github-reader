@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowLeft, Search, BadgeCheck, ExternalLink, X, WifiOff, Wifi, Workflow as WorkflowIcon, ArrowRight } from "lucide-react";
@@ -18,6 +19,7 @@ const ALL_CATEGORIES = Object.keys(CATEGORY_LABEL) as ToolCategory[];
 const ALL_DIFFICULTIES = Object.keys(DIFFICULTY_LABEL) as Difficulty[];
 
 const ToolsCatalog = () => {
+  const { t } = useTranslation();
   const [q, setQ] = useState("");
   const [cats, setCats] = useState<Set<ToolCategory>>(new Set());
   const [diffs, setDiffs] = useState<Set<Difficulty>>(new Set());
@@ -31,12 +33,12 @@ const ToolsCatalog = () => {
 
   const filtered = useMemo(() => {
     const ql = q.trim().toLowerCase();
-    return TOOLS_CATALOG.filter((t) => {
-      if (cats.size && !cats.has(t.category)) return false;
-      if (diffs.size && !diffs.has(t.difficulty)) return false;
-      if (verifiedOnly && !t.verified) return false;
+    return TOOLS_CATALOG.filter((term) => {
+      if (cats.size && !cats.has(term.category)) return false;
+      if (diffs.size && !diffs.has(term.difficulty)) return false;
+      if (verifiedOnly && !term.verified) return false;
       if (!ql) return true;
-      const hay = `${t.name} ${t.nameEn} ${t.blurb} ${t.tags.join(" ")} ${t.refs.join(" ")}`.toLowerCase();
+      const hay = `${term.name} ${term.nameEn} ${term.blurb} ${term.tags.join(" ")} ${term.refs.join(" ")}`.toLowerCase();
       return hay.includes(ql);
     });
   }, [q, cats, diffs, verifiedOnly]);
@@ -44,18 +46,18 @@ const ToolsCatalog = () => {
   // group by category for display
   const grouped = useMemo(() => {
     const m = new Map<ToolCategory, ToolEntry[]>();
-    for (const t of filtered) {
-      if (!m.has(t.category)) m.set(t.category, []);
-      m.get(t.category)!.push(t);
+    for (const term of filtered) {
+      if (!m.has(term.category)) m.set(term.category, []);
+      m.get(term.category)!.push(term);
     }
     return Array.from(m.entries());
   }, [filtered]);
 
-  const verifiedCount = TOOLS_CATALOG.filter((t) => t.verified).length;
+  const verifiedCount = TOOLS_CATALOG.filter((item) => item.verified).length;
 
   return (
     <div className="min-h-screen bg-background">
-      <Seo title="工具目录 · EF Lab" description="完整的量化金融与计量经济学交互工具索引：按主题、难度与可验证性筛选。" path="/tools" />
+      <Seo title={t("pages.toolsCatalog.copy1", { defaultValue: "工具目录 · EF Lab" })} description={t("pages.toolsCatalog.copy2", { defaultValue: "完整的量化金融与计量经济学交互工具索引：按主题、难度与可验证性筛选。" })} path="/tools" />
       <Navbar />
       <main id="main-content" className="container max-w-6xl px-6 pt-20 pb-24">
         {/* Hero */}
@@ -64,7 +66,7 @@ const ToolsCatalog = () => {
             to="/"
             className="inline-flex items-center gap-1 text-[11px] font-mono text-muted-foreground hover:text-gold transition-colors mb-6"
           >
-            <ArrowLeft className="w-3 h-3" /> 返回首页
+            <ArrowLeft className="w-3 h-3" /> {t("pages.toolsCatalog.copy3", { defaultValue: "返回首页" })}
           </Link>
           <div className="flex items-center gap-2 mb-3">
             <span className="text-[10px] font-mono text-gold tracking-[0.3em] uppercase">
@@ -73,14 +75,14 @@ const ToolsCatalog = () => {
             <div className="flex-1 h-px bg-gradient-to-r from-gold/40 to-transparent" />
           </div>
           <h1 className="text-3xl md:text-4xl font-display text-foreground mb-3">
-            全部工具索引
+            {t("pages.toolsCatalog.copy4", { defaultValue: "全部工具索引" })}
           </h1>
           <p className="text-sm text-muted-foreground max-w-2xl">
-            {TOOLS_CATALOG.length} 个交互式金融、计量与研究工作流工具，按章节 / 难度 / 引用文献组织。
+            {TOOLS_CATALOG.length} {t("pages.toolsCatalog.copy5", { defaultValue: "个交互式金融、计量与研究工作流工具，按章节 / 难度 / 引用文献组织。" })}
             {" "}
             <span className="text-foreground/80">
               <BadgeCheck className="inline w-3.5 h-3.5 text-emerald-500 mb-0.5" />{" "}
-              {verifiedCount} 个已通过闭式解单元测试
+              {verifiedCount} {t("pages.toolsCatalog.copy6", { defaultValue: "个已通过闭式解单元测试" })}
             </span>
             。
           </p>
@@ -89,7 +91,7 @@ const ToolsCatalog = () => {
             className="group inline-flex items-center gap-2 mt-5 px-4 py-2 rounded-lg border border-gold/30 bg-gold/5 hover:bg-gold/10 hover:border-gold/50 transition-colors text-sm font-mono text-gold"
           >
             <WorkflowIcon className="w-4 h-4" />
-            研究工作流 · 把多个工具串成剧本
+            {t("pages.toolsCatalog.copy7", { defaultValue: "研究工作流 · 把多个工具串成剧本" })}
             <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
           </Link>
         </header>
@@ -102,14 +104,14 @@ const ToolsCatalog = () => {
               <input
                 value={q}
                 onChange={(e) => setQ(e.target.value)}
-                placeholder="搜索工具名 / 标签 / 论文…（如 Heston、动量、Vasicek）"
+                placeholder={t("pages.toolsCatalog.copy8", { defaultValue: "搜索工具名 / 标签 / 论文…（如 Heston、动量、Vasicek）" })}
                 className="w-full pl-9 pr-9 py-2.5 rounded-lg bg-background border border-border text-sm font-body focus:outline-none focus:ring-2 focus:ring-gold/40 focus:border-gold/40 transition"
               />
               {q && (
                 <button
                   onClick={() => setQ("")}
                   className="absolute right-3 top-1/2 -translate-y-1/2 p-0.5 text-muted-foreground hover:text-foreground"
-                  aria-label="清除搜索"
+                  aria-label={t("pages.toolsCatalog.copy9", { defaultValue: "清除搜索" })}
                 >
                   <X className="w-3.5 h-3.5" />
                 </button>
@@ -119,7 +121,7 @@ const ToolsCatalog = () => {
             <div className="grid md:grid-cols-3 gap-4">
               <div>
                 <p className="text-[10px] font-mono uppercase tracking-wider text-gold/80 mb-2">
-                  章节
+                  {t("pages.toolsCatalog.copy10", { defaultValue: "章节" })}
                 </p>
                 <div className="flex flex-wrap gap-1.5">
                   {ALL_CATEGORIES.map((c) => {
@@ -143,7 +145,7 @@ const ToolsCatalog = () => {
               </div>
               <div>
                 <p className="text-[10px] font-mono uppercase tracking-wider text-gold/80 mb-2">
-                  难度
+                  {t("pages.toolsCatalog.copy11", { defaultValue: "难度" })}
                 </p>
                 <div className="flex flex-wrap gap-1.5">
                   {ALL_DIFFICULTIES.map((d) => {
@@ -167,7 +169,7 @@ const ToolsCatalog = () => {
               </div>
               <div>
                 <p className="text-[10px] font-mono uppercase tracking-wider text-gold/80 mb-2">
-                  质量
+                  {t("pages.toolsCatalog.copy12", { defaultValue: "质量" })}
                 </p>
                 <label className="inline-flex items-center gap-2 text-xs cursor-pointer select-none">
                   <input
@@ -176,9 +178,9 @@ const ToolsCatalog = () => {
                     onChange={(e) => setVerifiedOnly(e.target.checked)}
                     className="accent-gold"
                   />
-                  <span className="text-foreground/80">仅显示</span>
+                  <span className="text-foreground/80">{t("pages.toolsCatalog.copy13", { defaultValue: "仅显示" })}</span>
                   <span className="inline-flex items-center gap-1 text-emerald-500">
-                    <BadgeCheck className="w-3.5 h-3.5" /> 已验证
+                    <BadgeCheck className="w-3.5 h-3.5" /> {t("pages.toolsCatalog.copy14", { defaultValue: "已验证" })}
                   </span>
                 </label>
               </div>
@@ -187,8 +189,8 @@ const ToolsCatalog = () => {
 
           <div className="mt-4 pt-3 border-t border-border/40 flex items-center justify-between">
             <p className="text-[11px] font-mono text-muted-foreground">
-              匹配 <span className="text-gold">{filtered.length}</span> /{" "}
-              {TOOLS_CATALOG.length} 个工具
+              {t("pages.toolsCatalog.copy15", { defaultValue: "匹配" })} <span className="text-gold">{filtered.length}</span> /{" "}
+              {TOOLS_CATALOG.length} {t("pages.toolsCatalog.copy16", { defaultValue: "个工具" })}
             </p>
             {(q || cats.size || diffs.size || verifiedOnly) && (
               <button
@@ -200,7 +202,7 @@ const ToolsCatalog = () => {
                 }}
                 className="text-[11px] font-mono text-muted-foreground hover:text-gold transition-colors"
               >
-                清除筛选 ×
+                {t("pages.toolsCatalog.copy17", { defaultValue: "清除筛选 ×" })}
               </button>
             )}
           </div>
@@ -209,7 +211,7 @@ const ToolsCatalog = () => {
         {/* Grouped results */}
         {grouped.length === 0 && (
           <div className="py-20 text-center text-sm text-muted-foreground font-mono">
-            没有匹配的工具 — 试试调整筛选条件。
+            {t("pages.toolsCatalog.copy18", { defaultValue: "没有匹配的工具 — 试试调整筛选条件。" })}
           </div>
         )}
 
@@ -227,7 +229,7 @@ const ToolsCatalog = () => {
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {items.map((t) => (
-                  <ToolCard key={t.id} tool={t} query={q} />
+                  <ToolCard key={term.id} tool={t} query={q} />
                 ))}
               </div>
             </section>
@@ -239,6 +241,7 @@ const ToolsCatalog = () => {
 };
 
 const ToolCard = ({ tool, query }: { tool: ToolEntry; query: string }) => {
+  const { t } = useTranslation();
   const diff = DIFFICULTY_LABEL[tool.difficulty];
   // Pure-client categories work offline; only Platform tools (Notebook sync,
   // real-data loaders) require the network.
@@ -284,14 +287,14 @@ const ToolCard = ({ tool, query }: { tool: ToolEntry; query: string }) => {
           {offlineCapable ? (
             <span
               className="inline-flex items-center gap-0.5 text-[hsl(var(--teal-glow))]"
-              title="纯客户端算法,离线可用"
+              title={t("pages.toolsCatalog.copy19", { defaultValue: "纯客户端算法,离线可用" })}
             >
               <WifiOff className="w-3 h-3" /> offline
             </span>
           ) : (
             <span
               className="inline-flex items-center gap-0.5 text-muted-foreground/70"
-              title="依赖网络服务(数据源 / 云同步)"
+              title={t("pages.toolsCatalog.copy20", { defaultValue: "依赖网络服务(数据源 / 云同步)" })}
             >
               <Wifi className="w-3 h-3" /> online
             </span>
@@ -300,7 +303,7 @@ const ToolCard = ({ tool, query }: { tool: ToolEntry; query: string }) => {
         {tool.verified && (
           <span
             className="inline-flex items-center gap-0.5 text-emerald-500"
-            title="已通过闭式解单元测试"
+            title={t("pages.toolsCatalog.copy21", { defaultValue: "已通过闭式解单元测试" })}
           >
             <BadgeCheck className="w-3 h-3" /> verified
           </span>

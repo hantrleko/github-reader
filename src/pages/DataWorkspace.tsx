@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 /**
  * /data — Data Workspace: cross-tool dataset store.
  * Upload CSVs, pull live series (FRED / market quotes), preview with
@@ -25,6 +26,7 @@ import { supabase } from "@/integrations/supabase/client";
 const FUNCTIONS_URL = "https://oshfqmmhxaaevucfdunk.supabase.co/functions/v1";
 
 const DataWorkspace = () => {
+  const { t } = useTranslation();
   const [datasets, setDatasets] = useState<Dataset[]>([]);
   const [selected, setSelected] = useState<Dataset | null>(null);
   const [column, setColumn] = useState<string>("");
@@ -58,9 +60,9 @@ const DataWorkspace = () => {
       });
       setSelected(d);
       setColumn(firstCol);
-      toast({ title: `已导入 ${f.name}`, description: `${parsed.dates.length} 行 · ${Object.keys(parsed.columns).length} 个数值列` });
+      toast({ title: t("pages.dataWorkspace.copy1", { defaultValue: "已导入 {{value1}}", value1: f.name }), description: t("pages.dataWorkspace.copy2", { defaultValue: "{{value1}} 行 · {{value2}} 个数值列", value1: parsed.dates.length, value2: Object.keys(parsed.columns).length }) });
     } catch (e) {
-      toast({ title: "CSV 解析失败", description: String((e as Error)?.message || e), variant: "destructive" });
+      toast({ title: t("pages.dataWorkspace.copy3", { defaultValue: "CSV 解析失败" }), description: String((e as Error)?.message || e), variant: "destructive" });
     }
   };
 
@@ -73,7 +75,7 @@ const DataWorkspace = () => {
       });
       if (!resp.ok) throw new Error(`FRED ${resp.status}`);
       const data = await resp.json();
-      if (!data?.dates?.length) throw new Error("空序列");
+      if (!data?.dates?.length) throw new Error(t("pages.dataWorkspace.copy4", { defaultValue: "空序列" }));
       const d = await saveDataset({
         name: `FRED · ${data.series_id || fredId}`,
         source: "fred",
@@ -83,9 +85,9 @@ const DataWorkspace = () => {
       });
       setSelected(d);
       setColumn("");
-      toast({ title: `已保存 ${d.name}`, description: `${d.dates.length} 个观测` });
+      toast({ title: t("pages.dataWorkspace.copy5", { defaultValue: "已保存 {{value1}}", value1: d.name }), description: t("pages.dataWorkspace.copy6", { defaultValue: "{{value1}} 个观测", value1: d.dates.length }) });
     } catch (e) {
-      toast({ title: "FRED 拉取失败", description: String((e as Error)?.message || e), variant: "destructive" });
+      toast({ title: t("pages.dataWorkspace.copy7", { defaultValue: "FRED 拉取失败" }), description: String((e as Error)?.message || e), variant: "destructive" });
     } finally {
       setBusy(false);
     }
@@ -99,7 +101,7 @@ const DataWorkspace = () => {
       });
       if (!resp.ok) throw new Error(`quotes ${resp.status}`);
       const data = await resp.json();
-      if (!data?.dates?.length) throw new Error("空序列");
+      if (!data?.dates?.length) throw new Error(t("pages.dataWorkspace.copy4", { defaultValue: "空序列" }));
       const d = await saveDataset({
         name: `${data.symbol || symbol} · close`,
         source: "market",
@@ -109,9 +111,9 @@ const DataWorkspace = () => {
       });
       setSelected(d);
       setColumn("");
-      toast({ title: `已保存 ${d.name}`, description: `${d.dates.length} 个交易日` });
+      toast({ title: t("pages.dataWorkspace.copy5", { defaultValue: "已保存 {{value1}}", value1: d.name }), description: t("pages.dataWorkspace.copy8", { defaultValue: "{{value1}} 个交易日", value1: d.dates.length }) });
     } catch (e) {
-      toast({ title: "行情拉取失败", description: String((e as Error)?.message || e), variant: "destructive" });
+      toast({ title: t("pages.dataWorkspace.copy9", { defaultValue: "行情拉取失败" }), description: String((e as Error)?.message || e), variant: "destructive" });
     } finally {
       setBusy(false);
     }
@@ -135,13 +137,14 @@ const DataWorkspace = () => {
   }, [shown, rawValues.length, selected]);
 
   const copyJson = async () => {
+  
     if (!selected) return;
     const payload = JSON.stringify({ name: selected.name, transform, dates: selected.dates.slice(rawValues.length - shown.length), values: shown });
     try {
       await navigator.clipboard.writeText(payload);
-      toast({ title: "已复制 JSON", description: "可直接粘贴进 Notebook JS/Python 单元" });
+      toast({ title: t("pages.dataWorkspace.copy10", { defaultValue: "已复制 JSON" }), description: t("pages.dataWorkspace.copy11", { defaultValue: "可直接粘贴进 Notebook JS/Python 单元" }) });
     } catch {
-      toast({ title: "复制失败", variant: "destructive" });
+      toast({ title: t("pages.dataWorkspace.copy12", { defaultValue: "复制失败" }), variant: "destructive" });
     }
   };
 
@@ -160,7 +163,7 @@ const DataWorkspace = () => {
     <div className="min-h-screen bg-background">
       <Seo
         title="Data Workspace · EF Lab"
-        description="跨工具数据工作区:上传 CSV、缓存 FRED/行情序列到本地 IndexedDB,做收益率/差分/标准化变换,在任意工具与 Notebook 中复用。"
+        description={t("pages.dataWorkspace.copy13", { defaultValue: "跨工具数据工作区:上传 CSV、缓存 FRED/行情序列到本地 IndexedDB,做收益率/差分/标准化变换,在任意工具与 Notebook 中复用。" })}
         path="/data"
       />
       <Navbar />
@@ -168,8 +171,8 @@ const DataWorkspace = () => {
         <SectionHeader
           chapter="Data"
           kicker="DATA WORKSPACE"
-          title="数据工作区"
-          subtitle="上传 CSV 或缓存在线序列到本地 (IndexedDB · 离线可用),配置变换管道,跨工具复用同一份数据。"
+          title={t("pages.dataWorkspace.copy14", { defaultValue: "数据工作区" })}
+          subtitle={t("pages.dataWorkspace.copy15", { defaultValue: "上传 CSV 或缓存在线序列到本地 (IndexedDB · 离线可用),配置变换管道,跨工具复用同一份数据。" })}
         />
 
         <section className="container max-w-6xl px-6 pb-16 grid gap-6 lg:grid-cols-[320px_1fr]">
@@ -177,7 +180,7 @@ const DataWorkspace = () => {
           <div className="space-y-4">
             {/* Upload */}
             <div className="border border-border/60 bg-card/40 p-4 space-y-3">
-              <p className="text-[10px] font-mono uppercase tracking-wider text-gold">导入数据</p>
+              <p className="text-[10px] font-mono uppercase tracking-wider text-gold">{t("pages.dataWorkspace.copy16", { defaultValue: "导入数据" })}</p>
               <input
                 ref={fileRef}
                 type="file"
@@ -193,7 +196,7 @@ const DataWorkspace = () => {
                 onClick={() => fileRef.current?.click()}
                 className="w-full inline-flex items-center justify-center gap-2 px-3 py-2 border border-dashed border-gold/40 text-gold text-xs font-mono hover:bg-gold/10"
               >
-                <Upload className="w-3.5 h-3.5" /> 上传 CSV(首列日期,其余数值列)
+                <Upload className="w-3.5 h-3.5" /> {t("pages.dataWorkspace.copy17", { defaultValue: "上传 CSV(首列日期,其余数值列)" })}
               </button>
               <div className="flex gap-2">
                 <input
@@ -214,7 +217,7 @@ const DataWorkspace = () => {
                   className="flex-1 min-w-0 bg-background border border-border/60 px-2 py-1.5 text-xs font-mono focus:outline-none focus:border-gold"
                 />
                 <button onClick={fetchQuotes} disabled={busy} className="px-3 py-1.5 border border-border/60 text-xs font-mono hover:border-gold/60 disabled:opacity-50">
-                  行情
+                  {t("pages.dataWorkspace.copy18", { defaultValue: "行情" })}
                 </button>
               </div>
             </div>
@@ -223,14 +226,14 @@ const DataWorkspace = () => {
             <div className="border border-border/60 bg-card/40 p-4">
               <div className="flex items-center justify-between mb-2">
                 <p className="text-[10px] font-mono uppercase tracking-wider text-gold inline-flex items-center gap-1">
-                  <HardDrive className="w-3 h-3" /> 本地数据集 ({datasets.length})
+                  <HardDrive className="w-3 h-3" /> {t("pages.dataWorkspace.copy19", { defaultValue: "本地数据集 (" })}{datasets.length})
                 </p>
-                <button onClick={refresh} className="p-1 text-muted-foreground hover:text-foreground" title="刷新">
+                <button onClick={refresh} className="p-1 text-muted-foreground hover:text-foreground" title={t("pages.dataWorkspace.copy20", { defaultValue: "刷新" })}>
                   <RefreshCcw className="w-3 h-3" />
                 </button>
               </div>
               {datasets.length === 0 && (
-                <p className="text-xs text-muted-foreground">还没有数据集 — 上传 CSV 或拉取一条在线序列。</p>
+                <p className="text-xs text-muted-foreground">{t("pages.dataWorkspace.copy21", { defaultValue: "还没有数据集 — 上传 CSV 或拉取一条在线序列。" })}</p>
               )}
               <ul className="divide-y divide-border/40 max-h-[360px] overflow-auto">
                 {datasets.map((d) => (
@@ -257,7 +260,7 @@ const DataWorkspace = () => {
                         if (selected?.id === d.id) setSelected(null);
                       }}
                       className="p-1 text-muted-foreground hover:text-rose-400"
-                      title="删除"
+                      title={t("pages.dataWorkspace.copy22", { defaultValue: "删除" })}
                     >
                       <Trash2 className="w-3 h-3" />
                     </button>
@@ -272,7 +275,7 @@ const DataWorkspace = () => {
             {!selected ? (
               <div className="h-full flex flex-col items-center justify-center text-muted-foreground gap-2 py-24">
                 <Database className="w-8 h-8" />
-                <p className="text-sm">选择左侧的数据集进行预览与变换</p>
+                <p className="text-sm">{t("pages.dataWorkspace.copy23", { defaultValue: "选择左侧的数据集进行预览与变换" })}</p>
               </div>
             ) : (
               <div className="space-y-4">
@@ -299,10 +302,10 @@ const DataWorkspace = () => {
                     ))}
                   </select>
                   <div className="ml-auto flex gap-2">
-                    <button onClick={copyJson} className="inline-flex items-center gap-1 px-2 py-1 border border-border/60 text-[10px] font-mono hover:border-gold/60" title="复制为 JSON(可粘贴到 Notebook)">
+                    <button onClick={copyJson} className="inline-flex items-center gap-1 px-2 py-1 border border-border/60 text-[10px] font-mono hover:border-gold/60" title={t("pages.dataWorkspace.copy24", { defaultValue: "复制为 JSON(可粘贴到 Notebook)" })}>
                       <ClipboardCopy className="w-3 h-3" /> JSON
                     </button>
-                    <button onClick={downloadCsv} className="inline-flex items-center gap-1 px-2 py-1 border border-border/60 text-[10px] font-mono hover:border-gold/60" title="下载变换后的 CSV">
+                    <button onClick={downloadCsv} className="inline-flex items-center gap-1 px-2 py-1 border border-border/60 text-[10px] font-mono hover:border-gold/60" title={t("pages.dataWorkspace.copy25", { defaultValue: "下载变换后的 CSV" })}>
                       <Download className="w-3 h-3" /> CSV
                     </button>
                   </div>
@@ -340,7 +343,7 @@ const DataWorkspace = () => {
                 </div>
 
                 <p className="text-[10px] font-mono text-muted-foreground">
-                  数据保存在浏览器 IndexedDB,离线可用。「JSON」按钮复制的数据可直接粘贴到 Notebook 的 JS / Python 单元中继续分析。
+                  {t("pages.dataWorkspace.copy26", { defaultValue: "数据保存在浏览器 IndexedDB,离线可用。「JSON」按钮复制的数据可直接粘贴到 Notebook 的 JS / Python 单元中继续分析。" })}
                 </p>
               </div>
             )}
