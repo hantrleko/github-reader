@@ -1,0 +1,346 @@
+{
+  "sections": [
+    {
+      "id": "micro",
+      "label": "微观经济学 · 个体决策与市场",
+      "subtitle": "从供需均衡、消费者与生产者最优，到市场结构博弈与信息不对称，搭建所有经济分析的微观基石。"
+    },
+    {
+      "id": "calculator",
+      "label": "基础定价 · 期权与隐含波动率",
+      "subtitle": "从闭式解、隐含波动率反推到蒙特卡洛模拟，理解定价公式背后的复制组合与风险中性逻辑。"
+    },
+    {
+      "id": "implied-vol",
+      "label": "隐含波动率求解器",
+      "subtitle": "用 Newton-Raphson 从市场价格反推隐含波动率，观察波动率微笑与期限结构。"
+    },
+    {
+      "id": "mc-pricer",
+      "label": "蒙特卡洛期权定价",
+      "subtitle": "用路径模拟为欧式与路径依赖期权定价，对比闭式解并观察收敛与方差。"
+    },
+    {
+      "id": "derivatives",
+      "label": "衍生品高阶 · 波动率曲面与路径依赖",
+      "subtitle": "围绕 SVI、Heston、SABR、Local Vol 与 LSM，将市场微笑、随机波动和美式行权放进同一套实验框架。"
+    },
+    {
+      "id": "bond",
+      "label": "固定收益 · 债券与现金流",
+      "subtitle": "从债券现金流、到期收益率到久期凸性，理解利率变动对价格的传导。"
+    },
+    {
+      "id": "rate-model",
+      "label": "短率模型模拟",
+      "subtitle": "用 Vasicek / CIR 等短率模型模拟利率路径与期限结构。"
+    },
+    {
+      "id": "fixed-income-lab",
+      "label": "固定收益高阶 · 信用/短率/OAS/曲线",
+      "subtitle": "Merton 与 CDS 反推、Vasicek/CIR/HW 期限结构、OAS 与 PSA MBS、TIPS 蝶式。"
+    },
+    {
+      "id": "frontier",
+      "label": "均值-方差有效前沿",
+      "subtitle": "构建有效前沿、切线组合与资本市场线，理解分散化与最优配置。"
+    },
+    {
+      "id": "asset-pricing",
+      "label": "资产定价 · CAPM 与多因子",
+      "subtitle": "从 CAPM 证券市场线到 APT 与 Fama-French 多因子归因，理解系统性风险如何被定价。"
+    },
+    {
+      "id": "econometrics",
+      "label": "计量经济学 · 估计与状态空间",
+      "subtitle": "覆盖 OLS、IV、GMM、GARCH、Kalman 与因果推断，强调估计假设、诊断检验和稳健推断。"
+    },
+    {
+      "id": "risk",
+      "label": "风险管理 · 信用、相依结构与压力测试",
+      "subtitle": "从 VaR/ES 到 Merton 违约距离、Copula 相依和情景冲击，建立可解释的尾部风险监控语言。"
+    },
+    {
+      "id": "quant",
+      "label": "量化策略 · 回测与因子归因",
+      "subtitle": "用可审计的回测、风险预算和多因子归因，把策略想法拆成信号、组合构建与风险约束。"
+    },
+    {
+      "id": "macro",
+      "label": "宏观经济学 · 增长与动态均衡",
+      "subtitle": "用 Solow、RBC/DSGE 与政策冲击模拟，观察长期增长、技术进步和动态均衡的传导机制。"
+    },
+    {
+      "id": "macro-lab",
+      "label": "宏观高阶实验室 · 债务/汇率/BGG/ZLB",
+      "subtitle": "Blanchard r−g 债务动态、Dornbusch 汇率超调、BOP 三缺口、BGG 金融加速器、ZLB 与前瞻指引 puzzle。"
+    },
+    {
+      "id": "behavior-microstructure",
+      "label": "行为金融 & 市场微观结构实验室",
+      "subtitle": "双曲贴现 / DSSW / 处置效应 + Kyle / Glosten-Milgrom / Roll / Almgren-Chriss。"
+    },
+    {
+      "id": "fred",
+      "label": "FRED · 宏观时间序列",
+      "subtitle": "加载美联储 FRED 的真实宏观经济时间序列并进行可视化分析。"
+    },
+    {
+      "id": "worldbank",
+      "label": "World Bank · 发展指标",
+      "subtitle": "对比各国 GDP 增长、通胀等世界银行发展指标。"
+    },
+    {
+      "id": "ecb-bis",
+      "label": "ECB / BIS · 欧央行与国际清算银行",
+      "subtitle": "加载欧洲央行与国际清算银行的利率、汇率等官方数据。"
+    },
+    {
+      "id": "coingecko",
+      "label": "CoinGecko · 加密资产",
+      "subtitle": "加载加密货币历史价格、市值与波动率指标。"
+    },
+    {
+      "id": "alphavantage",
+      "label": "Alpha Vantage · 股票与外汇",
+      "subtitle": "加载全球股票与外汇的日线历史，并计算年化波动率与收益。"
+    },
+    {
+      "id": "cboe-sentiment",
+      "label": "CBOE 市场情绪 · VIX / SKEW / PCR",
+      "subtitle": "VIX 期限结构、VVIX、SKEW 与 Equity Put/Call Ratio，判断恐慌与贪婪。"
+    },
+    {
+      "id": "econ-calendar",
+      "label": "经济日历 · CPI / NFP / FOMC",
+      "subtitle": "未来两周高影响宏观数据，Trading Economics 叠加精选静态时间表。"
+    },
+    {
+      "id": "etf-lookup",
+      "label": "ETF 查询 · 费率与规模",
+      "subtitle": "输入代码即时抓取 etfdb.com 上的费率、AUM、类别与 YTD。"
+    },
+    {
+      "id": "sector-heatmap",
+      "label": "板块热力图 · 11 大行业",
+      "subtitle": "用 SPDR 行业 ETF 一月涨跌可视化板块轮动，自采数据、Finviz 风格。"
+    },
+    {
+      "id": "market-cap",
+      "label": "全球市值排行 · Top 50",
+      "subtitle": "季度快照全球最大公司，直观对比行业与国家分布。"
+    },
+    {
+      "id": "quiver-signals",
+      "label": "另类数据信号 · 议员交易 / WSB",
+      "subtitle": "议员交易、WSB 散户热度等另类数据 (需配置 QUIVER_API_KEY)。"
+    },
+    {
+      "id": "external-workbench",
+      "label": "外部分析工作台 · 一键跨站研究",
+      "subtitle": "StockAnalysis / Finviz / Koyfin / Seeking Alpha 等 10 个研究站点的 ticker-aware 深链。"
+    },
+    {
+      "id": "platform",
+      "label": "平台增强 · Notebook、真实数据与跨工具对比",
+      "subtitle": "围绕复现、分享和比较构建平台能力：真实数据加载、模型基准、历史记录与公开 Notebook。"
+    },
+    {
+      "id": "frontier-concepts",
+      "label": "前沿模型与新兴范式 · 2024–2026",
+      "subtitle": "AI/ML 资产定价、多智能体仿真、复杂网络、气候金融、神经经济学、DeFi 与宏观金融的概念地图。"
+    },
+    {
+      "id": "quiz",
+      "label": "知识检验",
+      "subtitle": "通过测验检测对核心模型与方法的掌握程度。"
+    },
+    {
+      "id": "learning",
+      "label": "学习路径",
+      "subtitle": "用阶段化路线把碎片化知识整理成可持续迭代的研究能力。"
+    },
+    {
+      "id": "backtest",
+      "label": "真实数据回测引擎",
+      "subtitle": "用真实历史价格回测单标的策略，输出净值、回撤与完整绩效指标，信号 T+1 执行规避前视偏差。"
+    },
+    {
+      "id": "calibration",
+      "label": "模型校准实验室",
+      "subtitle": "把 GARCH / EWMA / Merton 跳跃扩散拟合到真实行情，校准波动率并一键发送到定价工具。"
+    },
+    {
+      "id": "visualization-guide",
+      "label": "可视化组件工作台",
+      "subtitle": "Brush 联动缩放 · 事件标注 · Fan Chart 置信带 · 直方图 KDE · PNG / CSV 导出 · 色觉友好。"
+    },
+    {
+      "id": "ashare-suite",
+      "label": "A 股全栈接入 · 行情 / 资金 / 龙虎榜 / 公告",
+      "subtitle": "腾讯行情 + 东方财富 push2 + 交易所龙虎榜 + 巨潮公告，一站覆盖沪深北 A 股实时报价、日 K 线、资金流向与官方披露。"
+    },
+    {
+      "id": "us-suite",
+      "label": "美股全栈数据 · 行情 / 基本面 / SEC / 期权 / 筛选",
+      "subtitle": "Yahoo 行情与技术指标、SEC XBRL 三表、EDGAR 披露检索、期权链 Greeks、横截面筛选。"
+    },
+    {
+      "id": "tv-screener",
+      "label": "TradingView 筛选器 · 跨市场实时扫描",
+      "subtitle": "无需 API key 查询 TradingView 公共 Scanner，覆盖股票、外汇、加密货币、债券与期货，支持 13000+ 字段自由组合。"
+    },
+    {
+      "id": "trillion-dollar-equation",
+      "label": "万亿美元的方程 · Black–Scholes 论证全景",
+      "subtitle": "五章长文精读：让方向消失的复制组合、离散再平衡的 Gamma 税、波动率风险溢价与延伸。"
+    },
+    {
+      "id": "ai-quant-strategy",
+      "label": "当 AI 告诉我你的想法是反的 · 一次量化策略实录",
+      "subtitle": "五章复盘：一句话生成的因子组合为何四年亏损、状态依赖如何逆转符号，以及 +1047% 回测背后的 40% 回撤。"
+    },
+    {
+      "id": "asset-pricing-theory",
+      "label": "资产定价理论导读 · 从状态价格到现代前沿",
+      "subtitle": "p=E[mx] 的四层骨架：无套利与状态价格、偏好与三大谜题、实证检验 (GRS/HJ 距离)、可预测性与因子动物园，每一块都可跳到实验室复现。"
+    },
+    {
+      "id": "econometrics-theory",
+      "label": "计量经济学导读 · 从数据生成过程到可信推断",
+      "subtitle": "五步推理链：DGP → 识别 → 估计 → 推断 → 解释，七条识别策略、五级标准误与高维异质性方法，每一块都可跳到实验室复现。"
+    },
+    {
+      "id": "time-series-theory",
+      "label": "时间序列导读 · 从平稳性到密度预测评价",
+      "subtitle": "六层结构：平稳性与预处理 → 线性表示 → 多变量动态 → 非线性与制度 → 波动率与状态空间 → 预测评价，每一块都可跳到实验室复现。"
+    },
+    {
+      "id": "portfolio-theory",
+      "label": "投资组合导读 · 从均值—方差到稳健与动态配置",
+      "subtitle": "六层结构：选择与几何 → 均衡定价 → 估计与稳健 → 风险与约束 → 主动与增长 → 动态与高维，每一块都可跳到实验室复现。"
+    },
+    {
+      "id": "derivatives-theory",
+      "label": "衍生品定价导读 · 从一价定律到粗糙波动率",
+      "subtitle": "六层结构：无套利与状态价格 → 复制与测度 → 模型谱系 → 曲线与信用 → 数值方法 → 校准与前沿，每一块都可跳到实验室复现。"
+    },
+    {
+      "id": "risk-theory",
+      "label": "风险管理导读 · 从计量指标到资本、监管与韧性",
+      "subtitle": "十节：风险本质 → 分类 → 市场计量 → 信用 → 流动性 → Basel/FRTB → 危机史 → 前沿。"
+    },
+    {
+      "id": "behavior-lab",
+      "label": "行为金融实验室 · 前景理论到有限套利",
+      "subtitle": "八个实验：累积前景理论、短视损失厌恶、BSV / DHS / Hong-Stein 信念模型、有限套利与被迫平仓、投资者情绪截面、行为公司金融。"
+    },
+    {
+      "id": "behavior-theory",
+      "label": "行为金融导读 · 有限理性与有限套利",
+      "subtitle": "九节：核心问题 → 两大支柱 → 前景理论 → 偏差图谱 → 情绪 → 有限套利 → 异象 → 前沿。"
+    },
+    {
+      "id": "macro-frontier",
+      "label": "宏观前沿实验室 · 增长引擎到政策规则",
+      "subtitle": "十二个实验：内生增长、增长核算、财政乘数、RBC、Calvo/NKPC、政策规则、平价与 Carry、突然停止、QE/YCC、气候转型。"
+    },
+    {
+      "id": "macro-theory",
+      "label": "宏观经济学导读 · 增长、波动、政策与开放经济",
+      "subtitle": "九节：微观基础 → 长期增长 → 短期波动 → 货币 → 财政 → 开放经济 → 思想史 → 前沿 → 判断框架。"
+    },
+    {
+      "id": "microstructure-lab",
+      "label": "微观结构实验室 · 库存、信息与订单簿",
+      "subtitle": "十七个实验：Stoll 分解、Ho-Stoll 报价、PIN/VPIN、订单簿仿真、价差口径、信息份额、市场设计。"
+    },
+    {
+      "id": "microstructure-theory",
+      "label": "市场微观结构导读 · 从做市到市场设计",
+      "subtitle": "九节：核心问题 → 市场组织 → 库存与信息 → 订单簿 → 流动性度量 → 价格发现 → 市场设计 → 前沿。"
+    },
+    {
+      "id": "fixed-income-frontier",
+      "label": "固定收益前沿实验室 · 曲线、利差与结构化",
+      "subtitle": "十八个实验：自举插值、四口径利差、含权与可转债、信用结构化、杠杆与制度前沿。"
+    },
+    {
+      "id": "fixed-income-theory",
+      "label": "固定收益导读 · 从贴现因子到制度前沿",
+      "subtitle": "九节：利率语言 → 久期凸性 → 利差口径 → 曲线构建 → 动态模型 → 信用结构化 → 组合杠杆。"
+    },
+    {
+      "id": "micro-theory",
+      "label": "微观经济学导读 · 从偏好到机制设计",
+      "subtitle": "六节：偏好与效用 → 生产与成本 → 市场结构 → 博弈与策略 → 信息不对称 → 机制设计。"
+    },
+    {
+      "id": "quant-theory",
+      "label": "量化策略导读 · 从信号到实盘落差",
+      "subtitle": "六节：信号构建 → 组合构建 → 交易成本 → 回测偏误清单 → 评价指标 → 实盘落差。"
+    },
+    {
+      "id": "qlib-guide",
+      "label": "Qlib 导读 · 可复现的量化研究流水线",
+      "subtitle": "七层结构：数据层 → 表达式因子 → 截面归一化 → 模型 → 评估 → TopK-Dropout → 工作流。"
+    },
+    {
+      "id": "qlib-lab",
+      "label": "Qlib 流水线实验室 · 因子到组合",
+      "subtitle": "复现 Qlib 研究闭环：Alpha158 式因子、截面标准化、Ridge 拟合、IC 评估与 TopK-Dropout 回测。"
+    }
+  ],
+  "groups": [
+    {
+      "id": "overview",
+      "label": "导览",
+      "desc": "主题图谱 · 模型速览 · 学习路径"
+    },
+    {
+      "id": "foundations",
+      "label": "基础",
+      "desc": "微观 · 宏观 · 宏观高阶实验室"
+    },
+    {
+      "id": "pricing",
+      "label": "定价",
+      "desc": "Black-Scholes · IV · 蒙特卡洛 · 曲面"
+    },
+    {
+      "id": "fixed-income",
+      "label": "固收",
+      "desc": "债券 · 短率模型 · 信用与曲线"
+    },
+    {
+      "id": "asset-portfolio",
+      "label": "资产定价与组合",
+      "desc": "CAPM · 有效前沿 · 资产定价与组合导读"
+    },
+    {
+      "id": "quant-trading",
+      "label": "量化交易",
+      "desc": "Qlib 流水线 · 因子与信号 · 回测与校准"
+    },
+    {
+      "id": "econometrics",
+      "label": "计量与时序",
+      "desc": "OLS · 面板 · 时间序列 · 行为与微观结构"
+    },
+    {
+      "id": "risk",
+      "label": "风险",
+      "desc": "VaR / ES · 信用 · Copula · 压力测试"
+    },
+    {
+      "id": "data",
+      "label": "数据",
+      "desc": "美股 / A 股 · 宏观 · 情绪 · 外部工作台"
+    },
+    {
+      "id": "frontier",
+      "label": "前沿",
+      "desc": "长文精读 · 新兴范式 · 平台与可视化"
+    }
+  ]
+}
