@@ -86,10 +86,12 @@ const SectionCard = ({ s, prereqLabel }: { s: SectionDef; prereqLabel: string })
       </p>
     ) : null}
   </Link>
-);
+  );
+};
 
 const DomainPage = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const isEn = i18n.language.startsWith("en");
   const { groupId } = useParams<{ groupId: string }>();
   const group = NAV_GROUPS.find((g) => g.id === groupId);
   if (!group) return <Navigate to="/" replace />;
@@ -109,8 +111,12 @@ const DomainPage = () => {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <Seo
-        title={`${group.label}学科主线 · ${group.kicker} | 经济与金融实验室`}
-        description={`${group.desc}。按导读 → 基础 → 进阶 → 前沿的顺序学习 ${group.label} 领域的 ${sections.length} 个板块。`}
+        title={isEn
+          ? `${groupLabel} Track · ${group.kicker} | Econ & Finance Lab`
+          : `${group.label}学科主线 · ${group.kicker} | 经济与金融实验室`}
+        description={isEn
+          ? `${groupDesc(t, group)}. Learn the ${groupLabel} domain through ${sections.length} sections ordered guide → basic → advanced → frontier.`
+          : `${group.desc}。按导读 → 基础 → 进阶 → 前沿的顺序学习 ${group.label} 领域的 ${sections.length} 个板块。`}
         path={`/d/${group.id}`}
       />
       <Navbar />
@@ -131,7 +137,7 @@ const DomainPage = () => {
           chapter={`Domain ${group.code}`}
           kicker={group.kicker}
           title={title}
-          subtitle={`${group.desc}${t("domain.orderHint")}`}
+          subtitle={`${groupDesc(t, group)}${t("domain.orderHint")}`}
         />
 
         {group.id === "overview" && <OverviewQuickstart />}
