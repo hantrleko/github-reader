@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useState, useMemo, useCallback, useRef, useEffect } from "react";
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -193,9 +194,6 @@ function buildOfflinePanel(seed = 17): { dates: string[]; returnsBySymbol: Recor
   return { dates, returnsBySymbol: { SPY, TLT, GLD, QQQ } };
 }
 const OFFLINE_SYMBOLS = ["SPY", "TLT", "GLD", "QQQ"] as const;
-const OFFLINE_LABEL: Record<string, string> = {
-  SPY: "标普500 ETF", TLT: "20年期美债 ETF", GLD: "黄金 ETF", QQQ: "纳斯达克100 ETF",
-};
 
 /* ──────────────── Univariate GARCH(1,1) QMLE ──────────────── */
 function garchVarPath(omega: number, alpha: number, beta: number, r: number[]): number[] {
@@ -447,13 +445,17 @@ const CorrHeatmap = ({ R, labels }: { R: number[][]; labels: string[] }) => {
 };
 
 /* ──────────────── Main component ──────────────── */
+
+export const DCCGarchTool = () => {
+  const { t } = useTranslation();
+const OFFLINE_LABEL: Record<string, string> = {
+  SPY: t("labs.dccGarch.text001", { defaultValue: "标普500 ETF" }), TLT: t("labs.dccGarch.text002", { defaultValue: "20年期美债 ETF" }), GLD: t("labs.dccGarch.text003", { defaultValue: "黄金 ETF" }), QQQ: t("labs.dccGarch.text004", { defaultValue: "纳斯达克100 ETF" }),
+};
 const DEFAULT_OFFLINE_ASSETS: AssetSpec[] = [
   { id: "a1", symbol: "SPY", label: OFFLINE_LABEL.SPY, weight: 0.5 },
   { id: "a2", symbol: "TLT", label: OFFLINE_LABEL.TLT, weight: 0.3 },
   { id: "a3", symbol: "GLD", label: OFFLINE_LABEL.GLD, weight: 0.2 },
 ];
-
-export const DCCGarchTool = () => {
   const [mode, setMode] = useState<DataMode>("offline");
   const [assets, setAssets] = useState<AssetSpec[]>(DEFAULT_OFFLINE_ASSETS);
   // Selected confidence levels (decimal). Default 90/95/99 + a custom slot.
@@ -512,7 +514,7 @@ export const DCCGarchTool = () => {
   /* ---------- Fit pipeline ---------- */
   const runFit = useCallback(async () => {
     if (!panel.ok || panel.returns.length === 0) {
-      toast({ title: "数据不足", description: "需要至少 60 个共同观测日", variant: "destructive" });
+      toast({ title: t("labs.dccGarch.text005", { defaultValue: "数据不足" }), description: t("labs.dccGarch.text006", { defaultValue: "需要至少 60 个共同观测日" }), variant: "destructive" });
       return;
     }
     setRunning(true);
@@ -560,9 +562,9 @@ export const DCCGarchTool = () => {
         Rpath: dccRes.Rpath, dates: panel.dates, portRet, portVol, crisisIdx,
       });
       setSnapshotIdx(T - 1);
-      toast({ title: "DCC-GARCH 拟合完成", description: `T=${T}, a=${dccRes.a.toFixed(3)}, b=${dccRes.b.toFixed(3)}` });
+      toast({ title: t("labs.dccGarch.text007", { defaultValue: "DCC-GARCH 拟合完成" }), description: `T=${T}, a=${dccRes.a.toFixed(3)}, b=${dccRes.b.toFixed(3)}` });
     } catch (e) {
-      toast({ title: "拟合失败", description: String(e), variant: "destructive" });
+      toast({ title: t("labs.dccGarch.text008", { defaultValue: "拟合失败" }), description: String(e), variant: "destructive" });
     } finally {
       setRunning(false);
     }
@@ -583,7 +585,7 @@ export const DCCGarchTool = () => {
   };
   const removeAsset = (id: string) => {
     if (assets.length <= 2) {
-      toast({ title: "至少需要 2 个资产" });
+      toast({ title: t("labs.dccGarch.text009", { defaultValue: "至少需要 2 个资产" }) });
       return;
     }
     setAssets(assets.filter(a => a.id !== id));
@@ -594,18 +596,18 @@ export const DCCGarchTool = () => {
 
   /* ---------- Presets ---------- */
   const presets: Preset[] = [
-    { name: "经典 60/40 + 黄金", description: "SPY 60% / TLT 30% / GLD 10%",
+    { name: t("labs.dccGarch.text010", { defaultValue: "经典 60/40 + 黄金" }), description: "SPY 60% / TLT 30% / GLD 10%",
       apply: () => setAssets([
         { id: "a1", symbol: "SPY", label: OFFLINE_LABEL.SPY, weight: 0.6 },
         { id: "a2", symbol: "TLT", label: OFFLINE_LABEL.TLT, weight: 0.3 },
         { id: "a3", symbol: "GLD", label: OFFLINE_LABEL.GLD, weight: 0.1 },
       ])},
-    { name: "纯股双指数", description: "SPY + QQQ 高相关验证",
+    { name: t("labs.dccGarch.text011", { defaultValue: "纯股双指数" }), description: t("labs.dccGarch.text012", { defaultValue: "SPY + QQQ 高相关验证" }),
       apply: () => setAssets([
         { id: "a1", symbol: "SPY", label: OFFLINE_LABEL.SPY, weight: 0.5 },
         { id: "a2", symbol: "QQQ", label: OFFLINE_LABEL.QQQ, weight: 0.5 },
       ])},
-    { name: "全资产 4 维", description: "SPY+TLT+GLD+QQQ",
+    { name: t("labs.dccGarch.text013", { defaultValue: "全资产 4 维" }), description: "SPY+TLT+GLD+QQQ",
       apply: () => setAssets([
         { id: "a1", symbol: "SPY", label: OFFLINE_LABEL.SPY, weight: 0.4 },
         { id: "a2", symbol: "TLT", label: OFFLINE_LABEL.TLT, weight: 0.2 },
@@ -811,14 +813,14 @@ export const DCCGarchTool = () => {
               }`}
             >
               {m === "offline" ? <Database className="w-3 h-3" /> : <Activity className="w-3 h-3" />}
-              {m === "offline" ? "内置离线样本" : "实时行情 (Yahoo)"}
+              {m === "offline" ? t("labs.dccGarch.text014", { defaultValue: "内置离线样本" }) : t("labs.dccGarch.text015", { defaultValue: "实时行情 (Yahoo)" })}
             </button>
           ))}
         </div>
         <div className="flex-1 text-[10px] font-mono text-muted-foreground/80">
           {mode === "offline"
-            ? "5y 合成日频:SPY/TLT/GLD/QQQ,内嵌 2020 危机窗口"
-            : "实时拉取 5 年日线,按交集对齐;符号可改为任意 Yahoo 股票代码"}
+            ? t("labs.dccGarch.text016", { defaultValue: "5y 合成日频:SPY/TLT/GLD/QQQ,内嵌 2020 危机窗口" })
+            : t("labs.dccGarch.text017", { defaultValue: "实时拉取 5 年日线,按交集对齐;符号可改为任意 Yahoo 股票代码" })}
         </div>
         <button
           onClick={runFit}
@@ -827,14 +829,13 @@ export const DCCGarchTool = () => {
         >
           {(running || liveLoading) && <Loader2 className="w-3 h-3 animate-spin" />}
           <Cpu className="w-3 h-3" />
-          {running ? "拟合中…" : liveLoading ? "下载中…" : "运行 DCC-GARCH"}
+          {running ? t("labs.dccGarch.text018", { defaultValue: "拟合中…" }) : liveLoading ? t("labs.dccGarch.text019", { defaultValue: "下载中…" }) : t("labs.dccGarch.text020", { defaultValue: "运行 DCC-GARCH" })}
         </button>
       </div>
 
       {liveError && (
         <div className="text-[11px] font-mono text-destructive p-2 rounded bg-destructive/10 border border-destructive/30">
-          实时数据获取失败: {(liveError.error as Error)?.message || "unknown"} — 请切换离线样本
-        </div>
+          {t("labs.dccGarch.text021", { defaultValue: "实时数据获取失败:" })}{(liveError.error as Error)?.message || "unknown"} {t("labs.dccGarch.text022", { defaultValue: "— 请切换离线样本" })}</div>
       )}
 
       {/* Asset cards */}
@@ -857,7 +858,7 @@ export const DCCGarchTool = () => {
                 <X className="w-3.5 h-3.5" />
               </button>
             </div>
-            <Slider label={`权重 w_${i + 1}`} value={a.weight} min={0} max={1} step={0.05}
+            <Slider label={t("labs.dccGarch.text023", { defaultValue: "权重 w_{{var0}}", var0: i + 1 })} value={a.weight} min={0} max={1} step={0.05}
               onChange={(v) => updateAsset(a.id, { weight: v })} />
             {fit && fit.uni[i] && (
               <div className="grid grid-cols-3 gap-2 text-[10px] font-mono pt-1 border-t border-border/40">
@@ -867,7 +868,7 @@ export const DCCGarchTool = () => {
                 <div className="col-span-3 text-muted-foreground/80">
                   α+β = <span className={`tabular-nums ${fit.uni[i].persistence > 0.97 ? "text-gold" : "text-foreground"}`}>
                     {fit.uni[i].persistence.toFixed(3)}
-                  </span>{fit.uni[i].persistence > 0.97 && " (高持续)"}
+                  </span>{fit.uni[i].persistence > 0.97 && t("labs.dccGarch.text024", { defaultValue: " (高持续)" })}
                 </div>
               </div>
             )}
@@ -876,18 +877,17 @@ export const DCCGarchTool = () => {
         {assets.length < 4 && (
           <button onClick={addAsset}
             className="rounded-lg border border-dashed border-border/60 p-3 text-[11px] font-mono text-muted-foreground hover:text-gold hover:border-gold/40 inline-flex items-center justify-center gap-1.5">
-            <Plus className="w-3.5 h-3.5" /> 添加资产
-          </button>
+            <Plus className="w-3.5 h-3.5" /> {t("labs.dccGarch.text025", { defaultValue: "添加资产" })}</button>
         )}
       </div>
 
       {/* DCC fit summary */}
       {fit && (
         <div className="grid gap-3 md:grid-cols-4">
-          <SummaryStat label="DCC a" value={fit.dcc.a.toFixed(4)} hint="新息冲击权重" />
-          <SummaryStat label="DCC b" value={fit.dcc.b.toFixed(4)} hint="相关性持续性" />
+          <SummaryStat label="DCC a" value={fit.dcc.a.toFixed(4)} hint={t("labs.dccGarch.text026", { defaultValue: "新息冲击权重" })} />
+          <SummaryStat label="DCC b" value={fit.dcc.b.toFixed(4)} hint={t("labs.dccGarch.text027", { defaultValue: "相关性持续性" })} />
           <SummaryStat label="a + b" value={(fit.dcc.a + fit.dcc.b).toFixed(4)}
-            hint={fit.dcc.a + fit.dcc.b > 0.97 ? "⚠ 接近单位根" : "平稳"} />
+            hint={fit.dcc.a + fit.dcc.b > 0.97 ? t("labs.dccGarch.text028", { defaultValue: "⚠ 接近单位根" }) : t("labs.dccGarch.text029", { defaultValue: "平稳" })} />
           <SummaryStat label="logL_corr" value={fit.dcc.ll.toFixed(1)} hint={`T=${fit.Rpath.length}`} />
         </div>
       )}
@@ -897,11 +897,9 @@ export const DCCGarchTool = () => {
         <div>
           <div className="flex items-center justify-between mb-2">
             <h4 className="text-sm font-mono uppercase tracking-wider text-foreground">
-              动态条件相关 ρ_ij(t)
-            </h4>
+              {t("labs.dccGarch.text030", { defaultValue: "动态条件相关 ρ_ij(t)" })}</h4>
             <span className="text-[10px] font-mono text-muted-foreground">
-              点击曲线标签可查看相关性的时变路径
-            </span>
+              {t("labs.dccGarch.text031", { defaultValue: "点击曲线标签可查看相关性的时变路径" })}</span>
           </div>
           <ResponsiveContainer width="100%" height={260}>
             <ComposedChart data={corrSeries} margin={{ top: 5, right: 10, bottom: 0, left: -10 }}>
@@ -918,7 +916,7 @@ export const DCCGarchTool = () => {
                 <ReferenceArea x1={corrSeries[fit.crisisIdx[0]]?.date}
                   x2={corrSeries[Math.min(fit.crisisIdx[1], corrSeries.length - 1)]?.date}
                   fill={CHART_RED} fillOpacity={0.08}
-                  label={{ value: "危机期 (相关性飙升)", fill: CHART_RED, fontSize: 10, position: "insideTop" }} />
+                  label={{ value: t("labs.dccGarch.text032", { defaultValue: "危机期 (相关性飙升)" }), fill: CHART_RED, fontSize: 10, position: "insideTop" }} />
               )}
               {corrPairs.map(p => (
                 <Line key={p.key} type="monotone" dataKey={p.key} stroke={p.color}
@@ -934,8 +932,7 @@ export const DCCGarchTool = () => {
         <div className="grid gap-4 md:grid-cols-[auto,1fr] items-start">
           <div>
             <h4 className="text-sm font-mono uppercase tracking-wider text-foreground mb-2">
-              相关矩阵快照 R_t
-            </h4>
+              {t("labs.dccGarch.text033", { defaultValue: "相关矩阵快照 R_t" })}</h4>
             <CorrHeatmap R={fit.Rpath[snapshotIdx]} labels={labels} />
             <div className="mt-3 text-[10px] font-mono text-muted-foreground">
               {fit.dates[snapshotIdx]} · t = {snapshotIdx + 1}
@@ -948,22 +945,18 @@ export const DCCGarchTool = () => {
             <div className="grid grid-cols-3 gap-2 text-[10px] font-mono">
               <button onClick={() => setSnapshotIdx(0)}
                 className="px-2 py-1 rounded bg-secondary/50 hover:bg-secondary text-muted-foreground">
-                ⟸ 起始
-              </button>
+                {t("labs.dccGarch.text034", { defaultValue: "⟸ 起始" })}</button>
               <button
                 onClick={() => fit.crisisIdx && setSnapshotIdx(Math.floor((fit.crisisIdx[0] + fit.crisisIdx[1]) / 2))}
                 disabled={!fit.crisisIdx}
                 className="px-2 py-1 rounded bg-destructive/15 hover:bg-destructive/25 text-destructive disabled:opacity-40">
-                ↯ 危机期
-              </button>
+                {t("labs.dccGarch.text035", { defaultValue: "↯ 危机期" })}</button>
               <button onClick={() => setSnapshotIdx(fit.Rpath.length - 1)}
                 className="px-2 py-1 rounded bg-secondary/50 hover:bg-secondary text-muted-foreground">
-                最近 ⟹
-              </button>
+                {t("labs.dccGarch.text036", { defaultValue: "最近 ⟹" })}</button>
             </div>
             <p className="text-[11px] text-muted-foreground/80">
-              拖动可观察相关结构如何随时间漂移。在危机期,通常所有 ρ_ij 同向飙升 ⇒ 多元化失效。
-            </p>
+              {t("labs.dccGarch.text037", { defaultValue: "拖动可观察相关结构如何随时间漂移。在危机期,通常所有 ρ_ij 同向飙升 ⇒ 多元化失效。" })}</p>
           </div>
         </div>
       )}
@@ -973,8 +966,7 @@ export const DCCGarchTool = () => {
         <div>
           <div className="flex items-center justify-between mb-2">
             <h4 className="text-sm font-mono uppercase tracking-wider text-foreground">
-              组合时变波动率 & VaR
-            </h4>
+              {t("labs.dccGarch.text038", { defaultValue: "组合时变波动率 & VaR" })}</h4>
             <div className="flex flex-wrap items-center gap-1">
               {vaRLevels.map(c => (
                 <button key={c} onClick={() => setVaRConf(c)}
@@ -1003,15 +995,14 @@ export const DCCGarchTool = () => {
                   x2={portSeries[Math.min(fit.crisisIdx[1], portSeries.length - 1)]?.date}
                   fill={CHART_RED} fillOpacity={0.08} />
               )}
-              <Line dataKey="ret" type="monotone" stroke={CHART_TEAL} dot={false} name="组合日收益" strokeWidth={1} />
+              <Line dataKey="ret" type="monotone" stroke={CHART_TEAL} dot={false} name={t("labs.dccGarch.text039", { defaultValue: "组合日收益" })} strokeWidth={1} />
               <Line dataKey="vol" type="monotone" stroke={CHART_GOLD} dot={false} name="σ_p,t" strokeWidth={1.5} />
               <Line dataKey="var" type="monotone" stroke={CHART_RED} dot={false} name={`-z·σ_p,t (${(vaRConf*100).toFixed(0)}%)`} strokeWidth={1.5} strokeDasharray="4 3" />
             </ComposedChart>
           </ResponsiveContainer>
           <p className="text-[11px] text-muted-foreground/80 mt-2">
             <InlineMath math={`\\text{VaR}_t^{${(vaRConf*100).toFixed(0)}\\%} = z_\\alpha \\cdot \\sqrt{w'\\Sigma_t w}`} />
-            {" "}— 高斯分位数下的单日组合损失上界。注意危机期 σ_p 同时受单变量波动率与相关性飙升驱动。
-          </p>
+            {" "}{t("labs.dccGarch.text040", { defaultValue: "— 高斯分位数下的单日组合损失上界。注意危机期 σ_p 同时受单变量波动率与相关性飙升驱动。" })}</p>
         </div>
       )}
 
@@ -1020,16 +1011,15 @@ export const DCCGarchTool = () => {
         <div className="rounded-lg border border-border/60 bg-card/30 p-4 space-y-4">
           <div className="flex items-center justify-between flex-wrap gap-2">
             <h4 className="text-sm font-mono uppercase tracking-wider text-foreground flex items-center gap-2">
-              <Activity className="w-4 h-4 text-gold" /> VaR 回测面板 — Kupiec / Christoffersen
-            </h4>
+              <Activity className="w-4 h-4 text-gold" /> {t("labs.dccGarch.text041", { defaultValue: "VaR 回测面板 — Kupiec / Christoffersen" })}</h4>
             <span className="text-[10px] font-mono text-muted-foreground">
-              T = {backtest.results[0]?.T ?? 0} 天 · 当前可视化: {(vaRConf * 100).toFixed(2).replace(/\.?0+$/, "")}%
+              T = {backtest.results[0]?.T ?? 0} {t("labs.dccGarch.text042", { defaultValue: "天 · 当前可视化:" })}{(vaRConf * 100).toFixed(2).replace(/\.?0+$/, "")}%
             </span>
           </div>
 
           {/* Confidence-level selector: presets + custom α */}
           <div className="flex flex-wrap items-center gap-2 rounded-md border border-border/40 bg-card/40 p-2">
-            <span className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">置信度 α</span>
+            <span className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">{t("labs.dccGarch.text043", { defaultValue: "置信度 α" })}</span>
             {[0.90, 0.95, 0.975, 0.99, 0.995].map(lv => {
               const on = vaRLevels.some(x => Math.abs(x - lv) < 1e-9);
               return (
@@ -1048,7 +1038,7 @@ export const DCCGarchTool = () => {
               );
             })}
             <div className="flex items-center gap-1 ml-2">
-              <span className="text-[10px] font-mono text-muted-foreground">自定义</span>
+              <span className="text-[10px] font-mono text-muted-foreground">{t("labs.dccGarch.text044", { defaultValue: "自定义" })}</span>
               <input
                 type="number" min={50} max={99.99} step={0.1}
                 value={customConf}
@@ -1067,8 +1057,7 @@ export const DCCGarchTool = () => {
                   setVaRConf(lv);
                 }}
                 className="px-2 py-1 rounded text-[10px] font-mono border border-gold/40 text-gold hover:bg-gold/10">
-                添加
-              </button>
+                {t("labs.dccGarch.text045", { defaultValue: "添加" })}</button>
             </div>
             <div className="flex items-center gap-1 ml-auto pl-2 border-l border-border/40">
               <span className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">MC B</span>
@@ -1089,7 +1078,7 @@ export const DCCGarchTool = () => {
                   if (Number.isFinite(v) && v >= 100 && v <= 50000) setMcB(v);
                 }}
                 className="w-20 h-7 px-2 rounded bg-background border border-border/50 text-[11px] font-mono tabular-nums"
-                title="自定义重抽次数 (100–50000)"
+                title={t("labs.dccGarch.text046", { defaultValue: "自定义重抽次数 (100–50000)" })}
               />
             </div>
           </div>
@@ -1097,8 +1086,8 @@ export const DCCGarchTool = () => {
           <div className={`grid gap-3 ${backtest.results.length >= 3 ? "md:grid-cols-3" : "md:grid-cols-2"}`}>
             {backtest.results.map((bt) => {
               const verdict = (pv: number) => pv < 0.05
-                ? { tag: "拒绝 H0", cls: "text-[hsl(0,70%,55%)]" }
-                : { tag: "接受 H0", cls: "text-[hsl(140,55%,45%)]" };
+                ? { tag: t("labs.dccGarch.text047", { defaultValue: "拒绝 H0" }), cls: "text-[hsl(0,70%,55%)]" }
+                : { tag: t("labs.dccGarch.text048", { defaultValue: "接受 H0" }), cls: "text-[hsl(140,55%,45%)]" };
               const vUC = verdict(bt.p_uc);
               const vIND = verdict(bt.p_ind);
               const vCC = verdict(bt.p_cc);
@@ -1117,8 +1106,7 @@ export const DCCGarchTool = () => {
                       <button
                         onClick={() => setVaRConf(bt.alpha)}
                         className="text-[10px] font-mono text-muted-foreground hover:text-gold underline-offset-2 hover:underline">
-                        可视化
-                      </button>
+                        {t("labs.dccGarch.text049", { defaultValue: "可视化" })}</button>
                       {backtest.results.length > 1 && (
                         <button
                           onClick={() => setVaRLevels(prev => {
@@ -1134,11 +1122,11 @@ export const DCCGarchTool = () => {
                   </div>
                   <div className="grid grid-cols-3 gap-2 mb-3">
                     <div className="rounded bg-secondary/30 p-2">
-                      <div className="text-[9px] font-mono uppercase text-muted-foreground">实际违约</div>
+                      <div className="text-[9px] font-mono uppercase text-muted-foreground">{t("labs.dccGarch.text050", { defaultValue: "实际违约" })}</div>
                       <div className="text-base font-display tabular-nums text-foreground">{bt.n1}</div>
                     </div>
                     <div className="rounded bg-secondary/30 p-2">
-                      <div className="text-[9px] font-mono uppercase text-muted-foreground">期望</div>
+                      <div className="text-[9px] font-mono uppercase text-muted-foreground">{t("labs.dccGarch.text051", { defaultValue: "期望" })}</div>
                       <div className="text-base font-display tabular-nums text-foreground">{bt.expected.toFixed(1)}</div>
                     </div>
                     <div className="rounded bg-secondary/30 p-2">
@@ -1149,30 +1137,30 @@ export const DCCGarchTool = () => {
                   <table className="w-full text-[11px] font-mono">
                     <thead>
                       <tr className="text-muted-foreground border-b border-border/40">
-                        <th className="text-left py-1">检验</th>
+                        <th className="text-left py-1">{t("labs.dccGarch.text052", { defaultValue: "检验" })}</th>
                         <th className="text-right">LR</th>
                         <th className="text-right">df</th>
                         <th className="text-right">p-value</th>
-                        <th className="text-right">结论</th>
+                        <th className="text-right">{t("labs.dccGarch.text053", { defaultValue: "结论" })}</th>
                       </tr>
                     </thead>
                     <tbody className="text-foreground tabular-nums">
                       <tr className="border-b border-border/20">
-                        <td className="py-1 text-muted-foreground">Kupiec POF (覆盖率)</td>
+                        <td className="py-1 text-muted-foreground">{t("labs.dccGarch.text054", { defaultValue: "Kupiec POF (覆盖率)" })}</td>
                         <td className="text-right">{bt.LR_uc.toFixed(3)}</td>
                         <td className="text-right">1</td>
                         <td className="text-right">{bt.p_uc.toFixed(4)}</td>
                         <td className={`text-right ${vUC.cls}`}>{vUC.tag}</td>
                       </tr>
                       <tr className="border-b border-border/20">
-                        <td className="py-1 text-muted-foreground">Christoffersen IND (独立性)</td>
+                        <td className="py-1 text-muted-foreground">{t("labs.dccGarch.text055", { defaultValue: "Christoffersen IND (独立性)" })}</td>
                         <td className="text-right">{bt.LR_ind.toFixed(3)}</td>
                         <td className="text-right">1</td>
                         <td className="text-right">{bt.p_ind.toFixed(4)}</td>
                         <td className={`text-right ${vIND.cls}`}>{vIND.tag}</td>
                       </tr>
                       <tr>
-                        <td className="py-1 text-muted-foreground">联合 CC (UC+IND)</td>
+                        <td className="py-1 text-muted-foreground">{t("labs.dccGarch.text056", { defaultValue: "联合 CC (UC+IND)" })}</td>
                         <td className="text-right">{bt.LR_cc.toFixed(3)}</td>
                         <td className="text-right">2</td>
                         <td className="text-right">{bt.p_cc.toFixed(4)}</td>
@@ -1181,25 +1169,24 @@ export const DCCGarchTool = () => {
                     </tbody>
                   </table>
                   <div className="flex items-center justify-between mt-2 text-[10px] font-mono">
-                    <span className="text-muted-foreground">p-value 方法</span>
+                    <span className="text-muted-foreground">{t("labs.dccGarch.text057", { defaultValue: "p-value 方法" })}</span>
                     {bt.method === "mc" ? (
                       <span className="px-1.5 py-0.5 rounded bg-gold/15 text-gold border border-gold/30">
                         Monte-Carlo Bootstrap (B={bt.mcInfo?.B ?? 0})
                       </span>
                     ) : (
                       <span className="px-1.5 py-0.5 rounded bg-secondary/40 text-muted-foreground border border-border/40">
-                        χ² 渐近近似
-                      </span>
+                        {t("labs.dccGarch.text058", { defaultValue: "χ² 渐近近似" })}</span>
                     )}
                   </div>
                   {bt.method === "mc" && (
                     <div className="text-[9.5px] text-muted-foreground/80 mt-1 leading-relaxed font-mono">
-                      χ² 对照: p_uc={bt.p_uc_chi.toFixed(4)} · p_ind={bt.p_ind_chi.toFixed(4)} · p_cc={bt.p_cc_chi.toFixed(4)}
+                      {t("labs.dccGarch.text059", { defaultValue: "χ² 对照: p_uc=" })}{bt.p_uc_chi.toFixed(4)} · p_ind={bt.p_ind_chi.toFixed(4)} · p_cc={bt.p_cc_chi.toFixed(4)}
                     </div>
                   )}
                   <div className="text-[10px] text-muted-foreground/80 mt-2 leading-relaxed">
-                    转移计数 n₀₀={bt.n00} · n₀₁={bt.n01} · n₁₀={bt.n10} · n₁₁={bt.n11}
-                    {bt.n11 > 0 && " · ⚠ 出现连续违约"}
+                    {t("labs.dccGarch.text060", { defaultValue: "转移计数 n₀₀=" })}{bt.n00} · n₀₁={bt.n01} · n₁₀={bt.n10} · n₁₁={bt.n11}
+                    {bt.n11 > 0 && t("labs.dccGarch.text061", { defaultValue: " · ⚠ 出现连续违约" })}
                   </div>
                   {(() => {
                     const lowExp = bt.expected < 5;
@@ -1208,16 +1195,16 @@ export const DCCGarchTool = () => {
                     if (!lowExp && !lowAct) return null;
                     const msgs: string[] = [];
                     if (zeroAct) {
-                      msgs.push(`实际违约 = 0,LR 退化 → 已切换 Monte-Carlo bootstrap`);
+                      msgs.push(t("labs.dccGarch.text062", { defaultValue: "实际违约 = 0,LR 退化 → 已切换 Monte-Carlo bootstrap" }));
                     } else if (lowAct) {
-                      msgs.push(`实际违约 n₁=${bt.n1} < 5,χ² 渐近不稳定 → 已切换 MC bootstrap`);
+                      msgs.push(t("labs.dccGarch.text063", { defaultValue: "实际违约 n₁={{var0}} < 5,χ² 渐近不稳定 → 已切换 MC bootstrap", var0: bt.n1 }));
                     }
                     if (lowExp) {
-                      msgs.push(`期望违约 ${bt.expected.toFixed(1)} < 5(T=${bt.T},α=${(bt.alpha * 100).toFixed(2).replace(/\.?0+$/, "")}%),建议增大样本或降低置信水平`);
+                      msgs.push(t("labs.dccGarch.text064", { defaultValue: "期望违约 {{var0}} < 5(T={{var1}},α={{var2}}%),建议增大样本或降低置信水平", var0: bt.expected.toFixed(1), var1: bt.T, var2: (bt.alpha * 100).toFixed(2).replace(/\.?0+$/, "") }));
                     }
                     return (
                       <div className="mt-2 rounded border border-[hsl(38,92%,50%)]/40 bg-[hsl(38,92%,50%)]/10 px-2 py-1.5 text-[10px] leading-relaxed text-[hsl(38,92%,40%)] dark:text-[hsl(38,92%,65%)]">
-                        ⚠ <span className="font-mono uppercase tracking-wider">样本不足</span> · {msgs.join(" · ")}
+                        ⚠ <span className="font-mono uppercase tracking-wider">{t("labs.dccGarch.text065", { defaultValue: "样本不足" })}</span> · {msgs.join(" · ")}
                       </div>
                     );
                   })()}
@@ -1229,31 +1216,29 @@ export const DCCGarchTool = () => {
           {/* p-value 方法说明 */}
           <div className="rounded-md border border-border/40 bg-card/40 p-3 text-[11px] leading-relaxed">
             <div className="text-[11px] font-mono uppercase tracking-wider text-gold mb-2">
-              p-value 方法对照 — χ² 渐近 vs Monte-Carlo Bootstrap
-            </div>
+              {t("labs.dccGarch.text066", { defaultValue: "p-value 方法对照 — χ² 渐近 vs Monte-Carlo Bootstrap" })}</div>
             <div className="grid md:grid-cols-2 gap-3 text-muted-foreground">
               <div className="rounded border border-border/30 bg-secondary/20 p-2">
-                <div className="font-mono text-foreground mb-1">χ² 渐近近似</div>
-                <div>依据 Wilks 定理:<span className="font-mono">2(ℓ₁−ℓ₀) →ᵈ χ²<sub>k</sub></span>。</div>
-                <div className="mt-1"><span className="text-foreground">适用条件:</span> 样本充足,通常要求 期望违约 <span className="font-mono">T·p ≥ 10</span> 且 实际违约 <span className="font-mono">n₁ ≥ 10</span>。</div>
-                <div className="mt-1"><span className="text-foreground">优点:</span> 解析、瞬时;<span className="text-foreground">缺点:</span> 小样本下 LR 分布偏离 χ²,p-value 偏小 → 易误拒 H₀;当 <span className="font-mono">n₁=0</span> 或独立性表格存在零行/零列时退化。</div>
+                <div className="font-mono text-foreground mb-1">{t("labs.dccGarch.text058", { defaultValue: "χ² 渐近近似" })}</div>
+                <div>{t("labs.dccGarch.text068", { defaultValue: "依据 Wilks 定理:" })}<span className="font-mono">2(ℓ₁−ℓ₀) →ᵈ χ²<sub>k</sub></span>。</div>
+                <div className="mt-1"><span className="text-foreground">{t("labs.dccGarch.text069", { defaultValue: "适用条件:" })}</span> {t("labs.dccGarch.text070", { defaultValue: "样本充足,通常要求 期望违约" })}<span className="font-mono">T·p ≥ 10</span> {t("labs.dccGarch.text071", { defaultValue: "且 实际违约" })}<span className="font-mono">n₁ ≥ 10</span>。</div>
+                <div className="mt-1"><span className="text-foreground">{t("labs.dccGarch.text072", { defaultValue: "优点:" })}</span> {t("labs.dccGarch.text073", { defaultValue: "解析、瞬时;" })}<span className="text-foreground">{t("labs.dccGarch.text074", { defaultValue: "缺点:" })}</span> {t("labs.dccGarch.text075", { defaultValue: "小样本下 LR 分布偏离 χ²,p-value 偏小 → 易误拒 H₀;当" })}<span className="font-mono">n₁=0</span> {t("labs.dccGarch.text076", { defaultValue: "或独立性表格存在零行/零列时退化。" })}</div>
               </div>
               <div className="rounded border border-border/30 bg-secondary/20 p-2">
                 <div className="font-mono text-foreground mb-1">Monte-Carlo Bootstrap</div>
-                <div>在 H₀:<span className="font-mono">I<sub>t</sub> ~ iid Bernoulli(p)</span> 下重抽 <span className="font-mono text-foreground">B={mcB}</span> 条命中序列,经验分位数估计 p-value(<span className="font-mono">(#≥obs+1)/(B+1)</span>)。可在上方切换 B ∈ {`{500, 1k, 2k, 5k, 10k}`} 实时刷新。</div>
-                <div className="mt-1"><span className="text-foreground">适用条件:</span> 任意样本量,尤其推荐 <span className="font-mono">T·p &lt; 10</span> 或高 α(99%+)。</div>
-                <div className="mt-1"><span className="text-foreground">优点:</span> 有限样本精确,不依赖渐近;<span className="text-foreground">缺点:</span> 计算开销 O(B·T),且仅检验"<em>iid</em> Bernoulli"——若交易日波动结构性变化,H₀ 本身可能失真。</div>
+                <div>{t("labs.dccGarch.text077", { defaultValue: "在 H₀:" })}<span className="font-mono">I<sub>t</sub> ~ iid Bernoulli(p)</span> {t("labs.dccGarch.text078", { defaultValue: "下重抽" })}<span className="font-mono text-foreground">B={mcB}</span> {t("labs.dccGarch.text079", { defaultValue: "条命中序列,经验分位数估计 p-value(" })}<span className="font-mono">(#≥obs+1)/(B+1)</span>{t("labs.dccGarch.text080", { defaultValue: ")。可在上方切换 B ∈" })}{`{500, 1k, 2k, 5k, 10k}`} {t("labs.dccGarch.text081", { defaultValue: "实时刷新。" })}</div>
+                <div className="mt-1"><span className="text-foreground">{t("labs.dccGarch.text069", { defaultValue: "适用条件:" })}</span> {t("labs.dccGarch.text083", { defaultValue: "任意样本量,尤其推荐" })}<span className="font-mono">T·p &lt; 10</span> {t("labs.dccGarch.text084", { defaultValue: "或高 α(99%+)。" })}</div>
+                <div className="mt-1"><span className="text-foreground">{t("labs.dccGarch.text072", { defaultValue: "优点:" })}</span> {t("labs.dccGarch.text086", { defaultValue: "有限样本精确,不依赖渐近;" })}<span className="text-foreground">{t("labs.dccGarch.text074", { defaultValue: "缺点:" })}</span> {t("labs.dccGarch.text088", { defaultValue: "计算开销 O(B·T),且仅检验\"" })}<em>iid</em> {t("labs.dccGarch.text089", { defaultValue: "Bernoulli\"——若交易日波动结构性变化,H₀ 本身可能失真。" })}</div>
               </div>
             </div>
             <div className="mt-2 text-[10px] text-muted-foreground/80 font-mono">
-              本工具策略: 当 <span className="text-foreground">期望违约 &lt; 10</span> 或 <span className="text-foreground">实际违约 &lt; 10</span> 时自动切换为 MC Bootstrap;否则使用 χ² 渐近。MC 模式下卡片内会同时展示 χ² 对照,便于诊断两者的差异。
-            </div>
+              {t("labs.dccGarch.text090", { defaultValue: "本工具策略: 当" })}<span className="text-foreground">{t("labs.dccGarch.text091", { defaultValue: "期望违约 < 10" })}</span> {t("labs.dccGarch.text092", { defaultValue: "或" })}<span className="text-foreground">{t("labs.dccGarch.text093", { defaultValue: "实际违约 < 10" })}</span> {t("labs.dccGarch.text094", { defaultValue: "时自动切换为 MC Bootstrap;否则使用 χ² 渐近。MC 模式下卡片内会同时展示 χ² 对照,便于诊断两者的差异。" })}</div>
           </div>
 
           {breachSeries.length > 0 && (
             <div>
               <div className="text-[11px] font-mono uppercase tracking-wider text-muted-foreground mb-1">
-                累计违约次数: 实际 vs 期望 (α = {(vaRConf * 100).toFixed(0)}%)
+                {t("labs.dccGarch.text095", { defaultValue: "累计违约次数: 实际 vs 期望 (α =" })}{(vaRConf * 100).toFixed(0)}%)
               </div>
               <ResponsiveContainer width="100%" height={180}>
                 <LineChart data={breachSeries} margin={{ top: 5, right: 10, bottom: 0, left: -10 }}>
@@ -1266,22 +1251,20 @@ export const DCCGarchTool = () => {
                     formatter={(v: number) => v.toFixed(2)} />
                   <Legend wrapperStyle={{ fontSize: 11 }} />
                   <Line dataKey="expected" type="monotone" stroke={CHART_TEAL} dot={false}
-                    name="期望累计 (T·p)" strokeWidth={1.5} strokeDasharray="4 3" />
+                    name={t("labs.dccGarch.text096", { defaultValue: "期望累计 (T·p)" })} strokeWidth={1.5} strokeDasharray="4 3" />
                   <Line dataKey="actual" type="monotone" stroke={CHART_RED} dot={false}
-                    name="实际累计违约" strokeWidth={1.8} />
+                    name={t("labs.dccGarch.text097", { defaultValue: "实际累计违约" })} strokeWidth={1.8} />
                 </LineChart>
               </ResponsiveContainer>
               <p className="text-[10px] text-muted-foreground/80 mt-1">
-                若实际曲线显著偏离期望线 → 模型 低估/高估 风险。Kupiec 检验等价于"两曲线终点是否显著不同"。
-              </p>
+                {t("labs.dccGarch.text098", { defaultValue: "若实际曲线显著偏离期望线 → 模型 低估/高估 风险。Kupiec 检验等价于\"两曲线终点是否显著不同\"。" })}</p>
             </div>
           )}
 
           {breachSeries.length > 0 && (
             <div>
               <div className="text-[11px] font-mono uppercase tracking-wider text-muted-foreground mb-1">
-                违约日标注 — 红点 = 损失击穿 VaR
-              </div>
+                {t("labs.dccGarch.text099", { defaultValue: "违约日标注 — 红点 = 损失击穿 VaR" })}</div>
               <ResponsiveContainer width="100%" height={200}>
                 <ComposedChart data={breachSeries} margin={{ top: 5, right: 10, bottom: 0, left: -10 }}>
                   <CartesianGrid stroke={CHART_GRID} strokeDasharray="3 3" />
@@ -1294,23 +1277,22 @@ export const DCCGarchTool = () => {
                   <Legend wrapperStyle={{ fontSize: 11 }} />
                   <ReferenceLine y={0} stroke={CHART_TEXT} strokeDasharray="3 3" />
                   <Line dataKey="ret" type="monotone" stroke={CHART_TEAL} dot={false}
-                    name="组合日收益" strokeWidth={1} />
+                    name={t("labs.dccGarch.text039", { defaultValue: "组合日收益" })} strokeWidth={1} />
                   <Line dataKey="var" type="monotone" stroke={CHART_RED} dot={false}
-                    name={`VaR 阈值 (${(vaRConf*100).toFixed(0)}%)`} strokeWidth={1.5} strokeDasharray="4 3" />
-                  <Scatter dataKey="breach" fill={CHART_RED} name="违约" shape="circle" />
+                    name={t("labs.dccGarch.text101", { defaultValue: "VaR 阈值 ({{var0}}%)", var0: (vaRConf*100).toFixed(0) })} strokeWidth={1.5} strokeDasharray="4 3" />
+                  <Scatter dataKey="breach" fill={CHART_RED} name={t("labs.dccGarch.text102", { defaultValue: "违约" })} shape="circle" />
                 </ComposedChart>
               </ResponsiveContainer>
               <p className="text-[10px] text-muted-foreground/80 mt-1">
                 <InlineMath math={`I_t = \\mathbf{1}\\{r_{p,t} < -z_\\alpha \\sigma_{p,t}\\}`} />
-                {" "}— 期望频率 {((1 - vaRConf) * 100).toFixed(2).replace(/\.?0+$/, "")}%。簇集出现的红点提示违约非独立 → Christoffersen 拒绝 H0。
-              </p>
+                {" "}{t("labs.dccGarch.text103", { defaultValue: "— 期望频率" })}{((1 - vaRConf) * 100).toFixed(2).replace(/\.?0+$/, "")}{t("labs.dccGarch.text104", { defaultValue: "%。簇集出现的红点提示违约非独立 → Christoffersen 拒绝 H0。" })}</p>
             </div>
           )}
 
           <div className="rounded-md border border-gold/20 bg-gold/5 p-3 text-[11px] text-foreground/90 space-y-1">
-            <div className="font-mono text-[10px] uppercase tracking-[0.25em] text-gold mb-1">检验公式</div>
+            <div className="font-mono text-[10px] uppercase tracking-[0.25em] text-gold mb-1">{t("labs.dccGarch.text105", { defaultValue: "检验公式" })}</div>
             <div>Kupiec POF: <InlineMath math={`LR_{uc} = -2\\ln\\frac{(1-p)^{n_0} p^{n_1}}{(1-\\hat\\pi)^{n_0}\\hat\\pi^{n_1}} \\sim \\chi^2_1`} /></div>
-            <div>Christoffersen IND: <InlineMath math={`LR_{ind} \\sim \\chi^2_1`} /> · 条件覆盖 <InlineMath math={`LR_{cc} = LR_{uc} + LR_{ind} \\sim \\chi^2_2`} /></div>
+            <div>Christoffersen IND: <InlineMath math={`LR_{ind} \\sim \\chi^2_1`} /> {t("labs.dccGarch.text106", { defaultValue: "· 条件覆盖" })}<InlineMath math={`LR_{cc} = LR_{uc} + LR_{ind} \\sim \\chi^2_2`} /></div>
           </div>
         </div>
       )}
@@ -1319,8 +1301,7 @@ export const DCCGarchTool = () => {
       {fit && (
         <div>
           <h4 className="text-sm font-mono uppercase tracking-wider text-foreground mb-2">
-            标准化残差散点 (z_i, z_j) — 应近似无关联
-          </h4>
+            {t("labs.dccGarch.text107", { defaultValue: "标准化残差散点 (z_i, z_j) — 应近似无关联" })}</h4>
           <div className="grid gap-3 md:grid-cols-2">
             {(() => {
               const pairs: { i: number; j: number }[] = [];
@@ -1360,23 +1341,15 @@ export const DCCGarchTool = () => {
 
       {/* Pedagogical box */}
       <div className="rounded-lg border border-gold/20 bg-gold/5 p-4 text-[12px] text-foreground/90 space-y-2">
-        <div className="font-mono text-[10px] uppercase tracking-[0.25em] text-gold">两步 QMLE 估计流程</div>
+        <div className="font-mono text-[10px] uppercase tracking-[0.25em] text-gold">{t("labs.dccGarch.text108", { defaultValue: "两步 QMLE 估计流程" })}</div>
         <ol className="list-decimal pl-5 space-y-1">
-          <li><strong>Step 1</strong> 对每个资产分别 QMLE 估计 GARCH(1,1):
-            <InlineMath math={`\\sigma_{i,t}^2 = \\omega_i + \\alpha_i r_{i,t-1}^2 + \\beta_i \\sigma_{i,t-1}^2`} /></li>
-          <li>得到标准化残差
-            <InlineMath math={`z_{i,t} = r_{i,t} / \\sigma_{i,t}`} />, 应满足
-            <InlineMath math={`E[z_{i,t}^2] \\approx 1`} /></li>
-          <li><strong>Step 2</strong> 在 z 上估计 DCC(1,1) 参数 (a,b),
-            <InlineMath math={`Q_t = (1-a-b)\\bar Q + a z_{t-1}z_{t-1}' + b Q_{t-1}`} /></li>
-          <li>归一化为相关矩阵
-            <InlineMath math={`R_t = \\mathrm{diag}(Q_t)^{-1/2} Q_t \\mathrm{diag}(Q_t)^{-1/2}`} />,
-            然后 <InlineMath math={`\\Sigma_t = D_t R_t D_t`} /> 用于 VaR/对冲。</li>
+          <li><strong>Step 1</strong> {t("labs.dccGarch.text109", { defaultValue: "对每个资产分别 QMLE 估计 GARCH(1,1):" })}<InlineMath math={`\\sigma_{i,t}^2 = \\omega_i + \\alpha_i r_{i,t-1}^2 + \\beta_i \\sigma_{i,t-1}^2`} /></li>
+          <li>{t("labs.dccGarch.text110", { defaultValue: "得到标准化残差" })}<InlineMath math={`z_{i,t} = r_{i,t} / \\sigma_{i,t}`} />{t("labs.dccGarch.text111", { defaultValue: ", 应满足" })}<InlineMath math={`E[z_{i,t}^2] \\approx 1`} /></li>
+          <li><strong>Step 2</strong> {t("labs.dccGarch.text112", { defaultValue: "在 z 上估计 DCC(1,1) 参数 (a,b)," })}<InlineMath math={`Q_t = (1-a-b)\\bar Q + a z_{t-1}z_{t-1}' + b Q_{t-1}`} /></li>
+          <li>{t("labs.dccGarch.text113", { defaultValue: "归一化为相关矩阵" })}<InlineMath math={`R_t = \\mathrm{diag}(Q_t)^{-1/2} Q_t \\mathrm{diag}(Q_t)^{-1/2}`} />{t("labs.dccGarch.text114", { defaultValue: ", 然后" })}<InlineMath math={`\\Sigma_t = D_t R_t D_t`} /> {t("labs.dccGarch.text115", { defaultValue: "用于 VaR/对冲。" })}</li>
         </ol>
         <div className="text-[11px] text-muted-foreground pt-1 border-t border-border/40">
-          <strong className="text-foreground">观察要点:</strong> 在危机期, 通常股-债 ρ 由负转正、所有跨资产 ρ 同向逼近 1 — 即"相关性崩塌",
-          多元化失效, 组合 VaR 同时被波动率和相关性双双放大。这是 DCC-GARCH 相比静态相关矩阵的核心价值。
-        </div>
+          <strong className="text-foreground">{t("labs.dccGarch.text116", { defaultValue: "观察要点:" })}</strong> {t("labs.dccGarch.text117", { defaultValue: "在危机期, 通常股-债 ρ 由负转正、所有跨资产 ρ 同向逼近 1 — 即\"相关性崩塌\", 多元化失效, 组合 VaR 同时被波动率和相关性双双放大。这是 DCC-GARCH 相比静态相关矩阵的核心价值。" })}</div>
       </div>
     </div>
   );
