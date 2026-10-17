@@ -1,3 +1,7 @@
+import bondI18n from "@/i18n";
+import bondEn from "../../../.lovable/tmp-i18n-r8/bond.en.json";
+import bondZh from "../../../.lovable/tmp-i18n-r8/bond.zh.json";
+import { useTranslation } from "react-i18next";
 import { useEffect, useMemo, useState } from "react";
 import {
   ComposedChart, Line, Scatter, XAxis, YAxis, CartesianGrid, Tooltip,
@@ -52,12 +56,13 @@ const Stat = ({ label, value, color = CHART_GOLD, sub }: { label: string; value:
 );
 
 export function NelsonSiegelTool() {
+  const { t } = useTranslation();
   const [model, setModel] = useState<Model>("ns");
   const [points, setPoints] = useState<CurvePoint[]>(SAMPLE_NORMAL);
   const [raw, setRaw] = useState<string>(
     SAMPLE_NORMAL.map((p) => `${p.tau}, ${p.yield}`).join("\n")
   );
-  const [srcNote, setSrcNote] = useState<string>("示例数据 · 正常向上曲线");
+  const [srcNote, setSrcNote] = useState<string>(t("labs.bond.nelsonSiegel.text1", { defaultValue: "示例数据 · 正常向上曲线" }));
   const [fredEnabled, setFredEnabled] = useState(false);
   const liveFred = useFredYieldCurve(fredEnabled);
 
@@ -87,7 +92,7 @@ export function NelsonSiegelTool() {
       const p = liveFred.points.map((q) => ({ tau: q.tau, yield: q.yield }));
       setPoints(p);
       setRaw(p.map((q) => `${q.tau.toFixed(3)}, ${q.yield}`).join("\n"));
-      setSrcNote(`FRED 美国国债 CMT · ${liveFred.latestDate ?? "最新"}`);
+      setSrcNote(t("labs.bond.nelsonSiegel.text2", { defaultValue: "FRED 美国国债 CMT ·" }) + " " + (liveFred.latestDate ?? t("labs.bond.nelsonSiegel.text3", { defaultValue: "最新" })));
       setFredEnabled(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -134,9 +139,9 @@ export function NelsonSiegelTool() {
         {/* ── Controls ── */}
         <div className="space-y-5">
           <div>
-            <p className="text-xs font-mono text-muted-foreground uppercase tracking-wider mb-2">模型</p>
+            <p className="text-xs font-mono text-muted-foreground uppercase tracking-wider mb-2">{t("labs.bond.nelsonSiegel.text4", { defaultValue: "模型" })}</p>
             <div className="flex gap-2">
-              {([["ns", "Nelson-Siegel (3 因子)"], ["nss", "Svensson (4 因子)"]] as [Model, string][]).map(([m, l]) => (
+              {([["ns", t("labs.bond.nelsonSiegel.text5", { defaultValue: "Nelson-Siegel (3 因子)" })], ["nss", t("labs.bond.nelsonSiegel.text6", { defaultValue: "Svensson (4 因子)" })]] as [Model, string][]).map(([m, l]) => (
                 <button key={m} onClick={() => setModel(m)}
                   className={`px-3 py-1.5 text-xs font-mono rounded-lg transition-all ${model === m ? "bg-gold/20 text-gold border border-gold/30" : "bg-secondary text-muted-foreground"}`}>
                   {l}
@@ -146,26 +151,26 @@ export function NelsonSiegelTool() {
           </div>
 
           <div>
-            <p className="text-xs font-mono text-muted-foreground uppercase tracking-wider mb-2">数据源</p>
+            <p className="text-xs font-mono text-muted-foreground uppercase tracking-wider mb-2">{t("labs.bond.nelsonSiegel.text7", { defaultValue: "数据源" })}</p>
             <PresetButtons presets={[
-              { name: "正常曲线", description: "向上倾斜的国债曲线", apply: () => setSample(SAMPLE_NORMAL, "示例数据 · 正常向上曲线") },
-              { name: "倒挂曲线", description: "短端高于长端", apply: () => setSample(SAMPLE_INVERTED, "示例数据 · 倒挂曲线") },
-              { name: "驼峰曲线", description: "中段隆起", apply: () => setSample(SAMPLE_HUMPED, "示例数据 · 驼峰曲线") },
+              { name: t("labs.bond.nelsonSiegel.text8", { defaultValue: "正常曲线" }), description: t("labs.bond.nelsonSiegel.text9", { defaultValue: "向上倾斜的国债曲线" }), apply: () => setSample(SAMPLE_NORMAL, t("labs.bond.nelsonSiegel.text1", { defaultValue: "示例数据 · 正常向上曲线" })) },
+              { name: t("labs.bond.nelsonSiegel.text10", { defaultValue: "倒挂曲线" }), description: t("labs.bond.nelsonSiegel.text11", { defaultValue: "短端高于长端" }), apply: () => setSample(SAMPLE_INVERTED, t("labs.bond.nelsonSiegel.text12", { defaultValue: "示例数据 · 倒挂曲线" })) },
+              { name: t("labs.bond.nelsonSiegel.text13", { defaultValue: "驼峰曲线" }), description: t("labs.bond.nelsonSiegel.text14", { defaultValue: "中段隆起" }), apply: () => setSample(SAMPLE_HUMPED, t("labs.bond.nelsonSiegel.text15", { defaultValue: "示例数据 · 驼峰曲线" })) },
             ]} />
             <button onClick={loadFred} disabled={liveFred.isLoading && fredEnabled}
               className="mt-2 inline-flex items-center gap-2 px-3 py-1.5 text-xs font-mono rounded-lg border border-gold/30 bg-gold/10 text-gold hover:bg-gold/20 transition-colors disabled:opacity-50">
               {fredEnabled && liveFred.isLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <RefreshCw className="w-3.5 h-3.5" />}
-              从 FRED 拉取美国国债曲线
+              {t("labs.bond.nelsonSiegel.text16", { defaultValue: "从 FRED 拉取美国国债曲线" })}
             </button>
             {fredEnabled && liveFred.isError && (
-              <p className="text-[10px] font-mono text-red-400 mt-1">拉取失败,请稍后重试或使用示例数据。</p>
+              <p className="text-[10px] font-mono text-red-400 mt-1">{t("labs.bond.nelsonSiegel.text17", { defaultValue: "拉取失败,请稍后重试或使用示例数据。" })}</p>
             )}
             <p className="text-[10px] font-mono text-muted-foreground mt-1">{srcNote}</p>
           </div>
 
           <div>
             <label className="text-xs font-mono text-muted-foreground uppercase tracking-wider mb-2 block">
-              期限(年), 收益率(%) — 每行一对
+              {t("labs.bond.nelsonSiegel.text18", { defaultValue: "期限(年), 收益率(%) — 每行一对" })}
             </label>
             <textarea value={raw} onChange={(e) => applyRaw(e.target.value)} rows={6}
               spellCheck={false}
@@ -174,22 +179,22 @@ export function NelsonSiegelTool() {
 
           {/* Fitted parameters */}
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-            <Stat label="β₀ Level" value={sliderText(fit?.b0 ?? NaN)} sub="长端水平" />
-            <Stat label="β₁ Slope" value={sliderText(fit?.b1 ?? NaN)} color={CHART_TEAL} sub="斜率" />
-            <Stat label="β₂ Curv" value={sliderText(fit?.b2 ?? NaN)} color={CHART_BLUE} sub="曲率" />
-            {nssFit && <Stat label="β₃ Curv2" value={sliderText(nssFit.b3)} color={CHART_RED} sub="第二驼峰" />}
-            <Stat label={model === "ns" ? "λ" : "λ₁"} value={sliderText(nsFit?.lambda ?? nssFit?.lambda1 ?? NaN)} sub="衰减" />
-            {nssFit && <Stat label="λ₂" value={sliderText(nssFit.lambda2)} sub="第二衰减" />}
+            <Stat label="β₀ Level" value={sliderText(fit?.b0 ?? NaN)} sub={t("labs.bond.nelsonSiegel.text19", { defaultValue: "长端水平" })} />
+            <Stat label="β₁ Slope" value={sliderText(fit?.b1 ?? NaN)} color={CHART_TEAL} sub={t("labs.bond.nelsonSiegel.text20", { defaultValue: "斜率" })} />
+            <Stat label="β₂ Curv" value={sliderText(fit?.b2 ?? NaN)} color={CHART_BLUE} sub={t("labs.bond.nelsonSiegel.text21", { defaultValue: "曲率" })} />
+            {nssFit && <Stat label="β₃ Curv2" value={sliderText(nssFit.b3)} color={CHART_RED} sub={t("labs.bond.nelsonSiegel.text22", { defaultValue: "第二驼峰" })} />}
+            <Stat label={model === "ns" ? "λ" : "λ₁"} value={sliderText(nsFit?.lambda ?? nssFit?.lambda1 ?? NaN)} sub={t("labs.bond.nelsonSiegel.text23", { defaultValue: "衰减" })} />
+            {nssFit && <Stat label="λ₂" value={sliderText(nssFit.lambda2)} sub={t("labs.bond.nelsonSiegel.text24", { defaultValue: "第二衰减" })} />}
           </div>
           <div className="grid grid-cols-2 gap-2">
-            <Stat label="RMSE" value={fit ? `${(fit.rmse * 100).toFixed(1)} bp` : "—"} color={CHART_RED} sub="拟合误差" />
-            <Stat label="R²" value={fit ? fit.r2.toFixed(4) : "—"} sub="拟合优度" />
+            <Stat label="RMSE" value={fit ? `${(fit.rmse * 100).toFixed(1)} bp` : "—"} color={CHART_RED} sub={t("labs.bond.nelsonSiegel.text25", { defaultValue: "拟合误差" })} />
+            <Stat label="R²" value={fit ? fit.r2.toFixed(4) : "—"} sub={t("labs.bond.nelsonSiegel.text26", { defaultValue: "拟合优度" })} />
           </div>
 
           <div className="flex justify-end">
             <SendToTool
               fromId="ns-curve"
-              label="收益率曲线拟合"
+              label={t("labs.bond.nelsonSiegel.text27", { defaultValue: "收益率曲线拟合" })}
               outputs={{ r: shortRate }}
               targets={["rate-model", "bond"]}
             />
@@ -199,7 +204,7 @@ export function NelsonSiegelTool() {
         {/* ── Fitted curve chart ── */}
         <div>
           <p className="text-xs font-mono text-muted-foreground uppercase tracking-wider mb-3">
-            拟合曲线 vs 观测点
+            {t("labs.bond.nelsonSiegel.text28", { defaultValue: "拟合曲线 vs 观测点" })}
           </p>
           <div className="rounded-xl bg-secondary/30 border border-border p-4">
             <ResponsiveContainer width="100%" height={300}>
@@ -207,23 +212,23 @@ export function NelsonSiegelTool() {
                 <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID} />
                 <XAxis dataKey="tau" type="number" domain={[0, 30]} stroke={CHART_TEXT}
                   tick={{ fontSize: 9, fontFamily: "var(--font-mono)" }}
-                  label={{ value: "期限 τ (年)", position: "insideBottom", offset: -2, style: { fontSize: 11, fill: CHART_TEXT, fontFamily: "var(--font-mono)" } }} />
+                  label={{ value: t("labs.bond.nelsonSiegel.text29", { defaultValue: "期限 τ (年)" }), position: "insideBottom", offset: -2, style: { fontSize: 11, fill: CHART_TEXT, fontFamily: "var(--font-mono)" } }} />
                 <YAxis stroke={CHART_TEXT} tick={{ fontSize: 9, fontFamily: "var(--font-mono)" }} width={42}
-                  label={{ value: "利率 (%)", angle: -90, position: "insideLeft", offset: 10, style: { fontSize: 11, fill: CHART_TEXT, fontFamily: "var(--font-mono)" } }} />
+                  label={{ value: t("labs.bond.nelsonSiegel.text30", { defaultValue: "利率 (%)" }), angle: -90, position: "insideLeft", offset: 10, style: { fontSize: 11, fill: CHART_TEXT, fontFamily: "var(--font-mono)" } }} />
                 <Tooltip contentStyle={{ backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 11, fontFamily: "var(--font-mono)" }} />
-                <Line type="monotone" dataKey="spot" name="拟合即期" stroke={CHART_GOLD} strokeWidth={2.5} dot={false} />
-                <Line type="monotone" dataKey="forward" name="瞬时远期" stroke={CHART_TEAL} strokeWidth={1.5} strokeDasharray="5 3" dot={false} />
-                <Scatter data={scatterData} dataKey="observed" name="观测点" fill={CHART_RED} />
+                <Line type="monotone" dataKey="spot" name={t("labs.bond.nelsonSiegel.text31", { defaultValue: "拟合即期" })} stroke={CHART_GOLD} strokeWidth={2.5} dot={false} />
+                <Line type="monotone" dataKey="forward" name={t("labs.bond.nelsonSiegel.text32", { defaultValue: "瞬时远期" })} stroke={CHART_TEAL} strokeWidth={1.5} strokeDasharray="5 3" dot={false} />
+                <Scatter data={scatterData} dataKey="observed" name={t("labs.bond.nelsonSiegel.text33", { defaultValue: "观测点" })} fill={CHART_RED} />
                 <Legend wrapperStyle={{ fontSize: 10, fontFamily: "var(--font-mono)" }} />
               </ComposedChart>
             </ResponsiveContainer>
           </div>
           <p className="text-[10px] text-muted-foreground font-mono mt-2 text-center">
-            金色 = 拟合即期曲线 · 青色虚线 = 瞬时远期 · 红点 = 观测收益率
+            {t("labs.bond.nelsonSiegel.text34", { defaultValue: "金色 = 拟合即期曲线 · 青色虚线 = 瞬时远期 · 红点 = 观测收益率" })}
           </p>
 
           {/* Residuals */}
-          <p className="text-xs font-mono text-muted-foreground uppercase tracking-wider mt-4 mb-2">拟合残差 (bp)</p>
+          <p className="text-xs font-mono text-muted-foreground uppercase tracking-wider mt-4 mb-2">{t("labs.bond.nelsonSiegel.text35", { defaultValue: "拟合残差 (bp)" })}</p>
           <div className="rounded-xl bg-secondary/30 border border-border p-4">
             <ResponsiveContainer width="100%" height={160}>
               <BarChart data={residualData} margin={{ top: 5, right: 10, left: 5, bottom: 5 }}>
@@ -232,7 +237,7 @@ export function NelsonSiegelTool() {
                 <YAxis stroke={CHART_TEXT} tick={{ fontSize: 9, fontFamily: "var(--font-mono)" }} width={38} />
                 <Tooltip contentStyle={{ backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: 8, fontSize: 11, fontFamily: "var(--font-mono)" }} />
                 <ReferenceLine y={0} stroke={CHART_TEXT} strokeOpacity={0.4} />
-                <Bar dataKey="residual" name="残差">
+                <Bar dataKey="residual" name={t("labs.bond.nelsonSiegel.text36", { defaultValue: "残差" })}>
                   {residualData.map((d, i) => (
                     <Cell key={i} fill={d.residual >= 0 ? CHART_GOLD : CHART_TEAL} />
                   ))}
@@ -245,19 +250,19 @@ export function NelsonSiegelTool() {
 
       {/* Interpretation */}
       <div className="rounded-xl border border-border bg-secondary/30 p-4">
-        <p className="text-xs font-mono text-gold mb-2">因子与形态解读</p>
+        <p className="text-xs font-mono text-gold mb-2">{t("labs.bond.nelsonSiegel.text37", { defaultValue: "因子与形态解读" })}</p>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-1 text-[11px] font-mono text-muted-foreground">
-          <p>长端水平 β₀ ≈ <span className="text-gold">{fit ? fit.b0.toFixed(2) : "—"}%</span>(τ→∞ 收敛值)</p>
-          <p>短端利率 ≈ <span className="text-gold">{(shortRate * 100).toFixed(2)}%</span>(3M 拟合值 → 可发送为 r)</p>
-          <p>斜率 β₁ = <span className={fit && fit.b1 < 0 ? "text-emerald-400" : "text-red-400"}>{fit ? fit.b1.toFixed(2) : "—"}%</span> {fit ? (fit.b1 < 0 ? "(正常向上)" : "(平坦/倒挂)") : ""}</p>
-          <p>曲率 β₂ = <span className="text-blue-400">{fit ? fit.b2.toFixed(2) : "—"}%</span> {fit ? (fit.b2 > 0 ? "(中段凸起)" : "(中段凹陷)") : ""}</p>
-          <p>拟合优度 R² = <span className="text-foreground">{fit ? fit.r2.toFixed(4) : "—"}</span>,RMSE = <span className="text-foreground">{fit ? (fit.rmse * 100).toFixed(1) : "—"} bp</span></p>
-          <p>数据来源:{srcNote}</p>
+          <p>{t("labs.bond.nelsonSiegel.text38", { defaultValue: "长端水平 β₀ ≈" })} <span className="text-gold">{fit ? fit.b0.toFixed(2) : "—"}%</span>{t("labs.bond.nelsonSiegel.text39", { defaultValue: "(τ→∞ 收敛值)" })}</p>
+          <p>{t("labs.bond.nelsonSiegel.text40", { defaultValue: "短端利率 ≈" })} <span className="text-gold">{(shortRate * 100).toFixed(2)}%</span>{t("labs.bond.nelsonSiegel.text41", { defaultValue: "(3M 拟合值 → 可发送为 r)" })}</p>
+          <p>{t("labs.bond.nelsonSiegel.text42", { defaultValue: "斜率 β₁ =" })} <span className={fit && fit.b1 < 0 ? "text-emerald-400" : "text-red-400"}>{fit ? fit.b1.toFixed(2) : "—"}%</span> {fit ? (fit.b1 < 0 ? t("labs.bond.nelsonSiegel.text43", { defaultValue: "(正常向上)" }) : t("labs.bond.nelsonSiegel.text44", { defaultValue: "(平坦/倒挂)" })) : ""}</p>
+          <p>{t("labs.bond.nelsonSiegel.text45", { defaultValue: "曲率 β₂ =" })} <span className="text-blue-400">{fit ? fit.b2.toFixed(2) : "—"}%</span> {fit ? (fit.b2 > 0 ? t("labs.bond.nelsonSiegel.text46", { defaultValue: "(中段凸起)" }) : t("labs.bond.nelsonSiegel.text47", { defaultValue: "(中段凹陷)" })) : ""}</p>
+          <p>{t("labs.bond.nelsonSiegel.text48", { defaultValue: "拟合优度 R² =" })} <span className="text-foreground">{fit ? fit.r2.toFixed(4) : "—"}</span>,RMSE = <span className="text-foreground">{fit ? (fit.rmse * 100).toFixed(1) : "—"} bp</span></p>
+          <p>{t("labs.bond.nelsonSiegel.text49", { defaultValue: "数据来源:" })}{srcNote}</p>
         </div>
         <p className="text-[10px] font-mono text-muted-foreground mt-3 leading-relaxed">
           {model === "ns"
-            ? "Nelson-Siegel:给定衰减 λ 时曲线对 β 线性,β 由 OLS 求解,λ 用一维网格搜索取残差最小者。三因子 = 水平 / 斜率 / 曲率。"
-            : "Svensson 在 NS 上加入第二个曲率因子 β₃(衰减 λ₂),可刻画更复杂的双驼峰形态,常用于欧央行/美联储官方曲线拟合。"}
+            ? t("labs.bond.nelsonSiegel.text50", { defaultValue: "Nelson-Siegel:给定衰减 λ 时曲线对 β 线性,β 由 OLS 求解,λ 用一维网格搜索取残差最小者。三因子 = 水平 / 斜率 / 曲率。" })
+            : t("labs.bond.nelsonSiegel.text51", { defaultValue: "Svensson 在 NS 上加入第二个曲率因子 β₃(衰减 λ₂),可刻画更复杂的双驼峰形态,常用于欧央行/美联储官方曲线拟合。" })}
         </p>
       </div>
     </div>
@@ -265,3 +270,6 @@ export function NelsonSiegelTool() {
 }
 
 export default NelsonSiegelTool;
+// Supplemental resources for this lab; shared locale files remain unchanged.
+bondI18n.addResourceBundle("en", "translation", bondEn, true, true);
+bondI18n.addResourceBundle("zh", "translation", bondZh, true, true);
