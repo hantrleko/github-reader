@@ -1,3 +1,6 @@
+import bondI18n from "@/i18n";
+import bondEn from "../../../.lovable/tmp-i18n-r8/bond.en.json";
+import bondZh from "../../../.lovable/tmp-i18n-r8/bond.zh.json";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useToolTab } from "@/lib/useToolTab";
@@ -22,13 +25,14 @@ import {
 
 type Tab = "behavior" | "micro";
 
-const TABS: { id: Tab; title: string; kicker: string; desc: string }[] = [
-  { id: "behavior", title: "行为金融", kicker: "Behavioral", desc: "双曲贴现 · DSSW · 过度自信 · 处置效应" },
-  { id: "micro",    title: "市场微观结构", kicker: "Microstructure", desc: "Kyle · Glosten-Milgrom · Roll · Almgren-Chriss · Amihud" },
-];
+
 
 export default function V47BehaviorMicroLab() {
   const { t } = useTranslation();
+const TABS: { id: Tab; title: string; kicker: string; desc: string }[] = [
+  { id: "behavior", title: t("labs.bond.microChrome.text1", { defaultValue: "行为金融" }), kicker: "Behavioral", desc: t("labs.bond.microChrome.text2", { defaultValue: "双曲贴现 · DSSW · 过度自信 · 处置效应" }) },
+  { id: "micro",    title: t("labs.bond.microChrome.text3", { defaultValue: "市场微观结构" }), kicker: "Microstructure", desc: "Kyle · Glosten-Milgrom · Roll · Almgren-Chriss · Amihud" },
+];
   const [tab, setTab] = useToolTab<Tab>(["behavior", "micro"], "behavior");
   return (
     <section className="space-y-6">
@@ -583,3 +587,6 @@ function ToolCard({ title, kicker, formula, children }: {
     </div>
   );
 }
+// Supplemental resources for this lab; shared locale files remain unchanged.
+bondI18n.addResourceBundle("en", "translation", bondEn, true, true);
+bondI18n.addResourceBundle("zh", "translation", bondZh, true, true);

@@ -1,3 +1,7 @@
+import bondI18n from "@/i18n";
+import bondEn from "../../../.lovable/tmp-i18n-r8/bond.en.json";
+import bondZh from "../../../.lovable/tmp-i18n-r8/bond.zh.json";
+import { useTranslation } from "react-i18next";
 import { useState, useMemo } from "react";
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -176,6 +180,7 @@ function simulateHullWhite(params: {
 const DEFAULT_MATS = [0.25, 0.5, 1, 2, 3, 5, 7, 10];
 
 export const RatesTermStructure = () => {
+  const { t } = useTranslation();
   const [mode, setMode] = useState<"boot" | "hw">("boot");
 
   // Editable par yields (% annualized) at fixed maturity grid
@@ -213,8 +218,8 @@ export const RatesTermStructure = () => {
     <div className="space-y-6">
       <div className="flex flex-wrap gap-2 justify-center">
         {[
-          { id: "boot" as const, label: "Bootstrapping 即期曲线", desc: "从 par YTM → 零息曲线" },
-          { id: "hw" as const, label: "Hull-White 短端利率", desc: "校准到当前曲线的 1-因子模型" },
+          { id: "boot" as const, label: t("labs.bond.termStructure.text1", { defaultValue: "Bootstrapping 即期曲线" }), desc: t("labs.bond.termStructure.text2", { defaultValue: "从 par YTM → 零息曲线" }) },
+          { id: "hw" as const, label: t("labs.bond.termStructure.text3", { defaultValue: "Hull-White 短端利率" }), desc: t("labs.bond.termStructure.text4", { defaultValue: "校准到当前曲线的 1-因子模型" }) },
         ].map(opt => (
           <button key={opt.id} onClick={() => setMode(opt.id)}
             className={`px-4 py-2 rounded-lg text-xs font-mono transition-all ${
@@ -229,15 +234,15 @@ export const RatesTermStructure = () => {
       {mode === "boot" && (
         <>
           <PresetButtons presets={[
-            { name: "正常向上 (常态)", description: "短低长高", apply: () => setYields([3.5, 3.7, 4.0, 4.2, 4.3, 4.4, 4.45, 4.5]) },
-            { name: "倒挂曲线 (衰退)", description: "短高长低", apply: () => setYields([5.5, 5.4, 5.1, 4.8, 4.5, 4.2, 4.0, 3.9]) },
-            { name: "驼峰曲线", description: "中段隆起", apply: () => setYields([3.0, 3.5, 4.2, 4.8, 5.0, 4.7, 4.3, 4.0]) },
-            { name: "平坦曲线", description: "近常数", apply: () => setYields([4.0, 4.0, 4.0, 4.0, 4.0, 4.0, 4.0, 4.0]) },
+            { name: t("labs.bond.termStructure.text5", { defaultValue: "正常向上 (常态)" }), description: t("labs.bond.termStructure.text6", { defaultValue: "短低长高" }), apply: () => setYields([3.5, 3.7, 4.0, 4.2, 4.3, 4.4, 4.45, 4.5]) },
+            { name: t("labs.bond.termStructure.text7", { defaultValue: "倒挂曲线 (衰退)" }), description: t("labs.bond.termStructure.text8", { defaultValue: "短高长低" }), apply: () => setYields([5.5, 5.4, 5.1, 4.8, 4.5, 4.2, 4.0, 3.9]) },
+            { name: t("labs.bond.termStructure.text9", { defaultValue: "驼峰曲线" }), description: t("labs.bond.termStructure.text10", { defaultValue: "中段隆起" }), apply: () => setYields([3.0, 3.5, 4.2, 4.8, 5.0, 4.7, 4.3, 4.0]) },
+            { name: t("labs.bond.termStructure.text11", { defaultValue: "平坦曲线" }), description: t("labs.bond.termStructure.text12", { defaultValue: "近常数" }), apply: () => setYields([4.0, 4.0, 4.0, 4.0, 4.0, 4.0, 4.0, 4.0]) },
           ]} />
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <div className="space-y-2">
-              <p className="text-xs font-mono text-gold uppercase tracking-wider mb-2">Par 票息债 YTM (%)</p>
+              <p className="text-xs font-mono text-gold uppercase tracking-wider mb-2">{t("labs.bond.termStructure.text13", { defaultValue: "Par 票息债 YTM (%)" })}</p>
               {DEFAULT_MATS.map((m, i) => (
                 <Slider key={m} label={`T = ${m}y`} value={yields[i]} min={0.5} max={10} step={0.05}
                   onChange={(v) => setYieldAt(i, v)} />
@@ -246,7 +251,7 @@ export const RatesTermStructure = () => {
 
             <div className="space-y-3">
               <div className="rounded-xl border border-border bg-secondary/20 p-4">
-                <h4 className="text-sm font-semibold text-foreground mb-2">Par / Zero / Forward 曲线</h4>
+                <h4 className="text-sm font-semibold text-foreground mb-2">{t("labs.bond.termStructure.text14", { defaultValue: "Par / Zero / Forward 曲线" })}</h4>
                 <div className="h-[260px]">
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart data={curveData}>
@@ -256,14 +261,14 @@ export const RatesTermStructure = () => {
                       <Tooltip contentStyle={{ background: "hsl(220 15% 12%)", border: `1px solid ${CHART_GRID}`, fontSize: 11 }} />
                       <Legend wrapperStyle={{ fontSize: 10 }} />
                       <Line type="monotone" dataKey="par" name="Par YTM" stroke={CHART_BLUE} strokeWidth={1.5} strokeDasharray="4 3" />
-                      <Line type="monotone" dataKey="zero" name="Zero (即期)" stroke={CHART_GOLD} strokeWidth={2.5} dot={{ r: 3 }} />
-                      <Line type="monotone" dataKey="forward" name="Forward (远期)" stroke={CHART_TEAL} strokeWidth={2} />
+                      <Line type="monotone" dataKey="zero" name={t("labs.bond.termStructure.text15", { defaultValue: "Zero (即期)" })} stroke={CHART_GOLD} strokeWidth={2.5} dot={{ r: 3 }} />
+                      <Line type="monotone" dataKey="forward" name={t("labs.bond.termStructure.text16", { defaultValue: "Forward (远期)" })} stroke={CHART_TEAL} strokeWidth={2} />
                     </LineChart>
                   </ResponsiveContainer>
                 </div>
               </div>
               <div className="rounded-xl border border-border bg-secondary/20 p-4">
-                <h4 className="text-sm font-semibold text-foreground mb-2">折现因子 P(0, T)</h4>
+                <h4 className="text-sm font-semibold text-foreground mb-2">{t("labs.bond.termStructure.text17", { defaultValue: "折现因子 P(0, T)" })}</h4>
                 <div className="h-[180px]">
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={curveData}>
@@ -277,8 +282,8 @@ export const RatesTermStructure = () => {
                 </div>
               </div>
               <div className="text-xs font-mono text-muted-foreground p-3 rounded-lg bg-secondary/40 border border-border leading-relaxed">
-                <p><span className="text-gold">迭代 bootstrap：</span>P(0,Tᵢ)=1−c·∑ⱼ&lt;ᵢ P(0,Tⱼ)，再反解出 zᵢ。</p>
-                <p>正常曲线下 forward &gt; zero &gt; par；倒挂 → 三者反向。</p>
+                <p><span className="text-gold">{t("labs.bond.termStructure.text18", { defaultValue: "迭代 bootstrap：" })}</span>{t("labs.bond.termStructure.text19", { defaultValue: "P(0,Tᵢ)=1−c·∑ⱼ&lt;ᵢ P(0,Tⱼ)，再反解出 zᵢ。" })}</p>
+                <p>{t("labs.bond.termStructure.text20", { defaultValue: "正常曲线下 forward &gt; zero &gt; par；倒挂 → 三者反向。" })}</p>
               </div>
             </div>
           </div>
@@ -288,50 +293,50 @@ export const RatesTermStructure = () => {
       {mode === "hw" && hwSim && (
         <>
           <PresetButtons presets={[
-            { name: "标准校准", description: "a=0.1, σ=120bp", apply: () => { setAHW(0.1); setSigmaHW(0.012); } },
-            { name: "强均值回复", description: "a=0.5, σ=80bp", apply: () => { setAHW(0.5); setSigmaHW(0.008); } },
-            { name: "高波动情景", description: "σ=250bp", apply: () => { setAHW(0.1); setSigmaHW(0.025); } },
-            { name: "近常数 a→0", description: "类布朗运动", apply: () => { setAHW(0.02); setSigmaHW(0.012); } },
+            { name: t("labs.bond.termStructure.text21", { defaultValue: "标准校准" }), description: "a=0.1, σ=120bp", apply: () => { setAHW(0.1); setSigmaHW(0.012); } },
+            { name: t("labs.bond.termStructure.text22", { defaultValue: "强均值回复" }), description: "a=0.5, σ=80bp", apply: () => { setAHW(0.5); setSigmaHW(0.008); } },
+            { name: t("labs.bond.termStructure.text23", { defaultValue: "高波动情景" }), description: "σ=250bp", apply: () => { setAHW(0.1); setSigmaHW(0.025); } },
+            { name: t("labs.bond.termStructure.text24", { defaultValue: "近常数 a→0" }), description: t("labs.bond.termStructure.text25", { defaultValue: "类布朗运动" }), apply: () => { setAHW(0.02); setSigmaHW(0.012); } },
           ]} />
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <div className="space-y-3">
-              <Slider label="均值回复速度 a" sub="↑则曲线平稳" value={aHW} min={0.01} max={1} step={0.01} onChange={setAHW} />
-              <Slider label="σ (年化绝对波动)" sub="bp/√年" value={sigmaHW} min={0.002} max={0.05} step={0.001} onChange={setSigmaHW} />
-              <Slider label="模拟期限 T (年)" value={Tsim} min={1} max={15} step={0.5} onChange={setTsim} />
+              <Slider label={t("labs.bond.termStructure.text26", { defaultValue: "均值回复速度 a" })} sub={t("labs.bond.termStructure.text27", { defaultValue: "↑则曲线平稳" })} value={aHW} min={0.01} max={1} step={0.01} onChange={setAHW} />
+              <Slider label={t("labs.bond.termStructure.text28", { defaultValue: "σ (年化绝对波动)" })} sub={t("labs.bond.termStructure.text29", { defaultValue: "bp/√年" })} value={sigmaHW} min={0.002} max={0.05} step={0.001} onChange={setSigmaHW} />
+              <Slider label={t("labs.bond.termStructure.text30", { defaultValue: "模拟期限 T (年)" })} value={Tsim} min={1} max={15} step={0.5} onChange={setTsim} />
               <div className="grid grid-cols-2 gap-3">
-                <Slider label="路径数" value={nPaths} min={200} max={3000} step={100} onChange={setNPaths} />
-                <Slider label="种子" value={seed} min={1} max={999} step={1} onChange={setSeed} />
+                <Slider label={t("labs.bond.termStructure.text31", { defaultValue: "路径数" })} value={nPaths} min={200} max={3000} step={100} onChange={setNPaths} />
+                <Slider label={t("labs.bond.termStructure.text32", { defaultValue: "种子" })} value={seed} min={1} max={999} step={1} onChange={setSeed} />
               </div>
 
               <div className="grid grid-cols-2 gap-2 mt-3">
-                <Stat label="r₀ (从曲线推导)" value={`${(hwSim.r0 * 100).toFixed(3)}%`} />
-                <Stat label="长期 σ_∞" value={`${(sigmaHW / Math.sqrt(2 * aHW) * 100).toFixed(3)}%`} color={CHART_TEAL}
+                <Stat label={t("labs.bond.termStructure.text33", { defaultValue: "r₀ (从曲线推导)" })} value={`${(hwSim.r0 * 100).toFixed(3)}%`} />
+                <Stat label={t("labs.bond.termStructure.text34", { defaultValue: "长期 σ_∞" })} value={`${(sigmaHW / Math.sqrt(2 * aHW) * 100).toFixed(3)}%`} color={CHART_TEAL}
                   sub="σ/√(2a)" />
               </div>
 
               <div className="text-xs font-mono text-muted-foreground p-3 rounded-lg bg-secondary/40 border border-border leading-relaxed">
-                <p><span className="text-gold">Hull-White (1990)：</span>扩展 Vasicek，θ(t) 由当前曲线反推 ⇒ 完美 fit 所有 ZCB 价格。</p>
+                <p><span className="text-gold">Hull-White (1990)：</span>{t("labs.bond.termStructure.text35", { defaultValue: "扩展 Vasicek，θ(t) 由当前曲线反推 ⇒ 完美 fit 所有 ZCB 价格。" })}</p>
                 <p>θ(t) = ∂f(0,t)/∂t + a·f(0,t) + σ²/(2a)·(1−e^(−2at))。</p>
-                <p>用于 caps/floors/swaptions 定价（Black 公式封闭解）与 OAS 估值树。</p>
+                <p>{t("labs.bond.termStructure.text36", { defaultValue: "用于 caps/floors/swaptions 定价（Black 公式封闭解）与 OAS 估值树。" })}</p>
               </div>
             </div>
 
             <div className="space-y-3">
               <div className="rounded-xl border border-border bg-secondary/20 p-4">
-                <h4 className="text-sm font-semibold text-foreground mb-2">短端利率扇形图 — Hull-White vs Forward 曲线</h4>
+                <h4 className="text-sm font-semibold text-foreground mb-2">{t("labs.bond.termStructure.text37", { defaultValue: "短端利率扇形图 — Hull-White vs Forward 曲线" })}</h4>
                 <div className="h-[320px]">
                   <ResponsiveContainer width="100%" height="100%">
                     <ComposedChart data={hwSim.chart}>
                       <CartesianGrid stroke={CHART_GRID} strokeDasharray="3 3" />
                       <XAxis dataKey="t" stroke={CHART_TEXT} tick={{ fontSize: 10 }}
-                        label={{ value: "t (年)", position: "insideBottom", offset: -3, fill: CHART_TEXT, fontSize: 10 }} />
+                        label={{ value: t("labs.bond.termStructure.text38", { defaultValue: "t (年)" }), position: "insideBottom", offset: -3, fill: CHART_TEXT, fontSize: 10 }} />
                       <YAxis stroke={CHART_TEXT} tick={{ fontSize: 10 }} unit="%" />
                       <Tooltip contentStyle={{ background: "hsl(220 15% 12%)", border: `1px solid ${CHART_GRID}`, fontSize: 11 }} />
                       <Legend wrapperStyle={{ fontSize: 10 }} />
-                      <Area type="monotone" dataKey="band" name="5–95% 带" stroke="none" fill={CHART_GOLD} fillOpacity={0.18} />
-                      <Line type="monotone" dataKey="mean" name="HW 均值" stroke={CHART_GOLD} strokeWidth={2.5} dot={false} />
-                      <Line type="monotone" dataKey="forward" name="初始 Forward 曲线" stroke={CHART_TEAL} strokeWidth={2} strokeDasharray="5 4" dot={false} />
+                      <Area type="monotone" dataKey="band" name={t("labs.bond.termStructure.text39", { defaultValue: "5–95% 带" })} stroke="none" fill={CHART_GOLD} fillOpacity={0.18} />
+                      <Line type="monotone" dataKey="mean" name={t("labs.bond.termStructure.text40", { defaultValue: "HW 均值" })} stroke={CHART_GOLD} strokeWidth={2.5} dot={false} />
+                      <Line type="monotone" dataKey="forward" name={t("labs.bond.termStructure.text41", { defaultValue: "初始 Forward 曲线" })} stroke={CHART_TEAL} strokeWidth={2} strokeDasharray="5 4" dot={false} />
                       {Array.from({ length: 8 }, (_, k) => (
                         <Line key={k} type="monotone" dataKey={`p${k}`} stroke={CHART_BLUE} strokeOpacity={0.3} strokeWidth={1} dot={false} legendType="none" />
                       ))}
@@ -339,7 +344,7 @@ export const RatesTermStructure = () => {
                   </ResponsiveContainer>
                 </div>
                 <p className="text-[10px] font-mono text-muted-foreground mt-1 text-center">
-                  HW 期望路径与初始 Forward 曲线在期限早段对齐 ⇒ 无套利校准成功
+                  {t("labs.bond.termStructure.text42", { defaultValue: "HW 期望路径与初始 Forward 曲线在期限早段对齐 ⇒ 无套利校准成功" })}
                 </p>
               </div>
             </div>
@@ -351,3 +356,6 @@ export const RatesTermStructure = () => {
 };
 
 export default RatesTermStructure;
+// Supplemental resources for this lab; shared locale files remain unchanged.
+bondI18n.addResourceBundle("en", "translation", bondEn, true, true);
+bondI18n.addResourceBundle("zh", "translation", bondZh, true, true);
