@@ -195,12 +195,12 @@ export const RatesTermStructure = () => {
   const zeros = useMemo(() => bootstrap(DEFAULT_MATS, yields.map(y => y / 100)), [yields]);
   const fwds = useMemo(() => forwardRates(DEFAULT_MATS, zeros), [zeros]);
 
-  const curveData = useMemo(() => DEFAULT_MATS.map((t, i) => ({
-    t,
+  const curveData = useMemo(() => DEFAULT_MATS.map((tenor, i) => ({
+    t: tenor,
     par: yields[i],
     zero: +(zeros[i] * 100).toFixed(3),
     forward: +(fwds[i] * 100).toFixed(3),
-    discount: +(1 / Math.pow(1 + zeros[i], t)).toFixed(4),
+    discount: +(1 / Math.pow(1 + zeros[i], tenor)).toFixed(4),
   })), [yields, zeros, fwds]);
 
   const hwSim = useMemo(() => {

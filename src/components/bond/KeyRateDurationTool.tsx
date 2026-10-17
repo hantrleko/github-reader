@@ -54,9 +54,9 @@ export const KeyRateDurationTool = () => {
     if (keys.length === 0 || keys[keys.length - 1] < maturity) keys.push(maturity);
 
     const price = (shiftBpFn: (t: number) => number) =>
-      times.reduce((s, t, i) => {
-        const z = nsRate(t, b0, b1, b2, lambda) + shiftBpFn(t);
-        return s + cfs[i] / Math.pow(1 + z / 100, t);
+      times.reduce((s, time, i) => {
+        const z = nsRate(time, b0, b1, b2, lambda) + shiftBpFn(time);
+        return s + cfs[i] / Math.pow(1 + z / 100, time);
       }, 0);
 
     const P0 = price(() => 0);
@@ -64,8 +64,8 @@ export const KeyRateDurationTool = () => {
     const bumpPct = 0.01; // 1bp in % units
 
     const krd = keys.map((k, j) => {
-      const up = price((t) => hat(t, keys, j) * bumpPct);
-      const dn = price((t) => -hat(t, keys, j) * bumpPct);
+      const up = price((time) => hat(time, keys, j) * bumpPct);
+      const dn = price((time) => -hat(time, keys, j) * bumpPct);
       const d = -(up - dn) / (2 * bumpDecimal * P0);
       return { tenor: `${k}Y`, krd: +d.toFixed(3), k };
     });
