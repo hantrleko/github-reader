@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useMemo, useState } from "react";
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -68,11 +69,14 @@ const Stat = ({ label, value, color = CHART_GOLD, sub }: {
   </div>
 );
 
-const TestBadge = ({ reject }: { reject: boolean }) => (
+const TestBadge = ({ reject }: { reject: boolean }) => {
+  const { t } = useTranslation();
+  return (
   <span className={`px-2 py-0.5 rounded text-[10px] font-mono ${reject ? "bg-red-500/15 text-red-500" : "bg-emerald-500/15 text-emerald-500"}`}>
-    {reject ? "拒绝 H₀" : "不拒绝 H₀"}
+    {reject ? t("labs.econV38.text001", { defaultValue: "拒绝 H₀" }) : t("labs.econV38.text002", { defaultValue: "不拒绝 H₀" })}
   </span>
 );
+};
 
 const Note = ({ children }: { children: React.ReactNode }) => (
   <div className="text-xs font-mono text-muted-foreground p-3 rounded-lg bg-secondary/40 border border-border leading-relaxed space-y-1">{children}</div>
@@ -89,6 +93,7 @@ const tip = {
 type Scenario = "clean" | "hetero" | "autocorr" | "collinear" | "nonlinear";
 
 export const RegressionDiagnosticsTool = () => {
+  const { t } = useTranslation();
   const [scenario, setScenario] = useState<Scenario>("hetero");
   const [n, setN] = useState(200);
   const [seed, setSeed] = useState(42);
@@ -123,7 +128,7 @@ export const RegressionDiagnosticsTool = () => {
     const reset = ramseyReset(X, y, 3);
     const hc3 = robustSE(fit, "HC3");
     const nw = neweyWestSE(fit, 5);
-    const names = ["截距", "x₁", "x₂"];
+    const names = [t("labs.econV38.text003", { defaultValue: "截距" }), "x₁", "x₂"];
     const seTable = fit.beta.map((b, i) => ({
       name: names[i], beta: b,
       ols: fit.se[i], hc3: hc3[i], nw: nw[i],
@@ -147,56 +152,56 @@ export const RegressionDiagnosticsTool = () => {
   }, [scenario, n, seed]);
 
   const presets = [
-    { name: "同方差干净", apply: () => setScenario("clean") },
-    { name: "异方差", apply: () => setScenario("hetero") },
-    { name: "自相关", apply: () => setScenario("autocorr") },
-    { name: "多重共线", apply: () => setScenario("collinear") },
-    { name: "遗漏非线性", apply: () => setScenario("nonlinear") },
+    { name: t("labs.econV38.text004", { defaultValue: "同方差干净" }), apply: () => setScenario("clean") },
+    { name: t("labs.econV38.text005", { defaultValue: "异方差" }), apply: () => setScenario("hetero") },
+    { name: t("labs.econV38.text006", { defaultValue: "自相关" }), apply: () => setScenario("autocorr") },
+    { name: t("labs.econV38.text007", { defaultValue: "多重共线" }), apply: () => setScenario("collinear") },
+    { name: t("labs.econV38.text008", { defaultValue: "遗漏非线性" }), apply: () => setScenario("nonlinear") },
   ];
 
   return (
     <div className="space-y-6">
       <PresetButtons presets={presets} />
       <div className="grid md:grid-cols-3 gap-4">
-        <Slider label="样本量 n" value={n} min={60} max={500} step={20} onChange={setN} />
-        <Slider label="随机种子" value={seed} min={1} max={200} step={1} onChange={setSeed} />
+        <Slider label={t("labs.econV38.text009", { defaultValue: "样本量 n" })} value={n} min={60} max={500} step={20} onChange={setN} />
+        <Slider label={t("labs.econV38.text010", { defaultValue: "随机种子" })} value={seed} min={1} max={200} step={1} onChange={setSeed} />
         <div className="flex items-end text-xs font-mono text-muted-foreground">
-          <span>场景：<span className="text-gold">{scenario}</span></span>
+          <span>{t("labs.econV38.text011", { defaultValue: "场景：" })}<span className="text-gold">{scenario}</span></span>
         </div>
       </div>
 
       {/* Test summary */}
       <div className="grid sm:grid-cols-2 gap-3">
         <div className="rounded-xl border border-border bg-secondary/20 p-4 space-y-2">
-          <h4 className="text-sm font-semibold text-foreground">异方差检验</h4>
+          <h4 className="text-sm font-semibold text-foreground">{t("labs.econV38.text012", { defaultValue: "异方差检验" })}</h4>
           <div className="flex justify-between text-xs font-mono"><span>Breusch-Pagan (χ²={data.bp.stat.toFixed(2)}, p={data.bp.pValue.toFixed(3)})</span><TestBadge reject={data.bp.reject} /></div>
           <div className="flex justify-between text-xs font-mono"><span>White (χ²={data.white.stat.toFixed(2)}, p={data.white.pValue.toFixed(3)})</span><TestBadge reject={data.white.reject} /></div>
         </div>
         <div className="rounded-xl border border-border bg-secondary/20 p-4 space-y-2">
-          <h4 className="text-sm font-semibold text-foreground">自相关检验</h4>
-          <div className="flex justify-between text-xs font-mono"><span>Durbin-Watson = {data.dw.toFixed(3)}</span><span className="text-muted-foreground">{data.dw < 1.5 ? "正自相关" : data.dw > 2.5 ? "负自相关" : "≈2 无"}</span></div>
+          <h4 className="text-sm font-semibold text-foreground">{t("labs.econV38.text013", { defaultValue: "自相关检验" })}</h4>
+          <div className="flex justify-between text-xs font-mono"><span>Durbin-Watson = {data.dw.toFixed(3)}</span><span className="text-muted-foreground">{data.dw < 1.5 ? t("labs.econV38.text014", { defaultValue: "正自相关" }) : data.dw > 2.5 ? t("labs.econV38.text015", { defaultValue: "负自相关" }) : t("labs.econV38.text016", { defaultValue: "≈2 无" })}</span></div>
           <div className="flex justify-between text-xs font-mono"><span>Breusch-Godfrey(2) (χ²={data.bg.stat.toFixed(2)}, p={data.bg.pValue.toFixed(3)})</span><TestBadge reject={data.bg.reject} /></div>
         </div>
         <div className="rounded-xl border border-border bg-secondary/20 p-4 space-y-2">
-          <h4 className="text-sm font-semibold text-foreground">多重共线性</h4>
-          <div className="flex justify-between text-xs font-mono"><span>VIF(x₁) = {data.vifs[0].toFixed(2)}</span><span className={data.vifs[0] > 10 ? "text-red-500" : "text-emerald-500"}>{data.vifs[0] > 10 ? "严重" : "可接受"}</span></div>
-          <div className="flex justify-between text-xs font-mono"><span>VIF(x₂) = {data.vifs[1].toFixed(2)}</span><span className={data.vifs[1] > 10 ? "text-red-500" : "text-emerald-500"}>{data.vifs[1] > 10 ? "严重" : "可接受"}</span></div>
-          <div className="flex justify-between text-xs font-mono"><span>条件数 κ = {data.cond.toFixed(1)}</span><span className="text-muted-foreground">{data.cond > 30 ? ">30 警示" : "健康"}</span></div>
+          <h4 className="text-sm font-semibold text-foreground">{t("labs.econV38.text017", { defaultValue: "多重共线性" })}</h4>
+          <div className="flex justify-between text-xs font-mono"><span>VIF(x₁) = {data.vifs[0].toFixed(2)}</span><span className={data.vifs[0] > 10 ? "text-red-500" : "text-emerald-500"}>{data.vifs[0] > 10 ? t("labs.econV38.text018", { defaultValue: "严重" }) : t("labs.econV38.text019", { defaultValue: "可接受" })}</span></div>
+          <div className="flex justify-between text-xs font-mono"><span>VIF(x₂) = {data.vifs[1].toFixed(2)}</span><span className={data.vifs[1] > 10 ? "text-red-500" : "text-emerald-500"}>{data.vifs[1] > 10 ? t("labs.econV38.text020", { defaultValue: "严重" }) : t("labs.econV38.text021", { defaultValue: "可接受" })}</span></div>
+          <div className="flex justify-between text-xs font-mono"><span>{t("labs.econV38.text022", { defaultValue: "条件数 κ =" })} {data.cond.toFixed(1)}</span><span className="text-muted-foreground">{data.cond > 30 ? t("labs.econV38.text023", { defaultValue: ">30 警示" }) : t("labs.econV38.text024", { defaultValue: "健康" })}</span></div>
         </div>
         <div className="rounded-xl border border-border bg-secondary/20 p-4 space-y-2">
-          <h4 className="text-sm font-semibold text-foreground">设定检验 (Ramsey RESET)</h4>
+          <h4 className="text-sm font-semibold text-foreground">{t("labs.econV38.text025", { defaultValue: "设定检验 (Ramsey RESET)" })}</h4>
           <div className="flex justify-between text-xs font-mono"><span>F={data.reset.stat.toFixed(2)}, p={data.reset.pValue.toFixed(3)}</span><TestBadge reject={data.reset.reject} /></div>
-          <p className="text-[10px] text-muted-foreground">拒绝 → 存在遗漏的非线性/函数形式误设。</p>
+          <p className="text-[10px] text-muted-foreground">{t("labs.econV38.text026", { defaultValue: "拒绝 → 存在遗漏的非线性/函数形式误设。" })}</p>
         </div>
       </div>
 
       {/* Robust SE table */}
       <div className="rounded-xl border border-border bg-secondary/20 p-4 overflow-x-auto">
-        <h4 className="text-sm font-semibold text-foreground mb-3">标准误对比：OLS vs 稳健 HC3 vs Newey-West(HAC)</h4>
+        <h4 className="text-sm font-semibold text-foreground mb-3">{t("labs.econV38.text027", { defaultValue: "标准误对比：OLS vs 稳健 HC3 vs Newey-West(HAC)" })}</h4>
         <table className="w-full text-xs font-mono">
           <thead className="text-muted-foreground">
             <tr className="border-b border-border">
-              <th className="text-left py-1.5">参数</th><th className="text-right">β̂</th>
+              <th className="text-left py-1.5">{t("labs.econV38.text028", { defaultValue: "参数" })}</th><th className="text-right">β̂</th>
               <th className="text-right">SE(OLS)</th><th className="text-right">SE(HC3)</th><th className="text-right">SE(NW)</th>
               <th className="text-right">p(OLS)</th><th className="text-right">p(HC3)</th>
             </tr>
@@ -215,29 +220,29 @@ export const RegressionDiagnosticsTool = () => {
             ))}
           </tbody>
         </table>
-        <p className="text-[10px] text-muted-foreground mt-2">当误差异方差/自相关时，OLS 标准误低估不确定性；稳健 SE 给出可靠推断。</p>
+        <p className="text-[10px] text-muted-foreground mt-2">{t("labs.econV38.text029", { defaultValue: "当误差异方差/自相关时，OLS 标准误低估不确定性；稳健 SE 给出可靠推断。" })}</p>
       </div>
 
       {/* Charts */}
       <div className="grid md:grid-cols-2 gap-4">
         <div className="rounded-xl border border-border bg-secondary/20 p-4">
-          <h4 className="text-sm font-semibold text-foreground mb-2">残差 vs 拟合值</h4>
+          <h4 className="text-sm font-semibold text-foreground mb-2">{t("labs.econV38.text030", { defaultValue: "残差 vs 拟合值" })}</h4>
           <div className="h-[240px]">
             <ResponsiveContainer width="100%" height="100%">
               <ScatterChart>
                 <CartesianGrid {...grid} />
-                <XAxis type="number" dataKey="fitted" name="拟合" {...axis} />
-                <YAxis type="number" dataKey="resid" name="残差" {...axis} />
+                <XAxis type="number" dataKey="fitted" name={t("labs.econV38.text031", { defaultValue: "拟合" })} {...axis} />
+                <YAxis type="number" dataKey="resid" name={t("labs.econV38.text032", { defaultValue: "残差" })} {...axis} />
                 <ReferenceLine y={0} stroke={CHART_RED} />
                 <Tooltip {...tip} cursor={{ strokeDasharray: "3 3" }} />
                 <Scatter data={data.scatter} fill={CHART_GOLD} fillOpacity={0.5} />
               </ScatterChart>
             </ResponsiveContainer>
           </div>
-          <p className="text-[10px] text-muted-foreground mt-1">扇形展开 → 异方差；曲线弯曲 → 函数形式误设。</p>
+          <p className="text-[10px] text-muted-foreground mt-1">{t("labs.econV38.text033", { defaultValue: "扇形展开 → 异方差；曲线弯曲 → 函数形式误设。" })}</p>
         </div>
         <div className="rounded-xl border border-border bg-secondary/20 p-4">
-          <h4 className="text-sm font-semibold text-foreground mb-2">残差自相关 ACF</h4>
+          <h4 className="text-sm font-semibold text-foreground mb-2">{t("labs.econV38.text034", { defaultValue: "残差自相关 ACF" })}</h4>
           <div className="h-[240px]">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={data.acf}>
@@ -251,7 +256,7 @@ export const RegressionDiagnosticsTool = () => {
               </BarChart>
             </ResponsiveContainer>
           </div>
-          <p className="text-[10px] text-muted-foreground mt-1">条超出红色 ±1.96/√n 边界 → 残差自相关显著。</p>
+          <p className="text-[10px] text-muted-foreground mt-1">{t("labs.econV38.text035", { defaultValue: "条超出红色 ±1.96/√n 边界 → 残差自相关显著。" })}</p>
         </div>
       </div>
     </div>
@@ -260,6 +265,7 @@ export const RegressionDiagnosticsTool = () => {
 
 /* ═══════════════════ 2 · Dynamic Panel GMM ═══════════════════ */
 export const DynamicPanelTool = () => {
+  const { t } = useTranslation();
   const [rho, setRho] = useState(0.6);
   const [N, setN] = useState(100);
   const [T, setT] = useState(8);
@@ -280,45 +286,45 @@ export const DynamicPanelTool = () => {
       { name: "Pooled OLS", value: fit.pooledOLS, fill: CHART_RED },
       { name: "Within FE", value: fit.withinFE, fill: CHART_BLUE },
       { name: "Diff-GMM", value: fit.diffGMM, fill: CHART_GOLD },
-      { name: "真值 ρ", value: rho, fill: CHART_TEAL },
+      { name: t("labs.econV38.text036", { defaultValue: "真值 ρ" }), value: rho, fill: CHART_TEAL },
     ];
     return { fit, bars };
   }, [rho, N, T, sigmaMu, seed]);
 
   const presets = [
-    { name: "低持续性 ρ=0.3", apply: () => setRho(0.3) },
-    { name: "高持续性 ρ=0.8", apply: () => setRho(0.8) },
-    { name: "短面板 T=5", apply: () => setT(5) },
-    { name: "长面板 T=15", apply: () => setT(15) },
+    { name: t("labs.econV38.text037", { defaultValue: "低持续性 ρ=0.3" }), apply: () => setRho(0.3) },
+    { name: t("labs.econV38.text038", { defaultValue: "高持续性 ρ=0.8" }), apply: () => setRho(0.8) },
+    { name: t("labs.econV38.text039", { defaultValue: "短面板 T=5" }), apply: () => setT(5) },
+    { name: t("labs.econV38.text040", { defaultValue: "长面板 T=15" }), apply: () => setT(15) },
   ];
 
   return (
     <div className="space-y-6">
       <PresetButtons presets={presets} />
       <div className="grid md:grid-cols-3 gap-4">
-        <Slider label="真值 ρ" value={rho} min={0.1} max={0.95} step={0.05} onChange={setRho} fmt={(v) => v.toFixed(2)} />
-        <Slider label="个体数 N" value={N} min={30} max={300} step={10} onChange={setN} />
-        <Slider label="期数 T" value={T} min={4} max={20} step={1} onChange={setT} />
-        <Slider label="个体效应 σ_μ" value={sigmaMu} min={0} max={2} step={0.1} onChange={setSigmaMu} fmt={(v) => v.toFixed(1)} />
-        <Slider label="随机种子" value={seed} min={1} max={300} step={1} onChange={setSeed} />
+        <Slider label={t("labs.econV38.text041", { defaultValue: "真值 ρ" })} value={rho} min={0.1} max={0.95} step={0.05} onChange={setRho} fmt={(v) => v.toFixed(2)} />
+        <Slider label={t("labs.econV38.text042", { defaultValue: "个体数 N" })} value={N} min={30} max={300} step={10} onChange={setN} />
+        <Slider label={t("labs.econV38.text043", { defaultValue: "期数 T" })} value={T} min={4} max={20} step={1} onChange={setT} />
+        <Slider label={t("labs.econV38.text044", { defaultValue: "个体效应 σ_μ" })} value={sigmaMu} min={0} max={2} step={0.1} onChange={setSigmaMu} fmt={(v) => v.toFixed(1)} />
+        <Slider label={t("labs.econV38.text045", { defaultValue: "随机种子" })} value={seed} min={1} max={300} step={1} onChange={setSeed} />
       </div>
 
       <div className="grid sm:grid-cols-4 gap-3">
-        <Stat label="Pooled OLS ρ̂" value={data.fit.pooledOLS.toFixed(3)} color={CHART_RED} sub="向上偏 (含个体效应)" />
-        <Stat label="Within FE ρ̂" value={data.fit.withinFE.toFixed(3)} color={CHART_BLUE} sub="向下 Nickell 偏误" />
-        <Stat label="Diff-GMM ρ̂" value={data.fit.diffGMM.toFixed(3)} color={CHART_GOLD} sub="Arellano-Bond 纠偏" />
-        <Stat label="真值 ρ" value={rho.toFixed(3)} color={CHART_TEAL} />
+        <Stat label="Pooled OLS ρ̂" value={data.fit.pooledOLS.toFixed(3)} color={CHART_RED} sub={t("labs.econV38.text046", { defaultValue: "向上偏 (含个体效应)" })} />
+        <Stat label="Within FE ρ̂" value={data.fit.withinFE.toFixed(3)} color={CHART_BLUE} sub={t("labs.econV38.text047", { defaultValue: "向下 Nickell 偏误" })} />
+        <Stat label="Diff-GMM ρ̂" value={data.fit.diffGMM.toFixed(3)} color={CHART_GOLD} sub={t("labs.econV38.text048", { defaultValue: "Arellano-Bond 纠偏" })} />
+        <Stat label={t("labs.econV38.text049", { defaultValue: "真值 ρ" })} value={rho.toFixed(3)} color={CHART_TEAL} />
       </div>
 
       <div className="rounded-xl border border-border bg-secondary/20 p-4">
-        <h4 className="text-sm font-semibold text-foreground mb-2">估计量对比：Pooled OLS 高估、FE 低估、GMM 居中</h4>
+        <h4 className="text-sm font-semibold text-foreground mb-2">{t("labs.econV38.text050", { defaultValue: "估计量对比：Pooled OLS 高估、FE 低估、GMM 居中" })}</h4>
         <div className="h-[280px]">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={data.bars}>
               <CartesianGrid {...grid} />
               <XAxis dataKey="name" {...axis} />
               <YAxis {...axis} domain={[0, 1]} />
-              <ReferenceLine y={rho} stroke={CHART_TEAL} strokeDasharray="4 4" label={{ value: "真值", fill: CHART_TEAL, fontSize: 10 }} />
+              <ReferenceLine y={rho} stroke={CHART_TEAL} strokeDasharray="4 4" label={{ value: t("labs.econV38.text051", { defaultValue: "真值" }), fill: CHART_TEAL, fontSize: 10 }} />
               <Tooltip {...tip} />
               <Bar dataKey="value" radius={[4, 4, 0, 0]} isAnimationActive={false}>
                 {data.bars.map((b) => <Cell key={b.name} fill={b.fill} />)}
@@ -330,20 +336,20 @@ export const DynamicPanelTool = () => {
 
       <div className="grid sm:grid-cols-2 gap-3">
         <div className="rounded-xl border border-border bg-secondary/20 p-4 space-y-2">
-          <h4 className="text-sm font-semibold text-foreground">Hansen J 过度识别检验</h4>
+          <h4 className="text-sm font-semibold text-foreground">{t("labs.econV38.text052", { defaultValue: "Hansen J 过度识别检验" })}</h4>
           <div className="flex justify-between text-xs font-mono"><span>J = {data.fit.hansenJ.toFixed(2)}, p = {data.fit.hansenP.toFixed(3)}</span><TestBadge reject={data.fit.hansenP < 0.05} /></div>
-          <p className="text-[10px] text-muted-foreground">不拒绝 → 工具变量有效 (矩条件成立)。</p>
+          <p className="text-[10px] text-muted-foreground">{t("labs.econV38.text053", { defaultValue: "不拒绝 → 工具变量有效 (矩条件成立)。" })}</p>
         </div>
         <div className="rounded-xl border border-border bg-secondary/20 p-4 space-y-2">
-          <h4 className="text-sm font-semibold text-foreground">AR(2) 残差自相关</h4>
+          <h4 className="text-sm font-semibold text-foreground">{t("labs.econV38.text054", { defaultValue: "AR(2) 残差自相关" })}</h4>
           <div className="flex justify-between text-xs font-mono"><span>z = {data.fit.arTest2.toFixed(3)}, p = {tTwoTail(data.fit.arTest2 * 3, 1000).toFixed(3)}</span></div>
-          <p className="text-[10px] text-muted-foreground">差分残差 AR(2) 不显著 → 支持 GMM 矩条件设定。</p>
+          <p className="text-[10px] text-muted-foreground">{t("labs.econV38.text055", { defaultValue: "差分残差 AR(2) 不显著 → 支持 GMM 矩条件设定。" })}</p>
         </div>
       </div>
 
       <Note>
-        <p>动态面板 y_it = ρ·y_i,t-1 + μ_i + ε_it 中，Pooled OLS 因忽略 μ_i 而高估 ρ，组内 FE 因去均值引入与滞后项的相关而产生向下 <b>Nickell 偏误</b>（短 T 尤甚）。</p>
-        <p>Arellano-Bond 差分 GMM 用 <b>滞后水平 y_i,t-2, y_i,t-3, …</b> 作为差分方程 Δy 的工具变量，纠正偏误。拖动 T 观察短面板下 FE 偏误如何放大而 GMM 保持稳健。</p>
+        <p>{t("labs.econV38.text056", { defaultValue: "动态面板 y_it = ρ·y_i,t-1 + μ_i + ε_it 中，Pooled OLS 因忽略 μ_i 而高估 ρ，组内 FE 因去均值引入与滞后项的相关而产生向下" })} <b>{t("labs.econV38.text057", { defaultValue: "Nickell 偏误" })}</b>{t("labs.econV38.text058", { defaultValue: "（短 T 尤甚）。" })}</p>
+        <p>{t("labs.econV38.text059", { defaultValue: "Arellano-Bond 差分 GMM 用" })} <b>{t("labs.econV38.text060", { defaultValue: "滞后水平 y_i,t-2, y_i,t-3, …" })}</b> {t("labs.econV38.text061", { defaultValue: "作为差分方程 Δy 的工具变量，纠正偏误。拖动 T 观察短面板下 FE 偏误如何放大而 GMM 保持稳健。" })}</p>
       </Note>
     </div>
   );
@@ -352,6 +358,7 @@ export const DynamicPanelTool = () => {
 /* ═══════════════════ 3 · Diebold-Mariano ═══════════════════ */
 type Forecaster = "rw" | "ar1" | "ema";
 export const DieboldMarianoTool = () => {
+  const { t } = useTranslation();
   const [f1, setF1] = useState<Forecaster>("rw");
   const [f2, setF2] = useState<Forecaster>("ar1");
   const [phi, setPhi] = useState(0.6);
@@ -393,12 +400,12 @@ export const DieboldMarianoTool = () => {
     return { dm, chart, lossChart };
   }, [f1, f2, phi, noise, power, seed]);
 
-  const names: Record<Forecaster, string> = { rw: "随机游走", ar1: "AR(1)", ema: "指数平滑" };
+  const names: Record<Forecaster, string> = { rw: t("labs.econV38.text062", { defaultValue: "随机游走" }), ar1: "AR(1)", ema: t("labs.econV38.text063", { defaultValue: "指数平滑" }) };
   const presets = [
     { name: "RW vs AR(1)", apply: () => { setF1("rw"); setF2("ar1"); } },
     { name: "AR(1) vs EMA", apply: () => { setF1("ar1"); setF2("ema"); } },
-    { name: "强持续 φ=0.85", apply: () => setPhi(0.85) },
-    { name: "MAE 损失", apply: () => setPower(1) },
+    { name: t("labs.econV38.text064", { defaultValue: "强持续 φ=0.85" }), apply: () => setPhi(0.85) },
+    { name: t("labs.econV38.text065", { defaultValue: "MAE 损失" }), apply: () => setPower(1) },
   ];
 
   return (
@@ -406,45 +413,45 @@ export const DieboldMarianoTool = () => {
       <PresetButtons presets={presets} />
       <div className="grid md:grid-cols-3 gap-4">
         <div>
-          <label className="text-xs text-secondary-foreground font-medium block mb-1">预测器 1</label>
+          <label className="text-xs text-secondary-foreground font-medium block mb-1">{t("labs.econV38.text066", { defaultValue: "预测器 1" })}</label>
           <select value={f1} onChange={(e) => setF1(e.target.value as Forecaster)} className="w-full bg-secondary/50 border border-border rounded-md px-2 py-1 text-xs font-mono">
-            <option value="rw">随机游走</option><option value="ar1">AR(1)</option><option value="ema">指数平滑</option>
+            <option value="rw">{t("labs.econV38.text067", { defaultValue: "随机游走" })}</option><option value="ar1">AR(1)</option><option value="ema">{t("labs.econV38.text068", { defaultValue: "指数平滑" })}</option>
           </select>
         </div>
         <div>
-          <label className="text-xs text-secondary-foreground font-medium block mb-1">预测器 2</label>
+          <label className="text-xs text-secondary-foreground font-medium block mb-1">{t("labs.econV38.text069", { defaultValue: "预测器 2" })}</label>
           <select value={f2} onChange={(e) => setF2(e.target.value as Forecaster)} className="w-full bg-secondary/50 border border-border rounded-md px-2 py-1 text-xs font-mono">
-            <option value="rw">随机游走</option><option value="ar1">AR(1)</option><option value="ema">指数平滑</option>
+            <option value="rw">{t("labs.econV38.text070", { defaultValue: "随机游走" })}</option><option value="ar1">AR(1)</option><option value="ema">{t("labs.econV38.text071", { defaultValue: "指数平滑" })}</option>
           </select>
         </div>
         <div>
-          <label className="text-xs text-secondary-foreground font-medium block mb-1">损失函数</label>
+          <label className="text-xs text-secondary-foreground font-medium block mb-1">{t("labs.econV38.text072", { defaultValue: "损失函数" })}</label>
           <select value={power} onChange={(e) => setPower(+e.target.value)} className="w-full bg-secondary/50 border border-border rounded-md px-2 py-1 text-xs font-mono">
-            <option value={2}>平方损失 (MSE)</option><option value={1}>绝对损失 (MAE)</option>
+            <option value={2}>{t("labs.econV38.text073", { defaultValue: "平方损失 (MSE)" })}</option><option value={1}>{t("labs.econV38.text074", { defaultValue: "绝对损失 (MAE)" })}</option>
           </select>
         </div>
-        <Slider label="AR 系数 φ" value={phi} min={0} max={0.95} step={0.05} onChange={setPhi} fmt={(v) => v.toFixed(2)} />
-        <Slider label="噪声 σ" value={noise} min={0.2} max={3} step={0.1} onChange={setNoise} fmt={(v) => v.toFixed(1)} />
-        <Slider label="随机种子" value={seed} min={1} max={200} step={1} onChange={setSeed} />
+        <Slider label={t("labs.econV38.text075", { defaultValue: "AR 系数 φ" })} value={phi} min={0} max={0.95} step={0.05} onChange={setPhi} fmt={(v) => v.toFixed(2)} />
+        <Slider label={t("labs.econV38.text076", { defaultValue: "噪声 σ" })} value={noise} min={0.2} max={3} step={0.1} onChange={setNoise} fmt={(v) => v.toFixed(1)} />
+        <Slider label={t("labs.econV38.text077", { defaultValue: "随机种子" })} value={seed} min={1} max={200} step={1} onChange={setSeed} />
       </div>
 
       <div className="grid sm:grid-cols-4 gap-3">
-        <Stat label={`平均损失 · ${names[f1]}`} value={data.dm.meanLoss1.toFixed(4)} color={CHART_GOLD} />
-        <Stat label={`平均损失 · ${names[f2]}`} value={data.dm.meanLoss2.toFixed(4)} color={CHART_BLUE} />
-        <Stat label="DM 统计量" value={data.dm.dmStat.toFixed(3)} color={CHART_TEAL} sub={`p = ${data.dm.pValue.toFixed(3)}`} />
-        <Stat label="Harvey 修正" value={data.dm.harveyStat.toFixed(3)} color={CHART_RED} sub={`p = ${data.dm.harveyP.toFixed(3)}`} />
+        <Stat label={t("labs.econV38.text078", { defaultValue: "平均损失 · {{var1}}", var1: names[f1] })} value={data.dm.meanLoss1.toFixed(4)} color={CHART_GOLD} />
+        <Stat label={t("labs.econV38.text079", { defaultValue: "平均损失 · {{var1}}", var1: names[f2] })} value={data.dm.meanLoss2.toFixed(4)} color={CHART_BLUE} />
+        <Stat label={t("labs.econV38.text080", { defaultValue: "DM 统计量" })} value={data.dm.dmStat.toFixed(3)} color={CHART_TEAL} sub={`p = ${data.dm.pValue.toFixed(3)}`} />
+        <Stat label={t("labs.econV38.text081", { defaultValue: "Harvey 修正" })} value={data.dm.harveyStat.toFixed(3)} color={CHART_RED} sub={`p = ${data.dm.harveyP.toFixed(3)}`} />
       </div>
 
       <div className="rounded-xl border border-border p-4 text-sm text-center font-mono"
         style={{ borderColor: data.dm.better ? CHART_GOLD : CHART_GRID, background: "hsl(var(--secondary) / 0.2)" }}>
         {data.dm.better === 0
-          ? "两套预测的样本外精度无显著差异 (p ≥ 0.05)。"
-          : `${data.dm.better === 1 ? names[f1] : names[f2]} 显著更优 (Harvey p = ${data.dm.harveyP.toFixed(3)})。`}
+          ? t("labs.econV38.text082", { defaultValue: "两套预测的样本外精度无显著差异 (p ≥ 0.05)。" })
+          : t("labs.econV38.text083", { defaultValue: "{{var1}} 显著更优 (Harvey p = {{var2}})。", var1: data.dm.better === 1 ? names[f1] : names[f2], var2: data.dm.harveyP.toFixed(3) })}
       </div>
 
       <div className="grid md:grid-cols-2 gap-4">
         <div className="rounded-xl border border-border bg-secondary/20 p-4">
-          <h4 className="text-sm font-semibold text-foreground mb-2">实际值 vs 两套预测</h4>
+          <h4 className="text-sm font-semibold text-foreground mb-2">{t("labs.econV38.text084", { defaultValue: "实际值 vs 两套预测" })}</h4>
           <div className="h-[240px]">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={data.chart}>
@@ -453,7 +460,7 @@ export const DieboldMarianoTool = () => {
                 <YAxis {...axis} />
                 <Tooltip {...tip} />
                 <Legend wrapperStyle={{ fontSize: 11 }} />
-                <Line dataKey="actual" name="实际" stroke={CHART_TEXT} dot={false} strokeWidth={1.5} />
+                <Line dataKey="actual" name={t("labs.econV38.text085", { defaultValue: "实际" })} stroke={CHART_TEXT} dot={false} strokeWidth={1.5} />
                 <Line dataKey="f1" name={names[f1]} stroke={CHART_GOLD} dot={false} strokeWidth={1.5} />
                 <Line dataKey="f2" name={names[f2]} stroke={CHART_BLUE} dot={false} strokeWidth={1.5} />
               </LineChart>
@@ -461,7 +468,7 @@ export const DieboldMarianoTool = () => {
           </div>
         </div>
         <div className="rounded-xl border border-border bg-secondary/20 p-4">
-          <h4 className="text-sm font-semibold text-foreground mb-2">损失差分 dₜ = L₁ − L₂</h4>
+          <h4 className="text-sm font-semibold text-foreground mb-2">{t("labs.econV38.text086", { defaultValue: "损失差分 dₜ = L₁ − L₂" })}</h4>
           <div className="h-[240px]">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={data.lossChart}>
@@ -474,7 +481,7 @@ export const DieboldMarianoTool = () => {
               </BarChart>
             </ResponsiveContainer>
           </div>
-          <p className="text-[10px] text-muted-foreground mt-1">d̄ 系统偏离 0 → 一方损失持续更低。</p>
+          <p className="text-[10px] text-muted-foreground mt-1">{t("labs.econV38.text087", { defaultValue: "d̄ 系统偏离 0 → 一方损失持续更低。" })}</p>
         </div>
       </div>
     </div>
@@ -484,6 +491,7 @@ export const DieboldMarianoTool = () => {
 /* ═══════════════════ 4 · Kernel Regression ═══════════════════ */
 type TruthFn = "sin" | "step" | "poly";
 export const KernelRegressionTool = () => {
+  const { t } = useTranslation();
   const [truth, setTruth] = useState<TruthFn>("sin");
   const [n, setN] = useState(120);
   const [noise, setNoise] = useState(0.25);
@@ -512,48 +520,48 @@ export const KernelRegressionTool = () => {
   }, [truth, n, noise, h, kernelName, local, seed]);
 
   const presets = [
-    { name: "正弦", apply: () => setTruth("sin") },
-    { name: "阶跃", apply: () => setTruth("step") },
-    { name: "多项式", apply: () => setTruth("poly") },
-    { name: "过平滑 h=1.5", apply: () => setH(1.5) },
-    { name: "欠平滑 h=0.1", apply: () => setH(0.1) },
+    { name: t("labs.econV38.text088", { defaultValue: "正弦" }), apply: () => setTruth("sin") },
+    { name: t("labs.econV38.text089", { defaultValue: "阶跃" }), apply: () => setTruth("step") },
+    { name: t("labs.econV38.text090", { defaultValue: "多项式" }), apply: () => setTruth("poly") },
+    { name: t("labs.econV38.text091", { defaultValue: "过平滑 h=1.5" }), apply: () => setH(1.5) },
+    { name: t("labs.econV38.text092", { defaultValue: "欠平滑 h=0.1" }), apply: () => setH(0.1) },
   ];
 
   return (
     <div className="space-y-6">
       <PresetButtons presets={presets} />
       <div className="grid md:grid-cols-3 gap-4">
-        <Slider label="带宽 h" value={h} min={0.05} max={2.5} step={0.05} onChange={setH} fmt={(v) => v.toFixed(2)} />
-        <Slider label="样本量 n" value={n} min={40} max={300} step={10} onChange={setN} />
-        <Slider label="噪声 σ" value={noise} min={0.05} max={1} step={0.05} onChange={setNoise} fmt={(v) => v.toFixed(2)} />
+        <Slider label={t("labs.econV38.text093", { defaultValue: "带宽 h" })} value={h} min={0.05} max={2.5} step={0.05} onChange={setH} fmt={(v) => v.toFixed(2)} />
+        <Slider label={t("labs.econV38.text094", { defaultValue: "样本量 n" })} value={n} min={40} max={300} step={10} onChange={setN} />
+        <Slider label={t("labs.econV38.text095", { defaultValue: "噪声 σ" })} value={noise} min={0.05} max={1} step={0.05} onChange={setNoise} fmt={(v) => v.toFixed(2)} />
         <div>
-          <label className="text-xs text-secondary-foreground font-medium block mb-1">核函数</label>
+          <label className="text-xs text-secondary-foreground font-medium block mb-1">{t("labs.econV38.text096", { defaultValue: "核函数" })}</label>
           <select value={kernelName} onChange={(e) => setKernelName(e.target.value as KernelName)} className="w-full bg-secondary/50 border border-border rounded-md px-2 py-1 text-xs font-mono">
-            <option value="gaussian">高斯</option><option value="epanechnikov">Epanechnikov</option>
+            <option value="gaussian">{t("labs.econV38.text097", { defaultValue: "高斯" })}</option><option value="epanechnikov">Epanechnikov</option>
           </select>
         </div>
         <div>
-          <label className="text-xs text-secondary-foreground font-medium block mb-1">估计量</label>
+          <label className="text-xs text-secondary-foreground font-medium block mb-1">{t("labs.econV38.text098", { defaultValue: "估计量" })}</label>
           <select value={local ? "1" : "0"} onChange={(e) => setLocal(e.target.value === "1")} className="w-full bg-secondary/50 border border-border rounded-md px-2 py-1 text-xs font-mono">
-            <option value="1">局部线性 (LOESS)</option><option value="0">Nadaraya-Watson</option>
+            <option value="1">{t("labs.econV38.text099", { defaultValue: "局部线性 (LOESS)" })}</option><option value="0">Nadaraya-Watson</option>
           </select>
         </div>
-        <Slider label="随机种子" value={seed} min={1} max={200} step={1} onChange={setSeed} />
+        <Slider label={t("labs.econV38.text100", { defaultValue: "随机种子" })} value={seed} min={1} max={200} step={1} onChange={setSeed} />
       </div>
 
       <div className="grid sm:grid-cols-3 gap-3">
-        <Stat label="当前带宽 h" value={h.toFixed(3)} color={CHART_GOLD} sub={`CV = ${data.currentCv.toFixed(4)}`} />
-        <Stat label="ROT 带宽 (Silverman)" value={data.rot.toFixed(3)} color={CHART_BLUE} />
+        <Stat label={t("labs.econV38.text101", { defaultValue: "当前带宽 h" })} value={h.toFixed(3)} color={CHART_GOLD} sub={`CV = ${data.currentCv.toFixed(4)}`} />
+        <Stat label={t("labs.econV38.text102", { defaultValue: "ROT 带宽 (Silverman)" })} value={data.rot.toFixed(3)} color={CHART_BLUE} />
         <button onClick={() => setH(+data.opt.h.toFixed(3))}
           className="rounded-lg bg-gold/10 border border-gold/30 p-3 text-left hover:bg-gold/20 transition">
-          <p className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">CV 最优 h (点击应用)</p>
+          <p className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">{t("labs.econV38.text103", { defaultValue: "CV 最优 h (点击应用)" })}</p>
           <p className="text-base font-mono tabular-nums text-gold">{data.opt.h.toFixed(3)}</p>
           <p className="text-[10px] font-mono text-muted-foreground">CV = {data.opt.cv.toFixed(4)}</p>
         </button>
       </div>
 
       <div className="rounded-xl border border-border bg-secondary/20 p-4">
-        <h4 className="text-sm font-semibold text-foreground mb-2">拟合曲线 + 95% 置信带 vs 真实函数</h4>
+        <h4 className="text-sm font-semibold text-foreground mb-2">{t("labs.econV38.text104", { defaultValue: "拟合曲线 + 95% 置信带 vs 真实函数" })}</h4>
         <div className="h-[300px]">
           <ResponsiveContainer width="100%" height="100%">
             <ComposedChart data={data.chart}>
@@ -562,31 +570,31 @@ export const KernelRegressionTool = () => {
               <YAxis {...axis} />
               <Tooltip {...tip} />
               <Legend wrapperStyle={{ fontSize: 11 }} />
-              <Area dataKey="hi" stroke="none" fill={CHART_GOLD} fillOpacity={0.12} name="95% 带" />
+              <Area dataKey="hi" stroke="none" fill={CHART_GOLD} fillOpacity={0.12} name={t("labs.econV38.text105", { defaultValue: "95% 带" })} />
               <Area dataKey="lo" stroke="none" fill="hsl(var(--card))" fillOpacity={1} name=" " legendType="none" />
-              <Scatter data={data.points} dataKey="y" fill={CHART_TEXT} fillOpacity={0.35} name="观测" />
-              <Line dataKey="truth" stroke={CHART_TEAL} dot={false} strokeWidth={1.5} strokeDasharray="5 3" name="真实" />
-              <Line dataKey="yhat" stroke={CHART_GOLD} dot={false} strokeWidth={2} name="核回归拟合" />
+              <Scatter data={data.points} dataKey="y" fill={CHART_TEXT} fillOpacity={0.35} name={t("labs.econV38.text106", { defaultValue: "观测" })} />
+              <Line dataKey="truth" stroke={CHART_TEAL} dot={false} strokeWidth={1.5} strokeDasharray="5 3" name={t("labs.econV38.text107", { defaultValue: "真实" })} />
+              <Line dataKey="yhat" stroke={CHART_GOLD} dot={false} strokeWidth={2} name={t("labs.econV38.text108", { defaultValue: "核回归拟合" })} />
             </ComposedChart>
           </ResponsiveContainer>
         </div>
       </div>
 
       <div className="rounded-xl border border-border bg-secondary/20 p-4">
-        <h4 className="text-sm font-semibold text-foreground mb-2">留一交叉验证 CV(h)</h4>
+        <h4 className="text-sm font-semibold text-foreground mb-2">{t("labs.econV38.text109", { defaultValue: "留一交叉验证 CV(h)" })}</h4>
         <div className="h-[220px]">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={data.cvCurve}>
               <CartesianGrid {...grid} />
               <XAxis dataKey="h" type="number" {...axis} tickFormatter={(v) => v.toFixed(1)} />
               <YAxis {...axis} />
-              <ReferenceLine x={data.opt.h} stroke={CHART_RED} strokeDasharray="4 4" label={{ value: "最优", fill: CHART_RED, fontSize: 10 }} />
+              <ReferenceLine x={data.opt.h} stroke={CHART_RED} strokeDasharray="4 4" label={{ value: t("labs.econV38.text110", { defaultValue: "最优" }), fill: CHART_RED, fontSize: 10 }} />
               <Tooltip {...tip} />
-              <Line dataKey="cv" stroke={CHART_BLUE} dot={false} strokeWidth={2} name="CV 误差" />
+              <Line dataKey="cv" stroke={CHART_BLUE} dot={false} strokeWidth={2} name={t("labs.econV38.text111", { defaultValue: "CV 误差" })} />
             </LineChart>
           </ResponsiveContainer>
         </div>
-        <p className="text-[10px] text-muted-foreground mt-1">U 形曲线：h 太小 → 过拟合 (方差大)；h 太大 → 过平滑 (偏差大)。谷底即偏差-方差最优权衡。</p>
+        <p className="text-[10px] text-muted-foreground mt-1">{t("labs.econV38.text112", { defaultValue: "U 形曲线：h 太小 → 过拟合 (方差大)；h 太大 → 过平滑 (偏差大)。谷底即偏差-方差最优权衡。" })}</p>
       </div>
     </div>
   );

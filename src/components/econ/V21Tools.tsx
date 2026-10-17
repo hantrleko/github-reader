@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useMemo, useState } from "react";
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -135,18 +136,19 @@ function fitLogit(X: number[][], y: number[], iters = 30): number[] {
   return beta;
 }
 
-const psmPresets = (set: (v: { n: number; tau: number; gamma: number; beta: number; seed: number }) => void): Preset[] => [
-  { name: "弱选择偏差 (γ=0.3)", description: "倾向得分接近随机分配,所有估计量都好",
+const psmPresets = (t: ReturnType<typeof useTranslation>["t"], set: (v: { n: number; tau: number; gamma: number; beta: number; seed: number }) => void): Preset[] => [
+  { name: t("labs.econV21.text001", { defaultValue: "弱选择偏差 (γ=0.3)" }), description: t("labs.econV21.text002", { defaultValue: "倾向得分接近随机分配,所有估计量都好" }),
     apply: () => set({ n: 600, tau: 1.0, gamma: 0.3, beta: 0.8, seed: 42 }) },
-  { name: "强选择偏差 (γ=1.5)", description: "OLS 严重偏误,但 AIPW 双稳健",
+  { name: t("labs.econV21.text003", { defaultValue: "强选择偏差 (γ=1.5)" }), description: t("labs.econV21.text004", { defaultValue: "OLS 严重偏误,但 AIPW 双稳健" }),
     apply: () => set({ n: 600, tau: 1.0, gamma: 1.5, beta: 1.5, seed: 42 }) },
-  { name: "重叠不足 (γ=2.5)", description: "极端 IPW 权重,PSM 优势凸显",
+  { name: t("labs.econV21.text005", { defaultValue: "重叠不足 (γ=2.5)" }), description: t("labs.econV21.text006", { defaultValue: "极端 IPW 权重,PSM 优势凸显" }),
     apply: () => set({ n: 600, tau: 1.0, gamma: 2.5, beta: 1.0, seed: 7 }) },
-  { name: "RCT 模拟 (γ=0)", description: "无混淆 — 所有方法一致",
+  { name: t("labs.econV21.text007", { defaultValue: "RCT 模拟 (γ=0)" }), description: t("labs.econV21.text008", { defaultValue: "无混淆 — 所有方法一致" }),
     apply: () => set({ n: 600, tau: 1.0, gamma: 0.0, beta: 1.0, seed: 42 }) },
 ];
 
 export const PSMTool = () => {
+  const { t } = useTranslation();
   const [n, setN] = useState(600);
   const [tau, setTau] = useState(1.0);
   const [gamma, setGamma] = useState(1.5);     // selection strength on X
@@ -261,38 +263,38 @@ export const PSMTool = () => {
   return (
     <div className="space-y-6">
       <PresetButtons
-        presets={psmPresets((v) => { setN(v.n); setTau(v.tau); setGamma(v.gamma); setBeta(v.beta); setSeed(v.seed); })}
+        presets={psmPresets(t, (v) => { setN(v.n); setTau(v.tau); setGamma(v.gamma); setBeta(v.beta); setSeed(v.seed); })}
       />
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="space-y-4">
-          <Slider label="样本数 n"          value={n}     min={100} max={2000} step={100} onChange={setN} />
-          <Slider label="真实 ATE  τ"       value={tau}   min={-2}  max={3}    step={0.1} onChange={setTau} />
-          <Slider label="选择偏差强度 γ"    sub="P(T=1)=σ(γX)" value={gamma} min={0} max={3} step={0.1} onChange={setGamma} />
-          <Slider label="混淆系数 β"        sub="Y=α+τT+βX+ε"  value={beta}  min={-2} max={3} step={0.1} onChange={setBeta} />
-          <Slider label="随机种子"          value={seed}  min={1}   max={200}  step={1}   onChange={setSeed} />
+          <Slider label={t("labs.econV21.text009", { defaultValue: "样本数 n" })}          value={n}     min={100} max={2000} step={100} onChange={setN} />
+          <Slider label={t("labs.econV21.text010", { defaultValue: "真实 ATE  τ" })}       value={tau}   min={-2}  max={3}    step={0.1} onChange={setTau} />
+          <Slider label={t("labs.econV21.text011", { defaultValue: "选择偏差强度 γ" })}    sub="P(T=1)=σ(γX)" value={gamma} min={0} max={3} step={0.1} onChange={setGamma} />
+          <Slider label={t("labs.econV21.text012", { defaultValue: "混淆系数 β" })}        sub="Y=α+τT+βX+ε"  value={beta}  min={-2} max={3} step={0.1} onChange={setBeta} />
+          <Slider label={t("labs.econV21.text013", { defaultValue: "随机种子" })}          value={seed}  min={1}   max={200}  step={1}   onChange={setSeed} />
         </div>
         <div className="space-y-2">
-          <Stat label="处理 / 对照" value={`${data.nT} / ${data.nC}`} />
-          <Stat label="真实 ATE"   value={data.ateTrue.toFixed(3)} color={CHART_GOLD} />
+          <Stat label={t("labs.econV21.text014", { defaultValue: "处理 / 对照" })} value={`${data.nT} / ${data.nC}`} />
+          <Stat label={t("labs.econV21.text015", { defaultValue: "真实 ATE" })}   value={data.ateTrue.toFixed(3)} color={CHART_GOLD} />
           <Stat label="Naive OLS"  value={data.ateNaive.toFixed(3)} color={CHART_RED}
-                sub={`偏差 ${(data.ateNaive - data.ateTrue).toFixed(3)}`} />
+                sub={t("labs.econV21.text016", { defaultValue: "偏差 {{v1}}", v1: (data.ateNaive - data.ateTrue).toFixed(3) })} />
           <Stat label="IPW"        value={data.ateIpw.toFixed(3)}   color={CHART_BLUE}
-                sub={`偏差 ${(data.ateIpw - data.ateTrue).toFixed(3)}`} />
+                sub={t("labs.econV21.text017", { defaultValue: "偏差 {{v1}}", v1: (data.ateIpw - data.ateTrue).toFixed(3) })} />
           <Stat label="1-NN PSM"   value={data.atePsm.toFixed(3)}   color={CHART_TEAL}
-                sub={`偏差 ${(data.atePsm - data.ateTrue).toFixed(3)}`} />
+                sub={t("labs.econV21.text018", { defaultValue: "偏差 {{v1}}", v1: (data.atePsm - data.ateTrue).toFixed(3) })} />
           <Stat label="AIPW (DR)"  value={data.ateAipw.toFixed(3)}  color={CHART_GOLD}
-                sub={`偏差 ${(data.ateAipw - data.ateTrue).toFixed(3)}`} />
-          <Stat label="SMD (X) 加权前 → 后"
+                sub={t("labs.econV21.text019", { defaultValue: "偏差 {{v1}}", v1: (data.ateAipw - data.ateTrue).toFixed(3) })} />
+          <Stat label={t("labs.econV21.text020", { defaultValue: "SMD (X) 加权前 → 后" })}
                 value={`${data.smdBefore.toFixed(2)} → ${data.smdAfter.toFixed(2)}`}
                 color={Math.abs(data.smdAfter) < 0.1 ? CHART_TEAL : CHART_RED}
-                sub="|SMD|<0.1 视为平衡" />
+                sub={t("labs.econV21.text021", { defaultValue: "|SMD|<0.1 视为平衡" })} />
         </div>
       </div>
 
       {/* Chart 1: ATE comparison */}
       <div>
-        <p className="text-[11px] font-mono uppercase tracking-[0.2em] text-gold/80 mb-2">ATE 估计对比</p>
+        <p className="text-[11px] font-mono uppercase tracking-[0.2em] text-gold/80 mb-2">{t("labs.econV21.text022", { defaultValue: "ATE 估计对比" })}</p>
         <ResponsiveContainer width="100%" height={220}>
           <BarChart data={ateBars} margin={{ top: 10, right: 20, bottom: 10, left: 0 }}>
             <CartesianGrid stroke={CHART_GRID} strokeDasharray="3 3" />
@@ -300,8 +302,8 @@ export const PSMTool = () => {
             <YAxis stroke={CHART_TEXT} tick={{ fontSize: 11 }} />
             <Tooltip contentStyle={{ background: "hsl(var(--popover))", border: "1px solid hsl(var(--border))", fontSize: 11 }} />
             <ReferenceLine y={data.ateTrue} stroke={CHART_GOLD} strokeDasharray="4 3"
-              label={{ value: `真实 τ = ${data.ateTrue.toFixed(2)}`, position: "right", fill: CHART_GOLD, fontSize: 10 }} />
-            <Bar dataKey="v" name="估计 ATE">
+              label={{ value: t("labs.econV21.text023", { defaultValue: "真实 τ = {{v1}}", v1: data.ateTrue.toFixed(2) }), position: "right", fill: CHART_GOLD, fontSize: 10 }} />
+            <Bar dataKey="v" name={t("labs.econV21.text024", { defaultValue: "估计 ATE" })}>
               {ateBars.map((d, i) => <Cell key={i} fill={d.fill} />)}
             </Bar>
           </BarChart>
@@ -311,7 +313,7 @@ export const PSMTool = () => {
       {/* Chart 2: PS overlap */}
       <div>
         <p className="text-[11px] font-mono uppercase tracking-[0.2em] text-gold/80 mb-2">
-          倾向得分共同支撑 (上=处理 / 下=对照)
+          {t("labs.econV21.text025", { defaultValue: "倾向得分共同支撑 (上=处理 / 下=对照)" })}
         </p>
         <ResponsiveContainer width="100%" height={220}>
           <BarChart data={data.psHist} stackOffset="sign" margin={{ top: 10, right: 20, bottom: 10, left: 0 }}>
@@ -320,17 +322,17 @@ export const PSMTool = () => {
             <YAxis stroke={CHART_TEXT} tick={{ fontSize: 10 }} />
             <Tooltip contentStyle={{ background: "hsl(var(--popover))", border: "1px solid hsl(var(--border))", fontSize: 11 }} />
             <ReferenceLine y={0} stroke={CHART_TEXT} />
-            <Bar dataKey="treated" stackId="a" fill={CHART_GOLD} name="处理 T=1" />
-            <Bar dataKey="control" stackId="a" fill={CHART_TEAL} name="对照 T=0" />
+            <Bar dataKey="treated" stackId="a" fill={CHART_GOLD} name={t("labs.econV21.text026", { defaultValue: "处理 T=1" })} />
+            <Bar dataKey="control" stackId="a" fill={CHART_TEAL} name={t("labs.econV21.text027", { defaultValue: "对照 T=0" })} />
           </BarChart>
         </ResponsiveContainer>
       </div>
 
       <div className="rounded-lg border border-gold/20 bg-secondary/20 p-4 text-xs text-muted-foreground space-y-2">
-        <p><strong className="text-foreground">三条估计路径：</strong></p>
-        <p><strong>① IPW (Horvitz-Thompson)</strong> 用倾向得分 e(X)=P(T=1|X) 重加权，<em>仅</em>需 e(X) 正确即一致估计 ATE。</p>
-        <p><strong>② 结果回归 (g-formula)</strong> 用 m₁(X), m₀(X) 反事实预测，<em>仅</em>需结果模型正确即一致。</p>
-        <p><strong>③ AIPW 双稳健</strong>结合二者：<em>e 或 m 任一正确</em>都能得到一致的 ATE，且渐近方差最小。</p>
+        <p><strong className="text-foreground">{t("labs.econV21.text028", { defaultValue: "三条估计路径：" })}</strong></p>
+        <p><strong>① IPW (Horvitz-Thompson)</strong> {t("labs.econV21.text029", { defaultValue: "用倾向得分 e(X)=P(T=1|X) 重加权，" })}<em>{t("labs.econV21.text030", { defaultValue: "仅" })}</em>{t("labs.econV21.text031", { defaultValue: "需 e(X) 正确即一致估计 ATE。" })}</p>
+        <p><strong>{t("labs.econV21.text032", { defaultValue: "② 结果回归 (g-formula)" })}</strong> {t("labs.econV21.text033", { defaultValue: "用 m₁(X), m₀(X) 反事实预测，" })}<em>{t("labs.econV21.text034", { defaultValue: "仅" })}</em>{t("labs.econV21.text035", { defaultValue: "需结果模型正确即一致。" })}</p>
+        <p><strong>{t("labs.econV21.text036", { defaultValue: "③ AIPW 双稳健" })}</strong>{t("labs.econV21.text037", { defaultValue: "结合二者：" })}<em>{t("labs.econV21.text038", { defaultValue: "e 或 m 任一正确" })}</em>{t("labs.econV21.text039", { defaultValue: "都能得到一致的 ATE，且渐近方差最小。" })}</p>
         <p className="text-[11px] text-muted-foreground/80">Reference: Robins, Rotnitzky & Zhao (1994) <em>Estimation of Regression Coefficients When Some Regressors Are Not Always Observed</em>, JASA 89. Hirano, Imbens & Ridder (2003).</p>
       </div>
     </div>
@@ -416,18 +418,19 @@ function acf(x: number[], K: number) {
   return c;
 }
 
-const arimaPresets = (set: (v: any) => void): Preset[] => [
-  { name: "白噪声", description: "纯随机:期望 (p,q)=(0,0)",
+const arimaPresets = (t: ReturnType<typeof useTranslation>["t"], set: (v: any) => void): Preset[] => [
+  { name: t("labs.econV21.text040", { defaultValue: "白噪声" }), description: t("labs.econV21.text041", { defaultValue: "纯随机:期望 (p,q)=(0,0)" }),
     apply: () => set({ phi1: 0, phi2: 0, theta1: 0, theta2: 0, T: 300, seed: 42 }) },
-  { name: "AR(1) φ=0.7", description: "强持续性:期望 (1,0)",
+  { name: "AR(1) φ=0.7", description: t("labs.econV21.text042", { defaultValue: "强持续性:期望 (1,0)" }),
     apply: () => set({ phi1: 0.7, phi2: 0, theta1: 0, theta2: 0, T: 300, seed: 42 }) },
-  { name: "MA(1) θ=0.6", description: "短期记忆:期望 (0,1)",
+  { name: "MA(1) θ=0.6", description: t("labs.econV21.text043", { defaultValue: "短期记忆:期望 (0,1)" }),
     apply: () => set({ phi1: 0, phi2: 0, theta1: 0.6, theta2: 0, T: 300, seed: 42 }) },
-  { name: "ARMA(2,1)", description: "复合动力:期望 (2,1)",
+  { name: "ARMA(2,1)", description: t("labs.econV21.text044", { defaultValue: "复合动力:期望 (2,1)" }),
     apply: () => set({ phi1: 0.5, phi2: 0.2, theta1: 0.4, theta2: 0, T: 400, seed: 42 }) },
 ];
 
 export const ARIMATool = () => {
+  const { t } = useTranslation();
   const [phi1, setPhi1] = useState(0.5);
   const [phi2, setPhi2] = useState(0.2);
   const [theta1, setTheta1] = useState(0.4);
@@ -499,7 +502,7 @@ export const ARIMATool = () => {
   return (
     <div className="space-y-6">
       <PresetButtons
-        presets={arimaPresets((v) => { setPhi1(v.phi1); setPhi2(v.phi2); setTheta1(v.theta1); setTheta2(v.theta2); setT(v.T); setSeed(v.seed); })}
+        presets={arimaPresets(t, (v) => { setPhi1(v.phi1); setPhi2(v.phi2); setTheta1(v.theta1); setTheta2(v.theta2); setT(v.T); setSeed(v.seed); })}
       />
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -508,24 +511,24 @@ export const ARIMATool = () => {
           <Slider label="AR φ₂"     value={phi2}   min={-0.6}  max={0.6}  step={0.05} onChange={setPhi2} />
           <Slider label="MA θ₁"     value={theta1} min={-0.95} max={0.95} step={0.05} onChange={setTheta1} />
           <Slider label="MA θ₂"     value={theta2} min={-0.6}  max={0.6}  step={0.05} onChange={setTheta2} />
-          <Slider label="样本长度 T" value={T}      min={100}   max={800}  step={50}   onChange={setT} />
-          <Slider label="随机种子"   value={seed}   min={1}     max={200}  step={1}    onChange={setSeed} />
+          <Slider label={t("labs.econV21.text045", { defaultValue: "样本长度 T" })} value={T}      min={100}   max={800}  step={50}   onChange={setT} />
+          <Slider label={t("labs.econV21.text046", { defaultValue: "随机种子" })}   value={seed}   min={1}     max={200}  step={1}    onChange={setSeed} />
         </div>
         <div className="space-y-2">
-          <Stat label="自动选阶 (p,q)" value={data.best ? `(${data.best.p}, ${data.best.q})` : "—"} color={CHART_GOLD} />
-          <Stat label="最小 AIC"      value={data.best ? data.best.aic.toFixed(1) : "—"} color={CHART_BLUE} />
-          <Stat label="最小 BIC"      value={data.best ? data.best.bic.toFixed(1) : "—"} color={CHART_TEAL} />
-          <Stat label="残差 σ̂"        value={isFinite(data.sig) ? data.sig.toFixed(3) : "—"} />
+          <Stat label={t("labs.econV21.text047", { defaultValue: "自动选阶 (p,q)" })} value={data.best ? `(${data.best.p}, ${data.best.q})` : "—"} color={CHART_GOLD} />
+          <Stat label={t("labs.econV21.text048", { defaultValue: "最小 AIC" })}      value={data.best ? data.best.aic.toFixed(1) : "—"} color={CHART_BLUE} />
+          <Stat label={t("labs.econV21.text049", { defaultValue: "最小 BIC" })}      value={data.best ? data.best.bic.toFixed(1) : "—"} color={CHART_TEAL} />
+          <Stat label={t("labs.econV21.text050", { defaultValue: "残差 σ̂" })}        value={isFinite(data.sig) ? data.sig.toFixed(3) : "—"} />
           <Stat label="Ljung-Box Q(10)" value={data.Q.toFixed(2)}
                 color={data.Q < 18.31 ? CHART_TEAL : CHART_RED}
-                sub={data.Q < 18.31 ? "p>0.05 → 残差白噪声 ✓" : "p<0.05 → 仍有结构"} />
+                sub={data.Q < 18.31 ? t("labs.econV21.text051", { defaultValue: "p>0.05 → 残差白噪声 ✓" }) : t("labs.econV21.text052", { defaultValue: "p<0.05 → 仍有结构" })} />
         </div>
       </div>
 
       {/* AIC heatmap as grid */}
       <div>
         <p className="text-[11px] font-mono uppercase tracking-[0.2em] text-gold/80 mb-2">
-          AIC 网格 (p × q ∈ [0..3]) — 颜色越深越优,★ 为最优
+          {t("labs.econV21.text053", { defaultValue: "AIC 网格 (p × q ∈ [0..3]) — 颜色越深越优,★ 为最优" })}
         </p>
         <div className="grid grid-cols-5 gap-1 text-[11px] font-mono">
           <div className="text-center text-muted-foreground">p \ q</div>
@@ -554,7 +557,7 @@ export const ARIMATool = () => {
       {/* Time series with rolling forecast band */}
       <div>
         <p className="text-[11px] font-mono uppercase tracking-[0.2em] text-gold/80 mb-2">
-          时间序列 + 末端 1-步滚动预测 ±1.96σ̂
+          {t("labs.econV21.text054", { defaultValue: "时间序列 + 末端 1-步滚动预测 ±1.96σ̂" })}
         </p>
         <ResponsiveContainer width="100%" height={240}>
           <ComposedChart data={data.series} margin={{ top: 10, right: 20, bottom: 10, left: 0 }}>
@@ -565,7 +568,7 @@ export const ARIMATool = () => {
             <Area type="monotone" dataKey="hi" stroke="none" fill={CHART_GOLD} fillOpacity={0.12} />
             <Area type="monotone" dataKey="lo" stroke="none" fill="hsl(var(--background))" fillOpacity={1} />
             <Line type="monotone" dataKey="y"    stroke={CHART_BLUE} strokeWidth={1.5} dot={false} name="y_t" />
-            <Line type="monotone" dataKey="pred" stroke={CHART_GOLD} strokeWidth={2}   dot={false} name="预测" />
+            <Line type="monotone" dataKey="pred" stroke={CHART_GOLD} strokeWidth={2}   dot={false} name={t("labs.econV21.text055", { defaultValue: "预测" })} />
           </ComposedChart>
         </ResponsiveContainer>
       </div>
@@ -573,7 +576,7 @@ export const ARIMATool = () => {
       {/* Residual ACF */}
       <div>
         <p className="text-[11px] font-mono uppercase tracking-[0.2em] text-gold/80 mb-2">
-          残差 ACF (虚线 ±1.96/√T 为 95% 置信带)
+          {t("labs.econV21.text056", { defaultValue: "残差 ACF (虚线 ±1.96/√T 为 95% 置信带)" })}
         </p>
         <ResponsiveContainer width="100%" height={180}>
           <BarChart data={data.acfRes.map((v, i) => ({ k: i + 1, acf: v }))}
@@ -591,8 +594,8 @@ export const ARIMATool = () => {
       </div>
 
       <div className="rounded-lg border border-gold/20 bg-secondary/20 p-4 text-xs text-muted-foreground space-y-2">
-        <p><strong className="text-foreground">Hannan-Rissanen 两步法:</strong> ① 先用长 AR(L) 估计残差 ε̂ₜ；② 把 y_t 同时回归到 (y_{`{t-i}`}, ε̂_{`{t-j}`})。AIC = −2ℓ + 2k, BIC = −2ℓ + k·ln(n)；BIC 一致估计真阶,AIC 渐近最优预测。</p>
-        <p>Ljung-Box Q(m) ~ χ²(m−p−q):若 Q&lt;18.31 (m=10, α=0.05) 则不能拒绝白噪声 ⇒ 模型设定恰当。</p>
+        <p><strong className="text-foreground">{t("labs.econV21.text057", { defaultValue: "Hannan-Rissanen 两步法:" })}</strong> {t("labs.econV21.text058", { defaultValue: "① 先用长 AR(L) 估计残差 ε̂ₜ；② 把 y_t 同时回归到 (y_" })}{`{t-i}`}, ε̂_{`{t-j}`}{t("labs.econV21.text059", { defaultValue: ")。AIC = −2ℓ + 2k, BIC = −2ℓ + k·ln(n)；BIC 一致估计真阶,AIC 渐近最优预测。" })}</p>
+        <p>{t("labs.econV21.text060", { defaultValue: "Ljung-Box Q(m) ~ χ²(m−p−q):若 Q&lt;18.31 (m=10, α=0.05) 则不能拒绝白噪声 ⇒ 模型设定恰当。" })}</p>
         <p className="text-[11px] text-muted-foreground/80">Reference: Hannan & Rissanen (1982); Box, Jenkins, Reinsel (2008) <em>Time Series Analysis: Forecasting and Control</em>.</p>
       </div>
     </div>
@@ -603,18 +606,19 @@ export const ARIMATool = () => {
    3) LOCAL PROJECTIONS (Jordà 2005)
    ════════════════════════════════════════════════════════════════ */
 
-const lpPresets = (set: (v: any) => void): Preset[] => [
-  { name: "货币冲击", description: "x 持续,y 滞后响应",
+const lpPresets = (t: ReturnType<typeof useTranslation>["t"], set: (v: any) => void): Preset[] => [
+  { name: t("labs.econV21.text061", { defaultValue: "货币冲击" }), description: t("labs.econV21.text062", { defaultValue: "x 持续,y 滞后响应" }),
     apply: () => set({ rho: 0.7, alpha: 0.6, phi: 0.4, T: 300, H: 16, seed: 42 }) },
-  { name: "财政冲击", description: "x 较弱持续,y 强响应",
+  { name: t("labs.econV21.text063", { defaultValue: "财政冲击" }), description: t("labs.econV21.text064", { defaultValue: "x 较弱持续,y 强响应" }),
     apply: () => set({ rho: 0.4, alpha: 1.0, phi: 0.3, T: 300, H: 16, seed: 42 }) },
-  { name: "瞬时冲击", description: "x 无持续,IRF 单期反应",
+  { name: t("labs.econV21.text065", { defaultValue: "瞬时冲击" }), description: t("labs.econV21.text066", { defaultValue: "x 无持续,IRF 单期反应" }),
     apply: () => set({ rho: 0.0, alpha: 0.8, phi: 0.5, T: 300, H: 16, seed: 42 }) },
-  { name: "无响应", description: "α≈0,IRF 应平直 0",
+  { name: t("labs.econV21.text067", { defaultValue: "无响应" }), description: t("labs.econV21.text068", { defaultValue: "α≈0,IRF 应平直 0" }),
     apply: () => set({ rho: 0.6, alpha: 0.0, phi: 0.5, T: 300, H: 16, seed: 42 }) },
 ];
 
 export const LocalProjectionTool = () => {
+  const { t } = useTranslation();
   const [rho, setRho] = useState(0.7);
   const [alpha, setAlpha] = useState(0.6);
   const [phi, setPhi] = useState(0.4);
@@ -692,26 +696,26 @@ export const LocalProjectionTool = () => {
   return (
     <div className="space-y-6">
       <PresetButtons
-        presets={lpPresets((v) => { setRho(v.rho); setAlpha(v.alpha); setPhi(v.phi); setT(v.T); setH(v.H); setSeed(v.seed); })}
+        presets={lpPresets(t, (v) => { setRho(v.rho); setAlpha(v.alpha); setPhi(v.phi); setT(v.T); setH(v.H); setSeed(v.seed); })}
       />
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="space-y-4">
-          <Slider label="x 持续性 ρ"  sub="x_t = ρx_{t-1}+ε" value={rho}   min={-0.9} max={0.95} step={0.05} onChange={setRho} />
-          <Slider label="响应强度 α"  sub="y_t=αx_{t-1}+…"   value={alpha} min={-1.5} max={1.5}  step={0.05} onChange={setAlpha} />
-          <Slider label="y 持续性 φ"                          value={phi}   min={-0.9} max={0.95} step={0.05} onChange={setPhi} />
-          <Slider label="样本长度 T" value={T}    min={100} max={800} step={50} onChange={setT} />
-          <Slider label="预测期 H"   value={H}    min={4}   max={24}  step={1}  onChange={setH} />
-          <Slider label="随机种子"   value={seed} min={1}   max={200} step={1}  onChange={setSeed} />
+          <Slider label={t("labs.econV21.text069", { defaultValue: "x 持续性 ρ" })}  sub="x_t = ρx_{t-1}+ε" value={rho}   min={-0.9} max={0.95} step={0.05} onChange={setRho} />
+          <Slider label={t("labs.econV21.text070", { defaultValue: "响应强度 α" })}  sub="y_t=αx_{t-1}+…"   value={alpha} min={-1.5} max={1.5}  step={0.05} onChange={setAlpha} />
+          <Slider label={t("labs.econV21.text071", { defaultValue: "y 持续性 φ" })}                          value={phi}   min={-0.9} max={0.95} step={0.05} onChange={setPhi} />
+          <Slider label={t("labs.econV21.text072", { defaultValue: "样本长度 T" })} value={T}    min={100} max={800} step={50} onChange={setT} />
+          <Slider label={t("labs.econV21.text073", { defaultValue: "预测期 H" })}   value={H}    min={4}   max={24}  step={1}  onChange={setH} />
+          <Slider label={t("labs.econV21.text074", { defaultValue: "随机种子" })}   value={seed} min={1}   max={200} step={1}  onChange={setSeed} />
         </div>
         <div className="space-y-2">
-          <Stat label="LP IRF 峰值"   value={Math.max(...data.lpIRF.map(d => d.lp)).toFixed(3)} color={CHART_GOLD} />
-          <Stat label="VAR Wold 峰值" value={Math.max(...data.varIRF.map(d => d.v)).toFixed(3)} color={CHART_BLUE} />
-          <Stat label="LP-VAR 最大偏差"
+          <Stat label={t("labs.econV21.text075", { defaultValue: "LP IRF 峰值" })}   value={Math.max(...data.lpIRF.map(d => d.lp)).toFixed(3)} color={CHART_GOLD} />
+          <Stat label={t("labs.econV21.text076", { defaultValue: "VAR Wold 峰值" })} value={Math.max(...data.varIRF.map(d => d.v)).toFixed(3)} color={CHART_BLUE} />
+          <Stat label={t("labs.econV21.text077", { defaultValue: "LP-VAR 最大偏差" })}
                 value={Math.max(...data.merged.map(d => Math.abs(d.lp - d.var))).toFixed(3)}
                 color={CHART_TEAL}
-                sub="设定正确时应趋于 0" />
-          <Stat label="平均 95% CI 半宽"
+                sub={t("labs.econV21.text078", { defaultValue: "设定正确时应趋于 0" })} />
+          <Stat label={t("labs.econV21.text079", { defaultValue: "平均 95% CI 半宽" })}
                 value={(data.lpIRF.reduce((s, d) => s + (d.lpHi - d.lpLo) / 2, 0) / data.lpIRF.length).toFixed(3)} />
         </div>
       </div>
@@ -719,7 +723,7 @@ export const LocalProjectionTool = () => {
       {/* IRF comparison */}
       <div>
         <p className="text-[11px] font-mono uppercase tracking-[0.2em] text-gold/80 mb-2">
-          脉冲响应 IRF: LP (Jordà) 95% CI vs VAR(1) Wold
+          {t("labs.econV21.text080", { defaultValue: "脉冲响应 IRF: LP (Jordà) 95% CI vs VAR(1) Wold" })}
         </p>
         <ResponsiveContainer width="100%" height={280}>
           <ComposedChart data={data.merged} margin={{ top: 10, right: 20, bottom: 10, left: 0 }}>
@@ -739,9 +743,9 @@ export const LocalProjectionTool = () => {
       </div>
 
       <div className="rounded-lg border border-gold/20 bg-secondary/20 p-4 text-xs text-muted-foreground space-y-2">
-        <p><strong className="text-foreground">Local Projections (Jordà 2005):</strong> 对每个 horizon h <em>独立</em>跑回归 yₜ₊ₕ = α_h + β_h xₜ + γ_h Wₜ + uₜ₊ₕ；β_h 直接就是 IRF。</p>
-        <p><strong>vs 传统 VAR Wold IRF:</strong> VAR 用 A^h 递推，对 <em>动态错设</em>非常敏感（h 越远偏差越大被放大）。LP 不假设线性 VAR 结构，更稳健，但<em>方差大</em>且需 Newey-West HAC 标准误（误差自相关至 lag h）。</p>
-        <p>当 DGP 真为 VAR(1) 时，两者应大致一致 ⇒ 偏差度量是设定正确性的诊断。</p>
+        <p><strong className="text-foreground">Local Projections (Jordà 2005):</strong> {t("labs.econV21.text081", { defaultValue: "对每个 horizon h" })} <em>{t("labs.econV21.text082", { defaultValue: "独立" })}</em>{t("labs.econV21.text083", { defaultValue: "跑回归 yₜ₊ₕ = α_h + β_h xₜ + γ_h Wₜ + uₜ₊ₕ；β_h 直接就是 IRF。" })}</p>
+        <p><strong>{t("labs.econV21.text084", { defaultValue: "vs 传统 VAR Wold IRF:" })}</strong> {t("labs.econV21.text085", { defaultValue: "VAR 用 A^h 递推，对" })} <em>{t("labs.econV21.text086", { defaultValue: "动态错设" })}</em>{t("labs.econV21.text087", { defaultValue: "非常敏感（h 越远偏差越大被放大）。LP 不假设线性 VAR 结构，更稳健，但" })}<em>{t("labs.econV21.text088", { defaultValue: "方差大" })}</em>{t("labs.econV21.text089", { defaultValue: "且需 Newey-West HAC 标准误（误差自相关至 lag h）。" })}</p>
+        <p>{t("labs.econV21.text090", { defaultValue: "当 DGP 真为 VAR(1) 时，两者应大致一致 ⇒ 偏差度量是设定正确性的诊断。" })}</p>
         <p className="text-[11px] text-muted-foreground/80">Reference: Jordà (2005) <em>Estimation and Inference of Impulse Responses by Local Projections</em>, AER 95(1), 161–182.</p>
       </div>
     </div>

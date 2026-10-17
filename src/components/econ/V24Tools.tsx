@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useMemo, useState } from "react";
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -153,6 +154,7 @@ function polyFeatures(x1: number, x2: number, deg: number): number[] {
 }
 
 export const DoubleMLTool = () => {
+  const { t } = useTranslation();
   const [n, setN] = useState(400);
   const [theta, setTheta] = useState(0.8);     // true causal effect
   const [gStrength, setGStrength] = useState(2.0); // nonlinearity of g(X)
@@ -253,38 +255,38 @@ export const DoubleMLTool = () => {
   return (
     <div className="space-y-6">
       <PresetButtons presets={[
-        { name: "强非线性混淆", description: "g,m 高度非线性 → OLS 严重偏误", apply: () => { setGStrength(2.5); setMStrength(2); setTheta(0.8); setNoise(0.4); } },
-        { name: "弱混淆", description: "g,m 接近线性 → OLS 与 DML 接近", apply: () => { setGStrength(0.4); setMStrength(0.3); setTheta(0.8); setNoise(0.5); } },
-        { name: "高维样本", description: "n=800,凸显交叉拟合稳定性", apply: () => { setN(800); setGStrength(2); setMStrength(1.5); setFolds(5); } },
-        { name: "K=2 cross-fit", description: "最小样本拆分,方差↑", apply: () => { setFolds(2); setN(300); } },
+        { name: t("labs.econV24.text001", { defaultValue: "强非线性混淆" }), description: t("labs.econV24.text002", { defaultValue: "g,m 高度非线性 → OLS 严重偏误" }), apply: () => { setGStrength(2.5); setMStrength(2); setTheta(0.8); setNoise(0.4); } },
+        { name: t("labs.econV24.text003", { defaultValue: "弱混淆" }), description: t("labs.econV24.text004", { defaultValue: "g,m 接近线性 → OLS 与 DML 接近" }), apply: () => { setGStrength(0.4); setMStrength(0.3); setTheta(0.8); setNoise(0.5); } },
+        { name: t("labs.econV24.text005", { defaultValue: "高维样本" }), description: t("labs.econV24.text006", { defaultValue: "n=800,凸显交叉拟合稳定性" }), apply: () => { setN(800); setGStrength(2); setMStrength(1.5); setFolds(5); } },
+        { name: "K=2 cross-fit", description: t("labs.econV24.text007", { defaultValue: "最小样本拆分,方差↑" }), apply: () => { setFolds(2); setN(300); } },
       ]} />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="space-y-3">
-          <Slider label="样本量 n" value={n} min={100} max={1500} step={50} onChange={setN} />
-          <Slider label="真实因果效应 θ" value={theta} min={-1.5} max={2} step={0.05} onChange={setTheta} />
-          <Slider label="g(X) 非线性强度" sub="结果方程混淆" value={gStrength} min={0} max={3} step={0.1} onChange={setGStrength} />
-          <Slider label="m(X) 非线性强度" sub="处理分配机制" value={mStrength} min={0} max={3} step={0.1} onChange={setMStrength} />
-          <Slider label="噪声 σ_ε" value={noise} min={0.1} max={2} step={0.05} onChange={setNoise} />
+          <Slider label={t("labs.econV24.text008", { defaultValue: "样本量 n" })} value={n} min={100} max={1500} step={50} onChange={setN} />
+          <Slider label={t("labs.econV24.text009", { defaultValue: "真实因果效应 θ" })} value={theta} min={-1.5} max={2} step={0.05} onChange={setTheta} />
+          <Slider label={t("labs.econV24.text010", { defaultValue: "g(X) 非线性强度" })} sub={t("labs.econV24.text011", { defaultValue: "结果方程混淆" })} value={gStrength} min={0} max={3} step={0.1} onChange={setGStrength} />
+          <Slider label={t("labs.econV24.text012", { defaultValue: "m(X) 非线性强度" })} sub={t("labs.econV24.text013", { defaultValue: "处理分配机制" })} value={mStrength} min={0} max={3} step={0.1} onChange={setMStrength} />
+          <Slider label={t("labs.econV24.text014", { defaultValue: "噪声 σ_ε" })} value={noise} min={0.1} max={2} step={0.05} onChange={setNoise} />
           <Slider label="K-fold cross-fit" value={folds} min={2} max={10} step={1} onChange={setFolds} />
-          <Slider label="多项式次数 deg" value={polyDeg} min={2} max={3} step={1} onChange={(v) => setPolyDeg(v as 2 | 3)} />
-          <Slider label="随机种子" value={seed} min={1} max={999} step={1} onChange={setSeed} />
+          <Slider label={t("labs.econV24.text015", { defaultValue: "多项式次数 deg" })} value={polyDeg} min={2} max={3} step={1} onChange={(v) => setPolyDeg(v as 2 | 3)} />
+          <Slider label={t("labs.econV24.text016", { defaultValue: "随机种子" })} value={seed} min={1} max={999} step={1} onChange={setSeed} />
         </div>
         <div className="space-y-3">
-          <Stat label="真实 θ" value={theta.toFixed(3)} color={CHART_BLUE} />
-          <Stat label="Naive OLS θ̂" value={`${data.thetaNaive.toFixed(3)} (SE ${data.seNaive.toFixed(3)})`} color={CHART_RED} sub={`偏误 ${(data.thetaNaive - theta).toFixed(3)}`} />
-          <Stat label="Long OLS θ̂" value={data.thetaLong.toFixed(3)} color={CHART_TEAL} sub={`偏误 ${(data.thetaLong - theta).toFixed(3)}`} />
-          <Stat label="DML θ̂ (cross-fit)" value={`${data.thetaDML.toFixed(3)} (SE ${data.seDML.toFixed(3)})`} color={CHART_GOLD} sub={`偏误 ${(data.thetaDML - theta).toFixed(3)}`} />
+          <Stat label={t("labs.econV24.text017", { defaultValue: "真实 θ" })} value={theta.toFixed(3)} color={CHART_BLUE} />
+          <Stat label="Naive OLS θ̂" value={`${data.thetaNaive.toFixed(3)} (SE ${data.seNaive.toFixed(3)})`} color={CHART_RED} sub={t("labs.econV24.text018", { defaultValue: "偏误 {{v1}}", v1: (data.thetaNaive - theta).toFixed(3) })} />
+          <Stat label="Long OLS θ̂" value={data.thetaLong.toFixed(3)} color={CHART_TEAL} sub={t("labs.econV24.text019", { defaultValue: "偏误 {{v1}}", v1: (data.thetaLong - theta).toFixed(3) })} />
+          <Stat label="DML θ̂ (cross-fit)" value={`${data.thetaDML.toFixed(3)} (SE ${data.seDML.toFixed(3)})`} color={CHART_GOLD} sub={t("labs.econV24.text020", { defaultValue: "偏误 {{v1}}", v1: (data.thetaDML - theta).toFixed(3) })} />
           <div className="text-xs font-mono text-muted-foreground p-3 rounded-lg bg-secondary/40 border border-border leading-relaxed space-y-1">
-            <p><span className="text-gold">Neyman 正交性</span>:DML 用 ML 拟合 ĝ, m̂ 后做 partialling-out,使一阶矩条件对 ĝ, m̂ 的扰动鲁棒。</p>
-            <p>偏误 √n·(θ̂−θ) 收敛速度 = ML 学习器收敛速度的乘积 → 即使 ML 收敛慢于 √n,DML 仍 √n-一致。</p>
+            <p><span className="text-gold">{t("labs.econV24.text021", { defaultValue: "Neyman 正交性" })}</span>{t("labs.econV24.text022", { defaultValue: ":DML 用 ML 拟合 ĝ, m̂ 后做 partialling-out,使一阶矩条件对 ĝ, m̂ 的扰动鲁棒。" })}</p>
+            <p>{t("labs.econV24.text023", { defaultValue: "偏误 √n·(θ̂−θ) 收敛速度 = ML 学习器收敛速度的乘积 → 即使 ML 收敛慢于 √n,DML 仍 √n-一致。" })}</p>
           </div>
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="rounded-xl border border-border bg-secondary/20 p-4">
-          <h4 className="text-sm font-semibold text-foreground mb-2">θ 估计对比 (横线为真值)</h4>
+          <h4 className="text-sm font-semibold text-foreground mb-2">{t("labs.econV24.text024", { defaultValue: "θ 估计对比 (横线为真值)" })}</h4>
           <div className="h-[260px]">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={data.bars} margin={{ top: 10, right: 20, bottom: 30, left: 0 }}>
@@ -299,7 +301,7 @@ export const DoubleMLTool = () => {
           </div>
         </div>
         <div className="rounded-xl border border-border bg-secondary/20 p-4">
-          <h4 className="text-sm font-semibold text-foreground mb-2">Partialling-out 散点 D̃ vs ỹ (斜率 = θ̂_DML)</h4>
+          <h4 className="text-sm font-semibold text-foreground mb-2">{t("labs.econV24.text025", { defaultValue: "Partialling-out 散点 D̃ vs ỹ (斜率 = θ̂_DML)" })}</h4>
           <div className="h-[260px]">
             <ResponsiveContainer width="100%" height="100%">
               <ScatterChart>
@@ -317,10 +319,10 @@ export const DoubleMLTool = () => {
 
       <div className="rounded-lg border border-gold/20 bg-secondary/20 p-4 text-xs text-muted-foreground space-y-2">
         <p><strong className="text-foreground">Double/Debiased ML (Chernozhukov et al. 2018):</strong></p>
-        <p>• <em>Step 1 (cross-fit):</em> 将样本分 K 折,每折用 K−1 折训练 ML 模型 (此处用多项式 ridge 代理) 估 ĝ(X)=E[Y|X], m̂(X)=E[D|X]</p>
-        <p>• <em>Step 2 (residual on residual):</em> ỹ = y − ĝ, D̃ = D − m̂,然后 θ̂ = Σ D̃·ỹ / Σ D̃²</p>
-        <p>• 与 long OLS 对比:线性控制无法吸收 g 和 m 的非线性,残余偏误污染 θ̂_OLS</p>
-        <p>• Neyman orthogonal score:∂_η M(W; θ, η)|_{"{η=η_0}"} = 0,使 √n·(θ̂−θ) 渐近正态且方差不依赖 ML 收敛速度</p>
+        <p>• <em>Step 1 (cross-fit):</em> {t("labs.econV24.text026", { defaultValue: "将样本分 K 折,每折用 K−1 折训练 ML 模型 (此处用多项式 ridge 代理) 估 ĝ(X)=E[Y|X], m̂(X)=E[D|X]" })}</p>
+        <p>• <em>Step 2 (residual on residual):</em> {t("labs.econV24.text027", { defaultValue: "ỹ = y − ĝ, D̃ = D − m̂,然后 θ̂ = Σ D̃·ỹ / Σ D̃²" })}</p>
+        <p>{t("labs.econV24.text028", { defaultValue: "• 与 long OLS 对比:线性控制无法吸收 g 和 m 的非线性,残余偏误污染 θ̂_OLS" })}</p>
+        <p>• Neyman orthogonal score:∂_η M(W; θ, η)|_{"{η=η_0}"} {t("labs.econV24.text029", { defaultValue: "= 0,使 √n·(θ̂−θ) 渐近正态且方差不依赖 ML 收敛速度" })}</p>
         <p className="text-[11px] text-muted-foreground/80">Reference: Chernozhukov V., Chetverikov D., Demirer M., Duflo E., Hansen C., Newey W., Robins J. (2018) <em>Double/debiased machine learning for treatment and structural parameters</em>, Econometrics Journal 21(1).</p>
       </div>
     </div>
@@ -337,6 +339,7 @@ export const DoubleMLTool = () => {
    ════════════════════════════════════════════════════════════════ */
 
 export const CausalForestTool = () => {
+  const { t } = useTranslation();
   const [n, setN] = useState(500);
   const [tauMode, setTauMode] = useState<"linear" | "step" | "sigmoid">("sigmoid");
   const [noise, setNoise] = useState(0.6);
@@ -434,18 +437,18 @@ export const CausalForestTool = () => {
   return (
     <div className="space-y-6">
       <PresetButtons presets={[
-        { name: "Sigmoid 异质性", description: "τ(x) 平滑 S 形 → 经典 GRF 用例", apply: () => { setTauMode("sigmoid"); setN(500); setBandwidth(0.5); setNoise(0.6); } },
-        { name: "线性异质性", description: "τ(x)=0.5+0.8x", apply: () => { setTauMode("linear"); setN(500); setBandwidth(0.5); } },
-        { name: "阶跃异质性", description: "x>0 治疗效果跳升", apply: () => { setTauMode("step"); setBandwidth(0.3); setN(700); } },
-        { name: "宽带宽过平滑", description: "h=1.0 → 偏差↑方差↓", apply: () => { setBandwidth(1.0); setN(500); } },
+        { name: t("labs.econV24.text030", { defaultValue: "Sigmoid 异质性" }), description: t("labs.econV24.text031", { defaultValue: "τ(x) 平滑 S 形 → 经典 GRF 用例" }), apply: () => { setTauMode("sigmoid"); setN(500); setBandwidth(0.5); setNoise(0.6); } },
+        { name: t("labs.econV24.text032", { defaultValue: "线性异质性" }), description: "τ(x)=0.5+0.8x", apply: () => { setTauMode("linear"); setN(500); setBandwidth(0.5); } },
+        { name: t("labs.econV24.text033", { defaultValue: "阶跃异质性" }), description: t("labs.econV24.text034", { defaultValue: "x>0 治疗效果跳升" }), apply: () => { setTauMode("step"); setBandwidth(0.3); setN(700); } },
+        { name: t("labs.econV24.text035", { defaultValue: "宽带宽过平滑" }), description: t("labs.econV24.text036", { defaultValue: "h=1.0 → 偏差↑方差↓" }), apply: () => { setBandwidth(1.0); setN(500); } },
       ]} />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="space-y-3">
-          <Slider label="样本量 n" value={n} min={100} max={1500} step={50} onChange={setN} />
-          <Slider label="噪声 σ_ε" value={noise} min={0.1} max={1.5} step={0.05} onChange={setNoise} />
-          <Slider label="核带宽 h" sub="局部估计窗" value={bandwidth} min={0.1} max={1.5} step={0.05} onChange={setBandwidth} />
-          <Slider label="随机种子" value={seed} min={1} max={999} step={1} onChange={setSeed} />
+          <Slider label={t("labs.econV24.text037", { defaultValue: "样本量 n" })} value={n} min={100} max={1500} step={50} onChange={setN} />
+          <Slider label={t("labs.econV24.text038", { defaultValue: "噪声 σ_ε" })} value={noise} min={0.1} max={1.5} step={0.05} onChange={setNoise} />
+          <Slider label={t("labs.econV24.text039", { defaultValue: "核带宽 h" })} sub={t("labs.econV24.text040", { defaultValue: "局部估计窗" })} value={bandwidth} min={0.1} max={1.5} step={0.05} onChange={setBandwidth} />
+          <Slider label={t("labs.econV24.text041", { defaultValue: "随机种子" })} value={seed} min={1} max={999} step={1} onChange={setSeed} />
           <div className="flex gap-2">
             {(["linear", "step", "sigmoid"] as const).map(m => (
               <button key={m} onClick={() => setTauMode(m)}
@@ -456,18 +459,18 @@ export const CausalForestTool = () => {
           </div>
         </div>
         <div className="space-y-3">
-          <Stat label="ATE 平均处理效应" value={data.ATE.toFixed(4)} color={CHART_GOLD} />
-          <Stat label="HTE 方差 Var(τ̂)" value={data.varTau.toFixed(4)} color={CHART_TEAL} sub="τ(x) 异质性强度代理" />
-          <Stat label="τ̂ 网格均值" value={data.meanTau.toFixed(4)} color={CHART_BLUE} />
+          <Stat label={t("labs.econV24.text042", { defaultValue: "ATE 平均处理效应" })} value={data.ATE.toFixed(4)} color={CHART_GOLD} />
+          <Stat label={t("labs.econV24.text043", { defaultValue: "HTE 方差 Var(τ̂)" })} value={data.varTau.toFixed(4)} color={CHART_TEAL} sub={t("labs.econV24.text044", { defaultValue: "τ(x) 异质性强度代理" })} />
+          <Stat label={t("labs.econV24.text045", { defaultValue: "τ̂ 网格均值" })} value={data.meanTau.toFixed(4)} color={CHART_BLUE} />
           <div className="text-xs font-mono text-muted-foreground p-3 rounded-lg bg-secondary/40 border border-border leading-relaxed space-y-1">
-            <p><span className="text-gold">解读</span>:每点 τ̂(x₀) = 局部 partialling-out 估计,带 95% 渐近 CI。</p>
-            <p>真实 τ(x) 与 τ̂(x) 重合度衡量异质性识别质量;CI 在数据稀疏区段显著变宽。</p>
+            <p><span className="text-gold">{t("labs.econV24.text046", { defaultValue: "解读" })}</span>{t("labs.econV24.text047", { defaultValue: ":每点 τ̂(x₀) = 局部 partialling-out 估计,带 95% 渐近 CI。" })}</p>
+            <p>{t("labs.econV24.text048", { defaultValue: "真实 τ(x) 与 τ̂(x) 重合度衡量异质性识别质量;CI 在数据稀疏区段显著变宽。" })}</p>
           </div>
         </div>
       </div>
 
       <div className="rounded-xl border border-border bg-secondary/20 p-4">
-        <h4 className="text-sm font-semibold text-foreground mb-2">CATE 曲线 τ̂(x) ± 95% CI vs 真实 τ(x)</h4>
+        <h4 className="text-sm font-semibold text-foreground mb-2">{t("labs.econV24.text049", { defaultValue: "CATE 曲线 τ̂(x) ± 95% CI vs 真实 τ(x)" })}</h4>
         <div className="h-[320px]">
           <ResponsiveContainer width="100%" height="100%">
             <ComposedChart data={data.curve} margin={{ top: 10, right: 20, bottom: 10, left: 0 }}>
@@ -478,7 +481,7 @@ export const CausalForestTool = () => {
               <Legend wrapperStyle={{ fontSize: 11 }} />
               <Area type="monotone" dataKey="band" fill={CHART_GOLD} fillOpacity={0.18} stroke="none" name="95% CI" />
               <Line type="monotone" dataKey="tau" stroke={CHART_GOLD} strokeWidth={2.5} dot={false} name="τ̂(x) Causal Forest" />
-              <Line type="monotone" dataKey="truth" stroke={CHART_BLUE} strokeWidth={2} strokeDasharray="5 4" dot={false} name="真实 τ(x)" />
+              <Line type="monotone" dataKey="truth" stroke={CHART_BLUE} strokeWidth={2} strokeDasharray="5 4" dot={false} name={t("labs.econV24.text050", { defaultValue: "真实 τ(x)" })} />
               <ReferenceLine y={0} stroke={CHART_GRID} />
             </ComposedChart>
           </ResponsiveContainer>
@@ -487,10 +490,10 @@ export const CausalForestTool = () => {
 
       <div className="rounded-lg border border-gold/20 bg-secondary/20 p-4 text-xs text-muted-foreground space-y-2">
         <p><strong className="text-foreground">Causal Forest / Generalized Random Forest (Athey & Wager 2018):</strong></p>
-        <p>• <em>Honest splitting</em>:一半样本决定分裂结构,另一半样本估叶子内 τ̂,确保 √n 渐近正态</p>
-        <p>• <em>Local moment equation</em>:τ̂(x) 解 Σ α_i(x) ψ(W_i; τ̂, ν̂) = 0,其中 α_i(x) 为森林叶子共占率</p>
-        <p>• 本工具用 <em>核加权局部 partialling-out</em> 近似:Epanechnikov 核 K_h(X_i−x₀) 替代森林权重 α_i(x)</p>
-        <p>• 与 DML 关系:DML 给一个标量 ATE,Causal Forest 给整条 τ(x);二者用相同的 Neyman orthogonal score</p>
+        <p>• <em>Honest splitting</em>{t("labs.econV24.text051", { defaultValue: ":一半样本决定分裂结构,另一半样本估叶子内 τ̂,确保 √n 渐近正态" })}</p>
+        <p>• <em>Local moment equation</em>{t("labs.econV24.text052", { defaultValue: ":τ̂(x) 解 Σ α_i(x) ψ(W_i; τ̂, ν̂) = 0,其中 α_i(x) 为森林叶子共占率" })}</p>
+        <p>{t("labs.econV24.text053", { defaultValue: "• 本工具用" })} <em>{t("labs.econV24.text054", { defaultValue: "核加权局部 partialling-out" })}</em> {t("labs.econV24.text055", { defaultValue: "近似:Epanechnikov 核 K_h(X_i−x₀) 替代森林权重 α_i(x)" })}</p>
+        <p>{t("labs.econV24.text056", { defaultValue: "• 与 DML 关系:DML 给一个标量 ATE,Causal Forest 给整条 τ(x);二者用相同的 Neyman orthogonal score" })}</p>
         <p className="text-[11px] text-muted-foreground/80">Reference: Athey S., Tibshirani J., Wager S. (2019) <em>Generalized Random Forests</em>, Annals of Statistics 47(2);
           Wager S. & Athey S. (2018) <em>Estimation and Inference of Heterogeneous Treatment Effects using Random Forests</em>, JASA 113(523).</p>
       </div>
@@ -533,6 +536,7 @@ function studentT_pdf(t: number, df: number): number {
 }
 
 export const BayesianRegTool = () => {
+  const { t } = useTranslation();
   const [n, setN] = useState(40);
   const [trueBeta1, setTrueBeta1] = useState(1.5);
   const [noise, setNoise] = useState(1.0);
@@ -637,36 +641,36 @@ export const BayesianRegTool = () => {
   return (
     <div className="space-y-6">
       <PresetButtons presets={[
-        { name: "弱先验 (≈OLS)", description: "Λ₀=0.05,后验由数据主导", apply: () => { setPriorPrec(0.05); setPriorMean(0); setN(40); setNoise(1); } },
-        { name: "强先验 β₀=0", description: "Λ₀=5,小样本时收缩到 0", apply: () => { setPriorPrec(5); setPriorMean(0); setN(20); setNoise(1.2); } },
-        { name: "错指定先验", description: "β₀=0 但真值=2,演示先验拖累", apply: () => { setPriorPrec(8); setPriorMean(0); setTrueBeta1(2); setN(25); } },
-        { name: "大样本", description: "n=200,先验影响消失", apply: () => { setN(200); setPriorPrec(0.5); setPriorMean(0); setNoise(1); } },
+        { name: t("labs.econV24.text057", { defaultValue: "弱先验 (≈OLS)" }), description: t("labs.econV24.text058", { defaultValue: "Λ₀=0.05,后验由数据主导" }), apply: () => { setPriorPrec(0.05); setPriorMean(0); setN(40); setNoise(1); } },
+        { name: t("labs.econV24.text059", { defaultValue: "强先验 β₀=0" }), description: t("labs.econV24.text060", { defaultValue: "Λ₀=5,小样本时收缩到 0" }), apply: () => { setPriorPrec(5); setPriorMean(0); setN(20); setNoise(1.2); } },
+        { name: t("labs.econV24.text061", { defaultValue: "错指定先验" }), description: t("labs.econV24.text062", { defaultValue: "β₀=0 但真值=2,演示先验拖累" }), apply: () => { setPriorPrec(8); setPriorMean(0); setTrueBeta1(2); setN(25); } },
+        { name: t("labs.econV24.text063", { defaultValue: "大样本" }), description: t("labs.econV24.text064", { defaultValue: "n=200,先验影响消失" }), apply: () => { setN(200); setPriorPrec(0.5); setPriorMean(0); setNoise(1); } },
       ]} />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="space-y-3">
-          <Slider label="样本量 n" value={n} min={10} max={300} step={5} onChange={setN} />
-          <Slider label="真实 β₁" value={trueBeta1} min={-2} max={3} step={0.05} onChange={setTrueBeta1} />
-          <Slider label="噪声 σ" value={noise} min={0.1} max={3} step={0.05} onChange={setNoise} />
-          <Slider label="先验均值 β₀" value={priorMean} min={-2} max={2} step={0.05} onChange={setPriorMean} />
-          <Slider label="先验精度 Λ₀" sub="↑ = 先验更强" value={priorPrec} min={0.01} max={10} step={0.01} onChange={setPriorPrec} />
-          <Slider label="随机种子" value={seed} min={1} max={999} step={1} onChange={setSeed} />
+          <Slider label={t("labs.econV24.text065", { defaultValue: "样本量 n" })} value={n} min={10} max={300} step={5} onChange={setN} />
+          <Slider label={t("labs.econV24.text066", { defaultValue: "真实 β₁" })} value={trueBeta1} min={-2} max={3} step={0.05} onChange={setTrueBeta1} />
+          <Slider label={t("labs.econV24.text067", { defaultValue: "噪声 σ" })} value={noise} min={0.1} max={3} step={0.05} onChange={setNoise} />
+          <Slider label={t("labs.econV24.text068", { defaultValue: "先验均值 β₀" })} value={priorMean} min={-2} max={2} step={0.05} onChange={setPriorMean} />
+          <Slider label={t("labs.econV24.text069", { defaultValue: "先验精度 Λ₀" })} sub={t("labs.econV24.text070", { defaultValue: "↑ = 先验更强" })} value={priorPrec} min={0.01} max={10} step={0.01} onChange={setPriorPrec} />
+          <Slider label={t("labs.econV24.text071", { defaultValue: "随机种子" })} value={seed} min={1} max={999} step={1} onChange={setSeed} />
         </div>
         <div className="space-y-3">
-          <Stat label="后验 E[β₁ | y]" value={`${data.betaN[1].toFixed(4)} ± ${data.seBetaN1.toFixed(4)}`} color={CHART_GOLD} sub={`df = 2aₙ = ${data.dfPost.toFixed(1)}`} />
+          <Stat label={t("labs.econV24.text072", { defaultValue: "后验 E[β₁ | y]" })} value={`${data.betaN[1].toFixed(4)} ± ${data.seBetaN1.toFixed(4)}`} color={CHART_GOLD} sub={`df = 2aₙ = ${data.dfPost.toFixed(1)}`} />
           <Stat label="OLS β̂₁" value={`${data.ols_b[1].toFixed(4)} ± ${data.seOlsBeta1.toFixed(4)}`} color={CHART_TEAL} />
-          <Stat label="后验 E[σ² | y]" value={data.sigma2_post.toFixed(4)} color={CHART_BLUE} sub={`OLS σ̂² = ${data.sigma2_ols.toFixed(4)}`} />
-          <Stat label="真实 β₁" value={trueBeta1.toFixed(4)} color={CHART_RED} />
+          <Stat label={t("labs.econV24.text073", { defaultValue: "后验 E[σ² | y]" })} value={data.sigma2_post.toFixed(4)} color={CHART_BLUE} sub={`OLS σ̂² = ${data.sigma2_ols.toFixed(4)}`} />
+          <Stat label={t("labs.econV24.text074", { defaultValue: "真实 β₁" })} value={trueBeta1.toFixed(4)} color={CHART_RED} />
           <div className="text-xs font-mono text-muted-foreground p-3 rounded-lg bg-secondary/40 border border-border leading-relaxed space-y-1">
-            <p><span className="text-gold">收缩</span>:βₙ = (X'X + Λ₀)⁻¹ (X'y + Λ₀β₀) → 强先验时拉向 β₀,弱先验时趋近 OLS。</p>
-            <p>当 Λ₀=λI 时即 <em>Ridge 回归</em>,Bayesian 给出额外的不确定性度量(后验 t 分布)。</p>
+            <p><span className="text-gold">{t("labs.econV24.text075", { defaultValue: "收缩" })}</span>{t("labs.econV24.text076", { defaultValue: ":βₙ = (X'X + Λ₀)⁻¹ (X'y + Λ₀β₀) → 强先验时拉向 β₀,弱先验时趋近 OLS。" })}</p>
+            <p>{t("labs.econV24.text077", { defaultValue: "当 Λ₀=λI 时即" })} <em>{t("labs.econV24.text078", { defaultValue: "Ridge 回归" })}</em>{t("labs.econV24.text079", { defaultValue: ",Bayesian 给出额外的不确定性度量(后验 t 分布)。" })}</p>
           </div>
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="rounded-xl border border-border bg-secondary/20 p-4">
-          <h4 className="text-sm font-semibold text-foreground mb-2">后验预测 ± 95% 区间 vs OLS / 真实</h4>
+          <h4 className="text-sm font-semibold text-foreground mb-2">{t("labs.econV24.text080", { defaultValue: "后验预测 ± 95% 区间 vs OLS / 真实" })}</h4>
           <div className="h-[300px]">
             <ResponsiveContainer width="100%" height="100%">
               <ComposedChart data={data.band} margin={{ top: 10, right: 20, bottom: 10, left: 0 }}>
@@ -675,17 +679,17 @@ export const BayesianRegTool = () => {
                 <YAxis stroke={CHART_TEXT} tick={{ fontSize: 11 }} />
                 <Tooltip contentStyle={{ background: "hsl(var(--popover))", border: "1px solid hsl(var(--border))", fontSize: 11 }} />
                 <Legend wrapperStyle={{ fontSize: 11 }} />
-                <Area type="monotone" dataKey="band" fill={CHART_GOLD} fillOpacity={0.16} stroke="none" name="后验 95% PPI" />
-                <Line type="monotone" dataKey="mean" stroke={CHART_GOLD} strokeWidth={2.5} dot={false} name="后验均值" />
+                <Area type="monotone" dataKey="band" fill={CHART_GOLD} fillOpacity={0.16} stroke="none" name={t("labs.econV24.text081", { defaultValue: "后验 95% PPI" })} />
+                <Line type="monotone" dataKey="mean" stroke={CHART_GOLD} strokeWidth={2.5} dot={false} name={t("labs.econV24.text082", { defaultValue: "后验均值" })} />
                 <Line type="monotone" dataKey="ols" stroke={CHART_TEAL} strokeWidth={1.8} strokeDasharray="4 3" dot={false} name="OLS" />
-                <Line type="monotone" dataKey="truth" stroke={CHART_RED} strokeWidth={1.5} strokeDasharray="2 3" dot={false} name="真实" />
+                <Line type="monotone" dataKey="truth" stroke={CHART_RED} strokeWidth={1.5} strokeDasharray="2 3" dot={false} name={t("labs.econV24.text083", { defaultValue: "真实" })} />
                 <Scatter data={data.samples} fill={CHART_BLUE} fillOpacity={0.5} dataKey="y" />
               </ComposedChart>
             </ResponsiveContainer>
           </div>
         </div>
         <div className="rounded-xl border border-border bg-secondary/20 p-4">
-          <h4 className="text-sm font-semibold text-foreground mb-2">β₁ 后验密度 (marginal t)</h4>
+          <h4 className="text-sm font-semibold text-foreground mb-2">{t("labs.econV24.text084", { defaultValue: "β₁ 后验密度 (marginal t)" })}</h4>
           <div className="h-[300px]">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={data.post}>
@@ -693,7 +697,7 @@ export const BayesianRegTool = () => {
                 <XAxis dataKey="b1" type="number" domain={["dataMin", "dataMax"]} stroke={CHART_TEXT} tick={{ fontSize: 11 }} />
                 <YAxis stroke={CHART_TEXT} tick={{ fontSize: 11 }} />
                 <Tooltip contentStyle={{ background: "hsl(var(--popover))", border: "1px solid hsl(var(--border))", fontSize: 11 }} />
-                <ReferenceLine x={trueBeta1} stroke={CHART_RED} strokeDasharray="3 3" label={{ value: "真值", fill: CHART_RED, fontSize: 10 }} />
+                <ReferenceLine x={trueBeta1} stroke={CHART_RED} strokeDasharray="3 3" label={{ value: t("labs.econV24.text085", { defaultValue: "真值" }), fill: CHART_RED, fontSize: 10 }} />
                 <ReferenceLine x={data.betaN[1]} stroke={CHART_GOLD} strokeDasharray="3 3" label={{ value: "βₙ", fill: CHART_GOLD, fontSize: 10 }} />
                 <ReferenceLine x={priorMean} stroke={CHART_BLUE} strokeDasharray="3 3" label={{ value: "β₀", fill: CHART_BLUE, fontSize: 10 }} />
                 <Line type="monotone" dataKey="post" stroke={CHART_GOLD} strokeWidth={2.4} dot={false} />
@@ -704,12 +708,12 @@ export const BayesianRegTool = () => {
       </div>
 
       <div className="rounded-lg border border-gold/20 bg-secondary/20 p-4 text-xs text-muted-foreground space-y-2">
-        <p><strong className="text-foreground">Bayesian Linear Regression (Normal-Inverse-Gamma 共轭):</strong></p>
-        <p>• <em>先验</em>:β | σ² ~ N(β₀, σ² Λ₀⁻¹),σ² ~ Inv-Gamma(a₀, b₀);共轭使后验闭式可解</p>
-        <p>• <em>后验精度</em>:Λₙ = X'X + Λ₀ → 数据信息 + 先验信息相加;后验均值是两者的精度加权平均</p>
-        <p>• <em>后验预测</em>:y* | x*, y ~ t_{"{2aₙ}"}(x*'βₙ, (bₙ/aₙ)(1 + x*'Λₙ⁻¹x*)) → 比 OLS 多吸收了 σ² 的不确定性</p>
-        <p>• 与 Ridge 等价:Λ₀ = λI 且 β₀ = 0 时,后验众数 = Ridge 估计;Bayesian 同时给出区间和模型不确定性</p>
-        <p>• 大样本下先验被数据淹没 → 后验 → OLS;小样本 / 病态 X'X 下先验起到正则化与稳定化作用</p>
+        <p><strong className="text-foreground">{t("labs.econV24.text086", { defaultValue: "Bayesian Linear Regression (Normal-Inverse-Gamma 共轭):" })}</strong></p>
+        <p>• <em>{t("labs.econV24.text087", { defaultValue: "先验" })}</em>{t("labs.econV24.text088", { defaultValue: ":β | σ² ~ N(β₀, σ² Λ₀⁻¹),σ² ~ Inv-Gamma(a₀, b₀);共轭使后验闭式可解" })}</p>
+        <p>• <em>{t("labs.econV24.text089", { defaultValue: "后验精度" })}</em>{t("labs.econV24.text090", { defaultValue: ":Λₙ = X'X + Λ₀ → 数据信息 + 先验信息相加;后验均值是两者的精度加权平均" })}</p>
+        <p>• <em>{t("labs.econV24.text091", { defaultValue: "后验预测" })}</em>:y* | x*, y ~ t_{"{2aₙ}"}{t("labs.econV24.text092", { defaultValue: "(x*'βₙ, (bₙ/aₙ)(1 + x*'Λₙ⁻¹x*)) → 比 OLS 多吸收了 σ² 的不确定性" })}</p>
+        <p>{t("labs.econV24.text093", { defaultValue: "• 与 Ridge 等价:Λ₀ = λI 且 β₀ = 0 时,后验众数 = Ridge 估计;Bayesian 同时给出区间和模型不确定性" })}</p>
+        <p>{t("labs.econV24.text094", { defaultValue: "• 大样本下先验被数据淹没 → 后验 → OLS;小样本 / 病态 X'X 下先验起到正则化与稳定化作用" })}</p>
         <p className="text-[11px] text-muted-foreground/80">Reference: Gelman A., Carlin J., Stern H., Dunson D., Vehtari A., Rubin D. (2013) <em>Bayesian Data Analysis</em>, 3rd ed., Ch. 14;
           O'Hagan A. & Forster J. (2004) <em>Kendall's Advanced Theory of Statistics, Vol. 2B: Bayesian Inference</em>.</p>
       </div>

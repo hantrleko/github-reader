@@ -245,6 +245,7 @@ function localPolySE(
    1. OLS vs IV/2SLS — endogeneity demo
    ════════════════════════════════════════════════════════════ */
 const OLSvsIV = () => {
+  const { t } = useTranslation();
   const [n, setN] = useState(200);
   const [trueBeta, setTrueBeta] = useState(1.0);
   const [endo, setEndo] = useState(0.7);    // Cov(x, ε)
@@ -324,17 +325,17 @@ const OLSvsIV = () => {
   return (
     <div className="space-y-6">
       <PresetButtons presets={[
-        { name: "强内生性", description: "Cov(x,ε)=0.8, 弱IV", apply: () => { setEndo(0.8); setZStrength(0.4); setTrueBeta(1); } },
-        { name: "无内生性", description: "OLS=IV, 教学对照", apply: () => { setEndo(0); setZStrength(0.8); setTrueBeta(1); } },
-        { name: "弱工具变量", description: "z·x相关性低", apply: () => { setEndo(0.6); setZStrength(0.15); setTrueBeta(1); } },
+        { name: t("labs.econometrics.text000", { defaultValue: "强内生性" }), description: t("labs.econometrics.text001", { defaultValue: "Cov(x,ε)=0.8, 弱IV" }), apply: () => { setEndo(0.8); setZStrength(0.4); setTrueBeta(1); } },
+        { name: t("labs.econometrics.text002", { defaultValue: "无内生性" }), description: t("labs.econometrics.text003", { defaultValue: "OLS=IV, 教学对照" }), apply: () => { setEndo(0); setZStrength(0.8); setTrueBeta(1); } },
+        { name: t("labs.econometrics.text004", { defaultValue: "弱工具变量" }), description: t("labs.econometrics.text005", { defaultValue: "z·x相关性低" }), apply: () => { setEndo(0.6); setZStrength(0.15); setTrueBeta(1); } },
       ]} />
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="space-y-3">
-          <Slider label="样本量 n" value={n} min={50} max={1000} step={50} onChange={setN} />
-          <Slider label="真实 β" value={trueBeta} min={-2} max={3} step={0.1} onChange={setTrueBeta} />
-          <Slider label="内生性 Cov(x, ε)" value={endo} min={0} max={1.2} step={0.05} onChange={setEndo} />
-          <Slider label="工具变量强度 Cov(z, x)" value={zStrength} min={0.05} max={1.5} step={0.05} onChange={setZStrength} />
-          <Slider label="随机种子" value={seed} min={1} max={999} step={1} onChange={setSeed} />
+          <Slider label={t("labs.econometrics.text006", { defaultValue: "样本量 n" })} value={n} min={50} max={1000} step={50} onChange={setN} />
+          <Slider label={t("labs.econometrics.text007", { defaultValue: "真实 β" })} value={trueBeta} min={-2} max={3} step={0.1} onChange={setTrueBeta} />
+          <Slider label={t("labs.econometrics.text008", { defaultValue: "内生性 Cov(x, ε)" })} value={endo} min={0} max={1.2} step={0.05} onChange={setEndo} />
+          <Slider label={t("labs.econometrics.text009", { defaultValue: "工具变量强度 Cov(z, x)" })} value={zStrength} min={0.05} max={1.5} step={0.05} onChange={setZStrength} />
+          <Slider label={t("labs.econometrics.text010", { defaultValue: "随机种子" })} value={seed} min={1} max={999} step={1} onChange={setSeed} />
         </div>
         <div className="space-y-3">
           <ResultRow label="OLS β̂" value={data.olsR.beta} truth={trueBeta} se={data.olsR.se_beta} color={CHART_RED} />
@@ -342,9 +343,9 @@ const OLSvsIV = () => {
           <ResultRow label="OLS R²" value={data.olsR.r2} color={CHART_RED} />
           <ResultRow label="IV R²" value={data.ivR.r2} color={CHART_GOLD} />
           <div className="text-xs font-mono text-muted-foreground p-3 rounded-lg bg-secondary/40 border border-border leading-relaxed">
-            <p><span className="text-gold">解读：</span>当 x 与误差项相关时，OLS 估计系统性偏离真实 β。</p>
-            <p>阴影带为拟合值 95% 置信区间 ŷ ± 1.96·SE(ŷ)，SE(ŷ)=σ̂·√(1/n+(x-x̄)²/Sₓₓ)。</p>
-            <p>弱工具变量 → IV 阴影带显著变宽，方差放大。</p>
+            <p><span className="text-gold">{t("labs.econometrics.text011", { defaultValue: "解读：" })}</span>{t("labs.econometrics.text012", { defaultValue: "当 x 与误差项相关时，OLS 估计系统性偏离真实 β。" })}</p>
+            <p>{t("labs.econometrics.text013", { defaultValue: "阴影带为拟合值 95% 置信区间 ŷ ± 1.96·SE(ŷ)，SE(ŷ)=σ̂·√(1/n+(x-x̄)²/Sₓₓ)。" })}</p>
+            <p>{t("labs.econometrics.text014", { defaultValue: "弱工具变量 → IV 阴影带显著变宽，方差放大。" })}</p>
           </div>
         </div>
       </div>
@@ -359,22 +360,21 @@ const OLSvsIV = () => {
             <Legend wrapperStyle={{ fontSize: 11 }} />
             <Area type="monotone" dataKey="olsCI" stroke="none" fill={CHART_RED} fillOpacity={0.13} name="OLS 95% CI" />
             <Area type="monotone" dataKey="ivCI" stroke="none" fill={CHART_GOLD} fillOpacity={0.13} name="IV 95% CI" />
-            <Scatter name="样本" data={data.pts} fill={CHART_TEAL} fillOpacity={0.45} dataKey="y" />
-            <Line name="OLS 拟合" type="monotone" dataKey="olsY" stroke={CHART_RED} strokeWidth={2} dot={false} />
-            <Line name="IV/2SLS 拟合" type="monotone" dataKey="ivY" stroke={CHART_GOLD} strokeWidth={2} dot={false} />
+            <Scatter name={t("labs.econometrics.text015", { defaultValue: "样本" })} data={data.pts} fill={CHART_TEAL} fillOpacity={0.45} dataKey="y" />
+            <Line name={t("labs.econometrics.text016", { defaultValue: "OLS 拟合" })} type="monotone" dataKey="olsY" stroke={CHART_RED} strokeWidth={2} dot={false} />
+            <Line name={t("labs.econometrics.text017", { defaultValue: "IV/2SLS 拟合" })} type="monotone" dataKey="ivY" stroke={CHART_GOLD} strokeWidth={2} dot={false} />
           </ComposedChart>
         </ResponsiveContainer>
       </div>
 
       <div className="rounded-xl border border-border bg-secondary/20 p-4">
         <div className="flex items-center justify-between mb-2">
-          <h4 className="text-sm font-semibold text-foreground">R² 趋势（最近 {historyRef.current.length} 次参数变化）</h4>
+          <h4 className="text-sm font-semibold text-foreground">{t("labs.econometrics.text018", { defaultValue: "R² 趋势（最近 " })}{historyRef.current.length} {t("labs.econometrics.text019", { defaultValue: " 次参数变化）" })}</h4>
           <button
             onClick={resetHistory}
             className="text-xs px-2 py-1 rounded border border-border hover:border-gold hover:text-gold transition-colors"
           >
-            清空
-          </button>
+            {t("labs.econometrics.text020", { defaultValue: "\n            清空\n          " })}</button>
         </div>
         <div className="h-[180px]">
           <ResponsiveContainer width="100%" height="100%">
@@ -400,6 +400,7 @@ const OLSvsIV = () => {
 type DynamicMode = "instant" | "ramp" | "decay";
 
 const DIDTool = () => {
+  const { t } = useTranslation();
   const [trend, setTrend] = useState(2);
   const [treatLevel, setTreatLevel] = useState(3);
   const [effect, setEffect] = useState(4);
@@ -519,19 +520,19 @@ const DIDTool = () => {
   return (
     <div className="space-y-6">
       <PresetButtons presets={[
-        { name: "瞬时跳跃", description: "ATT=4, k≥0 立即生效", apply: () => { setTrend(2); setTreatLevel(3); setEffect(4); setNoise(0.5); setPreTrendBias(0); setDynamicMode("instant"); } },
-        { name: "渐进上升", description: "效应逐期累积到峰值", apply: () => { setEffect(4); setPreTrendBias(0); setNoise(0.4); setDynamicMode("ramp"); } },
-        { name: "衰减回归", description: "首期峰值后指数衰减", apply: () => { setEffect(5); setPreTrendBias(0); setNoise(0.4); setDynamicMode("decay"); } },
-        { name: "违反平行趋势", description: "处理组预期已偏离", apply: () => { setEffect(4); setPreTrendBias(0.6); setNoise(0.4); setDynamicMode("instant"); } },
+        { name: t("labs.econometrics.text021", { defaultValue: "瞬时跳跃" }), description: t("labs.econometrics.text022", { defaultValue: "ATT=4, k≥0 立即生效" }), apply: () => { setTrend(2); setTreatLevel(3); setEffect(4); setNoise(0.5); setPreTrendBias(0); setDynamicMode("instant"); } },
+        { name: t("labs.econometrics.text023", { defaultValue: "渐进上升" }), description: t("labs.econometrics.text024", { defaultValue: "效应逐期累积到峰值" }), apply: () => { setEffect(4); setPreTrendBias(0); setNoise(0.4); setDynamicMode("ramp"); } },
+        { name: t("labs.econometrics.text025", { defaultValue: "衰减回归" }), description: t("labs.econometrics.text026", { defaultValue: "首期峰值后指数衰减" }), apply: () => { setEffect(5); setPreTrendBias(0); setNoise(0.4); setDynamicMode("decay"); } },
+        { name: t("labs.econometrics.text027", { defaultValue: "违反平行趋势" }), description: t("labs.econometrics.text028", { defaultValue: "处理组预期已偏离" }), apply: () => { setEffect(4); setPreTrendBias(0.6); setNoise(0.4); setDynamicMode("instant"); } },
       ]} />
 
       {/* Dynamic effect mode selector */}
       <div className="flex items-center gap-2 flex-wrap">
-        <span className="text-xs font-mono text-muted-foreground">动态效应模式：</span>
+        <span className="text-xs font-mono text-muted-foreground">{t("labs.econometrics.text029", { defaultValue: "动态效应模式：" })}</span>
         {([
-          { id: "instant", label: "瞬时跳跃", desc: "τ_k = ATT 对所有 k≥0" },
-          { id: "ramp", label: "渐进上升", desc: "线性爬升至峰值" },
-          { id: "decay", label: "衰减回归", desc: "指数衰减 e^(-0.6k)" },
+          { id: "instant", label: t("labs.econometrics.text030", { defaultValue: "瞬时跳跃" }), desc: t("labs.econometrics.text031", { defaultValue: "τ_k = ATT 对所有 k≥0" }) },
+          { id: "ramp", label: t("labs.econometrics.text032", { defaultValue: "渐进上升" }), desc: t("labs.econometrics.text033", { defaultValue: "线性爬升至峰值" }) },
+          { id: "decay", label: t("labs.econometrics.text034", { defaultValue: "衰减回归" }), desc: t("labs.econometrics.text035", { defaultValue: "指数衰减 e^(-0.6k)" }) },
         ] as const).map((m) => (
           <button
             key={m.id}
@@ -550,20 +551,20 @@ const DIDTool = () => {
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="space-y-3">
-          <Slider label="共同趋势斜率" value={trend} min={-2} max={5} step={0.1} onChange={setTrend} />
-          <Slider label="处理组初始水平差" value={treatLevel} min={-5} max={10} step={0.1} onChange={setTreatLevel} />
-          <Slider label="真实政策效应 (ATT)" value={effect} min={-5} max={10} step={0.1} onChange={setEffect} />
-          <Slider label="预趋势偏差 (违反PT)" value={preTrendBias} min={-1} max={1} step={0.05} onChange={setPreTrendBias} />
-          <Slider label="噪声强度" value={noise} min={0} max={3} step={0.05} onChange={setNoise} />
-          <Slider label="每组单位数" value={nUnits} min={10} max={200} step={5} onChange={setNUnits} />
-          <Slider label="随机种子" value={seed} min={1} max={999} step={1} onChange={setSeed} />
+          <Slider label={t("labs.econometrics.text036", { defaultValue: "共同趋势斜率" })} value={trend} min={-2} max={5} step={0.1} onChange={setTrend} />
+          <Slider label={t("labs.econometrics.text037", { defaultValue: "处理组初始水平差" })} value={treatLevel} min={-5} max={10} step={0.1} onChange={setTreatLevel} />
+          <Slider label={t("labs.econometrics.text038", { defaultValue: "真实政策效应 (ATT)" })} value={effect} min={-5} max={10} step={0.1} onChange={setEffect} />
+          <Slider label={t("labs.econometrics.text039", { defaultValue: "预趋势偏差 (违反PT)" })} value={preTrendBias} min={-1} max={1} step={0.05} onChange={setPreTrendBias} />
+          <Slider label={t("labs.econometrics.text040", { defaultValue: "噪声强度" })} value={noise} min={0} max={3} step={0.05} onChange={setNoise} />
+          <Slider label={t("labs.econometrics.text041", { defaultValue: "每组单位数" })} value={nUnits} min={10} max={200} step={5} onChange={setNUnits} />
+          <Slider label={t("labs.econometrics.text042", { defaultValue: "随机种子" })} value={seed} min={1} max={999} step={1} onChange={setSeed} />
         </div>
         <div className="space-y-3">
-          <ResultRow label="估计 ATT (2×2 DID)" value={data.att} truth={effect} se={NaN} color={CHART_GOLD} />
+          <ResultRow label={t("labs.econometrics.text043", { defaultValue: "估计 ATT (2×2 DID)" })} value={data.att} truth={effect} se={NaN} color={CHART_GOLD} />
           <div className="text-xs font-mono text-muted-foreground p-3 rounded-lg bg-secondary/40 border border-border leading-relaxed">
             <p><span className="text-gold">2×2 DID：</span>τ̂ = (Ȳ₁ₚₒₛₜ − Ȳ₁ₚᵣₑ) − (Ȳ₀ₚₒₛₜ − Ȳ₀ₚᵣₑ)</p>
-            <p><span className="text-gold">事件研究：</span>τ_k = (Ȳ₁,k − Ȳ₁,−1) − (Ȳ₀,k − Ȳ₀,−1)，k=−1 为基准期 (固定为 0)。</p>
-            <p>k&lt;0 的 τ_k 显著非零 → 平行趋势假设被违反；k≥0 即动态处理效应。</p>
+            <p><span className="text-gold">{t("labs.econometrics.text044", { defaultValue: "事件研究：" })}</span>{t("labs.econometrics.text045", { defaultValue: "τ_k = (Ȳ₁,k − Ȳ₁,−1) − (Ȳ₀,k − Ȳ₀,−1)，k=−1 为基准期 (固定为 0)。" })}</p>
+            <p>{t("labs.econometrics.text046", { defaultValue: "k&lt;0 的 τ_k 显著非零 → 平行趋势假设被违反；k≥0 即动态处理效应。" })}</p>
           </div>
         </div>
       </div>
@@ -572,14 +573,14 @@ const DIDTool = () => {
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={data.series}>
             <CartesianGrid stroke={CHART_GRID} strokeDasharray="3 3" />
-            <XAxis dataKey="t" stroke={CHART_TEXT} tick={{ fontSize: 11 }} label={{ value: "期 t", position: "insideBottom", offset: -2, fill: CHART_TEXT, fontSize: 11 }} />
+            <XAxis dataKey="t" stroke={CHART_TEXT} tick={{ fontSize: 11 }} label={{ value: t("labs.econometrics.text047", { defaultValue: "期 t" }), position: "insideBottom", offset: -2, fill: CHART_TEXT, fontSize: 11 }} />
             <YAxis stroke={CHART_TEXT} tick={{ fontSize: 11 }} />
             <Tooltip contentStyle={{ background: "hsl(220 15% 12%)", border: `1px solid ${CHART_GRID}`, fontSize: 11 }} />
             <Legend wrapperStyle={{ fontSize: 11 }} />
-            <ReferenceLine x={data.treatStart} stroke={CHART_GOLD} strokeDasharray="4 4" label={{ value: "政策实施", fill: CHART_GOLD, fontSize: 10, position: "top" }} />
-            <Line dataKey="control" name="控制组均值" stroke={CHART_TEAL} strokeWidth={2} dot={{ r: 3 }} />
-            <Line dataKey="treated" name="处理组均值" stroke={CHART_GOLD} strokeWidth={2} dot={{ r: 3 }} />
-            <Line dataKey="cf" name="反事实 (平行趋势)" stroke={CHART_RED} strokeWidth={1.5} strokeDasharray="5 5" dot={false} connectNulls />
+            <ReferenceLine x={data.treatStart} stroke={CHART_GOLD} strokeDasharray="4 4" label={{ value: t("labs.econometrics.text048", { defaultValue: "政策实施" }), fill: CHART_GOLD, fontSize: 10, position: "top" }} />
+            <Line dataKey="control" name={t("labs.econometrics.text049", { defaultValue: "控制组均值" })} stroke={CHART_TEAL} strokeWidth={2} dot={{ r: 3 }} />
+            <Line dataKey="treated" name={t("labs.econometrics.text050", { defaultValue: "处理组均值" })} stroke={CHART_GOLD} strokeWidth={2} dot={{ r: 3 }} />
+            <Line dataKey="cf" name={t("labs.econometrics.text051", { defaultValue: "反事实 (平行趋势)" })} stroke={CHART_RED} strokeWidth={1.5} strokeDasharray="5 5" dot={false} connectNulls />
           </LineChart>
         </ResponsiveContainer>
       </div>
@@ -587,34 +588,31 @@ const DIDTool = () => {
       {/* Event Study panel */}
       <div className="rounded-xl border border-border bg-secondary/20 p-4">
         <div className="flex items-center justify-between mb-2">
-          <h4 className="text-sm font-semibold text-foreground">事件研究 (Event Study) τ_k ± 95% CI</h4>
-          <span className="text-[10px] font-mono text-muted-foreground">基准期 k=−1（设为 0）</span>
+          <h4 className="text-sm font-semibold text-foreground">{t("labs.econometrics.text052", { defaultValue: "事件研究 (Event Study) τ_k ± 95% CI" })}</h4>
+          <span className="text-[10px] font-mono text-muted-foreground">{t("labs.econometrics.text053", { defaultValue: "基准期 k=−1（设为 0）" })}</span>
         </div>
         <div className="h-[260px]">
           <ResponsiveContainer width="100%" height="100%">
             <ComposedChart data={data.eventRows}>
               <CartesianGrid stroke={CHART_GRID} strokeDasharray="3 3" />
-              <XAxis dataKey="k" stroke={CHART_TEXT} tick={{ fontSize: 11 }} label={{ value: "事件时间 k", position: "insideBottom", offset: -2, fill: CHART_TEXT, fontSize: 10 }} />
+              <XAxis dataKey="k" stroke={CHART_TEXT} tick={{ fontSize: 11 }} label={{ value: t("labs.econometrics.text054", { defaultValue: "事件时间 k" }), position: "insideBottom", offset: -2, fill: CHART_TEXT, fontSize: 10 }} />
               <YAxis stroke={CHART_TEXT} tick={{ fontSize: 11 }} />
               <Tooltip contentStyle={{ background: "hsl(220 15% 12%)", border: `1px solid ${CHART_GRID}`, fontSize: 11 }} />
               <Legend wrapperStyle={{ fontSize: 11 }} />
               <ReferenceLine y={0} stroke={CHART_TEXT} strokeDasharray="2 2" />
-              <ReferenceLine x={-0.5} stroke={CHART_GOLD} strokeDasharray="4 4" label={{ value: "处理前 / 处理后", fill: CHART_GOLD, fontSize: 10, position: "top" }} />
+              <ReferenceLine x={-0.5} stroke={CHART_GOLD} strokeDasharray="4 4" label={{ value: t("labs.econometrics.text055", { defaultValue: "处理前 / 处理后" }), fill: CHART_GOLD, fontSize: 10, position: "top" }} />
               <Area dataKey="ci" stroke="none" fill={CHART_GOLD} fillOpacity={0.18} name="95% CI" />
-              <Line dataKey="trueK" name="真实 τ_k (DGP)" stroke={CHART_RED} strokeWidth={2} strokeDasharray="5 4" dot={{ r: 2 }} />
-              <Line dataKey="tau" name="估计 τ̂_k" stroke={CHART_GOLD} strokeWidth={2} dot={{ r: 3 }} />
+              <Line dataKey="trueK" name={t("labs.econometrics.text056", { defaultValue: "真实 τ_k (DGP)" })} stroke={CHART_RED} strokeWidth={2} strokeDasharray="5 4" dot={{ r: 2 }} />
+              <Line dataKey="tau" name={t("labs.econometrics.text057", { defaultValue: "估计 τ̂_k" })} stroke={CHART_GOLD} strokeWidth={2} dot={{ r: 3 }} />
             </ComposedChart>
           </ResponsiveContainer>
         </div>
         <p className="mt-2 text-[11px] text-muted-foreground font-mono">
-          金线为 τ̂_k 估计 + 95% CI 阴影；红虚线为 DGP 设定的真实 τ_k 路径。当前模式：
-          <span className="text-gold ml-1">
-            {dynamicMode === "instant" && "瞬时跳跃 — k≥0 立即达到峰值并保持"}
-            {dynamicMode === "ramp" && "渐进上升 — 政策效应需要时间累积"}
-            {dynamicMode === "decay" && "衰减回归 — 首期冲击大、后期消退"}
-          </span>。
-          k&lt;0 的 CI 应覆盖 0 → 平行趋势成立。
-        </p>
+          {t("labs.econometrics.text058", { defaultValue: "\n          金线为 τ̂_k 估计 + 95% CI 阴影；红虚线为 DGP 设定的真实 τ_k 路径。当前模式：\n          " })}<span className="text-gold ml-1">
+            {dynamicMode === "instant" && t("labs.econometrics.text059", { defaultValue: "瞬时跳跃 — k≥0 立即达到峰值并保持" })}
+            {dynamicMode === "ramp" && t("labs.econometrics.text060", { defaultValue: "渐进上升 — 政策效应需要时间累积" })}
+            {dynamicMode === "decay" && t("labs.econometrics.text061", { defaultValue: "衰减回归 — 首期冲击大、后期消退" })}
+          </span>{t("labs.econometrics.text062", { defaultValue: "。\n          k&lt;0 的 CI 应覆盖 0 → 平行趋势成立。\n        " })}</p>
       </div>
     </div>
   );
@@ -626,6 +624,7 @@ const DIDTool = () => {
 type RDDMode = "sharp" | "fuzzy";
 
 const RDDTool = () => {
+  const { t } = useTranslation();
   const [n, setN] = useState(300);
   const [cutoff, setCutoff] = useState(0);
   const [jump, setJump] = useState(3);
@@ -888,20 +887,20 @@ const RDDTool = () => {
   return (
     <div className="space-y-6">
       <PresetButtons presets={[
-        { name: "清晰跳跃 (Sharp)", description: "确定性处理 τ=3", apply: () => { setMode("sharp"); setJump(3); setNoise(0.5); setBandwidth(2); setManipulation(0); } },
-        { name: "Fuzzy 高顺从", description: "0.10 → 0.85, 强工具", apply: () => { setMode("fuzzy"); setPBelow(0.10); setPAbove(0.85); setJump(3); setNoise(0.5); setBandwidth(2); setManipulation(0); setN(800); } },
-        { name: "Fuzzy 弱跳跃", description: "0.30 → 0.45, 弱工具", apply: () => { setMode("fuzzy"); setPBelow(0.30); setPAbove(0.45); setJump(3); setNoise(0.5); setBandwidth(2); setN(1200); } },
-        { name: "存在操纵", description: "个体跳到切点之上", apply: () => { setMode("sharp"); setJump(3); setNoise(0.5); setManipulation(0.7); setN(600); } },
-        { name: "Donut 修正", description: "存在操纵 + δ=0.5 剔除", apply: () => { setMode("sharp"); setJump(3); setNoise(0.5); setManipulation(0.7); setN(600); setDonut(0.5); } },
-        { name: "局部二次拟合", description: "polyOrder=2，缓解边界偏误", apply: () => { setPolyOrder(2); setBandwidth(3); setNoise(0.6); } },
+        { name: t("labs.econometrics.text063", { defaultValue: "清晰跳跃 (Sharp)" }), description: t("labs.econometrics.text064", { defaultValue: "确定性处理 τ=3" }), apply: () => { setMode("sharp"); setJump(3); setNoise(0.5); setBandwidth(2); setManipulation(0); } },
+        { name: t("labs.econometrics.text065", { defaultValue: "Fuzzy 高顺从" }), description: t("labs.econometrics.text066", { defaultValue: "0.10 → 0.85, 强工具" }), apply: () => { setMode("fuzzy"); setPBelow(0.10); setPAbove(0.85); setJump(3); setNoise(0.5); setBandwidth(2); setManipulation(0); setN(800); } },
+        { name: t("labs.econometrics.text067", { defaultValue: "Fuzzy 弱跳跃" }), description: t("labs.econometrics.text068", { defaultValue: "0.30 → 0.45, 弱工具" }), apply: () => { setMode("fuzzy"); setPBelow(0.30); setPAbove(0.45); setJump(3); setNoise(0.5); setBandwidth(2); setN(1200); } },
+        { name: t("labs.econometrics.text069", { defaultValue: "存在操纵" }), description: t("labs.econometrics.text070", { defaultValue: "个体跳到切点之上" }), apply: () => { setMode("sharp"); setJump(3); setNoise(0.5); setManipulation(0.7); setN(600); } },
+        { name: t("labs.econometrics.text071", { defaultValue: "Donut 修正" }), description: t("labs.econometrics.text072", { defaultValue: "存在操纵 + δ=0.5 剔除" }), apply: () => { setMode("sharp"); setJump(3); setNoise(0.5); setManipulation(0.7); setN(600); setDonut(0.5); } },
+        { name: t("labs.econometrics.text073", { defaultValue: "局部二次拟合" }), description: t("labs.econometrics.text074", { defaultValue: "polyOrder=2，缓解边界偏误" }), apply: () => { setPolyOrder(2); setBandwidth(3); setNoise(0.6); } },
       ]} />
 
       {/* Mode toggle */}
       <div className="flex items-center gap-2 flex-wrap">
-        <span className="text-xs font-mono text-muted-foreground">RDD 模式：</span>
+        <span className="text-xs font-mono text-muted-foreground">{t("labs.econometrics.text075", { defaultValue: "RDD 模式：" })}</span>
         {([
-          { id: "sharp" as const, label: "Sharp RDD", desc: "D = 1{X≥c} 确定性" },
-          { id: "fuzzy" as const, label: "Fuzzy RDD", desc: "D 概率性跳跃, 用 Wald" },
+          { id: "sharp" as const, label: "Sharp RDD", desc: t("labs.econometrics.text076", { defaultValue: "D = 1{X≥c} 确定性" }) },
+          { id: "fuzzy" as const, label: "Fuzzy RDD", desc: t("labs.econometrics.text077", { defaultValue: "D 概率性跳跃, 用 Wald" }) },
         ]).map((m) => (
           <button
             key={m.id}
@@ -917,7 +916,7 @@ const RDDTool = () => {
             {m.label}
           </button>
         ))}
-        <span className="text-xs font-mono text-muted-foreground ml-3">多项式阶数：</span>
+        <span className="text-xs font-mono text-muted-foreground ml-3">{t("labs.econometrics.text078", { defaultValue: "多项式阶数：" })}</span>
         {([1, 2] as const).map((p) => (
           <button
             key={p}
@@ -932,7 +931,7 @@ const RDDTool = () => {
             {p === 1 ? "Local Linear" : "Local Quadratic"}
           </button>
         ))}
-        <span className="text-xs font-mono text-muted-foreground ml-3">核函数：</span>
+        <span className="text-xs font-mono text-muted-foreground ml-3">{t("labs.econometrics.text079", { defaultValue: "核函数：" })}</span>
         {(["triangular", "uniform"] as const).map((k) => (
           <button
             key={k}
@@ -951,16 +950,16 @@ const RDDTool = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="space-y-3">
-          <Slider label="样本量 n" value={n} min={50} max={2000} step={50} onChange={setN} />
-          <Slider label="切点 c" value={cutoff} min={-3} max={3} step={0.1} onChange={setCutoff} />
-          <Slider label="真实跳跃 τ" value={jump} min={-5} max={8} step={0.1} onChange={setJump} />
-          <Slider label="左侧斜率" value={slopeL} min={-2} max={3} step={0.1} onChange={setSlopeL} />
-          <Slider label="右侧斜率" value={slopeR} min={-2} max={3} step={0.1} onChange={setSlopeR} />
-          <Slider label="噪声 σ" value={noise} min={0.1} max={3} step={0.05} onChange={setNoise} />
+          <Slider label={t("labs.econometrics.text080", { defaultValue: "样本量 n" })} value={n} min={50} max={2000} step={50} onChange={setN} />
+          <Slider label={t("labs.econometrics.text081", { defaultValue: "切点 c" })} value={cutoff} min={-3} max={3} step={0.1} onChange={setCutoff} />
+          <Slider label={t("labs.econometrics.text082", { defaultValue: "真实跳跃 τ" })} value={jump} min={-5} max={8} step={0.1} onChange={setJump} />
+          <Slider label={t("labs.econometrics.text083", { defaultValue: "左侧斜率" })} value={slopeL} min={-2} max={3} step={0.1} onChange={setSlopeL} />
+          <Slider label={t("labs.econometrics.text084", { defaultValue: "右侧斜率" })} value={slopeR} min={-2} max={3} step={0.1} onChange={setSlopeR} />
+          <Slider label={t("labs.econometrics.text085", { defaultValue: "噪声 σ" })} value={noise} min={0.1} max={3} step={0.05} onChange={setNoise} />
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-xs font-mono text-muted-foreground">带宽选择：</span>
+            <span className="text-xs font-mono text-muted-foreground">{t("labs.econometrics.text086", { defaultValue: "带宽选择：" })}</span>
             {([
-              { id: "manual" as const, label: "手动", desc: "拖动滑块自由设定" },
+              { id: "manual" as const, label: t("labs.econometrics.text087", { defaultValue: "手动" }), desc: t("labs.econometrics.text088", { defaultValue: "拖动滑块自由设定" }) },
               { id: "rot" as const, label: `ROT (${data.hROT.toFixed(2)})`, desc: "Rule-of-Thumb h ≈ 1.84·σ̂_X·n^(-1/5)" },
               { id: "cct" as const, label: `CCT (${data.hCCT.toFixed(2)})`, desc: "Calonico-Cattaneo-Titiunik MSE-optimal h" },
             ]).map((m) => (
@@ -982,7 +981,7 @@ const RDDTool = () => {
           <div className="flex items-end gap-2">
             <div className="flex-1">
               <Slider
-                label={`带宽 h${bwMethod !== "manual" ? ` · ${bwMethod.toUpperCase()} 自动` : ""}`}
+                label={t("labs.econometrics.text089", { defaultValue: "带宽 h{{suffix}}", suffix: bwMethod !== "manual" ? t("labs.econometrics.text089auto", { defaultValue: " · {{method}} 自动", method: bwMethod.toUpperCase() }) : "" })}
                 value={bandwidth} min={0.5} max={5} step={0.1}
                 onChange={(v) => { setBwMethod("manual"); setBandwidth(v); }}
               />
@@ -992,30 +991,30 @@ const RDDTool = () => {
               title={`Rule-of-Thumb h ≈ 1.84·σ̂_X·n^(-1/5) = ${data.hROT.toFixed(3)}`}
               className="text-[10px] font-mono px-2 py-1 rounded border border-gold/60 text-gold hover:bg-gold/10 transition-colors whitespace-nowrap mb-2"
             >
-              用 ROT h ({data.hROT.toFixed(2)})
+              {t("labs.econometrics.text090", { defaultValue: "\n              用 ROT h (" })}{data.hROT.toFixed(2)})
             </button>
             <button
               onClick={() => setBwMethod("cct")}
               title={`CCT MSE-optimal h ≈ (V / 4nB²)^{1/5} = ${data.hCCT.toFixed(3)}`}
               className="text-[10px] font-mono px-2 py-1 rounded border border-gold/60 text-gold hover:bg-gold/10 transition-colors whitespace-nowrap mb-2"
             >
-              用 CCT h ({data.hCCT.toFixed(2)})
+              {t("labs.econometrics.text091", { defaultValue: "\n              用 CCT h (" })}{data.hCCT.toFixed(2)})
             </button>
           </div>
-          <Slider label="Donut 半径 δ (剔除 |X−c|≤δ)" value={donut} min={0} max={1} step={0.05} onChange={setDonut} />
-          <Slider label="操纵概率 (just-below 跳到 just-above)" value={manipulation} min={0} max={1} step={0.05} onChange={setManipulation} />
-          <Slider label="假断点偏移 (Placebo)" value={placeboShift} min={-3} max={3} step={0.1} onChange={setPlaceboShift} />
+          <Slider label={t("labs.econometrics.text092", { defaultValue: "Donut 半径 δ (剔除 |X−c|≤δ)" })} value={donut} min={0} max={1} step={0.05} onChange={setDonut} />
+          <Slider label={t("labs.econometrics.text093", { defaultValue: "操纵概率 (just-below 跳到 just-above)" })} value={manipulation} min={0} max={1} step={0.05} onChange={setManipulation} />
+          <Slider label={t("labs.econometrics.text094", { defaultValue: "假断点偏移 (Placebo)" })} value={placeboShift} min={-3} max={3} step={0.1} onChange={setPlaceboShift} />
           {mode === "fuzzy" && (
             <>
               <Slider label="P(D=1 | X<c)  (always-takers)" value={pBelow} min={0} max={1} step={0.05} onChange={setPBelow} />
               <Slider label="P(D=1 | X≥c)" value={pAbove} min={0} max={1} step={0.05} onChange={setPAbove} />
             </>
           )}
-          <Slider label="随机种子" value={seed} min={1} max={999} step={1} onChange={setSeed} />
+          <Slider label={t("labs.econometrics.text095", { defaultValue: "随机种子" })} value={seed} min={1} max={999} step={1} onChange={setSeed} />
         </div>
         <div className="space-y-3">
           <ResultRow
-            label={mode === "fuzzy" ? "Wald 估计 τ̂ = ΔY/ΔD" : "局部线性 τ̂"}
+            label={mode === "fuzzy" ? t("labs.econometrics.text096", { defaultValue: "Wald 估计 τ̂ = ΔY/ΔD" }) : t("labs.econometrics.text097", { defaultValue: "局部线性 τ̂" })}
             value={data.tauWald}
             truth={jump}
             color={CHART_GOLD}
@@ -1032,18 +1031,18 @@ const RDDTool = () => {
           )}
           {mode === "sharp" && (
             <>
-              <ResultRow label="切点左极限 Y(c⁻)" value={data.yL} color={CHART_TEAL} />
-              <ResultRow label="切点右极限 Y(c⁺)" value={data.yR} color={CHART_RED} />
+              <ResultRow label={t("labs.econometrics.text098", { defaultValue: "切点左极限 Y(c⁻)" })} value={data.yL} color={CHART_TEAL} />
+              <ResultRow label={t("labs.econometrics.text099", { defaultValue: "切点右极限 Y(c⁺)" })} value={data.yR} color={CHART_RED} />
             </>
           )}
           <ResultRow
-            label={`Placebo τ̂ @ c'=${data.cFalse.toFixed(2)} (期望≈0)`}
+            label={t("labs.econometrics.text100", { defaultValue: "Placebo τ̂ @ c'={{value}} (期望≈0)", value: data.cFalse.toFixed(2) })}
             value={data.tauPlacebo}
             color={Math.abs(data.tauPlacebo) > Math.abs(jump) * 0.3 ? CHART_RED : CHART_TEAL}
           />
           <div className="rounded-lg border border-gold/40 bg-gold/5 p-3 space-y-1 text-xs font-mono">
             <div className="flex items-center justify-between">
-              <span className="text-gold font-bold">CCT 偏差校正稳健推断</span>
+              <span className="text-gold font-bold">{t("labs.econometrics.text101", { defaultValue: "CCT 偏差校正稳健推断" })}</span>
               <span className="text-[10px] text-muted-foreground">h_CCT={data.hCCT.toFixed(2)}</span>
             </div>
             <div className="flex justify-between">
@@ -1051,7 +1050,7 @@ const RDDTool = () => {
               <span className="text-foreground">{isFinite(data.tauBC) ? data.tauBC.toFixed(3) : "—"}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-muted-foreground">偏差估计 b̂(h)</span>
+              <span className="text-muted-foreground">{t("labs.econometrics.text102", { defaultValue: "偏差估计 b̂(h)" })}</span>
               <span className="text-foreground">{isFinite(data.biasEst) ? data.biasEst.toFixed(3) : "—"}</span>
             </div>
             <div className="flex justify-between">
@@ -1072,32 +1071,29 @@ const RDDTool = () => {
             </div>
           </div>
           <div className="text-[11px] font-mono text-muted-foreground px-2">
-            实际用于估计的样本（去除 donut 后）：<span className="text-foreground">{data.nKept}</span> / {n}
+            {t("labs.econometrics.text103", { defaultValue: "\n            实际用于估计的样本（去除 donut 后）：" })}<span className="text-foreground">{data.nKept}</span> / {n}
           </div>
           <div className="text-xs font-mono text-muted-foreground p-3 rounded-lg bg-secondary/40 border border-border leading-relaxed">
             {mode === "sharp" ? (
               <>
                 <p><span className="text-gold">Sharp：</span>τ = lim_{"{x→c⁺}"} E[Y|X] − lim_{"{x→c⁻}"} E[Y|X]</p>
-                <p>处理在切点处确定性变化（D=1{"{X≥c}"}），τ̂ 即为 Y 的局部线性跳跃。</p>
+                <p>{t("labs.econometrics.text104", { defaultValue: "处理在切点处确定性变化（D=1" })}{"{X≥c}"}{t("labs.econometrics.text105", { defaultValue: "），τ̂ 即为 Y 的局部线性跳跃。" })}</p>
               </>
             ) : (
               <>
                 <p><span className="text-gold">Fuzzy / Wald：</span>τ = (lim Y⁺−lim Y⁻) / (lim P(D=1)⁺−lim P(D=1)⁻)</p>
-                <p>把 Z=1{"{X≥c}"} 视为工具变量，τ 是 LATE（complier 的局部平均处理效应）。</p>
-                <p>第一阶段 ΔD 越大 → 工具越强；ΔD→0 时 Wald 方差爆炸（弱工具问题）。</p>
+                <p>{t("labs.econometrics.text106", { defaultValue: "把 Z=1" })}{"{X≥c}"} {t("labs.econometrics.text107", { defaultValue: " 视为工具变量，τ 是 LATE（complier 的局部平均处理效应）。" })}</p>
+                <p>{t("labs.econometrics.text108", { defaultValue: "第一阶段 ΔD 越大 → 工具越强；ΔD→0 时 Wald 方差爆炸（弱工具问题）。" })}</p>
               </>
             )}
-            <p>带宽 h 越小偏差越小但方差越大 (bias-variance trade-off)。</p>
-            <p className="mt-1"><span className="text-gold">Donut RDD：</span>剔除 |X−c|≤δ 的样本以缓解 heaping / 操纵性堆积造成的偏误 (Barreca et al. 2011)。</p>
-            <p><span className="text-gold">Placebo：</span>在非处理位置 c′ 跑同样估计；若 |τ̂(c′)| 显著非零则识别假设可疑。</p>
-            <p><span className="text-gold">局部多项式：</span>p=2 减小边界偏误（O(h³) vs O(h²)）但方差更大；推荐 p=1 + Triangular kernel (CCT)。</p>
-            <p className="mt-1"><span className="text-gold">CCT 带宽 (Calonico-Cattaneo-Titiunik 2014)：</span>
-              h* = (V / 4nB²)^{"{1/5}"}，其中 B = μ₂(K)·[m″(c⁺)−m″(c⁻)]/2 由 pilot 局部二次拟合估计，V = (σ²_L+σ²_R)/f̂_X(c)。
-              比 ROT 更接近真正最小化渐近 MSE 的最优带宽，但需要二阶导数与密度估计。</p>
-            <p><span className="text-gold">偏差校正稳健推断：</span>
-              τ̂_bc = τ̂_ll(h) − ĥ²·μ₂·(m̂″_R−m̂″_L)/2 显式扣除主导偏差项；
-              robust SE 在常规 HC0 sandwich 上加入因 bias 估计带来的方差膨胀因子，
-              使 t 统计量在 MSE-optimal 带宽下仍渐近正确（Calonico, Cattaneo, Titiunik 2014; Cattaneo et al. 2020）。</p>
+            <p>{t("labs.econometrics.text109", { defaultValue: "带宽 h 越小偏差越小但方差越大 (bias-variance trade-off)。" })}</p>
+            <p className="mt-1"><span className="text-gold">Donut RDD：</span>{t("labs.econometrics.text110", { defaultValue: "剔除 |X−c|≤δ 的样本以缓解 heaping / 操纵性堆积造成的偏误 (Barreca et al. 2011)。" })}</p>
+            <p><span className="text-gold">Placebo：</span>{t("labs.econometrics.text111", { defaultValue: "在非处理位置 c′ 跑同样估计；若 |τ̂(c′)| 显著非零则识别假设可疑。" })}</p>
+            <p><span className="text-gold">{t("labs.econometrics.text112", { defaultValue: "局部多项式：" })}</span>{t("labs.econometrics.text113", { defaultValue: "p=2 减小边界偏误（O(h³) vs O(h²)）但方差更大；推荐 p=1 + Triangular kernel (CCT)。" })}</p>
+            <p className="mt-1"><span className="text-gold">{t("labs.econometrics.text114", { defaultValue: "CCT 带宽 (Calonico-Cattaneo-Titiunik 2014)：" })}</span>
+              h* = (V / 4nB²)^{"{1/5}"}{t("labs.econometrics.text115", { defaultValue: "，其中 B = μ₂(K)·[m″(c⁺)−m″(c⁻)]/2 由 pilot 局部二次拟合估计，V = (σ²_L+σ²_R)/f̂_X(c)。\n              比 ROT 更接近真正最小化渐近 MSE 的最优带宽，但需要二阶导数与密度估计。" })}</p>
+            <p><span className="text-gold">{t("labs.econometrics.text116", { defaultValue: "偏差校正稳健推断：" })}</span>
+              {t("labs.econometrics.text117", { defaultValue: "\n              τ̂_bc = τ̂_ll(h) − ĥ²·μ₂·(m̂″_R−m̂″_L)/2 显式扣除主导偏差项；\n              robust SE 在常规 HC0 sandwich 上加入因 bias 估计带来的方差膨胀因子，\n              使 t 统计量在 MSE-optimal 带宽下仍渐近正确（Calonico, Cattaneo, Titiunik 2014; Cattaneo et al. 2020）。" })}</p>
           </div>
         </div>
       </div>
@@ -1113,10 +1109,10 @@ const RDDTool = () => {
             <Legend wrapperStyle={{ fontSize: 11 }} />
             <ReferenceArea x1={cutoff - bandwidth} x2={cutoff + bandwidth} fill={CHART_GOLD} fillOpacity={0.05} />
             <ReferenceLine x={cutoff} stroke={CHART_GOLD} strokeDasharray="4 4" />
-            <Scatter name="未接受处理 (D=0)" data={data.pts.filter(p => p.D === 0)} fill={CHART_TEAL} fillOpacity={0.45} />
-            <Scatter name="接受处理 (D=1)" data={data.pts.filter(p => p.D === 1)} fill={CHART_RED} fillOpacity={0.45} />
-            <Line name="左侧拟合 E[Y|X]" data={data.lineL} dataKey="y" stroke={CHART_TEAL} strokeWidth={2.5} dot={false} />
-            <Line name="右侧拟合 E[Y|X]" data={data.lineR} dataKey="y" stroke={CHART_RED} strokeWidth={2.5} dot={false} />
+            <Scatter name={t("labs.econometrics.text118", { defaultValue: "未接受处理 (D=0)" })} data={data.pts.filter(p => p.D === 0)} fill={CHART_TEAL} fillOpacity={0.45} />
+            <Scatter name={t("labs.econometrics.text119", { defaultValue: "接受处理 (D=1)" })} data={data.pts.filter(p => p.D === 1)} fill={CHART_RED} fillOpacity={0.45} />
+            <Line name={t("labs.econometrics.text120", { defaultValue: "左侧拟合 E[Y|X]" })} data={data.lineL} dataKey="y" stroke={CHART_TEAL} strokeWidth={2.5} dot={false} />
+            <Line name={t("labs.econometrics.text121", { defaultValue: "右侧拟合 E[Y|X]" })} data={data.lineR} dataKey="y" stroke={CHART_RED} strokeWidth={2.5} dot={false} />
           </ComposedChart>
         </ResponsiveContainer>
       </div>
@@ -1125,7 +1121,7 @@ const RDDTool = () => {
       {mode === "fuzzy" && (
         <div className="rounded-xl border border-border bg-secondary/20 p-4">
           <div className="flex items-center justify-between mb-2 flex-wrap gap-2">
-            <h4 className="text-sm font-semibold text-foreground">第一阶段：P(D=1 | X) 在切点处跳跃</h4>
+            <h4 className="text-sm font-semibold text-foreground">{t("labs.econometrics.text122", { defaultValue: "第一阶段：P(D=1 | X) 在切点处跳跃" })}</h4>
             <div className="flex gap-3 text-[11px] font-mono">
               <span>P̂(c⁻) = <span style={{color: CHART_TEAL}}>{Number.isFinite(data.dL) ? data.dL.toFixed(3) : "—"}</span></span>
               <span>P̂(c⁺) = <span style={{color: CHART_RED}}>{Number.isFinite(data.dR) ? data.dR.toFixed(3) : "—"}</span></span>
@@ -1136,21 +1132,21 @@ const RDDTool = () => {
             <ResponsiveContainer width="100%" height="100%">
               <ComposedChart>
                 <CartesianGrid stroke={CHART_GRID} strokeDasharray="3 3" />
-                <XAxis type="number" dataKey="x" domain={[-5, 5]} stroke={CHART_TEXT} tick={{ fontSize: 11 }} label={{ value: "跑分变量 X", position: "insideBottom", offset: -2, fill: CHART_TEXT, fontSize: 10 }} />
+                <XAxis type="number" dataKey="x" domain={[-5, 5]} stroke={CHART_TEXT} tick={{ fontSize: 11 }} label={{ value: t("labs.econometrics.text123", { defaultValue: "跑分变量 X" }), position: "insideBottom", offset: -2, fill: CHART_TEXT, fontSize: 10 }} />
                 <YAxis type="number" domain={[0, 1]} stroke={CHART_TEXT} tick={{ fontSize: 11 }} label={{ value: "P(D=1|X)", angle: -90, position: "insideLeft", fill: CHART_TEXT, fontSize: 10 }} />
                 <Tooltip contentStyle={{ background: "hsl(220 15% 12%)", border: `1px solid ${CHART_GRID}`, fontSize: 11 }} />
                 <Legend wrapperStyle={{ fontSize: 11 }} />
                 <ReferenceArea x1={cutoff - bandwidth} x2={cutoff + bandwidth} fill={CHART_GOLD} fillOpacity={0.05} />
                 <ReferenceLine x={cutoff} stroke={CHART_GOLD} strokeDasharray="4 4" />
                 <Scatter
-                  name="个体处理状态 D"
+                  name={t("labs.econometrics.text124", { defaultValue: "个体处理状态 D" })}
                   data={data.pts.map(p => ({ x: p.x, p: p.D + (Math.random() - 0.5) * 0.04 }))}
                   dataKey="p"
                   fill={CHART_BLUE}
                   fillOpacity={0.35}
                 />
-                <Line name="左侧 P̂(D=1|X)" data={data.dLineL} dataKey="p" stroke={CHART_TEAL} strokeWidth={2.5} dot={false} />
-                <Line name="右侧 P̂(D=1|X)" data={data.dLineR} dataKey="p" stroke={CHART_RED} strokeWidth={2.5} dot={false} />
+                <Line name={t("labs.econometrics.text125", { defaultValue: "左侧 P̂(D=1|X)" })} data={data.dLineL} dataKey="p" stroke={CHART_TEAL} strokeWidth={2.5} dot={false} />
+                <Line name={t("labs.econometrics.text126", { defaultValue: "右侧 P̂(D=1|X)" })} data={data.dLineR} dataKey="p" stroke={CHART_RED} strokeWidth={2.5} dot={false} />
               </ComposedChart>
             </ResponsiveContainer>
           </div>
@@ -1159,15 +1155,14 @@ const RDDTool = () => {
             {Number.isFinite(data.tauSharp) ? data.tauSharp.toFixed(3) : "—"} / {Number.isFinite(data.dJump) ? data.dJump.toFixed(3) : "—"}
             {" = "}
             <span className="text-gold font-bold">{Number.isFinite(data.tauWald) ? data.tauWald.toFixed(3) : "—"}</span>
-            。当 ΔD 接近 0（弱工具），Wald 估计极不稳定 — 注意提高 P(D=1|X≥c) 与 P(D=1|X&lt;c) 的差距。
-          </p>
+            {t("labs.econometrics.text127", { defaultValue: "\n            。当 ΔD 接近 0（弱工具），Wald 估计极不稳定 — 注意提高 P(D=1|X≥c) 与 P(D=1|X&lt;c) 的差距。\n          " })}</p>
         </div>
       )}
 
       {/* McCrary density test panel */}
       <div className="rounded-xl border border-border bg-secondary/20 p-4">
         <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
-          <h4 className="text-sm font-semibold text-foreground">McCrary 密度检验</h4>
+          <h4 className="text-sm font-semibold text-foreground">{t("labs.econometrics.text128", { defaultValue: "McCrary 密度检验" })}</h4>
           <div className="flex gap-3 text-[11px] font-mono">
             <span>f̂(c⁻) = <span style={{color: CHART_TEAL}}>{isFinite(data.fHatL) ? data.fHatL.toFixed(4) : "—"}</span></span>
             <span>f̂(c⁺) = <span style={{color: CHART_RED}}>{isFinite(data.fHatR) ? data.fHatR.toFixed(4) : "—"}</span></span>
@@ -1182,24 +1177,24 @@ const RDDTool = () => {
           <ResponsiveContainer width="100%" height="100%">
             <ComposedChart data={data.densityRows}>
               <CartesianGrid stroke={CHART_GRID} strokeDasharray="3 3" />
-              <XAxis dataKey="mid" type="number" domain={[-5, 5]} stroke={CHART_TEXT} tick={{ fontSize: 11 }} label={{ value: "跑分变量 X", position: "insideBottom", offset: -2, fill: CHART_TEXT, fontSize: 10 }} />
-              <YAxis stroke={CHART_TEXT} tick={{ fontSize: 11 }} label={{ value: "密度 f̂(X)", angle: -90, position: "insideLeft", fill: CHART_TEXT, fontSize: 10 }} />
+              <XAxis dataKey="mid" type="number" domain={[-5, 5]} stroke={CHART_TEXT} tick={{ fontSize: 11 }} label={{ value: t("labs.econometrics.text129", { defaultValue: "跑分变量 X" }), position: "insideBottom", offset: -2, fill: CHART_TEXT, fontSize: 10 }} />
+              <YAxis stroke={CHART_TEXT} tick={{ fontSize: 11 }} label={{ value: t("labs.econometrics.text130", { defaultValue: "密度 f̂(X)" }), angle: -90, position: "insideLeft", fill: CHART_TEXT, fontSize: 10 }} />
               <Tooltip contentStyle={{ background: "hsl(220 15% 12%)", border: `1px solid ${CHART_GRID}`, fontSize: 11 }} />
               <Legend wrapperStyle={{ fontSize: 11 }} />
               <ReferenceLine x={cutoff} stroke={CHART_GOLD} strokeDasharray="4 4" label={{ value: "c", fill: CHART_GOLD, fontSize: 10, position: "top" }} />
               <ReferenceArea x1={cutoff - bandwidth} x2={cutoff + bandwidth} fill={CHART_GOLD} fillOpacity={0.04} />
               {/* Histogram bars via thin scatters with size proxy is messy; use Line of two side series */}
-              <Scatter name="左侧密度 (X<c)" data={data.densityRows.filter(d => d.side === -1)} dataKey="density" fill={CHART_TEAL} />
-              <Scatter name="右侧密度 (X≥c)" data={data.densityRows.filter(d => d.side === 1)} dataKey="density" fill={CHART_RED} />
-              <Line name="左侧局部线性" data={data.densLineL} dataKey="fit" stroke={CHART_TEAL} strokeWidth={2.5} dot={false} />
-              <Line name="右侧局部线性" data={data.densLineR} dataKey="fit" stroke={CHART_RED} strokeWidth={2.5} dot={false} />
+              <Scatter name={t("labs.econometrics.text131", { defaultValue: "左侧密度 (X<c)" })} data={data.densityRows.filter(d => d.side === -1)} dataKey="density" fill={CHART_TEAL} />
+              <Scatter name={t("labs.econometrics.text132", { defaultValue: "右侧密度 (X≥c)" })} data={data.densityRows.filter(d => d.side === 1)} dataKey="density" fill={CHART_RED} />
+              <Line name={t("labs.econometrics.text133", { defaultValue: "左侧局部线性" })} data={data.densLineL} dataKey="fit" stroke={CHART_TEAL} strokeWidth={2.5} dot={false} />
+              <Line name={t("labs.econometrics.text134", { defaultValue: "右侧局部线性" })} data={data.densLineR} dataKey="fit" stroke={CHART_RED} strokeWidth={2.5} dot={false} />
             </ComposedChart>
           </ResponsiveContainer>
         </div>
         <div className="mt-3 text-[11px] font-mono text-muted-foreground leading-relaxed">
-          <p><span className="text-gold">McCrary (2008)：</span>检验跑分变量密度 f(X) 在切点 c 处是否连续。原假设 H₀: f(c⁻)=f(c⁺)。</p>
-          <p>检验量 θ̂ = log f̂(c⁺) − log f̂(c⁻)，SE(θ̂) ≈ √(1/(nh·f̂(c⁻)) + 1/(nh·f̂(c⁺)))，z = θ̂/SE。</p>
-          <p>|z| &gt; 1.96 (p &lt; 0.05) → <span style={{color: CHART_RED}} className="font-bold">拒绝 H₀，存在操纵迹象</span>，RDD 估计可疑；否则不能拒绝连续性。</p>
+          <p><span className="text-gold">McCrary (2008)：</span>{t("labs.econometrics.text135", { defaultValue: "检验跑分变量密度 f(X) 在切点 c 处是否连续。原假设 H₀: f(c⁻)=f(c⁺)。" })}</p>
+          <p>{t("labs.econometrics.text136", { defaultValue: "检验量 θ̂ = log f̂(c⁺) − log f̂(c⁻)，SE(θ̂) ≈ √(1/(nh·f̂(c⁻)) + 1/(nh·f̂(c⁺)))，z = θ̂/SE。" })}</p>
+          <p>|z| &gt; 1.96 (p &lt; 0.05) → <span style={{color: CHART_RED}} className="font-bold">{t("labs.econometrics.text137", { defaultValue: "拒绝 H₀，存在操纵迹象" })}</span>{t("labs.econometrics.text138", { defaultValue: "，RDD 估计可疑；否则不能拒绝连续性。" })}</p>
         </div>
       </div>
     </div>
@@ -1210,6 +1205,7 @@ const RDDTool = () => {
    4. GMM — moment-based estimator demo (mean of distribution)
    ════════════════════════════════════════════════════════════ */
 const GMMTool = () => {
+  const { t } = useTranslation();
   const [trueMu, setTrueMu] = useState(2);
   const [trueSigma, setTrueSigma] = useState(1.5);
   const [n, setN] = useState(200);
@@ -1398,41 +1394,39 @@ const GMMTool = () => {
   return (
     <div className="space-y-6">
       <PresetButtons presets={[
-        { name: "等权重 (2 矩)", description: "标准 GMM, 仅识别 μ", apply: () => { setW1(0.5); setTrueMu(2); setTrueSigma(1.5); setIncludeM3(false); } },
-        { name: "仅一阶矩", description: "w₁=1, 退化为样本均值", apply: () => { setW1(1); setIncludeM3(false); } },
-        { name: "过度识别 (3 矩)", description: "加入三阶矩, J 检验有意义", apply: () => { setW1(0.5); setTrueMu(2); setTrueSigma(1.5); setIncludeM3(true); setN(500); } },
+        { name: t("labs.econometrics.text139", { defaultValue: "等权重 (2 矩)" }), description: t("labs.econometrics.text140", { defaultValue: "标准 GMM, 仅识别 μ" }), apply: () => { setW1(0.5); setTrueMu(2); setTrueSigma(1.5); setIncludeM3(false); } },
+        { name: t("labs.econometrics.text141", { defaultValue: "仅一阶矩" }), description: t("labs.econometrics.text142", { defaultValue: "w₁=1, 退化为样本均值" }), apply: () => { setW1(1); setIncludeM3(false); } },
+        { name: t("labs.econometrics.text143", { defaultValue: "过度识别 (3 矩)" }), description: t("labs.econometrics.text144", { defaultValue: "加入三阶矩, J 检验有意义" }), apply: () => { setW1(0.5); setTrueMu(2); setTrueSigma(1.5); setIncludeM3(true); setN(500); } },
       ]} />
 
       <div className="flex items-center gap-3 flex-wrap">
-        <span className="text-xs font-mono text-muted-foreground">矩条件数：</span>
+        <span className="text-xs font-mono text-muted-foreground">{t("labs.econometrics.text145", { defaultValue: "矩条件数：" })}</span>
         <button
           onClick={() => setIncludeM3(false)}
           className={"text-xs px-3 py-1.5 rounded border font-mono transition-colors " +
             (!includeM3 ? "border-gold bg-gold/10 text-gold" : "border-border text-muted-foreground hover:border-foreground/40")}
         >
-          2 矩 (g₁, g₂) — 恰好识别
-        </button>
+          {t("labs.econometrics.text146", { defaultValue: "\n          2 矩 (g₁, g₂) — 恰好识别\n        " })}</button>
         <button
           onClick={() => setIncludeM3(true)}
           className={"text-xs px-3 py-1.5 rounded border font-mono transition-colors " +
             (includeM3 ? "border-gold bg-gold/10 text-gold" : "border-border text-muted-foreground hover:border-foreground/40")}
         >
-          3 矩 (g₁, g₂, g₃) — 过度识别 (df=2)
-        </button>
+          {t("labs.econometrics.text147", { defaultValue: "\n          3 矩 (g₁, g₂, g₃) — 过度识别 (df=2)\n        " })}</button>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="space-y-3">
-          <Slider label="真实 μ" value={trueMu} min={-3} max={5} step={0.1} onChange={setTrueMu} />
-          <Slider label="真实 σ" value={trueSigma} min={0.2} max={3} step={0.1} onChange={setTrueSigma} />
-          <Slider label="样本量 n" value={n} min={30} max={2000} step={10} onChange={setN} />
-          <Slider label="一阶矩权重 w₁ (仅 2 矩有效)" value={w1} min={0} max={1} step={0.05} onChange={setW1} />
-          <Slider label="随机种子" value={seed} min={1} max={999} step={1} onChange={setSeed} />
+          <Slider label={t("labs.econometrics.text148", { defaultValue: "真实 μ" })} value={trueMu} min={-3} max={5} step={0.1} onChange={setTrueMu} />
+          <Slider label={t("labs.econometrics.text149", { defaultValue: "真实 σ" })} value={trueSigma} min={0.2} max={3} step={0.1} onChange={setTrueSigma} />
+          <Slider label={t("labs.econometrics.text150", { defaultValue: "样本量 n" })} value={n} min={30} max={2000} step={10} onChange={setN} />
+          <Slider label={t("labs.econometrics.text151", { defaultValue: "一阶矩权重 w₁ (仅 2 矩有效)" })} value={w1} min={0} max={1} step={0.05} onChange={setW1} />
+          <Slider label={t("labs.econometrics.text152", { defaultValue: "随机种子" })} value={seed} min={1} max={999} step={1} onChange={setSeed} />
         </div>
         <div className="space-y-3">
-          <ResultRow label="一阶段 μ̂ (用户权重)" value={data.step1.bestMu} truth={trueMu} color={CHART_TEAL} />
-          <ResultRow label="二阶段有效 GMM μ̂" value={data.step2.bestMu} truth={trueMu} color={CHART_GOLD} />
-          <ResultRow label="目标函数 Q(μ̂_eff)" value={data.step2.bestQ} color={CHART_RED} />
+          <ResultRow label={t("labs.econometrics.text153", { defaultValue: "一阶段 μ̂ (用户权重)" })} value={data.step1.bestMu} truth={trueMu} color={CHART_TEAL} />
+          <ResultRow label={t("labs.econometrics.text154", { defaultValue: "二阶段有效 GMM μ̂" })} value={data.step2.bestMu} truth={trueMu} color={CHART_GOLD} />
+          <ResultRow label={t("labs.econometrics.text155", { defaultValue: "目标函数 Q(μ̂_eff)" })} value={data.step2.bestQ} color={CHART_RED} />
 
           {/* J test card */}
           <div
@@ -1441,10 +1435,10 @@ const GMMTool = () => {
           >
             <div className="flex items-center justify-between mb-1">
               <span className="text-xs font-mono text-muted-foreground">
-                Hansen J 过度识别检验 (χ²(df={data.df}))
+                {t("labs.econometrics.text156", { defaultValue: "\n                Hansen J 过度识别检验 (χ²(df=" })}{data.df}))
               </span>
               {data.df === 0 && (
-                <span className="text-[10px] font-mono text-muted-foreground">恰好识别 → J 不可用</span>
+                <span className="text-[10px] font-mono text-muted-foreground">{t("labs.econometrics.text157", { defaultValue: "恰好识别 → J 不可用" })}</span>
               )}
             </div>
             <div className="flex items-center gap-4 flex-wrap">
@@ -1462,18 +1456,18 @@ const GMMTool = () => {
               </span>
               <span className="text-[10px] font-mono text-muted-foreground">
                 {data.df === 0
-                  ? "需要 ≥1 多余矩"
+                  ? t("labs.econometrics.text158", { defaultValue: "需要 ≥1 多余矩" })
                   : Number.isFinite(data.pJ) && data.pJ < 0.05
-                    ? "拒绝矩条件 — 模型可能错设"
-                    : "未拒绝 — 矩条件相容"}
+                    ? t("labs.econometrics.text159", { defaultValue: "拒绝矩条件 — 模型可能错设" })
+                    : t("labs.econometrics.text160", { defaultValue: "未拒绝 — 矩条件相容" })}
               </span>
             </div>
           </div>
 
           <div className="text-xs font-mono text-muted-foreground p-3 rounded-lg bg-secondary/40 border border-border leading-relaxed">
-            <p><span className="text-gold">矩条件：</span>g₁=m₁−μ, g₂=m₂−(μ²+σ²){data.k === 3 && ", g₃=m₃−(μ³+3μσ²)"}</p>
-            <p><span className="text-gold">两步 GMM：</span>μ̂_(1) → Ω̂⁻¹ → μ̂_(2) (有效)</p>
-            <p><span className="text-gold">J 统计量：</span>J = n·Q(μ̂_eff) ~ χ²(q−p)，q=矩数, p=参数数。</p>
+            <p><span className="text-gold">{t("labs.econometrics.text161", { defaultValue: "矩条件：" })}</span>g₁=m₁−μ, g₂=m₂−(μ²+σ²){data.k === 3 && ", g₃=m₃−(μ³+3μσ²)"}</p>
+            <p><span className="text-gold">{t("labs.econometrics.text162", { defaultValue: "两步 GMM：" })}</span>{t("labs.econometrics.text163", { defaultValue: "μ̂_(1) → Ω̂⁻¹ → μ̂_(2) (有效)" })}</p>
+            <p><span className="text-gold">{t("labs.econometrics.text164", { defaultValue: "J 统计量：" })}</span>{t("labs.econometrics.text165", { defaultValue: "J = n·Q(μ̂_eff) ~ χ²(q−p)，q=矩数, p=参数数。" })}</p>
           </div>
         </div>
       </div>
@@ -1481,8 +1475,8 @@ const GMMTool = () => {
       {/* Q(μ) curve */}
       <div className="rounded-xl border border-border bg-secondary/20 p-4">
         <div className="flex items-center justify-between mb-2">
-          <h4 className="text-sm font-semibold text-foreground">目标函数曲线 Q(μ)</h4>
-          <span className="text-[10px] font-mono text-muted-foreground">在用户权重矩阵下绘制</span>
+          <h4 className="text-sm font-semibold text-foreground">{t("labs.econometrics.text166", { defaultValue: "目标函数曲线 Q(μ)" })}</h4>
+          <span className="text-[10px] font-mono text-muted-foreground">{t("labs.econometrics.text167", { defaultValue: "在用户权重矩阵下绘制" })}</span>
         </div>
         <div className="h-[300px]">
           <ResponsiveContainer width="100%" height="100%">
@@ -1492,13 +1486,13 @@ const GMMTool = () => {
               <YAxis stroke={CHART_TEXT} tick={{ fontSize: 11 }} label={{ value: "Q(μ)", angle: -90, position: "insideLeft", fill: CHART_TEXT, fontSize: 11 }} />
               <Tooltip contentStyle={{ background: "hsl(220 15% 12%)", border: `1px solid ${CHART_GRID}`, fontSize: 11 }} />
               <Legend wrapperStyle={{ fontSize: 11 }} />
-              <ReferenceLine x={trueMu} stroke={CHART_TEAL} strokeDasharray="4 4" label={{ value: "真实 μ", fill: CHART_TEAL, fontSize: 10, position: "top" }} />
+              <ReferenceLine x={trueMu} stroke={CHART_TEAL} strokeDasharray="4 4" label={{ value: t("labs.econometrics.text168", { defaultValue: "真实 μ" }), fill: CHART_TEAL, fontSize: 10, position: "top" }} />
               <ReferenceLine x={data.step1.bestMu} stroke={CHART_BLUE} strokeDasharray="3 3" label={{ value: "μ̂_(1)", fill: CHART_BLUE, fontSize: 10, position: "insideTopRight" }} />
-              <ReferenceLine x={data.step2.bestMu} stroke={CHART_GOLD} strokeDasharray="4 4" label={{ value: "μ̂_(2) 有效", fill: CHART_GOLD, fontSize: 10, position: "top" }} />
+              <ReferenceLine x={data.step2.bestMu} stroke={CHART_GOLD} strokeDasharray="4 4" label={{ value: t("labs.econometrics.text169", { defaultValue: "μ̂_(2) 有效" }), fill: CHART_GOLD, fontSize: 10, position: "top" }} />
               <Line dataKey="Q" name="Q(μ)" stroke={CHART_GOLD} strokeWidth={2} dot={false} />
               {/* explicit minimum marker */}
               <Scatter
-                name="最小点"
+                name={t("labs.econometrics.text170", { defaultValue: "最小点" })}
                 data={[{ mu: +data.step1.bestMu.toFixed(3), Q: +data.step1.bestQ.toFixed(6) }]}
                 dataKey="Q"
                 fill={CHART_RED}
@@ -1508,9 +1502,7 @@ const GMMTool = () => {
           </ResponsiveContainer>
         </div>
         <p className="mt-2 text-[11px] text-muted-foreground font-mono">
-          曲线在 <span className="text-gold">μ̂</span> 处取最小值；曲率越大 → 信息越多 → μ̂ 估计越精确（渐近方差越小）。
-          切换到 <span className="text-gold">3 矩</span> 模式后，J = n·Q(μ̂) 的大小可检验额外的矩条件是否被数据支持。
-        </p>
+          {t("labs.econometrics.text171", { defaultValue: "\n          曲线在 " })}<span className="text-gold">μ̂</span> {t("labs.econometrics.text172", { defaultValue: " 处取最小值；曲率越大 → 信息越多 → μ̂ 估计越精确（渐近方差越小）。\n          切换到 " })}<span className="text-gold">{t("labs.econometrics.text173", { defaultValue: "3 矩" })}</span> {t("labs.econometrics.text174", { defaultValue: " 模式后，J = n·Q(μ̂) 的大小可检验额外的矩条件是否被数据支持。\n        " })}</p>
       </div>
     </div>
   );
@@ -1518,6 +1510,7 @@ const GMMTool = () => {
 
 /* ──────────────────  SVAR / IRF Tool  ────────────────── */
 const SVARTool = () => {
+  const { t } = useTranslation();
   const [seed, setSeed] = useState(11);
   const [T, setT] = useState(200);
   const [H, setH] = useState(20);            // IRF horizon
@@ -1930,11 +1923,11 @@ const SVARTool = () => {
   }, [seed, T, H, a11, a12, a21, a22, b21, s1, s2, boots, shockIdx]);
 
   const presets: Preset[] = [
-    { name: "标准教科书", description: "稳定 VAR + 中等同期溢出", apply: () => { setA11(0.6); setA12(0.1); setA21(0.2); setA22(0.5); setB21(0.4); setS1(1); setS2(1); setT(200); setH(20); } },
-    { name: "高持续性", description: "接近单位根，IRF 衰减很慢", apply: () => { setA11(0.9); setA22(0.85); setA12(0.05); setA21(0.05); setB21(0.3); } },
-    { name: "无同期溢出", description: "B0 对角，y2 对 ε1 的瞬时反应=0", apply: () => { setB21(0); } },
-    { name: "强同期溢出", description: "ε1 立即推动 y2 大幅上升", apply: () => { setB21(1.2); } },
-    { name: "短样本", description: "T=60, 看置信带变宽", apply: () => { setT(60); setBoots(150); } },
+    { name: t("labs.econometrics.text175", { defaultValue: "标准教科书" }), description: t("labs.econometrics.text176", { defaultValue: "稳定 VAR + 中等同期溢出" }), apply: () => { setA11(0.6); setA12(0.1); setA21(0.2); setA22(0.5); setB21(0.4); setS1(1); setS2(1); setT(200); setH(20); } },
+    { name: t("labs.econometrics.text177", { defaultValue: "高持续性" }), description: t("labs.econometrics.text178", { defaultValue: "接近单位根，IRF 衰减很慢" }), apply: () => { setA11(0.9); setA22(0.85); setA12(0.05); setA21(0.05); setB21(0.3); } },
+    { name: t("labs.econometrics.text179", { defaultValue: "无同期溢出" }), description: t("labs.econometrics.text180", { defaultValue: "B0 对角，y2 对 ε1 的瞬时反应=0" }), apply: () => { setB21(0); } },
+    { name: t("labs.econometrics.text181", { defaultValue: "强同期溢出" }), description: t("labs.econometrics.text182", { defaultValue: "ε1 立即推动 y2 大幅上升" }), apply: () => { setB21(1.2); } },
+    { name: t("labs.econometrics.text183", { defaultValue: "短样本" }), description: t("labs.econometrics.text184", { defaultValue: "T=60, 看置信带变宽" }), apply: () => { setT(60); setBoots(150); } },
   ];
 
   return (
@@ -1943,17 +1936,17 @@ const SVARTool = () => {
 
       {/* Sliders */}
       <div className="grid grid-cols-2 md:grid-cols-3 gap-4 p-4 rounded-xl bg-secondary/30 border border-border">
-        <Slider label="样本量 T" value={T} min={50} max={500} step={10} onChange={setT} />
-        <Slider label="IRF 期数 H" value={H} min={5} max={40} step={1} onChange={setH} />
-        <Slider label="Bootstrap 次数" value={boots} min={0} max={400} step={20} onChange={setBoots} />
+        <Slider label={t("labs.econometrics.text185", { defaultValue: "样本量 T" })} value={T} min={50} max={500} step={10} onChange={setT} />
+        <Slider label={t("labs.econometrics.text186", { defaultValue: "IRF 期数 H" })} value={H} min={5} max={40} step={1} onChange={setH} />
+        <Slider label={t("labs.econometrics.text187", { defaultValue: "Bootstrap 次数" })} value={boots} min={0} max={400} step={20} onChange={setBoots} />
         <Slider label="A₁₁ (y₁→y₁)" value={a11} min={-0.95} max={0.95} step={0.05} onChange={setA11} />
         <Slider label="A₁₂ (y₂→y₁)" value={a12} min={-0.5} max={0.5} step={0.05} onChange={setA12} />
         <Slider label="A₂₁ (y₁→y₂)" value={a21} min={-0.5} max={0.5} step={0.05} onChange={setA21} />
         <Slider label="A₂₂ (y₂→y₂)" value={a22} min={-0.95} max={0.95} step={0.05} onChange={setA22} />
-        <Slider label="B₀ 同期 b₂₁" value={b21} min={-1.5} max={1.5} step={0.05} onChange={setB21} />
+        <Slider label={t("labs.econometrics.text188", { defaultValue: "B₀ 同期 b₂₁" })} value={b21} min={-1.5} max={1.5} step={0.05} onChange={setB21} />
         <Slider label="σ(ε₁)" value={s1} min={0.2} max={2} step={0.1} onChange={setS1} />
         <Slider label="σ(ε₂)" value={s2} min={0.2} max={2} step={0.1} onChange={setS2} />
-        <Slider label="随机种子" value={seed} min={1} max={200} step={1} onChange={setSeed} />
+        <Slider label={t("labs.econometrics.text189", { defaultValue: "随机种子" })} value={seed} min={1} max={200} step={1} onChange={setSeed} />
         <div className="flex items-end">
           <div className="flex gap-1 w-full">
             {[0, 1].map(i => (
@@ -1963,7 +1956,7 @@ const SVARTool = () => {
                     ? "bg-gold/20 border-gold text-gold"
                     : "bg-secondary/50 border-border text-muted-foreground hover:text-foreground"
                 }`}>
-                冲击 ε{i + 1}
+                {t("labs.econometrics.text190", { defaultValue: "\n                冲击 ε" })}{i + 1}
               </button>
             ))}
           </div>
@@ -1972,11 +1965,11 @@ const SVARTool = () => {
 
       {/* Identification mode toggle */}
       <div className="flex items-center gap-2 flex-wrap">
-        <span className="text-[10px] font-mono text-muted-foreground uppercase tracking-wider">识别策略</span>
+        <span className="text-[10px] font-mono text-muted-foreground uppercase tracking-wider">{t("labs.econometrics.text191", { defaultValue: "识别策略" })}</span>
         {[
           { id: "chol", label: "Cholesky" },
-          { id: "bq", label: "Blanchard-Quah (长期约束)" },
-          { id: "both", label: "对比叠加" },
+          { id: "bq", label: t("labs.econometrics.text192", { defaultValue: "Blanchard-Quah (长期约束)" }) },
+          { id: "both", label: t("labs.econometrics.text193", { defaultValue: "对比叠加" }) },
         ].map(opt => (
           <button key={opt.id} onClick={() => setIdentMode(opt.id as "chol" | "bq" | "both")}
             className={`px-3 py-1.5 text-xs font-mono rounded-md border transition-all ${
@@ -1994,23 +1987,22 @@ const SVARTool = () => {
         <div className="flex items-start gap-2">
           <span className="text-[11px] font-mono text-gold uppercase tracking-wider mt-0.5 shrink-0">Cholesky</span>
           <div className="text-xs text-muted-foreground leading-relaxed">
-            短期排序约束：<InlineMath math={String.raw`B_0`} /> 下三角 ⇒ <InlineMath math={String.raw`\varepsilon_2`} /> 同期不影响 <InlineMath math={String.raw`y_1`} />。
+            {t("labs.econometrics.text194", { defaultValue: "\n            短期排序约束：" })}<InlineMath math={String.raw`B_0`} /> {t("labs.econometrics.text195", { defaultValue: " 下三角 ⇒ " })}<InlineMath math={String.raw`\varepsilon_2`} /> {t("labs.econometrics.text196", { defaultValue: " 同期不影响 " })}<InlineMath math={String.raw`y_1`} />。
             <span className="text-foreground/70 ml-1">(Short-run recursive ordering)</span>
           </div>
         </div>
         <div className="flex items-start gap-2">
           <span className="text-[11px] font-mono uppercase tracking-wider mt-0.5 shrink-0" style={{ color: CHART_TEAL }}>Blanchard-Quah</span>
           <div className="text-xs text-muted-foreground leading-relaxed">
-            长期约束：<InlineMath math={String.raw`C(1)\,B`} /> 下三角 ⇒ <InlineMath math={String.raw`\varepsilon_2`} /> <span className="underline">长期</span>累计对 <InlineMath math={String.raw`y_1`} /> 为 0。
-            <span className="text-foreground/70 ml-1">(Long-run zero restriction; e.g. demand shocks have no permanent effect on output)</span>
+            {t("labs.econometrics.text197", { defaultValue: "\n            长期约束：" })}<InlineMath math={String.raw`C(1)\,B`} /> {t("labs.econometrics.text198", { defaultValue: " 下三角 ⇒ " })}<InlineMath math={String.raw`\varepsilon_2`} /> <span className="underline">{t("labs.econometrics.text199", { defaultValue: "长期" })}</span>{t("labs.econometrics.text200", { defaultValue: "累计对 " })}<InlineMath math={String.raw`y_1`} /> {t("labs.econometrics.text201", { defaultValue: " 为 0。\n            " })}<span className="text-foreground/70 ml-1">(Long-run zero restriction; e.g. demand shocks have no permanent effect on output)</span>
           </div>
         </div>
       </div>
 
       {/* Two IRF plots */}
       {[
-        { key: "y1", label: `y₁ 对 ε${shockIdx + 1} 的脉冲响应` },
-        { key: "y2", label: `y₂ 对 ε${shockIdx + 1} 的脉冲响应` },
+        { key: "y1", label: t("labs.econometrics.text202", { defaultValue: "y₁ 对 ε{{value}} 的脉冲响应", value: shockIdx + 1 }) },
+        { key: "y2", label: t("labs.econometrics.text203", { defaultValue: "y₂ 对 ε{{value}} 的脉冲响应", value: shockIdx + 1 }) },
       ].map(cfg => {
         const cLo = `${cfg.key}_lo_v`, cBand = `${cfg.key}_band_v`, cLine = cfg.key;
         const bLo = `${cfg.key}_bq_lo_v`, bBand = `${cfg.key}_bq_band_v`, bLine = `${cfg.key}_bq`;
@@ -2053,13 +2045,13 @@ const SVARTool = () => {
       {/* FEVD: forecast error variance decomposition (Cholesky) */}
       <div className="rounded-xl border border-border bg-background/50 p-4">
         <div className="flex items-center justify-between mb-2">
-          <span className="text-xs font-mono text-muted-foreground uppercase tracking-wider">方差分解 FEVD (Cholesky)</span>
-          <span className="text-[10px] font-mono text-muted-foreground">各结构冲击对预测误差方差贡献份额</span>
+          <span className="text-xs font-mono text-muted-foreground uppercase tracking-wider">{t("labs.econometrics.text204", { defaultValue: "方差分解 FEVD (Cholesky)" })}</span>
+          <span className="text-[10px] font-mono text-muted-foreground">{t("labs.econometrics.text205", { defaultValue: "各结构冲击对预测误差方差贡献份额" })}</span>
         </div>
         <div className="grid md:grid-cols-2 gap-4">
           {[
-            { key: "y1", label: "y₁ 的 FEVD", e1: "y1_e1", e2: "y1_e2" },
-            { key: "y2", label: "y₂ 的 FEVD", e1: "y2_e1", e2: "y2_e2" },
+            { key: "y1", label: t("labs.econometrics.text206", { defaultValue: "y₁ 的 FEVD" }), e1: "y1_e1", e2: "y1_e2" },
+            { key: "y2", label: t("labs.econometrics.text207", { defaultValue: "y₂ 的 FEVD" }), e1: "y2_e1", e2: "y2_e2" },
           ].map(cfg => (
             <div key={cfg.key}>
               <div className="text-[10px] font-mono text-muted-foreground mb-1">{cfg.label}</div>
@@ -2072,8 +2064,8 @@ const SVARTool = () => {
                   <Tooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", fontSize: 11, fontFamily: "monospace" }}
                     formatter={(v: number) => `${(v * 100).toFixed(1)}%`} />
                   <Legend wrapperStyle={{ fontSize: 11, fontFamily: "monospace" }} />
-                  <Area type="monotone" dataKey={cfg.e1} stackId="f" name="ε₁ 贡献" stroke={CHART_GOLD} fill={CHART_GOLD} fillOpacity={0.55} />
-                  <Area type="monotone" dataKey={cfg.e2} stackId="f" name="ε₂ 贡献" stroke={CHART_TEAL} fill={CHART_TEAL} fillOpacity={0.55} />
+                  <Area type="monotone" dataKey={cfg.e1} stackId="f" name={t("labs.econometrics.text208", { defaultValue: "ε₁ 贡献" })} stroke={CHART_GOLD} fill={CHART_GOLD} fillOpacity={0.55} />
+                  <Area type="monotone" dataKey={cfg.e2} stackId="f" name={t("labs.econometrics.text209", { defaultValue: "ε₂ 贡献" })} stroke={CHART_TEAL} fill={CHART_TEAL} fillOpacity={0.55} />
                 </ComposedChart>
               </ResponsiveContainer>
             </div>
@@ -2084,13 +2076,13 @@ const SVARTool = () => {
       {/* Historical Decomposition (Cholesky) */}
       <div className="rounded-xl border border-border bg-background/50 p-4">
         <div className="flex items-center justify-between mb-2">
-          <span className="text-xs font-mono text-muted-foreground uppercase tracking-wider">历史分解 Historical Decomposition</span>
-          <span className="text-[10px] font-mono text-muted-foreground">y_t − 基线 = Σ_j (累计冲击 ε_j 贡献)</span>
+          <span className="text-xs font-mono text-muted-foreground uppercase tracking-wider">{t("labs.econometrics.text210", { defaultValue: "历史分解 Historical Decomposition" })}</span>
+          <span className="text-[10px] font-mono text-muted-foreground">{t("labs.econometrics.text211", { defaultValue: "y_t − 基线 = Σ_j (累计冲击 ε_j 贡献)" })}</span>
         </div>
         <div className="grid md:grid-cols-2 gap-4">
           {[
-            { key: "y1", label: "y₁ 路径分解", e1: "y1_e1", e2: "y1_e2", actual: "y1_actual" },
-            { key: "y2", label: "y₂ 路径分解", e1: "y2_e1", e2: "y2_e2", actual: "y2_actual" },
+            { key: "y1", label: t("labs.econometrics.text212", { defaultValue: "y₁ 路径分解" }), e1: "y1_e1", e2: "y1_e2", actual: "y1_actual" },
+            { key: "y2", label: t("labs.econometrics.text213", { defaultValue: "y₂ 路径分解" }), e1: "y2_e1", e2: "y2_e2", actual: "y2_actual" },
           ].map(cfg => (
             <div key={cfg.key}>
               <div className="text-[10px] font-mono text-muted-foreground mb-1">{cfg.label}</div>
@@ -2104,28 +2096,26 @@ const SVARTool = () => {
                     formatter={(v: number) => v.toFixed(3)} />
                   <Legend wrapperStyle={{ fontSize: 11, fontFamily: "monospace" }} />
                   <ReferenceLine y={0} stroke={CHART_TEXT} strokeDasharray="2 2" />
-                  <Area type="monotone" dataKey={cfg.e1} stackId="hd" name="ε₁ 累计贡献"
+                  <Area type="monotone" dataKey={cfg.e1} stackId="hd" name={t("labs.econometrics.text214", { defaultValue: "ε₁ 累计贡献" })}
                     stroke={CHART_GOLD} fill={CHART_GOLD} fillOpacity={0.45} />
-                  <Area type="monotone" dataKey={cfg.e2} stackId="hd" name="ε₂ 累计贡献"
+                  <Area type="monotone" dataKey={cfg.e2} stackId="hd" name={t("labs.econometrics.text215", { defaultValue: "ε₂ 累计贡献" })}
                     stroke={CHART_TEAL} fill={CHART_TEAL} fillOpacity={0.45} />
                   <Line type="monotone" dataKey={cfg.actual} stroke={CHART_RED} strokeWidth={1.8} dot={false}
-                    name="实际偏离 (y_t − baseline)" />
+                    name={t("labs.econometrics.text216", { defaultValue: "实际偏离 (y_t − baseline)" })} />
                 </ComposedChart>
               </ResponsiveContainer>
             </div>
           ))}
         </div>
         <div className="mt-2 text-[10px] font-mono text-muted-foreground leading-relaxed">
-          公式：y<sub>i,t</sub> − ŷ<sub>i,t|0</sub> = Σ<sub>j</sub> Σ<sub>s=0..t-1</sub> (Φ<sub>s</sub>L)<sub>ij</sub> · ε<sub>t-s,j</sub>。
-          堆叠面积 = 各结构冲击的累计贡献；红线 = 实际偏离基线，应与堆叠总高度吻合（识别正确的诊断）。
-        </div>
+          {t("labs.econometrics.text217", { defaultValue: "\n          公式：y" })}<sub>i,t</sub> − ŷ<sub>i,t|0</sub> = Σ<sub>j</sub> Σ<sub>s=0..t-1</sub> (Φ<sub>s</sub>L)<sub>ij</sub> · ε<sub>t-s,j</sub>{t("labs.econometrics.text218", { defaultValue: "。\n          堆叠面积 = 各结构冲击的累计贡献；红线 = 实际偏离基线，应与堆叠总高度吻合（识别正确的诊断）。\n        " })}</div>
       </div>
 
       {/* Granger causality */}
       <div className="rounded-xl border border-border bg-background/50 p-4">
         <div className="flex items-center justify-between mb-3">
           <div>
-            <div className="text-xs font-mono text-muted-foreground uppercase tracking-wider">Granger 因果检验</div>
+            <div className="text-xs font-mono text-muted-foreground uppercase tracking-wider">{t("labs.econometrics.text219", { defaultValue: "Granger 因果检验" })}</div>
             <div className="text-[10px] font-mono text-muted-foreground/70">Granger Causality F-Test  ·  H₀: lagged predictor is jointly insignificant</div>
           </div>
           <div className="text-[10px] font-mono text-muted-foreground tabular-nums">
@@ -2143,7 +2133,7 @@ const SVARTool = () => {
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-sm font-mono font-semibold text-foreground">{t.dir}</span>
                   <span className={`text-[10px] font-mono px-2 py-0.5 rounded ${reject ? "bg-gold/20 text-gold" : "bg-muted text-muted-foreground"}`}>
-                    {reject ? "拒绝 H₀ · Reject" : "不拒绝 · Fail to reject"}
+                    {reject ? t("labs.econometrics.text220", { defaultValue: "拒绝 H₀ · Reject" }) : t("labs.econometrics.text221", { defaultValue: "不拒绝 · Fail to reject" })}
                   </span>
                 </div>
                 <div className="text-[11px] text-muted-foreground mb-1">{t.direnEn}</div>
@@ -2164,8 +2154,8 @@ const SVARTool = () => {
                 </div>
                 <div className="mt-2 text-[10px] text-muted-foreground leading-relaxed">
                   {reject
-                    ? <>有证据表明存在 Granger 因果关系。<span className="text-foreground/60">Significant predictive content.</span></>
-                    : <>没有显著证据表明 Granger 因果关系。<span className="text-foreground/60">No significant predictive content.</span></>}
+                    ? <>{t("labs.econometrics.text222", { defaultValue: "有证据表明存在 Granger 因果关系。" })}<span className="text-foreground/60">Significant predictive content.</span></>
+                    : <>{t("labs.econometrics.text223", { defaultValue: "没有显著证据表明 Granger 因果关系。" })}<span className="text-foreground/60">No significant predictive content.</span></>}
                 </div>
               </div>
             );
@@ -2173,14 +2163,14 @@ const SVARTool = () => {
         </div>
         <div className="mt-3 text-[10px] font-mono text-muted-foreground leading-relaxed text-center">
           <InlineMath math={String.raw`F = \dfrac{(\mathrm{SSR}_R - \mathrm{SSR}_U)/q}{\mathrm{SSR}_U/(n-k)} \;\sim\; F(q,\, n-k)`} />
-          <span className="ml-2">此处 <InlineMath math="q=1" /> (1 期滞后), <InlineMath math="k=3" /> (常数 + 2 滞后)</span>
+          <span className="ml-2">{t("labs.econometrics.text224", { defaultValue: "此处 " })}<InlineMath math="q=1" /> {t("labs.econometrics.text225", { defaultValue: " (1 期滞后), " })}<InlineMath math="k=3" /> {t("labs.econometrics.text226", { defaultValue: " (常数 + 2 滞后)" })}</span>
         </div>
       </div>
 
       {/* Estimated matrices */}
       <div className="grid md:grid-cols-3 gap-3">
         <div className="p-3 rounded-lg border border-border bg-secondary/30">
-          <div className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground mb-1">估计 Â</div>
+          <div className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground mb-1">{t("labs.econometrics.text227", { defaultValue: "估计 Â" })}</div>
           <pre className="text-xs font-mono text-gold leading-tight">
 {`[ ${result.A[0][0].toFixed(3).padStart(6)}  ${result.A[0][1].toFixed(3).padStart(6)} ]
 [ ${result.A[1][0].toFixed(3).padStart(6)}  ${result.A[1][1].toFixed(3).padStart(6)} ]`}
@@ -2194,7 +2184,7 @@ const SVARTool = () => {
           </pre>
         </div>
         <div className="p-3 rounded-lg border border-border bg-secondary/30">
-          <div className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground mb-1">BQ B̂  (长期约束)</div>
+          <div className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground mb-1">{t("labs.econometrics.text228", { defaultValue: "BQ B̂  (长期约束)" })}</div>
           <pre className="text-xs font-mono leading-tight" style={{ color: CHART_TEAL }}>
 {`[ ${result.Bbq[0][0].toFixed(3).padStart(6)}  ${result.Bbq[0][1].toFixed(3).padStart(6)} ]
 [ ${result.Bbq[1][0].toFixed(3).padStart(6)}  ${result.Bbq[1][1].toFixed(3).padStart(6)} ]`}
@@ -2218,6 +2208,7 @@ const Slider = ({ label, value, min, max, step, onChange }: { label: string; val
 );
 
 const ResultRow = ({ label, value, truth, se, color }: { label: string; value: number; truth?: number; se?: number; color: string }) => {
+  const { t } = useTranslation();
   const bias = truth != null ? value - truth : null;
   return (
     <div className="p-3 rounded-lg border border-border bg-secondary/30 flex items-center justify-between">
@@ -2228,7 +2219,7 @@ const ResultRow = ({ label, value, truth, se, color }: { label: string; value: n
         </span>
         {bias != null && Number.isFinite(bias) && (
           <span className="text-[10px] font-mono text-muted-foreground tabular-nums">
-            偏差 {bias >= 0 ? "+" : ""}{bias.toFixed(3)}
+            {t("labs.econometrics.text229", { defaultValue: "\n            偏差 " })}{bias >= 0 ? "+" : ""}{bias.toFixed(3)}
           </span>
         )}
         {se != null && Number.isFinite(se) && (
@@ -2242,8 +2233,68 @@ const ResultRow = ({ label, value, truth, se, color }: { label: string; value: n
 /* ──────────────────  Main module  ────────────────── */
 type ToolId = "olsiv" | "did" | "sdid" | "rdd" | "synth" | "gmm" | "svar" | "garch" | "dcc" | "regime" | "coint" | "unitroot" | "kalman" | "midas" | "logit" | "qreg" | "psm" | "arima" | "lp" | "lasso" | "panel" | "tobit" | "dlm" | "dml" | "cforest" | "bayes" | "harrv" | "hawkes" | "kyle" | "diagnostics" | "dynpanel" | "dmtest" | "kernelreg" | "eventdid" | "panelroot" | "qreglab" | "diagreport" | "granger" | "spectral" | "expsmooth" | "longmem" | "weakiv" | "heckman" | "trinity" | "selab" | "hausman" | "fwl" | "pdslasso" | "htediag" | "urootsuite" | "armaident" | "difflab" | "setar" | "baiperron" | "denseval" | "mcs" | "svgarch";
 
+const ECON_TRANSLATION_DEFAULTS: Record<string, string> = {
+  "labs.econometrics.text230": "OLS / IV (工具变量)",
+  "labs.econometrics.text231": "DID (双重差分)",
+  "labs.econometrics.text232": "RDD (断点回归)",
+  "labs.econometrics.text233": "Synthetic Control (合成对照)",
+  "labs.econometrics.text234": "GMM (广义矩估计)",
+  "labs.econometrics.text235": "SVAR / IRF (结构向量自回归)",
+  "labs.econometrics.text236": "GARCH / EGARCH (波动率)",
+  "labs.econometrics.text237": "DCC-GARCH (动态相关)",
+  "labs.econometrics.text238": "协整 / VECM",
+  "labs.econometrics.text239": "单位根检验 (ADF / KPSS)",
+  "labs.econometrics.text240": "Kalman / HP 滤波",
+  "labs.econometrics.text241": "MIDAS (混频回归)",
+  "labs.econometrics.text242": "Logit / Probit (离散选择)",
+  "labs.econometrics.text243": "Quantile Regression (分位数回归)",
+  "labs.econometrics.text244": "PSM / IPW / AIPW (双稳健)",
+  "labs.econometrics.text245": "ARIMA + 自动定阶 (AIC/BIC)",
+  "labs.econometrics.text246": "Tobit / Heckman 两步",
+  "labs.econometrics.text247": "DLM 结构时间序列",
+  "labs.econometrics.text248": "HAR-RV (已实现波动率)",
+  "labs.econometrics.text249": "Hawkes 自激点过程",
+  "labs.econometrics.text250": "Kyle λ / PIN (订单簿冲击)",
+  "labs.econometrics.text251": "回归诊断台 (异方差/自相关/共线/RESET)",
+  "labs.econometrics.text252": "动态面板 GMM (Arellano-Bond)",
+  "labs.econometrics.text253": "预测精度对比 (Diebold-Mariano)",
+  "labs.econometrics.text254": "核回归 / 局部多项式 (LOESS)",
+  "labs.econometrics.text255": "事件研究 DID (平行趋势 + 动态效应)",
+  "labs.econometrics.text256": "面板单位根 / 协整 (LLC · IPS · Pedroni)",
+  "labs.econometrics.text257": "分位数回归实验室 (Bootstrap 边际效应)",
+  "labs.econometrics.text258": "一键诊断报告 (PDF 导出)",
+  "labs.econometrics.text260": "Granger 因果 / Toda-Yamamoto",
+  "labs.econometrics.text261": "谱分析 / 结构突变 / 非线性",
+  "labs.econometrics.text262": "指数平滑预测 (Holt-Winters · Theta)",
+  "labs.econometrics.text263": "长记忆 / ARFIMA (GPH · Hurst)",
+  "labs.econometrics.text264": "弱工具变量诊断 (F · Cragg-Donald · AR)",
+  "labs.econometrics.text265": "Heckman 样本选择 (逆米尔斯比)",
+  "labs.econometrics.text266": "Wald / LR / LM 三大检验",
+  "labs.econometrics.text267": "标准误实验室 (稳健 · 聚类 · Wild Bootstrap)",
+  "labs.econometrics.text268": "固定效应 vs 随机效应 (Hausman · Mundlak)",
+  "labs.econometrics.text269": "FWL 定理与共线性几何",
+  "labs.econometrics.text270": "双重选择 LASSO (高维控制变量)",
+  "labs.econometrics.text271": "异质性处理效应诊断 (GATES · BLP)",
+  "labs.econometrics.text272": "单位根检验全家桶 (ADF · PP · DF-GLS · KPSS · ZA · HEGY)",
+  "labs.econometrics.text273": "Wold 分解与 ARMA 识别台",
+  "labs.econometrics.text275": "差分决策实验室 (伪回归 · 过度差分)",
+  "labs.econometrics.text277": "门限自回归 SETAR / LSTAR (Hansen 自助检验)",
+  "labs.econometrics.text278": "Bai-Perron 多重结构断点",
+  "labs.econometrics.text279": "密度预测评价 (PIT · CRPS · 对数得分)",
+  "labs.econometrics.text280": "模型置信集与预测组合 (Hansen MCS · DM)",
+  "labs.econometrics.text281": "随机波动率 vs GARCH (粒子滤波)",
+  "labs.econometrics.text285": "识别与推断",
+  "labs.econometrics.text286": "因果推断",
+  "labs.econometrics.text287": "时间序列",
+  "labs.econometrics.text288": "非线性 / 断点 / 预测评价",
+  "labs.econometrics.text289": "波动率 / 高频",
+  "labs.econometrics.text290": "离散选择 / 面板",
+  "labs.econometrics.text291": "机器学习计量",
+  "labs.econometrics.text292": "诊断 / 非参数"
+};
+
 const TOOLS: { id: ToolId; name: string; nameEn: string; formula: string; python: string; component: React.FC }[] = [
-  { id: "olsiv", name: "OLS / IV (工具变量)", nameEn: "Ordinary Least Squares & Instrumental Variables",
+  { id: "olsiv", name: "labs.econometrics.text230", nameEn: "Ordinary Least Squares & Instrumental Variables",
     formula: String.raw`y_i = \alpha + \beta\, x_i + \varepsilon_i \qquad\text{(IV)}\quad \hat{x}_i = \hat{\pi}\, z_i \;\Rightarrow\; \hat{\beta}_{\mathrm{IV}}`,
     python: `import numpy as np
 
@@ -2262,7 +2313,7 @@ def iv_2sls(X, y, Z):
     Pz = Z @ np.linalg.solve(Z.T @ Z, Z.T)
     return np.linalg.solve(X.T @ Pz @ X, X.T @ Pz @ y)`,
     component: OLSvsIV },
-  { id: "did",   name: "DID (双重差分)", nameEn: "Difference-in-Differences",
+  { id: "did",   name: "labs.econometrics.text231", nameEn: "Difference-in-Differences",
     formula: String.raw`\hat{\tau}_{\mathrm{DID}} = \bigl(\bar{Y}_{1,\mathrm{post}} - \bar{Y}_{1,\mathrm{pre}}\bigr) - \bigl(\bar{Y}_{0,\mathrm{post}} - \bar{Y}_{0,\mathrm{pre}}\bigr)`,
     python: `import numpy as np
 import pandas as pd
@@ -2276,7 +2327,7 @@ def did_estimator(df):
     beta = np.linalg.solve(X.T @ X, X.T @ df["y"].values)
     return {"alpha": beta[0], "treated": beta[1], "post": beta[2], "DID": beta[3]}`,
     component: DIDTool },
-  { id: "rdd",   name: "RDD (断点回归)", nameEn: "Regression Discontinuity Design",
+  { id: "rdd",   name: "labs.econometrics.text232", nameEn: "Regression Discontinuity Design",
     formula: String.raw`\tau_{\mathrm{RDD}} = \lim_{x \downarrow c} \mathbb{E}[Y\mid X=x] - \lim_{x \uparrow c} \mathbb{E}[Y\mid X=x]`,
     python: `import numpy as np
 
@@ -2307,7 +2358,7 @@ def cs_att(panel, group_col="G", time_col="t", y_col="y"):
             rows.append((g, t, d[mask_g].mean() - d[mask_c].mean()))
     return rows`,
     component: StaggeredDIDTool },
-  { id: "synth", name: "Synthetic Control (合成对照)", nameEn: "Synthetic Control Method — Abadie, Diamond & Hainmueller (2010)",
+  { id: "synth", name: "labs.econometrics.text233", nameEn: "Synthetic Control Method — Abadie, Diamond & Hainmueller (2010)",
     formula: String.raw`W^* = \arg\min_{w \in \Delta^{J-1}} \bigl\| X_1 - X_0\, w \bigr\|^{2},\qquad \widehat{\mathrm{ATT}}_t = Y_{1t} - \sum_{j=2}^{J+1} w_j^*\, Y_{jt}`,
     python: `import numpy as np
 from scipy.optimize import minimize
@@ -2321,7 +2372,7 @@ def synthetic_control(X1, X0):
                    x0=np.ones(J)/J, bounds=bnds, constraints=cons)
     return res.x`,
     component: SyntheticControlTool },
-  { id: "gmm",   name: "GMM (广义矩估计)", nameEn: "Generalized Method of Moments",
+  { id: "gmm",   name: "labs.econometrics.text234", nameEn: "Generalized Method of Moments",
     formula: String.raw`\hat{\mu}_{\mathrm{GMM}} = \arg\min_{\mu}\; g(\mu)^{\!\top}\, W\, g(\mu), \qquad J = n \cdot Q(\hat{\mu}_{\mathrm{eff}}) \sim \chi^2_{q-p}`,
     python: `import numpy as np
 from scipy.optimize import minimize
@@ -2333,7 +2384,7 @@ def gmm_estimate(moments, theta0, W=None):
         return g @ Wm @ g
     return minimize(Q, theta0, method="BFGS").x`,
     component: GMMTool },
-  { id: "svar",  name: "SVAR / IRF (结构向量自回归)", nameEn: "Structural Vector Autoregression & Impulse Response",
+  { id: "svar",  name: "labs.econometrics.text235", nameEn: "Structural Vector Autoregression & Impulse Response",
     formula: String.raw`y_t = A\, y_{t-1} + B_0\, \varepsilon_t, \qquad \mathrm{IRF}_h = A^{h} \cdot L \cdot e_j`,
     python: `import numpy as np
 
@@ -2347,7 +2398,7 @@ def svar_irf(A, L, horizon=20):
         Ah = Ah @ A
     return irf`,
     component: SVARTool },
-  { id: "garch", name: "GARCH / EGARCH (波动率)", nameEn: "Generalized Autoregressive Conditional Heteroskedasticity",
+  { id: "garch", name: "labs.econometrics.text236", nameEn: "Generalized Autoregressive Conditional Heteroskedasticity",
     formula: String.raw`\sigma_t^2 = \omega + \alpha\,r_{t-1}^2 + \beta\,\sigma_{t-1}^2 \qquad\text{(EGARCH)}\;\; \ln\sigma_t^2 = \omega + \beta\ln\sigma_{t-1}^2 + \alpha(|z_{t-1}|-E|z|) + \gamma z_{t-1}`,
     python: `import numpy as np
 from scipy.optimize import minimize
@@ -2375,7 +2426,7 @@ def hamilton_filter(y, mu, sigma, P):
         pred = filt[t] @ P
     return filt, ll`,
     component: RegimeSwitchTool },
-  { id: "dcc", name: "DCC-GARCH (动态相关)", nameEn: "Dynamic Conditional Correlation — Engle (2002)",
+  { id: "dcc", name: "labs.econometrics.text237", nameEn: "Dynamic Conditional Correlation — Engle (2002)",
     formula: String.raw`Q_t = (1-a-b)\,\bar{Q} + a\,z_{t-1}z_{t-1}^{\top} + b\,Q_{t-1},\qquad R_t = \mathrm{diag}(Q_t)^{-1/2}\, Q_t\, \mathrm{diag}(Q_t)^{-1/2},\quad \Sigma_t = D_t R_t D_t`,
     python: `import numpy as np
 from scipy.optimize import minimize
@@ -2418,7 +2469,7 @@ def fit_dcc(returns):
     res = minimize(neg_corr_ll, [0.04, 0.93], method="Nelder-Mead")
     return {"a": res.x[0], "b": res.x[1], "Z": Z, "ll": -res.fun}`,
     component: DCCGarchTool },
-  { id: "coint", name: "协整 / VECM", nameEn: "Cointegration & Vector Error Correction Model",
+  { id: "coint", name: "labs.econometrics.text238", nameEn: "Cointegration & Vector Error Correction Model",
     formula: String.raw`y_t = \alpha + \beta\, x_t + u_t,\quad u_t \sim I(0)\;\Rightarrow\;\Delta y_t = \alpha_{\mathrm{ec}}\,u_{t-1} + \gamma\,\Delta x_t + \varepsilon_t`,
     python: `import numpy as np
 from statsmodels.tsa.stattools import adfuller
@@ -2432,7 +2483,7 @@ def engle_granger(y, x):
             "adf": adf_stat, "p": p_value,
             "cointegrated": p_value < 0.05}`,
     component: CointTool },
-  { id: "unitroot", name: "单位根检验 (ADF / KPSS)", nameEn: "Unit Root Tests — Augmented Dickey-Fuller & KPSS",
+  { id: "unitroot", name: "labs.econometrics.text239", nameEn: "Unit Root Tests — Augmented Dickey-Fuller & KPSS",
     formula: String.raw`\text{ADF: }\Delta y_t = \alpha + \gamma\,y_{t-1} + \textstyle\sum_i \delta_i \Delta y_{t-i} + \varepsilon_t,\;\; H_0:\gamma=0;\qquad \text{KPSS: } \eta = \tfrac{1}{T^2}\textstyle\sum_t S_t^2 / \hat\sigma^2`,
     python: `import numpy as np
 from statsmodels.tsa.stattools import adfuller, kpss
@@ -2444,7 +2495,7 @@ def unit_root_tests(y, trend="c"):
     return {"adf": adf_stat, "adf_p": adf_p,
             "kpss": kpss_stat, "kpss_p": kpss_p}`,
     component: UnitRootTool },
-  { id: "kalman", name: "Kalman / HP 滤波", nameEn: "Kalman Filter & Hodrick-Prescott Decomposition",
+  { id: "kalman", name: "labs.econometrics.text240", nameEn: "Kalman Filter & Hodrick-Prescott Decomposition",
     formula: String.raw`\hat\beta_{t|t} = \hat\beta_{t|t-1} + K_t\bigl(y_t - x_t\hat\beta_{t|t-1}\bigr),\quad K_t = \dfrac{P_{t|t-1}\,x_t}{x_t^2 P_{t|t-1} + R}`,
     python: `import numpy as np
 
@@ -2459,7 +2510,7 @@ def kalman_1d(y, x, R=1.0, Q=1e-4, beta0=0.0, P0=1.0):
         P = (1 - K * x[t]) * P_pred
     return beta`,
     component: KalmanTool },
-  { id: "midas", name: "MIDAS (混频回归)", nameEn: "Mixed Data Sampling — High-Freq X → Low-Freq y",
+  { id: "midas", name: "labs.econometrics.text241", nameEn: "Mixed Data Sampling — High-Freq X → Low-Freq y",
     formula: String.raw`y_t = \alpha + \beta\sum_{k=1}^{K} w_k(\theta)\, x_{t-k/K}^{(H)} + \varepsilon_t,\qquad w_k(\theta) = \dfrac{f(k/(K+1);\,\theta_1,\theta_2)}{\sum_{j=1}^{K} f(j/(K+1);\,\theta_1,\theta_2)}`,
     python: `import numpy as np
 from scipy.optimize import minimize
@@ -2485,7 +2536,7 @@ def fit_midas(y, X_high, K, x0=(0.0, 1.0, 1.0, 5.0)):
 
 TOOLS.push({
   id: "logit",
-  name: "Logit / Probit (离散选择)",
+  name: "labs.econometrics.text242",
   nameEn: "Binary Choice Models — Logit, Probit & Marginal Effects",
   formula: String.raw`P(y_i=1\mid x_i) = F(x_i^{\top}\beta),\qquad \mathrm{AME}_k = \frac{1}{n}\sum_{i=1}^{n} f(x_i^{\top}\hat{\beta})\,\hat{\beta}_k,\qquad F \in \{\Lambda,\,\Phi\}`,
   python: `import numpy as np
@@ -2517,7 +2568,7 @@ def ame(beta, X, family="logit"):
 
 TOOLS.push({
   id: "qreg",
-  name: "Quantile Regression (分位数回归)",
+  name: "labs.econometrics.text243",
   nameEn: "Quantile Regression — Koenker & Bassett (1978)",
   formula: String.raw`\hat\beta(\tau) = \arg\min_{\beta}\sum_{i=1}^{n} \rho_{\tau}\bigl(y_i - x_i^{\top}\beta\bigr),\qquad \rho_{\tau}(u) = u\bigl(\tau - \mathbf{1}\{u<0\}\bigr)`,
   python: `import numpy as np
@@ -2542,7 +2593,7 @@ def quantile_path(X, y, taus=(0.1, 0.25, 0.5, 0.75, 0.9)):
 
 TOOLS.push({
   id: "psm",
-  name: "PSM / IPW / AIPW (双稳健)",
+  name: "labs.econometrics.text244",
   nameEn: "Propensity-Score Methods — Matching, Weighting & Doubly-Robust ATE",
   formula: String.raw`\widehat{\mathrm{ATE}}_{\mathrm{AIPW}} = \frac{1}{n}\sum_{i=1}^{n}\!\left[ m_1(X_i) - m_0(X_i) + \frac{T_i\bigl(Y_i - m_1(X_i)\bigr)}{\hat{e}(X_i)} - \frac{(1-T_i)\bigl(Y_i - m_0(X_i)\bigr)}{1 - \hat{e}(X_i)} \right]`,
   python: `import numpy as np
@@ -2563,7 +2614,7 @@ def ipw(X, T, Y):
 
 TOOLS.push({
   id: "arima",
-  name: "ARIMA + 自动定阶 (AIC/BIC)",
+  name: "labs.econometrics.text245",
   nameEn: "ARIMA(p,d,q) with Hannan-Rissanen Estimation & Information Criteria",
   formula: String.raw`\Phi(L)(1-L)^d\, y_t = \Theta(L)\,\varepsilon_t,\qquad \mathrm{AIC} = -2\ell + 2k,\quad \mathrm{BIC} = -2\ell + k\ln n,\quad (\hat p,\hat q) = \arg\min_{p,q}\mathrm{AIC}(p,q)`,
   python: `import numpy as np
@@ -2668,7 +2719,7 @@ def hausman_test(fe, re):
 
 TOOLS.push({
   id: "tobit",
-  name: "Tobit / Heckman 两步",
+  name: "labs.econometrics.text246",
   nameEn: "Limited Dependent Variables — Tobit & Heckman Sample-Selection Correction",
   formula: String.raw`\text{Tobit:}\;y_i^* = X_i^{\top}\beta + \varepsilon_i,\;y_i = \max(0, y_i^*).\quad \text{Heckman:}\;y_i = X_i^{\top}\beta + \rho\sigma\,\hat\lambda(Z_i^{\top}\hat\gamma) + \eta_i,\;\hat\lambda = \dfrac{\phi(Z\hat\gamma)}{\Phi(Z\hat\gamma)}`,
   python: `import numpy as np
@@ -2700,7 +2751,7 @@ def heckit_two_step(X, y, Z, d):
 
 TOOLS.push({
   id: "dlm",
-  name: "DLM 结构时间序列",
+  name: "labs.econometrics.text247",
   nameEn: "Dynamic Linear Model — Local Linear Trend + Seasonal Decomposition (Harvey 1989)",
   formula: String.raw`y_t = \mu_t + \gamma_t + \varepsilon_t,\;\; \mu_t = \mu_{t-1} + \nu_{t-1} + \eta_t,\;\; \nu_t = \nu_{t-1} + \zeta_t,\;\; \gamma_t = -\!\!\sum_{s=1}^{S-1}\!\gamma_{t-s} + \omega_t`,
   python: `import numpy as np
@@ -2786,7 +2837,7 @@ def bayes_linreg(X, y, b0, Lam0, a0=2., b0_=2.):
 
 TOOLS.push({
   id: "harrv",
-  name: "HAR-RV (已实现波动率)",
+  name: "labs.econometrics.text248",
   nameEn: "Realized Volatility & HAR Model — Andersen-Bollerslev (1998), Corsi (2009), Barndorff-Nielsen & Shephard (2004)",
   formula: String.raw`\mathrm{RV}_t=\sum_{j=1}^{N}r_{t,j}^{2},\;\;\mathrm{BV}_t=\tfrac{\pi}{2}\!\sum_{j=2}^{N}|r_{t,j}||r_{t,j-1}|,\;\;\mathrm{RV}_{t+1}=\beta_0+\beta_d\mathrm{RV}_t+\beta_w\overline{\mathrm{RV}}_t^{(5)}+\beta_m\overline{\mathrm{RV}}_t^{(22)}+\varepsilon_{t+1}`,
   python: `import numpy as np
@@ -2814,7 +2865,7 @@ def har_rv(rv):
 
 TOOLS.push({
   id: "hawkes",
-  name: "Hawkes 自激点过程",
+  name: "labs.econometrics.text249",
   nameEn: "Univariate Hawkes Process with Exponential Kernel — Hawkes (1971), Bowsher (2007), Bacry-Mastromatteo-Muzy (2015)",
   formula: String.raw`\lambda(t)=\mu+\alpha\!\!\sum_{t_i<t}\!\!e^{-\beta(t-t_i)};\quad \mathcal{L}=\sum_i\log\lambda(t_i)-\!\int_0^{T}\!\lambda(s)\,ds;\quad n^{*}=\alpha/\beta<1`,
   python: `import numpy as np
@@ -2850,7 +2901,7 @@ def fit_hawkes(events, T):
 
 TOOLS.push({
   id: "kyle",
-  name: "Kyle λ / PIN (订单簿冲击)",
+  name: "labs.econometrics.text250",
   nameEn: "Kyle (1985) Price Impact & PIN — Easley, Kiefer, O'Hara & Paperman (1996)",
   formula: String.raw`\Delta p_t=\lambda\,q_t+\varepsilon_t,\quad \lambda=\frac{\sqrt{\Sigma_v}}{2\sigma_u};\qquad \mathrm{PIN}=\frac{\alpha\mu}{\alpha\mu+2\varepsilon}`,
   python: `import numpy as np
@@ -2887,7 +2938,7 @@ def fit_pin(B, S):
 
 TOOLS.push({
   id: "diagnostics",
-  name: "回归诊断台 (异方差/自相关/共线/RESET)",
+  name: "labs.econometrics.text251",
   nameEn: "Regression Diagnostics & Robust Inference — BP, White, DW, BG, VIF, RESET, HC3, Newey-West",
   formula: String.raw`\text{BP}=nR^2_{e^2},\quad \text{DW}=\frac{\sum(e_t-e_{t-1})^2}{\sum e_t^2},\quad \widehat{\mathrm{Var}}_{HC3}(\hat\beta)=(X'X)^{-1}\Big(\sum\frac{e_i^2}{(1-h_{ii})^2}x_ix_i'\Big)(X'X)^{-1}`,
   python: `import numpy as np
@@ -2916,7 +2967,7 @@ hac = res.get_robustcov_results(cov_type="HAC", maxlags=5)`,
 
 TOOLS.push({
   id: "dynpanel",
-  name: "动态面板 GMM (Arellano-Bond)",
+  name: "labs.econometrics.text252",
   nameEn: "Dynamic Panel Difference-GMM — Arellano & Bond (1991)",
   formula: String.raw`y_{it}=\rho\,y_{i,t-1}+\mu_i+\varepsilon_{it};\qquad \Delta y_{it}=\rho\,\Delta y_{i,t-1}+\Delta\varepsilon_{it},\quad \mathbb{E}[y_{i,t-s}\,\Delta\varepsilon_{it}]=0,\ s\ge 2`,
   python: `import numpy as np
@@ -2945,7 +2996,7 @@ def diff_gmm_ar1(Y):
 
 TOOLS.push({
   id: "dmtest",
-  name: "预测精度对比 (Diebold-Mariano)",
+  name: "labs.econometrics.text253",
   nameEn: "Diebold-Mariano Forecast Accuracy Test — Diebold & Mariano (1995), Harvey et al. (1997)",
   formula: String.raw`d_t=L(e_{1t})-L(e_{2t}),\qquad \mathrm{DM}=\frac{\bar d}{\sqrt{\widehat{\mathrm{Var}}(\bar d)}}\ \xrightarrow{d}\ \mathcal N(0,1)`,
   python: `import numpy as np
@@ -2966,7 +3017,7 @@ def diebold_mariano(e1, e2, power=2, h=1):
 
 TOOLS.push({
   id: "kernelreg",
-  name: "核回归 / 局部多项式 (LOESS)",
+  name: "labs.econometrics.text254",
   nameEn: "Kernel Regression — Nadaraya-Watson & Local-Linear with CV Bandwidth",
   formula: String.raw`\hat m(x_0)=\frac{\sum_i K\!\big(\tfrac{x_i-x_0}{h}\big)y_i}{\sum_i K\!\big(\tfrac{x_i-x_0}{h}\big)},\qquad h^\star=\arg\min_h \mathrm{CV}(h)=\tfrac1n\sum_i\big(y_i-\hat m_{-i}(x_i)\big)^2`,
   python: `import numpy as np
@@ -2994,7 +3045,7 @@ def loocv(x, y, h, name="gaussian"):
 
 TOOLS.push({
   id: "eventdid",
-  name: "事件研究 DID (平行趋势 + 动态效应)",
+  name: "labs.econometrics.text255",
   nameEn: "Event-Study Difference-in-Differences — Parallel-Trends Test & Dynamic ATT",
   formula: String.raw`y_{it}=\alpha_i+\gamma_t+\sum_{k\neq -1}\delta_k\,\mathbf 1\{t-g_i=k\}+\varepsilon_{it};\quad H_0^{PT}:\ \delta_k=0\ \forall k<-1`,
   python: `import pandas as pd, numpy as np, statsmodels.formula.api as smf
@@ -3010,7 +3061,7 @@ m = smf.ols("y ~ C(i) + C(t) + " + " + ".join(dks), data=df).fit(
 
 TOOLS.push({
   id: "panelroot",
-  name: "面板单位根 / 协整 (LLC · IPS · Pedroni)",
+  name: "labs.econometrics.text256",
   nameEn: "Panel Unit-Root & Cointegration — Levin-Lin-Chu, Im-Pesaran-Shin, Pedroni",
   formula: String.raw`\text{IPS: }\ W_{\bar t}=\frac{\sqrt N\,(\bar t-\mathbb E[t])}{\sqrt{\mathrm{Var}[t]}}\xrightarrow{d}\mathcal N(0,1);\quad \bar t=\tfrac1N\sum_i t_{ADF,i}`,
   python: `import numpy as np
@@ -3025,7 +3076,7 @@ def ips(panel, lags=1):
 
 TOOLS.push({
   id: "qreglab",
-  name: "分位数回归实验室 (Bootstrap 边际效应)",
+  name: "labs.econometrics.text257",
   nameEn: "Quantile Regression Lab — Marginal Effects with Bootstrap Confidence Bands",
   formula: String.raw`\hat\beta(\tau)=\arg\min_\beta\sum_i\rho_\tau(y_i-x_i'\beta),\quad \frac{\partial Q_\tau(y|x)}{\partial x}=\beta_1(\tau)`,
   python: `import numpy as np, statsmodels.formula.api as smf
@@ -3041,7 +3092,7 @@ def boot_ci(df, t, B=300):
 
 TOOLS.push({
   id: "diagreport",
-  name: "一键诊断报告 (PDF 导出)",
+  name: "labs.econometrics.text258",
   nameEn: "One-Click Diagnostic Report — Tests, Coefficients, Charts & PDF Export",
   formula: String.raw`\text{Report}=\{\hat\beta,\ \text{SE}_{OLS/HC3/NW},\ \text{BP, White, DW, BG, VIF, RESET},\ \text{plots}\}\to\text{PDF}`,
   python: `# Aggregate all OLS diagnostics into a single exportable report.
@@ -3052,7 +3103,7 @@ TOOLS.push({
 
 TOOLS.push({
   id: "granger",
-  name: "Granger 因果 / Toda-Yamamoto",
+  name: "labs.econometrics.text260",
   nameEn: "Granger Causality & Toda-Yamamoto — Lag Selection + Wald Test",
   formula: String.raw`y_t=\sum_{i=1}^{p}\alpha_i y_{t-i}+\sum_{i=1}^{p}\beta_i x_{t-i}+\varepsilon_t;\ H_0:\beta_1=\dots=\beta_p=0.\ \text{TY: VAR}(p+d_{max}),\ \text{Wald on first }p`,
   python: `from statsmodels.tsa.stattools import grangercausalitytests
@@ -3064,7 +3115,7 @@ grangercausalitytests(df[["y","x"]], maxlag=p)   # standard Granger
 
 TOOLS.push({
   id: "spectral",
-  name: "谱分析 / 结构突变 / 非线性",
+  name: "labs.econometrics.text261",
   nameEn: "Spectral Density, Structural Breaks & Non-linearity Tests",
   formula: String.raw`I(\omega_j)=\tfrac1{2\pi n}\left|\sum_t x_t e^{-i\omega_j t}\right|^2;\ \sup F\text{ (Bai-Perron)},\ \text{OLS-CUSUM},\ \text{McLeod-Li}`,
   python: `import numpy as np
@@ -3075,7 +3126,7 @@ f = np.abs(np.fft.rfft(x - x.mean()))**2      # periodogram
 
 TOOLS.push({
   id: "expsmooth",
-  name: "指数平滑预测 (Holt-Winters · Theta)",
+  name: "labs.econometrics.text262",
   nameEn: "Exponential Smoothing Forecasting — Holt-Winters, Theta & Backtest",
   formula: String.raw`\ell_t=\alpha(y_t-s_{t-m})+(1-\alpha)(\ell_{t-1}+b_{t-1});\ \hat y_{t+h}=\ell_t+hb_t+s_{t-m+h};\ \text{MASE}=\tfrac{\text{MAE}}{\text{MAE}_{naive}}`,
   python: `from statsmodels.tsa.holtwinters import ExponentialSmoothing
@@ -3085,7 +3136,7 @@ ExponentialSmoothing(y, seasonal="add", seasonal_periods=m, trend="add").fit().f
 
 TOOLS.push({
   id: "longmem",
-  name: "长记忆 / ARFIMA (GPH · Hurst)",
+  name: "labs.econometrics.text263",
   nameEn: "Long Memory & Fractional Integration — GPH, R/S Hurst, ARFIMA",
   formula: String.raw`(1-L)^d x_t=\varepsilon_t;\ \ln I(\omega_j)=c-d\ln\!\big(4\sin^2(\omega_j/2)\big)+u_j;\ H=d+\tfrac12`,
   python: `import numpy as np
@@ -3098,7 +3149,7 @@ TOOLS.push({
 
 TOOLS.push({
   id: "weakiv",
-  name: "弱工具变量诊断 (F · Cragg-Donald · AR)",
+  name: "labs.econometrics.text264",
   nameEn: "Weak Instrument Diagnostics — First-stage F, Cragg-Donald & Anderson-Rubin",
   formula: String.raw`\hat\beta_{2SLS}-\beta\approx\frac{\rho\,m}{F};\quad AR(\beta_0)=\frac{(y-\beta_0 d)'P_Z(y-\beta_0 d)/m}{(y-\beta_0 d)'M_Z(y-\beta_0 d)/(n-m)}`,
   python: `import linearmodels as lm
@@ -3110,7 +3161,7 @@ print(res.first_stage)        # partial F / Cragg-Donald
 
 TOOLS.push({
   id: "heckman",
-  name: "Heckman 样本选择 (逆米尔斯比)",
+  name: "labs.econometrics.text265",
   nameEn: "Heckman Sample Selection — Two-step & Inverse Mills Ratio",
   formula: String.raw`E[y\mid x,s=1]=x'\beta+\rho\sigma\lambda(w'\gamma),\quad \lambda(\cdot)=\frac{\phi(\cdot)}{\Phi(\cdot)}`,
   python: `from scipy.stats import norm
@@ -3122,7 +3173,7 @@ lam = norm.pdf(W @ gamma) / norm.cdf(W @ gamma)
 
 TOOLS.push({
   id: "trinity",
-  name: "Wald / LR / LM 三大检验",
+  name: "labs.econometrics.text266",
   nameEn: "The Testing Trinity — Wald, Likelihood Ratio & Lagrange Multiplier",
   formula: String.raw`W=(R\hat\beta-r)'[R\hat V R']^{-1}(R\hat\beta-r);\ LR=n\ln\frac{RSS_r}{RSS_u};\ LM=nR^2_{aux};\ W\ge LR\ge LM`,
   python: `import statsmodels.api as sm
@@ -3134,7 +3185,7 @@ res_u.wald_test(R); res_u.compare_lr_test(res_r)
 
 TOOLS.push({
   id: "selab",
-  name: "标准误实验室 (稳健 · 聚类 · Wild Bootstrap)",
+  name: "labs.econometrics.text267",
   nameEn: "Standard Error Lab — Robust, Clustered & Wild Cluster Bootstrap Coverage",
   formula: String.raw`\hat V=(X'X)^{-1}\Big(\sum_{g}X_g'\hat u_g\hat u_g'X_g\Big)(X'X)^{-1};\ t^*=\frac{\hat\beta^*-\beta_0}{se^*_{cl}}`,
   python: `import statsmodels.api as sm
@@ -3145,7 +3196,7 @@ sm.OLS(y, X).fit(cov_type="cluster", cov_kwds={"groups": g})
 
 TOOLS.push({
   id: "hausman",
-  name: "固定效应 vs 随机效应 (Hausman · Mundlak)",
+  name: "labs.econometrics.text268",
   nameEn: "Fixed vs Random Effects — Hausman Test & Mundlak CRE",
   formula: String.raw`H=\frac{(\hat\beta_{FE}-\hat\beta_{RE})^2}{V_{FE}-V_{RE}}\sim\chi^2_1;\ \theta=1-\sqrt{\frac{\sigma^2_\varepsilon}{T\sigma^2_\alpha+\sigma^2_\varepsilon}}`,
   python: `from linearmodels.panel import PanelOLS, RandomEffects
@@ -3156,7 +3207,7 @@ fe = PanelOLS(y, X, entity_effects=True).fit(); re = RandomEffects(y, X).fit()
 
 TOOLS.push({
   id: "fwl",
-  name: "FWL 定理与共线性几何",
+  name: "labs.econometrics.text269",
   nameEn: "Frisch-Waugh-Lovell Theorem & Collinearity Geometry",
   formula: String.raw`\hat\beta_1=\frac{\tilde x_1'\tilde y}{\tilde x_1'\tilde x_1},\ \tilde x_1=M_{X_2}x_1;\quad VIF_j=\frac{1}{1-R_j^2}`,
   python: `import numpy as np
@@ -3168,7 +3219,7 @@ beta1 = (x_t @ y_t) / (x_t @ x_t)   # identical to the multivariate coefficient`
 
 TOOLS.push({
   id: "pdslasso",
-  name: "双重选择 LASSO (高维控制变量)",
+  name: "labs.econometrics.text270",
   nameEn: "Post-Double-Selection LASSO — High-dimensional Controls",
   formula: String.raw`\hat S=\hat S_y\cup\hat S_d;\quad y=\alpha d+X_{\hat S}'\beta+\varepsilon\ \Rightarrow\ \sqrt n(\hat\alpha-\alpha)\rightsquigarrow N(0,\sigma^2)`,
   python: `# Belloni, Chernozhukov & Hansen (2014)
@@ -3180,7 +3231,7 @@ alpha = OLS(y, add_constant(np.c_[d, X[:, cols]])).fit().params[1]`,
 
 TOOLS.push({
   id: "htediag",
-  name: "异质性处理效应诊断 (GATES · BLP)",
+  name: "labs.econometrics.text271",
   nameEn: "Heterogeneous Treatment Effects — GATES & BLP Calibration",
   formula: String.raw`Y=a+\beta_1(D-\hat p)+\beta_2(D-\hat p)(\hat\tau-\bar\tau)+\epsilon;\quad GATES_k=E[Y_1-Y_0\mid \hat\tau\in Q_k]`,
   python: `# Chernozhukov, Demirer, Duflo & Fernandez-Val (2018)
@@ -3193,7 +3244,7 @@ TOOLS.push({
 
 TOOLS.push({
   id: "urootsuite",
-  name: "单位根检验全家桶 (ADF · PP · DF-GLS · KPSS · ZA · HEGY)",
+  name: "labs.econometrics.text272",
   nameEn: "Unit-Root Test Suite — ADF, Phillips-Perron, DF-GLS, KPSS, Zivot-Andrews & HEGY",
   formula: String.raw`\Delta y_t=\alpha+\delta t+\gamma y_{t-1}+\sum_{i=1}^{p}\phi_i\Delta y_{t-i}+\varepsilon_t;\quad H_0^{ADF}:\gamma=0,\ \ H_0^{KPSS}:\sigma_\eta^2=0`,
   python: `from statsmodels.tsa.stattools import adfuller, kpss
@@ -3205,7 +3256,7 @@ PhillipsPerron(y).summary(); DFGLS(y).summary(); ZivotAndrews(y).summary()`,
 
 TOOLS.push({
   id: "armaident",
-  name: "Wold 分解与 ARMA 识别台",
+  name: "labs.econometrics.text273",
   nameEn: "Wold Decomposition & ARMA Identification Bench",
   formula: String.raw`y_t=\mu+\sum_{j=0}^{\infty}\psi_j\varepsilon_{t-j};\quad \phi(L)y_t=\theta(L)\varepsilon_t,\ \ \text{平稳}\iff|z_i^{AR}|>1`,
   python: `import statsmodels.api as sm
@@ -3217,7 +3268,7 @@ print(res.arroots, res.maroots, res.aic, res.bic)`,
 
 TOOLS.push({
   id: "difflab",
-  name: "差分决策实验室 (伪回归 · 过度差分)",
+  name: "labs.econometrics.text275",
   nameEn: "Differencing Decision Lab — Spurious Regression & Over-differencing",
   formula: String.raw`y_t=\beta x_t+u_t,\ x,y\sim I(1)\ \text{独立}\Rightarrow t\text{ 发散},\ R^2\not\to0;\quad \text{过度差分}\Rightarrow\theta\to-1`,
   python: `import numpy as np, statsmodels.api as sm
@@ -3230,7 +3281,7 @@ print(np.mean(np.array(t) > 1.96))   # nominal 5%`,
 
 TOOLS.push({
   id: "setar",
-  name: "门限自回归 SETAR / LSTAR (Hansen 自助检验)",
+  name: "labs.econometrics.text277",
   nameEn: "Threshold Autoregression — SETAR / LSTAR with Hansen's Bootstrap Test",
   formula: String.raw`y_t=\begin{cases}\phi_L y_{t-1}+\varepsilon_t,& y_{t-1}\le c\\ \phi_H y_{t-1}+\varepsilon_t,& y_{t-1}>c\end{cases};\quad G(z;\gamma,c)=\big[1+e^{-\gamma(z-c)}\big]^{-1}`,
   python: `# grid search the threshold c, minimise segmented SSR, then bootstrap supF
@@ -3241,7 +3292,7 @@ from statsmodels.tsa.regime_switching import markov_autoregression as mar`,
 
 TOOLS.push({
   id: "baiperron",
-  name: "Bai-Perron 多重结构断点",
+  name: "labs.econometrics.text278",
   nameEn: "Bai-Perron Multiple Structural Breaks",
   formula: String.raw`y_t=\mu_j+\varepsilon_t,\ t\in(T_{j-1},T_j];\quad \min_{T_1<\dots<T_m}\sum_{j=1}^{m+1}\mathrm{SSR}_j,\ \ \sup F(l+1\mid l)`,
   python: `import ruptures as rpt
@@ -3253,7 +3304,7 @@ breaks = algo.predict(n_bkps=m)     # dynamic programming, O(T^2)
 
 TOOLS.push({
   id: "denseval",
-  name: "密度预测评价 (PIT · CRPS · 对数得分)",
+  name: "labs.econometrics.text279",
   nameEn: "Density Forecast Evaluation — PIT, CRPS & Log Score",
   formula: String.raw`u_t=\hat F_t(y_t)\sim U(0,1);\quad \mathrm{CRPS}=\int\big[\hat F(z)-\mathbf 1\{z\ge y\}\big]^2dz;\quad S=\tfrac1T\sum\ln \hat f_t(y_t)`,
   python: `import numpy as np, properscoring as ps
@@ -3265,7 +3316,7 @@ crps = ps.crps_gaussian(y, mu=mu_t, sig=sigma_t).mean()`,
 
 TOOLS.push({
   id: "mcs",
-  name: "模型置信集与预测组合 (Hansen MCS · DM)",
+  name: "labs.econometrics.text280",
   nameEn: "Model Confidence Set & Forecast Combination — Hansen MCS, Diebold-Mariano",
   formula: String.raw`H_{0,\mathcal M}:E[d_{ij,t}]=0\ \forall i,j\in\mathcal M;\quad T_{\max}=\max_{i}\frac{\bar d_{i\cdot}}{\widehat{\mathrm{se}}(\bar d_{i\cdot})}`,
   python: `from arch.bootstrap import MCS
@@ -3276,7 +3327,7 @@ mcs.compute(); print(mcs.pvalues, mcs.included)`,
 
 TOOLS.push({
   id: "svgarch",
-  name: "随机波动率 vs GARCH (粒子滤波)",
+  name: "labs.econometrics.text281",
   nameEn: "Stochastic Volatility vs GARCH — Bootstrap Particle Filter",
   formula: String.raw`h_t=\mu+\phi(h_{t-1}-\mu)+\sigma_\eta\eta_t,\ y_t=e^{h_t/2}\varepsilon_t;\quad p(y_{1:T})=\int p(y_{1:T}\mid h_{1:T})p(h_{1:T})dh`,
   python: `# bootstrap particle filter: propagate h, weight by N(y_t; 0, exp(h_t)), resample
@@ -3289,6 +3340,7 @@ arch_model(100*y, vol="Garch", p=1, q=1).fit(disp="off")`,
 
 /** Compact collapsible Python reference snippet — companion to the formula bar. */
 const PythonReference = ({ code }: { code: string }) => {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [copied, setCopied] = useState(false);
   const onCopy = async () => {
@@ -3305,14 +3357,13 @@ const PythonReference = ({ code }: { code: string }) => {
           onClick={() => setOpen((o) => !o)}
           className="text-[11px] font-mono uppercase tracking-[0.2em] text-gold/80 hover:text-gold flex items-center gap-2"
         >
-          <span>{open ? "▾" : "▸"}</span> Python 参考实现
-        </button>
+          <span>{open ? "▾" : "▸"}</span> {t("labs.econometrics.text282", { defaultValue: " Python 参考实现\n        " })}</button>
         {open && (
           <button
             onClick={onCopy}
             className="text-[10px] font-mono text-muted-foreground hover:text-gold transition-colors"
           >
-            {copied ? "已复制 ✓" : "复制"}
+            {copied ? t("labs.econometrics.text283", { defaultValue: "已复制 ✓" }) : t("labs.econometrics.text284", { defaultValue: "复制" })}
           </button>
         )}
       </div>
@@ -3326,14 +3377,14 @@ const PythonReference = ({ code }: { code: string }) => {
 };
 
 const ECON_CATEGORIES: ToolCategory[] = [
-  { id: "ident", label: "识别与推断", labelEn: "Identification & Inference", toolIds: ["weakiv", "heckman", "trinity", "selab", "hausman", "fwl", "pdslasso", "htediag"] },
-  { id: "causal", label: "因果推断", labelEn: "Causal Inference", toolIds: ["olsiv", "did", "eventdid", "sdid", "rdd", "synth", "psm"] },
-  { id: "timeseries", label: "时间序列", labelEn: "Time Series", toolIds: ["svar", "coint", "unitroot", "urootsuite", "panelroot", "armaident", "difflab", "kalman", "midas", "arima", "lp", "dlm", "granger", "spectral", "expsmooth", "longmem"] },
-  { id: "nonlinear", label: "非线性 / 断点 / 预测评价", labelEn: "Non-linear, Breaks & Forecast Evaluation", toolIds: ["setar", "baiperron", "denseval", "mcs", "dmtest"] },
-  { id: "vol", label: "波动率 / 高频", labelEn: "Volatility & High-Frequency", toolIds: ["garch", "dcc", "regime", "svgarch", "harrv", "hawkes", "kyle"] },
-  { id: "discrete", label: "离散选择 / 面板", labelEn: "Discrete Choice & Panel", toolIds: ["gmm", "logit", "qreg", "qreglab", "panel", "tobit", "dynpanel"] },
-  { id: "ml", label: "机器学习计量", labelEn: "Machine-Learning Econometrics", toolIds: ["lasso", "dml", "cforest", "bayes"] },
-  { id: "diag", label: "诊断 / 非参数", labelEn: "Diagnostics & Nonparametrics", toolIds: ["diagnostics", "diagreport", "kernelreg"] },
+  { id: "ident", label: "labs.econometrics.text285", labelEn: "Identification & Inference", toolIds: ["weakiv", "heckman", "trinity", "selab", "hausman", "fwl", "pdslasso", "htediag"] },
+  { id: "causal", label: "labs.econometrics.text286", labelEn: "Causal Inference", toolIds: ["olsiv", "did", "eventdid", "sdid", "rdd", "synth", "psm"] },
+  { id: "timeseries", label: "labs.econometrics.text287", labelEn: "Time Series", toolIds: ["svar", "coint", "unitroot", "urootsuite", "panelroot", "armaident", "difflab", "kalman", "midas", "arima", "lp", "dlm", "granger", "spectral", "expsmooth", "longmem"] },
+  { id: "nonlinear", label: "labs.econometrics.text288", labelEn: "Non-linear, Breaks & Forecast Evaluation", toolIds: ["setar", "baiperron", "denseval", "mcs", "dmtest"] },
+  { id: "vol", label: "labs.econometrics.text289", labelEn: "Volatility & High-Frequency", toolIds: ["garch", "dcc", "regime", "svgarch", "harrv", "hawkes", "kyle"] },
+  { id: "discrete", label: "labs.econometrics.text290", labelEn: "Discrete Choice & Panel", toolIds: ["gmm", "logit", "qreg", "qreglab", "panel", "tobit", "dynpanel"] },
+  { id: "ml", label: "labs.econometrics.text291", labelEn: "Machine-Learning Econometrics", toolIds: ["lasso", "dml", "cforest", "bayes"] },
+  { id: "diag", label: "labs.econometrics.text292", labelEn: "Diagnostics & Nonparametrics", toolIds: ["diagnostics", "diagreport", "kernelreg"] },
 ];
 
 const ECON_TOOL_IDS = TOOLS.map((x) => x.id);
@@ -3372,8 +3423,8 @@ const EconometricsTools = () => {
 
         {/* Tool tabs — categorized + searchable */}
         <CategorizedToolNav
-          tools={TOOLS.map(({ id, name, nameEn }) => ({ id, name, nameEn }))}
-          categories={ECON_CATEGORIES}
+          tools={TOOLS.map(({ id, name, nameEn }) => ({ id, name: t(name, { defaultValue: ECON_TRANSLATION_DEFAULTS[name] ?? name }), nameEn }))}
+          categories={ECON_CATEGORIES.map((category) => ({ ...category, label: t(category.label, { defaultValue: ECON_TRANSLATION_DEFAULTS[category.label] }) }))}
           activeId={tool}
           onSelect={(id) => setTool(id as ToolId)}
         />

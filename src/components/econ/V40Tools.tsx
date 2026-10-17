@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useMemo, useState } from "react";
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -58,11 +59,14 @@ const Stat = ({ label, value, color = CHART_GOLD, sub }: {
   </div>
 );
 
-const TestBadge = ({ reject, labels }: { reject: boolean; labels?: [string, string] }) => (
+const TestBadge = ({ reject, labels }: { reject: boolean; labels?: [string, string] }) => {
+  const { t } = useTranslation();
+  return (
   <span className={`px-2 py-0.5 rounded text-[10px] font-mono ${reject ? "bg-red-500/15 text-red-500" : "bg-emerald-500/15 text-emerald-500"}`}>
-    {reject ? (labels?.[0] ?? "拒绝 H₀") : (labels?.[1] ?? "不拒绝 H₀")}
+    {reject ? (labels?.[0] ?? t("labs.econV40.text001", { defaultValue: "拒绝 H₀" })) : (labels?.[1] ?? t("labs.econV40.text002", { defaultValue: "不拒绝 H₀" }))}
   </span>
 );
+};
 
 const Note = ({ children }: { children: React.ReactNode }) => (
   <div className="text-xs font-mono text-muted-foreground p-3 rounded-lg bg-secondary/40 border border-border leading-relaxed space-y-1">{children}</div>
@@ -78,6 +82,7 @@ const axisProps = { stroke: CHART_TEXT, tick: { fontSize: 10, fill: CHART_TEXT }
 type GMode = "xy" | "none" | "bi";
 
 export const GrangerTYTool = () => {
+  const { t } = useTranslation();
   const [n, setN] = useState(300);
   const [strength, setStrength] = useState(0.6);
   const [lag, setLag] = useState(2);
@@ -111,50 +116,53 @@ export const GrangerTYTool = () => {
     return { sel, gXY, gYX, tyXY, tyYX, series };
   }, [n, strength, lag, dmax, persist, seed, mode]);
 
-  const Row = ({ dir, g, ty }: { dir: string; g: ReturnType<typeof grangerCausality>; ty: ReturnType<typeof todaYamamoto> }) => (
+  const Row = ({ dir, g, ty }: { dir: string; g: ReturnType<typeof grangerCausality>; ty: ReturnType<typeof todaYamamoto> }) => {
+  const { t } = useTranslation();
+  return (
     <tr className="border-t border-border/50">
       <td className="py-1.5 pr-3 font-medium text-foreground">{dir}</td>
       <td className="py-1.5 pr-3 tabular-nums">{g.fStat.toFixed(3)}</td>
       <td className="py-1.5 pr-3 tabular-nums">{g.fPValue < 1e-4 ? "<0.0001" : g.fPValue.toFixed(4)}</td>
       <td className="py-1.5 pr-3 tabular-nums">{ty.wald.toFixed(3)}</td>
       <td className="py-1.5 pr-3 tabular-nums">{ty.pValue < 1e-4 ? "<0.0001" : ty.pValue.toFixed(4)}</td>
-      <td className="py-1.5"><TestBadge reject={ty.reject} labels={["存在因果", "无因果"]} /></td>
+      <td className="py-1.5"><TestBadge reject={ty.reject} labels={[t("labs.econV40.text003", { defaultValue: "存在因果" }), t("labs.econV40.text004", { defaultValue: "无因果" })]} /></td>
     </tr>
   );
+};
 
   return (
     <div className="space-y-6">
       <PresetButtons presets={[
-        { name: "X → Y 单向", apply: () => { setMode("xy"); setStrength(0.6); setPersist(0.6); } },
-        { name: "双向反馈", apply: () => { setMode("bi"); setStrength(0.6); } },
-        { name: "无因果", apply: () => { setMode("none"); } },
-        { name: "近单位根 (TY 稳健)", apply: () => { setMode("xy"); setPersist(0.98); setDmax(1); } },
+        { name: t("labs.econV40.text005", { defaultValue: "X → Y 单向" }), apply: () => { setMode("xy"); setStrength(0.6); setPersist(0.6); } },
+        { name: t("labs.econV40.text006", { defaultValue: "双向反馈" }), apply: () => { setMode("bi"); setStrength(0.6); } },
+        { name: t("labs.econV40.text007", { defaultValue: "无因果" }), apply: () => { setMode("none"); } },
+        { name: t("labs.econV40.text008", { defaultValue: "近单位根 (TY 稳健)" }), apply: () => { setMode("xy"); setPersist(0.98); setDmax(1); } },
       ]} />
       <div className="grid md:grid-cols-2 gap-4">
-        <Slider label="样本量 n" value={n} min={80} max={600} step={20} onChange={setN} />
-        <Slider label="因果强度 β" value={strength} min={0} max={1.2} step={0.05} onChange={setStrength} fmt={(v) => v.toFixed(2)} />
-        <Slider label="检验滞后阶 p" value={lag} min={1} max={6} step={1} onChange={setLag} />
-        <Slider label="TY 增广阶 d_max" sub="≈ 积分阶" value={dmax} min={0} max={2} step={1} onChange={setDmax} />
-        <Slider label="持续性 ρ" sub="→1 近单位根" value={persist} min={0} max={0.99} step={0.01} onChange={setPersist} fmt={(v) => v.toFixed(2)} />
-        <Slider label="随机种子" value={seed} min={1} max={99} step={1} onChange={setSeed} />
+        <Slider label={t("labs.econV40.text009", { defaultValue: "样本量 n" })} value={n} min={80} max={600} step={20} onChange={setN} />
+        <Slider label={t("labs.econV40.text010", { defaultValue: "因果强度 β" })} value={strength} min={0} max={1.2} step={0.05} onChange={setStrength} fmt={(v) => v.toFixed(2)} />
+        <Slider label={t("labs.econV40.text011", { defaultValue: "检验滞后阶 p" })} value={lag} min={1} max={6} step={1} onChange={setLag} />
+        <Slider label={t("labs.econV40.text012", { defaultValue: "TY 增广阶 d_max" })} sub={t("labs.econV40.text013", { defaultValue: "≈ 积分阶" })} value={dmax} min={0} max={2} step={1} onChange={setDmax} />
+        <Slider label={t("labs.econV40.text014", { defaultValue: "持续性 ρ" })} sub={t("labs.econV40.text015", { defaultValue: "→1 近单位根" })} value={persist} min={0} max={0.99} step={0.01} onChange={setPersist} fmt={(v) => v.toFixed(2)} />
+        <Slider label={t("labs.econV40.text016", { defaultValue: "随机种子" })} value={seed} min={1} max={99} step={1} onChange={setSeed} />
       </div>
 
       <div className="grid md:grid-cols-3 gap-3">
-        <Stat label="AIC 最优滞后" value={String(res.sel.aicBest)} />
-        <Stat label="BIC 最优滞后" value={String(res.sel.bicBest)} color={CHART_TEAL} />
-        <Stat label="当前检验滞后" value={String(lag)} color={CHART_BLUE} />
+        <Stat label={t("labs.econV40.text017", { defaultValue: "AIC 最优滞后" })} value={String(res.sel.aicBest)} />
+        <Stat label={t("labs.econV40.text018", { defaultValue: "BIC 最优滞后" })} value={String(res.sel.bicBest)} color={CHART_TEAL} />
+        <Stat label={t("labs.econV40.text019", { defaultValue: "当前检验滞后" })} value={String(lag)} color={CHART_BLUE} />
       </div>
 
       <div className="overflow-x-auto rounded-lg border border-border">
         <table className="w-full text-xs font-mono">
           <thead className="bg-secondary/40 text-muted-foreground">
             <tr>
-              <th className="py-2 px-3 text-left">方向</th>
+              <th className="py-2 px-3 text-left">{t("labs.econV40.text020", { defaultValue: "方向" })}</th>
               <th className="py-2 px-3 text-left">Granger F</th>
               <th className="py-2 px-3 text-left">Granger p</th>
               <th className="py-2 px-3 text-left">TY Wald χ²</th>
               <th className="py-2 px-3 text-left">TY p</th>
-              <th className="py-2 px-3 text-left">结论</th>
+              <th className="py-2 px-3 text-left">{t("labs.econV40.text021", { defaultValue: "结论" })}</th>
             </tr>
           </thead>
           <tbody>
@@ -165,7 +173,7 @@ export const GrangerTYTool = () => {
       </div>
 
       <div>
-        <p className="text-xs font-mono text-muted-foreground mb-2">两序列 (X 蓝 · Y 金)</p>
+        <p className="text-xs font-mono text-muted-foreground mb-2">{t("labs.econV40.text022", { defaultValue: "两序列 (X 蓝 · Y 金)" })}</p>
         <ResponsiveContainer width="100%" height={220}>
           <LineChart data={res.series} margin={{ top: 5, right: 10, left: -10, bottom: 0 }}>
             <CartesianGrid {...gridProps} />
@@ -179,9 +187,9 @@ export const GrangerTYTool = () => {
       </div>
 
       <Note>
-        <p>· <b>Granger</b>：F 检验 causing 变量的滞后项在被解释方程中是否联合显著。仅对<b>平稳</b>序列有效。</p>
-        <p>· <b>Toda-Yamamoto</b>：拟合 VAR(p+d_max)，仅对前 p 阶做 Wald，对单位根/协整序列稳健——无需先做单位根与协整检验。</p>
-        <p>· 近单位根预设 (ρ=0.98) 下，标准 Granger 可能过度拒绝，而 TY 的 χ² 检验保持正确水平。</p>
+        <p>· <b>Granger</b>{t("labs.econV40.text023", { defaultValue: "：F 检验 causing 变量的滞后项在被解释方程中是否联合显著。仅对" })}<b>{t("labs.econV40.text024", { defaultValue: "平稳" })}</b>{t("labs.econV40.text025", { defaultValue: "序列有效。" })}</p>
+        <p>· <b>Toda-Yamamoto</b>{t("labs.econV40.text026", { defaultValue: "：拟合 VAR(p+d_max)，仅对前 p 阶做 Wald，对单位根/协整序列稳健——无需先做单位根与协整检验。" })}</p>
+        <p>{t("labs.econV40.text027", { defaultValue: "· 近单位根预设 (ρ=0.98) 下，标准 Granger 可能过度拒绝，而 TY 的 χ² 检验保持正确水平。" })}</p>
       </Note>
     </div>
   );
@@ -193,6 +201,7 @@ export const GrangerTYTool = () => {
 type SMode = "seasonal" | "break" | "nonlinear" | "noise";
 
 export const SpectralTool = () => {
+  const { t } = useTranslation();
   const [n, setN] = useState(240);
   const [period, setPeriod] = useState(12);
   const [amp, setAmp] = useState(1.0);
@@ -226,32 +235,32 @@ export const SpectralTool = () => {
   return (
     <div className="space-y-6">
       <PresetButtons presets={[
-        { name: "季节周期", apply: () => { setMode("seasonal"); setAmp(1); } },
-        { name: "结构突变", apply: () => { setMode("break"); } },
-        { name: "非线性 (ARCH)", apply: () => { setMode("nonlinear"); } },
-        { name: "纯白噪声", apply: () => { setMode("noise"); } },
+        { name: t("labs.econV40.text028", { defaultValue: "季节周期" }), apply: () => { setMode("seasonal"); setAmp(1); } },
+        { name: t("labs.econV40.text029", { defaultValue: "结构突变" }), apply: () => { setMode("break"); } },
+        { name: t("labs.econV40.text030", { defaultValue: "非线性 (ARCH)" }), apply: () => { setMode("nonlinear"); } },
+        { name: t("labs.econV40.text031", { defaultValue: "纯白噪声" }), apply: () => { setMode("noise"); } },
       ]} />
       <div className="grid md:grid-cols-2 gap-4">
-        <Slider label="样本量 n" value={n} min={80} max={480} step={20} onChange={setN} />
-        <Slider label="真实周期" sub="季节模式" value={period} min={4} max={48} step={1} onChange={setPeriod} />
-        <Slider label="振幅" value={amp} min={0} max={3} step={0.1} onChange={setAmp} fmt={(v) => v.toFixed(1)} />
-        <Slider label="平滑窗半宽" value={win} min={0} max={8} step={1} onChange={setWin} />
-        <Slider label="噪声 σ" value={noise} min={0.1} max={1.5} step={0.05} onChange={setNoise} fmt={(v) => v.toFixed(2)} />
-        <Slider label="随机种子" value={seed} min={1} max={99} step={1} onChange={setSeed} />
+        <Slider label={t("labs.econV40.text032", { defaultValue: "样本量 n" })} value={n} min={80} max={480} step={20} onChange={setN} />
+        <Slider label={t("labs.econV40.text033", { defaultValue: "真实周期" })} sub={t("labs.econV40.text034", { defaultValue: "季节模式" })} value={period} min={4} max={48} step={1} onChange={setPeriod} />
+        <Slider label={t("labs.econV40.text035", { defaultValue: "振幅" })} value={amp} min={0} max={3} step={0.1} onChange={setAmp} fmt={(v) => v.toFixed(1)} />
+        <Slider label={t("labs.econV40.text036", { defaultValue: "平滑窗半宽" })} value={win} min={0} max={8} step={1} onChange={setWin} />
+        <Slider label={t("labs.econV40.text037", { defaultValue: "噪声 σ" })} value={noise} min={0.1} max={1.5} step={0.05} onChange={setNoise} fmt={(v) => v.toFixed(2)} />
+        <Slider label={t("labs.econV40.text038", { defaultValue: "随机种子" })} value={seed} min={1} max={99} step={1} onChange={setSeed} />
       </div>
 
       <div className="grid md:grid-cols-3 gap-3">
-        <Stat label="主导周期" value={res.spec.dominantPeriod.toFixed(2)} sub={mode === "seasonal" ? `真实 ${period}` : "—"} />
-        <Stat label="Bai-Perron 断点" value={String(res.brk.breakIndex)} color={CHART_TEAL} sub={`supF=${res.brk.supF.toFixed(1)}`} />
-        <Stat label="CUSUM 稳定性" value={res.cus.crossed ? "越界 (不稳定)" : "稳定"} color={res.cus.crossed ? CHART_RED : CHART_TEAL} />
+        <Stat label={t("labs.econV40.text039", { defaultValue: "主导周期" })} value={res.spec.dominantPeriod.toFixed(2)} sub={mode === "seasonal" ? t("labs.econV40.text040", { defaultValue: "真实 {{var1}}", var1: period }) : "—"} />
+        <Stat label={t("labs.econV40.text041", { defaultValue: "Bai-Perron 断点" })} value={String(res.brk.breakIndex)} color={CHART_TEAL} sub={`supF=${res.brk.supF.toFixed(1)}`} />
+        <Stat label={t("labs.econV40.text042", { defaultValue: "CUSUM 稳定性" })} value={res.cus.crossed ? t("labs.econV40.text043", { defaultValue: "越界 (不稳定)" }) : t("labs.econV40.text044", { defaultValue: "稳定" })} color={res.cus.crossed ? CHART_RED : CHART_TEAL} />
       </div>
 
       <div>
-        <p className="text-xs font-mono text-muted-foreground mb-2">谱密度（金=周期图，蓝=平滑）</p>
+        <p className="text-xs font-mono text-muted-foreground mb-2">{t("labs.econV40.text045", { defaultValue: "谱密度（金=周期图，蓝=平滑）" })}</p>
         <ResponsiveContainer width="100%" height={220}>
           <LineChart data={res.specData} margin={{ top: 5, right: 10, left: -10, bottom: 0 }}>
             <CartesianGrid {...gridProps} />
-            <XAxis dataKey="period" type="number" scale="log" domain={["auto", "auto"]} {...axisProps} label={{ value: "周期", position: "insideBottom", offset: -2, fontSize: 10, fill: CHART_TEXT }} />
+            <XAxis dataKey="period" type="number" scale="log" domain={["auto", "auto"]} {...axisProps} label={{ value: t("labs.econV40.text046", { defaultValue: "周期" }), position: "insideBottom", offset: -2, fontSize: 10, fill: CHART_TEXT }} />
             <YAxis {...axisProps} />
             <Tooltip contentStyle={chartTooltip} />
             <Line type="monotone" dataKey="power" stroke={CHART_GOLD} dot={false} strokeWidth={1} opacity={0.5} />
@@ -263,7 +272,7 @@ export const SpectralTool = () => {
 
       <div className="grid md:grid-cols-2 gap-4">
         <div>
-          <p className="text-xs font-mono text-muted-foreground mb-2">序列（红线=断点）</p>
+          <p className="text-xs font-mono text-muted-foreground mb-2">{t("labs.econV40.text047", { defaultValue: "序列（红线=断点）" })}</p>
           <ResponsiveContainer width="100%" height={180}>
             <LineChart data={res.series} margin={{ top: 5, right: 10, left: -10, bottom: 0 }}>
               <CartesianGrid {...gridProps} />
@@ -276,7 +285,7 @@ export const SpectralTool = () => {
           </ResponsiveContainer>
         </div>
         <div>
-          <p className="text-xs font-mono text-muted-foreground mb-2">OLS-CUSUM（5% 边界）</p>
+          <p className="text-xs font-mono text-muted-foreground mb-2">{t("labs.econV40.text048", { defaultValue: "OLS-CUSUM（5% 边界）" })}</p>
           <ResponsiveContainer width="100%" height={180}>
             <LineChart data={res.cusData} margin={{ top: 5, right: 10, left: -10, bottom: 0 }}>
               <CartesianGrid {...gridProps} />
@@ -294,18 +303,18 @@ export const SpectralTool = () => {
       <div className="grid md:grid-cols-2 gap-3">
         <div className="rounded-lg bg-secondary/40 border border-border p-3 flex items-center justify-between">
           <span className="text-xs font-mono text-muted-foreground">McLeod-Li (p={res.ml.pValue.toFixed(3)})</span>
-          <TestBadge reject={res.ml.reject} labels={["非线性/ARCH", "线性"]} />
+          <TestBadge reject={res.ml.reject} labels={[t("labs.econV40.text049", { defaultValue: "非线性/ARCH" }), t("labs.econV40.text050", { defaultValue: "线性" })]} />
         </div>
         <div className="rounded-lg bg-secondary/40 border border-border p-3 flex items-center justify-between">
           <span className="text-xs font-mono text-muted-foreground">Keenan (p={res.kn.pValue.toFixed(3)})</span>
-          <TestBadge reject={res.kn.reject} labels={["非线性", "线性"]} />
+          <TestBadge reject={res.kn.reject} labels={[t("labs.econV40.text051", { defaultValue: "非线性" }), t("labs.econV40.text052", { defaultValue: "线性" })]} />
         </div>
       </div>
 
       <Note>
-        <p>· <b>周期图/谱密度</b>：把序列分解到频域，峰值对应主导周期。Daniell 平滑降低方差、更易辨识节律。</p>
-        <p>· <b>Bai-Perron</b> sup-F 搜索单一结构断点；<b>CUSUM</b> 累积标准化残差越界即参数不稳定。</p>
-        <p>· <b>McLeod-Li</b>（残差平方 ACF）与 <b>Keenan</b> 检验（Tsay 族）识别 ARCH/门限型非线性结构。</p>
+        <p>· <b>{t("labs.econV40.text053", { defaultValue: "周期图/谱密度" })}</b>{t("labs.econV40.text054", { defaultValue: "：把序列分解到频域，峰值对应主导周期。Daniell 平滑降低方差、更易辨识节律。" })}</p>
+        <p>· <b>Bai-Perron</b> {t("labs.econV40.text055", { defaultValue: "sup-F 搜索单一结构断点；" })}<b>CUSUM</b> {t("labs.econV40.text056", { defaultValue: "累积标准化残差越界即参数不稳定。" })}</p>
+        <p>· <b>McLeod-Li</b>{t("labs.econV40.text057", { defaultValue: "（残差平方 ACF）与" })} <b>Keenan</b> {t("labs.econV40.text058", { defaultValue: "检验（Tsay 族）识别 ARCH/门限型非线性结构。" })}</p>
       </Note>
     </div>
   );
@@ -317,6 +326,7 @@ export const SpectralTool = () => {
 type FMethod = "hw" | "theta";
 
 export const ExpSmoothTool = () => {
+  const { t } = useTranslation();
   const [n, setN] = useState(120);
   const [m, setM] = useState(12);
   const [slope, setSlope] = useState(0.5);
@@ -364,29 +374,29 @@ export const ExpSmoothTool = () => {
   return (
     <div className="space-y-6">
       <PresetButtons presets={[
-        { name: "Holt-Winters 加法", apply: () => { setMethod("hw"); setSeasonal("additive"); } },
-        { name: "HW 乘法", apply: () => { setMethod("hw"); setSeasonal("multiplicative"); } },
-        { name: "Theta 方法", apply: () => setMethod("theta") },
-        { name: "季度 (m=4)", apply: () => setM(4) },
+        { name: t("labs.econV40.text059", { defaultValue: "Holt-Winters 加法" }), apply: () => { setMethod("hw"); setSeasonal("additive"); } },
+        { name: t("labs.econV40.text060", { defaultValue: "HW 乘法" }), apply: () => { setMethod("hw"); setSeasonal("multiplicative"); } },
+        { name: t("labs.econV40.text061", { defaultValue: "Theta 方法" }), apply: () => setMethod("theta") },
+        { name: t("labs.econV40.text062", { defaultValue: "季度 (m=4)" }), apply: () => setM(4) },
       ]} />
       <div className="grid md:grid-cols-2 gap-4">
-        <Slider label="样本量 n" value={n} min={48} max={240} step={12} onChange={setN} />
-        <Slider label="季节周期 m" value={m} min={2} max={24} step={1} onChange={setM} />
-        <Slider label="趋势斜率" value={slope} min={0} max={2} step={0.1} onChange={setSlope} fmt={(v) => v.toFixed(1)} />
-        <Slider label="季节振幅" value={seasAmp} min={0} max={30} step={1} onChange={setSeasAmp} />
-        <Slider label="噪声 σ" value={noise} min={0.2} max={6} step={0.2} onChange={setNoise} fmt={(v) => v.toFixed(1)} />
-        <Slider label="预测步数 h" value={h} min={4} max={36} step={2} onChange={setH} />
+        <Slider label={t("labs.econV40.text063", { defaultValue: "样本量 n" })} value={n} min={48} max={240} step={12} onChange={setN} />
+        <Slider label={t("labs.econV40.text064", { defaultValue: "季节周期 m" })} value={m} min={2} max={24} step={1} onChange={setM} />
+        <Slider label={t("labs.econV40.text065", { defaultValue: "趋势斜率" })} value={slope} min={0} max={2} step={0.1} onChange={setSlope} fmt={(v) => v.toFixed(1)} />
+        <Slider label={t("labs.econV40.text066", { defaultValue: "季节振幅" })} value={seasAmp} min={0} max={30} step={1} onChange={setSeasAmp} />
+        <Slider label={t("labs.econV40.text067", { defaultValue: "噪声 σ" })} value={noise} min={0.2} max={6} step={0.2} onChange={setNoise} fmt={(v) => v.toFixed(1)} />
+        <Slider label={t("labs.econV40.text068", { defaultValue: "预测步数 h" })} value={h} min={4} max={36} step={2} onChange={setH} />
       </div>
 
       <div className="grid md:grid-cols-4 gap-3">
-        <Stat label="回测 RMSE" value={res.bt.rmse.toFixed(2)} />
-        <Stat label="朴素 RMSE" value={res.bt.naiveRmse.toFixed(2)} color={CHART_TEXT} />
-        <Stat label="MASE" value={res.bt.mase.toFixed(3)} color={res.bt.mase < 1 ? CHART_TEAL : CHART_RED} sub={res.bt.mase < 1 ? "优于朴素" : "劣于朴素"} />
+        <Stat label={t("labs.econV40.text069", { defaultValue: "回测 RMSE" })} value={res.bt.rmse.toFixed(2)} />
+        <Stat label={t("labs.econV40.text070", { defaultValue: "朴素 RMSE" })} value={res.bt.naiveRmse.toFixed(2)} color={CHART_TEXT} />
+        <Stat label="MASE" value={res.bt.mase.toFixed(3)} color={res.bt.mase < 1 ? CHART_TEAL : CHART_RED} sub={res.bt.mase < 1 ? t("labs.econV40.text071", { defaultValue: "优于朴素" }) : t("labs.econV40.text072", { defaultValue: "劣于朴素" })} />
         <Stat label="RMSSE" value={res.bt.rmsse.toFixed(3)} color={res.bt.rmsse < 1 ? CHART_TEAL : CHART_RED} />
       </div>
 
       <div>
-        <p className="text-xs font-mono text-muted-foreground mb-2">拟合 + {h} 步预测（金=实际，蓝=预测，阴影=95% 区间）</p>
+        <p className="text-xs font-mono text-muted-foreground mb-2">{t("labs.econV40.text073", { defaultValue: "拟合 +" })} {h} {t("labs.econV40.text074", { defaultValue: "步预测（金=实际，蓝=预测，阴影=95% 区间）" })}</p>
         <ResponsiveContainer width="100%" height={240}>
           <ComposedChart data={res.chart} margin={{ top: 5, right: 10, left: -10, bottom: 0 }}>
             <CartesianGrid {...gridProps} />
@@ -403,7 +413,7 @@ export const ExpSmoothTool = () => {
       </div>
 
       <div>
-        <p className="text-xs font-mono text-muted-foreground mb-2">经典分解：趋势 / 季节 / 残差</p>
+        <p className="text-xs font-mono text-muted-foreground mb-2">{t("labs.econV40.text075", { defaultValue: "经典分解：趋势 / 季节 / 残差" })}</p>
         <ResponsiveContainer width="100%" height={200}>
           <LineChart data={res.decChart} margin={{ top: 5, right: 10, left: -10, bottom: 0 }}>
             <CartesianGrid {...gridProps} />
@@ -411,17 +421,17 @@ export const ExpSmoothTool = () => {
             <YAxis {...axisProps} />
             <Tooltip contentStyle={chartTooltip} />
             <Legend wrapperStyle={{ fontSize: 10 }} />
-            <Line type="monotone" dataKey="trend" name="趋势" stroke={CHART_GOLD} dot={false} strokeWidth={1.6} connectNulls />
-            <Line type="monotone" dataKey="seasonal" name="季节" stroke={CHART_TEAL} dot={false} strokeWidth={1} />
-            <Line type="monotone" dataKey="remainder" name="残差" stroke={CHART_RED} dot={false} strokeWidth={0.8} opacity={0.6} connectNulls />
+            <Line type="monotone" dataKey="trend" name={t("labs.econV40.text076", { defaultValue: "趋势" })} stroke={CHART_GOLD} dot={false} strokeWidth={1.6} connectNulls />
+            <Line type="monotone" dataKey="seasonal" name={t("labs.econV40.text077", { defaultValue: "季节" })} stroke={CHART_TEAL} dot={false} strokeWidth={1} />
+            <Line type="monotone" dataKey="remainder" name={t("labs.econV40.text078", { defaultValue: "残差" })} stroke={CHART_RED} dot={false} strokeWidth={0.8} opacity={0.6} connectNulls />
           </LineChart>
         </ResponsiveContainer>
       </div>
 
       <Note>
-        <p>· <b>Holt-Winters</b>：水平 + 趋势 + 季节三重指数平滑（α,β,γ 网格搜索最小化一步 SSE），支持加法/乘法季节。</p>
-        <p>· <b>Theta 方法</b>：θ=0 线性趋势与 θ=2 平滑线的等权组合，M3 竞赛冠军级基准。</p>
-        <p>· <b>滚动回测</b>：扩展窗口一步样本外预测；<b>MASE/RMSSE {"<"} 1</b> 表示优于季节朴素基准。</p>
+        <p>· <b>Holt-Winters</b>{t("labs.econV40.text079", { defaultValue: "：水平 + 趋势 + 季节三重指数平滑（α,β,γ 网格搜索最小化一步 SSE），支持加法/乘法季节。" })}</p>
+        <p>· <b>{t("labs.econV40.text080", { defaultValue: "Theta 方法" })}</b>{t("labs.econV40.text081", { defaultValue: "：θ=0 线性趋势与 θ=2 平滑线的等权组合，M3 竞赛冠军级基准。" })}</p>
+        <p>· <b>{t("labs.econV40.text082", { defaultValue: "滚动回测" })}</b>{t("labs.econV40.text083", { defaultValue: "：扩展窗口一步样本外预测；" })}<b>MASE/RMSSE {"<"} 1</b> {t("labs.econV40.text084", { defaultValue: "表示优于季节朴素基准。" })}</p>
       </Note>
     </div>
   );
@@ -431,6 +441,7 @@ export const ExpSmoothTool = () => {
    4. Long memory / ARFIMA
    ══════════════════════════════════════════════════════════════════ */
 export const LongMemoryTool = () => {
+  const { t } = useTranslation();
   const [n, setN] = useState(600);
   const [d, setD] = useState(0.35);
   const [power, setPower] = useState(0.5);
@@ -460,47 +471,47 @@ export const LongMemoryTool = () => {
   return (
     <div className="space-y-6">
       <PresetButtons presets={[
-        { name: "短记忆 (d≈0)", apply: () => setD(0.02) },
-        { name: "长记忆 (d=0.35)", apply: () => setD(0.35) },
-        { name: "非平稳 (d=0.55)", apply: () => setD(0.55) },
-        { name: "反持续 (d=-0.3)", apply: () => setD(-0.3) },
+        { name: t("labs.econV40.text085", { defaultValue: "短记忆 (d≈0)" }), apply: () => setD(0.02) },
+        { name: t("labs.econV40.text086", { defaultValue: "长记忆 (d=0.35)" }), apply: () => setD(0.35) },
+        { name: t("labs.econV40.text087", { defaultValue: "非平稳 (d=0.55)" }), apply: () => setD(0.55) },
+        { name: t("labs.econV40.text088", { defaultValue: "反持续 (d=-0.3)" }), apply: () => setD(-0.3) },
       ]} />
       <div className="grid md:grid-cols-2 gap-4">
-        <Slider label="样本量 n" value={n} min={200} max={1200} step={100} onChange={setN} />
-        <Slider label="真实分数阶 d" sub="ARFIMA(0,d,0)" value={d} min={-0.4} max={0.6} step={0.05} onChange={setD} fmt={(v) => v.toFixed(2)} />
-        <Slider label="GPH 带宽幂 m=n^p" value={power} min={0.35} max={0.75} step={0.05} onChange={setPower} fmt={(v) => v.toFixed(2)} />
-        <Slider label="随机种子" value={seed} min={1} max={99} step={1} onChange={setSeed} />
+        <Slider label={t("labs.econV40.text089", { defaultValue: "样本量 n" })} value={n} min={200} max={1200} step={100} onChange={setN} />
+        <Slider label={t("labs.econV40.text090", { defaultValue: "真实分数阶 d" })} sub="ARFIMA(0,d,0)" value={d} min={-0.4} max={0.6} step={0.05} onChange={setD} fmt={(v) => v.toFixed(2)} />
+        <Slider label={t("labs.econV40.text091", { defaultValue: "GPH 带宽幂 m=n^p" })} value={power} min={0.35} max={0.75} step={0.05} onChange={setPower} fmt={(v) => v.toFixed(2)} />
+        <Slider label={t("labs.econV40.text092", { defaultValue: "随机种子" })} value={seed} min={1} max={99} step={1} onChange={setSeed} />
       </div>
 
       <div className="grid md:grid-cols-4 gap-3">
-        <Stat label="GPH d̂" value={res.gph.d.toFixed(3)} sub={`真实 ${d.toFixed(2)}`} />
-        <Stat label="GPH 95% CI" value={`±${res.ci.toFixed(3)}`} color={CHART_TEXT} sub={res.gph.pValue < 0.05 ? "d≠0 显著" : "d≈0"} />
+        <Stat label="GPH d̂" value={res.gph.d.toFixed(3)} sub={t("labs.econV40.text093", { defaultValue: "真实 {{var1}}", var1: d.toFixed(2) })} />
+        <Stat label="GPH 95% CI" value={`±${res.ci.toFixed(3)}`} color={CHART_TEXT} sub={res.gph.pValue < 0.05 ? t("labs.econV40.text094", { defaultValue: "d≠0 显著" }) : "d≈0"} />
         <Stat label="Hurst H" value={res.hurst.hurst.toFixed(3)} color={CHART_TEAL} sub={`d≈${res.hurst.d.toFixed(2)}`} />
-        <Stat label="白噪声 d̂" value={res.gphWN.d.toFixed(3)} color={CHART_TEXT} sub={`H=${res.hurstWN.hurst.toFixed(2)}`} />
+        <Stat label={t("labs.econV40.text095", { defaultValue: "白噪声 d̂" })} value={res.gphWN.d.toFixed(3)} color={CHART_TEXT} sub={`H=${res.hurstWN.hurst.toFixed(2)}`} />
       </div>
 
       <div className="flex items-center gap-2">
         <input id="cmpwn" type="checkbox" checked={compareWN} onChange={(e) => setCompareWN(e.target.checked)} className="accent-gold" />
-        <label htmlFor="cmpwn" className="text-xs font-mono text-muted-foreground">ACF 图叠加白噪声对比</label>
+        <label htmlFor="cmpwn" className="text-xs font-mono text-muted-foreground">{t("labs.econV40.text096", { defaultValue: "ACF 图叠加白噪声对比" })}</label>
       </div>
 
       <div className="grid md:grid-cols-2 gap-4">
         <div>
-          <p className="text-xs font-mono text-muted-foreground mb-2">ACF：长记忆缓慢衰减 vs 白噪声</p>
+          <p className="text-xs font-mono text-muted-foreground mb-2">{t("labs.econV40.text097", { defaultValue: "ACF：长记忆缓慢衰减 vs 白噪声" })}</p>
           <ResponsiveContainer width="100%" height={200}>
             <BarChart data={res.acfData} margin={{ top: 5, right: 10, left: -10, bottom: 0 }}>
               <CartesianGrid {...gridProps} />
               <XAxis dataKey="lag" {...axisProps} />
               <YAxis {...axisProps} domain={[-0.3, 1]} />
               <Tooltip contentStyle={chartTooltip} />
-              <Bar dataKey="lm" name="长记忆" fill={CHART_GOLD} />
-              {compareWN && <Bar dataKey="wn" name="白噪声" fill={CHART_BLUE} fillOpacity={0.5} />}
+              <Bar dataKey="lm" name={t("labs.econV40.text098", { defaultValue: "长记忆" })} fill={CHART_GOLD} />
+              {compareWN && <Bar dataKey="wn" name={t("labs.econV40.text099", { defaultValue: "白噪声" })} fill={CHART_BLUE} fillOpacity={0.5} />}
               <ReferenceLine y={0} stroke={CHART_TEXT} />
             </BarChart>
           </ResponsiveContainer>
         </div>
         <div>
-          <p className="text-xs font-mono text-muted-foreground mb-2">GPH log-周期图回归（斜率 = −d）</p>
+          <p className="text-xs font-mono text-muted-foreground mb-2">{t("labs.econV40.text100", { defaultValue: "GPH log-周期图回归（斜率 = −d）" })}</p>
           <ResponsiveContainer width="100%" height={200}>
             <ComposedChart data={res.gphData} margin={{ top: 5, right: 10, left: -10, bottom: 0 }}>
               <CartesianGrid {...gridProps} />
@@ -515,7 +526,7 @@ export const LongMemoryTool = () => {
       </div>
 
       <div>
-        <p className="text-xs font-mono text-muted-foreground mb-2">模拟 ARFIMA 序列</p>
+        <p className="text-xs font-mono text-muted-foreground mb-2">{t("labs.econV40.text101", { defaultValue: "模拟 ARFIMA 序列" })}</p>
         <ResponsiveContainer width="100%" height={160}>
           <LineChart data={res.series} margin={{ top: 5, right: 10, left: -10, bottom: 0 }}>
             <CartesianGrid {...gridProps} />
@@ -528,9 +539,9 @@ export const LongMemoryTool = () => {
       </div>
 
       <Note>
-        <p>· <b>GPH</b>：对最低 m≈n^p 个傅里叶频率做 log-周期图回归，斜率 = −d，SE = π/√(6·Σ(x−x̄)²)。</p>
-        <p>· <b>R/S Hurst</b>：重标极差随窗口增长的幂律指数 H，长记忆时 H{">"}0.5、d≈H−0.5。</p>
-        <p>· d∈(0,0.5) 为平稳长记忆（ACF 双曲衰减），d≥0.5 非平稳，d{"<"}0 反持续。</p>
+        <p>· <b>GPH</b>{t("labs.econV40.text102", { defaultValue: "：对最低 m≈n^p 个傅里叶频率做 log-周期图回归，斜率 = −d，SE = π/√(6·Σ(x−x̄)²)。" })}</p>
+        <p>· <b>R/S Hurst</b>{t("labs.econV40.text103", { defaultValue: "：重标极差随窗口增长的幂律指数 H，长记忆时 H" })}{">"}0.5、d≈H−0.5。</p>
+        <p>{t("labs.econV40.text104", { defaultValue: "· d∈(0,0.5) 为平稳长记忆（ACF 双曲衰减），d≥0.5 非平稳，d" })}{"<"}{t("labs.econV40.text105", { defaultValue: "0 反持续。" })}</p>
       </Note>
     </div>
   );
