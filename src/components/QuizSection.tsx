@@ -9,7 +9,7 @@ import { EquationBlock } from "@/components/common/EquationBlock";
 import { Link } from "react-router-dom";
 import { ExternalLink } from "lucide-react";
 import { QUIZ_QUESTIONS as QUESTIONS } from "@/data/quizQuestions";
-import { SECTION_MAP, sectionHref } from "@/lib/sections";
+import { SECTION_MAP, sectionHref, sectionLabel } from "@/lib/sections";
 import { loadStates, saveStates, newCard, review } from "@/lib/srs";
 
 const STORAGE_KEY = "quiz-progress-v1";
@@ -244,7 +244,7 @@ const QuizSection = () => {
                       to={sectionHref(q.sectionId)}
                       className="mt-3 inline-flex items-center gap-1.5 text-xs font-mono text-gold hover:underline"
                     >
-                      {t("quiz.gotoLab", { name: SECTION_MAP[q.sectionId].label })}
+                      {t("quiz.gotoLab", { name: sectionLabel(t, SECTION_MAP[q.sectionId]) })}
                       <ExternalLink className="w-3 h-3" />
                     </Link>
                   )}
