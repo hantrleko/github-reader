@@ -19,7 +19,7 @@ import SiteFooter from "@/components/SiteFooter";
 import SectionHeader from "@/components/common/SectionHeader";
 import Reveal from "@/components/common/Reveal";
 import SplashIntro from "@/components/SplashIntro";
-import { sectionsByGroup } from "@/lib/sections";
+import { sectionsByGroup, sectionLabel, sectionSubtitle } from "@/lib/sections";
 import { HOME_SEO } from "@/lib/seoCopy";
 
 const PILLAR_KEYS = ["p1", "p2", "p3"] as const;
@@ -103,7 +103,7 @@ const SectionDirectory = () => {
                 >
                   <Link
                     to={`/s/${s.id}`}
-                    aria-label={`${s.label}${s.subtitle ? ` — ${s.subtitle}` : ""}`}
+                    aria-label={`${sectionLabel(t, s)}${s.subtitle ? ` — ${sectionSubtitle(t, s)}` : ""}`}
                     className="group block h-full rounded-xl border border-border/60 bg-card/35 p-4 hover:border-gold/40 hover:bg-card/55 hover:-translate-y-0.5 hover:shadow-[0_14px_36px_-20px_hsl(var(--gold)/0.35)] transition-all duration-300"
                   >
                     <div className="flex items-start justify-between gap-2">
@@ -113,11 +113,11 @@ const SectionDirectory = () => {
                       <ArrowUpRight className="w-4 h-4 text-muted-foreground group-hover:text-gold group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all shrink-0" />
                     </div>
                     <h3 className="mt-2 font-display text-base text-foreground leading-snug group-hover:text-gold transition-colors">
-                      {s.label}
+                      {sectionLabel(t, s)}
                     </h3>
                     {s.subtitle && (
                       <p className="mt-1.5 text-xs text-foreground/60 leading-relaxed line-clamp-2">
-                        {s.subtitle}
+                        {sectionSubtitle(t, s)}
                       </p>
                     )}
                   </Link>
