@@ -1,0 +1,111 @@
+{
+  "labs": {
+    "macroFrontier": {
+      "r7": {
+        "capital": "Capital",
+        "labour": "Labor",
+        "humanCapital": "Human capital",
+        "tfpResidual": "TFP residual",
+        "textbook": "Textbook benchmark",
+        "spending": "Government spending",
+        "taxCuts": "Tax cuts",
+        "transfers": "Transfers",
+        "monotone": "Monotonic convergence",
+        "damped": "Damped oscillation",
+        "explosive": "Explosive oscillation",
+        "divergent": "Divergence",
+        "recession": "Recession",
+        "boom": "Overheating",
+        "normal": "Normal conditions",
+        "duration": "Duration",
+        "credibility": "Credibility %",
+        "taylor": "Taylor rule",
+        "inflationTarget": "Inflation targeting",
+        "priceTarget": "Price-level targeting",
+        "ngdpTarget": "Nominal GDP targeting",
+        "determinate": "Satisfied (φ_π>1)",
+        "indeterminate": "Not satisfied → indeterminacy",
+        "puzzle": "Forward premium puzzle",
+        "uip": "Consistent with UIP",
+        "crisis": "Crisis risk",
+        "manageable": "Manageable",
+        "quarter": "Quarter",
+        "rational": "Rational expectations",
+        "adaptive": "Adaptive learning",
+        "sticky": "Sticky information",
+        "diagnostic": "Diagnostic expectations",
+        "defends": "Yes (no large-scale bond purchases needed)",
+        "purchases": "Large-scale bond purchases needed",
+        "disabled": "Not enabled",
+        "balanceSheet": "Balance sheet %GDP",
+        "yccCap": "YCC cap",
+        "amplification": "|Δy| / loss shock",
+        "minimum": "Minimum capital threshold reached",
+        "buffer": "Adequate buffer",
+        "spread": "Spread bp",
+        "noCrossover": "No crossover in this scenario",
+        "year": "Year",
+        "emissions": "Emissions index",
+        "output": "% output",
+        "pricePeriods": "{{periods}} periods",
+        "moneyPeriods": "{{periods}} periods",
+        "extraPurchases": "Implied additional purchases: {{units}} units",
+        "crossover": "From year {{year}} onward",
+        "calvoNote": "Higher θ → a flatter curve → inflation responds less to the output gap → a higher disinflation sacrifice ratio and more persistent monetary non-neutrality. Indexation ω shifts weight toward π_{t−1}, creating inflation inertia."
+      }
+    }
+  },
+  "review": {
+    "grades": {
+      "forgot": "Forgot",
+      "forgotHint": "Try again in 10 minutes",
+      "hard": "Unclear",
+      "hardHint": "Shorter interval",
+      "good": "Recalled",
+      "goodHint": "Normal interval",
+      "easy": "Instant recall",
+      "easyHint": "Longer interval"
+    },
+    "categories": {
+      "pricing": "Pricing",
+      "risk": "Risk",
+      "econ": "Econometrics",
+      "macro": "Macroeconomics",
+      "stats": "Statistics",
+      "quant": "Quantitative finance"
+    },
+    "seo": {
+      "title": "Spaced Repetition Review · EF Lab",
+      "description": "Review core quantitative finance and econometrics terms with SM-2 spaced repetition: 45+ cards with KaTeX formulas, automatically scheduled along your forgetting curve."
+    },
+    "heading": "Spaced Repetition Review",
+    "subtitle": "SM-2 schedules reviews along your forgetting curve · Cards drawn from the site glossary · A few minutes a day to retain core concepts for the long term.",
+    "stats": {
+      "mastered": "Mastered",
+      "learning": "Learning",
+      "fresh": "Not studied",
+      "due": "Due this session"
+    },
+    "empty": {
+      "noDue": "No cards currently due",
+      "completed": "Session complete — {{total}} cards",
+      "nextReview": "SM-2 has scheduled your next review based on your self-assessment. Come back tomorrow, or visit the ",
+      "browse": " to browse all terms."
+    },
+    "decks": {
+      "glossary": "Glossary cards · {{total}}",
+      "quiz": "Missed quiz questions · {{total}}"
+    },
+    "glossary": "glossary",
+    "restart": "Rebuild review queue",
+    "showAnswer": "Show answer",
+    "openLab": "Open the lab: ",
+    "cardProgress": " · Card {{current}} / {{total}}",
+    "recallHint": "Recall the definition and formula first, then flip the card and assess your recall.",
+    "relatedTools": "Related tools: ",
+    "toolsAvailable": " — available in the ",
+    "toolDirectory": "tool directory",
+    "openTools": " to open",
+    "schedulingNote": "SM-2: Correct answers extend the interval from 1 day → 6 days → interval × EF; incorrect answers reset it and return after 10 minutes. Progress is saved in your browser."
+  }
+}

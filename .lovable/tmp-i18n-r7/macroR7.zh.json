@@ -1,0 +1,111 @@
+{
+  "labs": {
+    "macroFrontier": {
+      "r7": {
+        "capital": "资本",
+        "labour": "劳动",
+        "humanCapital": "人力资本",
+        "tfpResidual": "TFP 残差",
+        "textbook": "教科书基准",
+        "spending": "政府支出",
+        "taxCuts": "减税",
+        "transfers": "转移支付",
+        "monotone": "单调收敛",
+        "damped": "阻尼振荡",
+        "explosive": "发散振荡",
+        "divergent": "发散",
+        "recession": "衰退",
+        "boom": "过热",
+        "normal": "常态",
+        "duration": "期限",
+        "credibility": "可信度 %",
+        "taylor": "泰勒规则",
+        "inflationTarget": "通胀目标制",
+        "priceTarget": "价格水平目标",
+        "ngdpTarget": "名义 GDP 目标",
+        "determinate": "满足 (φ_π>1)",
+        "indeterminate": "不满足 → 不确定性",
+        "puzzle": "远期溢价之谜",
+        "uip": "UIP 方向一致",
+        "crisis": "危机风险",
+        "manageable": "可控",
+        "quarter": "季度",
+        "rational": "理性预期",
+        "adaptive": "适应性学习",
+        "sticky": "黏性信息",
+        "diagnostic": "诊断性预期",
+        "defends": "是 (无需大量购债)",
+        "purchases": "需大量购债",
+        "disabled": "未启用",
+        "balanceSheet": "资产负债表 %GDP",
+        "yccCap": "YCC 上限",
+        "amplification": "|Δy| / 损失冲击",
+        "minimum": "触及最低资本",
+        "buffer": "缓冲充足",
+        "spread": "利差 bp",
+        "noCrossover": "本情景下未跨越",
+        "year": "年",
+        "emissions": "排放指数",
+        "output": "% 产出",
+        "pricePeriods": "{{periods}} 期",
+        "moneyPeriods": "{{periods}} 期",
+        "extraPurchases": "隐含额外购买 {{units}} 单位",
+        "crossover": "第 {{year}} 年起",
+        "calvoNote": "θ 上升 → 曲线变平 → 通胀对产出缺口不敏感 → 反通胀的牺牲率上升、货币非中性更持久。\n            指数化 ω 把权重推向 π_{t−1}，产生通胀惯性。"
+      }
+    }
+  },
+  "review": {
+    "grades": {
+      "forgot": "忘了",
+      "forgotHint": "10 分钟后重来",
+      "hard": "模糊",
+      "hardHint": "缩短间隔",
+      "good": "想起来了",
+      "goodHint": "正常间隔",
+      "easy": "秒答",
+      "easyHint": "拉长间隔"
+    },
+    "categories": {
+      "pricing": "定价",
+      "risk": "风险",
+      "econ": "计量",
+      "macro": "宏观",
+      "stats": "统计",
+      "quant": "量化"
+    },
+    "seo": {
+      "title": "间隔重复复习 · EF Lab",
+      "description": "用 SM-2 间隔重复算法复习量化金融与计量经济学核心术语:45+ 张卡片,含 KaTeX 公式,按遗忘曲线自动排期。"
+    },
+    "heading": "间隔重复复习",
+    "subtitle": "SM-2 算法按你的遗忘曲线排期 · 术语卡片来自全站术语表 · 每天几分钟,长期记住核心概念。",
+    "stats": {
+      "mastered": "已掌握",
+      "learning": "学习中",
+      "fresh": "未学习",
+      "due": "本次待复习"
+    },
+    "empty": {
+      "noDue": "当前没有到期卡片",
+      "completed": "本次复习完成 — {{total}} 张卡片",
+      "nextReview": "SM-2 已根据你的自评安排下次复习时间。明天再来,或去 ",
+      "browse": " 浏览全部术语。"
+    },
+    "decks": {
+      "glossary": "术语卡 · {{total}}",
+      "quiz": "测验错题 · {{total}}"
+    },
+    "glossary": "术语表",
+    "restart": "重新抽取队列",
+    "showAnswer": "显示答案",
+    "openLab": "去对应实验室：",
+    "cardProgress": " · 卡片 {{current}} / {{total}}",
+    "recallHint": "先在脑中回忆定义与公式,再翻面自评。",
+    "relatedTools": "相关工具: ",
+    "toolsAvailable": " — 可在 ",
+    "toolDirectory": "工具目录",
+    "openTools": " 打开",
+    "schedulingNote": "SM-2:答对间隔按 1 天 → 6 天 → 间隔×EF 增长;答错重置并 10 分钟后重现。进度保存在本地浏览器。"
+  }
+}
