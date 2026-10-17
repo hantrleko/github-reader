@@ -847,6 +847,23 @@ if (UNGROUPED_SECTION_IDS.length) {
   }
 }
 
+/**
+ * Render-time localization helpers. Chinese stays as the source/defaultValue
+ * on the data objects; English (and any future locale) resolves through
+ * i18n keys. Call only inside React components with useTranslation's t.
+ */
+export const sectionLabel = (t: TFunction, s: SectionDef): string =>
+  t(`sections.catalog.${s.id}.label`, { defaultValue: s.label });
+
+export const sectionSubtitle = (t: TFunction, s: SectionDef): string =>
+  t(`sections.catalog.${s.id}.subtitle`, { defaultValue: s.subtitle ?? "" });
+
+export const groupLabel = (t: TFunction, g: NavGroup): string =>
+  t(`nav.groups.${g.id}`, { defaultValue: g.label });
+
+export const groupDesc = (t: TFunction, g: NavGroup): string =>
+  t(`nav.groupDescs.${g.id}`, { defaultValue: g.desc });
+
 /** Ordered [group, sections] pairs — sections only (home ids excluded). */
 export const sectionsByGroup = (): { group: NavGroup; sections: SectionDef[] }[] =>
   NAV_GROUPS.map((group) => ({
