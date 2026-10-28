@@ -278,7 +278,8 @@ html.cb-safe.dark {
   }
   .recharts-cartesian-axis-tick text { fill: #333 !important; }
   .recharts-cartesian-grid line { stroke: #ddd !important; }
-  nav, header, aside, .print\:hidden { display: none !important; }
+  nav, header, aside, footer, .print\:hidden { display: none !important; }
+  ol li { break-inside: avoid; }
 }
 
 /* ============================================================
