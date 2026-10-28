@@ -346,3 +346,10 @@ html.reading-mode .text-primary {
     -webkit-overflow-scrolling: touch;
   }
 }
+
+/* Mobile: long formulas scroll inside their box instead of being clipped. */
+@media (max-width: 640px) {
+  .katex-display { overflow-x: auto; overflow-y: hidden; padding-bottom: 2px; }
+  :has(> .katex):not(p):not(span) { overflow-x: auto; }
+  .recharts-cartesian-axis-tick text { font-size: 9px; }
+}
