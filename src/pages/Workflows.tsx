@@ -15,7 +15,35 @@ import { cn } from "@/lib/utils";
 import { WORKFLOWS, WORKFLOW_MAP, type Workflow } from "@/data/workflows";
 import { TOOLS_CATALOG, DIFFICULTY_LABEL } from "@/data/toolsCatalog";
 import { sectionHref } from "@/lib/sections";
-import { BUS_META, type BusKey } from "@/lib/toolBus";
+import { BUS_META, type BusKey, getBus, formatBusValue } from "@/lib/toolBus";
+
+/** Build the Markdown research memo for a playbook from current Tool Bus state. */
+export function buildMemo(workflow: Workflow, tr: (k: string) => string) {
+  const bus = getBus();
+  const busLines = (Object.keys(bus) as BusKey[])
+    .filter((k) => bus[k])
+    .map((k) => `- ${BUS_META[k].symbol} = ${formatBusValue(k, bus[k]!.value)} (${bus[k]!.source})`);
+  return [
+    `# ${tr("flagship.memo.title")}: ${workflow.title} / ${workflow.titleEn}`,
+    "",
+    `_${new Date().toISOString().slice(0, 10)} · EF LAB · ${tr("flagship.memo.note")}_`,
+    "",
+    workflow.blurb,
+    "",
+    `## ${tr("flagship.memo.params")}`,
+    "",
+    `**${tr("flagship.memo.bus")}**`,
+    ...(busLines.length ? busLines : [tr("flagship.memo.none")]),
+    "",
+    `## ${tr("flagship.memo.steps")}`,
+    ...workflow.steps.map((s, i) => `${i + 1}. **${toolName(s.toolId)}** — ${s.note}`),
+    "",
+    `## ${tr("flagship.memo.conclusion")}`,
+    "",
+    tr("flagship.memo.placeholder"),
+    "",
+  ].join("\n");
+}
 
 const toolName = (id: string) => TOOLS_CATALOG.find((item) => item.id === id)?.name ?? id;
 const toolAnchor = (id: string) => TOOLS_CATALOG.find((item) => item.id === id)?.anchor ?? "/tools";
@@ -158,6 +186,22 @@ const WorkflowDetail = ({ workflow, onBack }: { workflow: Workflow; onBack: () =
       >
         <PlayCircle className="w-4 h-4" /> {t("pages.workflows.copy8", { defaultValue: "从第一步开始" })}
       </button>
+      <div className="print:hidden flex flex-wrap gap-2 -mt-6 mb-10">
+        <button type="button" onClick={() => {
+          const blob = new Blob([buildMemo(workflow, (k) => t(k))], { type: "text/markdown;charset=utf-8" });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url; a.download = `ef-lab-memo-${workflow.id}.md`;
+          document.body.appendChild(a); a.click(); a.remove();
+          setTimeout(() => URL.revokeObjectURL(url), 30_000);
+        }} className="px-3 py-1.5 rounded-md border border-border text-xs font-mono hover:border-gold/40 hover:text-gold">
+          {t("flagship.memo.export")}
+        </button>
+        <button type="button" onClick={() => window.print()}
+          className="px-3 py-1.5 rounded-md border border-border text-xs font-mono hover:border-gold/40 hover:text-gold">
+          {t("flagship.memo.print")}
+        </button>
+      </div>
 
       <ol className="relative border-l border-border/60 ml-3 space-y-6">
         {workflow.steps.map((step, i) => (
