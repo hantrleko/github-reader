@@ -30,7 +30,7 @@ interface Props {
 }
 
 const tabBase =
-  "px-4 py-2 rounded-lg text-sm font-mono transition-all duration-300";
+  "max-w-[15rem] truncate sm:max-w-none sm:whitespace-normal px-4 py-2 rounded-lg text-sm font-mono transition-all duration-300";
 const tabActive = "bg-primary text-primary-foreground shadow-lg";
 const tabIdle = "bg-secondary text-secondary-foreground hover:bg-secondary/80";
 
