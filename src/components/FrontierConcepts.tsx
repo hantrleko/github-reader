@@ -134,6 +134,13 @@ return CONCEPTS;
 };
 
 const FrontierConcepts = () => {
+  const { t } = useTranslation();
+  const CONCEPTS = getCONCEPTS(t);
+  const LAB_TOOLS = getLAB_TOOLS(t);
+
+  const [open, setOpen] = useState<string | null>(null);
+  const [activeLab, setActiveLab] = useState<string>("amm");
+  const ActiveTool = LAB_TOOLS.find((lab) => lab.id === activeLab)?.Tool ?? AmmTool;
 
   return (
     <section className="py-24 px-6 relative">
