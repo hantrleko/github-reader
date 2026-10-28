@@ -8,7 +8,7 @@ export const BADGES: Record<string, { label: string; emoji: string; description:
   "notebook-forked":     { emoji: "🍴", label: "Forked a Notebook",   description: "Fork 了一个公开 Notebook" },
   "first-comment":       { emoji: "💬", label: "First Comment",       description: "发表了第一条讨论" },
   "notebook-explorer":   { emoji: "🧭", label: "Notebook Explorer",   description: "保存了 5 个 Notebook" },
-  "early-adopter":       { emoji: "⚡", label: "Early Adopter",       description: "EF Lab Beta 期注册用户" },
+  "early-adopter":       { emoji: "⚡", label: "Early Adopter",       description: "EF LAB Beta 期注册用户" },
 };
 
 export type BadgeSlug = keyof typeof BADGES;

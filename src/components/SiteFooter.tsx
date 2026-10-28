@@ -30,7 +30,7 @@ const SiteFooter = () => {
               {t("footer.kicker")}
             </span>
             <p className="text-base font-display font-bold text-foreground tracking-tight mb-3">
-              Econ&nbsp;&amp;&nbsp;Finance <em className="not-italic text-gold">Lab</em>
+              EF&nbsp;<em className="not-italic text-gold">LAB</em>
             </p>
             <p className="text-xs text-muted-foreground leading-relaxed max-w-sm">
               {t("footer.blurb")}

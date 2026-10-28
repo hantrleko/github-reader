@@ -162,7 +162,7 @@ const DataWorkspace = () => {
   return (
     <div className="min-h-screen bg-background">
       <Seo
-        title="Data Workspace · EF Lab"
+        title="Data Workspace · EF LAB"
         description={t("pages.dataWorkspace.copy13", { defaultValue: "跨工具数据工作区:上传 CSV、缓存 FRED/行情序列到本地 IndexedDB,做收益率/差分/标准化变换,在任意工具与 Notebook 中复用。" })}
         path="/data"
       />

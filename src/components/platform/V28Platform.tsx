@@ -86,7 +86,7 @@ const NotebookTab = () => {
   const DEFAULT_CELLS = getDEFAULT_CELLS(t);
   const [cells, setCells] = useState<Cell[]>(DEFAULT_CELLS);
   const [title, setTitle] = useState(t("labs.platform.v28.text008", { defaultValue: "最低工资 → 失业 · 政策评估笔记" }));
-  const [author, setAuthor] = useState("Econ & Finance Lab");
+  const [author, setAuthor] = useState("EF LAB");
 
   const addCell = (kind: CellKind) => {
     const id = `c${Date.now()}`;
@@ -155,7 +155,7 @@ const NotebookTab = () => {
       </style>
       </head><body>
       <h1>${title}</h1>
-      <div class="meta">${author} · ${new Date().toLocaleString("zh-CN")} · Econ & Finance Lab Notebook</div>
+      <div class="meta">${author} · ${new Date().toLocaleString("zh-CN")} · EF LAB Notebook</div>
       ${body}
       <script>setTimeout(()=>{window.print();}, 250);</script>
       </body></html>

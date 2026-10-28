@@ -95,7 +95,7 @@ function buildReturns() {
 function buildIRF() {
   const rng = lcg(99);
   // IRF from AR(1) shock: y_t = 0.6·y_{t-1} + eps
-  const rows: Array<{ t: number; irf: number; ci_lo: number; ci_hi: number }> = [];
+  const rows: Array<{ timeIndex: number; irf: number; ci_lo: number; ci_hi: number }> = [];
   let y = 0;
   for (let timeIndex = 0; timeIndex <= 20; timeIndex++) {
     if (timeIndex === 0) y = 1;
@@ -236,8 +236,8 @@ function HistoPanel() {
 function ScrubberPanel() {
   const { t } = useTranslation();
   const irf = useMemo(() => buildIRF(), []);
-  const [t, setT] = useState(0);
-  const visible = irf.slice(0, t + 1);
+  const [step, setStep] = useState(0);
+  const visible = irf.slice(0, step + 1);
   const exp = useChartExport();
   return (
     <ChartFrame
@@ -253,7 +253,7 @@ function ScrubberPanel() {
           <ResponsiveContainer width="100%" height="100%">
             <ComposedChart data={visible} margin={{ top: 8, right: 16, bottom: 8, left: 8 }}>
               <CartesianGrid {...GRID_PROPS} />
-              <XAxis dataKey="t" type="number" domain={[0, irf.length - 1]} {...AXIS_PROPS} />
+              <XAxis dataKey="timeIndex" type="number" domain={[0, irf.length - 1]} {...AXIS_PROPS} />
               <YAxis {...AXIS_PROPS} domain={[-0.2, 1.2]} />
               <Tooltip content={<ThemedTooltip />} />
               <ReferenceLine y={0} stroke="hsl(var(--border))" />
@@ -263,7 +263,7 @@ function ScrubberPanel() {
             </ComposedChart>
           </ResponsiveContainer>
         </div>
-        <TimeScrubber value={t} min={0} max={irf.length - 1} step={1} onChange={setT} label="t" />
+        <TimeScrubber value={step} min={0} max={irf.length - 1} step={1} onChange={setStep} label="t" />
       </div>
     </ChartFrame>
   );

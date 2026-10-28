@@ -95,7 +95,7 @@ const Review = () => {
   return (
     <div className="min-h-screen bg-background">
       <Seo
-        title={t("review.seo.title", { defaultValue: "间隔重复复习 · EF Lab" })}
+        title={t("review.seo.title", { defaultValue: "间隔重复复习 · EF LAB" })}
         description={t("review.seo.description", { defaultValue: "用 SM-2 间隔重复算法复习量化金融与计量经济学核心术语:45+ 张卡片,含 KaTeX 公式,按遗忘曲线自动排期。" })}
         path="/review"
       />

@@ -59,7 +59,7 @@ const Gallery = () => {
   return (
     <div className="min-h-screen bg-background">
       <Seo
-        title={t("pages.gallery.copy1", { defaultValue: "Notebook 画廊 · EF Lab" })}
+        title={t("pages.gallery.copy1", { defaultValue: "Notebook 画廊 · EF LAB" })}
         description={t("pages.gallery.copy2", { defaultValue: "社区公开的反应式金融 Notebook 画廊:浏览他人分享的定价推导、回测实验与计量分析,一键 Fork 到自己的工作区继续研究。" })}
         path="/gallery"
       />

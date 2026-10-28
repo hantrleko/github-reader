@@ -65,13 +65,13 @@ const NotebookTemplates = () => {
   return (
     <div className="min-h-screen bg-background">
       <Seo
-        title={t("pages.notebookTemplates.copy5", { defaultValue: "Notebook 模板市场 · EF Lab" })}
+        title={t("pages.notebookTemplates.copy5", { defaultValue: "Notebook 模板市场 · EF LAB" })}
         description={t("pages.notebookTemplates.copy6", { defaultValue: "Black-Scholes、CAPM、参数 VaR、债券久期、Merton 跳跃扩散、GARCH(1,1) 等经典量化金融模板,一键 Fork 即可在 Reactive Notebook 中改参运行。" })}
         path="/notebook/templates"
         jsonLd={{
           "@context": "https://schema.org",
           "@type": "CollectionPage",
-          name: "EF Lab Notebook Templates",
+          name: "EF LAB Notebook Templates",
           numberOfItems: NOTEBOOK_TEMPLATES.length,
         }}
       />
@@ -105,31 +105,31 @@ const NotebookTemplates = () => {
           <ul className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
             {list.map((term) => {
   
-              const paramCount = t.cells.filter((c) => c.kind === "param").length;
-              const chartCount = t.cells.filter((c) => c.kind === "chart").length;
+              const paramCount = term.cells.filter((c) => c.kind === "param").length;
+              const chartCount = term.cells.filter((c) => c.kind === "chart").length;
               return (
                 <li
-                  key={t.slug}
+                  key={term.slug}
                   className="group relative border border-border/60 bg-card/30 p-5 hover:border-gold/50 transition-colors flex flex-col"
                 >
                   <header className="flex items-start justify-between gap-2 mb-3">
                     <p className="text-[10px] font-mono uppercase tracking-[0.18em] text-gold/80">
-                      {t.category}
+                      {term.category}
                     </p>
                     <span
                       className={cn(
                         "px-1.5 py-0.5 text-[9px] font-mono uppercase tracking-[0.12em] border",
-                        DIFFICULTY_TINT[t.difficulty]
+                        DIFFICULTY_TINT[term.difficulty]
                       )}
                     >
-                      {t.difficulty}
+                      {term.difficulty}
                     </span>
                   </header>
 
                   <h3 className="font-display text-lg text-foreground mb-1.5 leading-snug">
-                    {t.title}
+                    {term.title}
                   </h3>
-                  <p className="text-xs text-muted-foreground mb-4 flex-1">{t.tagline}</p>
+                  <p className="text-xs text-muted-foreground mb-4 flex-1">{term.tagline}</p>
 
                   <div className="flex items-center gap-3 text-[10px] font-mono text-muted-foreground/80 mb-4 border-t border-accent/20 pt-3">
                     <span>📐 {paramCount} params</span>
@@ -137,20 +137,20 @@ const NotebookTemplates = () => {
                   </div>
 
                   <p className="text-[10px] font-mono text-muted-foreground/60 mb-3 italic">
-                    {t.citation}
+                    {term.citation}
                   </p>
 
                   <div className="flex items-center gap-2">
                     <button
-                      onClick={() => forkTemplate(t.slug)}
-                      disabled={busy === t.slug}
+                      onClick={() => forkTemplate(term.slug)}
+                      disabled={busy === term.slug}
                       className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-mono bg-gold text-emerald-950 hover:bg-gold/90 transition-colors disabled:opacity-50"
                     >
                       <GitFork className="w-3.5 h-3.5" />
-                      {busy === t.slug ? "Forking…" : "Fork"}
+                      {busy === term.slug ? "Forking…" : "Fork"}
                     </button>
                     <button
-                      onClick={() => preview(t.slug)}
+                      onClick={() => preview(term.slug)}
                       className="inline-flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-mono border border-border/60 text-foreground/80 hover:text-gold hover:border-gold/50 transition-colors"
                       title={t("pages.notebookTemplates.copy9", { defaultValue: "无需登录,在编辑器中预览" })}
                     >

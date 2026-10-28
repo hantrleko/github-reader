@@ -225,8 +225,8 @@ export const FactorZooTool = () => {
               <tr key={o.name} className="border-t border-border">
                 <td className="p-2 font-medium text-foreground">{o.name}</td>
                 <td className="p-2 text-center font-mono tabular-nums">{o.coef.toFixed(3)}</td>
-                <td className="p-2 text-center font-mono tabular-nums" style={{ color: Math.abs(o.period) > 1.96 ? TEAL : TEXT }}>{o.period.toFixed(2)}</td>
-                <td className="p-2 text-center">{Math.abs(o.period) > 1.96 ? "✓" : "—"}</td>
+                <td className="p-2 text-center font-mono tabular-nums" style={{ color: Math.abs(o.t) > 1.96 ? TEAL : TEXT }}>{o.t.toFixed(2)}</td>
+                <td className="p-2 text-center">{Math.abs(o.t) > 1.96 ? "✓" : "—"}</td>
                 <td className="p-2 text-center" style={{ color: o.survivesHLZ ? TEAL : RED }}>{o.survivesHLZ ? "✓" : "✗"}</td>
                 <td className="p-2 text-center" style={{ color: o.survivesBonferroni ? TEAL : RED }}>{o.survivesBonferroni ? "✓" : "✗"}</td>
                 <td className="p-2 text-center font-mono tabular-nums">{res.ridge[k].coef.toFixed(3)}</td>

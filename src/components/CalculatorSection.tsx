@@ -795,7 +795,7 @@ const CalculatorSection = () => {
                     },
                   ],
                 }}
-                pdfTitle={`${calculators.find((c) => c.id === active)!.name} · EF Lab`}
+                pdfTitle={`${calculators.find((c) => c.id === active)!.name} · EF LAB`}
                 ai={{
                   tool: `${calculators.find((c) => c.id === active)!.name} (${calculators.find((c) => c.id === active)!.nameEn})`,
                   results: {

@@ -7,7 +7,7 @@ import { SECTIONS, type SectionDef } from "@/lib/sections";
  */
 
 export const SITE_URL = "https://eugenefinance.tech";
-export const BRAND = "EF Lab";
+export const BRAND = "EF LAB";
 /** editorial em-dash brand suffix appended to page titles */
 export const TITLE_SUFFIX = ` — ${BRAND}`;
 

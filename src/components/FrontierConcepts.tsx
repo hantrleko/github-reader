@@ -137,11 +137,149 @@ const FrontierConcepts = () => {
   const { t } = useTranslation();
   const CONCEPTS = getCONCEPTS(t);
   const LAB_TOOLS = getLAB_TOOLS(t);
-  
+
   const [open, setOpen] = useState<string | null>(null);
   const [activeLab, setActiveLab] = useState<string>("amm");
-  const ActiveTool = LAB_TOOLS.find((timeIndex) => timeIndex.id === activeLab)?.Tool ?? AmmTool;
-  
+  const ActiveTool = LAB_TOOLS.find((lab) => lab.id === activeLab)?.Tool ?? AmmTool;
+
+  return (
+    <section className="py-24 px-6 relative">
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-card/20 to-transparent pointer-events-none" />
+      <div className="container relative z-10 max-w-6xl">
+        <motion.div className="text-center mb-12" initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}>
+          <p className="text-xs font-mono uppercase tracking-[0.3em] text-gold mb-3">Frontier Paradigms · 2024–2026</p>
+          <h2 className="text-3xl md:text-5xl font-display font-bold text-foreground">{t("labs.frontier.concepts.ui.text1", { defaultValue: "前沿模型与新兴范式" })}</h2>
+          <p className="text-sm text-muted-foreground mt-3 max-w-2xl mx-auto">
+            {t("labs.frontier.concepts.ui.text2", { defaultValue: "AI/ML · 多智能体仿真 · 复杂网络 · 气候金融 · 神经经济学 · DeFi · 宏观金融 — 概念地图（持续追踪最新文献）" })}
+          </p>
+        </motion.div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 items-start">
+          {CONCEPTS.map((c, i) => {
+            const Icon = c.icon;
+            const isOpen = open === c.tag;
+            return (
+              <motion.div
+                key={c.tag}
+                initial={{ opacity: 0, y: 12 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.3, delay: i * 0.05 }}
+                className={`rounded-2xl border bg-card/40 p-5 transition-colors flex flex-col ${isOpen ? "border-gold/50" : "border-border hover:border-gold/40"}`}
+              >
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-gold/10 text-gold">
+                    <Icon className="w-4 h-4" />
+                  </span>
+                  <span className="text-[10px] font-mono uppercase tracking-[0.2em] text-gold/80">{c.tag}</span>
+                </div>
+                <h3 className="text-base font-display text-foreground mb-2 leading-snug">{c.title}</h3>
+                <p className="text-xs text-foreground/70 leading-relaxed mb-3">{c.idea}</p>
+                <div className="rounded-lg border border-gold/15 bg-gold/[0.03] p-2.5 mb-3">
+                  <p className="text-[10px] font-mono text-gold mb-1">{t("labs.frontier.concepts.ui.text3", { defaultValue: "关键发现" })}</p>
+                  <p className="text-[11px] text-foreground/80 leading-relaxed">{c.finding}</p>
+                </div>
+
+                <AnimatePresence initial={false}>
+                  {isOpen && (
+                    <motion.div
+                      key="detail"
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: "auto", opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.25 }}
+                      className="overflow-hidden"
+                    >
+                      <div className="space-y-3 pb-2">
+                        <div>
+                          <p className="flex items-center gap-1.5 text-[10px] font-mono text-gold/80 mb-1">
+                            <Wrench className="w-3 h-3" /> {t("labs.frontier.concepts.ui.text4", { defaultValue: "方法论" })}
+                          </p>
+                          <p className="text-[11px] text-foreground/75 leading-relaxed">{c.method}</p>
+                        </div>
+                        <div className="rounded-lg border border-border/60 bg-background/40 p-2.5">
+                          <p className="flex items-center gap-1.5 text-[10px] font-mono text-gold/80 mb-1.5">
+                            <Sigma className="w-3 h-3" /> {t("labs.frontier.concepts.ui.text5", { defaultValue: "数学直觉" })}
+                          </p>
+                          <code className="block text-[11px] font-mono text-foreground/90 leading-relaxed break-words">{c.formula}</code>
+                          <p className="text-[10px] text-muted-foreground/70 leading-relaxed mt-1.5">{c.formulaNote}</p>
+                        </div>
+                        <div className="grid grid-cols-1 gap-2">
+                          <div>
+                            <p className="text-[10px] font-mono text-emerald-400/80 mb-1">{t("labs.frontier.concepts.ui.text6", { defaultValue: "应用场景" })}</p>
+                            <p className="text-[11px] text-foreground/75 leading-relaxed">{c.application}</p>
+                          </div>
+                          <div>
+                            <p className="flex items-center gap-1.5 text-[10px] font-mono text-destructive/70 mb-1">
+                              <AlertTriangle className="w-3 h-3" /> {t("labs.frontier.concepts.ui.text7", { defaultValue: "局限与争议" })}
+                            </p>
+                            <p className="text-[11px] text-foreground/75 leading-relaxed">{c.limitation}</p>
+                          </div>
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
+                <button
+                  onClick={() => setOpen(isOpen ? null : c.tag)}
+                  className="mt-3 flex items-center justify-between w-full text-[11px] font-mono text-gold/80 hover:text-gold transition-colors"
+                  aria-expanded={isOpen}
+                >
+                  <span>{isOpen ? t("labs.frontier.concepts.ui.text8", { defaultValue: "收起" }) : t("labs.frontier.concepts.ui.text9", { defaultValue: "深入 · 方法 / 公式 / 局限" })}</span>
+                  <ChevronDown className={`w-3.5 h-3.5 transition-transform ${isOpen ? "rotate-180" : ""}`} />
+                </button>
+
+                <div className="mt-auto pt-3 border-t border-border/40 space-y-0.5">
+                  {c.refs.map(ref => (
+                    <p key={ref} className="text-[10px] font-mono text-muted-foreground/60 italic leading-snug">{ref}</p>
+                  ))}
+                </div>
+              </motion.div>
+            );
+          })}
+        </div>
+
+        <p className="text-center text-[11px] font-mono text-muted-foreground/60 mt-8">
+          {t("labs.frontier.concepts.ui.text10", { defaultValue: "每张卡片可展开方法论、数学直觉与局限；下方互动实验室已上线 AMM、网络传染、Climate VaR 与前景理论四个可交互模型。" })}
+        </p>
+
+        {/* Interactive lab */}
+        <div className="mt-16">
+          <div className="flex items-center justify-center gap-2 mb-6">
+            <FlaskConical className="w-4 h-4 text-gold" />
+            <h3 className="text-xl md:text-2xl font-display font-bold text-foreground">{t("labs.frontier.concepts.ui.text11", { defaultValue: "前沿模型 · 互动实验室" })}</h3>
+          </div>
+          <div className="flex flex-wrap justify-center gap-2 mb-6">
+            {LAB_TOOLS.map((lab) => {
+              const Icon = lab.icon;
+              const active = activeLab === lab.id;
+              return (
+                <button
+                  key={lab.id}
+                  onClick={() => setActiveLab(lab.id)}
+                  className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-mono transition-all ${
+                    active
+                      ? "bg-gold/15 border border-gold/40 text-gold"
+                      : "bg-secondary/50 border border-border text-muted-foreground hover:text-gold hover:border-gold/30"
+                  }`}
+                  title={lab.desc}
+                >
+                  <Icon className="w-3.5 h-3.5" />
+                  {lab.name}
+                </button>
+              );
+            })}
+          </div>
+          <div className="rounded-2xl border border-border bg-card/40 p-5 md:p-7">
+            <Suspense fallback={<div className="text-center text-xs font-mono text-muted-foreground py-12">{t("labs.frontier.concepts.ui.text12", { defaultValue: "加载交互工具…" })}</div>}>
+              <ActiveTool />
+            </Suspense>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
 };
 
 export default FrontierConcepts;

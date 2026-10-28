@@ -1,6 +1,6 @@
 {
-  "name": "EF Lab — The Quantitative Report",
-  "short_name": "EF Lab",
+  "name": "EF LAB — The Quantitative Report",
+  "short_name": "EF LAB",
   "description": "Bloomberg-style interactive lab for option pricing, risk, portfolio & macro models.",
   "start_url": "/",
   "scope": "/",

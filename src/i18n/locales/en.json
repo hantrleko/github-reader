@@ -16,7 +16,7 @@
     }
   },
   "nav": {
-    "brand": "Econ & Finance Lab",
+    "brand": "EF LAB",
     "version": "V5.0",
     "lang": "Language",
     "smoothScroll": {
@@ -115,7 +115,7 @@
     }
   },
   "hero": {
-    "tagline": "Economics & Finance Lab",
+    "tagline": "EF LAB",
     "title1": "Turn Economic Theory",
     "title2": "Into Testable Experiments",
     "subtitle": "An interactive laboratory for empirical research, quantitative modeling and teaching: connect asset pricing, derivatives, fixed income and econometrics through real data, derivations and adjustable model parameters.",
@@ -483,7 +483,7 @@
     "sections": "Sections",
     "quickLinks": "Quick links",
     "backToTop": "Back to top",
-    "rights": "© 2026 Econ & Finance Lab · For study and research only · Not investment advice"
+    "rights": "© 2026 EF LAB · For study and research only · Not investment advice"
   },
   "section": {
     "backHome": "Back to home",
@@ -974,7 +974,86 @@
         "genC": "Asset C"
       },
       "pyAssets": "# {{n}} assets · ρ={{rho}} · {{mode}}",
-      "pySigma": "# Σ built from each asset's σ and correlation ρ={{rho}}"
+      "pySigma": "# Σ built from each asset's σ and correlation ρ={{rho}}",
+      "concepts": {
+        "text1": "Constant-product AMM slippage and impermanent loss",
+        "text2": "Network · Contagion",
+        "text3": "DebtRank default cascades",
+        "text4": "Climate · Climate VaR",
+        "text5": "Losses repriced under NGFS scenarios",
+        "text6": "Neuro · Prospect theory",
+        "text7": "Value function and probability weighting",
+        "text8": "AI-driven asset pricing",
+        "text9": "Deep neural networks estimate the stochastic discount factor (SDF) with the no-arbitrage condition as the objective; large language models (LLMs) are used for economic forecasting and concept measurement.",
+        "text10": "Deep SDFs beat traditional linear factor models across Sharpe ratio, explained variance and pricing errors.",
+        "text11": "Feed-forward/recurrent networks extract nonlinear factor loadings from hundreds of firm characteristics and train the SDF with GMM moment conditions (pricing-error minimization) as the loss; adversarial networks generate the hardest-to-price portfolios, forcing the SDF to satisfy no-arbitrage.",
+        "text12": "SDF weights wᵢ(x) are estimated by a neural network taking characteristics x as input; pricing errors must vanish for every tradeable portfolio's excess return Rᵉ.",
+        "text13": "Factor investing, cross-sectional return prediction, asset allocation under macro scenarios; LLMs extract earnings-call/news sentiment as extra state variables.",
+        "text14": "Weak black-box interpretability, overfitting, and little robustness to macro structural breaks; out-of-sample decay and data snooping remain the core concerns.",
+        "text15": "Agent-based models",
+        "text16": "Bottom-up emergence of macro phenomena from micro individual behavior, with no representative-agent assumption; LLM agents (EconAgent / TradingAgents) reproduce classic macro and trading behavior.",
+        "text17": "Multi-agent trader behavior can be aggregated mathematically to derive GARCH volatility clustering; CBDC simulations reveal a reshaping of bank intermediation.",
+        "text18": "Define behavioral rules for heterogeneous agents (fundamentalist/trend/noise traders) and iterate them through a market matching mechanism, observing the emergence of macro statistics such as prices and volumes; recently LLMs give agents language-reasoning ability.",
+        "text19": "Price adjustment is proportional to the net demand D of fundamentalists versus trend followers, with κ the market depth; nonlinear switching generates fat tails and volatility clustering.",
+        "text20": "Stress testing, policy experiments (CBDC, transaction taxes), market-microstructure research, flash-crash and liquidity-drought scenarios.",
+        "text21": "Calibration is hard, results are sensitive to behavioral assumptions, and there is no unified falsifiability standard; computational cost rises quickly with the number of agents.",
+        "text22": "6.3 Complex networks",
+        "text23": "Networks and GNN systemic risk",
+        "text24": "Financial systems are complex networks (interbank lending, supply chains, trade); graph neural networks (GNNs) extend systemic-risk measurement to graph-structured data.",
+        "text25": "Dynamic GNNs capture the time evolution of network structure, quantifying contagion pathways and amplification of systemic risk.",
+        "text26": "Model institutions as nodes and exposures as weighted directed edges; message-passing layers aggregate neighbors' risk states, combined with DebtRank / default-contagion models to predict cascading failures and systemically important institutions (SIFIs).",
+        "text27": "Node representations h aggregate neighbor information through attention weights αᵢⱼ; multiple propagation layers simulate risk diffusing step by step along the network.",
+        "text28": "Central-bank macroprudential oversight, SIFI identification, contagion-path early warning, supply-chain fragility and trade-shock assessment.",
+        "text29": "Exposure data are scarce and lagged, network structure is endogenous to the crisis itself, and over-smoothing makes deep GNNs hard to train.",
+        "text30": "GNN systemic risk (2024), arXiv:2410.07222",
+        "text31": "Dynamic GNN financial crises (2025), SAGE",
+        "text32": "6.4 Climate finance",
+        "text33": "Climate risk pricing",
+        "text34": "Integrate physical and transition risk into asset pricing; Climate VaR uses NGFS/IPCC scenarios to assess policy, technology and physical shocks.",
+        "text35": "When the carbon tax is below the social cost of carbon, brown assets can act as a hedge — challenging conventional ESG intuition.",
+        "text36": "Introduce carbon-price paths and climate scenarios into DCF/asset-pricing frameworks; map physical losses and transition costs into cash-flow shocks, revalue assets under NGFS scenarios and compute tail losses.",
+        "text37": "Revalue discounted cash flows for each climate scenario s (orderly/disorderly transition, hot-house world); the quantile loss is Climate VaR.",
+        "text38": "ESG portfolio stress testing, sector repricing under transition pathways, green-premium / brown-discount estimation, regulatory climate-scenario disclosure.",
+        "text39": "Very high long-horizon scenario uncertainty, no historical data for calibration, and carbon-price and policy-path assumptions driving results.",
+        "text40": "6.5 Neuroeconomics",
+        "text41": "New behavioral and neurofinance models",
+        "text42": "Behavioral finance moves from description to quantitative modeling; neuroeconomics feeds brain-imaging data directly into financial decision prediction (MCoRNN-MCD and similar).",
+        "text43": "'Neurofinance' moves from the lab to applications, suggesting decision mechanisms can be measured and modeled directly.",
+        "text44": "Overlay physiological/neural signals (fMRI, skin conductance, eye tracking) as state variables on the prospect-theory utility framework, and use deep sequence models to predict risk decisions and shifts in market sentiment.",
+        "text45": "Prospect-theory value function: loss-aversion coefficient λ>1 with subjectively weighted probabilities π; neural data estimate individualized α, β, λ.",
+        "text46": "Personalized advice, risk-preference measurement, market-sentiment indicators, real-time detection and intervention of behavioral biases.",
+        "text47": "Neural data collection is costly with small samples and limited external validity; ethical and privacy constraints limit large-scale use.",
+        "text48": "New neuroeconomics models (2024-2025)",
+        "text49": "Decentralized finance models",
+        "text50": "Automated market makers (AMMs) replace order books and liquidity pools replace market makers; DeFi modeling moves from description to rigorous economic analysis.",
+        "text51": "Network probability-contagion models quantify systemic-risk propagation over bilateral-liability financial networks.",
+        "text52": "Use constant-function market makers (CFMMs) to characterize pool pricing, analyzing impermanent loss, arbitrage and MEV; use network models to study cascading liquidations in lending protocols.",
+        "text53": "Constant-product market maker: the product of the two asset reserves in the pool is conserved, with marginal price set by the reserve ratio; large trades create slippage and impermanent loss.",
+        "text54": "DEX design, liquidity-mining incentives, liquidation-risk assessment, stablecoins and overcollateralized lending mechanisms.",
+        "text55": "Smart-contract risk, oracle manipulation, regulatory uncertainty, and the reflexive fragility of liquidity and liquidations in extreme markets.",
+        "text56": "Network probability systemic risk (2024), QREF",
+        "text57": "6.7 Macrofinance",
+        "text58": "CBDC and new macroprudential frameworks",
+        "text59": "Bring CBDC, banking frictions and multiple policy tools into a unified New Keynesian framework; macroprudential DSGE evaluates the interaction of tools such as LTV/DSTI.",
+        "text60": "The effect of CBDC interest-rate policy depends on the monetary anchor regime; with high substitutability a CBDC economy approximates an economy without CBDC.",
+        "text61": "Introduce a banking sector, collateral constraints and CBDC as another safe asset into DSGE; evaluate the interaction of macroprudential tools and monetary policy through impulse responses and welfare analysis.",
+        "text62": "Collateral constraint: the borrowing cap is proportional to the loan-to-value ratio θ and expected future collateral value; LTV/DSTI tools damp procyclical leverage by adjusting θ.",
+        "text63": "Central-bank digital currency design, macroprudential policy mixes, bank-disintermediation risk, interest-rate transmission analysis.",
+        "text64": "Linear solution methods miss crisis nonlinearities, behavioral foundations face the Lucas critique, and parameters drive welfare conclusions.",
+        "text65": "Macroprudential DSGE (2024-25), Oxford Bulletin",
+        "ui.text1": "Frontier Models and Emerging Paradigms",
+        "ui.text2": "AI/ML · agent-based simulation · complex networks · climate finance · neuroeconomics · DeFi · macrofinance — a concept map (tracking the latest literature)",
+        "ui.text3": "Key finding",
+        "ui.text4": "Methodology",
+        "ui.text5": "Mathematical intuition",
+        "ui.text6": "Applications",
+        "ui.text7": "Limitations and debates",
+        "ui.text8": "Collapse",
+        "ui.text9": "Deep dive · method / formula / limits",
+        "ui.text10": "Each card expands to show methodology, mathematical intuition and limitations; the interactive lab below ships four working models: AMM, network contagion, Climate VaR and prospect theory.",
+        "ui.text11": "Frontier Models · Interactive Lab",
+        "ui.text12": "Loading interactive tool…"
+      }
     },
     "ap": {
       "zerobeta": {
@@ -9256,7 +9335,7 @@
       "quant": "Quantitative finance"
     },
     "seo": {
-      "title": "Spaced Repetition Review · EF Lab",
+      "title": "Spaced Repetition Review · EF LAB",
       "description": "Review core quantitative finance and econometrics terms with SM-2 spaced repetition: 45+ cards with KaTeX formulas, automatically scheduled along your forgetting curve."
     },
     "heading": "Spaced Repetition Review",
@@ -9293,8 +9372,8 @@
     "account": {
       "copy1": "Save failed",
       "copy2": "Saved",
-      "copy3": "Account settings · EF Lab",
-      "copy4": "Manage your EF Lab account, username, and public profile visibility.",
+      "copy3": "Account settings · EF LAB",
+      "copy4": "Manage your EF LAB account, username, and public profile visibility.",
       "copy5": "Account and public profile",
       "copy6": "Set a username so others can visit /u/your-name.",
       "copy7": "Public profile",
@@ -9353,7 +9432,7 @@
       "copy26": "Data is stored in browser IndexedDB and available offline. Paste data copied with the JSON button into Notebook JS / Python cells for further analysis."
     },
     "gallery": {
-      "copy1": "Notebook gallery · EF Lab",
+      "copy1": "Notebook gallery · EF LAB",
       "copy2": "A gallery of public reactive finance Notebooks: explore shared pricing derivations, backtests, and econometric analyses, then fork them into your workspace.",
       "copy3": "Notebook gallery",
       "copy4": "Public research notebooks — open to interact, sign in to fork and continue editing in your workspace.",
@@ -9397,7 +9476,7 @@
       "copy26": "Tags (comma-separated)"
     },
     "glossary": {
-      "copy1": "Glossary · EF Lab",
+      "copy1": "Glossary · EF LAB",
       "copy2": "Quick reference for quantitative finance and econometrics terms, with formulas, related tools, and references.",
       "copy3": "Back to home",
       "copy4": "Glossary · Terminology",
@@ -9457,7 +9536,7 @@
       "copy2": "Sign in to save to the cloud and continue editing.",
       "copy3": "Fork failed",
       "copy4": "Forked to My Notebooks",
-      "copy5": "Notebook templates · EF Lab",
+      "copy5": "Notebook templates · EF LAB",
       "copy6": "Classic quantitative finance templates including Black-Scholes, CAPM, parametric VaR, bond duration, Merton jump diffusion, and GARCH(1,1). Fork to adjust parameters in Reactive Notebook.",
       "copy7": "Notebook templates",
       "copy8": "Inspired by Observable / Wolfram · fork classic quantitative finance models, adjust parameters, and run them in Reactive Notebook.",
@@ -9466,7 +9545,7 @@
       "copy11": "Open a blank Notebook"
     },
     "papers": {
-      "copy1": "Classic papers · EF Lab",
+      "copy1": "Classic papers · EF LAB",
       "copy2": "An index of classic quantitative finance and econometrics papers: Black-Scholes, Fama-French, Hull-White, GARCH, and more, filterable by topic.",
       "copy3": "Classic papers",
       "copy4": "A searchable academic reference library · one key contribution per paper, with DOI / links for cross-referencing calculators and strategies.",
@@ -9480,7 +9559,7 @@
       "copy4": "No public Notebooks yet."
     },
     "strategies": {
-      "copy1": "Quantitative strategies · EF Lab",
+      "copy1": "Quantitative strategies · EF LAB",
       "copy2": "Classic quantitative strategy cards: momentum, value, low volatility, pairs trading, statistical arbitrage, and more, with Sharpe ratios, drawdowns, data frequencies, and references.",
       "copy3": "Classic quantitative strategies",
       "copy4": "Inspired by QuantPedia · 12 academically validated factor and arbitrage strategies, with paper references and historical Sharpe / drawdown benchmarks.",
@@ -9488,7 +9567,7 @@
       "copy6": "No matching strategies."
     },
     "toolsCatalog": {
-      "copy1": "Tool directory · EF Lab",
+      "copy1": "Tool directory · EF LAB",
       "copy2": "A complete index of interactive quantitative finance and econometrics tools: filter by topic, difficulty, and verification.",
       "copy3": "Back to home",
       "copy4": "All tools",
@@ -9526,7 +9605,7 @@
       "copy13": "Next topic"
     },
     "workflows": {
-      "copy1": "Research workflows · EF Lab",
+      "copy1": "Research workflows · EF LAB",
       "copy2": "Connect implied volatility, surface fitting, Greeks, portfolio optimization, credit risk, and other tools into step-by-step research playbooks.",
       "copy3": "Tool directory",
       "copy4": "Research workflows",

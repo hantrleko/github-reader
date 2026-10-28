@@ -57,7 +57,7 @@ const ToolsCatalog = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <Seo title={t("pages.toolsCatalog.copy1", { defaultValue: "工具目录 · EF Lab" })} description={t("pages.toolsCatalog.copy2", { defaultValue: "完整的量化金融与计量经济学交互工具索引：按主题、难度与可验证性筛选。" })} path="/tools" />
+      <Seo title={t("pages.toolsCatalog.copy1", { defaultValue: "工具目录 · EF LAB" })} description={t("pages.toolsCatalog.copy2", { defaultValue: "完整的量化金融与计量经济学交互工具索引：按主题、难度与可验证性筛选。" })} path="/tools" />
       <Navbar />
       <main id="main-content" className="container max-w-6xl px-6 pt-20 pb-24">
         {/* Hero */}
@@ -228,8 +228,8 @@ const ToolsCatalog = () => {
                 <div className="flex-1 h-px bg-border/60" />
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {items.map((t) => (
-                  <ToolCard key={term.id} tool={t} query={q} />
+                {items.map((term) => (
+                  <ToolCard key={term.id} tool={term} query={q} />
                 ))}
               </div>
             </section>

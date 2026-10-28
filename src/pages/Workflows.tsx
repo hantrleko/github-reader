@@ -39,7 +39,7 @@ const WorkflowsPage = () => {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <Seo
-        title={t("pages.workflows.copy1", { defaultValue: "研究工作流 · EF Lab" })}
+        title={t("pages.workflows.copy1", { defaultValue: "研究工作流 · EF LAB" })}
         description={t("pages.workflows.copy2", { defaultValue: "把隐含波动率、曲面拟合、Greeks、组合优化与信用风险等工具串成可逐步走查的研究工作流剧本。" })}
         path="/workflows"
       />

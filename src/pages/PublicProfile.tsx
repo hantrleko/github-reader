@@ -44,7 +44,7 @@ const PublicProfile = () => {
     <div className="min-h-screen bg-background">
       {profile && (
         <Seo
-          title={`@${profile.username} · EF Lab`}
+          title={`@${profile.username} · EF LAB`}
           description={profile.bio || t("pages.publicProfile.copy1", { defaultValue: "{{value1}} 的公开 Notebook 与徽章。", value1: profile.display_name || profile.username })}
           path={`/u/${profile.username}`}
           type="article"

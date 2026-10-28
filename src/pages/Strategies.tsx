@@ -37,7 +37,7 @@ const Strategies = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <Seo title={t("pages.strategies.copy1", { defaultValue: "量化策略库 · EF Lab" })} description={t("pages.strategies.copy2", { defaultValue: "经典量化策略卡片库：动量、价值、低波、配对、统计套利等，含夏普、回撤、数据频率与参考论文。" })} path="/strategies" />
+      <Seo title={t("pages.strategies.copy1", { defaultValue: "量化策略库 · EF LAB" })} description={t("pages.strategies.copy2", { defaultValue: "经典量化策略卡片库：动量、价值、低波、配对、统计套利等，含夏普、回撤、数据频率与参考论文。" })} path="/strategies" />
       <Navbar />
       <main id="main-content" className="pt-14">
         <SectionHeader

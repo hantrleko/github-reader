@@ -99,7 +99,7 @@ const TopicDetail = () => {
   return (
     <div className="min-h-screen bg-background">
       <Seo
-        title={`${topic.title} · ${topic.subtitle} · EF Lab`}
+        title={`${topic.title} · ${topic.subtitle} · EF LAB`}
         description={topic.desc}
         path={`/topic/${topic.id}`}
         type="article"
@@ -108,7 +108,7 @@ const TopicDetail = () => {
           "@type": "Article",
           headline: `${topic.title} (${topic.subtitle})`,
           description: topic.desc,
-          author: { "@type": "Organization", name: "EF Lab" },
+          author: { "@type": "Organization", name: "EF LAB" },
         }}
       />
       <Navbar />
