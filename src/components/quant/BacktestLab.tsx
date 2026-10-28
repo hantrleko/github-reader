@@ -347,7 +347,7 @@ export default function BacktestLab() {
                         <ComposedChart data={chartData}>
                           <CartesianGrid {...GRID_PROPS} />
                           <XAxis dataKey="date" {...AXIS_PROPS} minTickGap={48} />
-                          <YAxis {...AXIS_PROPS} width={48} />
+                          <YAxis {...AXIS_PROPS} width={52} domain={["auto", "auto"]} tickCount={6} interval="preserveStartEnd" minTickGap={14} tickFormatter={(v: number) => (Number.isFinite(v) ? v.toFixed(Math.abs(v) < 10 ? 2 : 1) : "")} />
                           <Tooltip content={<ThemedTooltip />} />
                           <Legend wrapperStyle={{ fontSize: 11 }} />
                           <Line type="monotone" dataKey="strategy" name={t("labs.quant.backtestLab.strategyNet")} stroke={C.gold} dot={false} strokeWidth={1.8} />
