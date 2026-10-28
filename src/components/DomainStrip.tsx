@@ -29,7 +29,7 @@ const DomainStrip = () => {
           >
             <div className="flex items-start justify-between gap-2">
               <span className="text-[9px] font-mono uppercase tracking-[0.2em] text-gold/70">
-                {group.code} / {group.kicker}
+                {group.code} / {t(`nav.groupKickers.${group.id}`, { defaultValue: group.kicker })}
               </span>
               <ArrowUpRight className="w-4 h-4 text-muted-foreground group-hover:text-gold group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all shrink-0" />
             </div>

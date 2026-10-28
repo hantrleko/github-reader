@@ -1,3 +1,4 @@
+import { provenanceFor } from "@/lib/provenance";
 import { Suspense, useEffect } from "react";
 import { markSectionVisited } from "@/lib/userProgress";
 import { Navigate, useParams, Link } from "react-router-dom";
@@ -116,10 +117,14 @@ const SectionPage = () => {
 
         <SectionHeader
           chapter={def.chapter}
-          kicker={def.kicker}
+          kicker={t(`sections.kickers.${def.id}`, { defaultValue: def.kicker })}
           title={sectionLabel(t, def)}
           subtitle={sectionSubtitle(t, def)}
         />
+        <p data-testid="provenance" className="container max-w-6xl px-6 -mt-3 mb-5 text-[11px] font-mono text-muted-foreground">
+          <span className="text-gold/80 uppercase tracking-[0.18em]">{t("section.provenance.label")}:</span>{" "}
+          {t(`section.provenance.${provenanceFor(def.id)}`)} · <span className="text-foreground/70">{t("section.provenance.note")}</span>
+        </p>
 
         {prereqs.length > 0 && (
           <div className="container max-w-6xl px-6 -mt-2 mb-6 flex flex-wrap items-center gap-2">

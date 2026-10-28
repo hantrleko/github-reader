@@ -112,6 +112,19 @@
       "data": "U.S. stocks / A-shares · Macro · Sentiment · External workbench",
       "frontier": "Long-form deep dives · Emerging paradigms · Platform and visualization",
       "ungrouped": "Sections not yet filed under a domain"
+    },
+    "groupKickers": {
+      "overview": "Overview",
+      "foundations": "Foundations",
+      "pricing": "Pricing",
+      "fixed-income": "Fixed Income",
+      "asset-portfolio": "Asset Pricing & Portfolio",
+      "quant-trading": "Quant Trading",
+      "econometrics": "Econometrics & Time Series",
+      "risk": "Risk",
+      "data": "Data",
+      "frontier": "Frontier",
+      "ungrouped": "Unfiled"
     }
   },
   "hero": {
@@ -433,6 +446,66 @@
         "label": "Qlib Pipeline Lab · From Factors to Portfolios",
         "subtitle": "Reproduce the Qlib research loop: Alpha158-style factors, cross-sectional standardization, Ridge fitting, IC evaluation, and TopK-Dropout backtesting."
       }
+    },
+    "kickers": {
+      "micro": "Microeconomics",
+      "calculator": "Option Pricing",
+      "implied-vol": "Implied Vol",
+      "mc-pricer": "Monte Carlo",
+      "derivatives": "Derivatives",
+      "bond": "Fixed Income",
+      "rate-model": "Rate Models",
+      "fixed-income-lab": "Fixed Income Lab",
+      "frontier": "Efficient Frontier",
+      "asset-pricing": "CAPM & Factors",
+      "econometrics": "Econometrics",
+      "risk": "Risk",
+      "quant": "Quant Strategy",
+      "macro": "Macroeconomics",
+      "macro-lab": "Macro Lab",
+      "behavior-microstructure": "Behavior & Microstructure",
+      "fred": "FRED",
+      "worldbank": "World Bank",
+      "ecb-bis": "ECB / BIS",
+      "coingecko": "CoinGecko",
+      "alphavantage": "Alpha Vantage",
+      "cboe-sentiment": "Cboe Sentiment",
+      "econ-calendar": "Econ Calendar",
+      "etf-lookup": "ETF Database",
+      "sector-heatmap": "Sector Heatmap",
+      "market-cap": "Market Cap",
+      "quiver-signals": "Quiver Alt Data",
+      "external-workbench": "External Workbench",
+      "platform": "Platform",
+      "frontier-concepts": "New Paradigms",
+      "quiz": "Quiz",
+      "learning": "Learning Path",
+      "backtest": "Backtest Engine",
+      "calibration": "Model Calibration",
+      "visualization-guide": "Visualization Toolkit",
+      "ashare-suite": "A-Share Suite",
+      "us-suite": "US Full-Stack Data",
+      "tv-screener": "TradingView Screener",
+      "trillion-dollar-equation": "Black-Scholes",
+      "ai-quant-strategy": "AI Quant Case Study",
+      "asset-pricing-theory": "Asset Pricing Theory",
+      "econometrics-theory": "Econometrics Theory",
+      "time-series-theory": "Time Series Theory",
+      "portfolio-theory": "Portfolio Theory",
+      "derivatives-theory": "Derivatives Theory",
+      "risk-theory": "Risk Theory",
+      "behavior-lab": "Behavioral Finance Lab",
+      "behavior-theory": "Behavioral Theory",
+      "macro-frontier": "Macro Frontier Lab",
+      "macro-theory": "Macro Theory",
+      "microstructure-lab": "Microstructure Lab",
+      "microstructure-theory": "Microstructure Theory",
+      "fixed-income-frontier": "Fixed Income Frontier",
+      "fixed-income-theory": "Fixed Income Theory",
+      "micro-theory": "Microeconomics Theory",
+      "quant-theory": "Quant Strategy Theory",
+      "qlib-guide": "Microsoft Qlib",
+      "qlib-lab": "Qlib Pipeline"
     }
   },
   "changelog": {
@@ -474,6 +547,27 @@
       "kicker": "All Sections",
       "title": "Section directory",
       "subtitle": "Every section is a standalone workspace — pick a topic and enter its own lab environment."
+    },
+    "entry": {
+      "kicker": "Start here",
+      "title": "Three clear ways in",
+      "subtitle": "Not sure where to begin? Pick one path.",
+      "demo": {
+        "title": "Teaching demo",
+        "desc": "OLS vs IV/2SLS: drag the sliders and watch endogeneity pull OLS away from the true β.",
+        "cta": "Open the OLS/IV demo"
+      },
+      "homework": {
+        "title": "Homework & classroom",
+        "desc": "Practise with CAPM and factor models, or backtest a strategy on real historical prices.",
+        "cta": "CAPM & factors",
+        "secondary": "Backtest engine"
+      },
+      "playbooks": {
+        "title": "Research playbooks",
+        "desc": "Walk a full research workflow step by step, with parameters passed between tools.",
+        "cta": "Browse playbooks"
+      }
     }
   },
   "footer": {
@@ -496,6 +590,14 @@
       "advanced": "Advanced",
       "frontier": "Frontier",
       "data": "Data"
+    },
+    "provenance": {
+      "label": "Data",
+      "simulated": "Simulated DGP (teaching simulation)",
+      "market": "Yahoo / public market history",
+      "public": "Public third-party data APIs (market / macro)",
+      "essay": "Theory guide with illustrative numbers",
+      "note": "teaching-only; not paper-grade evidence"
     }
   },
   "learning": {

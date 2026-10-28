@@ -103,7 +103,9 @@
       "fixed-income-frontier": "固定收益前沿实验室",
       "fixed-income-theory": "固定收益导读",
       "qlib-guide": "Qlib 导读",
-      "qlib-lab": "Qlib 流水线实验室"
+      "qlib-lab": "Qlib 流水线实验室",
+      "backtest": "回测实验室",
+      "calibration": "校准实验室"
     },
     "groupDescs": {
       "overview": "主题图谱 · 模型速览 · 学习路径",
@@ -117,6 +119,19 @@
       "data": "美股 / A 股 · 宏观 · 情绪 · 外部工作台",
       "frontier": "长文精读 · 新兴范式 · 平台与可视化",
       "ungrouped": "尚未归入一级域的板块"
+    },
+    "groupKickers": {
+      "overview": "总览",
+      "foundations": "基础",
+      "pricing": "定价",
+      "fixed-income": "固定收益",
+      "asset-portfolio": "资产定价与组合",
+      "quant-trading": "量化交易",
+      "econometrics": "计量与时间序列",
+      "risk": "风险",
+      "data": "数据",
+      "frontier": "前沿",
+      "ungrouped": "未归类"
     }
   },
   "hero": {
@@ -154,11 +169,11 @@
   },
   "sections": {
     "topics": {
-      "tag": "Core Disciplines",
+      "tag": "核心学科",
       "title": "从理论框架到实证工具"
     },
     "learning": {
-      "tag": "Learning Roadmap",
+      "tag": "学习路线",
       "title": "学习路径",
       "current": "当前阶段",
       "progress": "已完成 {{done}} / {{total}}",
@@ -168,33 +183,33 @@
       "continue": "继续:{{title}}"
     },
     "bond": {
-      "tag": "Fixed Income Tools",
+      "tag": "固收工具",
       "title": "债券计算器"
     },
     "frontier": {
-      "tag": "Portfolio Optimization",
+      "tag": "组合优化",
       "title": "有效前沿可视化"
     },
     "deriv": {
-      "tag": "Derivatives Lab",
+      "tag": "衍生品实验室",
       "title": "衍生品高阶工具",
       "subtitle": "SVI 波动率曲面 · 美式期权 LSM · Black-76 利率衍生品"
     },
     "quant": {
-      "tag": "Quant Strategy Lab",
+      "tag": "量化策略实验室",
       "title": "量化策略实验室",
       "subtitle": "策略回测 · 贝叶斯组合 · 多因子归因"
     },
     "econ": {
-      "tag": "Advanced Econometrics",
+      "tag": "高级计量",
       "title": "计量经济学工具集"
     },
     "risk": {
-      "tag": "Risk Management",
+      "tag": "风险管理",
       "title": "风险管理工具集"
     },
     "quiz": {
-      "tag": "Knowledge Check",
+      "tag": "知识检测",
       "title": "交互测验中心",
       "subtitle": "17 道核心金融与计量题 · 即时反馈 · 进度本地保存",
       "all": "全部",
@@ -438,17 +453,77 @@
         "label": "Qlib 流水线实验室 · 因子到组合",
         "subtitle": "复现 Qlib 研究闭环：Alpha158 式因子、截面标准化、Ridge 拟合、IC 评估与 TopK-Dropout 回测。"
       }
+    },
+    "kickers": {
+      "micro": "微观经济学",
+      "calculator": "期权定价",
+      "implied-vol": "隐含波动率",
+      "mc-pricer": "蒙特卡洛",
+      "derivatives": "衍生品",
+      "bond": "固定收益",
+      "rate-model": "利率模型",
+      "fixed-income-lab": "固收实验室",
+      "frontier": "有效前沿",
+      "asset-pricing": "CAPM 与因子",
+      "econometrics": "计量经济学",
+      "risk": "风险",
+      "quant": "量化策略",
+      "macro": "宏观经济学",
+      "macro-lab": "宏观实验室",
+      "behavior-microstructure": "行为与微观结构",
+      "fred": "FRED 美联储数据",
+      "worldbank": "世界银行",
+      "ecb-bis": "欧央行 / BIS",
+      "coingecko": "CoinGecko 加密数据",
+      "alphavantage": "Alpha Vantage 行情",
+      "cboe-sentiment": "Cboe 情绪指标",
+      "econ-calendar": "经济日历",
+      "etf-lookup": "ETF 数据库",
+      "sector-heatmap": "行业热力图",
+      "market-cap": "市值排行",
+      "quiver-signals": "Quiver 另类数据",
+      "external-workbench": "外部工作台",
+      "platform": "平台",
+      "frontier-concepts": "新范式",
+      "quiz": "测验",
+      "learning": "学习路径",
+      "backtest": "回测引擎",
+      "calibration": "模型校准",
+      "visualization-guide": "可视化工具箱",
+      "ashare-suite": "A 股套件",
+      "us-suite": "美股全栈数据",
+      "tv-screener": "TradingView 选股器",
+      "trillion-dollar-equation": "Black-Scholes 方程",
+      "ai-quant-strategy": "AI 量化案例",
+      "asset-pricing-theory": "资产定价理论",
+      "econometrics-theory": "计量经济学理论",
+      "time-series-theory": "时间序列理论",
+      "portfolio-theory": "组合理论",
+      "derivatives-theory": "衍生品理论",
+      "risk-theory": "风险理论",
+      "behavior-lab": "行为金融实验室",
+      "behavior-theory": "行为金融理论",
+      "macro-frontier": "宏观前沿实验室",
+      "macro-theory": "宏观理论",
+      "microstructure-lab": "微观结构实验室",
+      "microstructure-theory": "微观结构理论",
+      "fixed-income-frontier": "固收前沿",
+      "fixed-income-theory": "固收理论",
+      "micro-theory": "微观经济学理论",
+      "quant-theory": "量化策略理论",
+      "qlib-guide": "微软 Qlib",
+      "qlib-lab": "Qlib 流水线"
     }
   },
   "changelog": {
-    "title": "Changelog",
+    "title": "更新日志",
     "subtitle": "追踪平台每次迭代的能力增量",
     "expandAll": "展开全部",
     "collapseAll": "折叠全部"
   },
   "home": {
     "briefing": {
-      "eyebrow": "Editorial Briefing",
+      "eyebrow": "编辑导读",
       "title": "不是工具的堆叠，而是一条从理论到实证的研究链路",
       "lead": "每个板块都是独立页面：从导航直达对应工作区，专注单一主题，无需在长页面里反复定位。",
       "aria": "编辑导读",
@@ -470,21 +545,42 @@
     },
     "domains": {
       "chapter": "Domains",
-      "kicker": "Subject Tracks",
+      "kicker": "学科主线",
       "title": "十条学科主线",
       "subtitle": "从学科入口进入：每条主线按导读 → 基础 → 进阶 → 前沿的顺序铺开该域的全部内容。"
     },
     "directory": {
       "chapter": "Directory",
-      "kicker": "All Sections",
+      "kicker": "全部板块",
       "title": "功能板块目录",
       "subtitle": "每个板块都是独立工作区——选择一个主题，进入其专属实验环境。"
+    },
+    "entry": {
+      "kicker": "从这里开始",
+      "title": "三条清晰入口",
+      "subtitle": "不知道从哪开始？挑一条路径。",
+      "demo": {
+        "title": "教学演示",
+        "desc": "OLS 与 IV/2SLS：拖动滑块，亲眼看到内生性如何让 OLS 偏离真实 β。",
+        "cta": "打开 OLS/IV 演示"
+      },
+      "homework": {
+        "title": "作业 / 课堂",
+        "desc": "用 CAPM 与因子模型做课堂练习，或用真实历史价格回测一个策略。",
+        "cta": "CAPM 与因子",
+        "secondary": "回测引擎"
+      },
+      "playbooks": {
+        "title": "研究剧本",
+        "desc": "按步骤走完一条完整研究流程：参数在工具之间自动传递。",
+        "cta": "浏览研究剧本"
+      }
     }
   },
   "footer": {
-    "kicker": "EF LAB · Research Notes",
+    "kicker": "EF LAB · 研究笔记",
     "blurb": "系统化的实证方法学习平台 · 将资产定价、计量经济学与量化研究拆解为可推导、可实验、可复现的工作流。",
-    "blurbAlt": "A systematic approach to empirical methods in economics and finance.",
+    "blurbAlt": "以系统化方法研究经济与金融中的实证问题。",
     "sections": "板块导航",
     "quickLinks": "快速链接",
     "backToTop": "返回顶部",
@@ -501,6 +597,14 @@
       "advanced": "进阶",
       "frontier": "前沿",
       "data": "数据"
+    },
+    "provenance": {
+      "label": "数据来源",
+      "simulated": "模拟数据生成过程（教学模拟）",
+      "market": "Yahoo 等公开市场历史数据",
+      "public": "公开第三方数据接口（行情 / 宏观）",
+      "essay": "理论导读，含示意性数值",
+      "note": "仅供教学，不构成论文级证据"
     }
   },
   "learning": {
@@ -1366,7 +1470,7 @@
         "seed": "随机种子",
         "isSharpe": "全样本最优 Sharpe",
         "isSharpeSub": "k*={{k}} (过拟合)",
-        "wfSharpe": "Walk-forward OOS Sharpe",
+        "wfSharpe": "滚动前推样本外 Sharpe",
         "wfSharpeSub": "样本外真实表现",
         "overfitGap": "过拟合落差",
         "foldsCount": "折数",
@@ -1375,7 +1479,7 @@
         "buyHold": "买入持有",
         "foldsChartTitle": "各折 IS vs OOS Sharpe — 样本外衰减",
         "isSharpeLabel": "IS Sharpe",
-        "oosSharpeLabel": "OOS Sharpe",
+        "oosSharpeLabel": "样本外 Sharpe",
         "noteWfLabel": "Walk-forward 分析：",
         "noteWf": "滚动用 IS 窗口选参数，仅在紧随其后的 OOS 窗口评估，拼接所有 OOS 段得到无前视偏差的真实业绩。",
         "noteOverfitLabel": "过拟合诊断：",
@@ -1395,9 +1499,9 @@
         "avgCorrSub": "0=独立 1=完全",
         "volDisp": "波动率离散度",
         "seed": "种子",
-        "ewName": "Equal Weight (EW)",
+        "ewName": "等权 (EW)",
         "mvName": "Min-Variance",
-        "ercName": "Risk Parity (ERC)",
+        "ercName": "风险平价 (ERC)",
         "hrpName": "HRP (Lopez de Prado)",
         "sigmaP": "σ_p = {{v}}%",
         "neffW": "N_eff (w) = {{v}}",
@@ -2044,7 +2148,7 @@
         "seed": "随机种子",
         "horizon": "预测期 (交易日)",
         "poolDesc": "股票池由市场因子、动量延续与弱均值回归合成，结构可学习但信噪比接近真实截面数据。",
-        "modelLayer": "Model Layer",
+        "modelLayer": "模型层",
         "ridgeLambda": "Ridge 惩罚 λ",
         "trainRatio": "训练集占比",
         "topkStrategy": "TopK-Dropout 策略",
@@ -2207,7 +2311,7 @@
             "desc": "中等样本, 强 x1 效应"
           },
           "probitDgp": {
-            "name": "Probit DGP",
+            "name": "Probit 数据生成过程",
             "desc": "数据由 Probit 生成"
           },
           "rareEvent": {
@@ -2230,8 +2334,8 @@
         "binaryVar": "二元变量",
         "seedLabel": "随机种子",
         "y1Share": "y=1 比例",
-        "logitPseudoR2": "Logit Pseudo-R²",
-        "probitPseudoR2": "Probit Pseudo-R²",
+        "logitPseudoR2": "Logit 伪 R²",
+        "probitPseudoR2": "Probit 伪 R²",
         "logitAccuracy": "Logit 准确率",
         "threshold05": "0.5 阈值",
         "probitAccuracy": "Probit 准确率",
@@ -2532,7 +2636,7 @@
           "confidenceLevel": "置信水平",
           "normalVaR": "正态 VaR",
           "historicalVaR": "历史 VaR",
-          "evtVaR": "EVT VaR",
+          "evtVaR": "EVT 风险价值 VaR",
           "evtES": "EVT ES"
         },
         "comparisonNote": "正态法在 99.9% 处通常低估尾部风险；EVT 通过拟合超阈值分布更准确地外推极端分位。",
@@ -2712,12 +2816,12 @@
             "sigmaR": "利率波动 σ_r",
             "kfix": "固定支付 K",
             "hazardC": "对手风险率 λ_C",
-            "hazardCSub": "counterparty hazard",
+            "hazardCSub": "交易对手违约强度",
             "hazardB": "自身风险率 λ_B",
-            "hazardBSub": "bank own hazard",
+            "hazardBSub": "银行自身违约强度",
             "lgd": "LGD",
             "rhoWw": "WWR ρ(利率, λ)",
-            "rhoWwSub": "wrong-way risk",
+            "rhoWwSub": "错向风险",
             "nPaths": "路径数",
             "seed": "种子"
           },
@@ -2853,7 +2957,7 @@
             "v": "头寸价值 V",
             "sigma": "σ (日波动)",
             "alpha": "VaR 置信度 α",
-            "spread": "Bid-Ask Spread (bp)",
+            "spread": "买卖价差 (bp)",
             "lambda": "风险厌恶 λ",
             "eta": "临时冲击 η",
             "tdays": "清算区间 T (天)",
@@ -3055,7 +3159,7 @@
           "riskMetricsLambda": "RiskMetrics λ=0.94",
           "dailyStandard": "日频标准",
           "tenDayRegulatoryHorizon": "10 日监管持有期",
-          "baselMra": "Basel MRA",
+          "baselMra": "巴塞尔 MRA",
           "crisisOutbreak": "危机爆发",
           "volShock6x": "波动率 6× 冲击",
           "calmMarket": "平静市场",

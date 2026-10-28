@@ -8,6 +8,7 @@ import Seo from "@/components/Seo";
 import HeroSection from "@/components/HeroSection";
 import HeroToolStrip from "@/components/HeroToolStrip";
 import DomainStrip from "@/components/DomainStrip";
+import EntryCards from "@/components/EntryCards";
 import TopicCards from "@/components/TopicCards";
 import ModelShowcase from "@/components/ModelShowcase";
 import ScrollUtilities from "@/components/ScrollUtilities";
@@ -170,6 +171,7 @@ const Index = () => {
       {/* ─── 导览 ─── */}
       <main id="main-content">
         <div id="hero" className="scroll-mt-12"><HeroSection /></div>
+        <EntryCards />
 
         <EditorialBriefing />
         <TodaysPick />
