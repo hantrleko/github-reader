@@ -170,11 +170,12 @@ const Index = () => {
       {/* ─── 导览 ─── */}
       <main id="main-content">
         <div id="hero" className="scroll-mt-12"><HeroSection /></div>
-        <HeroToolStrip />
-        <DomainStrip />
 
         <EditorialBriefing />
         <TodaysPick />
+        {/* Track tiles moved below the fold to keep first paint focused on the hero. */}
+        <HeroToolStrip />
+        <DomainStrip />
         <div id="topics" className="scroll-mt-12"><TopicCards /></div>
         <div id="models" className="scroll-mt-12"><ModelShowcase /></div>
         <div id="featured-notebooks" className="scroll-mt-12"><FeaturedNotebooks /></div>
