@@ -261,7 +261,7 @@ const Navbar = () => {
           className="flex flex-col items-start leading-none hover:text-gold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/60 rounded shrink-0 whitespace-nowrap"
         >
           <span className="hidden xl:block text-[8px] font-mono uppercase tracking-[0.25em] text-gold/80 mb-0.5">
-            The Quantitative Report
+            Research · Est. 2026
           </span>
           <span className="text-sm md:text-base font-display font-bold text-foreground tracking-tight">
             EF&nbsp;<em className="not-italic text-gold">LAB</em>

@@ -45,7 +45,7 @@ const HeroSection = () => {
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5 }}
         >
-          <span>The Quantitative Report</span>
+          <span>EF LAB · Research Notes</span>
           <span className="hidden sm:inline opacity-60">
             Vol. II · Issue 09 · Empirical Methods
           </span>

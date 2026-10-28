@@ -232,7 +232,7 @@ const SplashIntro = () => {
               <Play className="w-3 h-3 text-gold" /> Intro reel · loop
             </span>
             <span className="hidden sm:block">Auto-entering the Lab · click anywhere to skip</span>
-            <span>© Eugene Finance Lab</span>
+            <span>© EF LAB</span>
           </div>
         </motion.div>
       )}
