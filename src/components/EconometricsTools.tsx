@@ -2223,7 +2223,7 @@ const ResultRow = ({ label, value, truth, se, color }: { label: string; value: n
   const { t } = useTranslation();
   const bias = truth != null ? value - truth : null;
   return (
-    <div className="p-3 rounded-lg border border-border bg-secondary/30 flex items-center justify-between">
+    <div className="p-3 rounded-lg border border-border bg-secondary/30 flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
       <span className="text-xs font-mono text-muted-foreground">{label}</span>
       <div className="flex items-center gap-3">
         <span className="text-base font-mono font-semibold tabular-nums" style={{ color }}>

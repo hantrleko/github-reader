@@ -30,7 +30,7 @@ interface Props {
 }
 
 const tabBase =
-  "px-4 py-2 rounded-lg text-sm font-mono transition-all duration-300";
+  "max-w-[15rem] truncate sm:max-w-none sm:whitespace-normal px-4 py-2 rounded-lg text-sm font-mono transition-all duration-300";
 const tabActive = "bg-primary text-primary-foreground shadow-lg";
 const tabIdle = "bg-secondary text-secondary-foreground hover:bg-secondary/80";
 
@@ -128,7 +128,7 @@ export default function CategorizedToolNav({
 
       {searching ? (
         searchResults.length > 0 ? (
-          <div className="flex flex-wrap justify-center gap-2">
+          <div className="-mx-6 px-6 flex flex-nowrap overflow-x-auto pb-1 sm:mx-0 sm:px-0 sm:flex-wrap sm:justify-center sm:overflow-visible gap-2 [&>*]:shrink-0">
             {searchResults.map(renderTab)}
           </div>
         ) : (
@@ -139,7 +139,7 @@ export default function CategorizedToolNav({
       ) : useCategories ? (
         <>
           {/* Level 1 — category chips */}
-          <div className="flex flex-wrap justify-center gap-1.5">
+          <div className="-mx-6 px-6 flex flex-nowrap overflow-x-auto pb-1 sm:mx-0 sm:px-0 sm:flex-wrap sm:justify-center sm:overflow-visible gap-1.5 [&>*]:shrink-0">
             {categories!.map((c) => {
               const isActive = selectedCat === c.id;
               return (
@@ -164,7 +164,7 @@ export default function CategorizedToolNav({
             })}
           </div>
           {/* Level 2 — tools within the selected category */}
-          <div className="flex flex-wrap justify-center gap-2">
+          <div className="-mx-6 px-6 flex flex-nowrap overflow-x-auto pb-1 sm:mx-0 sm:px-0 sm:flex-wrap sm:justify-center sm:overflow-visible gap-2 [&>*]:shrink-0">
             {(categories!.find((c) => c.id === selectedCat)?.toolIds ?? [])
               .map((id) => byId.get(id))
               .filter((t): t is ToolMeta => !!t)
@@ -172,7 +172,7 @@ export default function CategorizedToolNav({
           </div>
         </>
       ) : (
-        <div className="flex flex-wrap justify-center gap-2">
+        <div className="-mx-6 px-6 flex flex-nowrap overflow-x-auto pb-1 sm:mx-0 sm:px-0 sm:flex-wrap sm:justify-center sm:overflow-visible gap-2 [&>*]:shrink-0">
           {tools.map(renderTab)}
         </div>
       )}

@@ -9770,5 +9770,21 @@
       "none": "（暂无）",
       "note": "仅供教学，不构成论文级证据。"
     }
+  },
+  "seo": {
+    "flagship": {
+      "olsiv": {
+        "title": "OLS 与 IV 交互实验 | EF LAB",
+        "desc": "拖动滑块观察内生性如何让 OLS 偏离真实 β，以及 IV/2SLS 如何修正——适合计量课堂演示。"
+      },
+      "backtest": {
+        "title": "策略回测实验室 | EF LAB",
+        "desc": "用公开历史价格回测均线、动量等策略，对比买入持有的 Sharpe 与最大回撤，含交易成本与 T+1 执行。"
+      },
+      "capm": {
+        "title": "CAPM / SML 交互实验 | EF LAB",
+        "desc": "调整无风险利率、市场溢价与 β，在证券市场线上读出要求收益与 Jensen's α。"
+      }
+    }
   }
 }
