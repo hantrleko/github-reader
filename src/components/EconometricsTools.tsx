@@ -1,3 +1,4 @@
+import FlagshipSummary from "@/components/common/FlagshipSummary";
 import { useState, useMemo, useRef, useCallback, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
@@ -329,6 +330,17 @@ const OLSvsIV = () => {
         { name: t("labs.econometrics.text002", { defaultValue: "无内生性" }), description: t("labs.econometrics.text003", { defaultValue: "OLS=IV, 教学对照" }), apply: () => { setEndo(0); setZStrength(0.8); setTrueBeta(1); } },
         { name: t("labs.econometrics.text004", { defaultValue: "弱工具变量" }), description: t("labs.econometrics.text005", { defaultValue: "z·x相关性低" }), apply: () => { setEndo(0.6); setZStrength(0.15); setTrueBeta(1); } },
       ]} />
+      <FlagshipSummary
+        title="OLS vs IV/2SLS"
+        params={{ n, "true β": trueBeta, "Cov(x,ε)": endo, "Cov(z,x)": zStrength, seed, "OLS β̂": data.olsR.beta.toFixed(3), "IV β̂": data.ivR.beta.toFixed(3) }}
+        conclusion={(() => {
+          const bias = data.olsR.beta - trueBeta;
+          const v = { ols: data.olsR.beta.toFixed(2), iv: data.ivR.beta.toFixed(2), b: trueBeta.toFixed(2), bias: (bias >= 0 ? "+" : "") + bias.toFixed(2) };
+          if (endo < 0.05) return t("flagship.ols.none", v);
+          if (zStrength < 0.25) return t("flagship.ols.weak", v);
+          return t(bias >= 0 ? "flagship.ols.up" : "flagship.ols.down", v);
+        })()}
+      />
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="space-y-3">
           <Slider label={t("labs.econometrics.text006", { defaultValue: "样本量 n" })} value={n} min={50} max={1000} step={50} onChange={setN} />

@@ -38,6 +38,9 @@ const SiteFooter = () => {
             <p className="text-[10px] font-mono text-muted-foreground/70 mt-3 tracking-wider">
               {t("footer.blurbAlt")}
             </p>
+            <p className="text-[11px] text-muted-foreground mt-3 max-w-sm leading-relaxed border-l-2 border-gold/40 pl-2">
+              {t("footer.boundary")}
+            </p>
           </div>
 
           {/* Domains */}

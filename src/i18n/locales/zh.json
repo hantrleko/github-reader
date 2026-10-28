@@ -584,7 +584,8 @@
     "sections": "板块导航",
     "quickLinks": "快速链接",
     "backToTop": "返回顶部",
-    "rights": "© 2026 EF LAB · 仅供学习研究 · 不构成投资建议"
+    "rights": "© 2026 EF LAB · 仅供学习研究 · 不构成投资建议",
+    "boundary": "EF LAB 用于学习与验证理论（交互式教学实验）；选股器与模拟交易请使用姊妹产品 QuantLab。"
   },
   "section": {
     "backHome": "返回首页",
@@ -9727,6 +9728,47 @@
       "copy9": "打开",
       "copy10": "传递",
       "copy11": "给下一步"
+    }
+  },
+  "flagship": {
+    "conclusion": "结论",
+    "copyParams": "复制参数",
+    "copied": "已复制",
+    "presets": "预设",
+    "ols": {
+      "none": "Cov(x,ε)≈0：OLS β̂={{ols}} 与 IV β̂={{iv}} 都接近真实 β={{b}}，OLS 无偏且更有效。",
+      "up": "x 与误差正相关，OLS β̂={{ols}} 向上偏离真实 β={{b}}（偏差 {{bias}}），IV β̂={{iv}} 修正了偏差。",
+      "down": "OLS β̂={{ols}} 低于真实 β={{b}}（偏差 {{bias}}），IV β̂={{iv}} 更接近真值。",
+      "weak": "工具变量较弱：IV β̂={{iv}} 不稳定、方差很大，OLS β̂={{ols}} 偏差 {{bias}}——弱 IV 未必优于 OLS。"
+    },
+    "capm": {
+      "on": "β={{beta}} 的{{risk}}资产落在 SML 上（α={{alpha}}%），收益恰好补偿系统性风险。",
+      "above": "β={{beta}} 的{{risk}}资产位于 SML 上方，α={{alpha}}%：相对要求收益 {{req}}% 被低估。",
+      "below": "β={{beta}} 的{{risk}}资产位于 SML 下方，α={{alpha}}%：未能补偿要求收益 {{req}}%。",
+      "aggr": "进攻型",
+      "def": "防御型",
+      "mkt": "市场型"
+    },
+    "bt": {
+      "classic": "经典 50/200 均线",
+      "fastTrend": "快速趋势（可做空）",
+      "momentum": "12 个月动量",
+      "beat": "策略 Sharpe {{s}} 高于买入持有 {{b}}，最大回撤 {{dd}} vs {{bdd}}（回撤{{ddWord}}）。",
+      "lag": "策略 Sharpe {{s}} 低于买入持有 {{b}}，最大回撤 {{dd}} vs {{bdd}}（回撤{{ddWord}}）。",
+      "shallower": "更浅",
+      "deeper": "更深"
+    },
+    "memo": {
+      "export": "导出 Markdown",
+      "print": "打印 / PDF",
+      "title": "研究备忘录",
+      "params": "关键参数与假设",
+      "conclusion": "结论",
+      "placeholder": "（在此填写一段结论：完成各步骤后，总结主要发现与稳健性。）",
+      "steps": "步骤",
+      "bus": "当前工具总线参数",
+      "none": "（暂无）",
+      "note": "仅供教学，不构成论文级证据。"
     }
   }
 }

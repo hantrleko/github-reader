@@ -1,3 +1,4 @@
+import FlagshipSummary from "@/components/common/FlagshipSummary";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
@@ -166,6 +167,20 @@ export default function BacktestLab() {
 
   // Last real price → S0 for pricing tools; annualised vol/return as σ/μ handoff.
   const lastPrice = series && series.prices.length ? series.prices[series.prices.length - 1] : undefined;
+  const bench = (() => {
+    const b = result?.benchmark as number[] | undefined;
+    if (!b || b.length < 2) return null;
+    let peak = b[0], dd = 0;
+    for (const v of b) { peak = Math.max(peak, v); dd = Math.min(dd, v / peak - 1); }
+    const rets = b.slice(1).map((v, i) => v / b[i] - 1);
+    const mu = rets.reduce((a, x) => a + x, 0) / rets.length;
+    const sd = Math.sqrt(rets.reduce((a, x) => a + (x - mu) ** 2, 0) / Math.max(1, rets.length - 1));
+    return { sharpe: sd > 0 ? ((mu - riskFreeRate / 252) / sd) * Math.sqrt(252) : 0, maxDD: dd };
+  })();
+  const applyPreset = (p: { strategy: StrategyId; fast?: number; slow?: number; lookback?: number; costBps: number; allowShort: boolean }) => {
+    setStrategy(p.strategy); if (p.fast) setFast(p.fast); if (p.slow) setSlow(p.slow); if (p.lookback) setLookback(p.lookback);
+    setCostBps(p.costBps); setSlippageBps(p.costBps); setAllowShort(p.allowShort);
+  };
   const busOutputs = {
     ...(lastPrice != null && Number.isFinite(lastPrice) ? { S0: lastPrice } : {}),
     ...(m ? { sigma: m.annVol, mu: m.annReturn } : {}),
@@ -210,6 +225,21 @@ export default function BacktestLab() {
             <div className="grid grid-cols-1 lg:grid-cols-[300px_1fr] gap-5">
               {/* Controls */}
               <aside className="space-y-4">
+                <div className="rounded-xl border border-border bg-card/60 p-4 space-y-2">
+                  <p className="text-[10px] font-mono uppercase tracking-[0.2em] text-gold">{t("flagship.presets")}</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {([
+                      ["bt.classic", { strategy: "sma", fast: 50, slow: 200, costBps: 5, allowShort: false }],
+                      ["bt.fastTrend", { strategy: "sma", fast: 10, slow: 30, costBps: 10, allowShort: true }],
+                      ["bt.momentum", { strategy: "momentum", lookback: 252, costBps: 5, allowShort: false }],
+                    ] as [string, Parameters<typeof applyPreset>[0]][]).map(([k, p]) => (
+                      <button key={k} type="button" onClick={() => applyPreset(p)}
+                        className="px-2.5 py-1 rounded-md border border-border text-[11px] hover:border-gold/40 hover:text-gold">
+                        {t(`flagship.${k}`)}
+                      </button>
+                    ))}
+                  </div>
+                </div>
                 <div className="rounded-xl border border-border bg-card/60 p-4 space-y-2">
                   <p className="text-[10px] font-mono uppercase tracking-[0.2em] text-gold">{t("labs.quant.backtestLab.strategyLabel")}</p>
                   {STRATEGIES.map((s) => (
@@ -320,6 +350,16 @@ export default function BacktestLab() {
                   </div>
                 ) : (
                   <>
+                    {bench && (
+                      <FlagshipSummary
+                        title={`Backtest · ${demo ? "synthetic" : symbol} · ${strategy}`}
+                        params={{ symbol: demo ? "synthetic" : symbol, range, strategy, fast, slow, lookback, costBps, slippageBps, allowShort, riskFreeRate, financingRate, Sharpe: num(m!.sharpe), maxDD: pct(m!.maxDrawdown), "B&H Sharpe": num(bench.sharpe), "B&H maxDD": pct(bench.maxDD) }}
+                        conclusion={t(m!.sharpe >= bench.sharpe ? "flagship.bt.beat" : "flagship.bt.lag", {
+                          s: num(m!.sharpe), b: num(bench.sharpe), dd: pct(m!.maxDrawdown), bdd: pct(bench.maxDD),
+                          ddWord: t(m!.maxDrawdown > bench.maxDD ? "flagship.bt.shallower" : "flagship.bt.deeper"),
+                        })}
+                      />
+                    )}
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                       <Stat label={t("labs.quant.backtestLab.metric.totalReturnNet")} value={pct(m!.totalReturn)} color={m!.totalReturn >= 0 ? C.green : C.red} />
                       <Stat label={t("labs.quant.backtestLab.metric.cagr")} value={pct(m!.cagr)} color={m!.cagr >= 0 ? C.green : C.red} />
