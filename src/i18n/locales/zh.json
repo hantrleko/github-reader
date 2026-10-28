@@ -482,7 +482,7 @@
     }
   },
   "footer": {
-    "kicker": "The Quantitative Report",
+    "kicker": "EF LAB · Research Notes",
     "blurb": "系统化的实证方法学习平台 · 将资产定价、计量经济学与量化研究拆解为可推导、可实验、可复现的工作流。",
     "blurbAlt": "A systematic approach to empirical methods in economics and finance.",
     "sections": "板块导航",
@@ -5421,7 +5421,8 @@
       "text289": "波动率 / 高频",
       "text290": "离散选择 / 面板",
       "text291": "机器学习计量",
-      "text292": "诊断 / 非参数"
+      "text292": "诊断 / 非参数",
+      "olsivNoEndo": "当前 Cov(x,ε)≈0：x 与误差项不相关，OLS 无偏且一致，与 IV 估计基本重合（IV 方差更大）。"
     },
     "econV21": {
       "text001": "弱选择偏差 (γ=0.3)",
@@ -7792,7 +7793,8 @@
       "text1": "跳到主要内容"
     },
     "splashIntro": {
-      "text1": "一座把经济与金融理论转译为可运行实验的研究工作台 —— 从 SDF 到 GARCH，从投资组合到衍生品定价，全部在同一条工作流里被验证、可视化并归档。"
+      "text1": "一座把经济与金融理论转译为可运行实验的研究工作台 —— 从 SDF 到 GARCH，从投资组合到衍生品定价，全部在同一条工作流里被验证、可视化并归档。",
+      "dontShow": "不再显示"
     },
     "realDataLoader": {
       "text1": "已加载示例数据",

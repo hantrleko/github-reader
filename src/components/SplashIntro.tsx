@@ -25,8 +25,9 @@ const SplashIntro = () => {
     const forced = new URLSearchParams(window.location.search).get("intro") === "1";
     let seen = false;
     try {
-      seen = sessionStorage.getItem(SPLASH_SESSION_KEY) === "1";
-      if (!seen) sessionStorage.setItem(SPLASH_SESSION_KEY, "1");
+      // First visit only: persisted across sessions so returning users land on content.
+      seen = localStorage.getItem(SPLASH_SESSION_KEY) === "1" || sessionStorage.getItem(SPLASH_SESSION_KEY) === "1";
+      if (!seen) localStorage.setItem(SPLASH_SESSION_KEY, "1");
     } catch {
       /* storage unavailable — treat as seen to avoid blocking */
       seen = true;
@@ -81,7 +82,7 @@ const SplashIntro = () => {
           key="splash"
           role="dialog"
           aria-modal="true"
-          aria-label="Eugene Finance Lab — Welcome"
+          aria-label="EF LAB — Welcome"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0, transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] } }}
@@ -139,6 +140,13 @@ const SplashIntro = () => {
             >
               Skip →
             </motion.button>
+            <button
+              type="button"
+              onClick={(e) => { e.stopPropagation(); try { localStorage.setItem(SPLASH_SESSION_KEY, "1"); } catch { /* ignore */ } dismiss(); }}
+              className="absolute right-6 md:right-10 top-14 font-mono text-[10px] uppercase tracking-[0.25em] text-foreground/50 hover:text-gold transition-colors"
+            >
+              {t("labs.splashIntro.dontShow", { defaultValue: "不再显示" })}
+            </button>
           </div>
 
           {/* Main content */}
@@ -149,7 +157,7 @@ const SplashIntro = () => {
               transition={{ delay: 0.5, duration: 0.7 }}
               className="font-mono text-[10px] md:text-xs uppercase tracking-[0.5em] text-gold mb-6"
             >
-              — Econ &amp; Finance Lab / {APP_VERSION_TAG}
+              — EF LAB / {APP_VERSION_TAG}
             </motion.p>
 
             <motion.h1
@@ -224,7 +232,7 @@ const SplashIntro = () => {
               <Play className="w-3 h-3 text-gold" /> Intro reel · loop
             </span>
             <span className="hidden sm:block">Auto-entering the Lab · click anywhere to skip</span>
-            <span>© Eugene Finance Lab</span>
+            <span>© EF LAB</span>
           </div>
         </motion.div>
       )}
