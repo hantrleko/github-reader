@@ -154,7 +154,7 @@ const Index = () => {
         jsonLd={{
           "@context": "https://schema.org",
           "@type": "WebSite",
-          name: "EF Lab",
+          name: "EF LAB",
           url: "https://eugenefinance.tech/",
           potentialAction: {
             "@type": "SearchAction",

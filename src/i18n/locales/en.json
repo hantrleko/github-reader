@@ -9256,7 +9256,7 @@
       "quant": "Quantitative finance"
     },
     "seo": {
-      "title": "Spaced Repetition Review · EF Lab",
+      "title": "Spaced Repetition Review · EF LAB",
       "description": "Review core quantitative finance and econometrics terms with SM-2 spaced repetition: 45+ cards with KaTeX formulas, automatically scheduled along your forgetting curve."
     },
     "heading": "Spaced Repetition Review",
@@ -9293,8 +9293,8 @@
     "account": {
       "copy1": "Save failed",
       "copy2": "Saved",
-      "copy3": "Account settings · EF Lab",
-      "copy4": "Manage your EF Lab account, username, and public profile visibility.",
+      "copy3": "Account settings · EF LAB",
+      "copy4": "Manage your EF LAB account, username, and public profile visibility.",
       "copy5": "Account and public profile",
       "copy6": "Set a username so others can visit /u/your-name.",
       "copy7": "Public profile",
@@ -9353,7 +9353,7 @@
       "copy26": "Data is stored in browser IndexedDB and available offline. Paste data copied with the JSON button into Notebook JS / Python cells for further analysis."
     },
     "gallery": {
-      "copy1": "Notebook gallery · EF Lab",
+      "copy1": "Notebook gallery · EF LAB",
       "copy2": "A gallery of public reactive finance Notebooks: explore shared pricing derivations, backtests, and econometric analyses, then fork them into your workspace.",
       "copy3": "Notebook gallery",
       "copy4": "Public research notebooks — open to interact, sign in to fork and continue editing in your workspace.",
@@ -9397,7 +9397,7 @@
       "copy26": "Tags (comma-separated)"
     },
     "glossary": {
-      "copy1": "Glossary · EF Lab",
+      "copy1": "Glossary · EF LAB",
       "copy2": "Quick reference for quantitative finance and econometrics terms, with formulas, related tools, and references.",
       "copy3": "Back to home",
       "copy4": "Glossary · Terminology",
@@ -9457,7 +9457,7 @@
       "copy2": "Sign in to save to the cloud and continue editing.",
       "copy3": "Fork failed",
       "copy4": "Forked to My Notebooks",
-      "copy5": "Notebook templates · EF Lab",
+      "copy5": "Notebook templates · EF LAB",
       "copy6": "Classic quantitative finance templates including Black-Scholes, CAPM, parametric VaR, bond duration, Merton jump diffusion, and GARCH(1,1). Fork to adjust parameters in Reactive Notebook.",
       "copy7": "Notebook templates",
       "copy8": "Inspired by Observable / Wolfram · fork classic quantitative finance models, adjust parameters, and run them in Reactive Notebook.",
@@ -9466,7 +9466,7 @@
       "copy11": "Open a blank Notebook"
     },
     "papers": {
-      "copy1": "Classic papers · EF Lab",
+      "copy1": "Classic papers · EF LAB",
       "copy2": "An index of classic quantitative finance and econometrics papers: Black-Scholes, Fama-French, Hull-White, GARCH, and more, filterable by topic.",
       "copy3": "Classic papers",
       "copy4": "A searchable academic reference library · one key contribution per paper, with DOI / links for cross-referencing calculators and strategies.",
@@ -9480,7 +9480,7 @@
       "copy4": "No public Notebooks yet."
     },
     "strategies": {
-      "copy1": "Quantitative strategies · EF Lab",
+      "copy1": "Quantitative strategies · EF LAB",
       "copy2": "Classic quantitative strategy cards: momentum, value, low volatility, pairs trading, statistical arbitrage, and more, with Sharpe ratios, drawdowns, data frequencies, and references.",
       "copy3": "Classic quantitative strategies",
       "copy4": "Inspired by QuantPedia · 12 academically validated factor and arbitrage strategies, with paper references and historical Sharpe / drawdown benchmarks.",
@@ -9488,7 +9488,7 @@
       "copy6": "No matching strategies."
     },
     "toolsCatalog": {
-      "copy1": "Tool directory · EF Lab",
+      "copy1": "Tool directory · EF LAB",
       "copy2": "A complete index of interactive quantitative finance and econometrics tools: filter by topic, difficulty, and verification.",
       "copy3": "Back to home",
       "copy4": "All tools",
@@ -9526,7 +9526,7 @@
       "copy13": "Next topic"
     },
     "workflows": {
-      "copy1": "Research workflows · EF Lab",
+      "copy1": "Research workflows · EF LAB",
       "copy2": "Connect implied volatility, surface fitting, Greeks, portfolio optimization, credit risk, and other tools into step-by-step research playbooks.",
       "copy3": "Tool directory",
       "copy4": "Research workflows",

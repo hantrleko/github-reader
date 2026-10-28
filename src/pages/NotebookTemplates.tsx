@@ -65,13 +65,13 @@ const NotebookTemplates = () => {
   return (
     <div className="min-h-screen bg-background">
       <Seo
-        title={t("pages.notebookTemplates.copy5", { defaultValue: "Notebook 模板市场 · EF Lab" })}
+        title={t("pages.notebookTemplates.copy5", { defaultValue: "Notebook 模板市场 · EF LAB" })}
         description={t("pages.notebookTemplates.copy6", { defaultValue: "Black-Scholes、CAPM、参数 VaR、债券久期、Merton 跳跃扩散、GARCH(1,1) 等经典量化金融模板,一键 Fork 即可在 Reactive Notebook 中改参运行。" })}
         path="/notebook/templates"
         jsonLd={{
           "@context": "https://schema.org",
           "@type": "CollectionPage",
-          name: "EF Lab Notebook Templates",
+          name: "EF LAB Notebook Templates",
           numberOfItems: NOTEBOOK_TEMPLATES.length,
         }}
       />

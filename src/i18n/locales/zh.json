@@ -9261,7 +9261,7 @@
       "quant": "量化"
     },
     "seo": {
-      "title": "间隔重复复习 · EF Lab",
+      "title": "间隔重复复习 · EF LAB",
       "description": "用 SM-2 间隔重复算法复习量化金融与计量经济学核心术语:45+ 张卡片,含 KaTeX 公式,按遗忘曲线自动排期。"
     },
     "heading": "间隔重复复习",
@@ -9298,8 +9298,8 @@
     "account": {
       "copy1": "保存失败",
       "copy2": "已保存",
-      "copy3": "账号设置 · EF Lab",
-      "copy4": "管理你的 EF Lab 账号、username 与公开主页可见性。",
+      "copy3": "账号设置 · EF LAB",
+      "copy4": "管理你的 EF LAB 账号、username 与公开主页可见性。",
       "copy5": "账号与公开主页",
       "copy6": "设置 username 后,他人可访问 /u/your-name。",
       "copy7": "公开个人主页 (Public profile)",
@@ -9358,7 +9358,7 @@
       "copy26": "数据保存在浏览器 IndexedDB,离线可用。「JSON」按钮复制的数据可直接粘贴到 Notebook 的 JS / Python 单元中继续分析。"
     },
     "gallery": {
-      "copy1": "Notebook 画廊 · EF Lab",
+      "copy1": "Notebook 画廊 · EF LAB",
       "copy2": "社区公开的反应式金融 Notebook 画廊:浏览他人分享的定价推导、回测实验与计量分析,一键 Fork 到自己的工作区继续研究。",
       "copy3": "Notebook 画廊",
       "copy4": "社区公开的研究笔记本 — 打开即可交互,登录后可 Fork 到自己的工作区继续修改。",
@@ -9402,7 +9402,7 @@
       "copy26": "Tags (逗号分隔)"
     },
     "glossary": {
-      "copy1": "术语表 · EF Lab",
+      "copy1": "术语表 · EF LAB",
       "copy2": "量化金融与计量经济学术语速查：含公式、相关工具与参考文献。",
       "copy3": "返回首页",
       "copy4": "Glossary · 术语词典",
@@ -9462,7 +9462,7 @@
       "copy2": "登录后即可保存到云端并继续编辑。",
       "copy3": "Fork 失败",
       "copy4": "已 Fork 到我的 Notebook",
-      "copy5": "Notebook 模板市场 · EF Lab",
+      "copy5": "Notebook 模板市场 · EF LAB",
       "copy6": "Black-Scholes、CAPM、参数 VaR、债券久期、Merton 跳跃扩散、GARCH(1,1) 等经典量化金融模板,一键 Fork 即可在 Reactive Notebook 中改参运行。",
       "copy7": "Notebook 模板市场",
       "copy8": "对标 Observable / Wolfram · 经典量化金融模型一键 Fork,改参即跑,直接进入 Reactive Notebook。",
@@ -9471,7 +9471,7 @@
       "copy11": "进入空白 Notebook"
     },
     "papers": {
-      "copy1": "经典论文索引 · EF Lab",
+      "copy1": "经典论文索引 · EF LAB",
       "copy2": "量化金融与计量经济学经典论文索引：Black-Scholes、Fama-French、Hull-White、GARCH 等,可按主题筛选。",
       "copy3": "经典论文索引",
       "copy4": "可检索的学术参考库 · 每篇仅一句关键贡献,附 DOI / 链接,供计算器与策略库交叉引用。",
@@ -9485,7 +9485,7 @@
       "copy4": "尚未发布公开 Notebook。"
     },
     "strategies": {
-      "copy1": "量化策略库 · EF Lab",
+      "copy1": "量化策略库 · EF LAB",
       "copy2": "经典量化策略卡片库：动量、价值、低波、配对、统计套利等，含夏普、回撤、数据频率与参考论文。",
       "copy3": "经典量化策略库",
       "copy4": "对标 QuantPedia · 12 个学术验证的因子与套利策略,附论文索引与历史 Sharpe / 回撤参考。",
@@ -9493,7 +9493,7 @@
       "copy6": "没有匹配的策略 · No matching strategies."
     },
     "toolsCatalog": {
-      "copy1": "工具目录 · EF Lab",
+      "copy1": "工具目录 · EF LAB",
       "copy2": "完整的量化金融与计量经济学交互工具索引：按主题、难度与可验证性筛选。",
       "copy3": "返回首页",
       "copy4": "全部工具索引",
@@ -9531,7 +9531,7 @@
       "copy13": "下一主题"
     },
     "workflows": {
-      "copy1": "研究工作流 · EF Lab",
+      "copy1": "研究工作流 · EF LAB",
       "copy2": "把隐含波动率、曲面拟合、Greeks、组合优化与信用风险等工具串成可逐步走查的研究工作流剧本。",
       "copy3": "工具目录",
       "copy4": "研究工作流",

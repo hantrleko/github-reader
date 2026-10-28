@@ -36,7 +36,7 @@ const Glossary = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <Seo title={t("pages.glossary.copy1", { defaultValue: "术语表 · EF Lab" })} description={t("pages.glossary.copy2", { defaultValue: "量化金融与计量经济学术语速查：含公式、相关工具与参考文献。" })} path="/glossary" />
+      <Seo title={t("pages.glossary.copy1", { defaultValue: "术语表 · EF LAB" })} description={t("pages.glossary.copy2", { defaultValue: "量化金融与计量经济学术语速查：含公式、相关工具与参考文献。" })} path="/glossary" />
       <Navbar />
       <main id="main-content" className="container max-w-5xl pt-20 pb-24 px-6">
         <Link

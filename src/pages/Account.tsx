@@ -70,7 +70,7 @@ const Account = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <Seo title={t("pages.account.copy3", { defaultValue: "账号设置 · EF Lab" })} description={t("pages.account.copy4", { defaultValue: "管理你的 EF Lab 账号、username 与公开主页可见性。" })} path="/account" noindex />
+      <Seo title={t("pages.account.copy3", { defaultValue: "账号设置 · EF LAB" })} description={t("pages.account.copy4", { defaultValue: "管理你的 EF LAB 账号、username 与公开主页可见性。" })} path="/account" noindex />
       <Navbar />
       <main id="main-content" className="pt-14">
         <SectionHeader chapter="ACCOUNT" kicker="PROFILE" title={t("pages.account.copy5", { defaultValue: "账号与公开主页" })} subtitle={t("pages.account.copy6", { defaultValue: "设置 username 后,他人可访问 /u/your-name。" })} />

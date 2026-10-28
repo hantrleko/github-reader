@@ -40,7 +40,7 @@ const Papers = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <Seo title={t("pages.papers.copy1", { defaultValue: "经典论文索引 · EF Lab" })} description={t("pages.papers.copy2", { defaultValue: "量化金融与计量经济学经典论文索引：Black-Scholes、Fama-French、Hull-White、GARCH 等,可按主题筛选。" })} path="/papers" />
+      <Seo title={t("pages.papers.copy1", { defaultValue: "经典论文索引 · EF LAB" })} description={t("pages.papers.copy2", { defaultValue: "量化金融与计量经济学经典论文索引：Black-Scholes、Fama-French、Hull-White、GARCH 等,可按主题筛选。" })} path="/papers" />
       <Navbar />
       <main id="main-content" className="pt-14">
         <SectionHeader

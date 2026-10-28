@@ -48,6 +48,6 @@ describe("copy consistency — full report", () => {
   });
 
   it("home og copy is brand-free and distinct from title", () => {
-    expect(HOME_SEO.ogTitle).not.toContain("EF Lab");
+    expect(HOME_SEO.ogTitle).not.toContain("EF LAB");
   });
 });

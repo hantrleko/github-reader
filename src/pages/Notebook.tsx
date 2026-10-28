@@ -318,7 +318,7 @@ const DEFAULT_CELLS: Cell[] = [
   return (
     <div className="min-h-screen bg-background">
       <Seo
-        title={notebookId && isPublic ? `${title} · EF Lab Notebook` : "Reactive Notebook · EF Lab"}
+        title={notebookId && isPublic ? `${title} · EF LAB Notebook` : "Reactive Notebook · EF LAB"}
         description={
           notebookId && isPublic
             ? t("pages.notebook.copy19", { defaultValue: "{{value1}} — 反应式金融笔记本,{{value2}} 个 cell。一键 Fork 到你的工作区,继续推导与回测。", value1: title, value2: cells.length })

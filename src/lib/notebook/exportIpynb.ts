@@ -36,7 +36,7 @@ const mdCell = (lines: string[]) => ({
 
 export function exportIpynb(title: string, cells: AnyCell[]): string {
   const out: object[] = [
-    mdCell([`# ${title}`, "", "_Exported from EF Lab Reactive Notebook._"]),
+    mdCell([`# ${title}`, "", "_Exported from EF LAB Reactive Notebook._"]),
   ];
 
   for (const c of cells) {
@@ -75,7 +75,7 @@ export function exportIpynb(title: string, cells: AnyCell[]): string {
         break;
       case "table":
         out.push(mdCell([
-          "**Table cell** (rendered in EF Lab)",
+          "**Table cell** (rendered in EF LAB)",
           "",
           `> source: \`${c.body ?? ""}\``,
         ]));
