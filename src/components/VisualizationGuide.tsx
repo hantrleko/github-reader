@@ -95,7 +95,7 @@ function buildReturns() {
 function buildIRF() {
   const rng = lcg(99);
   // IRF from AR(1) shock: y_t = 0.6·y_{t-1} + eps
-  const rows: Array<{ t: number; irf: number; ci_lo: number; ci_hi: number }> = [];
+  const rows: Array<{ timeIndex: number; irf: number; ci_lo: number; ci_hi: number }> = [];
   let y = 0;
   for (let timeIndex = 0; timeIndex <= 20; timeIndex++) {
     if (timeIndex === 0) y = 1;
