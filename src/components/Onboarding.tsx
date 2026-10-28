@@ -67,6 +67,7 @@ const Onboarding = () => {
               if (window.location.pathname === "/") window.dispatchEvent(new Event("lab:replay-intro"));
               else window.location.assign("/?intro=1");
             }}><RotateCcw />{english ? "Opening animation" : "重播开场动画"}</Button>
+            <Button variant="ghost" size="sm" onClick={() => changeOpen(false)}>{english ? "Don't show again" : "不再显示"}</Button>
             <Button size="sm" onClick={() => changeOpen(false)}>{english ? "Enter the Lab" : "开始探索"}<ArrowRight /></Button>
           </div>
         </DialogContent>

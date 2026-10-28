@@ -7788,7 +7788,8 @@
       "text1": "Skip to main content"
     },
     "splashIntro": {
-      "text1": "A research workbench that turns economic and financial theory into runnable experiments—from SDF to GARCH, portfolios to derivatives pricing—validated, visualized, and archived in one workflow."
+      "text1": "A research workbench that turns economic and financial theory into runnable experiments—from SDF to GARCH, portfolios to derivatives pricing—validated, visualized, and archived in one workflow.",
+      "dontShow": "Don't show again"
     },
     "realDataLoader": {
       "text1": "Sample data loaded",
