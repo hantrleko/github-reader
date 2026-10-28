@@ -134,7 +134,6 @@ return CONCEPTS;
 };
 
 const FrontierConcepts = () => {
-  const __probe: number = "not a number";
 
   return (
     <section className="py-24 px-6 relative">
