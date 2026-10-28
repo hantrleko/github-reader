@@ -112,7 +112,7 @@ const DomainPage = () => {
     <div className="min-h-screen bg-background flex flex-col">
       <Seo
         title={isEn
-          ? `${groupLabel} Track · ${group.kicker} | Econ & Finance Lab`
+          ? `${groupLabel} Track · ${group.kicker} | EF LAB`
           : `${group.label}学科主线 · ${group.kicker} | EF LAB`}
         description={isEn
           ? `${groupDesc(t, group)}. Learn the ${groupLabel} domain through ${sections.length} sections ordered guide → basic → advanced → frontier.`
