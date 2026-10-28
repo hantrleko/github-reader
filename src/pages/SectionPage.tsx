@@ -1,7 +1,7 @@
 import { provenanceFor } from "@/lib/provenance";
 import { Suspense, useEffect } from "react";
 import { markSectionVisited } from "@/lib/userProgress";
-import { Navigate, useParams, Link } from "react-router-dom";
+import { Navigate, useParams, Link, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { ArrowLeft } from "lucide-react";
 import Navbar from "@/components/Navbar";
@@ -60,11 +60,20 @@ const SectionPage = () => {
     if (def) markSectionVisited(def.id);
   }, [def]);
 
+  const [searchParams] = useSearchParams();
+  const tab = searchParams.get("t");
   if (!def) return <Navigate to="/" replace />;
 
 
   const { Component } = def;
-  const seo = sectionSeo(def);
+  const base = sectionSeo(def);
+  // Flagship routes get dedicated, bilingual landing copy for shared links.
+  const flagKey = def.id === "econometrics" && (!tab || tab === "olsiv") ? "olsiv"
+    : def.id === "backtest" ? "backtest"
+    : def.id === "asset-pricing" && (!tab || tab === "capm") ? "capm" : null;
+  const seo = flagKey
+    ? { title: t(`seo.flagship.${flagKey}.title`), description: t(`seo.flagship.${flagKey}.desc`), ogTitle: t(`seo.flagship.${flagKey}.title`), ogDescription: t(`seo.flagship.${flagKey}.desc`) }
+    : base;
   const idx = SECTIONS.findIndex((s) => s.id === def.id);
   const prev = idx > 0 ? SECTIONS[idx - 1] : null;
   const next = idx < SECTIONS.length - 1 ? SECTIONS[idx + 1] : null;

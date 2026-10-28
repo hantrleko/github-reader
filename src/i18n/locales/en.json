@@ -9763,5 +9763,21 @@
       "none": "(none yet)",
       "note": "Teaching-only; not paper-grade evidence."
     }
+  },
+  "seo": {
+    "flagship": {
+      "olsiv": {
+        "title": "OLS vs IV interactive lab | EF LAB",
+        "desc": "Drag the sliders to see how endogeneity biases OLS away from the true β and how IV/2SLS corrects it — built for econometrics teaching."
+      },
+      "backtest": {
+        "title": "Strategy backtest lab | EF LAB",
+        "desc": "Backtest SMA and momentum strategies on public price history; compare Sharpe and max drawdown against buy-and-hold, with costs and T+1 execution."
+      },
+      "capm": {
+        "title": "CAPM / SML lab | EF LAB",
+        "desc": "Set the risk-free rate, market premium and β, then read the required return and Jensen's alpha off the Security Market Line."
+      }
+    }
   }
 }
