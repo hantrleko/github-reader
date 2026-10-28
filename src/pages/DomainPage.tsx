@@ -113,7 +113,7 @@ const DomainPage = () => {
       <Seo
         title={isEn
           ? `${groupLabel} Track · ${group.kicker} | Econ & Finance Lab`
-          : `${group.label}学科主线 · ${group.kicker} | 经济与金融实验室`}
+          : `${group.label}学科主线 · ${group.kicker} | EF LAB`}
         description={isEn
           ? `${groupDesc(t, group)}. Learn the ${groupLabel} domain through ${sections.length} sections ordered guide → basic → advanced → frontier.`
           : `${group.desc}。按导读 → 基础 → 进阶 → 前沿的顺序学习 ${group.label} 领域的 ${sections.length} 个板块。`}

@@ -264,7 +264,7 @@ const Navbar = () => {
             The Quantitative Report
           </span>
           <span className="text-sm md:text-base font-display font-bold text-foreground tracking-tight">
-            Econ&nbsp;&amp;&nbsp;Finance <em className="not-italic text-gold">Lab</em>
+            EF&nbsp;<em className="not-italic text-gold">LAB</em>
           </span>
         </button>
 

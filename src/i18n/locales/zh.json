@@ -16,7 +16,7 @@
     }
   },
   "nav": {
-    "brand": "Econ & Finance Lab",
+    "brand": "EF LAB",
     "version": "V5.0",
     "lang": "语言",
     "smoothScroll": {
@@ -488,7 +488,7 @@
     "sections": "板块导航",
     "quickLinks": "快速链接",
     "backToTop": "返回顶部",
-    "rights": "© 2026 Econ & Finance Lab · 仅供学习研究 · 不构成投资建议"
+    "rights": "© 2026 EF LAB · 仅供学习研究 · 不构成投资建议"
   },
   "section": {
     "backHome": "返回首页",

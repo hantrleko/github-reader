@@ -53,12 +53,12 @@ const Onboarding = () => {
       <Dialog open={open} onOpenChange={changeOpen}>
         <DialogContent className={`w-[calc(100%-2rem)] max-h-[92dvh] overflow-y-auto rounded-lg p-4 sm:p-6 ${portrait ? "max-w-sm" : "max-w-4xl"}`}>
           <div className="pr-7 space-y-1">
-            <DialogTitle className="font-display text-xl">{english ? "Welcome to Econ & Finance Lab" : "欢迎来到 Econ & Finance Lab"}</DialogTitle>
+            <DialogTitle className="font-display text-xl">{english ? "Welcome to EF LAB" : "欢迎来到 EF LAB"}</DialogTitle>
             <DialogDescription>{english ? "Introduction film" : "新手介绍短片"} · 00:38</DialogDescription>
           </div>
           <video key={portrait ? "portrait" : "landscape"} src={portrait ? portraitVideo.url : landscape.url}
             controls playsInline preload="none" onError={() => setFailed(true)}
-            aria-label={english ? "Econ & Finance Lab introduction" : "Econ & Finance Lab 新手介绍视频"}
+            aria-label={english ? "EF LAB introduction" : "EF LAB 新手介绍视频"}
             className={`mx-auto rounded-md bg-background object-contain ${portrait ? "aspect-[9/16] max-h-[62dvh] w-auto max-w-full" : "aspect-video w-full"}`} />
           {failed && <p role="alert" className="text-sm text-destructive">{english ? "Video unavailable. Please close and retry." : "视频暂时无法加载，请关闭后重试。"}</p>}
           <div className="flex flex-wrap justify-between gap-2">
