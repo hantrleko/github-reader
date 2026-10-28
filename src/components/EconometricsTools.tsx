@@ -343,7 +343,7 @@ const OLSvsIV = () => {
           <ResultRow label="OLS R²" value={data.olsR.r2} color={CHART_RED} />
           <ResultRow label="IV R²" value={data.ivR.r2} color={CHART_GOLD} />
           <div className="text-xs font-mono text-muted-foreground p-3 rounded-lg bg-secondary/40 border border-border leading-relaxed">
-            <p><span className="text-gold">{t("labs.econometrics.text011", { defaultValue: "解读：" })}</span>{t("labs.econometrics.text012", { defaultValue: "当 x 与误差项相关时，OLS 估计系统性偏离真实 β。" })}</p>
+            <p><span className="text-gold">{t("labs.econometrics.text011", { defaultValue: "解读：" })}</span>{endo < 0.05 ? t("labs.econometrics.olsivNoEndo", { defaultValue: "当前 Cov(x,ε)≈0：x 与误差项不相关，OLS 无偏且一致，与 IV 估计基本重合（IV 方差更大）。" }) : t("labs.econometrics.text012", { defaultValue: "当 x 与误差项相关时，OLS 估计系统性偏离真实 β。" })}</p>
             <p>{t("labs.econometrics.text013", { defaultValue: "阴影带为拟合值 95% 置信区间 ŷ ± 1.96·SE(ŷ)，SE(ŷ)=σ̂·√(1/n+(x-x̄)²/Sₓₓ)。" })}</p>
             <p>{t("labs.econometrics.text014", { defaultValue: "弱工具变量 → IV 阴影带显著变宽，方差放大。" })}</p>
           </div>

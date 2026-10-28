@@ -5416,7 +5416,8 @@
       "text289": "Volatility / High Frequency",
       "text290": "Discrete Choice / Panel",
       "text291": "Machine-Learning Econometrics",
-      "text292": "Diagnostics / Nonparametrics"
+      "text292": "Diagnostics / Nonparametrics",
+      "olsivNoEndo": "Cov(x,ε)≈0 now: x is uncorrelated with the error, so OLS is unbiased and consistent and closely matches IV (IV just has larger variance)."
     },
     "econV21": {
       "text001": "Weak selection bias (γ=0.3)",
