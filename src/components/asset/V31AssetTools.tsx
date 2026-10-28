@@ -326,7 +326,7 @@ export const FamaFrenchTool = () => {
         <div className="space-y-3">
           <div className="grid grid-cols-2 gap-2">
             <Stat label="R²" value={res.o.r2.toFixed(3)} sub={t("labs.assetV31.text62", { defaultValue: `调整 R²=${res.o.adjR2.toFixed(3)}`, value: res.o.adjR2.toFixed(3) })} />
-            <Stat label={t("labs.assetV31.text63", { defaultValue: "估计 α" })} value={res.rows[0].est.toFixed(3)} color={Math.abs(res.rows[0].period) > 2 ? CHART_RED : CHART_TEAL} sub={`t=${res.rows[0].period.toFixed(2)}`} />
+            <Stat label={t("labs.assetV31.text63", { defaultValue: "估计 α" })} value={res.rows[0].est.toFixed(3)} color={Math.abs(res.rows[0].t) > 2 ? CHART_RED : CHART_TEAL} sub={`t=${res.rows[0].t.toFixed(2)}`} />
           </div>
           <Note>
             <p><span className="text-gold">Fama-French (1993/2015)：</span>{t("labs.assetV31.text64", { defaultValue: "在市场因子上加入规模 (SMB)、价值 (HML)、盈利 (RMW)、投资 (CMA)。" })}</p>
@@ -354,7 +354,7 @@ export const FamaFrenchTool = () => {
                 <td className="p-2 border-b border-border/40">{row.est.toFixed(3)}</td>
                 <td className="p-2 border-b border-border/40">{row.truth.toFixed(3)}</td>
                 <td className="p-2 border-b border-border/40">{row.se.toFixed(3)}</td>
-                <td className="p-2 border-b border-border/40" style={{ color: Math.abs(row.period) > 2 ? CHART_GOLD : undefined }}>{row.period.toFixed(2)}</td>
+                <td className="p-2 border-b border-border/40" style={{ color: Math.abs(row.t) > 2 ? CHART_GOLD : undefined }}>{row.t.toFixed(2)}</td>
               </tr>
             ))}
           </tbody>
