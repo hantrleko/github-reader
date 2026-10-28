@@ -577,7 +577,8 @@
     "sections": "Sections",
     "quickLinks": "Quick links",
     "backToTop": "Back to top",
-    "rights": "© 2026 EF LAB · For study and research only · Not investment advice"
+    "rights": "© 2026 EF LAB · For study and research only · Not investment advice",
+    "boundary": "EF LAB is for learning and verifying theory (interactive teaching labs); screeners and paper trading live in our sibling product, QuantLab."
   },
   "section": {
     "backHome": "Back to home",
@@ -9720,6 +9721,47 @@
       "copy9": "Open",
       "copy10": "Pass",
       "copy11": "to the next step"
+    }
+  },
+  "flagship": {
+    "conclusion": "Takeaway",
+    "copyParams": "Copy params",
+    "copied": "Copied",
+    "presets": "Presets",
+    "ols": {
+      "none": "Cov(x,ε)≈0: OLS β̂={{ols}} and IV β̂={{iv}} both sit near the true β={{b}}; OLS is unbiased and more efficient.",
+      "up": "x is positively correlated with the error, so OLS β̂={{ols}} is biased upward from β={{b}} (bias {{bias}}); IV β̂={{iv}} corrects it.",
+      "down": "OLS β̂={{ols}} sits below the true β={{b}} (bias {{bias}}); IV β̂={{iv}} is closer to the truth.",
+      "weak": "Weak instrument: IV β̂={{iv}} is unstable with large variance while OLS β̂={{ols}} has bias {{bias}} — weak IV is not automatically better."
+    },
+    "capm": {
+      "on": "This {{risk}} asset (β={{beta}}) sits on the SML (α={{alpha}}%): its return just compensates systematic risk.",
+      "above": "This {{risk}} asset (β={{beta}}) sits above the SML, α={{alpha}}%: undervalued versus the {{req}}% required return.",
+      "below": "This {{risk}} asset (β={{beta}}) sits below the SML, α={{alpha}}%: it fails to earn the {{req}}% required return.",
+      "aggr": "aggressive",
+      "def": "defensive",
+      "mkt": "market-like"
+    },
+    "bt": {
+      "classic": "Classic 50/200 SMA",
+      "fastTrend": "Fast trend (long/short)",
+      "momentum": "12-month momentum",
+      "beat": "Strategy Sharpe {{s}} beats buy-and-hold {{b}}; max drawdown {{dd}} vs {{bdd}} ({{ddWord}}).",
+      "lag": "Strategy Sharpe {{s}} trails buy-and-hold {{b}}; max drawdown {{dd}} vs {{bdd}} ({{ddWord}}).",
+      "shallower": "shallower",
+      "deeper": "deeper"
+    },
+    "memo": {
+      "export": "Export Markdown",
+      "print": "Print / PDF",
+      "title": "Research memo",
+      "params": "Key parameters & assumptions",
+      "conclusion": "Conclusion",
+      "placeholder": "(Write a one-paragraph conclusion here: after the steps, summarise the main finding and its robustness.)",
+      "steps": "Steps",
+      "bus": "Current Tool Bus parameters",
+      "none": "(none yet)",
+      "note": "Teaching-only; not paper-grade evidence."
     }
   }
 }

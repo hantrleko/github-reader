@@ -1,3 +1,4 @@
+import FlagshipSummary from "@/components/common/FlagshipSummary";
 import { useTranslation } from "react-i18next";
 import { useState, useMemo } from "react";
 import {
@@ -119,6 +120,14 @@ export const CAPMTool = () => {
         { name: t("labs.assetV31.text3", { defaultValue: "防御型" }), description: "β=0.6", apply: () => { setBeta(0.6); setActual(7); } },
         { name: t("labs.assetV31.text4", { defaultValue: "负 alpha" }), description: t("labs.assetV31.text5", { defaultValue: "跑输 SML" }), apply: () => { setBeta(1.2); setActual(8); } },
       ]} />
+      <FlagshipSummary
+        title="CAPM / SML"
+        params={{ "Rf %": rf, "E(Rm) %": erm, "β": beta, "R %": actual, "required %": r.required.toFixed(2), "Jensen α %": r.alpha.toFixed(2) }}
+        conclusion={t(Math.abs(r.alpha) < 0.25 ? "flagship.capm.on" : r.alpha > 0 ? "flagship.capm.above" : "flagship.capm.below", {
+          beta: beta.toFixed(2), req: r.required.toFixed(2), alpha: (r.alpha >= 0 ? "+" : "") + r.alpha.toFixed(2),
+          risk: t(beta > 1.05 ? "flagship.capm.aggr" : beta < 0.95 ? "flagship.capm.def" : "flagship.capm.mkt"),
+        })}
+      />
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="space-y-3">
           <Slider label={t("labs.assetV31.text6", { defaultValue: "无风险利率 Rf (%)" })} value={rf} min={0} max={6} step={0.25} onChange={setRf} />
