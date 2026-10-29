@@ -101,27 +101,8 @@ export default defineConfig(({ mode }) => ({
     },
     dedupe: ["react", "react-dom", "react/jsx-runtime", "react/jsx-dev-runtime", "@tanstack/react-query", "@tanstack/query-core"],
   },
-  build: {
-    rollupOptions: {
-      output: {
-        // Function form (not object form): object-form manualChunks turn the
-        // vendor chunks into facade entries that index.html ends up
-        // modulepreloading — dragging 1.4MB of three/recharts/framer into
-        // first load even though only lazy routes use them.
-        manualChunks(id: string) {
-          if (!id.includes("node_modules")) return;
-          // Only packages the entry itself uses get explicit vendor chunks.
-          // Heavy lazy-only libs (three, recharts, jspdf, katex, dnd…)
-          // are left to Rollup's automatic splitting: forcing them into
-          // named chunks pulls their shared CJS helpers into the entry's
-          // static graph and index.html ends up preloading them.
-          if (/node_modules[\\/]framer-motion[\\/]/.test(id)) return "vendor-framer";
-          if (/node_modules[\\/]@tanstack[\\/]/.test(id)) return "vendor-query";
-          if (/node_modules[\\/](i18next|react-i18next|i18next-browser-languagedetector)[\\/]/.test(id)) return "vendor-i18n";
-          if (/node_modules[\\/]@radix-ui[\\/]/.test(id)) return "vendor-radix";
-          if (/node_modules[\\/](react|react-dom|react-router-dom|scheduler)[\\/]/.test(id)) return "vendor-react";
-        },
-      },
-    },
-  },
+  // Let Rollup split the dependency graph automatically. Forced vendor groups
+  // can create circular initialization paths through React's CommonJS helpers
+  // (notably react-i18next's top-level createContext call). Dynamic imports still
+  // keep route-only tools and their heavy dependencies lazy-loaded.
 }));
