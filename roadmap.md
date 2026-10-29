@@ -1,5 +1,5 @@
 # Current work
-- [ ] Fix production startup blank screen caused by forced vendor chunk initialization; verify automatic build and startup without publishing.
+- [x] Remove forced vendor chunking responsible for production startup blank screen; automatic build OK, 541 tests pass, homepage/OLS-IV/backtest preview startup verified; not published, production runtime remains unverified.
 - [x] Fix TradingView screener cache isolation across request parameters; 12 regression tests and all 541 tests pass, preview build OK; not published or deployed.
 - [x] Embed landscape and portrait videos in the newcomer introduction with replay access; orientation selection and dialog flow verified.
 - [x] Restore opening animation visibility; new-session policy tests and manual replay verified.
