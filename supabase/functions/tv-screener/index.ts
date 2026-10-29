@@ -4,6 +4,7 @@ import { corsHeadersFor, getClientIp, checkRateLimit, rateLimitResponse, getCach
 // library so the browser can query TradingView's scanner without an API key.
 // Docs reference: https://github.com/deepentropy/tvscreener
 import { json, fail, fetchAny } from "../_shared/us.ts";
+import { screenerCacheKey } from "./cacheKey.ts";
 
 const TV_UA = "EF Lab research tool (contact: research@eugenefinance.tech)";
 
@@ -168,7 +169,7 @@ Deno.serve(async (req) => {
   const rl = await checkRateLimit(`rl:tv-screener:${ip}`, 60, 60);
   if (!rl.allowed) return rateLimitResponse(corsHeaders, rl.retryAfter);
 
-  const cacheKey = `cache:tv-screener:${new URL(req.url).searchParams.toString()}`;
+  const cacheKey = await screenerCacheKey(req);
   const cached = await getCached(cacheKey);
   if (cached) {
     return new Response(cached, {
