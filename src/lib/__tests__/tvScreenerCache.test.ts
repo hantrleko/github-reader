@@ -36,7 +36,9 @@ const request = (body: unknown) => new Request("http://localhost:8080/tv-screene
 beforeAll(async () => {
   vi.stubGlobal("crypto", webcrypto);
   vi.stubGlobal("Deno", { serve: (handler: typeof serve) => { serve = handler; } });
-  await import("../../../supabase/functions/tv-screener/index.ts");
+  // Runtime import keeps Deno-only modules out of the browser TypeScript project.
+  const entrypoint = "../../../supabase/functions/tv-screener/index.ts";
+  await import(entrypoint);
 });
 afterAll(() => vi.unstubAllGlobals());
 beforeEach(() => {
