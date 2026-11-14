@@ -14,7 +14,7 @@ import { TEACHING_PATH, PATH_HOME, nextStep, pathIndex, type CheckItem, type Pat
  * text wraps instead of overflowing, actions stack full-width below `sm`, and
  * focus rings are offset so they stay visible on the tinted backgrounds.
  */
-const FOCUS = "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-background";
+const FOCUS = "scroll-my-24 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-background";
 const SECONDARY_BTN = `inline-flex min-h-11 w-full sm:w-auto items-center justify-center gap-1.5 rounded-md border border-border px-4 py-2 text-xs font-mono text-muted-foreground hover:text-gold hover:border-gold/40 ${FOCUS}`;
 const PRIMARY_BTN = `inline-flex min-h-11 w-full sm:w-auto items-center justify-center gap-2 rounded-lg sm:rounded-full bg-gold px-5 py-2 text-center text-xs font-mono uppercase tracking-wide text-background hover:opacity-90 ${FOCUS}`;
 

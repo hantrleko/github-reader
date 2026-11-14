@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeAll, beforeEach } from "vitest";
-import { render, screen, fireEvent, within, cleanup } from "@testing-library/react";
+import { render, screen, fireEvent, within, cleanup, act } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import i18n from "@/i18n";
 import zh from "@/i18n/locales/zh.json";
@@ -114,6 +114,33 @@ describe("Options hedge lab learning loop", () => {
     fireEvent.change(screen.getAllByRole("slider")[0], { target: { value: "0.4" } });
     expect(answer).toHaveTextContent(`Δ(100)=${hedgeDelta(100, 0.4).toFixed(3)}`);
     expect(within(check).getByTestId("path-next")).toHaveAttribute("href", "/#start");
+  });
+});
+
+describe("path controls after the polish pass", () => {
+  it("hedge lab ends with both restart-at-step-1 and back-home links", () => {
+    inRouter(<HedgePnLTool />);
+    const check = screen.getByTestId("path-check-hedge");
+    expect(within(check).getByTestId("path-restart")).toHaveAttribute("href", "/s/econometrics?t=olsiv");
+    expect(within(check).getByTestId("path-next")).toHaveAttribute("href", "/#start");
+  });
+  it("the intro Reset restores the default scenario, same as the check Reset", () => {
+    inRouter(<HedgePnLTool />);
+    const real = () => screen.getAllByRole("slider")[1] as HTMLInputElement;
+    fireEvent.change(real(), { target: { value: "0.05" } });
+    expect(real().value).toBe("0.05");
+    fireEvent.click(within(screen.getByTestId("path-intro-hedge")).getByTestId("path-reset"));
+    expect(real().value).toBe(String(HEDGE_DEFAULT.sigmaReal));
+  });
+  it("switching language relabels the answer toggle and keeps it open", async () => {
+    inRouter(<CAPMTool />);
+    const check = screen.getByTestId("path-check-capm");
+    const btn = within(check).getAllByRole("button", { name: en.path.showAnswer })[0];
+    fireEvent.click(btn);
+    expect(btn).toHaveAttribute("aria-expanded", "true");
+    await act(async () => { await i18n.changeLanguage("zh"); });
+    expect(btn).toHaveTextContent(zh.path.hideAnswer);
+    expect(document.getElementById(btn.getAttribute("aria-controls")!)).toHaveTextContent("10.20%");
   });
 });
 
