@@ -1,4 +1,6 @@
 import FlagshipSummary from "@/components/common/FlagshipSummary";
+import { PathIntro, PathCheck } from "@/components/common/TeachingPath";
+import { OLSIV_DEFAULT, olsivChecks } from "@/lib/teachingPath";
 import { useState, useMemo, useRef, useCallback, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
@@ -245,13 +247,17 @@ function localPolySE(
 /* ════════════════════════════════════════════════════════════
    1. OLS vs IV/2SLS — endogeneity demo
    ════════════════════════════════════════════════════════════ */
-const OLSvsIV = () => {
+export const OLSvsIV = () => {
   const { t } = useTranslation();
-  const [n, setN] = useState(200);
-  const [trueBeta, setTrueBeta] = useState(1.0);
-  const [endo, setEndo] = useState(0.7);    // Cov(x, ε)
-  const [zStrength, setZStrength] = useState(0.8); // Cov(z, x)
-  const [seed, setSeed] = useState(42);
+  const [n, setN] = useState(OLSIV_DEFAULT.n);
+  const [trueBeta, setTrueBeta] = useState(OLSIV_DEFAULT.trueBeta);
+  const [endo, setEndo] = useState(OLSIV_DEFAULT.endo);    // Cov(x, ε)
+  const [zStrength, setZStrength] = useState(OLSIV_DEFAULT.zStrength); // Cov(z, x)
+  const [seed, setSeed] = useState(OLSIV_DEFAULT.seed);
+  const resetDefault = () => {
+    setN(OLSIV_DEFAULT.n); setTrueBeta(OLSIV_DEFAULT.trueBeta); setEndo(OLSIV_DEFAULT.endo);
+    setZStrength(OLSIV_DEFAULT.zStrength); setSeed(OLSIV_DEFAULT.seed);
+  };
 
   const data = useMemo(() => {
     const rng = mulberry32(seed);
@@ -323,8 +329,11 @@ const OLSvsIV = () => {
     setHistoryTick((t) => t + 1);
   };
 
+  const checks = olsivChecks({ n, trueBeta, endo, zStrength, seed }, { olsBeta: data.olsR.beta, ivBeta: data.ivR.beta, olsSe: data.olsR.se_beta, ivSe: data.ivR.se_beta });
+
   return (
     <div className="space-y-6">
+      <PathIntro lab="olsiv" onReset={resetDefault} />
       <PresetButtons presets={[
         { name: t("labs.econometrics.text000", { defaultValue: "强内生性" }), description: t("labs.econometrics.text001", { defaultValue: "Cov(x,ε)=0.8, 弱IV" }), apply: () => { setEndo(0.8); setZStrength(0.4); setTrueBeta(1); } },
         { name: t("labs.econometrics.text002", { defaultValue: "无内生性" }), description: t("labs.econometrics.text003", { defaultValue: "OLS=IV, 教学对照" }), apply: () => { setEndo(0); setZStrength(0.8); setTrueBeta(1); } },
@@ -402,6 +411,7 @@ const OLSvsIV = () => {
           </ResponsiveContainer>
         </div>
       </div>
+      <PathCheck lab="olsiv" items={checks} onReset={resetDefault} />
     </div>
   );
 };
@@ -2214,7 +2224,7 @@ const Slider = ({ label, value, min, max, step, onChange }: { label: string; val
       <span className="text-xs font-mono text-muted-foreground">{label}</span>
       <span className="text-xs font-mono text-gold tabular-nums">{value.toFixed(step < 1 ? 2 : 0)}</span>
     </div>
-    <input type="range" min={min} max={max} step={step} value={value} onChange={(e) => onChange(+e.target.value)}
+    <input type="range" aria-label={label} min={min} max={max} step={step} value={value} onChange={(e) => onChange(+e.target.value)}
       className="w-full accent-gold cursor-pointer" />
   </div>
 );

@@ -43,6 +43,7 @@ export const Slider = ({
     </div>
     <input
       type="range"
+      aria-label={label}
       min={min}
       max={max}
       step={step}

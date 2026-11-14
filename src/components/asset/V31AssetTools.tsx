@@ -1,4 +1,6 @@
 import FlagshipSummary from "@/components/common/FlagshipSummary";
+import { PathIntro, PathCheck } from "@/components/common/TeachingPath";
+import { CAPM_DEFAULT, capmChecks } from "@/lib/teachingPath";
 import { useTranslation } from "react-i18next";
 import { useState, useMemo } from "react";
 import {
@@ -42,7 +44,7 @@ const Slider = ({ label, sub, value, min, max, step, onChange }: { label: string
       <label className="text-xs text-secondary-foreground font-medium">{label}{sub && <span className="text-muted-foreground ml-1.5 text-[10px]">{sub}</span>}</label>
       <span className="text-xs font-mono text-gold tabular-nums">{value.toFixed(step >= 1 ? 0 : step >= 0.1 ? 2 : 3)}</span>
     </div>
-    <input type="range" min={min} max={max} step={step} value={value} onChange={e => onChange(+e.target.value)} className={sliderClass} />
+    <input type="range" aria-label={label} min={min} max={max} step={step} value={value} onChange={e => onChange(+e.target.value)} className={sliderClass} />
   </div>
 );
 
@@ -72,10 +74,11 @@ const ChartCard = ({ title, hint, children }: { title: string; hint?: string; ch
    ════════════════════════════════════════════════════════════ */
 export const CAPMTool = () => {
   const { t } = useTranslation();
-  const [rf, setRf] = useState(3);
-  const [erm, setErm] = useState(9);
-  const [beta, setBeta] = useState(1.2);
-  const [actual, setActual] = useState(12);  // realized/expected asset return
+  const [rf, setRf] = useState(CAPM_DEFAULT.rf);
+  const [erm, setErm] = useState(CAPM_DEFAULT.erm);
+  const [beta, setBeta] = useState(CAPM_DEFAULT.beta);
+  const [actual, setActual] = useState(CAPM_DEFAULT.actual);  // assumed asset return (user input)
+  const resetDefault = () => { setRf(CAPM_DEFAULT.rf); setErm(CAPM_DEFAULT.erm); setBeta(CAPM_DEFAULT.beta); setActual(CAPM_DEFAULT.actual); };
 
   const r = useMemo(() => {
     const prem = erm - rf;
@@ -112,8 +115,11 @@ export const CAPMTool = () => {
     }));
   }, [beta, t]);
 
+  const checks = capmChecks({ rf, erm, beta, actual });
+
   return (
     <div className="space-y-6">
+      <PathIntro lab="capm" onReset={resetDefault} />
       <PresetButtons presets={[
         { name: t("labs.assetV31.text1", { defaultValue: "市场组合" }), description: "β=1", apply: () => { setRf(3); setErm(9); setBeta(1); setActual(9); } },
         { name: t("labs.assetV31.text2", { defaultValue: "进攻型 (跑赢)" }), description: "β=1.5, α>0", apply: () => { setBeta(1.5); setActual(15); } },
@@ -177,6 +183,7 @@ export const CAPMTool = () => {
           </LineChart>
         </ResponsiveContainer>
       </ChartCard>
+      <PathCheck lab="capm" items={checks} onReset={resetDefault} />
     </div>
   );
 };

@@ -568,6 +568,27 @@
         "desc": "Walk a full research workflow step by step, with parameters passed between tools.",
         "cta": "Browse playbooks"
       }
+    },
+    "questions": {
+      "kicker": "Start with a question",
+      "title": "Three questions, one learning path",
+      "subtitle": "Each question opens an interactive lab: set a scenario, move the parameters, read the chart, check yourself, then go on to the next.",
+      "more": "Or go straight to:",
+      "olsiv": {
+        "q": "Why can a regression that looks “significant” still get the effect wrong?",
+        "desc": "In the OLS vs IV/2SLS lab, dial endogeneity and instrument strength to see where the bias comes from and when an instrument helps.",
+        "cta": "Open the OLS/IV lab"
+      },
+      "capm": {
+        "q": "How much more expected return should extra market risk earn?",
+        "desc": "In the CAPM / SML lab, change β and the market premium to see what the Security Market Line says — and what it cannot.",
+        "cta": "Open the CAPM/SML lab"
+      },
+      "hedge": {
+        "q": "After selling an option, why must the hedge change whenever the stock moves?",
+        "desc": "In the delta-hedge lab, watch the hedge ratio shift with price, and the residual risk left by discrete rebalancing and a wrong volatility guess.",
+        "cta": "Open the options hedge lab"
+      }
     }
   },
   "footer": {
@@ -9037,6 +9058,34 @@
       "text88": "Any valid pricing kernel needs enough volatility to match the observed Sharpe, imposing a lower bound on M.",
       "text89": "Equivalent equity premium puzzle:",
       "text90": "Standard consumption SDF volatility σ(M)≈γσc is too small to reach the bound unless γ is enormous."
+    },
+    "hedgePnl": {
+      "presetShortVol": "Vol underpriced",
+      "presetShortVolDesc": "σ_real > σ_price → average loss",
+      "presetLongVol": "Vol overpriced",
+      "presetLongVolDesc": "σ_real < σ_price → average gain",
+      "presetMatched": "Vol matched",
+      "presetMatchedDesc": "equal σ, no cost → only discretisation error",
+      "presetFast": "Frequent hedging",
+      "presetDaily": "Infrequent hedging",
+      "setup": "Hedge set-up (short ATM call, T=0.5)",
+      "sigmaPricing": "σ_price (implied vol when sold)",
+      "sigmaReal": "σ_real (realised vol of the stock)",
+      "steps": "Hedge frequency (rebalances per year)",
+      "cost": "One-way transaction cost",
+      "mean": "Mean P&L",
+      "std": "P&L std dev",
+      "stdSub": "residual risk",
+      "vega": "Vega contribution",
+      "avgCost": "Average cost",
+      "deltaTitle": "Hedge ratio Δ vs stock price",
+      "deltaHint": "Black-Scholes call delta at the pricing vol. The steeper the curve (higher gamma), the more shares you must trade after the stock moves.",
+      "histTitle": "P&L distribution",
+      "attrTitle": "Attribution waterfall",
+      "attrGammaTheta": "Γ·Θ balance",
+      "attrVega": "Vega × Δσ",
+      "attrDiscrete": "Discretisation",
+      "attrCost": "Transaction cost"
     }
   },
   "essays": {
@@ -9762,6 +9811,11 @@
       "bus": "Current Tool Bus parameters",
       "none": "(none yet)",
       "note": "Teaching-only; not paper-grade evidence."
+    },
+    "hedge": {
+      "loss": "Realised vol {{sr}}% is above the {{sp}}% priced in: the short, delta-hedged call ({{steps}} rebalances/yr) averages {{mean}} with std {{std}} — the hedge removes direction risk, not volatility risk.",
+      "gain": "Realised vol {{sr}}% is below the {{sp}}% priced in: the short, delta-hedged call ({{steps}} rebalances/yr) averages {{mean}} with std {{std}} — a positive mean under the model is not a riskless profit.",
+      "flat": "Realised vol {{sr}}% roughly matches the {{sp}}% priced in: mean P&L is about {{mean}}, but std is still {{std}} from {{steps}} discrete rebalances a year and costs."
     }
   },
   "seo": {
@@ -9777,6 +9831,82 @@
       "capm": {
         "title": "CAPM / SML lab | EF LAB",
         "desc": "Set the risk-free rate, market premium and β, then read the required return and Jensen's alpha off the Security Market Line."
+      }
+    }
+  },
+  "path": {
+    "stepOf": "Learning path · step {{n}} of {{total}}",
+    "stepsAria": "Learning path steps",
+    "defaultLabel": "Default scenario",
+    "limitsLabel": "Assumptions & limits",
+    "simulated": "Data: simulated teaching data with a fixed random seed, not live market data. Teaching only; not investment advice.",
+    "reset": "Reset to default",
+    "checkTitle": "Quick check",
+    "checkHint": "Think first, then reveal. Answers update with the parameters you have set now.",
+    "showAnswer": "Show answer and reasoning",
+    "hideAnswer": "Hide answer",
+    "next": "Next: {{name}}",
+    "restart": "Start again at step 1",
+    "review": "Back home to review the path",
+    "olsiv": {
+      "short": "OLS vs IV",
+      "question": "If a regressor is correlated with the error term, can a plain regression still recover the true effect — and when can an instrument be trusted instead?",
+      "default": "n=200, true β=1, Cov(x,ε)=0.7 (moderate endogeneity), Cov(z,x)=0.8 (strong instrument), seed 42. The same inputs always reproduce the same sample.",
+      "limits": "Data come from a known simulated process in which the instrument satisfies the exclusion restriction by construction — something you cannot test directly in real data. IV identifies a causal effect only if relevance, exclusion and independence all hold; a significant coefficient alone does not prove a policy effect.",
+      "q": {
+        "direction": "In the current scenario, is OLS β̂ above or below the true β, and why?",
+        "instrument": "Is the instrument strong enough here, and what does that mean for the precision of IV?",
+        "causal": "If an IV coefficient were significant in real data, could you call it the causal effect of a policy?"
+      },
+      "a": {
+        "direction": {
+          "none": "About equal: with Cov(x,ε)={{endo}}≈0, x is uncorrelated with the error, so OLS β̂={{ols}} sits near the true β={{b}} (bias {{bias}}). Here OLS is unbiased and more efficient than IV.",
+          "small": "The bias is small ({{bias}}): although Cov(x,ε)={{endo}}, OLS β̂={{ols}} happens to land near β={{b}} in this sample. Try a few seeds to see whether the bias persists.",
+          "up": "Above: Cov(x,ε)={{endo}}>0, so part of x moves with the error and OLS credits that movement to x. That pushes β̂={{ols}} above the true β={{b}} (bias {{bias}}).",
+          "down": "Below: OLS β̂={{ols}} is under the true β={{b}} (bias {{bias}}). With Cov(x,ε)={{endo}} in this simulation, a negative bias is most likely sampling noise — try another seed or a larger n."
+        },
+        "instrument": {
+          "weak": "Weak: Cov(z,x)={{z}}, so z explains little of x. The IV standard error {{seIv}} is about {{ratio}}× the OLS one; estimates are unstable and in finite samples drift toward OLS. A weak instrument is not automatically better than OLS.",
+          "strong": "Strong enough: Cov(z,x)={{z}}. The IV standard error {{seIv}} is about {{ratio}}× the OLS standard error {{seOls}} — IV trades precision for consistency, the price of removing the bias."
+        },
+        "causal": "Not on that basis alone. Here IV β̂={{iv}} is credible because the simulation guarantees z affects y only through x. A real study must argue relevance (testable, e.g. first-stage F), exclusion and independence (not directly testable), and state whose effect is identified (a local average treatment effect)."
+      }
+    },
+    "capm": {
+      "short": "CAPM & SML",
+      "question": "How much extra expected return should more systematic risk (β) earn — and what does the Security Market Line not tell you?",
+      "default": "Rf=3%, E(Rm)=9%, β=1.2, and an asset return you enter of 12%. These are teaching assumptions, not data for any real stock.",
+      "limits": "CAPM is a single-period equilibrium model: investors care only about mean and variance, can borrow and lend at the risk-free rate, and the market portfolio is observable. The asset return is your own input; α is just its gap to the CAPM required return, not a forecast of future performance.",
+      "q": {
+        "position": "Which side of the SML does the asset sit on, and what is its α?",
+        "forecast": "Does a positive α mean this asset will outperform in future?",
+        "doubleBeta": "Holding everything else fixed, what is the required return if β doubles?"
+      },
+      "a": {
+        "position": {
+          "on": "On the line: required return = {{rf}}% + {{beta}}×{{prem}}% = {{req}}%, your input is {{actual}}%, so α={{alpha}}% — the return just compensates systematic risk.",
+          "above": "Above the line: required return = {{rf}}% + {{beta}}×{{prem}}% = {{req}}%, while your input is {{actual}}%, so α={{alpha}}%. Within CAPM this means the return exceeds the compensation for bearing β risk.",
+          "below": "Below the line: required return = {{rf}}% + {{beta}}×{{prem}}% = {{req}}%, but your input is only {{actual}}%, so α={{alpha}}% — it does not compensate the systematic risk taken."
+        },
+        "forecast": "No. Here α={{alpha}}% is simply your input {{actual}}% minus the model's required {{req}}%, so it depends entirely on that input and on CAPM's assumptions. Alphas estimated from history are noisy (see how β̂ drifts in the rolling-β chart below) and may reflect risk factors the model leaves out.",
+        "doubleBeta": "β goes from {{beta}} to {{beta2}}, so required return = {{rf}}% + {{beta2}}×{{prem}}% = {{req2}}%, {{diff}} points more than now. The SML is a straight line: required return rises linearly with β, while diversifiable risk earns nothing."
+      }
+    },
+    "hedge": {
+      "short": "Options delta hedge",
+      "question": "After selling an option, why must the hedge be adjusted every time the stock moves — and what risk is left once you hedge in discrete steps?",
+      "default": "Short 1 at-the-money call (S=K=100, T=0.5y, r=2%), delta-hedged with Black-Scholes Δ; pricing vol 20%, realised vol 28%, 50 rebalances a year, 10bp one-way cost; 1,500 simulated paths, seed 42.",
+      "limits": "The stock follows geometric Brownian motion with constant volatility and no jumps; the hedge ratio comes from Black-Scholes. Results show the hedging-error distribution under that model — real jumps, liquidity and model misspecification add residual risk. This is not trading advice, and there is no riskless profit here.",
+      "q": {
+        "rebalance": "If the stock rises from 100 to 110, does the hedger buy or sell shares, and roughly how many?",
+        "riskless": "If you hedge more often, does the position become completely riskless?"
+      },
+      "a": {
+        "rebalance": "Buy. At the {{sp}}% pricing vol, the call delta rises from Δ(100)={{d100}} to Δ(110)={{d110}}, so about {{diff}} more shares per 100 options. Delta changes with the stock (gamma), which is why the hedge ratio must keep being reset — the slope of the Δ curve.",
+        "riskless": {
+          "match": "No. Even with pricing and realised vol equal, the P&L standard deviation is still {{std}} at {{steps}} rebalances a year: discrete rebalancing leaves gamma error. Hedging more often shrinks it but raises costs ({{bp}}bp), and jump risk outside the model stays.",
+          "mismatch": "No. Realised vol differs from pricing vol by {{gap}} points; that vega risk remains however often you rebalance (mean now {{mean}}). At {{steps}} rebalances a year the P&L standard deviation is {{std}}; hedging more often only cuts the discretisation error while adding cost ({{bp}}bp)."
+        }
       }
     }
   }

@@ -10,6 +10,10 @@ import {
   crankNicolsonBS, hedgePnLSimulate, autocallablePrice, xvaCompute,
 } from "@/lib/quant/derivAdvanced";
 import { blackScholes } from "@/lib/quant/blackScholes";
+import { useTranslation } from "react-i18next";
+import FlagshipSummary from "@/components/common/FlagshipSummary";
+import { PathIntro, PathCheck } from "@/components/common/TeachingPath";
+import { HEDGE_DEFAULT, HEDGE_FIXED, hedgeChecks, hedgeConclusion, hedgeDeltaCurve } from "@/lib/teachingPath";
 
 /* ═════════════════════════════════════════════════════════════
    1. Merton & Kou Jump-Diffusion
@@ -241,51 +245,83 @@ export const PdeTool = () => {
    4. Delta-Hedge P&L Attribution
    ═════════════════════════════════════════════════════════════ */
 export const HedgePnLTool = () => {
-  const [sigmaPricing, setSigmaPricing] = useState(0.2);
-  const [sigmaReal, setSigmaReal] = useState(0.28);
-  const [nSteps, setNSteps] = useState(50);
-  const [cost, setCost] = useState(0.001);
+  const { t } = useTranslation();
+  const [sigmaPricing, setSigmaPricing] = useState(HEDGE_DEFAULT.sigmaPricing);
+  const [sigmaReal, setSigmaReal] = useState(HEDGE_DEFAULT.sigmaReal);
+  const [nSteps, setNSteps] = useState(HEDGE_DEFAULT.nSteps);
+  const [cost, setCost] = useState(HEDGE_DEFAULT.cost);
+  const resetDefault = () => {
+    setSigmaPricing(HEDGE_DEFAULT.sigmaPricing); setSigmaReal(HEDGE_DEFAULT.sigmaReal);
+    setNSteps(HEDGE_DEFAULT.nSteps); setCost(HEDGE_DEFAULT.cost);
+  };
 
   const res = useMemo(() =>
     hedgePnLSimulate({
-      S: 100, K: 100, T: 0.5, r: 0.02, sigmaPricing, sigmaReal,
-      nSteps, nPaths: 1500, cost, seed: 42, isCall: true,
+      S: HEDGE_FIXED.S, K: HEDGE_FIXED.K, T: HEDGE_FIXED.T, r: HEDGE_FIXED.r, sigmaPricing, sigmaReal,
+      nSteps, nPaths: HEDGE_FIXED.nPaths, cost, seed: HEDGE_FIXED.seed, isCall: true,
     }),
   [sigmaPricing, sigmaReal, nSteps, cost]);
+  const deltaCurve = useMemo(() => hedgeDeltaCurve(sigmaPricing), [sigmaPricing]);
 
   const attrData = [
-    { name: "Γ·Θ 平衡", value: +res.attribution.gammaTheta.toFixed(4) },
-    { name: "Vega × Δσ", value: +res.attribution.vega.toFixed(4) },
-    { name: "离散误差", value: +res.attribution.discreteError.toFixed(4) },
-    { name: "交易成本", value: +res.attribution.transactionCost.toFixed(4) },
+    { name: t("labs.hedgePnl.attrGammaTheta"), value: +res.attribution.gammaTheta.toFixed(4) },
+    { name: t("labs.hedgePnl.attrVega"), value: +res.attribution.vega.toFixed(4) },
+    { name: t("labs.hedgePnl.attrDiscrete"), value: +res.attribution.discreteError.toFixed(4) },
+    { name: t("labs.hedgePnl.attrCost"), value: +res.attribution.transactionCost.toFixed(4) },
   ];
+  const state = { sigmaPricing, sigmaReal, nSteps, cost };
+  const concl = hedgeConclusion(state, res);
+  const checks = hedgeChecks(state, res);
 
   return (
     <div className="space-y-5">
+      <PathIntro lab="hedge" onReset={resetDefault} />
       <PresetButtons presets={[
-        { name: "被卖出 σ", description: "σ_real > σ_price → 亏", apply: () => { setSigmaPricing(0.2); setSigmaReal(0.35); } },
-        { name: "买对 σ", description: "σ_real < σ_price → 赚", apply: () => { setSigmaPricing(0.3); setSigmaReal(0.18); } },
-        { name: "高频对冲", description: "steps=200", apply: () => setNSteps(200) },
-        { name: "日度对冲", description: "steps=25", apply: () => setNSteps(25) },
+        { name: t("labs.hedgePnl.presetShortVol"), description: t("labs.hedgePnl.presetShortVolDesc"), apply: () => { setSigmaPricing(0.2); setSigmaReal(0.35); } },
+        { name: t("labs.hedgePnl.presetLongVol"), description: t("labs.hedgePnl.presetLongVolDesc"), apply: () => { setSigmaPricing(0.3); setSigmaReal(0.18); } },
+        { name: t("labs.hedgePnl.presetMatched"), description: t("labs.hedgePnl.presetMatchedDesc"), apply: () => { setSigmaPricing(0.2); setSigmaReal(0.2); setCost(0); } },
+        { name: t("labs.hedgePnl.presetFast"), description: "steps=200", apply: () => setNSteps(200) },
+        { name: t("labs.hedgePnl.presetDaily"), description: "steps=25", apply: () => setNSteps(25) },
       ]} />
+      <FlagshipSummary
+        title="Delta hedge P&L"
+        params={{ "σ_price": sigmaPricing, "σ_real": sigmaReal, steps: nSteps, "cost bp": +(cost * 10000).toFixed(1), S: HEDGE_FIXED.S, K: HEDGE_FIXED.K, T: HEDGE_FIXED.T, r: HEDGE_FIXED.r, paths: HEDGE_FIXED.nPaths, seed: HEDGE_FIXED.seed, "mean P&L": res.meanPnL.toFixed(3), "std P&L": res.stdPnL.toFixed(3) }}
+        conclusion={t(concl.key, concl.vars)}
+      />
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
         <div className="space-y-3">
-          <p className="text-xs font-mono text-gold uppercase tracking-wider">对冲设定 (卖出 ATM Call, T=0.5)</p>
-          <Slider label="σ_定价 (卖出时的隐波)" value={sigmaPricing} min={0.05} max={0.5} step={0.01} onChange={setSigmaPricing} />
-          <Slider label="σ_真实 (标的实际波动率)" value={sigmaReal} min={0.05} max={0.6} step={0.01} onChange={setSigmaReal} />
-          <Slider label="对冲频率 (每年步数)" value={nSteps} min={5} max={250} step={5} onChange={setNSteps} />
-          <Slider label="单边交易成本" value={cost} min={0} max={0.005} step={0.0005} fmt={(v) => (v * 10000).toFixed(1) + " bp"} onChange={setCost} />
+          <p className="text-xs font-mono text-gold uppercase tracking-wider">{t("labs.hedgePnl.setup")}</p>
+          <Slider label={t("labs.hedgePnl.sigmaPricing")} value={sigmaPricing} min={0.05} max={0.5} step={0.01} onChange={setSigmaPricing} />
+          <Slider label={t("labs.hedgePnl.sigmaReal")} value={sigmaReal} min={0.05} max={0.6} step={0.01} onChange={setSigmaReal} />
+          <Slider label={t("labs.hedgePnl.steps")} value={nSteps} min={5} max={250} step={5} onChange={setNSteps} />
+          <Slider label={t("labs.hedgePnl.cost")} value={cost} min={0} max={0.005} step={0.0005} fmt={(v) => (v * 10000).toFixed(1) + " bp"} onChange={setCost} />
         </div>
         <div className="grid grid-cols-2 gap-2 content-start">
-          <Stat label="P&L 均值" value={res.meanPnL.toFixed(3)} color={res.meanPnL >= 0 ? C.green : C.red} />
-          <Stat label="P&L 标准差" value={res.stdPnL.toFixed(3)} color={C.blue} />
-          <Stat label="Vega 主导" value={res.attribution.vega.toFixed(3)} color={C.gold} sub="≈ Vega·Δσ" />
-          <Stat label="平均成本" value={res.attribution.transactionCost.toFixed(3)} color={C.red} />
+          <Stat label={t("labs.hedgePnl.mean")} value={res.meanPnL.toFixed(3)} color={res.meanPnL >= 0 ? C.green : C.red} />
+          <Stat label={t("labs.hedgePnl.std")} value={res.stdPnL.toFixed(3)} color={C.blue} sub={t("labs.hedgePnl.stdSub")} />
+          <Stat label={t("labs.hedgePnl.vega")} value={res.attribution.vega.toFixed(3)} color={C.gold} sub="≈ Vega·Δσ" />
+          <Stat label={t("labs.hedgePnl.avgCost")} value={res.attribution.transactionCost.toFixed(3)} color={C.red} />
         </div>
       </div>
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
         <div className="rounded-xl border border-border bg-secondary/20 p-4">
-          <h4 className="text-sm font-semibold text-foreground mb-2">P&L 分布</h4>
+          <h4 className="text-sm font-semibold text-foreground mb-2">{t("labs.hedgePnl.deltaTitle")}</h4>
+          <div className="h-[240px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={deltaCurve}>
+                <CartesianGrid stroke={C.grid} strokeDasharray="3 3" />
+                <XAxis dataKey="S" type="number" domain={[70, 130]} stroke={C.text} tick={{ fontSize: 10 }} />
+                <YAxis domain={[0, 1]} stroke={C.text} tick={{ fontSize: 10 }} />
+                <Tooltip contentStyle={tooltipStyle} />
+                <ReferenceLine x={HEDGE_FIXED.K} stroke={C.text} strokeDasharray="3 3" />
+                <Line type="monotone" dataKey="delta" name="Δ" stroke={C.teal} strokeWidth={2} dot={false} />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+          <p className="text-[10px] font-mono text-muted-foreground mt-2 leading-relaxed">{t("labs.hedgePnl.deltaHint")}</p>
+        </div>
+        <div className="rounded-xl border border-border bg-secondary/20 p-4">
+          <h4 className="text-sm font-semibold text-foreground mb-2">{t("labs.hedgePnl.histTitle")}</h4>
           <div className="h-[240px]">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={res.hist}>
@@ -300,7 +336,7 @@ export const HedgePnLTool = () => {
           </div>
         </div>
         <div className="rounded-xl border border-border bg-secondary/20 p-4">
-          <h4 className="text-sm font-semibold text-foreground mb-2">归因瀑布</h4>
+          <h4 className="text-sm font-semibold text-foreground mb-2">{t("labs.hedgePnl.attrTitle")}</h4>
           <div className="h-[240px]">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={attrData}>
@@ -319,6 +355,7 @@ export const HedgePnLTool = () => {
           </div>
         </div>
       </div>
+      <PathCheck lab="hedge" items={checks} onReset={resetDefault} />
     </div>
   );
 };

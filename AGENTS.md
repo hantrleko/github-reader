@@ -4,3 +4,4 @@
 - Keep uploaded introduction videos as Lovable Assets pointers, selecting one source by viewport orientation to avoid downloading both.
 - Coordinate the global newcomer introduction with the homepage splash through explicit open/close events so dialogs never compete.
 - Store automatic splash visibility per browser session; explicit replay remains available and automatic playback respects reduced motion.
+- Keep the three-lab teaching path (routes, default scenarios, scenario-specific check answers) in one pure module shared by the homepage questions and each lab, so links, defaults and copy cannot drift apart.
