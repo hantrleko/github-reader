@@ -118,7 +118,7 @@ const SplashIntro = () => {
           />
 
           {/* Top chrome */}
-          <div className="relative z-10 flex items-center justify-between px-6 md:px-10 py-6">
+          <div className="relative z-20 flex items-center justify-between px-6 md:px-10 py-6">
             <motion.div
               initial={{ opacity: 0, y: -8 }}
               animate={{ opacity: 1, y: 0 }}
@@ -135,7 +135,7 @@ const SplashIntro = () => {
               animate={{ opacity: 1 }}
               transition={{ delay: 0.4, duration: 0.6 }}
               onClick={dismiss}
-              className="font-mono text-[10px] uppercase tracking-[0.35em] text-foreground/60 hover:text-gold transition-colors"
+              className="inline-flex min-h-11 items-center px-2 font-mono text-[10px] uppercase tracking-[0.35em] text-foreground/60 hover:text-gold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold"
               aria-label="Skip intro"
             >
               Skip →
@@ -143,7 +143,7 @@ const SplashIntro = () => {
             <button
               type="button"
               onClick={(e) => { e.stopPropagation(); try { localStorage.setItem(SPLASH_SESSION_KEY, "1"); } catch { /* ignore */ } dismiss(); }}
-              className="absolute right-6 md:right-10 top-14 font-mono text-[10px] uppercase tracking-[0.25em] text-foreground/50 hover:text-gold transition-colors"
+              className="absolute right-6 md:right-10 top-14 min-h-11 px-2 font-mono text-[10px] uppercase tracking-[0.25em] text-foreground/50 hover:text-gold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold"
             >
               {t("labs.splashIntro.dontShow", { defaultValue: "不再显示" })}
             </button>

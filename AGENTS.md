@@ -5,3 +5,5 @@
 - Coordinate the global newcomer introduction with the homepage splash through explicit open/close events so dialogs never compete.
 - Store automatic splash visibility per browser session; explicit replay remains available and automatic playback respects reduced motion.
 - Keep the three-lab teaching path (routes, default scenarios, scenario-specific check answers) in one pure module shared by the homepage questions and each lab, so links, defaults and copy cannot drift apart.
+- The desktop nav shows only the group menus that fit beside the right-hand controls (measured from an invisible copy) and sends the rest to the menu button, so long translated labels never cover the language switch.
+- Floating page controls hide while they overlap elements marked `data-float-avoid` (teaching-path blocks, flagship takeaway); mark new lesson blocks rather than adding per-page padding.
