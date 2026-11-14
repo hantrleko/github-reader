@@ -3,6 +3,8 @@ import { ArrowUpRight } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { TEACHING_PATH } from "@/lib/teachingPath";
 
+const FOCUS = "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-background";
+
 /**
  * Question-led primary entry shown right after the hero: three teaching
  * questions, each opening the exact lab tab that answers it, in path order.
@@ -19,7 +21,7 @@ const EntryCards = () => {
           {TEACHING_PATH.map((step, i) => (
             <li key={step.id}>
               <Link to={step.to} data-testid={`home-question-${step.id}`}
-                className="group flex h-full flex-col rounded-xl border border-border/60 bg-card/45 p-5 hover:border-gold/50 hover:bg-card/70 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold">
+                className={`group flex h-full min-w-0 flex-col break-words rounded-xl border border-border/60 bg-card/45 p-5 hover:border-gold/50 hover:bg-card/70 transition-colors ${FOCUS}`}>
                 <span className="text-[10px] font-mono uppercase tracking-[0.2em] text-gold/80">
                   {String(i + 1).padStart(2, "0")} · {t(`path.${step.id}.short`)}
                 </span>
@@ -34,10 +36,10 @@ const EntryCards = () => {
             </li>
           ))}
         </ol>
-        <p className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs font-mono text-muted-foreground">
-          <span>{t("home.questions.more")}</span>
-          <Link to="/workflows" className="hover:text-gold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold rounded">{t("home.entry.playbooks.cta")} →</Link>
-          <Link to="/s/backtest" className="hover:text-gold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold rounded">{t("home.entry.homework.secondary")} →</Link>
+        <p className="mt-4 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs font-mono text-muted-foreground">
+          <span className="mr-1">{t("home.questions.more")}</span>
+          <Link to="/workflows" className={`inline-flex min-h-11 items-center rounded px-2 hover:text-gold ${FOCUS}`}>{t("home.entry.playbooks.cta")} →</Link>
+          <Link to="/s/backtest" className={`inline-flex min-h-11 items-center rounded px-2 hover:text-gold ${FOCUS}`}>{t("home.entry.homework.secondary")} →</Link>
         </p>
       </div>
     </section>

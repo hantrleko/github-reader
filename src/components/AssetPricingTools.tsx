@@ -152,9 +152,9 @@ const CATEGORIES: ToolCategory[] = [
   const Active = TOOLS.find(toolEntry => toolEntry.id === tool)!;
 
   return (
-    <section className="py-24 px-6 relative">
+    <section className="py-24 px-3 sm:px-6 relative">
       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-card/20 to-transparent pointer-events-none" />
-      <div className="container relative z-10 max-w-5xl">
+      <div className="container relative z-10 max-w-5xl px-0 sm:px-8">
         <motion.div className="text-center mb-12" initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}>
           <p className="text-xs font-mono uppercase tracking-[0.3em] text-gold mb-3">Asset Pricing</p>
           <h2 className="text-3xl md:text-5xl font-display font-bold text-foreground">{t("labs.assetPricing.title")}</h2>
@@ -171,7 +171,7 @@ const CATEGORIES: ToolCategory[] = [
         />
 
         <motion.div key={tool} ref={captureRef} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35 }}
-          className="rounded-2xl border border-border bg-card p-6 md:p-10 glow-gold">
+          className="rounded-2xl border border-border bg-card p-4 sm:p-6 md:p-10 glow-gold">
           <div className="flex justify-end mb-4">
             <ShareExportToolbar storageKey="asset" anchorId="asset-pricing" state={{ tool }} captureRef={captureRef} filename={`asset-${tool}`} />
           </div>
