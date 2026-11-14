@@ -16,6 +16,7 @@ import {
   TEACHING_PATH, PATH_HOME, nextStep, capmChecks, CAPM_DEFAULT, hedgeChecks, HEDGE_DEFAULT,
   olsivChecks, OLSIV_DEFAULT, hedgeDelta, hedgeConclusion,
 } from "@/lib/teachingPath";
+import { boxesOverlap, FLOAT_AVOID_ATTR } from "@/hooks/useAvoidOverlap";
 
 beforeAll(() => {
   class RO { observe() {} unobserve() {} disconnect() {} }
@@ -141,6 +142,46 @@ describe("path controls after the polish pass", () => {
     await act(async () => { await i18n.changeLanguage("zh"); });
     expect(btn).toHaveTextContent(zh.path.hideAnswer);
     expect(document.getElementById(btn.getAttribute("aria-controls")!)).toHaveTextContent("10.20%");
+  });
+});
+
+describe("Reset clears stale quiz feedback", () => {
+  it("check-block Reset closes revealed answers and restores the default numbers", () => {
+    inRouter(<CAPMTool />);
+    const check = screen.getByTestId("path-check-capm");
+    fireEvent.click(within(check).getAllByRole("button", { name: en.path.showAnswer })[0]);
+    fireEvent.change(screen.getAllByRole("slider")[3], { target: { value: "0" } }); // asset return 0%
+    const open = within(check).getByRole("button", { name: en.path.hideAnswer });
+    expect(document.getElementById(open.getAttribute("aria-controls")!)).toHaveTextContent("α=-10.20%");
+    fireEvent.click(within(check).getByTestId("path-reset"));
+    expect(within(check).queryByRole("button", { name: en.path.hideAnswer })).toBeNull();
+    expect(within(check).getAllByRole("button", { name: en.path.showAnswer })).toHaveLength(3);
+    const first = within(check).getAllByRole("button", { name: en.path.showAnswer })[0];
+    fireEvent.click(first);
+    expect(document.getElementById(first.getAttribute("aria-controls")!)).toHaveTextContent("α=+1.80%");
+  });
+  it("intro Reset also closes answers in the check block of the same lab", () => {
+    inRouter(<HedgePnLTool />);
+    const check = screen.getByTestId("path-check-hedge");
+    fireEvent.click(within(check).getAllByRole("button", { name: en.path.showAnswer })[1]);
+    expect(within(check).getAllByRole("button", { name: en.path.hideAnswer })).toHaveLength(1);
+    fireEvent.click(within(screen.getByTestId("path-intro-hedge")).getByTestId("path-reset"));
+    expect(within(check).queryByRole("button", { name: en.path.hideAnswer })).toBeNull();
+  });
+});
+
+describe("floating controls step aside over path blocks", () => {
+  it("overlap test counts the padding and ignores separated boxes", () => {
+    const float = { top: 700, bottom: 744, left: 16, right: 150 };
+    expect(boxesOverlap(float, { top: 100, bottom: 705, left: 29, right: 331 })).toBe(true);
+    expect(boxesOverlap(float, { top: 100, bottom: 695, left: 29, right: 331 })).toBe(true); // within 8px pad
+    expect(boxesOverlap(float, { top: 100, bottom: 680, left: 29, right: 331 })).toBe(false);
+    expect(boxesOverlap(float, { top: 600, bottom: 900, left: 170, right: 331 })).toBe(false);
+  });
+  it("teaching-path blocks carry the avoid marker", () => {
+    inRouter(<OLSvsIV />);
+    expect(screen.getByTestId("path-intro-olsiv")).toHaveAttribute(FLOAT_AVOID_ATTR);
+    expect(screen.getByTestId("path-check-olsiv")).toHaveAttribute(FLOAT_AVOID_ATTR);
   });
 });
 

@@ -1,4 +1,5 @@
-import { useId, useState } from "react";
+import { useEffect, useId, useState } from "react";
+import { FLOAT_AVOID_ATTR } from "@/hooks/useAvoidOverlap";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { ArrowRight, ChevronDown, HelpCircle, RotateCcw } from "lucide-react";
@@ -18,12 +19,15 @@ const FOCUS = "scroll-my-24 focus-visible:outline-none focus-visible:ring-2 focu
 const SECONDARY_BTN = `inline-flex min-h-11 w-full sm:w-auto items-center justify-center gap-1.5 rounded-md border border-border px-4 py-2 text-xs font-mono text-muted-foreground hover:text-gold hover:border-gold/40 ${FOCUS}`;
 const PRIMARY_BTN = `inline-flex min-h-11 w-full sm:w-auto items-center justify-center gap-2 rounded-lg sm:rounded-full bg-gold px-5 py-2 text-center text-xs font-mono uppercase tracking-wide text-background hover:opacity-90 ${FOCUS}`;
 
+const RESET_EVENT = "ef:path-reset";
+const announceReset = (lab: PathLabId) => window.dispatchEvent(new CustomEvent<PathLabId>(RESET_EVENT, { detail: lab }));
+
 export const PathIntro = ({ lab, onReset }: { lab: PathLabId; onReset: () => void }) => {
   const { t } = useTranslation();
   const idx = pathIndex(lab);
   const headingId = useId();
   return (
-    <section aria-labelledby={headingId} data-testid={`path-intro-${lab}`}
+    <section aria-labelledby={headingId} data-testid={`path-intro-${lab}`} {...{ [FLOAT_AVOID_ATTR]: "" }}
       className="min-w-0 rounded-xl border border-gold/30 bg-gold/5 p-4 md:p-5 space-y-4 break-words">
       <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
         <p className="text-[10px] font-mono uppercase tracking-[0.2em] text-gold">
@@ -33,7 +37,7 @@ export const PathIntro = ({ lab, onReset }: { lab: PathLabId; onReset: () => voi
           {TEACHING_PATH.map((s, i) => (
             <li key={s.id}>
               <Link to={s.to} aria-current={i === idx ? "step" : undefined}
-                className={`inline-flex min-h-9 items-center whitespace-nowrap rounded-full px-3 py-1 text-[11px] font-mono border ${FOCUS} ${i === idx ? "border-gold text-gold bg-gold/10" : "border-border text-muted-foreground hover:text-gold"}`}>
+                className={`inline-flex min-h-11 items-center whitespace-nowrap rounded-full px-3 py-1 text-[11px] font-mono border ${FOCUS} ${i === idx ? "border-gold text-gold bg-gold/10" : "border-border text-muted-foreground hover:text-gold"}`}>
                 {i + 1}. {t(`path.${s.id}.short`)}
               </Link>
             </li>
@@ -55,7 +59,7 @@ export const PathIntro = ({ lab, onReset }: { lab: PathLabId; onReset: () => voi
       </dl>
       <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center sm:justify-between gap-3 border-t border-gold/20 pt-3">
         <p className="text-[11px] font-mono text-muted-foreground leading-relaxed">{t("path.simulated")}</p>
-        <button type="button" onClick={onReset} data-testid="path-reset" className={SECONDARY_BTN}>
+        <button type="button" onClick={() => { onReset(); announceReset(lab); }} data-testid="path-reset" className={SECONDARY_BTN}>
           <RotateCcw className="w-3.5 h-3.5 shrink-0" aria-hidden /> {t("path.reset")}
         </button>
       </div>
@@ -90,8 +94,16 @@ export const PathCheck = ({ lab, items, onReset }: { lab: PathLabId; items: Chec
   const { t } = useTranslation();
   const next = nextStep(lab);
   const headingId = useId();
+  // Bumped on every Reset (here or in the intro) so revealed answers close
+  // and the learner re-reads them for the restored default scenario.
+  const [epoch, setEpoch] = useState(0);
+  useEffect(() => {
+    const onReset = (e: Event) => { if ((e as CustomEvent<PathLabId>).detail === lab) setEpoch((n) => n + 1); };
+    window.addEventListener(RESET_EVENT, onReset);
+    return () => window.removeEventListener(RESET_EVENT, onReset);
+  }, [lab]);
   return (
-    <section aria-labelledby={headingId} data-testid={`path-check-${lab}`}
+    <section aria-labelledby={headingId} data-testid={`path-check-${lab}`} {...{ [FLOAT_AVOID_ATTR]: "" }}
       className="min-w-0 rounded-xl border border-border bg-card/60 p-4 md:p-5 space-y-4 break-words">
       <div className="space-y-1">
         <h4 id={headingId} className="flex items-center gap-2 text-sm font-semibold text-foreground">
@@ -100,10 +112,10 @@ export const PathCheck = ({ lab, items, onReset }: { lab: PathLabId; items: Chec
         <p className="text-[11px] text-muted-foreground leading-relaxed">{t("path.checkHint")}</p>
       </div>
       <ol className="space-y-3">
-        {items.map((it, i) => <CheckQuestion key={it.id} lab={lab} item={it} index={i} />)}
+        {items.map((it, i) => <CheckQuestion key={`${it.id}-${epoch}`} lab={lab} item={it} index={i} />)}
       </ol>
       <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center sm:justify-between gap-3 border-t border-border/60 pt-4">
-        <button type="button" onClick={onReset} data-testid="path-reset" className={SECONDARY_BTN}>
+        <button type="button" onClick={() => { onReset(); announceReset(lab); }} data-testid="path-reset" className={SECONDARY_BTN}>
           <RotateCcw className="w-3.5 h-3.5 shrink-0" aria-hidden /> {t("path.reset")}
         </button>
         {next ? (

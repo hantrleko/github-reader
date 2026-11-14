@@ -23,7 +23,7 @@ const FlagshipSummary = ({ title, params, conclusion }: {
     } catch { /* clipboard unavailable */ }
   };
   return (
-    <div className="flex flex-col sm:flex-row sm:items-center gap-3 rounded-lg border border-gold/30 bg-gold/5 px-4 py-3">
+    <div data-float-avoid="" className="flex flex-col sm:flex-row sm:items-center gap-3 rounded-lg border border-gold/30 bg-gold/5 px-4 py-3">
       <p className="flex-1 text-sm text-foreground" aria-live="polite">
         <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-gold mr-2">{t("flagship.conclusion")}</span>
         {conclusion}

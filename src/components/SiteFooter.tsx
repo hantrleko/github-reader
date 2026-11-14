@@ -21,7 +21,7 @@ const SiteFooter = () => {
   const domains = NAV_GROUPS.filter((g) => g.id !== "ungrouped").slice(0, 8);
 
   return (
-    <footer className="mt-16 px-6 border-t border-accent/40 bg-background/90 backdrop-blur-lg">
+    <footer className="mt-16 px-6 pb-20 sm:pb-0 border-t border-accent/40 bg-background/90 backdrop-blur-lg">
       <div className="container max-w-6xl py-12">
         <div className="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-4 gap-8 mb-10">
           {/* Brand — mirrors the navbar masthead */}

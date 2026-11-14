@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback, KeyboardEvent } from "react";
+import { useState, useEffect, useLayoutEffect, useRef, useCallback, KeyboardEvent } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { Menu, X, ChevronDown } from "lucide-react";
@@ -64,6 +64,48 @@ const Navbar = () => {
   const groupBtnRefs = useRef<Record<string, HTMLButtonElement | null>>({});
   const mobileBtnRef = useRef<HTMLButtonElement>(null);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
+  const barRef = useRef<HTMLDivElement>(null);
+  const logoRef = useRef<HTMLButtonElement>(null);
+  const toolsRef = useRef<HTMLDivElement>(null);
+  const measureRef = useRef<HTMLUListElement>(null);
+
+  /* ─── Desktop group bar: show only the groups that fit ───
+   * Long labels (e.g. English) are wider than the space between the logo and
+   * the right-hand controls at common laptop widths. Instead of letting the
+   * bar spill over the language switch, render the groups that fit and fall
+   * back to the menu button (which lists every group) for the rest. Widths
+   * come from an invisible copy of the bar so they stay correct after a
+   * language or font change. */
+  const [visibleCount, setVisibleCount] = useState(GROUPS.length);
+  useLayoutEffect(() => {
+    const bar = barRef.current, logo = logoRef.current, tools = toolsRef.current, measure = measureRef.current;
+    if (!bar || !logo || !tools || !measure) return;
+    const MENU_BTN = 28 + 4; // menu button width + gap-1
+    const GAP = 16; // gap-4 between logo, group bar and controls
+    const compute = () => {
+      const items = Array.from(measure.children) as HTMLElement[];
+      if (!items.length || measure.offsetWidth === 0) { setVisibleCount(GROUPS.length); return; }
+      const cs = getComputedStyle(bar);
+      const inner = bar.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+      const menuBtn = mobileBtnRef.current;
+      const toolsW = tools.offsetWidth - (menuBtn && menuBtn.offsetWidth ? menuBtn.offsetWidth + 4 : 0);
+      const avail = inner - logo.offsetWidth - toolsW - GAP * 2 - 2;
+      const right = (i: number) => items[i].offsetLeft + items[i].offsetWidth - items[0].offsetLeft;
+      if (right(items.length - 1) <= avail) { setVisibleCount(items.length); return; }
+      let n = 0;
+      while (n < items.length && right(n) <= avail - MENU_BTN) n++;
+      setVisibleCount(n);
+    };
+    compute();
+    const ro = new ResizeObserver(compute);
+    [bar, logo, tools, measure].forEach((el) => ro.observe(el));
+    return () => ro.disconnect();
+  }, []);
+  const shownGroups = GROUPS.slice(0, visibleCount);
+  const allGroupsShown = visibleCount >= GROUPS.length;
+  useEffect(() => {
+    if (openGroup && GROUPS.findIndex((g) => g.labelKey === openGroup) >= visibleCount) setOpenGroup(null);
+  }, [openGroup, visibleCount]);
 
   /* ─── Active section derived from the current route ─── */
   const active = location.pathname.startsWith("/s/")
@@ -233,11 +275,11 @@ const Navbar = () => {
       setOpenGroup(group.labelKey);
     } else if (e.key === "ArrowRight") {
       e.preventDefault();
-      const next = GROUPS[(gIdx + 1) % GROUPS.length];
+      const next = shownGroups[(gIdx + 1) % shownGroups.length];
       groupBtnRefs.current[next.labelKey]?.focus();
     } else if (e.key === "ArrowLeft") {
       e.preventDefault();
-      const prev = GROUPS[(gIdx - 1 + GROUPS.length) % GROUPS.length];
+      const prev = shownGroups[(gIdx - 1 + shownGroups.length) % shownGroups.length];
       groupBtnRefs.current[prev.labelKey]?.focus();
     }
   };
@@ -255,8 +297,9 @@ const Navbar = () => {
       className="fixed top-0 left-0 right-0 z-50 bg-background/90 backdrop-blur-lg border-b border-accent/40"
       aria-label="Primary"
     >
-      <div className="container flex items-center justify-between h-14 gap-4">
+      <div ref={barRef} className="container relative flex items-center justify-between h-14 gap-4">
         <button
+          ref={logoRef}
           onClick={() => scrollTo("hero")}
           className="flex flex-col items-start leading-none hover:text-gold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/60 rounded shrink-0 whitespace-nowrap"
         >
@@ -269,8 +312,17 @@ const Navbar = () => {
         </button>
 
         {/* Desktop grouped */}
+        {/* Invisible copy used only to measure how many group labels fit */}
+        <ul ref={measureRef} aria-hidden="true" data-testid="nav-measure"
+          className="hidden xl:flex invisible pointer-events-none absolute left-0 top-0 flex-nowrap items-center gap-0 2xl:gap-0.5">
+          {GROUPS.map((g) => (
+            <li key={g.labelKey} className="px-1.5 py-1 text-[10px] font-mono font-semibold whitespace-nowrap flex items-center gap-0.5 2xl:gap-1">
+              {t(g.labelKey, g.label)}<span className="w-1 h-1" /><ChevronDown className="w-3 h-3" />
+            </li>
+          ))}
+        </ul>
         <ul className="hidden xl:flex flex-nowrap items-center gap-0 2xl:gap-0.5 min-w-0" role="menubar">
-          {GROUPS.map((g, gIdx) => {
+          {shownGroups.map((g, gIdx) => {
             const groupActive = isGroupActive(g);
             const open = openGroup === g.labelKey;
             const menuId = `menu-${gIdx}`;
@@ -345,7 +397,7 @@ const Navbar = () => {
           })}
         </ul>
 
-        <div className="flex items-center gap-1 shrink-0">
+        <div ref={toolsRef} className="relative z-10 flex items-center gap-1 shrink-0">
           <VersionBadge className="hidden 2xl:inline-flex mr-1" />
 
           {/* Consolidated "More" pages dropdown (desktop) */}
@@ -403,7 +455,8 @@ const Navbar = () => {
           <UserMenu />
           <button
             ref={mobileBtnRef}
-            className="xl:hidden p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/60"
+            className={cn("p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/60", allGroupsShown && "xl:hidden")}
+            data-testid="nav-menu-button"
             onClick={() => setMobileOpen(!mobileOpen)}
             aria-label="Toggle menu"
             aria-haspopup="true"
@@ -422,7 +475,7 @@ const Navbar = () => {
           id="mobile-menu"
           role="menu"
           aria-label="Mobile navigation"
-          className="xl:hidden border-t border-border/50 bg-background/95 backdrop-blur-lg max-h-[70vh] overflow-y-auto"
+          className={cn("border-t border-border/50 bg-background/95 backdrop-blur-lg max-h-[70vh] overflow-y-auto", allGroupsShown && "xl:hidden")}
         >
           <div className="container py-3 space-y-3">
             {GROUPS.map((g) => (

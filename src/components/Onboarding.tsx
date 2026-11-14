@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useAvoidOverlap } from "@/hooks/useAvoidOverlap";
 import { useTranslation } from "react-i18next";
 import { ArrowRight, Play, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -15,6 +16,8 @@ const Onboarding = () => {
   const [open, setOpen] = useState(false);
   const [portrait, setPortrait] = useState(() => window.matchMedia("(orientation: portrait)").matches);
   const [failed, setFailed] = useState(false);
+  const floatRef = useRef<HTMLButtonElement>(null);
+  const covering = useAvoidOverlap(floatRef);
 
   useEffect(() => {
     const media = window.matchMedia("(orientation: portrait)");
@@ -46,8 +49,8 @@ const Onboarding = () => {
 
   return (
     <>
-      <Button variant="outline" size="sm" onClick={() => changeOpen(true)}
-        className="fixed bottom-4 left-4 md:left-16 z-40 border-gold/40 bg-card/95 text-gold shadow-lg">
+      <Button ref={floatRef} variant="outline" size="sm" onClick={() => changeOpen(true)} data-testid="float-intro"
+        className={`fixed bottom-4 left-4 md:left-16 z-40 h-11 px-4 border-gold/40 bg-card/95 text-gold shadow-lg transition-opacity duration-200 ${covering ? "opacity-0 invisible pointer-events-none" : "opacity-100"}`}>
         <Play />{english ? "Introduction" : "新手介绍"}
       </Button>
       <Dialog open={open} onOpenChange={changeOpen}>
