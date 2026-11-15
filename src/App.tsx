@@ -1,4 +1,4 @@
-import { lazy, Suspense } from "react";
+import { Suspense } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { ThemeProvider } from "next-themes";
@@ -10,63 +10,33 @@ import Onboarding from "@/components/Onboarding";
 import OfflineBanner from "@/components/OfflineBanner";
 import ScrollManager from "@/components/ScrollManager";
 import { AuthProvider } from "@/hooks/useAuth";
-import { toast } from "sonner";
 import { reportClientError } from "@/lib/errorReport";
+import { CHUNK_ERR_RE, retryableLazy } from "@/lib/lazyLoad";
+import SectionErrorBoundary from "@/components/SectionErrorBoundary";
+import LoadingHint from "@/components/LoadingHint";
+import UpdatePrompt from "@/components/UpdatePrompt";
 
 /**
- * Reload-once recovery for stale chunk hashes after a new deploy.
- * When the browser holds an old index.html, dynamic imports point at
- * filenames that no longer exist and throw "error loading dynamically
- * imported module". A single reload fetches fresh hashes.
+ * Route-level lazy pages. A failed download is reported and shown by the
+ * route error boundary below with an explanation and a Retry button; it never
+ * hangs Suspense and never reloads the page on its own.
  */
-const CHUNK_ERR_RE =
-  /error loading dynamically imported module|dynamically imported module|Failed to fetch dynamically imported module|Importing a module script failed|ChunkLoadError|Loading chunk \d+ failed/i;
-
-let chunkToastShown = false;
-const notifyChunkError = () => {
-  if (chunkToastShown || typeof window === "undefined") return;
-  chunkToastShown = true;
-  toast.error("检测到新版本", {
-    description: "页面资源已更新，请刷新以加载最新内容。",
-    duration: Infinity,
-    action: {
-      label: "立即刷新",
-      onClick: () => window.location.reload(),
-    },
-    onDismiss: () => {
-      chunkToastShown = false;
-    },
+const lazyWithRetry = <T extends Parameters<typeof retryableLazy>[0]>(factory: T) =>
+  retryableLazy(factory, (err) => {
+    const msg = String((err as Error)?.message ?? err ?? "");
+    reportClientError({
+      type: CHUNK_ERR_RE.test(msg) ? "chunk-load" : "manual",
+      message: msg,
+      stack: (err as Error)?.stack,
+      failedAsset: (err as { url?: string })?.url,
+      extra: { source: "lazyWithRetry", online: navigator.onLine },
+    });
   });
-};
-
-const lazyWithRetry = <T,>(factory: () => Promise<T>) =>
-  lazy(() =>
-    (factory() as Promise<any>).catch((err) => {
-      const msg = String(err?.message ?? err ?? "");
-      if (CHUNK_ERR_RE.test(msg)) {
-        reportClientError({
-          type: "chunk-load",
-          message: msg,
-          stack: (err as Error)?.stack,
-          failedAsset: (err as { url?: string })?.url,
-        });
-        notifyChunkError();
-        // Hold Suspense indefinitely so the broken route doesn't flash an
-        // error boundary — the user controls when to reload.
-        return new Promise(() => {});
-      }
-      reportClientError({
-        type: "manual",
-        message: msg,
-        stack: (err as Error)?.stack,
-        extra: { source: "lazyWithRetry" },
-      });
-      throw err;
-    })
-  );
 
 if (typeof window !== "undefined") {
-  // Catch chunk errors that surface outside of React.lazy (e.g. prefetch).
+  // Report asset errors that surface outside of React.lazy (e.g. prefetch).
+  // No "new version" toast here: a failed download is usually the network,
+  // and real new versions are announced by UpdatePrompt after a version check.
   window.addEventListener("error", (e) => {
     const msg = String(e?.message ?? "");
     const failedAsset =
@@ -82,7 +52,6 @@ if (typeof window !== "undefined") {
         stack: (e?.error as Error)?.stack,
         failedAsset,
       });
-      notifyChunkError();
     } else if (msg) {
       reportClientError({
         type: "window-error",
@@ -90,24 +59,16 @@ if (typeof window !== "undefined") {
         stack: (e?.error as Error)?.stack,
       });
     }
-  });
+  }, true);
   window.addEventListener("unhandledrejection", (e) => {
     const reason = (e as PromiseRejectionEvent)?.reason;
     const msg = String(reason?.message ?? reason ?? "");
-    if (CHUNK_ERR_RE.test(msg)) {
-      reportClientError({
-        type: "chunk-load",
-        message: msg,
-        stack: (reason as Error)?.stack,
-      });
-      notifyChunkError();
-    } else if (msg) {
-      reportClientError({
-        type: "unhandled-rejection",
-        message: msg,
-        stack: (reason as Error)?.stack,
-      });
-    }
+    if (!msg) return;
+    reportClientError({
+      type: CHUNK_ERR_RE.test(msg) ? "chunk-load" : "unhandled-rejection",
+      message: msg,
+      stack: (reason as Error)?.stack,
+    });
   });
 }
 
@@ -133,8 +94,9 @@ const Gallery = lazyWithRetry(() => import("./pages/Gallery.tsx"));
 const NotFound = lazyWithRetry(() => import("./pages/NotFound.tsx"));
 
 const RouteFallback = () => (
-  <div className="min-h-screen bg-background flex items-center justify-center">
-    <div className="h-8 w-8 rounded-full border-2 border-gold border-t-transparent animate-spin" />
+  <div className="min-h-screen bg-background flex flex-col items-center justify-center gap-3">
+    <div aria-hidden className="h-8 w-8 rounded-full border-2 border-gold border-t-transparent animate-spin" />
+    <LoadingHint what="page" />
   </div>
 );
 
@@ -158,6 +120,7 @@ const App = () => (
         <BrowserRouter>
           <AuthProvider>
             <ScrollManager />
+            <SectionErrorBoundary variant="page">
             <Suspense fallback={<RouteFallback />}>
               <Routes>
                 <Route path="/" element={<Index />} />
@@ -183,9 +146,11 @@ const App = () => (
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </Suspense>
+            </SectionErrorBoundary>
             <CommandPalette />
             <Onboarding />
             <OfflineBanner />
+            <UpdatePrompt />
           </AuthProvider>
         </BrowserRouter>
       </TooltipProvider>

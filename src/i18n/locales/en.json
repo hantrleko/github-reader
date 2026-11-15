@@ -13,6 +13,24 @@
       "message": " encountered an error. Please retry or refresh the page.",
       "retry": "Retry",
       "module": "This module"
+    },
+    "loadError": {
+      "offlineTitle": "Offline · this part isn't downloaded yet",
+      "offlineBody": "You're offline and this part of the page hasn't been downloaded to this device yet. Reconnect, then press Retry.",
+      "chunkTitle": "This part of the page didn't finish downloading",
+      "chunkBody": "The connection may have dropped, or a new version of the site was just published. Press Retry first; if it still fails, reload the page (reloading clears unsaved inputs and any pinned baseline).",
+      "reload": "Reload page"
+    },
+    "loadingHint": {
+      "page": "Loading the page…",
+      "tool": "Loading the interactive tool…",
+      "slow": "This is taking longer than usual — the connection may be slow. The tool appears as soon as it finishes downloading."
+    },
+    "appUpdate": {
+      "title": "A new version of the site is available",
+      "body": "Refresh to use it. Refreshing clears unsaved inputs and any pinned baseline, so note your results first.",
+      "refresh": "Refresh",
+      "later": "Later"
     }
   },
   "nav": {

@@ -9,6 +9,7 @@ import Seo from "@/components/Seo";
 import ScrollUtilities from "@/components/ScrollUtilities";
 import KeyboardHelp from "@/components/KeyboardHelp";
 import SectionErrorBoundary from "@/components/SectionErrorBoundary";
+import LoadingHint from "@/components/LoadingHint";
 import SectionHeader from "@/components/common/SectionHeader";
 import SiteFooter from "@/components/SiteFooter";
 import { GROUP_OF, SECTION_MAP, SECTIONS, sectionLabel, sectionSubtitle } from "@/lib/sections";
@@ -27,6 +28,9 @@ const SectionFallback = () => (
             animation: "shimmer 1.6s ease-in-out infinite",
           }}
         />
+        <div className="relative mb-6">
+          <LoadingHint what="tool" />
+        </div>
         <div className="flex items-center gap-2 mb-5">
           <span className="h-1.5 w-1.5 rounded-full bg-gold animate-pulse" />
           <div className="h-3 w-32 rounded bg-muted/50 animate-pulse" />

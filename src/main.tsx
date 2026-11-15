@@ -6,10 +6,11 @@ import "./i18n";
 import { checkBuildVersion } from "./lib/buildVersion";
 import { setupServiceWorker } from "./lib/registerSW";
 
-// Fire-and-forget: if a new deploy is detected, this clears caches and reloads.
+// Records the running build id; never reloads or clears caches.
 checkBuildVersion();
-// Register service worker (skipped automatically in iframe/preview).
-setupServiceWorker();
+// Register service worker (skipped in dev/iframe/preview). New versions are
+// offered through a refresh prompt, never applied by a silent reload.
+void setupServiceWorker();
 
 createRoot(document.getElementById("root")!).render(
   <HelmetProvider>

@@ -41,21 +41,28 @@ export default defineConfig(({ mode }) => ({
       devOptions: { enabled: false },
       manifest: false, // we ship our own /public/manifest.json
       workbox: {
-        navigateFallback: "/index.html",
-        navigateFallbackDenylist: [/^\/~oauth/, /^\/auth/, /^\/api\//],
+        // Page visits always ask the network for index.html, so a new deploy is
+        // seen on the very next visit even while an older worker still controls
+        // the tab. No NavigationRoute (navigateFallback) and no directory-index
+        // mapping: both answered navigations from the precached, possibly old
+        // index.html before the runtime rule below could run. The precached
+        // shell is only the offline fallback, and it always matches the assets
+        // precached by the same worker.
+        navigateFallback: null,
+        directoryIndex: "",
         globPatterns: ["**/*.{js,css,html,svg,png,ico,woff2}"],
         cleanupOutdatedCaches: true,
         clientsClaim: true,
-        skipWaiting: true, // new deploy takes over immediately
+        // New workers still take over at once (visitors on older workers depend
+        // on it); the page never reloads by itself — src/lib/registerSW.ts asks.
+        skipWaiting: true,
         runtimeCaching: [
           {
-            // HTML — NetworkFirst so a new deploy is picked up immediately
-            urlPattern: ({ request }) => request.mode === "navigate",
-            handler: "NetworkFirst",
+            urlPattern: ({ request, url }) =>
+              request.mode === "navigate" && !/^\/(~oauth|auth|api)(\/|$)/.test(url.pathname),
+            handler: "NetworkOnly",
             options: {
-              cacheName: "html",
-              networkTimeoutSeconds: 3,
-              expiration: { maxEntries: 20, maxAgeSeconds: 60 * 60 * 24 },
+              precacheFallback: { fallbackURL: "/index.html" },
             },
           },
           {

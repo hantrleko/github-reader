@@ -1,4 +1,5 @@
-import { lazy, type ComponentType, type LazyExoticComponent } from "react";
+import type { ComponentType } from "react";
+import { retryableLazy as lazy } from "@/lib/lazyLoad";
 import type { TFunction } from "i18next";
 
 /** Learning tier of a page — drives the domain hub's ordering + badges. */
@@ -19,7 +20,8 @@ export type SectionDef = {
   level?: SectionLevel;
   /** ids of sections worth reading first */
   prereq?: string[];
-  Component: LazyExoticComponent<ComponentType<unknown>>;
+  /** Retryable lazy tool (see src/lib/lazyLoad.ts). */
+  Component: ComponentType;
 };
 
 

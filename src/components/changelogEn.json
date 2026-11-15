@@ -790,5 +790,9 @@
  "OLS/IV、CAPM/SML、期权对冲三个教学实验可把当前结果固定为基准，调参后逐项显示「基准 / 当前 / 差值」": "The OLS/IV, CAPM/SML and options-hedge teaching labs can pin the current results as a baseline and, after you change inputs, show each key result as baseline / current / difference",
  "百分比结果的差值以「个百分点」标注，其余为绝对差；无结果显示「—」；多个参数同时改动时不归因于单一参数；「恢复默认情景」同时清除基准": "Differences of percentages are labelled in percentage points (pp), others are absolute; missing results show “—”; when several inputs change the difference is not attributed to any single one; Reset also clears the baseline",
  "浮动按钮点击修复": "Floating button click fix",
- "浮动按钮（新手介绍、回到顶部、键盘快捷键）让开时立即完全隐藏，不再在淡出的约 0.2 秒内「看得见却点不动」；显示时始终能直接点击，让开时仍可用键盘聚焦": "Floating buttons (Introduction, back to top, keyboard shortcuts) now hide instantly when they step aside, instead of looking clickable but ignoring clicks during a ~0.2 s fade-out; when shown they always take the click, and they stay keyboard-focusable while hidden"
+ "浮动按钮（新手介绍、回到顶部、键盘快捷键）让开时立即完全隐藏，不再在淡出的约 0.2 秒内「看得见却点不动」；显示时始终能直接点击，让开时仍可用键盘聚焦": "Floating buttons (Introduction, back to top, keyboard shortcuts) now hide instantly when they step aside, instead of looking clickable but ignoring clicks during a ~0.2 s fade-out; when shown they always take the click, and they stay keyboard-focusable while hidden",
+ "更新可靠性（7.6.2）": "Update reliability (7.6.2)",
+ "发布新版本后，打开页面总是先向服务器取最新页面；离线时才使用本机缓存，不会再被旧缓存卡在旧版本": "After a new release, opening a page always asks the server for the latest version first; the saved copy is used only offline, so an old cache can no longer keep you on an old version",
+ "发现新版本时提示「刷新」，由你决定何时刷新；页面不再自动刷新，调好的参数和已固定的基准不会被悄悄清空": "When a new version is out you get a Refresh prompt and choose when to refresh; the page no longer refreshes by itself, so your inputs and a pinned baseline are not silently lost",
+ "工具加载较慢时显示「正在加载」提示；下载失败时说明是离线还是下载中断，并提供「重试」，不会无限转圈": "Slow tools show a loading note; a failed download says whether you're offline or the download broke, with a Retry button instead of an endless spinner"
 }
