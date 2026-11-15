@@ -268,6 +268,9 @@ describe("global float rule: content anywhere, not a component list", () => {
     expect(floatCoversContent(float, () => para, () => [{ top: 710, bottom: 730, left: 20, right: 300 }], vp)).toBe(true);
     // Same paragraph, but its text ends well above the float: safe.
     expect(floatCoversContent(float, () => para, () => [{ top: 500, bottom: 520, left: 20, right: 300 }], vp)).toBe(false);
+    // A chart legend overlay on top of the chart: the chart one layer down still counts.
+    const legend = document.createElement("ul"); d.appendChild(legend);
+    expect(floatCoversContent(float, () => [legend, chart, card], () => [], vp)).toBe(true);
     // Empty card padding / page background: safe.
     expect(floatCoversContent(float, () => card, () => [], vp)).toBe(false);
     expect(floatCoversContent(float, () => null, () => [], vp)).toBe(false);

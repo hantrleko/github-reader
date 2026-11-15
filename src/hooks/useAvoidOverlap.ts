@@ -85,32 +85,37 @@ export function textBoxes(el: Element, near: Box, maxNodes = 400): Box[] {
   return out;
 }
 
+/** How many layers under a probe point are inspected (chart legends and tooltips sit on top of the chart). */
+export const FLOAT_STACK_DEPTH = 4;
+
 /**
  * Decide whether a float at `box` covers content.
- * `hitAt` returns the topmost non-float element at a viewport point.
+ * `hitAt` returns the elements under a viewport point, topmost first, ignoring floats.
  */
 export function floatCoversContent(
   box: Box,
-  hitAt: (x: number, y: number) => Element | null,
+  hitAt: (x: number, y: number) => Element[] | Element | null,
   textOf: (el: Element, near: Box) => Box[] = textBoxes,
   viewport: { w: number; h: number } = { w: window.innerWidth, h: window.innerHeight },
 ): boolean {
   const seen = new Set<Element>();
   for (const [x, y] of probePoints(box, viewport.w, viewport.h)) {
-    const el = hitAt(x, y);
-    if (!el || seen.has(el)) continue;
-    seen.add(el);
-    if (isContentElement(el)) return true;
-    if (el === document.body || el === document.documentElement) continue;
-    if (textOf(el, box).some((t) => boxesOverlap(box, t))) return true;
+    const hit = hitAt(x, y);
+    const stack = (Array.isArray(hit) ? hit : hit ? [hit] : []).slice(0, FLOAT_STACK_DEPTH);
+    if (stack.some(isContentElement)) return true;
+    const top = stack[0];
+    if (!top || seen.has(top) || top === document.body || top === document.documentElement) continue;
+    seen.add(top);
+    if (textOf(top, box).some((t) => boxesOverlap(box, t))) return true;
   }
   return false;
 }
 
-/** Topmost element at a point, ignoring every `[data-float]` control. */
-function hitIgnoringFloats(x: number, y: number): Element | null {
-  if (typeof document.elementFromPoint !== "function") return null;
-  return document.elementFromPoint(x, y);
+/** Elements under a point, topmost first (floats are made see-through by the caller). */
+function hitIgnoringFloats(x: number, y: number): Element[] {
+  if (typeof document.elementsFromPoint === "function") return document.elementsFromPoint(x, y);
+  if (typeof document.elementFromPoint === "function") { const e = document.elementFromPoint(x, y); return e ? [e] : []; }
+  return [];
 }
 
 /** True while the element would cover page content. Never true while it has focus. */
