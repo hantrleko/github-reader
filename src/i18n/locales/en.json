@@ -9997,6 +9997,96 @@
         "cost": "Average transaction cost (price units)"
       }
     },
-    "listSep": "; "
+    "listSep": "; ",
+    "explain": {
+      "toggle": "Why it changed · what not to conclude",
+      "observedTitle": "This run — set-up and computed results",
+      "theoryTitle": "Theory — what the model says may happen (not proven by this run)",
+      "limitsTitle": "Do not conclude",
+      "label": "{{label}}",
+      "paramChange": "{{label}} {{from}} → {{to}}",
+      "side": {
+        "base": "the baseline",
+        "cur": "the current scenario",
+        "both": "both the baseline and the current scenario"
+      },
+      "summary": {
+        "same": "No input differs from the baseline, so the results match it; there is nothing to explain.",
+        "zero": "Inputs changed ({{list}}), but every comparable result is unchanged at the displayed precision; no mechanism is inferred.",
+        "noData": "Inputs changed ({{list}}), but no result can be compared on both sides, so no change is described.",
+        "one": "Only one input changed: {{list}}. The notes below tie the differences to that input conditionally.",
+        "oneSampling": "Only {{list}} changed. That draws a different random sample: the differences are sampling variation, not a causal effect of this input.",
+        "many": "{{count}} inputs changed together ({{list}}). The differences are their joint result; they cannot be attributed to, or ranked across, any single input."
+      },
+      "obs": {
+        "changed": "{{label}}: {{base}} → {{cur}} ({{diff}}, {{kind}})",
+        "unchanged": "Unchanged at the displayed precision: {{list}}.",
+        "missingCur": "{{label}}: baseline {{base}}, current has no result — no difference is stated.",
+        "missingBase": "{{label}}: baseline has no result, current {{cur}} — no difference is stated.",
+        "missingBoth": "{{label}}: no result on either side — no difference is stated."
+      },
+      "context": {
+        "hedge": {
+          "book": "Book in this lab: you sell one at-the-money call (K = {{K}}, T = {{T}}) priced at σ_price and delta-hedge it at σ_price on paths simulated with σ_real. Positive P&L means this hedged short-call book gained; negative means it lost.",
+          "vegaSign": "The “Vega contribution” row is the option's vega × (σ_real − σ_price), i.e. measured from the option holder's side; for this short-call book the volatility-gap effect on P&L has the opposite sign."
+        }
+      },
+      "theory": {
+        "olsiv": {
+          "endo": {
+            "up": "A larger Cov(x, ε) means x is more correlated with the error; in large samples the OLS bias then grows in the direction of that covariance. IV avoids it only if the instrument is relevant and satisfies the exclusion restriction.",
+            "down": "A smaller Cov(x, ε) means x is less correlated with the error; in large samples the OLS bias then shrinks, and at Cov(x, ε) = 0 OLS is consistent without an instrument."
+          },
+          "zStrength": {
+            "up": "A stronger instrument, Cov(z, x), usually makes IV less noisy (smaller standard error) and less pulled toward OLS in finite samples. In this simulation z also enters x, so the OLS numbers can move too.",
+            "down": "A weaker instrument usually makes IV noisier (larger standard error) and, in finite samples, pulled toward OLS — the weak-instrument problem. In this simulation z also enters x, so the OLS numbers can move too."
+          },
+          "trueBeta": "Changing the true β moves what both estimators target; the OLS bias row is measured against the new true β, so it is the row that speaks to bias.",
+          "n": "In repeated samples a larger n usually shrinks standard errors; that is a statement about many repetitions, not about this one pair of samples.",
+          "sameDraws": "Seed and n are unchanged, so the same random draws were reused; still, this is one simulated sample."
+        },
+        "capm": {
+          "rf": "In the model, Rf enters the required return Rf + β·(E(Rm) − Rf) directly and through the market premium, and also enters Treynor (R − Rf)/β; α = R − required return moves opposite to the required return.",
+          "erm": "In the model, E(Rm) changes the market premium one-for-one and the required return through β × premium; with R fixed, α moves opposite to the required return.",
+          "beta": "In the model, the required return moves along the SML, whose slope is the market premium: with a positive premium a higher β raises it, with a negative premium it lowers it. With R fixed, α moves the opposite way.",
+          "actual": "In the model, R does not enter the required return or the market premium; it moves α one-for-one and Treynor through (R − Rf)/β.",
+          "identity": "These follow from the CAPM formulas applied to your inputs; they are not an empirical estimate."
+        },
+        "hedge": {
+          "sigmaReal": {
+            "up": "When realised volatility rises relative to the volatility used to price and hedge, a delta-hedged short option tends to lose more on average (it is short gamma), and the spread of P&L tends to widen.",
+            "down": "When realised volatility falls relative to the volatility used to price and hedge, a delta-hedged short option tends to do better on average (it is short gamma)."
+          },
+          "sigmaPricing": {
+            "up": "Selling and hedging at a higher volatility collects a higher premium; for the same σ_real, the short-call book tends to do better on average. The hedge ratios change too.",
+            "down": "Selling and hedging at a lower volatility collects a lower premium; for the same σ_real, the short-call book tends to do worse on average. The hedge ratios change too."
+          },
+          "nSteps": {
+            "up": "Rebalancing more often tends to reduce the spread of hedging error but, with a positive cost, trades more and pays more cost. With the seed fixed, a different step count also changes the simulated paths, so the difference mixes both and cannot be split here.",
+            "down": "Rebalancing less often tends to widen the spread of hedging error but, with a positive cost, pays less cost. With the seed fixed, a different step count also changes the simulated paths, so the difference mixes both and cannot be split here."
+          },
+          "cost": {
+            "up": "A higher one-way cost charges more on every rebalance and lowers the book's P&L; the simulated paths and hedge ratios stay the same.",
+            "down": "A lower one-way cost charges less on every rebalance and raises the book's P&L; the simulated paths and hedge ratios stay the same."
+          }
+        }
+      },
+      "limit": {
+        "finite": "One simulated sample does not prove the theoretical direction; with another seed the numbers could move differently.",
+        "samplingInMix": "The seed or the sample size is among the changes, so part of what you see is a different random sample — that is not a causal effect.",
+        "olsiv": {
+          "ivNotBetter": "Do not conclude that IV is more accurate or more valid in this run. IV is only consistent with a relevant instrument (weak instruments make it noisy and pulled toward OLS) that satisfies the exclusion restriction, which this simulation assumes rather than tests."
+        },
+        "capm": {
+          "notGuaranteed": "The CAPM required return is the model's conditional expected return given these inputs — not a guaranteed return, and not evidence that β causes returns.",
+          "alpha": "α here is the R you entered minus the model's required return; it is not measured skill or a forecast.",
+          "negPrem": "The market premium is negative in {{which}} (E(Rm) < Rf). The model then requires less than Rf for a higher β; that is the formula applied to the input, not a market prediction.",
+          "treynorZero": "At β = 0 Treynor is undefined (division by zero): it has no result, not 0, and no direction is stated for it."
+        },
+        "hedge": {
+          "noProfit": "This is simulated P&L on {{paths}} paths with a fixed seed: not a forecast and no guarantee of future profit. In practice σ_real is unknown when the option is sold."
+        }
+      }
+    }
   }
 }

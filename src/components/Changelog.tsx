@@ -6,9 +6,24 @@ import CHANGELOG_EN from "./changelogEn.json";
 
 const RELEASES = [
   {
-    version: "V7.6",
+    version: "V7.7",
     date: "2026-11",
     tag: "Current",
+    highlights: [
+      {
+        icon: BookOpen,
+        title: "调参对照旁的结果解读",
+        items: [
+          "OLS/IV、CAPM/SML、期权对冲的「调参前后对照」下方新增可折叠解读：摘要常显，细节默认收起；只引用对照表里已有的数值和单位，不另算新数字",
+          "把「本次运行的计算结果」与「模型认为可能发生什么」分开写，并列出不能得出的结论；改动多个参数时不归因于单一参数，改随机种子或样本量说明是抽样波动而非因果",
+          "OLS/IV 不声称 IV 更准确并提示弱工具变量与排他性约束；CAPM 要求收益不是保证收益，β=0 时 Treynor 仍为无结果；期权对冲按卖出平值看涨并 Delta 对冲的实际持仓解读，模拟损益不保证未来盈利",
+        ],
+      },
+    ],
+  },
+  {
+    version: "V7.6",
+    date: "2026-11",
     highlights: [
       {
         icon: Shield,

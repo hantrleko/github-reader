@@ -7,6 +7,8 @@ import type { PathLabId } from "@/lib/teachingPath";
 import {
   COMPARE_METRICS, COMPARE_PARAMS, changedParams, compareRow, fmtParam, type Snapshot, type Values,
 } from "@/lib/baselineCompare";
+import { explainBaseline } from "@/lib/baselineExplain";
+import { BaselineExplain } from "@/components/common/BaselineExplain";
 
 /**
  * "Baseline vs current" panel for a teaching-path lab. The lab passes its
@@ -49,6 +51,7 @@ export const BaselineCompare = ({ lab, params, metrics }: { lab: PathLabId; para
     .join(t("compare.listSep", { defaultValue: "; " }));
   const ppUnit = t("compare.ppUnit");
   const missing = t("compare.missing");
+  const explanation = explainBaseline(lab, baseline, params, metrics, ppUnit);
 
   return (
     <section aria-labelledby={headingId} data-testid={`compare-${lab}`} data-baseline={baseline ? "pinned" : "none"} {...{ [FLOAT_AVOID_ATTR]: "" }}
@@ -109,6 +112,7 @@ export const BaselineCompare = ({ lab, params, metrics }: { lab: PathLabId; para
             </table>
           </div>
           <p className="text-[11px] text-muted-foreground leading-relaxed">{t("compare.legend")}</p>
+          {explanation && <BaselineExplain explanation={explanation} />}
         </>
       )}
 

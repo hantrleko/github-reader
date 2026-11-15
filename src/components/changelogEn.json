@@ -794,5 +794,9 @@
  "更新可靠性（7.6.2）": "Update reliability (7.6.2)",
  "发布新版本后，打开页面总是先向服务器取最新页面；离线时才使用本机缓存，不会再被旧缓存卡在旧版本": "After a new release, opening a page always asks the server for the latest version first; the saved copy is used only offline, so an old cache can no longer keep you on an old version",
  "发现新版本时提示「刷新」，由你决定何时刷新；页面不再自动刷新，调好的参数和已固定的基准不会被悄悄清空": "When a new version is out you get a Refresh prompt and choose when to refresh; the page no longer refreshes by itself, so your inputs and a pinned baseline are not silently lost",
- "工具加载较慢时显示「正在加载」提示；下载失败时说明是离线还是下载中断，并提供「重试」，不会无限转圈": "Slow tools show a loading note; a failed download says whether you're offline or the download broke, with a Retry button instead of an endless spinner"
+ "工具加载较慢时显示「正在加载」提示；下载失败时说明是离线还是下载中断，并提供「重试」，不会无限转圈": "Slow tools show a loading note; a failed download says whether you're offline or the download broke, with a Retry button instead of an endless spinner",
+ "调参对照旁的结果解读": "Result explanations beside the comparison",
+ "OLS/IV、CAPM/SML、期权对冲的「调参前后对照」下方新增可折叠解读：摘要常显，细节默认收起；只引用对照表里已有的数值和单位，不另算新数字": "Below the baseline-vs-current table in OLS/IV, CAPM/SML and options hedge there is now a foldable explanation: the summary is always shown, details start collapsed; it only quotes the values and units already in the table and computes no new numbers",
+ "把「本次运行的计算结果」与「模型认为可能发生什么」分开写，并列出不能得出的结论；改动多个参数时不归因于单一参数，改随机种子或样本量说明是抽样波动而非因果": "It keeps “this run's computed results” apart from “what the model says may happen”, and lists the conclusions you must not draw; several changed inputs are never attributed to one, and seed or sample-size changes are called sampling variation, not causal effects",
+ "OLS/IV 不声称 IV 更准确并提示弱工具变量与排他性约束；CAPM 要求收益不是保证收益，β=0 时 Treynor 仍为无结果；期权对冲按卖出平值看涨并 Delta 对冲的实际持仓解读，模拟损益不保证未来盈利": "OLS/IV never claims IV is more accurate and flags weak instruments and the exclusion restriction; the CAPM required return is not a guaranteed return and Treynor at β = 0 stays no result; the hedge reads the tool's actual book (a sold ATM call, delta-hedged) and simulated P&L promises no future profit"
 }
