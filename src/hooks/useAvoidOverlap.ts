@@ -28,6 +28,18 @@ export interface Box { top: number; bottom: number; left: number; right: number 
 
 /** Breathing room kept around a float, in px. */
 export const FLOAT_PAD = 8;
+/**
+ * One visibility rule for every float. Hidden = fully transparent and click-through
+ * at once (no fade-out), so a float is never visible-but-unclickable while it fades;
+ * it stays focusable, and focus brings it back. Shown = opaque and clickable; the
+ * component's own transition fades it in. `data-float-hidden` lets QA tell a
+ * stepped-aside float from a shown one (automation treats opacity 0 as "visible").
+ */
+export const FLOAT_HIDDEN_ATTR = "data-float-hidden";
+export function floatStateClass(hidden: boolean): string {
+  return hidden ? "opacity-0 pointer-events-none !transition-none" : "opacity-100";
+}
+
 /** How long a float waits on clear space before reappearing (avoids flicker while scrolling). */
 export const FLOAT_SHOW_DELAY_MS = 160;
 

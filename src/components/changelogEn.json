@@ -788,5 +788,7 @@
  "暗黑 / 明亮双主题切换": "Dark / Light theme toggle",
  "调参前后对照": "Baseline vs current",
  "OLS/IV、CAPM/SML、期权对冲三个教学实验可把当前结果固定为基准，调参后逐项显示「基准 / 当前 / 差值」": "The OLS/IV, CAPM/SML and options-hedge teaching labs can pin the current results as a baseline and, after you change inputs, show each key result as baseline / current / difference",
- "百分比结果的差值以「个百分点」标注，其余为绝对差；无结果显示「—」；多个参数同时改动时不归因于单一参数；「恢复默认情景」同时清除基准": "Differences of percentages are labelled in percentage points (pp), others are absolute; missing results show “—”; when several inputs change the difference is not attributed to any single one; Reset also clears the baseline"
+ "百分比结果的差值以「个百分点」标注，其余为绝对差；无结果显示「—」；多个参数同时改动时不归因于单一参数；「恢复默认情景」同时清除基准": "Differences of percentages are labelled in percentage points (pp), others are absolute; missing results show “—”; when several inputs change the difference is not attributed to any single one; Reset also clears the baseline",
+ "浮动按钮点击修复": "Floating button click fix",
+ "浮动按钮（新手介绍、回到顶部、键盘快捷键）让开时立即完全隐藏，不再在淡出的约 0.2 秒内「看得见却点不动」；显示时始终能直接点击，让开时仍可用键盘聚焦": "Floating buttons (Introduction, back to top, keyboard shortcuts) now hide instantly when they step aside, instead of looking clickable but ignoring clicks during a ~0.2 s fade-out; when shown they always take the click, and they stay keyboard-focusable while hidden"
 }

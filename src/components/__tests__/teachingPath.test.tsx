@@ -16,7 +16,7 @@ import {
   TEACHING_PATH, PATH_HOME, nextStep, capmChecks, CAPM_DEFAULT, hedgeChecks, HEDGE_DEFAULT,
   olsivChecks, OLSIV_DEFAULT, hedgeDelta, hedgeConclusion,
 } from "@/lib/teachingPath";
-import { boxesOverlap, FLOAT_AVOID_ATTR, FLOAT_ATTR, isContentElement, probePoints, floatCoversContent } from "@/hooks/useAvoidOverlap";
+import { boxesOverlap, FLOAT_AVOID_ATTR, FLOAT_ATTR, FLOAT_HIDDEN_ATTR, floatStateClass, isContentElement, probePoints, floatCoversContent } from "@/hooks/useAvoidOverlap";
 import { canPlayIntro, isStalled, INTRO_MP4_TYPE } from "@/lib/introVideo";
 import Onboarding from "@/components/Onboarding";
 import ScrollUtilities from "@/components/ScrollUtilities";
@@ -280,6 +280,22 @@ describe("global float rule: content anywhere, not a component list", () => {
     render(<MemoryRouter><Onboarding /><ScrollUtilities /></MemoryRouter>);
     expect(screen.getByTestId("float-intro")).toHaveAttribute(FLOAT_ATTR);
     expect(screen.getByTestId("float-top")).toHaveAttribute(FLOAT_ATTR);
+  });
+  it("a float is never visible but unclickable: hidden is instant, shown takes the click", () => {
+    const hidden = floatStateClass(true).split(" "), shown = floatStateClass(false).split(" ");
+    expect(hidden).toEqual(expect.arrayContaining(["opacity-0", "pointer-events-none", "!transition-none"]));
+    expect(shown).toContain("opacity-100");
+    expect(shown).not.toContain("pointer-events-none");
+    render(<MemoryRouter><Onboarding /><ScrollUtilities /></MemoryRouter>);
+    // Back-to-top at the top of the page is hidden: marked, transparent, no fade-out window.
+    const top = screen.getByTestId("float-top");
+    expect(top).toHaveAttribute(FLOAT_HIDDEN_ATTR);
+    expect(top.className.split(/\s+/)).toEqual(expect.arrayContaining(["opacity-0", "pointer-events-none", "!transition-none"]));
+    // Introduction over empty space is shown: not marked and receives pointer events.
+    const intro = screen.getByTestId("float-intro");
+    expect(intro).not.toHaveAttribute(FLOAT_HIDDEN_ATTR);
+    expect(intro.className.split(/\s+/)).not.toContain("pointer-events-none");
+    expect(intro.className.split(/\s+/)).toContain("opacity-100");
   });
 });
 

@@ -1,6 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { useEffect, useRef, useState } from "react";
-import { useAvoidOverlap } from "@/hooks/useAvoidOverlap";
+import { useAvoidOverlap, FLOAT_HIDDEN_ATTR, floatStateClass } from "@/hooks/useAvoidOverlap";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Keyboard } from "lucide-react";
 
@@ -65,11 +65,12 @@ const SHORTCUTS: { keys: string[]; label: string; group: string }[] = [
       <button
         ref={floatRef}
         data-float=""
+        {...(coveringKeys ? { [FLOAT_HIDDEN_ATTR]: "" } : {})}
         data-testid="float-keys"
         onClick={() => setOpen(true)}
         aria-label={t("labs.keyboardHelp.text12", { defaultValue: "键盘快捷键 (?)" })}
         title={t("labs.keyboardHelp.text13", { defaultValue: "键盘快捷键 — 按 ? 打开" })}
-        className={`fixed bottom-4 left-4 z-40 hidden md:inline-flex items-center justify-center w-11 h-11 rounded-full border border-border bg-card/80 backdrop-blur-md text-muted-foreground hover:text-gold hover:border-gold/50 transition-[color,border-color,opacity] duration-200 shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/60 ${coveringKeys ? "opacity-0 pointer-events-none" : "opacity-100"}`}
+        className={`fixed bottom-4 left-4 z-40 hidden md:inline-flex items-center justify-center w-11 h-11 rounded-full border border-border bg-card/80 backdrop-blur-md text-muted-foreground hover:text-gold hover:border-gold/50 transition-[color,border-color,opacity] duration-200 shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/60 ${floatStateClass(coveringKeys)}`}
       >
         <Keyboard className="w-4 h-4" />
       </button>

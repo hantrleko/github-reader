@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { useAvoidOverlap, FLOAT_ATTR } from "@/hooks/useAvoidOverlap";
+import { useAvoidOverlap, FLOAT_ATTR, FLOAT_HIDDEN_ATTR, floatStateClass } from "@/hooks/useAvoidOverlap";
 import { useTranslation } from "react-i18next";
 import { ArrowRight, Play, RefreshCw, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -117,8 +117,8 @@ const Onboarding = () => {
   return (
     <>
       {/* Stays focusable while stepped aside; focusing it brings it back. */}
-      <Button ref={floatRef} variant="outline" size="sm" onClick={() => changeOpen(true)} data-testid="float-intro" {...{ [FLOAT_ATTR]: "" }}
-        className={`fixed bottom-4 left-4 md:left-[72px] z-40 h-11 px-4 border-gold/40 bg-card/95 text-gold shadow-lg transition-opacity duration-200 ${covering ? "opacity-0 pointer-events-none" : "opacity-100"}`}>
+      <Button ref={floatRef} variant="outline" size="sm" onClick={() => changeOpen(true)} data-testid="float-intro" {...{ [FLOAT_ATTR]: "" }} {...(covering ? { [FLOAT_HIDDEN_ATTR]: "" } : {})}
+        className={`fixed bottom-4 left-4 md:left-[72px] z-40 h-11 px-4 border-gold/40 bg-card/95 text-gold shadow-lg transition-opacity duration-200 ${floatStateClass(covering)}`}>
         <Play />{english ? "Introduction" : "新手介绍"}
       </Button>
       <Dialog open={open} onOpenChange={changeOpen}>
