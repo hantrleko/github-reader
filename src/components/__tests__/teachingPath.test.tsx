@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeAll, beforeEach } from "vitest";
+import { describe, it, expect, beforeAll, beforeEach, vi } from "vitest";
 import { render, screen, fireEvent, within, cleanup, act } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import i18n from "@/i18n";
@@ -16,7 +16,10 @@ import {
   TEACHING_PATH, PATH_HOME, nextStep, capmChecks, CAPM_DEFAULT, hedgeChecks, HEDGE_DEFAULT,
   olsivChecks, OLSIV_DEFAULT, hedgeDelta, hedgeConclusion,
 } from "@/lib/teachingPath";
-import { boxesOverlap, FLOAT_AVOID_ATTR } from "@/hooks/useAvoidOverlap";
+import { boxesOverlap, FLOAT_AVOID_ATTR, FLOAT_ATTR, isContentElement, probePoints, floatCoversContent } from "@/hooks/useAvoidOverlap";
+import { canPlayIntro, isStalled, INTRO_MP4_TYPE } from "@/lib/introVideo";
+import Onboarding from "@/components/Onboarding";
+import ScrollUtilities from "@/components/ScrollUtilities";
 
 beforeAll(() => {
   class RO { observe() {} unobserve() {} disconnect() {} }
@@ -232,5 +235,114 @@ describe("i18n coverage", () => {
       expect(i18n.exists(k, { lng: "en" }), k).toBe(true);
       expect(i18n.exists(k, { lng: "zh" }), k).toBe(true);
     }
+  });
+});
+
+describe("global float rule: content anywhere, not a component list", () => {
+  const float = { top: 700, bottom: 744, left: 16, right: 150 };
+  const vp = { w: 390, h: 780 };
+  const make = (html: string) => { const d = document.createElement("div"); d.innerHTML = html; document.body.appendChild(d); return d; };
+  it("treats links, buttons, sliders, charts, images and tables as content", () => {
+    const d = make(`<a href="/x">l</a><button>b</button><div role="slider"></div><svg></svg><img alt=""><table><tbody><tr><td><span id="cell">1</span></td></tr></tbody></table><div id="plain"></div><div ${FLOAT_ATTR}><span id="inside-float">i</span></div>`);
+    for (const sel of ["a", "button", "[role=slider]", "svg", "img"]) expect(isContentElement(d.querySelector(sel))).toBe(true);
+    expect(isContentElement(d.querySelector("#cell"))).toBe(true);
+    expect(isContentElement(d.querySelector("#plain"))).toBe(false);
+    expect(isContentElement(d.querySelector("#inside-float"))).toBe(false);
+    expect(isContentElement(document.body)).toBe(false);
+    d.remove();
+  });
+  it("probe points cover the padded float and stay inside the viewport", () => {
+    const pts = probePoints({ top: 740, bottom: 784, left: 0, right: 44 }, 390, 780);
+    for (const [x, y] of pts) { expect(x).toBeGreaterThanOrEqual(1); expect(x).toBeLessThanOrEqual(389); expect(y).toBeLessThanOrEqual(779); }
+    // Rows no more than 10px apart, so a 4px slider track under the float is always probed.
+    const ys = [...new Set(pts.map(([, y]) => y))].sort((a, b) => a - b);
+    for (let i = 1; i < ys.length; i++) expect(ys[i] - ys[i - 1]).toBeLessThanOrEqual(10);
+    const xs = [...new Set(pts.map(([x]) => x))].sort((a, b) => a - b);
+    for (let i = 1; i < xs.length; i++) expect(xs[i] - xs[i - 1]).toBeLessThanOrEqual(24);
+  });
+  it("hides over a chart or a text line, shows over empty space", () => {
+    const d = make(`<div id="card"><p id="para">text</p></div><svg id="chart"></svg>`);
+    const card = d.querySelector("#card")!, para = d.querySelector("#para")!, chart = d.querySelector("#chart")!;
+    expect(floatCoversContent(float, () => chart, () => [], vp)).toBe(true);
+    // A paragraph whose line box sits right under the float.
+    expect(floatCoversContent(float, () => para, () => [{ top: 710, bottom: 730, left: 20, right: 300 }], vp)).toBe(true);
+    // Same paragraph, but its text ends well above the float: safe.
+    expect(floatCoversContent(float, () => para, () => [{ top: 500, bottom: 520, left: 20, right: 300 }], vp)).toBe(false);
+    // Empty card padding / page background: safe.
+    expect(floatCoversContent(float, () => card, () => [], vp)).toBe(false);
+    expect(floatCoversContent(float, () => null, () => [], vp)).toBe(false);
+    d.remove();
+  });
+  it("floats are marked so hit-testing sees through them", () => {
+    render(<MemoryRouter><Onboarding /><ScrollUtilities /></MemoryRouter>);
+    expect(screen.getByTestId("float-intro")).toHaveAttribute(FLOAT_ATTR);
+    expect(screen.getByTestId("float-top")).toHaveAttribute(FLOAT_ATTR);
+  });
+});
+
+describe("intro film playback fallback", () => {
+  it("format probe accepts maybe/probably and rejects empty or throwing probes", () => {
+    expect(canPlayIntro({ canPlayType: () => "probably" } as any)).toBe(true);
+    expect(canPlayIntro({ canPlayType: () => "maybe" } as any)).toBe(true);
+    expect(canPlayIntro({ canPlayType: () => "" } as any)).toBe(false);
+    expect(canPlayIntro({ canPlayType: () => { throw new Error("x"); } } as any)).toBe(false);
+    expect(INTRO_MP4_TYPE).toContain("avc1");
+  });
+  it("only counts a stall while playing with nothing buffered", () => {
+    expect(isStalled({ paused: false, ended: false, readyState: 2 })).toBe(true);
+    expect(isStalled({ paused: true, ended: false, readyState: 0 })).toBe(false);
+    expect(isStalled({ paused: false, ended: false, readyState: 4 })).toBe(false);
+    expect(isStalled({ paused: false, ended: true, readyState: 1 })).toBe(false);
+  });
+  it("unplayable browser: welcome text, fallback message and Enter still work (EN and ZH)", async () => {
+    const spy = vi.spyOn(HTMLMediaElement.prototype, "canPlayType").mockReturnValue("");
+    vi.useFakeTimers();
+    try {
+      localStorage.removeItem("lov.onboarded.video.v2");
+      render(<MemoryRouter><Onboarding /></MemoryRouter>);
+      act(() => { vi.advanceTimersByTime(6000); });
+      const dialog = screen.getByRole("dialog");
+      expect(within(dialog).getByText(/turns economics and finance theory/)).toBeInTheDocument();
+      expect(within(dialog).getByTestId("intro-fallback")).toHaveAttribute("data-reason", "unsupported");
+      expect(within(dialog).queryByTestId("intro-film")).toBeNull();
+      fireEvent.click(within(dialog).getByTestId("intro-enter"));
+      expect(screen.queryByRole("dialog")).toBeNull();
+      expect(localStorage.getItem("lov.onboarded.video.v2")).toBe("1");
+      cleanup();
+      await act(async () => { await i18n.changeLanguage("zh"); });
+      fireEvent.click(render(<MemoryRouter><Onboarding /></MemoryRouter>).getByTestId("float-intro"));
+      expect(within(screen.getByRole("dialog")).getByText(/当前浏览器无法播放介绍短片/)).toBeInTheDocument();
+    } finally { vi.useRealTimers(); spy.mockRestore(); }
+  });
+  it("load error swaps the film for a retryable fallback", () => {
+    const spy = vi.spyOn(HTMLMediaElement.prototype, "canPlayType").mockReturnValue("probably");
+    try {
+      fireEvent.click(render(<MemoryRouter><Onboarding /></MemoryRouter>).getByTestId("float-intro"));
+      const dialog = screen.getByRole("dialog");
+      const film = within(dialog).getByTestId("intro-film");
+      expect(film).toHaveAttribute("poster");
+      fireEvent.error(film);
+      expect(within(dialog).getByTestId("intro-fallback")).toHaveAttribute("data-reason", "error");
+      fireEvent.click(within(dialog).getByRole("button", { name: /Retry/ }));
+      expect(within(dialog).getByTestId("intro-film")).toBeInTheDocument();
+    } finally { spy.mockRestore(); }
+  });
+});
+
+describe("intro film stall timer", () => {
+  it("repeated buffering events do not postpone the stalled fallback", () => {
+    const spy = vi.spyOn(HTMLMediaElement.prototype, "canPlayType").mockReturnValue("probably");
+    vi.useFakeTimers();
+    try {
+      fireEvent.click(render(<MemoryRouter><Onboarding /></MemoryRouter>).getByTestId("float-intro"));
+      const film = screen.getByTestId("intro-film") as HTMLVideoElement;
+      Object.defineProperty(film, "paused", { configurable: true, get: () => false });
+      Object.defineProperty(film, "readyState", { configurable: true, get: () => 0 });
+      fireEvent.play(film);
+      act(() => { vi.advanceTimersByTime(5000); });
+      fireEvent.waiting(film); fireEvent.stalled(film);
+      act(() => { vi.advanceTimersByTime(7100); });
+      expect(screen.getByTestId("intro-fallback")).toHaveAttribute("data-reason", "stalled");
+    } finally { vi.useRealTimers(); spy.mockRestore(); }
   });
 });

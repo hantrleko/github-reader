@@ -6,4 +6,5 @@
 - Store automatic splash visibility per browser session; explicit replay remains available and automatic playback respects reduced motion.
 - Keep the three-lab teaching path (routes, default scenarios, scenario-specific check answers) in one pure module shared by the homepage questions and each lab, so links, defaults and copy cannot drift apart.
 - The desktop nav shows only the group menus that fit beside the right-hand controls (measured from an invisible copy) and sends the rest to the menu button, so long translated labels never cover the language switch.
-- Floating page controls hide while they overlap elements marked `data-float-avoid` (teaching-path blocks, flagship takeaway); mark new lesson blocks rather than adding per-page padding.
+- Floating page controls (`data-float`) use one global hit-test rule: they hide over any text, interactive, media or chart content and over `data-float-avoid` blocks, stay focusable while hidden, and show again on empty space; never add per-component lists or page padding for them.
+- Intro films must degrade to a text fallback (unsupported format, load error, stall) and never block entry; the splash reel is decorative and is dropped when it cannot play.

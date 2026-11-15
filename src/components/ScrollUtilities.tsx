@@ -1,6 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useAvoidOverlap } from "@/hooks/useAvoidOverlap";
+import { useAvoidOverlap, FLOAT_ATTR } from "@/hooks/useAvoidOverlap";
 import { ArrowUp } from "lucide-react";
 
 /**
@@ -77,13 +77,15 @@ const ScrollUtilities = () => {
         ref={btnRef}
         type="button"
         data-testid="float-top"
+        {...{ [FLOAT_ATTR]: "" }}
         onClick={scrollToTop}
         aria-label={t("labs.scrollUtilities.text1", { defaultValue: "回到顶部 / Back to top" })}
         title={t("labs.scrollUtilities.text2", { defaultValue: "回到顶部" })}
-        tabIndex={visible ? 0 : -1}
-        aria-hidden={!visible}
+        /* Stays focusable while stepped aside over content; focusing it brings it back. */
+        tabIndex={show ? 0 : -1}
+        aria-hidden={!show}
         className={`fixed bottom-6 right-6 z-50 h-11 w-11 rounded-full border border-gold/40 bg-card/90 backdrop-blur shadow-lg flex items-center justify-center text-gold hover:bg-gold hover:text-primary-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/70 focus-visible:ring-offset-2 focus-visible:ring-offset-background transition-all duration-300 ${
-          visible ? "opacity-100 translate-y-0" : `opacity-0 pointer-events-none ${covering ? "invisible" : "translate-y-4"}`
+          visible ? "opacity-100 translate-y-0" : `opacity-0 pointer-events-none ${show ? "" : "translate-y-4"}`
         }`}
       >
         <ArrowUp className="w-5 h-5" aria-hidden="true" />

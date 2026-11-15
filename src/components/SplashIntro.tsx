@@ -5,6 +5,7 @@ import { ArrowRight, Play, VolumeX, Volume2 } from "lucide-react";
 import introVideo from "@/assets/intro.mp4.asset.json";
 import { APP_VERSION_TAG } from "@/lib/appVersion";
 import { SPLASH_SESSION_KEY, shouldShowSplash } from "@/lib/introPolicy";
+import { canPlayIntro } from "@/lib/introVideo";
 
 const AUTO_DISMISS_MS = 4500;
 
@@ -18,6 +19,8 @@ const SplashIntro = () => {
   const reduce = useReducedMotion();
   const [visible, setVisible] = useState<boolean>(false);
   const [muted, setMuted] = useState(true);
+  // Background reel is decorative: if the browser cannot play it, show the text-only splash.
+  const [videoOk, setVideoOk] = useState(() => canPlayIntro());
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
@@ -92,16 +95,22 @@ const SplashIntro = () => {
         >
           {/* Video layer */}
           <div className="absolute inset-0">
-            <video
-              ref={videoRef}
-              src={introVideo.url}
-              autoPlay
-              muted
-              playsInline
-              loop
-              preload="none"
-              className="w-full h-full object-cover opacity-60"
-            />
+            {videoOk && (
+              <video
+                ref={videoRef}
+                src={introVideo.url}
+                autoPlay
+                muted
+                playsInline
+                loop
+                preload="none"
+                aria-hidden="true"
+                tabIndex={-1}
+                data-testid="splash-video"
+                onError={() => setVideoOk(false)}
+                className="w-full h-full object-cover opacity-60"
+              />
+            )}
             {/* Vignette + gradient overlays for legibility */}
             <div className="absolute inset-0 bg-gradient-to-b from-background/85 via-background/45 to-background/95" />
             <div className="absolute inset-0 bg-gradient-to-r from-background/85 via-background/25 to-background/70" />
@@ -194,14 +203,14 @@ const SplashIntro = () => {
                 Enter the Lab
                 <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
               </button>
-              <button
+              {videoOk && <button
                 onClick={toggleMute}
                 className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-background/40 backdrop-blur px-5 py-3 text-foreground/80 hover:text-gold hover:border-gold/50 font-mono text-[10px] uppercase tracking-[0.28em] transition-colors"
                 aria-label={muted ? "Unmute intro video" : "Mute intro video"}
               >
                 {muted ? <VolumeX className="w-3.5 h-3.5" /> : <Volume2 className="w-3.5 h-3.5" />}
                 {muted ? "Sound off" : "Sound on"}
-              </button>
+              </button>}
             </motion.div>
 
             {/* Stat strip */}
@@ -229,7 +238,7 @@ const SplashIntro = () => {
           {/* Bottom chrome */}
           <div className="absolute inset-x-0 bottom-0 z-10 px-6 md:px-10 pb-6 flex items-center justify-between font-mono text-[9px] uppercase tracking-[0.35em] text-foreground/50">
             <span className="flex items-center gap-2">
-              <Play className="w-3 h-3 text-gold" /> Intro reel · loop
+              {videoOk && <><Play className="w-3 h-3 text-gold" /> Intro reel · loop</>}
             </span>
             <span className="hidden sm:block">Auto-entering the Lab · click anywhere to skip</span>
             <span>© EF LAB</span>
