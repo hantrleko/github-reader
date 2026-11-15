@@ -1,4 +1,5 @@
 # Current work
+- [x] V7.6.0 baseline vs current on OLS/IV, CAPM/SML and options hedge: pin, baseline/current/difference with pp vs absolute units, missing shown as —, joint-change note, Reset clears baseline; tests, lint, type check, build pass; walked in desktop Chromium at 390 (emulated) and 1280 in EN/ZH; not published.
 - [x] V7.5.2 acceptance pass: intro film poster + bilingual fallback (unsupported/error/stall), text-only splash when its reel cannot play, global float-avoid rule for Introduction/back-to-top/keyboard-help; walked at 360/390/844×390/1280/1536 in EN and ZH; not published.
 - [x] Teaching path mobile polish (360/390px): no sideways scroll, 44px controls, stacked actions, visible focus; all three paths walked in browser at 1280/390/360 in EN and ZH; 558 tests, lint 0 errors, type check and build pass; not published.
 - [x] V7.5.1 pre-publish fixes: desktop language switch clickable (nav groups that don't fit go to the menu button), floating Introduction/back-to-top hide over teaching-path blocks, Reset closes revealed answers, 44px step links and splash Skip/Don't show again; walked at 360/390/1280/1536 in EN and ZH; not published.
@@ -7,4 +8,4 @@
 - [x] Fix TradingView screener cache isolation across request parameters; 12 regression tests and all 541 tests pass, preview build OK; not published or deployed.
 - [x] Embed landscape and portrait videos in the newcomer introduction with replay access; orientation selection and dialog flow verified.
 - [x] Restore opening animation visibility; new-session policy tests and manual replay verified.
-- [ ] Verify MP4 playback on a real phone (iOS Safari, Android Chrome) and desktop Safari/Firefox: sandbox Chromium 147 now decodes all three films; Playwright Firefox cannot and shows the fallback; real devices not tested.
+- [ ] Verify the baseline comparison and MP4 playback on a real phone (iOS Safari, Android Chrome) and desktop Safari/Firefox — needs a real device / human pass; also verify MP4 playback on a real phone (iOS Safari, Android Chrome) and desktop Safari/Firefox: sandbox Chromium 147 now decodes all three films; Playwright Firefox cannot and shows the fallback; real devices not tested.

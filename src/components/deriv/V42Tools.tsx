@@ -14,6 +14,8 @@ import { useTranslation } from "react-i18next";
 import FlagshipSummary from "@/components/common/FlagshipSummary";
 import { PathIntro, PathCheck } from "@/components/common/TeachingPath";
 import { HEDGE_DEFAULT, HEDGE_FIXED, hedgeChecks, hedgeConclusion, hedgeDeltaCurve } from "@/lib/teachingPath";
+import { BaselineCompare } from "@/components/common/BaselineCompare";
+import { hedgeMetrics } from "@/lib/baselineCompare";
 
 /* ═════════════════════════════════════════════════════════════
    1. Merton & Kou Jump-Diffusion
@@ -303,6 +305,7 @@ export const HedgePnLTool = () => {
           <Stat label={t("labs.hedgePnl.avgCost")} value={res.attribution.transactionCost.toFixed(3)} color={C.red} />
         </div>
       </div>
+      <BaselineCompare lab="hedge" params={state} metrics={hedgeMetrics(res)} />
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
         <div className="rounded-xl border border-border bg-secondary/20 p-4">
           <h4 className="text-sm font-semibold text-foreground mb-2">{t("labs.hedgePnl.deltaTitle")}</h4>

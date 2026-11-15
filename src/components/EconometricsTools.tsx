@@ -1,6 +1,8 @@
 import FlagshipSummary from "@/components/common/FlagshipSummary";
 import { PathIntro, PathCheck } from "@/components/common/TeachingPath";
 import { OLSIV_DEFAULT, olsivChecks } from "@/lib/teachingPath";
+import { BaselineCompare } from "@/components/common/BaselineCompare";
+import { olsivMetrics } from "@/lib/baselineCompare";
 import { useState, useMemo, useRef, useCallback, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
@@ -370,6 +372,8 @@ export const OLSvsIV = () => {
           </div>
         </div>
       </div>
+      <BaselineCompare lab="olsiv" params={{ n, trueBeta, endo, zStrength, seed }}
+        metrics={olsivMetrics(trueBeta, { olsBeta: data.olsR.beta, ivBeta: data.ivR.beta, olsSe: data.olsR.se_beta, ivSe: data.ivR.se_beta })} />
 
       <div className="h-[340px] mt-4 rounded-xl border border-border p-4 bg-secondary/20">
         <ResponsiveContainer width="100%" height="100%">

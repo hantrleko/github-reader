@@ -785,5 +785,8 @@
  "基础架构": "Infrastructure",
  "Sticky 顶部导航 + IntersectionObserver 滚动监听": "Sticky top nav + IntersectionObserver",
  "全站参数预设系统（教科书场景 / 真实市场场景）": "Site-wide parameter presets (Textbook / Real Market)",
- "暗黑 / 明亮双主题切换": "Dark / Light theme toggle"
+ "暗黑 / 明亮双主题切换": "Dark / Light theme toggle",
+ "调参前后对照": "Baseline vs current",
+ "OLS/IV、CAPM/SML、期权对冲三个教学实验可把当前结果固定为基准，调参后逐项显示「基准 / 当前 / 差值」": "The OLS/IV, CAPM/SML and options-hedge teaching labs can pin the current results as a baseline and, after you change inputs, show each key result as baseline / current / difference",
+ "百分比结果的差值以「个百分点」标注，其余为绝对差；无结果显示「—」；多个参数同时改动时不归因于单一参数；「恢复默认情景」同时清除基准": "Differences of percentages are labelled in percentage points (pp), others are absolute; missing results show “—”; when several inputs change the difference is not attributed to any single one; Reset also clears the baseline"
 }

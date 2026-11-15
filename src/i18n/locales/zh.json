@@ -9916,5 +9916,76 @@
         }
       }
     }
+  },
+  "compare": {
+    "title": "调参前后对照",
+    "statusNone": "尚未固定基准",
+    "statusPinned": "已固定基准",
+    "hintNone": "先把当前结果固定为基准，再调整参数：每个关键结果都会显示「基准 / 当前 / 差值」。",
+    "pin": "把当前结果固定为基准",
+    "repin": "用当前结果重新固定基准",
+    "clear": "清除基准",
+    "announcePinned": "已固定基准。",
+    "announceCleared": "已清除基准。",
+    "colMetric": "结果",
+    "colBaseline": "基准",
+    "colCurrent": "当前",
+    "colDiff": "差值（当前 − 基准）",
+    "caption": "已固定的基准与当前情景对照",
+    "kind": {
+      "abs": "绝对差",
+      "pp": "百分点差"
+    },
+    "ppUnit": "个百分点",
+    "missing": "无结果",
+    "same": "所有参数与基准相同，因此各项差值均为 0。",
+    "changedOne": "相对基准改动了：{{list}}。",
+    "changedMany": "相对基准共改动了 {{count}} 个参数：{{list}}。",
+    "jointNote": "下列差值是这些改动共同作用的结果，不能归因于其中任何单一参数。",
+    "legend": "「个百分点」指两个百分比之差，不是百分比变化率；其余差值为绝对差，单位与该结果相同。「—」表示无结果。",
+    "resetRule": "「恢复默认情景」会恢复默认参数并清除基准。",
+    "param": {
+      "olsiv": {
+        "n": "样本量 n",
+        "trueBeta": "真实 β",
+        "endo": "内生性 Cov(x,ε)",
+        "zStrength": "工具变量强度 Cov(z,x)",
+        "seed": "随机种子"
+      },
+      "capm": {
+        "rf": "Rf",
+        "erm": "E(Rm)",
+        "beta": "资产 β",
+        "actual": "资产收益 R"
+      },
+      "hedge": {
+        "sigmaPricing": "σ_price",
+        "sigmaReal": "σ_real",
+        "nSteps": "每年调仓次数",
+        "cost": "单边成本"
+      }
+    },
+    "metric": {
+      "olsiv": {
+        "olsBeta": "OLS β̂",
+        "ivBeta": "IV (2SLS) β̂",
+        "olsBias": "OLS 偏差（β̂ − 真实 β）",
+        "olsSe": "OLS β̂ 标准误",
+        "ivSe": "IV β̂ 标准误"
+      },
+      "capm": {
+        "required": "CAPM 要求收益",
+        "alpha": "Jensen's α",
+        "prem": "市场风险溢价",
+        "treynor": "Treynor 比率（每单位 β 的 %）"
+      },
+      "hedge": {
+        "meanPnL": "平均损益（每份期权，价格单位）",
+        "stdPnL": "损益标准差（价格单位）",
+        "vega": "Vega 贡献（价格单位）",
+        "cost": "平均交易成本（价格单位）"
+      }
+    },
+    "listSep": "；"
   }
 }

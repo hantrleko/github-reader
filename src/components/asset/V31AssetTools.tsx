@@ -1,6 +1,8 @@
 import FlagshipSummary from "@/components/common/FlagshipSummary";
 import { PathIntro, PathCheck } from "@/components/common/TeachingPath";
 import { CAPM_DEFAULT, capmChecks } from "@/lib/teachingPath";
+import { BaselineCompare } from "@/components/common/BaselineCompare";
+import { capmMetrics } from "@/lib/baselineCompare";
 import { useTranslation } from "react-i18next";
 import { useState, useMemo } from "react";
 import {
@@ -84,7 +86,8 @@ export const CAPMTool = () => {
     const prem = erm - rf;
     const required = rf + beta * prem;
     const alpha = actual - required;       // Jensen's alpha
-    const treynor = beta !== 0 ? (actual - rf) / beta : 0;
+    // Undefined at β = 0: shown as "—", never as an invented 0.
+    const treynor = beta !== 0 ? (actual - rf) / beta : null;
     return { prem, required, alpha, treynor };
   }, [rf, erm, beta, actual, t]);
 
@@ -146,7 +149,7 @@ export const CAPMTool = () => {
             <Stat label={t("labs.assetV31.text10", { defaultValue: "市场风险溢价" })} value={`${r.prem.toFixed(2)}%`} sub="E(Rm) − Rf" />
             <Stat label={t("labs.assetV31.text11", { defaultValue: "CAPM 要求收益" })} value={`${r.required.toFixed(2)}%`} color={CHART_TEAL} sub={t("labs.assetV31.text12", { defaultValue: "Rf + β·溢价" })} />
             <Stat label="Jensen's α" value={`${r.alpha >= 0 ? "+" : ""}${r.alpha.toFixed(2)}%`} color={r.alpha >= 0 ? CHART_TEAL : CHART_RED} sub={r.alpha >= 0 ? t("labs.assetV31.text13", { defaultValue: "跑赢 SML" }) : t("labs.assetV31.text14", { defaultValue: "跑输 SML" })} />
-            <Stat label={t("labs.assetV31.text15", { defaultValue: "Treynor 比率" })} value={r.treynor.toFixed(2)} color={CHART_GOLD} sub="(R−Rf)/β" />
+            <Stat label={t("labs.assetV31.text15", { defaultValue: "Treynor 比率" })} value={r.treynor === null ? "—" : r.treynor.toFixed(2)} color={CHART_GOLD} sub="(R−Rf)/β" />
           </div>
           <Note>
             <p><span className="text-gold">CAPM (Sharpe 1964)：</span>{t("labs.assetV31.text16", { defaultValue: "资产预期超额收益仅由系统性风险 β 决定。" })}</p>
@@ -155,6 +158,7 @@ export const CAPMTool = () => {
           </Note>
         </div>
       </div>
+      <BaselineCompare lab="capm" params={{ rf, erm, beta, actual }} metrics={capmMetrics(r)} />
       <ChartCard title={t("labs.assetV31.text19", { defaultValue: "证券市场线 (SML)" })} hint={t("labs.assetV31.text20", { defaultValue: "金线为 SML。资产点在 SML 上方 ⟹ 正 alpha（被低估）；下方 ⟹ 负 alpha。" })}>
         <ResponsiveContainer width="100%" height="100%">
           <ComposedChart data={sml}>

@@ -6,9 +6,23 @@ import CHANGELOG_EN from "./changelogEn.json";
 
 const RELEASES = [
   {
+    version: "V7.6",
+    date: "2026-11",
+    tag: "Current",
+    highlights: [
+      {
+        icon: Target,
+        title: "调参前后对照",
+        items: [
+          "OLS/IV、CAPM/SML、期权对冲三个教学实验可把当前结果固定为基准，调参后逐项显示「基准 / 当前 / 差值」",
+          "百分比结果的差值以「个百分点」标注，其余为绝对差；无结果显示「—」；多个参数同时改动时不归因于单一参数；「恢复默认情景」同时清除基准",
+        ],
+      },
+    ],
+  },
+  {
     version: "V7.5",
     date: "2026-09",
-    tag: "Current",
     highlights: [
       {
         icon: Sparkles,

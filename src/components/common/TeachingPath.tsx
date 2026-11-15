@@ -19,7 +19,9 @@ const FOCUS = "scroll-my-24 focus-visible:outline-none focus-visible:ring-2 focu
 const SECONDARY_BTN = `inline-flex min-h-11 w-full sm:w-auto items-center justify-center gap-1.5 rounded-md border border-border px-4 py-2 text-xs font-mono text-muted-foreground hover:text-gold hover:border-gold/40 ${FOCUS}`;
 const PRIMARY_BTN = `inline-flex min-h-11 w-full sm:w-auto items-center justify-center gap-2 rounded-lg sm:rounded-full bg-gold px-5 py-2 text-center text-xs font-mono uppercase tracking-wide text-background hover:opacity-90 ${FOCUS}`;
 
-const RESET_EVENT = "ef:path-reset";
+/** Fired by either teaching-path Reset button; detail is the lab id. */
+export const PATH_RESET_EVENT = "ef:path-reset";
+const RESET_EVENT = PATH_RESET_EVENT;
 const announceReset = (lab: PathLabId) => window.dispatchEvent(new CustomEvent<PathLabId>(RESET_EVENT, { detail: lab }));
 
 export const PathIntro = ({ lab, onReset }: { lab: PathLabId; onReset: () => void }) => {

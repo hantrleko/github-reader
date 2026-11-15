@@ -9909,5 +9909,76 @@
         }
       }
     }
+  },
+  "compare": {
+    "title": "Baseline vs current",
+    "statusNone": "No baseline pinned",
+    "statusPinned": "Baseline pinned",
+    "hintNone": "Pin the results on screen as a baseline, then change the inputs: each key result is shown as baseline / current / difference.",
+    "pin": "Pin current results as baseline",
+    "repin": "Re-pin current as baseline",
+    "clear": "Clear baseline",
+    "announcePinned": "Baseline pinned.",
+    "announceCleared": "Baseline cleared.",
+    "colMetric": "Result",
+    "colBaseline": "Baseline",
+    "colCurrent": "Current",
+    "colDiff": "Difference (current − baseline)",
+    "caption": "Pinned baseline compared with the current scenario",
+    "kind": {
+      "abs": "absolute diff.",
+      "pp": "percentage-point diff."
+    },
+    "ppUnit": "pp",
+    "missing": "no result",
+    "same": "All inputs match the baseline, so every difference is zero.",
+    "changedOne": "Changed since baseline: {{list}}.",
+    "changedMany": "{{count}} inputs changed since baseline: {{list}}.",
+    "jointNote": "The differences reflect all of these changes together; they cannot be attributed to any single input.",
+    "legend": "pp = percentage points: the gap between two percentages, not a percentage change. Other differences are absolute, in the result's own unit. — means no result.",
+    "resetRule": "Reset restores the default scenario and clears the baseline.",
+    "param": {
+      "olsiv": {
+        "n": "Sample size n",
+        "trueBeta": "True β",
+        "endo": "Endogeneity Cov(x,ε)",
+        "zStrength": "Instrument strength Cov(z,x)",
+        "seed": "Random seed"
+      },
+      "capm": {
+        "rf": "Rf",
+        "erm": "E(Rm)",
+        "beta": "Asset β",
+        "actual": "Asset return R"
+      },
+      "hedge": {
+        "sigmaPricing": "σ_price",
+        "sigmaReal": "σ_real",
+        "nSteps": "Rebalances per year",
+        "cost": "One-way cost"
+      }
+    },
+    "metric": {
+      "olsiv": {
+        "olsBeta": "OLS β̂",
+        "ivBeta": "IV (2SLS) β̂",
+        "olsBias": "OLS bias (β̂ − true β)",
+        "olsSe": "SE of OLS β̂",
+        "ivSe": "SE of IV β̂"
+      },
+      "capm": {
+        "required": "CAPM required return",
+        "alpha": "Jensen's α",
+        "prem": "Market risk premium",
+        "treynor": "Treynor ratio (% per unit of β)"
+      },
+      "hedge": {
+        "meanPnL": "Mean P&L (price units per option)",
+        "stdPnL": "P&L std dev (price units)",
+        "vega": "Vega contribution (price units)",
+        "cost": "Average transaction cost (price units)"
+      }
+    },
+    "listSep": "; "
   }
 }
