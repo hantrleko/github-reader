@@ -88,6 +88,9 @@ const Notebook = lazyWithRetry(() => import("./pages/Notebook.tsx"));
 const NotebookTemplates = lazyWithRetry(() => import("./pages/NotebookTemplates.tsx"));
 const PublicProfile = lazyWithRetry(() => import("./pages/PublicProfile.tsx"));
 const Account = lazyWithRetry(() => import("./pages/Account.tsx"));
+const ResetPassword = lazyWithRetry(() => import("./pages/ResetPassword.tsx"));
+const TermsPage = lazyWithRetry(() => import("./pages/LegalPage.tsx").then((m) => ({ default: m.TermsPage })));
+const PrivacyPage = lazyWithRetry(() => import("./pages/LegalPage.tsx").then((m) => ({ default: m.PrivacyPage })));
 const DataWorkspace = lazyWithRetry(() => import("./pages/DataWorkspace.tsx"));
 const Review = lazyWithRetry(() => import("./pages/Review.tsx"));
 const Gallery = lazyWithRetry(() => import("./pages/Gallery.tsx"));
@@ -133,6 +136,9 @@ const App = () => (
                 <Route path="/glossary" element={<Glossary />} />
                 <Route path="/github" element={<GithubExplorer />} />
                 <Route path="/auth" element={<AuthPage />} />
+                <Route path="/reset-password" element={<ResetPassword />} />
+                <Route path="/terms" element={<TermsPage />} />
+                <Route path="/privacy" element={<PrivacyPage />} />
                 <Route path="/strategies" element={<Strategies />} />
                 <Route path="/papers" element={<Papers />} />
                 <Route path="/notebook" element={<Notebook />} />

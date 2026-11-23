@@ -85,6 +85,10 @@ const SiteFooter = () => {
         <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-6 border-t border-accent/40">
           <p className="text-[10px] font-mono text-muted-foreground/70 tracking-wider">
             {t("footer.rights")}
+            <span className="mx-2" aria-hidden>·</span>
+            <Link to="/terms" className="hover:text-gold">{t("authFlow.terms")}</Link>
+            <span className="mx-2" aria-hidden>·</span>
+            <Link to="/privacy" className="hover:text-gold">{t("authFlow.privacy")}</Link>
           </p>
           <div className="flex items-center gap-3">
             <VersionBadge showBuildDate />

@@ -9,6 +9,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { toast } from "@/hooks/use-toast";
 import { Globe, Lock, ExternalLink, NotebookPen, Star, BookOpen } from "lucide-react";
 import { BADGES } from "@/lib/achievements";
+import AccountSecurity from "@/components/AccountSecurity";
 
 const Account = () => {
   const { t } = useTranslation();
@@ -126,6 +127,11 @@ const Account = () => {
                   {saving ? "Saving..." : "Save"}
                 </button>
               </div>
+            </div>
+          )}
+          {user && (
+            <div className="mt-6">
+              <AccountSecurity user={user} />
             </div>
           )}
         </section>
