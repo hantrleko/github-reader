@@ -8,6 +8,13 @@
       "when": 1792166313829,
       "tag": "0000_edge_rate_limit_and_cache",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1795437590654,
+      "tag": "0001_scope_discussion_reads",
+      "breakpoints": true
     }
   ]
 }
